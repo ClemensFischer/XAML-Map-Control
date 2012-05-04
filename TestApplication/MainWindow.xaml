@@ -1,0 +1,210 @@
+﻿<Window x:Class="MapControlTestApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:map="clr-namespace:MapControl;assembly=MapControl"
+        xmlns:local="clr-namespace:MapControlTestApp"
+        Title="MainWindow" Height="600" Width="800">
+    <Window.Resources>
+        <map:TileLayer x:Key="SeamarksTileLayer"
+                       Name="Seamarks" Description="© {y} OpenSeaMap Contributors, CC-BY-SA"
+                       TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
+                       IsCached="True" MinZoomLevel="10" MaxZoomLevel="18"/>
+        <local:SampleItemCollection x:Key="SampleItems"/>
+        <local:SampleItemStyleSelector x:Key="SampleItemStyleSelector"/>
+        <Style x:Key="SamplePushpinItemStyle" TargetType="map:MapItem">
+            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Content" Value="{Binding Name}"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="OrangeRed"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SamplePointItemStyle" TargetType="map:MapItem">
+            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="map:MapItem">
+                        <Canvas>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="Disabled"/>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="labelBackground" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="SelectionStates">
+                                    <VisualState x:Name="Unselected"/>
+                                    <VisualState x:Name="Selected"/>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CurrentStates">
+                                    <VisualState x:Name="NotCurrent"/>
+                                    <VisualState x:Name="Current">
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="path" Storyboard.TargetProperty="Stroke.Color" To="Magenta" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Path Name="path" StrokeThickness="2" Fill="Transparent">
+                                <Path.Stroke>
+                                    <SolidColorBrush Color="Gray"/>
+                                </Path.Stroke>
+                                <Path.Data>
+                                    <EllipseGeometry RadiusX="8" RadiusY="8"/>
+                                </Path.Data>
+                            </Path>
+                            <Grid Canvas.Left="10" Canvas.Bottom="3">
+                                <Rectangle Name="labelBackground" Fill="White" Opacity="0.5"/>
+                                <TextBlock Margin="2,0,2,1" Text="{Binding Name}"/>
+                            </Grid>
+                        </Canvas>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SampleShapeItemStyle" TargetType="map:MapItem">
+            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="map:MapItem">
+                        <Canvas>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="Disabled"/>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="labelBackground" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="SelectionStates">
+                                    <VisualState x:Name="Unselected"/>
+                                    <VisualState x:Name="Selected"/>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CurrentStates">
+                                    <VisualState x:Name="NotCurrent"/>
+                                    <VisualState x:Name="Current">
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="path" Storyboard.TargetProperty="Stroke.Color" To="Magenta" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Path Name="path" StrokeThickness="2" Fill="#50FFA500">
+                                <Path.RenderTransform>
+                                    <RotateTransform Angle="{Binding Rotation}"/>
+                                </Path.RenderTransform>
+                                <Path.Stroke>
+                                    <SolidColorBrush Color="Gray"/>
+                                </Path.Stroke>
+                                <Path.Data>
+                                    <EllipseGeometry RadiusX="{Binding RadiusX}" RadiusY="{Binding RadiusY}"
+                                                     Transform="{Binding ScaleRotateTransform, ElementName=map}"/>
+                                </Path.Data>
+                            </Path>
+                            <Line Stroke="Gray" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            <Grid Canvas.Left="3" Canvas.Bottom="3">
+                                <Rectangle Name="labelBackground" Fill="White" Opacity="0.5"/>
+                                <TextBlock Margin="2,0,2,1" Text="{Binding Name}"/>
+                            </Grid>
+                        </Canvas>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SamplePolylineItemStyle" TargetType="map:MapItem">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="map:MapItem">
+                        <map:MapPolyline Stroke="Blue" StrokeThickness="2" Locations="{Binding Locations}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SamplePolygonItemStyle" TargetType="map:MapItem">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="map:MapItem">
+                        <map:MapPolygon Stroke="Green" StrokeThickness="2" Locations="{Binding Locations}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <map:Map Name="map" IsManipulationEnabled="True" Margin="2" FontSize="10" 
+                 LightForeground="Black" LightBackground="White" DarkForeground="White" DarkBackground="#FF3F3F3F"
+                 Center="53.5,8.2" ZoomLevel="11"
+                 MainTileLayer="{Binding ElementName=tileSourceComboBox, Path=SelectedItem}"
+                 ManipulationInertiaStarting="MapManipulationInertiaStarting"
+                 MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
+            <map:MapGraticule Opacity="0.6"/>
+            <map:MapItemsControl ItemsSource="{StaticResource SampleItems}"
+                                 ItemContainerStyleSelector="{StaticResource SampleItemStyleSelector}"
+                                 IsSynchronizedWithCurrentItem="True"/>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,0,0,0" FontSize="10"
+                       Text="{Binding ElementName=map, Path=MainTileLayer.Description}"/>
+        </map:Map>
+        <Grid Grid.Row="1" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Name="mouseLocation" Margin="4" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Slider Name="zoomSlider" ToolTip="Zoom Level" Margin="4,0,4,0" Width="100" Minimum="1" Maximum="20" SmallChange="0.01"
+                        Value="{Binding ElementName=map, Path=TargetZoomLevel}" />
+                <Slider Name="headingSlider" ToolTip="Heading" Margin="4,0,4,0" Width="100" Minimum="0" Maximum="360" SmallChange="10" LargeChange="45"
+                        Value="{Binding ElementName=map, Path=TargetHeading}"/>
+                <CheckBox ToolTip="Map Overlay" Margin="4,0,4,0" VerticalAlignment="Center" Content="Seamarks" Click="SeamarksClick"/>
+                <ComboBox Name="tileSourceComboBox" ToolTip="Main Tile Layer" Margin="4,0,4,0" DisplayMemberPath="Name" SelectedIndex="0">
+                    <ComboBox.Items>
+                        <map:TileLayer Name="OpenStreetMap" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
+                                       TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                       IsCached="True"/>
+                        <map:TileLayer Name="OpenCycleMap" Description="OpenCycleMap - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+                                       TileSource="http://{c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
+                                       IsCached="True"/>
+                        <map:TileLayer Name="OCM Transport" Description="OpenCycleMap Transport - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+                                       TileSource="http://{c}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"
+                                       IsCached="True"/>
+                        <map:TileLayer Name="OCM Landscape" Description="OpenCycleMap Landscape - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+                                       TileSource="http://{c}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"
+                                       IsCached="True"/>
+                        <map:TileLayer Name="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
+                                       TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"
+                                       IsCached="True" MaxZoomLevel="20"/>
+                        <!--<map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
+                                       TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}"
+                                       IsCached="True" MaxZoomLevel="20"/>
+                        <map:TileLayer Name="Google Images" Description="Google Maps - © {y} Google"
+                                       TileSource="http://khm{i}.google.com/kh/v=108&amp;x={x}&amp;y={y}&amp;z={z}"
+                                       IsCached="True" MaxZoomLevel="20" HasDarkBackground="True"/>
+                        <map:TileLayer Name="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
+                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h"
+                                       IsCached="True" MaxZoomLevel="20"/>
+                        <map:TileLayer Name="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation"
+                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0"
+                                       IsCached="True" MaxZoomLevel="20" HasDarkBackground="True"/>
+                        <map:TileLayer Name="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation"
+                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h"
+                                       IsCached="True" MaxZoomLevel="20" HasDarkBackground="True"/>-->
+                    </ComboBox.Items>
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

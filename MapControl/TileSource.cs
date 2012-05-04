@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
@@ -6,6 +10,9 @@ using System.Windows;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Defines the URI of a map tile.
+    /// </summary>
     [TypeConverter(typeof(TileSourceTypeConverter))]
     public class TileSource
     {
@@ -90,20 +97,20 @@ namespace MapControl
     {
         public override Uri GetUri(int x, int y, int zoomLevel)
         {
-            InverseMercatorTransform t = new InverseMercatorTransform();
+            MercatorTransform t = new MercatorTransform();
             double n = 1 << zoomLevel;
             double x1 = (double)x * 360d / n - 180d;
             double x2 = (double)(x + 1) * 360d / n - 180d;
             double y1 = 180d - (double)(y + 1) * 360d / n;
             double y2 = 180d - (double)y * 360d / n;
-            Point p1 = t.Transform(new Point(x1, y1));
-            Point p2 = t.Transform(new Point(x2, y2));
+            Location p1 = t.TransformBack(new Point(x1, y1));
+            Location p2 = t.TransformBack(new Point(x2, y2));
 
             return new Uri(UriFormat.
-                Replace("{w}", p1.X.ToString(CultureInfo.InvariantCulture)).
-                Replace("{s}", p1.Y.ToString(CultureInfo.InvariantCulture)).
-                Replace("{e}", p2.X.ToString(CultureInfo.InvariantCulture)).
-                Replace("{n}", p2.Y.ToString(CultureInfo.InvariantCulture)));
+                Replace("{w}", p1.Longitude.ToString(CultureInfo.InvariantCulture)).
+                Replace("{s}", p1.Latitude.ToString(CultureInfo.InvariantCulture)).
+                Replace("{e}", p2.Longitude.ToString(CultureInfo.InvariantCulture)).
+                Replace("{n}", p2.Latitude.ToString(CultureInfo.InvariantCulture)));
         }
     }
 

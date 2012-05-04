@@ -1,10 +1,21 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Positions child elements on a Map. A child element's position is specified by the
+    /// attached property Location, given as geographic location with latitude and longitude.
+    /// The attached property ViewportPosition gets a child element's position in viewport
+    /// coordinates. IsInsideMapBounds indicates if the viewport coordinates are located
+    /// inside the visible part of the map.
+    /// </summary>
     public class MapPanel : Panel, INotifyParentMapChanged
     {
         public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
@@ -12,17 +23,17 @@ namespace MapControl
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
 
         public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
-            "Location", typeof(Point?), typeof(MapPanel),
+            "Location", typeof(Location), typeof(MapPanel),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, LocationPropertyChanged));
 
-        internal static readonly DependencyPropertyKey ViewPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ViewPosition", typeof(Point), typeof(MapPanel), null);
+        private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
+            "ViewportPosition", typeof(Point), typeof(MapPanel), null);
 
-        private static readonly DependencyPropertyKey ViewPositionTransformPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ViewPositionTransform", typeof(Transform), typeof(MapPanel), null);
+        private static readonly DependencyPropertyKey IsInsideMapBoundsPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
+            "IsInsideMapBounds", typeof(bool), typeof(MapPanel), null);
 
-        public static readonly DependencyProperty ViewPositionProperty = ViewPositionPropertyKey.DependencyProperty;
-        public static readonly DependencyProperty ViewPositionTransformProperty = ViewPositionTransformPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty ViewportPositionProperty = ViewportPositionPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty IsInsideMapBoundsProperty = IsInsideMapBoundsPropertyKey.DependencyProperty;
 
         public MapPanel()
         {
@@ -39,24 +50,29 @@ namespace MapControl
             return (Map)element.GetValue(ParentMapProperty);
         }
 
-        public static Point? GetLocation(UIElement element)
+        public static Location GetLocation(UIElement element)
         {
-            return (Point?)element.GetValue(LocationProperty);
+            return (Location)element.GetValue(LocationProperty);
         }
 
-        public static void SetLocation(UIElement element, Point? value)
+        public static void SetLocation(UIElement element, Location value)
         {
             element.SetValue(LocationProperty, value);
         }
 
-        public static Point GetViewPosition(UIElement element)
+        public static bool HasViewportPosition(UIElement element)
         {
-            return (Point)element.GetValue(ViewPositionProperty);
+            return element.ReadLocalValue(ViewportPositionProperty) != DependencyProperty.UnsetValue;
         }
 
-        public static Transform GetViewPositionTransform(UIElement element)
+        public static Point GetViewportPosition(UIElement element)
         {
-            return (Transform)element.GetValue(ViewPositionTransformProperty);
+            return (Point)element.GetValue(ViewportPositionProperty);
+        }
+
+        public static bool GetIsInsideMapBounds(UIElement element)
+        {
+            return (bool)element.GetValue(IsInsideMapBoundsProperty);
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -75,10 +91,10 @@ namespace MapControl
         {
             foreach (UIElement element in InternalChildren)
             {
-                object viewPosition = element.ReadLocalValue(ViewPositionProperty);
+                object viewportPosition = element.ReadLocalValue(ViewportPositionProperty);
 
-                if (viewPosition == DependencyProperty.UnsetValue ||
-                    !ArrangeElement(element, (Point)viewPosition))
+                if (viewportPosition == DependencyProperty.UnsetValue ||
+                    !ArrangeElement(element, (Point)viewportPosition))
                 {
                     ArrangeElement(element, finalSize);
                 }
@@ -91,11 +107,11 @@ namespace MapControl
         {
             foreach (UIElement element in InternalChildren)
             {
-                Point? location = GetLocation(element);
+                Location location = GetLocation(element);
 
-                if (location.HasValue)
+                if (location != null)
                 {
-                    SetViewPosition(element, parentMap, location);
+                    SetViewportPosition(element, parentMap, location);
                 }
             }
         }
@@ -131,40 +147,31 @@ namespace MapControl
         private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
         {
             UIElement element = (UIElement)obj;
-            Point? location = (Point?)eventArgs.NewValue;
+            Location location = (Location)eventArgs.NewValue;
             Map parentMap;
 
-            if (location.HasValue && (parentMap = Map.GetParentMap(element)) != null)
+            if (location != null && (parentMap = GetParentMap(element)) != null)
             {
-                SetViewPosition(element, parentMap, location);
+                SetViewportPosition(element, parentMap, location);
             }
             else
             {
-                element.ClearValue(ViewPositionPropertyKey);
-                element.ClearValue(ViewPositionTransformPropertyKey);
+                element.ClearValue(ViewportPositionPropertyKey);
+                element.ClearValue(IsInsideMapBoundsPropertyKey);
                 element.Arrange(new Rect());
             }
         }
 
-        private static void SetViewPosition(UIElement element, Map parentMap, Point? location)
+        private static void SetViewportPosition(UIElement element, Map parentMap, Location location)
         {
-            Point viewPosition = parentMap.MapViewTransform.Transform(location.Value);
+            Point viewportPosition = parentMap.LocationToViewportPoint(location);
 
-            element.SetValue(ViewPositionPropertyKey, viewPosition);
+            element.SetValue(ViewportPositionPropertyKey, viewportPosition);
+            element.SetValue(IsInsideMapBoundsPropertyKey,
+                viewportPosition.X >= 0d && viewportPosition.X <= parentMap.ActualWidth &&
+                viewportPosition.Y >= 0d && viewportPosition.Y <= parentMap.ActualHeight);
 
-            Matrix matrix = new Matrix(1d, 0d, 0d, 1d, viewPosition.X, viewPosition.Y);
-            MatrixTransform viewTransform = element.GetValue(ViewPositionTransformProperty) as MatrixTransform;
-
-            if (viewTransform != null)
-            {
-                viewTransform.Matrix = matrix;
-            }
-            else
-            {
-                element.SetValue(ViewPositionTransformPropertyKey, new MatrixTransform(matrix));
-            }
-
-            ArrangeElement(element, viewPosition);
+            ArrangeElement(element, viewportPosition);
         }
 
         private static bool ArrangeElement(UIElement element, Point position)

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -7,11 +11,17 @@ using System.Windows.Media;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Fills a rectangular area with map tiles from a TileSource. If the IsCached property is true,
+    /// map tiles are cached in a folder defined by the TileImageLoader.TileCacheFolder property.
+    /// </summary>
     [ContentProperty("TileSource")]
     public class TileLayer : DrawingVisual
     {
         private readonly TileImageLoader tileImageLoader = new TileImageLoader();
         private readonly List<Tile> tiles = new List<Tile>();
+        private bool isCached = false;
+        private string name = string.Empty;
         private string description = string.Empty;
         private Int32Rect grid;
         private int zoomLevel;
@@ -36,10 +46,24 @@ namespace MapControl
             set { tileImageLoader.MaxDownloads = value; }
         }
 
+        public bool IsCached
+        {
+            get { return isCached; }
+            set
+            {
+                isCached = value;
+                tileImageLoader.TileLayerName = isCached ? name : null;
+            }
+        }
+
         public string Name
         {
-            get { return tileImageLoader.TileLayerName; }
-            set { tileImageLoader.TileLayerName = value; }
+            get { return name; }
+            set
+            {
+                name = value;
+                tileImageLoader.TileLayerName = isCached ? name : null;
+            }
         }
 
         public string Description
@@ -136,7 +160,7 @@ namespace MapControl
 
             tiles.Sort((t1, t2) => t1.ZoomLevel - t2.ZoomLevel);
 
-            System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
+            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
         }
 
         private void RenderTiles()

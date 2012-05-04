@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -8,6 +12,10 @@ namespace MapControl
 {
     public enum MapItemSelectionMode { Single, Extended }
 
+    /// <summary>
+    /// Manages a collection of selectable items on a Map. Uses MapItem as container for items
+    /// and updates the MapItem.IsCurrent property when Items.CurrentItem changes.
+    /// </summary>
     public class MapItemsControl : MultiSelector
     {
         public static readonly DependencyProperty SelectionModeProperty = DependencyProperty.Register(
@@ -114,7 +122,7 @@ namespace MapControl
                     {
                         MapItem mapItem = GetMapItem(item);
 
-                        if (mapItem != null && mapItem.HasViewPosition && geometry.FillContains(mapItem.ViewPosition))
+                        if (mapItem != null && MapPanel.HasViewportPosition(mapItem) && geometry.FillContains(MapPanel.GetViewportPosition(mapItem)))
                         {
                             SelectedItems.Add(item);
                         }

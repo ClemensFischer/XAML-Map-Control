@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Windows;
 
 namespace MapControl
@@ -8,6 +12,9 @@ namespace MapControl
         void ParentMapChanged(Map oldParentMap, Map newParentMap);
     }
 
+    /// <summary>
+    /// Base class for child elements of a MapPanel.
+    /// </summary>
     public abstract class MapElement : FrameworkElement, INotifyParentMapChanged
     {
         protected MapElement()

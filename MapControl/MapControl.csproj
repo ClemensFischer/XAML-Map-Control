@@ -24,10 +24,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -42,21 +43,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlyphRunText.cs" />
+    <Compile Include="Location.cs" />
+    <Compile Include="LocationAnimation.cs" />
+    <Compile Include="LocationCollection.cs" />
     <Compile Include="MapElement.cs" />
     <Compile Include="MapGraticule.cs" />
     <Compile Include="MapItem.cs" />
     <Compile Include="MapItemsControl.cs" />
     <Compile Include="MapPanel.cs" />
-    <Compile Include="MapPath.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MapPathGeometry.cs" />
-    <Compile Include="MapStreamGeometry.cs" />
+    <Compile Include="MapPolygon.cs" />
+    <Compile Include="MapPolyline.cs" />
     <Compile Include="TileImageLoader.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapInput.cs" />
-    <Compile Include="MapViewTransform.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tile.cs" />

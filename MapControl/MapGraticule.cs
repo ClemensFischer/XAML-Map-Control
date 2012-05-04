@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,6 +11,10 @@ using System.Windows.Shapes;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Draws a graticule overlay. The minimum spacing in pixels between adjacent graticule lines
+    /// is specified by the MinSpacingPixels property.
+    /// </summary>
     public class MapGraticule : MapElement
     {
         public static readonly DependencyProperty ForegroundProperty = Control.ForegroundProperty.AddOwner(
@@ -36,7 +44,7 @@ namespace MapControl
         public static readonly DependencyProperty MinSpacingPixelsProperty = DependencyProperty.Register(
             "MinSpacingPixels", typeof(double), typeof(MapGraticule), new FrameworkPropertyMetadata(100d));
 
-        public static double[] GridSpacings =
+        public static double[] Spacings =
             new double[] { 1d / 60d, 1d / 30d, 1d / 12d, 1d / 6d, 1d / 4d, 1d / 3d, 1d / 2d, 1d, 2d, 5d, 10d, 15d, 20d, 30d, 45d };
 
         private readonly DrawingVisual visual = new DrawingVisual();
@@ -116,17 +124,19 @@ namespace MapControl
 
         protected override void OnViewTransformChanged(Map parentMap)
         {
-            Rect bounds = parentMap.MapViewTransform.Inverse.TransformBounds(new Rect(parentMap.RenderSize));
+            Rect bounds = parentMap.ViewportTransform.Inverse.TransformBounds(new Rect(parentMap.RenderSize));
+            Location loc1 = parentMap.MapTransform.TransformBack(bounds.TopLeft);
+            Location loc2 = parentMap.MapTransform.TransformBack(bounds.BottomRight);
             double minSpacing = MinSpacingPixels * 360d / (Math.Pow(2d, parentMap.ZoomLevel) * 256d);
-            double spacing = GridSpacings[GridSpacings.Length - 1];
+            double spacing = Spacings[Spacings.Length - 1];
 
             if (spacing >= minSpacing)
             {
-                spacing = GridSpacings.FirstOrDefault(s => s >= minSpacing);
+                spacing = Spacings.FirstOrDefault(s => s >= minSpacing);
             }
 
-            double longitudeStart = Math.Ceiling(bounds.Left / spacing) * spacing;
-            double latitudeStart = Math.Ceiling(bounds.Top / spacing) * spacing;
+            double latitudeStart = Math.Ceiling(loc1.Latitude / spacing) * spacing;
+            double longitudeStart = Math.Ceiling(loc1.Longitude / spacing) * spacing;
 
             if (pen.Brush == null)
             {
@@ -135,18 +145,18 @@ namespace MapControl
 
             using (DrawingContext drawingContext = visual.RenderOpen())
             {
-                for (double lon = longitudeStart; lon <= bounds.Right; lon += spacing)
+                for (double lat = latitudeStart; lat <= loc2.Latitude; lat += spacing)
                 {
                     drawingContext.DrawLine(pen,
-                        parentMap.MapViewTransform.Transform(new Point(lon, bounds.Bottom)),
-                        parentMap.MapViewTransform.Transform(new Point(lon, bounds.Top)));
+                        parentMap.LocationToViewportPoint(new Location(lat, loc1.Longitude)),
+                        parentMap.LocationToViewportPoint(new Location(lat, loc2.Longitude)));
                 }
 
-                for (double lat = latitudeStart; lat <= bounds.Bottom; lat += spacing)
+                for (double lon = longitudeStart; lon <= loc2.Longitude; lon += spacing)
                 {
                     drawingContext.DrawLine(pen,
-                        parentMap.MapViewTransform.Transform(new Point(bounds.Left, lat)),
-                        parentMap.MapViewTransform.Transform(new Point(bounds.Right, lat)));
+                        parentMap.LocationToViewportPoint(new Location(loc1.Latitude, lon)),
+                        parentMap.LocationToViewportPoint(new Location(loc2.Latitude, lon)));
                 }
 
                 if (Foreground != null && Foreground != Brushes.Transparent)
@@ -158,12 +168,12 @@ namespace MapControl
                         typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
                     }
 
-                    for (double lon = longitudeStart; lon <= bounds.Right; lon += spacing)
+                    for (double lat = latitudeStart; lat <= loc2.Latitude; lat += spacing)
                     {
-                        for (double lat = latitudeStart; lat <= bounds.Bottom; lat += spacing)
+                        for (double lon = longitudeStart; lon <= loc2.Longitude; lon += spacing)
                         {
                             double t = StrokeThickness / 2d;
-                            Point p = parentMap.MapViewTransform.Transform(new Point(lon, lat));
+                            Point p = parentMap.LocationToViewportPoint(new Location(lat, lon));
                             Point latPos = new Point(p.X + t + 2d, p.Y - t - FontSize / 4d);
                             Point lonPos = new Point(p.X + t + 2d, p.Y + t + FontSize);
                             string latString = CoordinateString(lat, format, "NS");

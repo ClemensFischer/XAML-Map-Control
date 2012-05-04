@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Windows;
@@ -22,7 +26,7 @@ namespace MapControl
         private Int32Rect tileGrid;
         private TileLayerCollection tileLayers;
         private readonly DispatcherTimer updateTimer;
-        private readonly MatrixTransform viewTransform = new MatrixTransform();
+        private readonly MatrixTransform viewportTransform = new MatrixTransform();
 
         public TileContainer()
         {
@@ -52,17 +56,17 @@ namespace MapControl
             }
         }
 
-        public Transform ViewTransform
+        public Transform ViewportTransform
         {
-            get { return viewTransform; }
+            get { return viewportTransform; }
         }
 
-        public double SetTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewOrigin, Size viewSize)
+        public double SetTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewportOrigin, Size viewportSize)
         {
             zoomLevel = mapZoomLevel;
             rotation = mapRotation;
-            size = viewSize;
-            origin = viewOrigin;
+            size = viewportSize;
+            origin = viewportOrigin;
 
             double scale = Math.Pow(2d, zoomLevel) * 256d / 360d;
             offset.X = origin.X - (180d + mapOrigin.X) * scale;
@@ -72,7 +76,7 @@ namespace MapControl
             transform.Scale(scale, scale);
             transform.Translate(offset.X, offset.Y);
             transform.RotateAt(rotation, origin.X, origin.Y);
-            viewTransform.Matrix = transform;
+            viewportTransform.Matrix = transform;
 
             transform = GetVisualTransform();
 
@@ -110,7 +114,7 @@ namespace MapControl
             int zoom = (int)Math.Floor(zoomLevel + 1d - zoomLevelSwitchOffset);
             int numTiles = 1 << zoom;
             double mapToTileScale = (double)numTiles / 360d;
-            Matrix transform = viewTransform.Matrix;
+            Matrix transform = viewportTransform.Matrix;
             transform.Invert(); // view to map coordinates
             transform.Translate(180d, -180d);
             transform.Scale(mapToTileScale, -mapToTileScale); // map coordinates to tile indices

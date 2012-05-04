@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,9 +14,13 @@ using System.Windows.Threading;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Loads map tiles by their URIs and optionally caches their image files in a folder
+    /// defined by the static TileCacheFolder property.
+    /// </summary>
     public class TileImageLoader : DispatcherObject
     {
-        public static string TileCacheDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapCache");
+        public static string TileCacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl Cache");
         public static TimeSpan TileCacheExpiryAge = TimeSpan.FromDays(1);
 
         private readonly Queue<Tile> pendingTiles = new Queue<Tile>();
@@ -45,7 +53,7 @@ namespace MapControl
 
             lock (pendingTiles)
             {
-                if (!string.IsNullOrEmpty(TileCacheDirectory) &&
+                if (!string.IsNullOrEmpty(TileCacheFolder) &&
                     !string.IsNullOrEmpty(TileLayerName))
                 {
                     List<Tile> expiredTiles = new List<Tile>(newTiles.Count);
@@ -174,7 +182,7 @@ namespace MapControl
 
                             string tilePath;
 
-                            if (!string.IsNullOrEmpty(TileCacheDirectory) &&
+                            if (!string.IsNullOrEmpty(TileCacheFolder) &&
                                 !string.IsNullOrEmpty(TileLayerName) &&
                                 (tilePath = TilePath(tile, decoder)) != null)
                             {
@@ -213,7 +221,7 @@ namespace MapControl
 
         private string TileDirectory(Tile tile)
         {
-            return Path.Combine(TileCacheDirectory, TileLayerName, tile.ZoomLevel.ToString(), tile.XIndex.ToString());
+            return Path.Combine(TileCacheFolder, TileLayerName, tile.ZoomLevel.ToString(), tile.XIndex.ToString());
         }
 
         private string TilePath(Tile tile, BitmapDecoder decoder)
@@ -255,7 +263,7 @@ namespace MapControl
 
         private static void TraceInformation(string format, params object[] args)
         {
-#if DEBUG
+#if TRACE
             System.Diagnostics.Trace.TraceInformation("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
 #endif
         }

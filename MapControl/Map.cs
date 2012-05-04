@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,6 +11,12 @@ using System.Windows.Media.Animation;
 
 namespace MapControl
 {
+    /// <summary>
+    /// The main map control. Draws map content provided by the TileLayers or the MainTileLayer property.
+    /// The visible map area is defined by the Center and ZoomLevel properties. The map can be rotated
+    /// by an angle that is given by the Heading property.
+    /// Map is a MapPanel and hence can contain map overlays like other MapPanels or MapItemsControls.
+    /// </summary>
     public partial class Map : MapPanel
     {
         public const double MeterPerDegree = 1852d * 60d;
@@ -34,24 +44,24 @@ namespace MapControl
             "TileLayers", typeof(TileLayerCollection), typeof(Map), new FrameworkPropertyMetadata(
                 (o, e) => ((Map)o).SetTileLayers((TileLayerCollection)e.NewValue)));
 
-        public static readonly DependencyProperty BaseTileLayerProperty = DependencyProperty.Register(
-            "BaseTileLayer", typeof(TileLayer), typeof(Map), new FrameworkPropertyMetadata(
-                (o, e) => ((Map)o).SetBaseTileLayer((TileLayer)e.NewValue),
-                (o, v) => ((Map)o).CoerceBaseTileLayer((TileLayer)v)));
+        public static readonly DependencyProperty MainTileLayerProperty = DependencyProperty.Register(
+            "MainTileLayer", typeof(TileLayer), typeof(Map), new FrameworkPropertyMetadata(
+                (o, e) => ((Map)o).SetMainTileLayer((TileLayer)e.NewValue),
+                (o, v) => ((Map)o).CoerceMainTileLayer((TileLayer)v)));
 
         public static readonly DependencyProperty TileOpacityProperty = DependencyProperty.Register(
             "TileOpacity", typeof(double), typeof(Map), new FrameworkPropertyMetadata(1d,
                 (o, e) => ((Map)o).tileContainer.Opacity = (double)e.NewValue));
 
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
-            "Center", typeof(Point), typeof(Map), new FrameworkPropertyMetadata(new Point(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((Map)o).SetCenter((Point)e.NewValue),
-                (o, v) => ((Map)o).CoerceCenter((Point)v)));
+            "Center", typeof(Location), typeof(Map), new FrameworkPropertyMetadata(new Location(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                (o, e) => ((Map)o).SetCenter((Location)e.NewValue),
+                (o, v) => ((Map)o).CoerceCenter((Location)v)));
 
         public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register(
-            "TargetCenter", typeof(Point), typeof(Map), new FrameworkPropertyMetadata(new Point(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((Map)o).SetTargetCenter((Point)e.NewValue),
-                (o, v) => ((Map)o).CoerceCenter((Point)v)));
+            "TargetCenter", typeof(Location), typeof(Map), new FrameworkPropertyMetadata(new Location(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                (o, e) => ((Map)o).SetTargetCenter((Location)e.NewValue),
+                (o, v) => ((Map)o).CoerceCenter((Location)v)));
 
         public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
             "ZoomLevel", typeof(double), typeof(Map), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
@@ -79,13 +89,13 @@ namespace MapControl
         public static readonly DependencyProperty CenterScaleProperty = CenterScalePropertyKey.DependencyProperty;
 
         private readonly TileContainer tileContainer = new TileContainer();
-        private readonly MapViewTransform mapViewTransform = new MapViewTransform();
+        private readonly MapTransform mapTransform = new MercatorTransform();
         private readonly ScaleTransform scaleTransform = new ScaleTransform();
         private readonly RotateTransform rotateTransform = new RotateTransform();
         private readonly MatrixTransform scaleRotateTransform = new MatrixTransform();
-        private Point? transformOrigin;
-        private Point viewOrigin;
-        private PointAnimation centerAnimation;
+        private Location transformOrigin;
+        private Point viewportOrigin;
+        private LocationAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
         private bool updateTransform = true;
@@ -96,9 +106,8 @@ namespace MapControl
             MaxZoomLevel = 20;
 
             AddVisualChild(tileContainer);
-            mapViewTransform.ViewTransform = tileContainer.ViewTransform;
 
-            BaseTileLayer = new TileLayer
+            MainTileLayer = new TileLayer
             {
                 Description = "© {y} OpenStreetMap Contributors, CC-BY-SA",
                 TileSource = new OpenStreetMapTileSource { UriFormat = "http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" }
@@ -190,12 +199,12 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the base TileLayer used by this Map, i.e. TileLayers[0].
+        /// Gets or sets the main TileLayer used by this Map, i.e. TileLayers[0].
         /// </summary>
-        public TileLayer BaseTileLayer
+        public TileLayer MainTileLayer
         {
-            get { return (TileLayer)GetValue(BaseTileLayerProperty); }
-            set { SetValue(BaseTileLayerProperty, value); }
+            get { return (TileLayer)GetValue(MainTileLayerProperty); }
+            set { SetValue(MainTileLayerProperty, value); }
         }
 
         /// <summary>
@@ -208,20 +217,20 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the world coordinates (latitude and longitude) of the center point.
+        /// Gets or sets the location of the center point of the Map.
         /// </summary>
-        public Point Center
+        public Location Center
         {
-            get { return (Point)GetValue(CenterProperty); }
+            get { return (Location)GetValue(CenterProperty); }
             set { SetValue(CenterProperty, value); }
         }
 
         /// <summary>
         /// Gets or sets the target value of a Center animation.
         /// </summary>
-        public Point TargetCenter
+        public Location TargetCenter
         {
-            get { return (Point)GetValue(TargetCenterProperty); }
+            get { return (Location)GetValue(TargetCenterProperty); }
             set { SetValue(TargetCenterProperty, value); }
         }
 
@@ -262,7 +271,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the map scale at the Center point as view coordinate units (pixels) per meter.
+        /// Gets the map scale at the Center location as viewport coordinate units (pixels) per meter.
         /// </summary>
         public double CenterScale
         {
@@ -271,34 +280,24 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the transformation from world coordinates (latitude and longitude)
-        /// to cartesian map coordinates.
+        /// Gets the transformation from geographic coordinates to cartesian map coordinates.
         /// </summary>
         public MapTransform MapTransform
         {
-            get { return mapViewTransform.MapTransform; }
+            get { return mapTransform; }
         }
 
         /// <summary>
-        /// Gets the transformation from cartesian map coordinates to view coordinates.
+        /// Gets the transformation from cartesian map coordinates to viewport coordinates.
         /// </summary>
-        public Transform ViewTransform
+        public Transform ViewportTransform
         {
-            get { return mapViewTransform.ViewTransform; }
+            get { return tileContainer.ViewportTransform; }
         }
 
         /// <summary>
-        /// Gets the combination of MapTransform and ViewTransform, i.e. the transformation
-        /// from longitude and latitude values to view coordinates.
-        /// </summary>
-        public GeneralTransform MapViewTransform
-        {
-            get { return mapViewTransform; }
-        }
-
-        /// <summary>
-        /// Gets the scaling transformation from meters to view coordinate units (pixels)
-        /// at the view center point.
+        /// Gets the scaling transformation from meters to viewport coordinate units (pixels)
+        /// at the viewport center point.
         /// </summary>
         public Transform ScaleTransform
         {
@@ -322,57 +321,73 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets an intermittent origin point in world coordinates for scaling and rotation transformations.
+        /// Transforms a geographic location to a viewport coordinates point.
+        /// </summary>
+        public Point LocationToViewportPoint(Location location)
+        {
+            return ViewportTransform.Transform(MapTransform.Transform(location));
+        }
+
+        /// <summary>
+        /// Transforms a viewport coordinates point to a geographic location.
+        /// </summary>
+        public Location ViewportPointToLocation(Point point)
+        {
+            return MapTransform.TransformBack(ViewportTransform.Inverse.Transform(point));
+        }
+
+        /// <summary>
+        /// Sets a temporary origin location in geographic coordinates for scaling and rotation transformations.
+        /// This origin location is automatically removed when the Center property is set by application code.
+        /// </summary>
+        public void SetTransformOrigin(Location origin)
+        {
+            transformOrigin = origin;
+            viewportOrigin = LocationToViewportPoint(origin);
+        }
+
+        /// <summary>
+        /// Sets a temporary origin point in viewport coordinates for scaling and rotation transformations.
         /// This origin point is automatically removed when the Center property is set by application code.
         /// </summary>
         public void SetTransformOrigin(Point origin)
         {
-            transformOrigin = origin;
-            viewOrigin = MapViewTransform.Transform(origin);
+            viewportOrigin.X = Math.Min(Math.Max(origin.X, 0d), RenderSize.Width);
+            viewportOrigin.Y = Math.Min(Math.Max(origin.Y, 0d), RenderSize.Height);
+            transformOrigin = CoerceCenter(ViewportPointToLocation(viewportOrigin));
         }
 
         /// <summary>
-        /// Sets an intermittent origin point in view coordinates for scaling and rotation transformations.
-        /// This origin point is automatically removed when the Center property is set by application code.
-        /// </summary>
-        public void SetTransformViewOrigin(Point origin)
-        {
-            viewOrigin.X = Math.Min(Math.Max(origin.X, 0d), RenderSize.Width);
-            viewOrigin.Y = Math.Min(Math.Max(origin.Y, 0d), RenderSize.Height);
-            transformOrigin = CoerceCenter(MapViewTransform.Inverse.Transform(viewOrigin));
-        }
-
-        /// <summary>
-        /// Removes the intermittent transform origin point set by SetTransformOrigin.
+        /// Removes the temporary transform origin point set by SetTransformOrigin.
         /// </summary>
         public void ResetTransformOrigin()
         {
             transformOrigin = null;
-            viewOrigin = new Point(RenderSize.Width / 2d, RenderSize.Height / 2d);
+            viewportOrigin = new Point(RenderSize.Width / 2d, RenderSize.Height / 2d);
         }
 
         /// <summary>
-        /// Changes the Center property according to the specified translation in view coordinates.
+        /// Changes the Center property according to the specified translation in viewport coordinates.
         /// </summary>
         public void TranslateMap(Vector translation)
         {
             if (translation.X != 0d || translation.Y != 0d)
             {
                 ResetTransformOrigin();
-                Center = MapViewTransform.Inverse.Transform(viewOrigin - translation);
+                Center = ViewportPointToLocation(viewportOrigin - translation);
             }
         }
 
         /// <summary>
         /// Changes the Center, Heading and ZoomLevel properties according to the specified
-        /// view coordinate translation, rotation and scale delta values. Rotation and scaling
-        /// is performed relative to the specified origin point in view coordinates.
+        /// viewport coordinate translation, rotation and scale delta values. Rotation and scaling
+        /// is performed relative to the specified origin point in viewport coordinates.
         /// </summary>
         public void TransformMap(Point origin, Vector translation, double rotation, double scale)
         {
             if (rotation != 0d || scale != 1d)
             {
-                SetTransformViewOrigin(origin);
+                SetTransformOrigin(origin);
                 updateTransform = false;
                 Heading += rotation;
                 ZoomLevel += Math.Log(scale, 2d);
@@ -385,21 +400,20 @@ namespace MapControl
 
         /// <summary>
         /// Sets the value of the ZoomLevel property while retaining the specified origin point
-        /// in view coordinates.
+        /// in viewport coordinates.
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
-            SetTransformViewOrigin(origin);
+            SetTransformOrigin(origin);
             TargetZoomLevel = zoomLevel;
         }
 
         /// <summary>
-        /// Gets the map scale at the specified world coordinate point
-        /// as view coordinate units (pixels) per meter.
+        /// Gets the map scale at the specified location as viewport coordinate units (pixels) per meter.
         /// </summary>
-        public double GetMapScale(Point point)
+        public double GetMapScale(Location location)
         {
-            return MapTransform.RelativeScale(point) * Math.Pow(2d, ZoomLevel) * 256d / (MeterPerDegree * 360d);
+            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * 256d / (MeterPerDegree * 360d);
         }
 
         protected override int VisualChildrenCount
@@ -477,40 +491,40 @@ namespace MapControl
 
         private void SetTileLayers(TileLayerCollection tileLayers)
         {
-            BaseTileLayer = tileLayers.Count > 0 ? tileLayers[0] : null;
+            MainTileLayer = tileLayers.Count > 0 ? tileLayers[0] : null;
             tileContainer.TileLayers = tileLayers;
         }
 
-        private void SetBaseTileLayer(TileLayer baseTileLayer)
+        private void SetMainTileLayer(TileLayer mainTileLayer)
         {
-            if (baseTileLayer != null)
+            if (mainTileLayer != null)
             {
                 if (TileLayers == null)
                 {
-                    TileLayers = new TileLayerCollection(baseTileLayer);
+                    TileLayers = new TileLayerCollection(mainTileLayer);
                 }
                 else if (TileLayers.Count == 0)
                 {
-                    TileLayers.Add(baseTileLayer);
+                    TileLayers.Add(mainTileLayer);
                 }
-                else if (TileLayers[0] != baseTileLayer)
+                else if (TileLayers[0] != mainTileLayer)
                 {
-                    TileLayers[0] = baseTileLayer;
+                    TileLayers[0] = mainTileLayer;
                 }
             }
         }
 
-        private TileLayer CoerceBaseTileLayer(TileLayer baseTileLayer)
+        private TileLayer CoerceMainTileLayer(TileLayer mainTileLayer)
         {
-            if (baseTileLayer == null && TileLayers.Count > 0)
+            if (mainTileLayer == null && TileLayers.Count > 0)
             {
-                baseTileLayer = TileLayers[0];
+                mainTileLayer = TileLayers[0];
             }
 
-            return baseTileLayer;
+            return mainTileLayer;
         }
 
-        private void SetCenter(Point center)
+        private void SetCenter(Location center)
         {
             if (updateTransform)
             {
@@ -524,7 +538,7 @@ namespace MapControl
             }
         }
 
-        private void SetTargetCenter(Point targetCenter)
+        private void SetTargetCenter(Location targetCenter)
         {
             if (targetCenter != Center)
             {
@@ -533,7 +547,7 @@ namespace MapControl
                     centerAnimation.Completed -= CenterAnimationCompleted;
                 }
 
-                centerAnimation = new PointAnimation
+                centerAnimation = new LocationAnimation
                 {
                     From = Center,
                     To = targetCenter,
@@ -557,11 +571,11 @@ namespace MapControl
             centerAnimation = null;
         }
 
-        private Point CoerceCenter(Point point)
+        private Location CoerceCenter(Location location)
         {
-            point.X = ((point.X + 180d) % 360d + 360d) % 360d - 180d;
-            point.Y = Math.Min(Math.Max(point.Y, -MapTransform.MaxLatitude), MapTransform.MaxLatitude);
-            return point;
+            location.Latitude = Math.Min(Math.Max(location.Latitude, -MapTransform.MaxLatitude), MapTransform.MaxLatitude);
+            location.Longitude = ((location.Longitude + 180d) % 360d + 360d) % 360d - 180d;
+            return location;
         }
 
         private void SetZoomLevel(double zoomLevel)
@@ -682,16 +696,16 @@ namespace MapControl
         {
             double scale;
 
-            if (transformOrigin.HasValue)
+            if (transformOrigin != null)
             {
-                scale = tileContainer.SetTransform(ZoomLevel, Heading, MapTransform.Transform(transformOrigin.Value), viewOrigin, RenderSize);
+                scale = tileContainer.SetTransform(ZoomLevel, Heading, MapTransform.Transform(transformOrigin), viewportOrigin, RenderSize);
                 updateTransform = false;
-                Center = MapViewTransform.Inverse.Transform(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
+                Center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
                 updateTransform = true;
             }
             else
             {
-                scale = tileContainer.SetTransform(ZoomLevel, Heading, MapTransform.Transform(Center), viewOrigin, RenderSize);
+                scale = tileContainer.SetTransform(ZoomLevel, Heading, MapTransform.Transform(Center), viewportOrigin, RenderSize);
             }
 
             scale *= MapTransform.RelativeScale(Center) / MeterPerDegree; // Pixels per meter at center latitude

@@ -1,9 +1,16 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Windows;
 using System.Windows.Media;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Contains helper methods for creating GlyphRun objects.
+    /// </summary>
     public static class GlyphRunText
     {
         public static GlyphRun Create(string text, Typeface typeface, double emSize, Point baselineOrigin)

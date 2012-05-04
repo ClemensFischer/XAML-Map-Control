@@ -1,4 +1,8 @@
-﻿using System;
+﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -7,21 +11,20 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    [TemplateVisualState(GroupName = "CommonStates", Name = "Normal")]
-    [TemplateVisualState(GroupName = "CommonStates", Name = "Disabled")]
-    [TemplateVisualState(GroupName = "CommonStates", Name = "MouseOver")]
-    [TemplateVisualState(GroupName = "SelectionStates", Name = "Unselected")]
-    [TemplateVisualState(GroupName = "SelectionStates", Name = "Selected")]
-    [TemplateVisualState(GroupName = "CurrentStates", Name = "NonCurrent")]
-    [TemplateVisualState(GroupName = "CurrentStates", Name = "Current")]
+    /// <summary>
+    /// Container class for an item in a MapItemsControl.
+    /// </summary>
+    [TemplateVisualState(Name = "Normal", GroupName = "CommonStates")]
+    [TemplateVisualState(Name = "MouseOver", GroupName = "CommonStates")]
+    [TemplateVisualState(Name = "Disabled", GroupName = "CommonStates")]
+    [TemplateVisualState(Name = "Unselected", GroupName = "SelectionStates")]
+    [TemplateVisualState(Name = "Selected", GroupName = "SelectionStates")]
+    [TemplateVisualState(Name = "NotCurrent", GroupName = "CurrentStates")]
+    [TemplateVisualState(Name = "Current", GroupName = "CurrentStates")]
     public class MapItem : ContentControl
     {
         public static readonly RoutedEvent SelectedEvent = ListBoxItem.SelectedEvent.AddOwner(typeof(MapItem));
         public static readonly RoutedEvent UnselectedEvent = ListBoxItem.UnselectedEvent.AddOwner(typeof(MapItem));
-
-        public static readonly DependencyProperty LocationProperty = MapPanel.LocationProperty.AddOwner(typeof(MapItem));
-        public static readonly DependencyProperty ViewPositionProperty = MapPanel.ViewPositionProperty.AddOwner(typeof(MapItem));
-        public static readonly DependencyProperty ViewPositionTransformProperty = MapPanel.ViewPositionTransformProperty.AddOwner(typeof(MapItem));
 
         public static readonly DependencyProperty IsSelectedProperty = Selector.IsSelectedProperty.AddOwner(
             typeof(MapItem), new FrameworkPropertyMetadata((o, e) => ((MapItem)o).IsSelectedChanged((bool)e.NewValue)));
@@ -31,13 +34,6 @@ namespace MapControl
 
         public static readonly DependencyProperty IsCurrentProperty = IsCurrentPropertyKey.DependencyProperty;
 
-        private static readonly DependencyPropertyKey IsInsideMapBoundsPropertyKey = DependencyProperty.RegisterReadOnly(
-            "IsInsideMapBounds", typeof(bool), typeof(MapItem), null);
-
-        public static readonly DependencyProperty IsInsideMapBoundsProperty = IsInsideMapBoundsPropertyKey.DependencyProperty;
-
-        private object item;
-
         static MapItem()
         {
             FrameworkElement.DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItem),
@@ -45,9 +41,6 @@ namespace MapControl
 
             UIElement.IsEnabledProperty.OverrideMetadata(typeof(MapItem),
                 new FrameworkPropertyMetadata((o, e) => ((MapItem)o).CommonStateChanged()));
-
-            MapPanel.ViewPositionPropertyKey.OverrideMetadata(typeof(MapItem),
-                new FrameworkPropertyMetadata((o, e) => ((MapItem)o).ViewPositionChanged((Point)e.NewValue)));
         }
 
         public event RoutedEventHandler Selected
@@ -67,27 +60,6 @@ namespace MapControl
             get { return MapPanel.GetParentMap(this); }
         }
 
-        public Point? Location
-        {
-            get { return (Point?)GetValue(LocationProperty); }
-            set { SetValue(LocationProperty, value); }
-        }
-
-        public bool HasViewPosition
-        {
-            get { return ReadLocalValue(ViewPositionProperty) != DependencyProperty.UnsetValue; }
-        }
-
-        public Point ViewPosition
-        {
-            get { return (Point)GetValue(ViewPositionProperty); }
-        }
-
-        public Transform ViewPositionTransform
-        {
-            get { return (Transform)GetValue(ViewPositionTransformProperty); }
-        }
-
         public bool IsSelected
         {
             get { return (bool)GetValue(IsSelectedProperty); }
@@ -104,28 +76,12 @@ namespace MapControl
                     SetValue(IsCurrentPropertyKey, value);
                     int zIndex = Panel.GetZIndex(this);
                     Panel.SetZIndex(this, value ? (zIndex | 0x40000000) : (zIndex & ~0x40000000));
-                    VisualStateManager.GoToState(this, value ? "Current" : "NonCurrent", true);
+                    VisualStateManager.GoToState(this, value ? "Current" : "NotCurrent", true);
                 }
             }
         }
 
-        public bool IsInsideMapBounds
-        {
-            get { return (bool)GetValue(IsInsideMapBoundsProperty); }
-        }
-
-        public object Item
-        {
-            get { return item; }
-            internal set
-            {
-                item = value;
-                if (HasViewPosition)
-                {
-                    ViewPositionChanged(ViewPosition);
-                }
-            }
-        }
+        public object Item { get; internal set; }
 
         protected override void OnMouseEnter(MouseEventArgs e)
         {
@@ -157,24 +113,6 @@ namespace MapControl
             base.OnTouchUp(eventArgs);
             eventArgs.Handled = true;
             IsSelected = !IsSelected;
-        }
-
-        protected virtual void OnViewPositionChanged(Point viewPosition)
-        {
-        }
-
-        private void ViewPositionChanged(Point viewPosition)
-        {
-            Map map = ParentMap;
-
-            if (map != null)
-            {
-                SetValue(IsInsideMapBoundsPropertyKey,
-                    viewPosition.X >= 0d && viewPosition.X <= map.ActualWidth &&
-                    viewPosition.Y >= 0d && viewPosition.Y <= map.ActualHeight);
-
-                OnViewPositionChanged(viewPosition);
-            }
         }
 
         private void CommonStateChanged()

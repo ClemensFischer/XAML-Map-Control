@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl", "MapControl\MapControl.csproj", "{06481252-2310-414A-B9FC-D5739FDF6BD3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,16 @@ Global
 		{06481252-2310-414A-B9FC-D5739FDF6BD3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{06481252-2310-414A-B9FC-D5739FDF6BD3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{06481252-2310-414A-B9FC-D5739FDF6BD3}.Release|x86.ActiveCfg = Release|Any CPU
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Debug|x86.ActiveCfg = Debug|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Debug|x86.Build.0 = Debug|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Release|Any CPU.ActiveCfg = Release|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Release|Mixed Platforms.Build.0 = Release|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Release|x86.ActiveCfg = Release|x86
+		{A3F251EE-A1A0-4752-8C3D-C6BACBFB2AF2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
