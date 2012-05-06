@@ -42,9 +42,11 @@ namespace MapControl
                 progress = EasingFunction.Ease(progress);
             }
 
+            double deltaLongitude = progress * Location.NormalizeLongitude(To.Longitude - From.Longitude);
+
             return new Location(
                 (1d - progress) * From.Latitude + progress * To.Latitude,
-                (1d - progress) * From.Longitude + progress * To.Longitude);
+                Location.NormalizeLongitude(From.Longitude + deltaLongitude));
         }
     }
 }

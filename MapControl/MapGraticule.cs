@@ -177,7 +177,7 @@ namespace MapControl
                             Point latPos = new Point(p.X + t + 2d, p.Y - t - FontSize / 4d);
                             Point lonPos = new Point(p.X + t + 2d, p.Y + t + FontSize);
                             string latString = CoordinateString(lat, format, "NS");
-                            string lonString = CoordinateString(((lon + 180d) % 360d + 360d) % 360d - 180d, format, "EW");
+                            string lonString = CoordinateString(Location.NormalizeLongitude(lon), format, "EW");
 
                             drawingContext.PushTransform(new RotateTransform(parentMap.Heading, p.X, p.Y));
                             drawingContext.DrawGlyphRun(Foreground, GlyphRunText.Create(latString, typeface, FontSize, latPos));

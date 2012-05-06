@@ -11,6 +11,9 @@ namespace MapControl
     [TypeConverter(typeof(LocationConverter))]
     public class Location
     {
+        private double latitude;
+        private double longitude;
+
         public Location()
         {
         }
@@ -21,8 +24,22 @@ namespace MapControl
             Longitude = longitude;
         }
 
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public double Latitude
+        {
+            get { return latitude; }
+            set { latitude = Math.Min(Math.Max(value, -90d), 90d); }
+        }
+
+        public double Longitude
+        {
+            get { return longitude; }
+            set { longitude = value; }
+        }
+
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0:0.00000},{1:0.00000}", latitude, longitude);
+        }
 
         public static Location Parse(string source)
         {
@@ -30,9 +47,9 @@ namespace MapControl
             return new Location(p.X, p.Y);
         }
 
-        public override string ToString()
+        public static double NormalizeLongitude(double longitude)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0:0.00000},{1:0.00000}", Latitude, Longitude);
+            return ((longitude + 180d) % 360d + 360d) % 360d - 180d;
         }
     }
 

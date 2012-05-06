@@ -574,7 +574,7 @@ namespace MapControl
         private Location CoerceCenter(Location location)
         {
             location.Latitude = Math.Min(Math.Max(location.Latitude, -MapTransform.MaxLatitude), MapTransform.MaxLatitude);
-            location.Longitude = ((location.Longitude + 180d) % 360d + 360d) % 360d - 180d;
+            location.Longitude = Location.NormalizeLongitude(location.Longitude);
             return location;
         }
 
