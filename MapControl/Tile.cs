@@ -51,7 +51,6 @@ namespace MapControl
                 }
 
                 Brush.ImageSource = value;
-                LoadState = TileLoadState.Loaded;
             }
         }
 

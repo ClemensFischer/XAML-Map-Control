@@ -36,7 +36,7 @@ namespace MapControl
 
         internal void BeginDownloadTiles(ICollection<Tile> tiles)
         {
-            ThreadPool.QueueUserWorkItem(BeginDownloadTiles, new List<Tile>(tiles.Reverse().Where(t => t.LoadState == TileLoadState.NotLoaded)));
+            ThreadPool.QueueUserWorkItem(BeginDownloadTilesAsync, new List<Tile>(tiles.Where(t => t.LoadState == TileLoadState.NotLoaded)));
         }
 
         internal void EndDownloadTiles()
@@ -47,7 +47,7 @@ namespace MapControl
             }
         }
 
-        private void BeginDownloadTiles(object newTilesList)
+        private void BeginDownloadTilesAsync(object newTilesList)
         {
             List<Tile> newTiles = (List<Tile>)newTilesList;
 
@@ -65,6 +65,7 @@ namespace MapControl
 
                         if (image != null)
                         {
+                            tile.LoadState = TileLoadState.Loaded;
                             Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
 
                             if (cacheExpired)
@@ -97,16 +98,24 @@ namespace MapControl
                 tile.LoadState = TileLoadState.Loading;
                 numDownloads++;
 
-                ThreadPool.QueueUserWorkItem(DownloadTile, tile);
+                ThreadPool.QueueUserWorkItem(DownloadTileAsync, tile);
             }
         }
 
-        private void DownloadTile(object t)
+        private void DownloadTileAsync(object t)
         {
             Tile tile = (Tile)t;
             ImageSource image = DownloadImage(tile);
 
-            Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
+            if (image != null)
+            {
+                tile.LoadState = TileLoadState.Loaded;
+                Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
+            }
+            else
+            {
+                tile.LoadState = TileLoadState.NotLoaded;
+            }
 
             lock (pendingTiles)
             {
@@ -263,9 +272,7 @@ namespace MapControl
 
         private static void TraceInformation(string format, params object[] args)
         {
-#if TRACE
             System.Diagnostics.Trace.TraceInformation("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
-#endif
         }
     }
 }

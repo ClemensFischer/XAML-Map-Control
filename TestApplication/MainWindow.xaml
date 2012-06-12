@@ -148,7 +148,7 @@
         <map:Map Name="map" IsManipulationEnabled="True" Margin="2" FontSize="10" 
                  LightForeground="Black" LightBackground="White" DarkForeground="White" DarkBackground="#FF3F3F3F"
                  Center="53.5,8.2" ZoomLevel="11"
-                 MainTileLayer="{Binding ElementName=tileSourceComboBox, Path=SelectedItem}"
+                 MainTileLayer="{Binding ElementName=tileLayerComboBox, Path=SelectedItem}"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
             <map:MapGraticule Opacity="0.6"/>
@@ -170,7 +170,7 @@
                 <Slider Name="headingSlider" ToolTip="Heading" Margin="4,0,4,0" Width="100" Minimum="0" Maximum="360" SmallChange="10" LargeChange="45"
                         Value="{Binding ElementName=map, Path=TargetHeading}"/>
                 <CheckBox ToolTip="Map Overlay" Margin="4,0,4,0" VerticalAlignment="Center" Content="Seamarks" Click="SeamarksClick"/>
-                <ComboBox Name="tileSourceComboBox" ToolTip="Main Tile Layer" Margin="4,0,4,0" DisplayMemberPath="Name" SelectedIndex="0">
+                <ComboBox Name="tileLayerComboBox" ToolTip="Main Tile Layer" Margin="4,0,4,0" DisplayMemberPath="Name" SelectedIndex="0">
                     <ComboBox.Items>
                         <map:TileLayer Name="OpenStreetMap" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
                                        TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
