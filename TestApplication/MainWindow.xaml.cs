@@ -90,7 +90,7 @@ namespace MapControlTestApp
             items.Add(
                 new SampleShape
                 {
-                    Name = "N 53°30' E 8°12'",
+                    Name = "N 53° 30' E 8° 12'",
                     Location = new Location(53.5, 8.2),
                     RadiusX = 200d, // meters
                     RadiusY = 300d, // meters

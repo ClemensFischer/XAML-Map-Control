@@ -13,6 +13,8 @@
         <local:SampleItemStyleSelector x:Key="SampleItemStyleSelector"/>
         <Style x:Key="SamplePushpinItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Content" Value="{Binding Name}"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
@@ -22,6 +24,8 @@
         </Style>
         <Style x:Key="SamplePointItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -68,6 +72,8 @@
         </Style>
         <Style x:Key="SampleShapeItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -118,8 +124,6 @@
             </Setter>
         </Style>
         <Style x:Key="SamplePolylineItemStyle" TargetType="map:MapItem">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -129,8 +133,6 @@
             </Setter>
         </Style>
         <Style x:Key="SamplePolygonItemStyle" TargetType="map:MapItem">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -155,6 +157,7 @@
             <map:MapItemsControl ItemsSource="{StaticResource SampleItems}"
                                  ItemContainerStyleSelector="{StaticResource SampleItemStyleSelector}"
                                  IsSynchronizedWithCurrentItem="True"/>
+            <map:Pushpin Location="53.5,8.25" Content="N 53° 30' E 8° 15'"/>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,0,0,0" FontSize="10"
                        Text="{Binding ElementName=map, Path=MainTileLayer.Description}"/>
         </map:Map>
@@ -186,12 +189,12 @@
                                        IsCached="False"/>
                         <map:TileLayer Name="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
                                        TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"
-                                       IsCached="False" MaxZoomLevel="20"/>
+                                       IsCached="False"/>
                         <!--<map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
                                        TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}"
                                        IsCached="False" MaxZoomLevel="20"/>
                         <map:TileLayer Name="Google Images" Description="Google Maps - © {y} Google"
-                                       TileSource="http://khm{i}.google.com/kh/v=108&amp;x={x}&amp;y={y}&amp;z={z}"
+                                       TileSource="http://khm{i}.google.com/kh/v=113&amp;x={x}&amp;y={y}&amp;z={z}"
                                        IsCached="False" MaxZoomLevel="20" HasDarkBackground="True"/>
                         <map:TileLayer Name="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
                                        TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h"

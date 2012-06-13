@@ -11,6 +11,20 @@
         </Setter>
     </Style>
     <Style x:Key="{x:Type map:MapItem}" TargetType="{x:Type map:MapItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type map:MapItem}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Cursor="{TemplateBinding Cursor}"
+                                      Margin="{TemplateBinding Padding}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="{x:Type map:Pushpin}" TargetType="{x:Type map:Pushpin}">
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment" Value="Bottom"/>
@@ -18,7 +32,7 @@
         <Setter Property="Background" Value="White"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type map:MapItem}">
+                <ControlTemplate TargetType="{x:Type map:Pushpin}">
                     <Grid>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
@@ -33,14 +47,6 @@
                                         <DoubleAnimation Storyboard.TargetName="mouseOverRect" Storyboard.TargetProperty="Opacity" Duration="0" To=".35"/>
                                     </Storyboard>
                                 </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="SelectionStates">
-                                <VisualState x:Name="Unselected"/>
-                                <VisualState x:Name="Selected"/>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="CurrentStates">
-                                <VisualState x:Name="NonCurrent"/>
-                                <VisualState x:Name="Current"/>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                         <Grid.RowDefinitions>

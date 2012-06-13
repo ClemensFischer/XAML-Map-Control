@@ -36,11 +36,11 @@ namespace MapControl
 
         static MapItem()
         {
-            FrameworkElement.DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItem),
-                new FrameworkPropertyMetadata(typeof(MapItem)));
+            FrameworkElement.DefaultStyleKeyProperty.OverrideMetadata(
+                typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
 
-            UIElement.IsEnabledProperty.OverrideMetadata(typeof(MapItem),
-                new FrameworkPropertyMetadata((o, e) => ((MapItem)o).CommonStateChanged()));
+            UIElement.IsEnabledProperty.OverrideMetadata(
+                typeof(MapItem), new FrameworkPropertyMetadata((o, e) => ((MapItem)o).CommonStateChanged()));
         }
 
         public event RoutedEventHandler Selected

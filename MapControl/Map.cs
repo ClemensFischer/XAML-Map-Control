@@ -42,7 +42,8 @@ namespace MapControl
 
         public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
             "TileLayers", typeof(TileLayerCollection), typeof(Map), new FrameworkPropertyMetadata(
-                (o, e) => ((Map)o).TileLayersPropertyChanged((TileLayerCollection)e.NewValue)));
+                (o, e) => ((Map)o).TileLayersPropertyChanged((TileLayerCollection)e.NewValue),
+                (o, v) => ((Map)o).CoerceTileLayersProperty((TileLayerCollection)v)));
 
         public static readonly DependencyProperty MainTileLayerProperty = DependencyProperty.Register(
             "MainTileLayer", typeof(TileLayer), typeof(Map), new FrameworkPropertyMetadata(
@@ -105,6 +106,7 @@ namespace MapControl
             MinZoomLevel = 1;
             MaxZoomLevel = 20;
             AddVisualChild(tileContainer);
+            TileLayers = new TileLayerCollection();
             SetValue(ParentMapProperty, this);
         }
 
@@ -483,19 +485,28 @@ namespace MapControl
 
         private void TileLayersPropertyChanged(TileLayerCollection tileLayers)
         {
-            tileContainer.TileLayers = tileLayers;
-            MainTileLayer = tileLayers.Count > 0 ? tileLayers[0] : null;
+            if (tileLayers != null)
+            {
+                tileContainer.TileLayers = tileLayers;
+                MainTileLayer = tileLayers.Count > 0 ? tileLayers[0] : null;
+            }
+        }
+
+        private TileLayerCollection CoerceTileLayersProperty(TileLayerCollection tileLayers)
+        {
+            if (tileLayers == null)
+            {
+                tileLayers = new TileLayerCollection();
+            }
+
+            return tileLayers;
         }
 
         private void MainTileLayerPropertyChanged(TileLayer mainTileLayer)
         {
             if (mainTileLayer != null)
             {
-                if (tileContainer.TileLayers == null)
-                {
-                    TileLayers = new TileLayerCollection(mainTileLayer);
-                }
-                else if (tileContainer.TileLayers.Count == 0)
+                if (tileContainer.TileLayers.Count == 0)
                 {
                     tileContainer.TileLayers.Add(mainTileLayer);
                 }
@@ -508,7 +519,7 @@ namespace MapControl
 
         private TileLayer CoerceMainTileLayerProperty(TileLayer mainTileLayer)
         {
-            if (mainTileLayer == null && tileContainer.TileLayers != null && tileContainer.TileLayers.Count > 0)
+            if (mainTileLayer == null && tileContainer.TileLayers.Count > 0)
             {
                 mainTileLayer = tileContainer.TileLayers[0];
             }
