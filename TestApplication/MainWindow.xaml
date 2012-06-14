@@ -9,20 +9,13 @@
                        Name="Seamarks" Description="© {y} OpenSeaMap Contributors, CC-BY-SA"
                        TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
                        IsCached="False" MinZoomLevel="10" MaxZoomLevel="18"/>
-        <local:SampleItemCollection x:Key="SampleItems"/>
-        <local:SampleItemStyleSelector x:Key="SampleItemStyleSelector"/>
-        <Style x:Key="SamplePushpinItemStyle" TargetType="map:MapItem">
-            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
-            <Setter Property="Content" Value="{Binding Name}"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Foreground" Value="OrangeRed"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="SamplePointItemStyle" TargetType="map:MapItem">
+        <local:SampleItemCollection x:Key="Polylines"/>
+        <local:SampleItemCollection x:Key="Points"/>
+        <local:SampleItemCollection x:Key="Pushpins"/>
+        <DataTemplate x:Key="PolylineItemTemplate">
+            <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
+        </DataTemplate>
+        <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
@@ -62,7 +55,7 @@
                                 </Path.Data>
                             </Path>
                             <Grid Canvas.Left="10" Canvas.Bottom="3">
-                                <Rectangle Name="labelBackground" Fill="White" Opacity="0.5"/>
+                                <Rectangle Name="labelBackground" Fill="White" Opacity="0.7"/>
                                 <TextBlock Margin="2,0,2,1" Text="{Binding Name}"/>
                             </Grid>
                         </Canvas>
@@ -70,76 +63,22 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="SampleShapeItemStyle" TargetType="map:MapItem">
+        <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <Canvas>
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal"/>
-                                    <VisualState x:Name="Disabled"/>
-                                    <VisualState x:Name="MouseOver">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="labelBackground" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="SelectionStates">
-                                    <VisualState x:Name="Unselected"/>
-                                    <VisualState x:Name="Selected"/>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="CurrentStates">
-                                    <VisualState x:Name="NotCurrent"/>
-                                    <VisualState x:Name="Current">
-                                        <Storyboard>
-                                            <ColorAnimation Storyboard.TargetName="path" Storyboard.TargetProperty="Stroke.Color" To="Magenta" Duration="0:0:0.1"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                            <Path Name="path" StrokeThickness="2" Fill="#50FFA500">
-                                <Path.RenderTransform>
-                                    <RotateTransform Angle="{Binding Rotation}"/>
-                                </Path.RenderTransform>
-                                <Path.Stroke>
-                                    <SolidColorBrush Color="Gray"/>
-                                </Path.Stroke>
-                                <Path.Data>
-                                    <EllipseGeometry RadiusX="{Binding RadiusX}" RadiusY="{Binding RadiusY}"
-                                                     Transform="{Binding ScaleRotateTransform, ElementName=map}"/>
-                                </Path.Data>
-                            </Path>
-                            <Line Stroke="Gray" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            <Grid Canvas.Left="3" Canvas.Bottom="3">
-                                <Rectangle Name="labelBackground" Fill="White" Opacity="0.5"/>
-                                <TextBlock Margin="2,0,2,1" Text="{Binding Name}"/>
-                            </Grid>
-                        </Canvas>
+                    <ControlTemplate>
+                        <map:Pushpin Content="{Binding Name}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-        <Style x:Key="SamplePolylineItemStyle" TargetType="map:MapItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <map:MapPolyline Stroke="Blue" StrokeThickness="2" Locations="{Binding Locations}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="SamplePolygonItemStyle" TargetType="map:MapItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <map:MapPolygon Stroke="Green" StrokeThickness="2" Locations="{Binding Locations}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="OrangeRed"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
     <Grid>
@@ -154,10 +93,15 @@
                  ManipulationInertiaStarting="MapManipulationInertiaStarting"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
             <map:MapGraticule Opacity="0.6"/>
-            <map:MapItemsControl ItemsSource="{StaticResource SampleItems}"
-                                 ItemContainerStyleSelector="{StaticResource SampleItemStyleSelector}"
+            <map:MapItemsControl ItemsSource="{StaticResource Polylines}"
+                                 ItemTemplate="{StaticResource PolylineItemTemplate}"/>
+            <map:MapItemsControl ItemsSource="{StaticResource Points}"
+                                 ItemContainerStyle="{StaticResource PointItemStyle}"
                                  IsSynchronizedWithCurrentItem="True"/>
-            <map:Pushpin Location="53.5,8.25" Content="N 53° 30' E 8° 15'"/>
+            <map:MapItemsControl ItemsSource="{StaticResource Pushpins}"
+                                 ItemContainerStyle="{StaticResource PushpinItemStyle}"
+                                 IsSynchronizedWithCurrentItem="True"/>
+            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue">N 53° 30' E 8° 12'</map:Pushpin>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,0,0,0" FontSize="10"
                        Text="{Binding ElementName=map, Path=MainTileLayer.Description}"/>
         </map:Map>

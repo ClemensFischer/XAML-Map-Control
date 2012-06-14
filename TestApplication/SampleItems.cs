@@ -1,71 +1,20 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Collections.ObjectModel;
 using MapControl;
 
 namespace MapControlTestApp
 {
-    class SampleItem
+    class SamplePoint
     {
         public string Name { get; set; }
-    }
-
-    class SamplePoint : SampleItem
-    {
         public Location Location { get; set; }
     }
 
-    class SamplePushpin : SamplePoint
-    {
-    }
-
-    class SampleShape : SamplePoint
-    {
-        public double RadiusX { get; set; }
-        public double RadiusY { get; set; }
-        public double Rotation { get; set; }
-    }
-
-    class SamplePolyline : SampleItem
+    class SamplePolyline
     {
         public LocationCollection Locations { get; set; }
     }
 
-    class SamplePolygon : SampleItem
+    class SampleItemCollection : ObservableCollection<object>
     {
-        public LocationCollection Locations { get; set; }
-    }
-
-    class SampleItemCollection : ObservableCollection<SampleItem>
-    {
-    }
-
-    class SampleItemStyleSelector : StyleSelector
-    {
-        public override Style SelectStyle(object item, DependencyObject container)
-        {
-            if (item is SamplePolyline)
-            {
-                return Application.Current.Windows[0].Resources["SamplePolylineItemStyle"] as Style;
-            }
-
-            if (item is SamplePolygon)
-            {
-                return Application.Current.Windows[0].Resources["SamplePolygonItemStyle"] as Style;
-            }
-
-            if (item is SampleShape)
-            {
-                return Application.Current.Windows[0].Resources["SampleShapeItemStyle"] as Style;
-            }
-
-            if (item is SamplePushpin)
-            {
-                return Application.Current.Windows[0].Resources["SamplePushpinItemStyle"] as Style;
-            }
-
-            return Application.Current.Windows[0].Resources["SamplePointItemStyle"] as Style;
-        }
     }
 }

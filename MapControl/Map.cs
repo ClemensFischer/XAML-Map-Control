@@ -108,6 +108,18 @@ namespace MapControl
             AddVisualChild(tileContainer);
             TileLayers = new TileLayerCollection();
             SetValue(ParentMapProperty, this);
+
+            Loaded += (o, e) =>
+            {
+                if (MainTileLayer == null)
+                {
+                    MainTileLayer = new TileLayer
+                    {
+                        Description = "© {y} OpenStreetMap Contributors, CC-BY-SA",
+                        TileSource = new OpenStreetMapTileSource { UriFormat = "http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" }
+                    };
+                }
+            };
         }
 
         /// <summary>
