@@ -567,22 +567,18 @@ namespace MapControl
                     From = Center,
                     To = targetCenter,
                     Duration = TimeSpan.FromSeconds(0.5),
-                    FillBehavior = FillBehavior.Stop,
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
 
                 centerAnimation.Completed += CenterAnimationCompleted;
-
-                updateTransform = false;
-                Center = targetCenter;
-                updateTransform = true;
-
                 BeginAnimation(CenterProperty, centerAnimation);
             }
         }
 
         private void CenterAnimationCompleted(object sender, EventArgs eventArgs)
         {
+            Center = TargetCenter;
+            BeginAnimation(CenterProperty, null);
             centerAnimation = null;
         }
 
@@ -620,22 +616,18 @@ namespace MapControl
                     From = ZoomLevel,
                     To = targetZoomLevel,
                     Duration = TimeSpan.FromSeconds(0.5),
-                    FillBehavior = FillBehavior.Stop,
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
 
                 zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
-
-                updateTransform = false;
-                ZoomLevel = targetZoomLevel;
-                updateTransform = true;
-
                 BeginAnimation(ZoomLevelProperty, zoomLevelAnimation);
             }
         }
 
         private void ZoomLevelAnimationCompleted(object sender, EventArgs eventArgs)
         {
+            ZoomLevel = TargetZoomLevel;
+            BeginAnimation(ZoomLevelProperty, null);
             zoomLevelAnimation = null;
             ResetTransformOrigin();
         }
@@ -683,22 +675,18 @@ namespace MapControl
                     From = Heading,
                     By = delta,
                     Duration = TimeSpan.FromSeconds(0.5),
-                    FillBehavior = FillBehavior.Stop,
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
 
                 headingAnimation.Completed += HeadingAnimationCompleted;
-
-                updateTransform = false;
-                Heading = targetHeading;
-                updateTransform = true;
-
                 BeginAnimation(HeadingProperty, headingAnimation);
             }
         }
 
         private void HeadingAnimationCompleted(object sender, EventArgs eventArgs)
         {
+            Heading = TargetHeading;
+            BeginAnimation(HeadingProperty, null);
             headingAnimation = null;
         }
 

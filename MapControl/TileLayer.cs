@@ -35,7 +35,6 @@ namespace MapControl
             MaxDownloads = 8;
         }
 
-        public TileSource TileSource { get; set; }
         public bool HasDarkBackground { get; set; }
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
@@ -44,6 +43,12 @@ namespace MapControl
         {
             get { return tileImageLoader.MaxDownloads; }
             set { tileImageLoader.MaxDownloads = value; }
+        }
+
+        public TileSource TileSource
+        {
+            get { return tileImageLoader.TileSource; }
+            set { tileImageLoader.TileSource = value; }
         }
 
         public bool IsCached
@@ -83,68 +88,51 @@ namespace MapControl
             this.grid = grid;
             this.zoomLevel = zoomLevel;
 
-            tileImageLoader.EndDownloadTiles();
+            tileImageLoader.StopDownloadTiles();
 
             if (VisualParent != null && TileSource != null)
             {
                 SelectTiles();
                 RenderTiles();
 
-                tileImageLoader.BeginDownloadTiles(tiles);
+                tileImageLoader.StartDownloadTiles(tiles);
             }
         }
 
         public void ClearTiles()
         {
             tiles.Clear();
-            tileImageLoader.EndDownloadTiles();
-        }
-
-        private Int32Rect GetTileGrid(int tileZoomLevel)
-        {
-            int tileSize = 1 << (zoomLevel - tileZoomLevel);
-            int max = (1 << tileZoomLevel) - 1;
-            int x1 = grid.X / tileSize - 1;
-            int x2 = (grid.X + grid.Width - 1) / tileSize + 1;
-            int y1 = Math.Max(0, grid.Y / tileSize - 1);
-            int y2 = Math.Min(max, (grid.Y + grid.Height - 1) / tileSize + 1);
-
-            return new Int32Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+            tileImageLoader.StopDownloadTiles();
         }
 
         private void SelectTiles()
         {
             TileContainer tileContainer = VisualParent as TileContainer;
-            int maxZoom = Math.Min(zoomLevel, MaxZoomLevel);
-            int minZoom = maxZoom;
+            int maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
+            int minZoomLevel = maxZoomLevel;
 
             if (tileContainer != null && tileContainer.TileLayers.IndexOf(this) == 0)
             {
-                minZoom = MinZoomLevel;
+                minZoomLevel = MinZoomLevel;
             }
 
-            tiles.RemoveAll(t =>
+            tiles.RemoveAll(t => t.ZoomLevel < minZoomLevel || t.ZoomLevel > maxZoomLevel);
+
+            for (int z = minZoomLevel; z <= maxZoomLevel; z++)
             {
-                if (t.ZoomLevel > maxZoom || t.ZoomLevel < minZoom)
+                int tileSize = 1 << (zoomLevel - z);
+                int x1 = grid.X / tileSize;
+                int x2 = (grid.X + grid.Width - 1) / tileSize;
+                int y1 = Math.Max(0, grid.Y / tileSize);
+                int y2 = Math.Min((1 << z) - 1, (grid.Y + grid.Height - 1) / tileSize);
+
+                for (int y = y1; y <= y2; y++)
                 {
-                    return true;
-                }
-
-                Int32Rect tileGrid = GetTileGrid(t.ZoomLevel);
-                return t.X < tileGrid.X || t.X >= tileGrid.X + tileGrid.Width || t.Y < tileGrid.Y || t.Y >= tileGrid.Y + tileGrid.Height;
-            });
-
-            for (int tileZoomLevel = minZoom; tileZoomLevel <= maxZoom; tileZoomLevel++)
-            {
-                Int32Rect tileGrid = GetTileGrid(tileZoomLevel);
-
-                for (int y = tileGrid.Y; y < tileGrid.Y + tileGrid.Height; y++)
-                {
-                    for (int x = tileGrid.X; x < tileGrid.X + tileGrid.Width; x++)
+                    for (int x = x1; x <= x2; x++)
                     {
-                        if (tiles.Find(t => t.ZoomLevel == tileZoomLevel && t.X == x && t.Y == y) == null)
+                        if (tiles.Find(t => t.ZoomLevel == z && t.X == x && t.Y == y) == null)
                         {
-                            Tile tile = new Tile(TileSource, tileZoomLevel, x, y);
+                            Tile tile = new Tile(z, x, y);
                             Tile equivalent = tiles.Find(t => t.Image != null && t.ZoomLevel == tile.ZoomLevel && t.XIndex == tile.XIndex && t.Y == tile.Y);
 
                             if (equivalent != null)
@@ -156,11 +144,13 @@ namespace MapControl
                         }
                     }
                 }
+
+                tiles.RemoveAll(t => t.ZoomLevel == z && (t.X < x1 || t.X > x2 || t.Y < y1 || t.Y > y2));
             }
 
             tiles.Sort((t1, t2) => t1.ZoomLevel - t2.ZoomLevel);
 
-            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
+            System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
         }
 
         private void RenderTiles()

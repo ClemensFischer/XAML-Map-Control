@@ -10,7 +10,7 @@ namespace MapControl
 {
     public partial class Map
     {
-        private double mouseWheelZoom = 0.25;
+        private double mouseWheelZoom = 1d;
         private Point? mousePosition;
 
         public double MouseWheelZoom

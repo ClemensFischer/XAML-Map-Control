@@ -9,8 +9,6 @@ using System.Windows.Media.Animation;
 
 namespace MapControl
 {
-    public enum TileLoadState { NotLoaded, Loading, Loaded };
-
     internal class Tile
     {
         private static readonly DoubleAnimation opacityAnimation = new DoubleAnimation(0d, 1d, TimeSpan.FromSeconds(0.5), FillBehavior.Stop);
@@ -18,18 +16,16 @@ namespace MapControl
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;
-        public readonly Uri Uri;
         public readonly ImageBrush Brush = new ImageBrush();
 
-        public Tile(TileSource tileSource, int zoomLevel, int x, int y)
+        public Tile(int zoomLevel, int x, int y)
         {
             ZoomLevel = zoomLevel;
             X = x;
             Y = y;
-            Uri = tileSource.GetUri(XIndex, Y, ZoomLevel);
         }
 
-        public TileLoadState LoadState { get; set; }
+        public Uri Uri { get; set; }
 
         public int XIndex
         {

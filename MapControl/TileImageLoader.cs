@@ -28,18 +28,19 @@ namespace MapControl
 
         internal int MaxDownloads;
         internal string TileLayerName;
+        internal TileSource TileSource;
 
-        internal int TilesPending
+        private bool IsCached
         {
-            get { return pendingTiles.Count; }
+            get { return !string.IsNullOrEmpty(TileCacheFolder) && !string.IsNullOrEmpty(TileLayerName); }
         }
 
-        internal void BeginDownloadTiles(ICollection<Tile> tiles)
+        internal void StartDownloadTiles(ICollection<Tile> tiles)
         {
-            ThreadPool.QueueUserWorkItem(BeginDownloadTilesAsync, new List<Tile>(tiles.Where(t => t.LoadState == TileLoadState.NotLoaded)));
+            ThreadPool.QueueUserWorkItem(StartDownloadTilesAsync, new List<Tile>(tiles.Where(t => t.Image == null && t.Uri == null)));
         }
 
-        internal void EndDownloadTiles()
+        internal void StopDownloadTiles()
         {
             lock (pendingTiles)
             {
@@ -47,14 +48,13 @@ namespace MapControl
             }
         }
 
-        private void BeginDownloadTilesAsync(object newTilesList)
+        private void StartDownloadTilesAsync(object newTilesList)
         {
             List<Tile> newTiles = (List<Tile>)newTilesList;
 
             lock (pendingTiles)
             {
-                if (!string.IsNullOrEmpty(TileCacheFolder) &&
-                    !string.IsNullOrEmpty(TileLayerName))
+                if (IsCached)
                 {
                     List<Tile> expiredTiles = new List<Tile>(newTiles.Count);
 
@@ -65,7 +65,6 @@ namespace MapControl
 
                         if (image != null)
                         {
-                            tile.LoadState = TileLoadState.Loaded;
                             Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
 
                             if (cacheExpired)
@@ -95,7 +94,7 @@ namespace MapControl
             while (pendingTiles.Count > 0 && numDownloads < MaxDownloads)
             {
                 Tile tile = pendingTiles.Dequeue();
-                tile.LoadState = TileLoadState.Loading;
+                tile.Uri = TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
                 numDownloads++;
 
                 ThreadPool.QueueUserWorkItem(DownloadTileAsync, tile);
@@ -109,16 +108,12 @@ namespace MapControl
 
             if (image != null)
             {
-                tile.LoadState = TileLoadState.Loaded;
                 Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
-            }
-            else
-            {
-                tile.LoadState = TileLoadState.NotLoaded;
             }
 
             lock (pendingTiles)
             {
+                tile.Uri = null;
                 numDownloads--;
                 DownloadNextTiles(null);
             }
@@ -134,25 +129,25 @@ namespace MapControl
             {
                 if (Directory.Exists(tileDir))
                 {
-                    string[] tilePath = Directory.GetFiles(tileDir, string.Format("{0}.*", tile.Y));
+                    string tilePath = Directory.GetFiles(tileDir, string.Format("{0}.*", tile.Y)).FirstOrDefault();
 
-                    if (tilePath.Length > 0)
+                    if (tilePath != null)
                     {
                         try
                         {
-                            using (Stream fileStream = File.OpenRead(tilePath[0]))
+                            using (Stream fileStream = File.OpenRead(tilePath))
                             {
                                 image = BitmapFrame.Create(fileStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                             }
 
-                            expired = File.GetLastWriteTime(tilePath[0]) + TileCacheExpiryAge <= DateTime.Now;
+                            expired = File.GetLastWriteTime(tilePath) + TileCacheExpiryAge <= DateTime.Now;
 
-                            TraceInformation(expired ? "{0} - Cache Expired" : "{0} - Cached", tile.Uri);
+                            TraceInformation(expired ? "{0} - Cache Expired" : "{0} - Cached", tilePath);
                         }
                         catch (Exception exc)
                         {
-                            TraceWarning("{0} - {1}", tilePath[0], exc.Message);
-                            File.Delete(tilePath[0]);
+                            TraceWarning("{0} - {1}", tilePath, exc.Message);
+                            File.Delete(tilePath);
                         }
                     }
                 }
@@ -191,9 +186,7 @@ namespace MapControl
 
                             string tilePath;
 
-                            if (!string.IsNullOrEmpty(TileCacheFolder) &&
-                                !string.IsNullOrEmpty(TileLayerName) &&
-                                (tilePath = TilePath(tile, decoder)) != null)
+                            if (IsCached && (tilePath = TilePath(tile, decoder)) != null)
                             {
                                 Directory.CreateDirectory(Path.GetDirectoryName(tilePath));
 
