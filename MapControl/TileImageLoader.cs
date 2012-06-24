@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Caching;
 using System.Threading;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -21,18 +22,20 @@ namespace MapControl
     public class TileImageLoader : DispatcherObject
     {
         public static string TileCacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl Cache");
-        public static TimeSpan TileCacheExpiryAge = TimeSpan.FromDays(1);
+        public static TimeSpan TileCacheExpiryAge = TimeSpan.FromDays(1d);
 
+        private readonly TileLayer tileLayer;
         private readonly Queue<Tile> pendingTiles = new Queue<Tile>();
         private int numDownloads;
 
-        internal int MaxDownloads;
-        internal string TileLayerName;
-        internal TileSource TileSource;
+        public TileImageLoader(TileLayer tileLayer)
+        {
+            this.tileLayer = tileLayer;
+        }
 
         private bool IsCached
         {
-            get { return !string.IsNullOrEmpty(TileCacheFolder) && !string.IsNullOrEmpty(TileLayerName); }
+            get { return tileLayer.IsCached && !string.IsNullOrEmpty(TileCacheFolder); }
         }
 
         internal void StartDownloadTiles(ICollection<Tile> tiles)
@@ -51,39 +54,41 @@ namespace MapControl
         private void StartDownloadTilesAsync(object newTilesList)
         {
             List<Tile> newTiles = (List<Tile>)newTilesList;
+            List<Tile> expiredTiles = new List<Tile>(newTiles.Count);
 
             lock (pendingTiles)
             {
-                if (IsCached)
+                newTiles.ForEach(tile =>
                 {
-                    List<Tile> expiredTiles = new List<Tile>(newTiles.Count);
+                    ImageSource image = GetMemoryCachedImage(tile);
 
-                    newTiles.ForEach(tile =>
+                    if (image == null && IsCached)
                     {
-                        bool cacheExpired;
-                        ImageSource image = GetCachedImage(tile, out cacheExpired);
+                        bool fileCacheExpired;
+                        image = GetFileCachedImage(tile, out fileCacheExpired);
 
                         if (image != null)
                         {
-                            Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
+                            SetMemoryCachedImage(tile, image);
 
-                            if (cacheExpired)
+                            if (fileCacheExpired)
                             {
                                 expiredTiles.Add(tile); // enqueue later
                             }
                         }
-                        else
-                        {
-                            pendingTiles.Enqueue(tile);
-                        }
-                    });
+                    }
 
-                    expiredTiles.ForEach(tile => pendingTiles.Enqueue(tile));
-                }
-                else
-                {
-                    newTiles.ForEach(tile => pendingTiles.Enqueue(tile));
-                }
+                    if (image != null)
+                    {
+                        Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
+                    }
+                    else
+                    {
+                        pendingTiles.Enqueue(tile);
+                    }
+                });
+
+                expiredTiles.ForEach(tile => pendingTiles.Enqueue(tile));
 
                 DownloadNextTiles(null);
             }
@@ -91,10 +96,10 @@ namespace MapControl
 
         private void DownloadNextTiles(object o)
         {
-            while (pendingTiles.Count > 0 && numDownloads < MaxDownloads)
+            while (pendingTiles.Count > 0 && numDownloads < tileLayer.MaxDownloads)
             {
                 Tile tile = pendingTiles.Dequeue();
-                tile.Uri = TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+                tile.Uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
                 numDownloads++;
 
                 ThreadPool.QueueUserWorkItem(DownloadTileAsync, tile);
@@ -108,53 +113,72 @@ namespace MapControl
 
             if (image != null)
             {
+                SetMemoryCachedImage(tile, image);
+
                 Dispatcher.BeginInvoke((Action)(() => tile.Image = image));
             }
 
             lock (pendingTiles)
             {
-                tile.Uri = null;
                 numDownloads--;
                 DownloadNextTiles(null);
             }
         }
 
-        private ImageSource GetCachedImage(Tile tile, out bool expired)
+        private string MemoryCacheKey(Tile tile)
         {
-            string tileDir = TileDirectory(tile);
+            return string.Format("{0}/{1}/{2}/{3}", tileLayer.Name, tile.ZoomLevel, tile.XIndex, tile.Y);
+        }
+
+        private string CacheFilePath(Tile tile)
+        {
+            return string.Format("{0}.{1}",
+                Path.Combine(TileCacheFolder, tileLayer.Name, tile.ZoomLevel.ToString(), tile.XIndex.ToString(), tile.Y.ToString()),
+                tileLayer.ImageType);
+        }
+
+        private ImageSource GetMemoryCachedImage(Tile tile)
+        {
+            string key = MemoryCacheKey(tile);
+            ImageSource image = MemoryCache.Default.Get(key) as ImageSource;
+
+            if (image != null)
+            {
+                TraceInformation("{0} - Memory Cached", key);
+            }
+
+            return image;
+        }
+
+        private void SetMemoryCachedImage(Tile tile, ImageSource image)
+        {
+            MemoryCache.Default.Set(MemoryCacheKey(tile), image,
+                new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMinutes(10d) });
+        }
+
+        private ImageSource GetFileCachedImage(Tile tile, out bool expired)
+        {
+            string path = CacheFilePath(tile);
             ImageSource image = null;
             expired = false;
 
-            try
+            if (File.Exists(path))
             {
-                if (Directory.Exists(tileDir))
+                try
                 {
-                    string tilePath = Directory.GetFiles(tileDir, string.Format("{0}.*", tile.Y)).FirstOrDefault();
-
-                    if (tilePath != null)
+                    using (Stream fileStream = File.OpenRead(path))
                     {
-                        try
-                        {
-                            using (Stream fileStream = File.OpenRead(tilePath))
-                            {
-                                image = BitmapFrame.Create(fileStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                            }
-
-                            expired = File.GetLastWriteTime(tilePath) + TileCacheExpiryAge <= DateTime.Now;
-
-                            TraceInformation(expired ? "{0} - Cache Expired" : "{0} - Cached", tilePath);
-                        }
-                        catch (Exception exc)
-                        {
-                            TraceWarning("{0} - {1}", tilePath, exc.Message);
-                            File.Delete(tilePath);
-                        }
+                        image = BitmapFrame.Create(fileStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }
+
+                    expired = File.GetLastWriteTime(path) + TileCacheExpiryAge <= DateTime.Now;
+                    TraceInformation(expired ? "{0} - File Cache Expired" : "{0} - File Cached", path);
                 }
-            }
-            catch (Exception exc)
-            {
-                TraceWarning("{0} - {1}", tileDir, exc.Message);
+                catch (Exception exc)
+                {
+                    TraceWarning("{0} - {1}", path, exc.Message);
+                    File.Delete(path);
+                }
             }
 
             return image;
@@ -180,17 +204,14 @@ namespace MapControl
                         {
                             responseStream.CopyTo(memoryStream);
                             memoryStream.Position = 0;
+                            image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
 
-                            BitmapDecoder decoder = BitmapDecoder.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                            image = decoder.Frames[0];
-
-                            string tilePath;
-
-                            if (IsCached && (tilePath = TilePath(tile, decoder)) != null)
+                            if (IsCached)
                             {
-                                Directory.CreateDirectory(Path.GetDirectoryName(tilePath));
+                                string path = CacheFilePath(tile);
+                                Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                                using (Stream fileStream = File.OpenWrite(tilePath))
+                                using (Stream fileStream = File.OpenWrite(path))
                                 {
                                     memoryStream.Position = 0;
                                     memoryStream.CopyTo(fileStream);
@@ -221,43 +242,6 @@ namespace MapControl
             return image;
         }
 
-        private string TileDirectory(Tile tile)
-        {
-            return Path.Combine(TileCacheFolder, TileLayerName, tile.ZoomLevel.ToString(), tile.XIndex.ToString());
-        }
-
-        private string TilePath(Tile tile, BitmapDecoder decoder)
-        {
-            string extension;
-
-            if (decoder is PngBitmapDecoder)
-            {
-                extension = "png";
-            }
-            else if (decoder is JpegBitmapDecoder)
-            {
-                extension = "jpg";
-            }
-            else if (decoder is BmpBitmapDecoder)
-            {
-                extension = "bmp";
-            }
-            else if (decoder is GifBitmapDecoder)
-            {
-                extension = "gif";
-            }
-            else if (decoder is TiffBitmapDecoder)
-            {
-                extension = "tif";
-            }
-            else
-            {
-                return null;
-            }
-
-            return Path.Combine(TileDirectory(tile), string.Format("{0}.{1}", tile.Y, extension));
-        }
-
         private static void TraceWarning(string format, params object[] args)
         {
             System.Diagnostics.Trace.TraceWarning("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
@@ -265,7 +249,7 @@ namespace MapControl
 
         private static void TraceInformation(string format, params object[] args)
         {
-            System.Diagnostics.Trace.TraceInformation("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
+            //System.Diagnostics.Trace.TraceInformation("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
         }
     }
 }

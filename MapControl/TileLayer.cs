@@ -18,58 +18,32 @@ namespace MapControl
     [ContentProperty("TileSource")]
     public class TileLayer : DrawingVisual
     {
-        private readonly TileImageLoader tileImageLoader = new TileImageLoader();
+        private readonly TileImageLoader tileImageLoader;
         private readonly List<Tile> tiles = new List<Tile>();
-        private bool isCached = false;
-        private string name = string.Empty;
         private string description = string.Empty;
         private Int32Rect grid;
         private int zoomLevel;
 
         public TileLayer()
         {
+            tileImageLoader = new TileImageLoader(this);
             VisualEdgeMode = EdgeMode.Aliased;
             VisualTransform = new MatrixTransform();
+            Name = string.Empty;
+            ImageType = "png";
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
             MaxDownloads = 8;
         }
 
-        public bool HasDarkBackground { get; set; }
+        public string Name { get; set; }
+        public string ImageType { get; set; }
+        public TileSource TileSource { get; set; }
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
-
-        public int MaxDownloads
-        {
-            get { return tileImageLoader.MaxDownloads; }
-            set { tileImageLoader.MaxDownloads = value; }
-        }
-
-        public TileSource TileSource
-        {
-            get { return tileImageLoader.TileSource; }
-            set { tileImageLoader.TileSource = value; }
-        }
-
-        public bool IsCached
-        {
-            get { return isCached; }
-            set
-            {
-                isCached = value;
-                tileImageLoader.TileLayerName = isCached ? name : null;
-            }
-        }
-
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                name = value;
-                tileImageLoader.TileLayerName = isCached ? name : null;
-            }
-        }
+        public int MaxDownloads { get; set; }
+        public bool IsCached { get; set; }
+        public bool HasDarkBackground { get; set; }
 
         public string Description
         {
@@ -150,7 +124,7 @@ namespace MapControl
 
             tiles.Sort((t1, t2) => t1.ZoomLevel - t2.ZoomLevel);
 
-            System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
+            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
         }
 
         private void RenderTiles()
