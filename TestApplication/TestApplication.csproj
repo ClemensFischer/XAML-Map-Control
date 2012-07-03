@@ -41,6 +41,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -74,6 +75,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Caches\FileDbCache\FileDbCache.csproj">
+      <Project>{EF44F661-B98A-4676-927F-85D138F82300}</Project>
+      <Name>FileDbCache</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MapControl\MapControl.csproj">
       <Project>{06481252-2310-414A-B9FC-D5739FDF6BD3}</Project>
       <Name>MapControl</Name>

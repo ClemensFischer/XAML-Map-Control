@@ -12,8 +12,7 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Fills a rectangular area with map tiles from a TileSource. If the IsCached property is true,
-    /// map tiles are cached in a folder defined by the TileImageLoader.TileCacheFolder property.
+    /// Fills a rectangular area with map tiles from a TileSource.
     /// </summary>
     [ContentProperty("TileSource")]
     public class TileLayer : DrawingVisual
@@ -30,19 +29,16 @@ namespace MapControl
             VisualEdgeMode = EdgeMode.Aliased;
             VisualTransform = new MatrixTransform();
             Name = string.Empty;
-            ImageType = "png";
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
             MaxDownloads = 8;
         }
 
         public string Name { get; set; }
-        public string ImageType { get; set; }
         public TileSource TileSource { get; set; }
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
         public int MaxDownloads { get; set; }
-        public bool IsCached { get; set; }
         public bool HasDarkBackground { get; set; }
 
         public string Description
@@ -139,7 +135,7 @@ namespace MapControl
                     drawingContext.DrawRectangle(tile.Brush, null, tileRect);
 
                     //if (tile.ZoomLevel == zoomLevel)
-                    //    drawingContext.DrawText(new FormattedText(tile.ToString(), System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 14, Brushes.Black), tileRect.TopLeft);
+                    //    drawingContext.DrawText(new FormattedText(string.Format("{0}-{1}-{2}", tile.ZoomLevel, tile.X, tile.Y), System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 14, Brushes.Black), tileRect.TopLeft);
                 });
             }
         }

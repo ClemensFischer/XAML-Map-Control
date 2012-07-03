@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl", "MapControl\Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{CCBCDAE5-E68F-43A8-930A-0749E476D29D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileDbCache", "Caches\FileDbCache\FileDbCache.csproj", "{EF44F661-B98A-4676-927F-85D138F82300}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,16 @@ Global
 		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|Mixed Platforms.Build.0 = Release|x86
 		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|x86.ActiveCfg = Release|x86
 		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|x86.Build.0 = Release|x86
+		{EF44F661-B98A-4676-927F-85D138F82300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{EF44F661-B98A-4676-927F-85D138F82300}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

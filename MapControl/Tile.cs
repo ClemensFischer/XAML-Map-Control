@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
@@ -48,11 +47,6 @@ namespace MapControl
 
                 Brush.ImageSource = value;
             }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0}.{1}.{2}", ZoomLevel, X, Y);
         }
     }
 }

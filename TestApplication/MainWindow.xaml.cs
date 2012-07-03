@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using MapControl;
+using Caching;
 
 namespace MapControlTestApp
 {
@@ -13,6 +15,15 @@ namespace MapControlTestApp
     {
         public MainWindow()
         {
+            bool usePersistentCache = false;
+
+            if (usePersistentCache)
+            {
+                string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                string cachePath = Path.Combine(appDataFolder, "MapControl", "Cache.fdb");
+                TileImageLoader.Cache = new FileDbCache("MapControlCache", cachePath) { AutoFlush = false };
+            }
+
             InitializeComponent();
 
             ICollection<object> polylines = (ICollection<object>)Resources["Polylines"];
