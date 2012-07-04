@@ -12,8 +12,8 @@ using System.Windows.Shapes;
 namespace MapControl
 {
     /// <summary>
-    /// Draws a graticule overlay. The minimum spacing in pixels between adjacent graticule lines
-    /// is specified by the MinSpacingPixels property.
+    /// Draws a graticule overlay. The minimum spacing in pixels between adjacent
+    /// graticule lines is specified by the MinLineSpacing property.
     /// </summary>
     public class MapGraticule : MapElement
     {
@@ -41,8 +41,8 @@ namespace MapControl
         public static readonly DependencyProperty StrokeThicknessProperty = Shape.StrokeThicknessProperty.AddOwner(
             typeof(MapGraticule), new FrameworkPropertyMetadata(0.5, (o, e) => ((MapGraticule)o).pen.Thickness = (double)e.NewValue));
 
-        public static readonly DependencyProperty MinSpacingPixelsProperty = DependencyProperty.Register(
-            "MinSpacingPixels", typeof(double), typeof(MapGraticule), new FrameworkPropertyMetadata(100d));
+        public static readonly DependencyProperty MinLineSpacingProperty = DependencyProperty.Register(
+            "MinLineSpacing", typeof(double), typeof(MapGraticule), new FrameworkPropertyMetadata(100d));
 
         public static double[] Spacings =
             new double[] { 1d / 60d, 1d / 30d, 1d / 12d, 1d / 6d, 1d / 4d, 1d / 3d, 1d / 2d, 1d, 2d, 5d, 10d, 15d, 20d, 30d, 45d };
@@ -106,10 +106,13 @@ namespace MapControl
             set { SetValue(StrokeThicknessProperty, value); }
         }
 
-        public double MinSpacingPixels
+        /// <summary>
+        /// Minimum spacing in pixels between adjacent graticule lines.
+        /// </summary>
+        public double MinLineSpacing
         {
-            get { return (double)GetValue(MinSpacingPixelsProperty); }
-            set { SetValue(MinSpacingPixelsProperty, value); }
+            get { return (double)GetValue(MinLineSpacingProperty); }
+            set { SetValue(MinLineSpacingProperty, value); }
         }
 
         protected override int VisualChildrenCount
@@ -127,7 +130,7 @@ namespace MapControl
             Rect bounds = parentMap.ViewportTransform.Inverse.TransformBounds(new Rect(parentMap.RenderSize));
             Location loc1 = parentMap.MapTransform.TransformBack(bounds.TopLeft);
             Location loc2 = parentMap.MapTransform.TransformBack(bounds.BottomRight);
-            double minSpacing = MinSpacingPixels * 360d / (Math.Pow(2d, parentMap.ZoomLevel) * 256d);
+            double minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, parentMap.ZoomLevel) * 256d);
             double spacing = Spacings[Spacings.Length - 1];
 
             if (spacing >= minSpacing)

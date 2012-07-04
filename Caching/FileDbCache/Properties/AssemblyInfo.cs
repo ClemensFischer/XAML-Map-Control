@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("FileDbCache")]
 [assembly: AssemblyDescription("ObjectCache implementation based on EzTools FileDb")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyProduct("FileDbCache")]
 [assembly: AssemblyCopyright("Copyright © 2012 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]

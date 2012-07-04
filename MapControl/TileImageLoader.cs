@@ -82,12 +82,12 @@ namespace MapControl
             this.tileLayer = tileLayer;
         }
 
-        internal void StartDownloadTiles(ICollection<Tile> tiles)
+        internal void BeginDownloadTiles(ICollection<Tile> tiles)
         {
-            ThreadPool.QueueUserWorkItem(StartDownloadTilesAsync, new List<Tile>(tiles.Where(t => t.Image == null && t.Uri == null)));
+            ThreadPool.QueueUserWorkItem(BeginDownloadTilesAsync, new List<Tile>(tiles.Where(t => t.Image == null && t.Uri == null)));
         }
 
-        internal void StopDownloadTiles()
+        internal void CancelDownloadTiles()
         {
             lock (pendingTiles)
             {
@@ -103,7 +103,7 @@ namespace MapControl
             }
         }
 
-        private void StartDownloadTilesAsync(object newTilesList)
+        private void BeginDownloadTilesAsync(object newTilesList)
         {
             List<Tile> newTiles = (List<Tile>)newTilesList;
 
@@ -223,7 +223,7 @@ namespace MapControl
                 {
                     TraceInformation("{0} - {1}", tile.Uri, ((HttpWebResponse)exc.Response).StatusCode);
                 }
-                else if (exc.Status == WebExceptionStatus.RequestCanceled)
+                else if (exc.Status == WebExceptionStatus.RequestCanceled) // by HttpWebRequest.Abort in CancelDownloadTiles
                 {
                     TraceInformation("{0} - {1}", tile.Uri, exc.Status);
                 }
@@ -283,7 +283,7 @@ namespace MapControl
 
         private static void TraceInformation(string format, params object[] args)
         {
-            Trace.TraceInformation("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
+            //Trace.TraceInformation("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
         }
     }
 }

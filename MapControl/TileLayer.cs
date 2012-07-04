@@ -58,21 +58,21 @@ namespace MapControl
             this.grid = grid;
             this.zoomLevel = zoomLevel;
 
-            tileImageLoader.StopDownloadTiles();
+            tileImageLoader.CancelDownloadTiles();
 
             if (VisualParent != null && TileSource != null)
             {
                 SelectTiles();
                 RenderTiles();
 
-                tileImageLoader.StartDownloadTiles(tiles);
+                tileImageLoader.BeginDownloadTiles(tiles);
             }
         }
 
         public void ClearTiles()
         {
             tiles.Clear();
-            tileImageLoader.StopDownloadTiles();
+            tileImageLoader.CancelDownloadTiles();
         }
 
         private void SelectTiles()

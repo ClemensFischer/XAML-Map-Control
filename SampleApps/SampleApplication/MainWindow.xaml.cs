@@ -9,7 +9,7 @@ using System.Windows.Media;
 using MapControl;
 using Caching;
 
-namespace MapControlTestApp
+namespace SampleApplication
 {
     public partial class MainWindow : Window
     {

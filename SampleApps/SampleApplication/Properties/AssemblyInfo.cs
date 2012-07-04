@@ -7,8 +7,8 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TestApplication")]
-[assembly: AssemblyDescription("WPF Map Control Test Application")]
+[assembly: AssemblyTitle("SampleApplication")]
+[assembly: AssemblyDescription("WPF Map Control Sample Application")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyProduct("WPF Map Control")]

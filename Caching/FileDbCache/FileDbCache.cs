@@ -397,7 +397,7 @@ namespace Caching
         {
             if (fileDb.IsOpen)
             {
-                Trace.TraceWarning("FileDbCache is reindexing database");
+                Trace.TraceWarning("FileDbCache is reindexing the cache database");
                 fileDb.Reindex();
                 return true;
             }

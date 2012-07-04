@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -395,7 +394,7 @@ namespace MapControl
             {
                 SetTransformOrigin(origin);
                 updateTransform = false;
-                Heading += rotation;
+                Heading = (((Heading + rotation) % 360d) + 360d) % 360d;
                 ZoomLevel += Math.Log(scale, 2d);
                 updateTransform = true;
                 UpdateViewTransform();

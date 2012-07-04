@@ -1,6 +1,6 @@
-﻿using System.Windows;
+using System.Windows;
 
-namespace MapControlTestApp
+namespace SurfaceApplication
 {
     public partial class App : Application
     {
