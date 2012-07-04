@@ -75,7 +75,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Caches\FileDbCache\FileDbCache.csproj">
+    <ProjectReference Include="..\Caching\FileDbCache\FileDbCache.csproj">
       <Project>{EF44F661-B98A-4676-927F-85D138F82300}</Project>
       <Name>FileDbCache</Name>
     </ProjectReference>

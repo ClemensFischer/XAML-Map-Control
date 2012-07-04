@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl", "MapControl\Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{CCBCDAE5-E68F-43A8-930A-0749E476D29D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileDbCache", "Caches\FileDbCache\FileDbCache.csproj", "{EF44F661-B98A-4676-927F-85D138F82300}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileDbCache", "Caching\FileDbCache\FileDbCache.csproj", "{EF44F661-B98A-4676-927F-85D138F82300}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
