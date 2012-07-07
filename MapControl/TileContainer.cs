@@ -3,12 +3,11 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Collections;
 
 namespace MapControl
 {

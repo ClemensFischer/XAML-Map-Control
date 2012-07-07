@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,6 @@ using System.Net;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -48,18 +48,51 @@ namespace MapControl
         /// <summary>
         /// The time interval after which cached images expire. The default value is 30 days.
         /// When an image is not retrieved from the cache during this interval it is considered
-        /// as expired and will be removed from the cache. If an image is retrieved from the cache
-        /// and the CacheUpdateAge time interval has expired, the image is downloaded again and
-        /// rewritten to the cache with new expiration time.
+        /// as expired and will be removed from the cache. If an image is retrieved from the
+        /// cache and the CacheUpdateAge time interval has expired, the image is downloaded
+        /// again and rewritten to the cache with a new expiration time.
         /// </summary>
         public static TimeSpan CacheExpiration { get; set; }
 
         /// <summary>
         /// The time interval after which a cached image is updated and rewritten to the cache.
-        /// The default value is one day. This time interval should be shorter than the value of
-        /// the CacheExpiration property.
+        /// The default value is one day. This time interval should be shorter than the value
+        /// of the CacheExpiration property.
         /// </summary>
         public static TimeSpan CacheUpdateAge { get; set; }
+
+        /// <summary>
+        /// Creates an instance of the ObjectCache-derived type T and sets the static Cache
+        /// property to this instance. Class T must (like System.Runtime.Caching.MemoryCache)
+        /// provide a constructor with two parameters, first a string that gets the name of
+        /// the cache instance, second a NameValueCollection that gets the config parameter.
+        /// If config is null, a new NameValueCollection is created. If config does not already
+        /// contain an entry with key "directory", a new entry is added with this key and a
+        /// value that specifies the path to an application data directory where the cache
+        /// implementation may store persistent cache data files.
+        /// </summary>
+        public static void CreateCache<T>(NameValueCollection config = null) where T : ObjectCache
+        {
+            if (config == null)
+            {
+                config = new NameValueCollection(1);
+            }
+
+            if (config["directory"] == null)
+            {
+                config["directory"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl");
+            }
+
+            try
+            {
+                Cache = (ObjectCache)Activator.CreateInstance(typeof(T), "TileCache", config);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("Could not create instance of type {0} with String and NameValueCollection constructor parameters: {1}", typeof(T), ex.Message);
+                throw;
+            }
+        }
 
         static TileImageLoader()
         {
@@ -77,7 +110,7 @@ namespace MapControl
             };
         }
 
-        public TileImageLoader(TileLayer tileLayer)
+        internal TileImageLoader(TileLayer tileLayer)
         {
             this.tileLayer = tileLayer;
         }
@@ -128,7 +161,7 @@ namespace MapControl
                         }
                         else if (!CreateTileImage(tile, cachedImage.ImageBuffer))
                         {
-                            // got garbage from cache
+                            // got corrupted buffer from cache
                             Cache.Remove(key);
                             pendingTiles.Enqueue(tile);
                         }
@@ -215,28 +248,28 @@ namespace MapControl
 
                 TraceInformation("{0} - Completed", tile.Uri);
             }
-            catch (WebException exc)
+            catch (WebException ex)
             {
                 buffer = null;
 
-                if (exc.Status == WebExceptionStatus.ProtocolError)
+                if (ex.Status == WebExceptionStatus.ProtocolError)
                 {
-                    TraceInformation("{0} - {1}", tile.Uri, ((HttpWebResponse)exc.Response).StatusCode);
+                    TraceInformation("{0} - {1}", tile.Uri, ((HttpWebResponse)ex.Response).StatusCode);
                 }
-                else if (exc.Status == WebExceptionStatus.RequestCanceled) // by HttpWebRequest.Abort in CancelDownloadTiles
+                else if (ex.Status == WebExceptionStatus.RequestCanceled) // by HttpWebRequest.Abort in CancelDownloadTiles
                 {
-                    TraceInformation("{0} - {1}", tile.Uri, exc.Status);
+                    TraceInformation("{0} - {1}", tile.Uri, ex.Status);
                 }
                 else
                 {
-                    TraceWarning("{0} - {1}", tile.Uri, exc.Status);
+                    TraceWarning("{0} - {1}", tile.Uri, ex.Status);
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 buffer = null;
 
-                TraceWarning("{0} - {1}", tile.Uri, exc.Message);
+                TraceWarning("{0} - {1}", tile.Uri, ex.Message);
             }
 
             if (request != null)
@@ -267,9 +300,9 @@ namespace MapControl
 
                 Dispatcher.BeginInvoke((Action)(() => tile.Image = bitmap));
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                TraceWarning("Creating tile image failed: {0}", exc.Message);
+                TraceWarning("Creating tile image failed: {0}", ex.Message);
                 return false;
             }
 

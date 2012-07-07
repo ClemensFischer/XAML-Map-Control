@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using MapControl;
 using Caching;
+using MapControl;
 
 namespace SampleApplication
 {
@@ -15,13 +11,9 @@ namespace SampleApplication
     {
         public MainWindow()
         {
-            bool usePersistentCache = false;
-
-            if (usePersistentCache)
+            if (Properties.Settings.Default.UsePersistentCache)
             {
-                string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                string cachePath = Path.Combine(appDataFolder, "MapControl", "Cache.fdb");
-                TileImageLoader.Cache = new FileDbCache("MapControlCache", cachePath) { AutoFlush = false };
+                TileImageLoader.CreateCache<FileDbCache>();
             }
 
             InitializeComponent();

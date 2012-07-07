@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SurfaceApplication")]
-[assembly: AssemblyDescription("WPF Map Control Sample SurfaceApplication")]
+[assembly: AssemblyDescription("WPF Map Control Sample Surface Application")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyProduct("WPF Map Control")]

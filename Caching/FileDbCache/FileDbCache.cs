@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Caching;
@@ -18,24 +19,60 @@ namespace Caching
         private const string expiresField = "Expires";
 
         private readonly BinaryFormatter formatter = new BinaryFormatter();
-        private readonly FileDb fileDb = new FileDb();
+        private readonly FileDb fileDb = new FileDb { AutoFlush = false, AutoCleanThreshold = -1 };
         private readonly string name;
         private readonly string path;
 
-        public FileDbCache(string name, string path)
+        public FileDbCache(string name, NameValueCollection config)
+            : this(name, config["directory"])
         {
-            if (string.IsNullOrEmpty(path))
+            string autoFlush = config["autoFlush"];
+            string autoCleanThreshold = config["autoCleanThreshold"];
+
+            if (autoFlush != null)
             {
-                throw new ArgumentException("The parameter path must not be null or empty.");
+                try
+                {
+                    fileDb.AutoFlush = bool.Parse(autoFlush);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException("The configuration parameter autoFlush must be a boolean value.", ex);
+                }
             }
+
+            if (autoCleanThreshold != null)
+            {
+                try
+                {
+                    fileDb.AutoCleanThreshold = int.Parse(autoCleanThreshold);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException("The configuration parameter autoCleanThreshold must be an integer value.", ex);
+                }
+            }
+        }
+
+        public FileDbCache(string name, string directory)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("The parameter name must not be null or empty.");
+            }
+
+            if (string.IsNullOrEmpty(directory))
+            {
+                throw new ArgumentException("The parameter directory must not be null or empty.");
+            }
+
+            this.name = name;
+            path = Path.Combine(directory, name);
 
             if (string.IsNullOrEmpty(Path.GetExtension(path)))
             {
                 path += ".fdb";
             }
-
-            this.name = name;
-            this.path = path;
 
             try
             {
@@ -46,7 +83,7 @@ namespace Caching
                 CreateDatebase();
             }
 
-            Trace.TraceInformation("FileDbCache created with {0} cached items", fileDb.NumRecords);
+            Trace.TraceInformation("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, path);
         }
 
         public bool AutoFlush
@@ -96,21 +133,24 @@ namespace Caching
 
             long count = 0;
 
-            try
+            if (fileDb.IsOpen)
             {
-                count = fileDb.NumRecords;
-            }
-            catch
-            {
-                if (CheckReindex())
+                try
                 {
+                    count = fileDb.NumRecords;
+                }
+                catch (Exception ex1)
+                {
+                    Trace.TraceWarning("FileDbCache: FileDb.NumRecords failed: {0}", ex1.Message);
+
                     try
                     {
+                        fileDb.Reindex();
                         count = fileDb.NumRecords;
                     }
-                    catch
+                    catch (Exception ex2)
                     {
-                        CreateDatebase();
+                        Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex2.Message);
                     }
                 }
             }
@@ -118,75 +158,64 @@ namespace Caching
             return count;
         }
 
-        public override bool Contains(string key, string regionName = null)
+        private Record GetRecord(string key)
         {
-            if (regionName != null)
+            Record record = null;
+
+            if (fileDb.IsOpen)
             {
-                throw new NotSupportedException("The parameter regionName must be null.");
+                try
+                {
+                    record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
+                }
+                catch (Exception ex1)
+                {
+                    Trace.TraceWarning("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex1.Message);
+
+                    try
+                    {
+                        fileDb.Reindex();
+                        record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
+                    }
+                    catch (Exception ex2)
+                    {
+                        Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex2.Message);
+                    }
+                }
             }
 
+            return record;
+        }
+
+        public override bool Contains(string key, string regionName = null)
+        {
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            bool contains = false;
-
-            try
+            if (regionName != null)
             {
-                contains = fileDb.GetRecordByKey(key, new string[0], false) != null;
-            }
-            catch
-            {
-                if (CheckReindex())
-                {
-                    try
-                    {
-                        contains = fileDb.GetRecordByKey(key, new string[0], false) != null;
-                    }
-                    catch
-                    {
-                        CreateDatebase();
-                    }
-                }
+                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            return contains;
+            return GetRecord(key) != null;
         }
 
         public override object Get(string key, string regionName = null)
         {
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
-            }
-
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            object value = null;
-            Record record = null;
+            if (regionName != null)
+            {
+                throw new NotSupportedException("The parameter regionName must be null.");
+            }
 
-            try
-            {
-                record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
-            }
-            catch
-            {
-                if (CheckReindex())
-                {
-                    try
-                    {
-                        record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
-                    }
-                    catch
-                    {
-                        CreateDatebase();
-                    }
-                }
-            }
+            object value = null;
+            Record record = GetRecord(key);
 
             if (record != null)
             {
@@ -197,16 +226,17 @@ namespace Caching
                         value = formatter.Deserialize(stream);
                     }
                 }
-                catch (Exception exc)
+                catch (Exception ex1)
                 {
-                    Trace.TraceWarning("FileDbCache.Get({0}): {1}", key, exc.Message);
+                    Trace.TraceWarning("FileDbCache: Failed deserializing item \"{0}\": {1}", key, ex1.Message);
 
                     try
                     {
                         fileDb.DeleteRecordByKey(key);
                     }
-                    catch
+                    catch (Exception ex2)
                     {
+                        Trace.TraceWarning("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex2.Message);
                     }
                 }
             }
@@ -239,9 +269,9 @@ namespace Caching
 
         public override void Set(string key, object value, CacheItemPolicy policy, string regionName = null)
         {
-            if (regionName != null)
+            if (key == null)
             {
-                throw new NotSupportedException("The parameter regionName must be null.");
+                throw new ArgumentNullException("The parameter key must not be null.");
             }
 
             if (value == null)
@@ -249,53 +279,57 @@ namespace Caching
                 throw new ArgumentNullException("The parameter value must not be null.");
             }
 
-            if (key == null)
+            if (regionName != null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            byte[] valueBuffer = null;
-
-            try
+            if (fileDb.IsOpen)
             {
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    formatter.Serialize(stream, value);
-                    valueBuffer = stream.ToArray();
-                }
-            }
-            catch (Exception exc)
-            {
-                Trace.TraceWarning("FileDbCache.Set({0}): {1}", key, exc.Message);
-            }
-
-            if (valueBuffer != null)
-            {
-                DateTime expires = DateTime.MaxValue;
-
-                if (policy.AbsoluteExpiration != InfiniteAbsoluteExpiration)
-                {
-                    expires = policy.AbsoluteExpiration.DateTime;
-                }
-                else if (policy.SlidingExpiration != NoSlidingExpiration)
-                {
-                    expires = DateTime.UtcNow + policy.SlidingExpiration;
-                }
+                byte[] valueBuffer = null;
 
                 try
                 {
-                    AddOrUpdateRecord(key, valueBuffer, expires);
-                }
-                catch
-                {
-                    if (CheckReindex())
+                    using (MemoryStream stream = new MemoryStream())
                     {
+                        formatter.Serialize(stream, value);
+                        valueBuffer = stream.ToArray();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceWarning("FileDbCache: Failed serializing item \"{0}\": {1}", key, ex.Message);
+                }
+
+                if (valueBuffer != null)
+                {
+                    DateTime expires = DateTime.MaxValue;
+
+                    if (policy.AbsoluteExpiration != InfiniteAbsoluteExpiration)
+                    {
+                        expires = policy.AbsoluteExpiration.DateTime;
+                    }
+                    else if (policy.SlidingExpiration != NoSlidingExpiration)
+                    {
+                        expires = DateTime.UtcNow + policy.SlidingExpiration;
+                    }
+
+                    try
+                    {
+                        AddOrUpdateRecord(key, valueBuffer, expires);
+                    }
+                    catch (Exception ex1)
+                    {
+                        Trace.TraceWarning("FileDbCache: FileDb.UpdateRecordByKey(\"{0}\") failed: {1}", key, ex1.Message);
+
                         try
                         {
+                            fileDb.Reindex();
                             AddOrUpdateRecord(key, valueBuffer, expires);
                         }
-                        catch
+                        catch (Exception ex2)
                         {
+                            Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}, creating new database", ex2.Message);
                             CreateDatebase();
                             AddOrUpdateRecord(key, valueBuffer, expires);
                         }
@@ -343,8 +377,9 @@ namespace Caching
                 {
                     fileDb.DeleteRecordByKey(key);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Trace.TraceWarning("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
                 }
             }
 
@@ -357,9 +392,9 @@ namespace Caching
             {
                 fileDb.Flush();
             }
-            catch
+            catch (Exception ex)
             {
-                CheckReindex();
+                Trace.TraceWarning("FileDbCache: FileDb.Flush() failed: {0}", ex.Message);
             }
         }
 
@@ -369,40 +404,29 @@ namespace Caching
             {
                 fileDb.Clean();
             }
-            catch
+            catch (Exception ex)
             {
-                CheckReindex();
+                Trace.TraceWarning("FileDbCache: FileDb.Clean() failed: {0}", ex.Message);
             }
         }
 
         public void Dispose()
         {
-            try
-            {
-                fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, EqualityEnum.LessThanOrEqual));
-                Trace.TraceInformation("FileDbCache has deleted {0} expired items", fileDb.NumDeleted);
-                fileDb.Clean();
-                fileDb.Close();
-            }
-            catch
-            {
-                if (CheckReindex())
-                {
-                    fileDb.Close();
-                }
-            }
-        }
-
-        private bool CheckReindex()
-        {
             if (fileDb.IsOpen)
             {
-                Trace.TraceWarning("FileDbCache is reindexing the cache database");
-                fileDb.Reindex();
-                return true;
-            }
+                try
+                {
+                    fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, EqualityEnum.LessThanOrEqual));
+                    Trace.TraceInformation("FileDbCache: Deleting {0} expired items", fileDb.NumDeleted);
+                    fileDb.Clean();
+                }
+                catch
+                {
+                    fileDb.Reindex();
+                }
 
-            return false;
+                fileDb.Close();
+            }
         }
 
         private void CreateDatebase()

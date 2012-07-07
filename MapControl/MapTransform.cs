@@ -2,7 +2,6 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;

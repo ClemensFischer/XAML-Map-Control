@@ -2,12 +2,10 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace MapControl
 {
