@@ -52,7 +52,7 @@ namespace MapControl
             set { ((MatrixTransform)VisualTransform).Matrix = value; }
         }
 
-        public void UpdateTiles(int zoomLevel, Int32Rect grid)
+        internal void UpdateTiles(int zoomLevel, Int32Rect grid)
         {
             this.grid = grid;
             this.zoomLevel = zoomLevel;
@@ -68,7 +68,7 @@ namespace MapControl
             }
         }
 
-        public void ClearTiles()
+        internal void ClearTiles()
         {
             tiles.Clear();
             tileImageLoader.CancelDownloadTiles();

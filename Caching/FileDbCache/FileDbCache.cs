@@ -417,7 +417,7 @@ namespace Caching
                 try
                 {
                     fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, EqualityEnum.LessThanOrEqual));
-                    Trace.TraceInformation("FileDbCache: Deleting {0} expired items", fileDb.NumDeleted);
+                    Trace.TraceInformation("FileDbCache: Deleted {0} expired items", fileDb.NumDeleted);
                     fileDb.Clean();
                 }
                 catch
