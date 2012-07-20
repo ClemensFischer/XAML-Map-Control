@@ -37,7 +37,6 @@ namespace MapControl
         private readonly TileLayer tileLayer;
         private readonly Queue<Tile> pendingTiles = new Queue<Tile>();
         private readonly HashSet<HttpWebRequest> currentRequests = new HashSet<HttpWebRequest>();
-        private int numDownloads;
 
         /// <summary>
         /// The ObjectCache used to cache tile images.
@@ -115,12 +114,12 @@ namespace MapControl
             this.tileLayer = tileLayer;
         }
 
-        internal void BeginDownloadTiles(ICollection<Tile> tiles)
+        internal void BeginGetTiles(ICollection<Tile> tiles)
         {
-            ThreadPool.QueueUserWorkItem(BeginDownloadTilesAsync, new List<Tile>(tiles.Where(t => t.Image == null && t.Uri == null)));
+            ThreadPool.QueueUserWorkItem(BeginGetTilesAsync, new List<Tile>(tiles.Where(t => t.Image == null && t.Uri == null)));
         }
 
-        internal void CancelDownloadTiles()
+        internal void CancelGetTiles()
         {
             lock (pendingTiles)
             {
@@ -136,77 +135,90 @@ namespace MapControl
             }
         }
 
-        private void BeginDownloadTilesAsync(object newTilesList)
+        private void BeginGetTilesAsync(object newTilesList)
         {
             List<Tile> newTiles = (List<Tile>)newTilesList;
+            ImageTileSource imageTileSource = tileLayer.TileSource as ImageTileSource;
 
-            lock (pendingTiles)
+            if (imageTileSource != null)
             {
-                if (Cache == null)
+                newTiles.ForEach(tile =>
                 {
-                    newTiles.ForEach(tile => pendingTiles.Enqueue(tile));
-                }
-                else
+                    Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel)));
+                });
+            }
+            else
+            {
+                lock (pendingTiles)
                 {
-                    List<Tile> outdatedTiles = new List<Tile>(newTiles.Count);
-
-                    newTiles.ForEach(tile =>
+                    if (Cache == null)
                     {
-                        string key = CacheKey(tile);
-                        CachedImage cachedImage = Cache.Get(key) as CachedImage;
+                        newTiles.ForEach(tile => pendingTiles.Enqueue(tile));
+                    }
+                    else
+                    {
+                        List<Tile> outdatedTiles = new List<Tile>(newTiles.Count);
 
-                        if (cachedImage == null)
+                        newTiles.ForEach(tile =>
                         {
-                            pendingTiles.Enqueue(tile);
-                        }
-                        else if (!CreateTileImage(tile, cachedImage.ImageBuffer))
-                        {
-                            // got corrupted buffer from cache
-                            Cache.Remove(key);
-                            pendingTiles.Enqueue(tile);
-                        }
-                        else if (cachedImage.CreationTime + CacheUpdateAge < DateTime.UtcNow)
-                        {
-                            // update cached image
-                            outdatedTiles.Add(tile);
-                        }
-                    });
+                            string key = CacheKey(tile);
+                            CachedImage cachedImage = Cache.Get(key) as CachedImage;
 
-                    outdatedTiles.ForEach(tile => pendingTiles.Enqueue(tile));
+                            if (cachedImage == null)
+                            {
+                                pendingTiles.Enqueue(tile);
+                            }
+                            else if (!CreateTileImage(tile, cachedImage.ImageBuffer))
+                            {
+                                // got corrupted buffer from cache
+                                Cache.Remove(key);
+                                pendingTiles.Enqueue(tile);
+                            }
+                            else if (cachedImage.CreationTime + CacheUpdateAge < DateTime.UtcNow)
+                            {
+                                // update cached image
+                                outdatedTiles.Add(tile);
+                            }
+                        });
+
+                        outdatedTiles.ForEach(tile => pendingTiles.Enqueue(tile));
+                    }
+
+                    int numDownloads = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads);
+
+                    while (--numDownloads >= 0)
+                    {
+                        ThreadPool.QueueUserWorkItem(DownloadTiles);
+                    }
+                }
+            }
+        }
+
+        private void DownloadTiles(object o)
+        {
+            while (pendingTiles.Count > 0)
+            {
+                Tile tile;
+
+                lock (pendingTiles)
+                {
+                    if (pendingTiles.Count == 0)
+                    {
+                        break;
+                    }
+
+                    tile = pendingTiles.Dequeue();
                 }
 
-                DownloadNextTiles(null);
-            }
-        }
-
-        private void DownloadNextTiles(object o)
-        {
-            while (pendingTiles.Count > 0 && numDownloads < tileLayer.MaxDownloads)
-            {
-                Tile tile = pendingTiles.Dequeue();
                 tile.Uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-                numDownloads++;
+                byte[] imageBuffer = DownloadImage(tile);
 
-                ThreadPool.QueueUserWorkItem(DownloadTileAsync, tile);
-            }
-        }
-
-        private void DownloadTileAsync(object t)
-        {
-            Tile tile = (Tile)t;
-            byte[] imageBuffer = DownloadImage(tile);
-
-            if (imageBuffer != null &&
-                CreateTileImage(tile, imageBuffer) &&
-                Cache != null)
-            {
-                Cache.Set(CacheKey(tile), new CachedImage(imageBuffer), new CacheItemPolicy { SlidingExpiration = CacheExpiration });
-            }
-
-            lock (pendingTiles)
-            {
-                numDownloads--;
-                DownloadNextTiles(null);
+                if (imageBuffer != null &&
+                    CreateTileImage(tile, imageBuffer) &&
+                    Cache != null)
+                {
+                    Cache.Set(CacheKey(tile), new CachedImage(imageBuffer), new CacheItemPolicy { SlidingExpiration = CacheExpiration });
+                }
             }
         }
 
@@ -256,7 +268,7 @@ namespace MapControl
                 {
                     TraceInformation("{0} - {1}", tile.Uri, ((HttpWebResponse)ex.Response).StatusCode);
                 }
-                else if (ex.Status == WebExceptionStatus.RequestCanceled) // by HttpWebRequest.Abort in CancelDownloadTiles
+                else if (ex.Status == WebExceptionStatus.RequestCanceled) // by HttpWebRequest.Abort in CancelGetTiles
                 {
                     TraceInformation("{0} - {1}", tile.Uri, ex.Status);
                 }
@@ -285,10 +297,10 @@ namespace MapControl
 
         private bool CreateTileImage(Tile tile, byte[] buffer)
         {
+            BitmapImage bitmap = new BitmapImage();
+
             try
             {
-                BitmapImage bitmap = new BitmapImage();
-
                 using (Stream stream = new MemoryStream(buffer))
                 {
                     bitmap.BeginInit();
@@ -297,8 +309,6 @@ namespace MapControl
                     bitmap.EndInit();
                     bitmap.Freeze();
                 }
-
-                Dispatcher.BeginInvoke((Action)(() => tile.Image = bitmap));
             }
             catch (Exception ex)
             {
@@ -306,6 +316,7 @@ namespace MapControl
                 return false;
             }
 
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = bitmap));
             return true;
         }
 

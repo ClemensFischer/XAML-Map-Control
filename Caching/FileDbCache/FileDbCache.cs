@@ -77,13 +77,12 @@ namespace Caching
             try
             {
                 fileDb.Open(path, false);
+                Trace.TraceInformation("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, path);
             }
             catch
             {
-                CreateDatebase();
+                CreateDatabase();
             }
-
-            Trace.TraceInformation("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, path);
         }
 
         public bool AutoFlush
@@ -139,18 +138,13 @@ namespace Caching
                 {
                     count = fileDb.NumRecords;
                 }
-                catch (Exception ex1)
+                catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: FileDb.NumRecords failed: {0}", ex1.Message);
+                    Trace.TraceWarning("FileDbCache: FileDb.NumRecords failed: {0}", ex.Message);
 
-                    try
+                    if (RepairDatabase())
                     {
-                        fileDb.Reindex();
                         count = fileDb.NumRecords;
-                    }
-                    catch (Exception ex2)
-                    {
-                        Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex2.Message);
                     }
                 }
             }
@@ -168,18 +162,13 @@ namespace Caching
                 {
                     record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
                 }
-                catch (Exception ex1)
+                catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex1.Message);
+                    Trace.TraceWarning("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
 
-                    try
+                    if (RepairDatabase())
                     {
-                        fileDb.Reindex();
                         record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
-                    }
-                    catch (Exception ex2)
-                    {
-                        Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex2.Message);
                     }
                 }
             }
@@ -228,7 +217,7 @@ namespace Caching
                 }
                 catch (Exception ex1)
                 {
-                    Trace.TraceWarning("FileDbCache: Failed deserializing item \"{0}\": {1}", key, ex1.Message);
+                    Trace.TraceWarning("FileDbCache: Deserializing item \"{0}\" failed: {1}", key, ex1.Message);
 
                     try
                     {
@@ -298,7 +287,7 @@ namespace Caching
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: Failed serializing item \"{0}\": {1}", key, ex.Message);
+                    Trace.TraceWarning("FileDbCache: Serializing item \"{0}\" failed: {1}", key, ex.Message);
                 }
 
                 if (valueBuffer != null)
@@ -318,19 +307,12 @@ namespace Caching
                     {
                         AddOrUpdateRecord(key, valueBuffer, expires);
                     }
-                    catch (Exception ex1)
+                    catch (Exception ex)
                     {
-                        Trace.TraceWarning("FileDbCache: FileDb.UpdateRecordByKey(\"{0}\") failed: {1}", key, ex1.Message);
+                        Trace.TraceWarning("FileDbCache: FileDb.UpdateRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
 
-                        try
+                        if (RepairDatabase())
                         {
-                            fileDb.Reindex();
-                            AddOrUpdateRecord(key, valueBuffer, expires);
-                        }
-                        catch (Exception ex2)
-                        {
-                            Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}, creating new database", ex2.Message);
-                            CreateDatebase();
                             AddOrUpdateRecord(key, valueBuffer, expires);
                         }
                     }
@@ -422,30 +404,62 @@ namespace Caching
                 }
                 catch
                 {
-                    fileDb.Reindex();
                 }
 
                 fileDb.Close();
             }
         }
 
-        private void CreateDatebase()
+        private bool RepairDatabase()
         {
-            if (File.Exists(path))
+            try
             {
-                File.Delete(path);
+                fileDb.Reindex();
             }
-            else
+            catch (Exception ex)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex.Message);
+                return CreateDatabase();
             }
 
-            fileDb.Create(path, new Field[]
+            return true;
+        }
+
+        private bool CreateDatabase()
+        {
+            if (fileDb.IsOpen)
+            {
+                fileDb.Close();
+            }
+
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                else
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                }
+
+                fileDb.Create(path,
+                    new Field[]
                 {
                     new Field(keyField, DataTypeEnum.String) { IsPrimaryKey = true },
                     new Field(valueField, DataTypeEnum.Byte) { IsArray = true },
                     new Field(expiresField, DataTypeEnum.DateTime)
                 });
+
+                Trace.TraceInformation("FileDbCache: Created database {0}", path);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("FileDbCache: Creating database failed: {0}", ex.Message);
+                return false;
+            }
+
+            return true;
         }
 
         private void AddOrUpdateRecord(string key, object value, DateTime expires)

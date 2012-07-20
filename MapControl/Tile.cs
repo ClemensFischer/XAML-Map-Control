@@ -5,6 +5,7 @@
 using System;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
@@ -42,11 +43,35 @@ namespace MapControl
             {
                 if (Brush.ImageSource == null)
                 {
-                    Brush.BeginAnimation(ImageBrush.OpacityProperty, opacityAnimation);
+                    BitmapImage bitmap = value as BitmapImage;
+
+                    if (bitmap != null && bitmap.IsDownloading)
+                    {
+                        bitmap.DownloadCompleted += BitmapDownloadCompleted;
+                        bitmap.DownloadFailed += BitmapDownloadFailed;
+                    }
+                    else
+                    {
+                        Brush.BeginAnimation(ImageBrush.OpacityProperty, opacityAnimation);
+                    }
                 }
 
                 Brush.ImageSource = value;
             }
+        }
+
+        private void BitmapDownloadCompleted(object sender, EventArgs e)
+        {
+            ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
+            ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
+            Brush.BeginAnimation(ImageBrush.OpacityProperty, opacityAnimation);
+        }
+
+        private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
+        {
+            ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
+            ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
+            Brush.ImageSource = null;
         }
     }
 }

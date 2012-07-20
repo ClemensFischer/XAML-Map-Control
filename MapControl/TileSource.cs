@@ -7,48 +7,100 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace MapControl
 {
     /// <summary>
-    /// Defines the URI of a map tile.
+    /// Provides the URI of a map tile.
     /// </summary>
     [TypeConverter(typeof(TileSourceTypeConverter))]
     public class TileSource
     {
-        public string UriFormat { get; set; }
+        private Func<int, int, int, Uri> getUri;
+        private string uriFormat = string.Empty;
+        private int hostIndex = -1;
+
+        public TileSource()
+        {
+        }
+
+        public TileSource(string uriFormat)
+        {
+            UriFormat = uriFormat;
+        }
+
+        public string UriFormat
+        {
+            get { return uriFormat; }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentException("The value of the UriFormat proprty must not be null or empty or white-space only.");
+                }
+
+                if (value.Contains("{x}") && value.Contains("{y}") && value.Contains("{z}"))
+                {
+                    if (value.Contains("{c}"))
+                    {
+                        getUri = GetOpenStreetMapUri;
+                    }
+                    else if (value.Contains("{i}"))
+                    {
+                        getUri = GetGoogleMapsUri;
+                    }
+                    else if (value.Contains("{n}"))
+                    {
+                        getUri = GetMapQuestUri;
+                    }
+                    else
+                    {
+                        getUri = GetDefaultUri;
+                    }
+                }
+                else if (value.Contains("{q}")) // {i} is optional
+                {
+                    getUri = GetQuadKeyUri;
+                }
+                else if (value.Contains("{w}") && value.Contains("{s}") && value.Contains("{e}") && value.Contains("{n}"))
+                {
+                    getUri = GetBoundingBoxUri;
+                }
+                else
+                {
+                    throw new ArgumentException("The specified UriFormat is not supported.");
+                }
+
+                uriFormat = value;
+            }
+        }
 
         public virtual Uri GetUri(int x, int y, int zoomLevel)
         {
-            return new Uri(UriFormat.
-                Replace("{x}", x.ToString()).
-                Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+            return getUri != null ? getUri(x, y, zoomLevel) : null;
         }
-    }
 
-    public class OpenStreetMapTileSource : TileSource
-    {
-        private static string[] hostChars = { "a", "b", "c" };
-        private int hostChar = -1;
-
-        public override Uri GetUri(int x, int y, int zoomLevel)
+        private Uri GetDefaultUri(int x, int y, int zoomLevel)
         {
-            hostChar = (hostChar + 1) % 3;
-
             return new Uri(UriFormat.
-                Replace("{c}", hostChars[hostChar]).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
                 Replace("{z}", zoomLevel.ToString()));
         }
-    }
 
-    public class GoogleMapsTileSource : TileSource
-    {
-        private int hostIndex = -1;
+        private Uri GetOpenStreetMapUri(int x, int y, int zoomLevel)
+        {
+            hostIndex = (hostIndex + 1) % 3;
 
-        public override Uri GetUri(int x, int y, int zoomLevel)
+            return new Uri(UriFormat.
+                Replace("{c}", "abc".Substring(hostIndex, 1)).
+                Replace("{x}", x.ToString()).
+                Replace("{y}", y.ToString()).
+                Replace("{z}", zoomLevel.ToString()));
+        }
+
+        private Uri GetGoogleMapsUri(int x, int y, int zoomLevel)
         {
             hostIndex = (hostIndex + 1) % 4;
 
@@ -58,27 +110,19 @@ namespace MapControl
                 Replace("{y}", y.ToString()).
                 Replace("{z}", zoomLevel.ToString()));
         }
-    }
 
-    public class MapQuestTileSource : TileSource
-    {
-        private int hostNumber;
-
-        public override Uri GetUri(int x, int y, int zoomLevel)
+        private Uri GetMapQuestUri(int x, int y, int zoomLevel)
         {
-            hostNumber = (hostNumber % 4) + 1;
+            hostIndex = (hostIndex % 4) + 1;
 
             return new Uri(UriFormat.
-                Replace("{n}", hostNumber.ToString()).
+                Replace("{n}", hostIndex.ToString()).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
                 Replace("{z}", zoomLevel.ToString()));
         }
-    }
 
-    public class QuadKeyTileSource : TileSource
-    {
-        public override Uri GetUri(int x, int y, int zoomLevel)
+        private Uri GetQuadKeyUri(int x, int y, int zoomLevel)
         {
             StringBuilder key = new StringBuilder { Length = zoomLevel };
 
@@ -91,11 +135,8 @@ namespace MapControl
                 Replace("{i}", key.ToString(key.Length - 1, 1)).
                 Replace("{q}", key.ToString()));
         }
-    }
 
-    public class BoundingBoxTileSource : TileSource
-    {
-        public override Uri GetUri(int x, int y, int zoomLevel)
+        private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
             MercatorTransform t = new MercatorTransform();
             double n = 1 << zoomLevel;
@@ -114,57 +155,28 @@ namespace MapControl
         }
     }
 
+    /// <summary>
+    /// Provides the image of a map tile. ImageTileSource bypasses downloading
+    /// and caching of tile images that is performed by TileImageLoader.
+    /// </summary>
+    public abstract class ImageTileSource : TileSource
+    {
+        public abstract ImageSource GetImage(int x, int y, int zoomLevel);
+    }
+
+    /// <summary>
+    /// Converts from string to TileSource.
+    /// </summary>
     public class TileSourceTypeConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+            return sourceType == typeof(string);
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            string uriFormat = value as string;
-
-            if (uriFormat != null)
-            {
-                TileSource tileSource = null;
-
-                if (uriFormat.Contains("{x}") && uriFormat.Contains("{y}") && uriFormat.Contains("{z}"))
-                {
-                    if (uriFormat.Contains("{c}"))
-                    {
-                        tileSource = new OpenStreetMapTileSource();
-                    }
-                    else if (uriFormat.Contains("{i}"))
-                    {
-                        tileSource = new GoogleMapsTileSource();
-                    }
-                    else if (uriFormat.Contains("{n}"))
-                    {
-                        tileSource = new MapQuestTileSource();
-                    }
-                    else
-                    {
-                        tileSource = new TileSource();
-                    }
-                }
-                else if (uriFormat.Contains("{q}"))
-                {
-                    tileSource = new QuadKeyTileSource();
-                }
-                else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
-                {
-                    tileSource = new BoundingBoxTileSource();
-                }
-
-                if (tileSource != null)
-                {
-                    tileSource.UriFormat = uriFormat;
-                    return tileSource;
-                }
-            }
-
-            return base.ConvertFrom(context, culture, value);
+            return new TileSource(value as string);
         }
     }
 }

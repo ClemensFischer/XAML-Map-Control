@@ -30,14 +30,14 @@ namespace MapControl
             Name = string.Empty;
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
-            MaxDownloads = 8;
+            MaxParallelDownloads = 8;
         }
 
         public string Name { get; set; }
         public TileSource TileSource { get; set; }
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
-        public int MaxDownloads { get; set; }
+        public int MaxParallelDownloads { get; set; }
         public bool HasDarkBackground { get; set; }
 
         public string Description
@@ -57,21 +57,21 @@ namespace MapControl
             this.grid = grid;
             this.zoomLevel = zoomLevel;
 
-            tileImageLoader.CancelDownloadTiles();
+            tileImageLoader.CancelGetTiles();
 
             if (VisualParent != null && TileSource != null)
             {
                 SelectTiles();
                 RenderTiles();
 
-                tileImageLoader.BeginDownloadTiles(tiles);
+                tileImageLoader.BeginGetTiles(tiles);
             }
         }
 
         internal void ClearTiles()
         {
             tiles.Clear();
-            tileImageLoader.CancelDownloadTiles();
+            tileImageLoader.CancelGetTiles();
         }
 
         private void SelectTiles()

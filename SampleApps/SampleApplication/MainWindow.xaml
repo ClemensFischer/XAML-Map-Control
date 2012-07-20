@@ -128,6 +128,7 @@
                                        TileSource="http://{c}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"/>
                         <map:TileLayer Name="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
                                        TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
+
                         <!--<map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
                                        TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
                         <map:TileLayer Name="Google Images" Description="Google Maps - © {y} Google"
@@ -138,6 +139,14 @@
                                        TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20" HasDarkBackground="True"/>
                         <map:TileLayer Name="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation"
                                        TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>-->
+
+                        <!-- The TileLayer below uses an ImageTileSource that bypasses caching of map tile images -->
+                        
+                         <map:TileLayer Name="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
+                            <map:TileLayer.TileSource>
+                                <local:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                            </map:TileLayer.TileSource>
+                        </map:TileLayer>
                     </ComboBox.Items>
                 </ComboBox>
             </StackPanel>
