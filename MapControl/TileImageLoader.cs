@@ -138,10 +138,11 @@ namespace MapControl
         private void BeginGetTilesAsync(object newTilesList)
         {
             List<Tile> newTiles = (List<Tile>)newTilesList;
-            ImageTileSource imageTileSource = tileLayer.TileSource as ImageTileSource;
 
-            if (imageTileSource != null)
+            if (tileLayer.TileSource is ImageTileSource)
             {
+                ImageTileSource imageTileSource = (ImageTileSource)tileLayer.TileSource;
+
                 newTiles.ForEach(tile =>
                 {
                     Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel)));

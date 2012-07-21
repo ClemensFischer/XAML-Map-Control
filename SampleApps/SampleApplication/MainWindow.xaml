@@ -144,7 +144,7 @@
                         
                          <map:TileLayer Name="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
                             <map:TileLayer.TileSource>
-                                <local:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                                <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
                             </map:TileLayer.TileSource>
                         </map:TileLayer>
                     </ComboBox.Items>
