@@ -247,14 +247,22 @@ namespace MapControl
                 }
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream responseStream = response.GetResponseStream())
                 {
-                    using (Stream responseStream = response.GetResponseStream())
+                    if (response.ContentLength > 0)
                     {
-                        buffer = new byte[(int)response.ContentLength];
-
-                        using (MemoryStream memoryStream = new MemoryStream(buffer))
+                        using (MemoryStream memoryStream = new MemoryStream((int)response.ContentLength))
                         {
                             responseStream.CopyTo(memoryStream);
+                            buffer = memoryStream.GetBuffer();
+                        }
+                    }
+                    else
+                    {
+                        using (MemoryStream memoryStream = new MemoryStream())
+                        {
+                            responseStream.CopyTo(memoryStream);
+                            buffer = memoryStream.ToArray();
                         }
                     }
                 }
@@ -263,8 +271,6 @@ namespace MapControl
             }
             catch (WebException ex)
             {
-                buffer = null;
-
                 if (ex.Status == WebExceptionStatus.ProtocolError)
                 {
                     TraceInformation("{0} - {1}", tile.Uri, ((HttpWebResponse)ex.Response).StatusCode);
@@ -280,8 +286,6 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                buffer = null;
-
                 TraceWarning("{0} - {1}", tile.Uri, ex.Message);
             }
 
