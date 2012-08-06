@@ -378,8 +378,15 @@ namespace MapControl
         {
             if (translation.X != 0d || translation.Y != 0d)
             {
-                ResetTransformOrigin();
-                Center = ViewportPointToLocation(viewportOrigin - translation);
+                if (transformOrigin != null)
+                {
+                    viewportOrigin += translation;
+                    UpdateViewTransform();
+                }
+                else
+                {
+                    Center = ViewportPointToLocation(viewportOrigin - translation);
+                }
             }
         }
 
@@ -566,6 +573,7 @@ namespace MapControl
                     From = Center,
                     To = targetCenter,
                     Duration = TimeSpan.FromSeconds(0.5),
+                    FillBehavior = FillBehavior.Stop,
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
 
@@ -577,7 +585,7 @@ namespace MapControl
         private void CenterAnimationCompleted(object sender, EventArgs eventArgs)
         {
             Center = TargetCenter;
-            BeginAnimation(CenterProperty, null);
+            centerAnimation.Completed -= CenterAnimationCompleted;
             centerAnimation = null;
         }
 
@@ -615,6 +623,7 @@ namespace MapControl
                     From = ZoomLevel,
                     To = targetZoomLevel,
                     Duration = TimeSpan.FromSeconds(0.5),
+                    FillBehavior = FillBehavior.Stop,
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
 
@@ -626,7 +635,7 @@ namespace MapControl
         private void ZoomLevelAnimationCompleted(object sender, EventArgs eventArgs)
         {
             ZoomLevel = TargetZoomLevel;
-            BeginAnimation(ZoomLevelProperty, null);
+            zoomLevelAnimation.Completed -= ZoomLevelAnimationCompleted;
             zoomLevelAnimation = null;
             ResetTransformOrigin();
         }
@@ -674,6 +683,7 @@ namespace MapControl
                     From = Heading,
                     By = delta,
                     Duration = TimeSpan.FromSeconds(0.5),
+                    FillBehavior = FillBehavior.Stop,
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
 
@@ -685,7 +695,7 @@ namespace MapControl
         private void HeadingAnimationCompleted(object sender, EventArgs eventArgs)
         {
             Heading = TargetHeading;
-            BeginAnimation(HeadingProperty, null);
+            headingAnimation.Completed -= HeadingAnimationCompleted;
             headingAnimation = null;
         }
 

@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -35,8 +36,7 @@ namespace MapControl
         }
 
         private readonly TileLayer tileLayer;
-        private readonly Queue<Tile> pendingTiles = new Queue<Tile>();
-        private readonly HashSet<HttpWebRequest> currentRequests = new HashSet<HttpWebRequest>();
+        private readonly ConcurrentQueue<Tile> pendingTiles = new ConcurrentQueue<Tile>();
 
         /// <summary>
         /// The ObjectCache used to cache tile images.
@@ -121,18 +121,8 @@ namespace MapControl
 
         internal void CancelGetTiles()
         {
-            lock (pendingTiles)
-            {
-                pendingTiles.Clear();
-            }
-
-            lock (currentRequests)
-            {
-                foreach (HttpWebRequest request in currentRequests)
-                {
-                    request.Abort();
-                }
-            }
+            Tile tile;
+            while (pendingTiles.TryDequeue(out tile)) ; // no Clear method
         }
 
         private void BeginGetTilesAsync(object newTilesList)
@@ -150,67 +140,53 @@ namespace MapControl
             }
             else
             {
-                lock (pendingTiles)
+                if (Cache == null)
                 {
-                    if (Cache == null)
-                    {
-                        newTiles.ForEach(tile => pendingTiles.Enqueue(tile));
-                    }
-                    else
-                    {
-                        List<Tile> outdatedTiles = new List<Tile>(newTiles.Count);
+                    newTiles.ForEach(tile => pendingTiles.Enqueue(tile));
+                }
+                else
+                {
+                    List<Tile> outdatedTiles = new List<Tile>(newTiles.Count);
 
-                        newTiles.ForEach(tile =>
+                    newTiles.ForEach(tile =>
+                    {
+                        string key = CacheKey(tile);
+                        CachedImage cachedImage = Cache.Get(key) as CachedImage;
+
+                        if (cachedImage == null)
                         {
-                            string key = CacheKey(tile);
-                            CachedImage cachedImage = Cache.Get(key) as CachedImage;
+                            pendingTiles.Enqueue(tile);
+                        }
+                        else if (!CreateTileImage(tile, cachedImage.ImageBuffer))
+                        {
+                            // got corrupted buffer from cache
+                            Cache.Remove(key);
+                            pendingTiles.Enqueue(tile);
+                        }
+                        else if (cachedImage.CreationTime + CacheUpdateAge < DateTime.UtcNow)
+                        {
+                            // update cached image
+                            outdatedTiles.Add(tile);
+                        }
+                    });
 
-                            if (cachedImage == null)
-                            {
-                                pendingTiles.Enqueue(tile);
-                            }
-                            else if (!CreateTileImage(tile, cachedImage.ImageBuffer))
-                            {
-                                // got corrupted buffer from cache
-                                Cache.Remove(key);
-                                pendingTiles.Enqueue(tile);
-                            }
-                            else if (cachedImage.CreationTime + CacheUpdateAge < DateTime.UtcNow)
-                            {
-                                // update cached image
-                                outdatedTiles.Add(tile);
-                            }
-                        });
+                    outdatedTiles.ForEach(tile => pendingTiles.Enqueue(tile));
+                }
 
-                        outdatedTiles.ForEach(tile => pendingTiles.Enqueue(tile));
-                    }
+                int numDownloads = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads);
 
-                    int numDownloads = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads);
-
-                    while (--numDownloads >= 0)
-                    {
-                        ThreadPool.QueueUserWorkItem(DownloadTiles);
-                    }
+                while (--numDownloads >= 0)
+                {
+                    ThreadPool.QueueUserWorkItem(DownloadTiles);
                 }
             }
         }
 
         private void DownloadTiles(object o)
         {
-            while (pendingTiles.Count > 0)
+            Tile tile;
+            while (pendingTiles.TryDequeue(out tile))
             {
-                Tile tile;
-
-                lock (pendingTiles)
-                {
-                    if (pendingTiles.Count == 0)
-                    {
-                        break;
-                    }
-
-                    tile = pendingTiles.Dequeue();
-                }
-
                 tile.Uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
                 byte[] imageBuffer = DownloadImage(tile);
 
@@ -241,11 +217,6 @@ namespace MapControl
                 request.UserAgent = typeof(TileImageLoader).ToString();
                 request.KeepAlive = true;
 
-                lock (currentRequests)
-                {
-                    currentRequests.Add(request);
-                }
-
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 using (Stream responseStream = response.GetResponseStream())
                 {
@@ -275,10 +246,6 @@ namespace MapControl
                 {
                     TraceInformation("{0} - {1}", tile.Uri, ((HttpWebResponse)ex.Response).StatusCode);
                 }
-                else if (ex.Status == WebExceptionStatus.RequestCanceled) // by HttpWebRequest.Abort in CancelGetTiles
-                {
-                    TraceInformation("{0} - {1}", tile.Uri, ex.Status);
-                }
                 else
                 {
                     TraceWarning("{0} - {1}", tile.Uri, ex.Status);
@@ -287,14 +254,6 @@ namespace MapControl
             catch (Exception ex)
             {
                 TraceWarning("{0} - {1}", tile.Uri, ex.Message);
-            }
-
-            if (request != null)
-            {
-                lock (currentRequests)
-                {
-                    currentRequests.Remove(request);
-                }
             }
 
             return buffer;
