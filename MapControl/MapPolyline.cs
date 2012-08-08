@@ -156,13 +156,13 @@ namespace MapControl
             AddVisualChild(visual);
         }
 
-        protected override void OnViewTransformChanged(Map parentMap)
+        protected override void OnViewportChanged()
         {
             double scale = 1d;
 
             if (TransformStroke)
             {
-                scale = parentMap.CenterScale * Map.MeterPerDegree;
+                scale = ParentMap.CenterScale * Map.MeterPerDegree;
             }
 
             drawing.Pen.Thickness = scale * StrokeThickness;
@@ -175,12 +175,10 @@ namespace MapControl
 
         protected void UpdateGeometry(bool closed)
         {
-            Map parentMap = MapPanel.GetParentMap(this);
-
-            if (parentMap != null && Locations != null && Locations.Count > 0)
+            if (ParentMap != null && Locations != null && Locations.Count > 0)
             {
-                drawing.Geometry = CreateGeometry(parentMap, Locations, closed);
-                OnViewTransformChanged(parentMap);
+                drawing.Geometry = CreateGeometry(Locations, closed);
+                OnViewportChanged();
             }
             else
             {
@@ -190,28 +188,26 @@ namespace MapControl
 
         private void UpdatePenThickness()
         {
-            Map parentMap = MapPanel.GetParentMap(this);
-
-            if (parentMap != null)
+            if (ParentMap != null)
             {
-                OnViewTransformChanged(parentMap);
+                OnViewportChanged();
             }
         }
 
-        private Geometry CreateGeometry(Map parentMap, LocationCollection locations, bool closed)
+        private Geometry CreateGeometry(LocationCollection locations, bool closed)
         {
             StreamGeometry geometry = new StreamGeometry
             {
-                Transform = parentMap.ViewportTransform
+                Transform = ParentMap.ViewportTransform
             };
 
             using (StreamGeometryContext sgc = geometry.Open())
             {
-                sgc.BeginFigure(parentMap.MapTransform.Transform(locations.First()), closed, closed);
+                sgc.BeginFigure(ParentMap.MapTransform.Transform(locations.First()), closed, closed);
 
                 if (Locations.Count > 1)
                 {
-                    sgc.PolyLineTo(parentMap.MapTransform.Transform(locations.Skip(1)), true, true);
+                    sgc.PolyLineTo(ParentMap.MapTransform.Transform(locations.Skip(1)), true, true);
                 }
             }
 

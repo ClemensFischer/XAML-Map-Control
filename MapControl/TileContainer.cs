@@ -3,8 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -23,44 +22,56 @@ namespace MapControl
         private double zoomLevel;
         private int tileZoomLevel;
         private Int32Rect tileGrid;
-        private TileLayerCollection tileLayers;
         private readonly DispatcherTimer updateTimer;
-        private readonly MatrixTransform viewportTransform = new MatrixTransform();
+
+        public readonly MatrixTransform ViewportTransform = new MatrixTransform();
 
         public TileContainer()
         {
             updateTimer = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.Background, UpdateTiles, Dispatcher);
         }
 
-        public TileLayerCollection TileLayers
+        public void AddTileLayers(int index, IEnumerable<TileLayer> tileLayers)
         {
-            get { return tileLayers; }
-            set
+            Matrix transform = GetVisualTransform();
+
+            foreach (TileLayer tileLayer in tileLayers)
             {
-                if (tileLayers != null)
+                if (string.IsNullOrEmpty(tileLayer.Name))
                 {
-                    tileLayers.CollectionChanged -= TileLayersChanged;
+                    throw new ArgumentException("TileLayer.Name property must not be null or empty.");
                 }
 
-                tileLayers = value;
-                ClearChildren();
-
-                if (tileLayers != null)
-                {
-                    tileLayers.CollectionChanged += TileLayersChanged;
-                    AddChildren(0, tileLayers);
-                }
-
-                ((Map)VisualParent).OnTileLayersChanged();
+                Children.Insert(index++, tileLayer);
+                tileLayer.TransformMatrix = transform;
+                tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
             }
         }
 
-        public Transform ViewportTransform
+        public void RemoveTileLayers(int index, IEnumerable<TileLayer> tileLayers)
         {
-            get { return viewportTransform; }
+            int count = 0;
+
+            foreach (TileLayer tileLayer in tileLayers)
+            {
+                tileLayer.ClearTiles();
+                count++;
+            }
+
+            Children.RemoveRange(index, count);
         }
 
-        public double SetTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewportOrigin, Size viewportSize)
+        public void ClearTileLayers()
+        {
+            foreach (TileLayer tileLayer in Children)
+            {
+                tileLayer.ClearTiles();
+            }
+
+            Children.Clear();
+        }
+
+        public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewportOrigin, Size viewportSize)
         {
             zoomLevel = mapZoomLevel;
             rotation = mapRotation;
@@ -75,16 +86,13 @@ namespace MapControl
             transform.Scale(scale, scale);
             transform.Translate(offset.X, offset.Y);
             transform.RotateAt(rotation, origin.X, origin.Y);
-            viewportTransform.Matrix = transform;
+            ViewportTransform.Matrix = transform;
 
             transform = GetVisualTransform();
 
-            if (tileLayers != null)
+            foreach (TileLayer tileLayer in Children)
             {
-                foreach (TileLayer tileLayer in tileLayers)
-                {
-                    tileLayer.TransformMatrix = transform;
-                }
+                tileLayer.TransformMatrix = transform;
             }
 
             updateTimer.IsEnabled = true;
@@ -113,7 +121,7 @@ namespace MapControl
             int zoom = (int)Math.Floor(zoomLevel + 1d - zoomLevelSwitchOffset);
             int numTiles = 1 << zoom;
             double mapToTileScale = (double)numTiles / 360d;
-            Matrix transform = viewportTransform.Matrix;
+            Matrix transform = ViewportTransform.Matrix;
             transform.Invert(); // view to map coordinates
             transform.Translate(180d, -180d);
             transform.Scale(mapToTileScale, -mapToTileScale); // map coordinates to tile indices
@@ -142,77 +150,12 @@ namespace MapControl
                 tileGrid = grid;
                 transform = GetVisualTransform();
 
-                if (tileLayers != null)
+                foreach (TileLayer tileLayer in Children)
                 {
-                    foreach (TileLayer tileLayer in tileLayers)
-                    {
-                        tileLayer.TransformMatrix = transform;
-                        tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
-                    }
+                    tileLayer.TransformMatrix = transform;
+                    tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
                 }
             }
-        }
-
-        private void TileLayersChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
-        {
-            switch (eventArgs.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    AddChildren(eventArgs.NewStartingIndex, eventArgs.NewItems);
-                    break;
-
-                case NotifyCollectionChangedAction.Remove:
-                    RemoveChildren(eventArgs.OldStartingIndex, eventArgs.OldItems);
-                    break;
-
-                case NotifyCollectionChangedAction.Move:
-                case NotifyCollectionChangedAction.Replace:
-                    RemoveChildren(eventArgs.OldStartingIndex, eventArgs.OldItems);
-                    AddChildren(eventArgs.NewStartingIndex, eventArgs.NewItems);
-                    break;
-
-                case NotifyCollectionChangedAction.Reset:
-                    ClearChildren();
-                    if (eventArgs.NewItems != null)
-                    {
-                        AddChildren(0, eventArgs.NewItems);
-                    }
-                    break;
-            }
-
-            ((Map)VisualParent).OnTileLayersChanged();
-        }
-
-        private void AddChildren(int index, IList layers)
-        {
-            Matrix transform = GetVisualTransform();
-
-            foreach (TileLayer tileLayer in layers)
-            {
-                Children.Insert(index++, tileLayer);
-                tileLayer.TransformMatrix = transform;
-                tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
-            }
-        }
-
-        private void RemoveChildren(int index, IList layers)
-        {
-            foreach (TileLayer tileLayer in layers)
-            {
-                tileLayer.ClearTiles();
-            }
-
-            Children.RemoveRange(index, layers.Count);
-        }
-
-        private void ClearChildren()
-        {
-            foreach (TileLayer tileLayer in Children)
-            {
-                tileLayer.ClearTiles();
-            }
-
-            Children.Clear();
         }
     }
 }

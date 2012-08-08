@@ -7,16 +7,17 @@ using System.Windows;
 
 namespace MapControl
 {
-    internal interface INotifyParentMapChanged
-    {
-        void ParentMapChanged(Map oldParentMap, Map newParentMap);
-    }
-
     /// <summary>
     /// Base class for child elements of a MapPanel.
     /// </summary>
-    public abstract class MapElement : FrameworkElement, INotifyParentMapChanged
+    public abstract class MapElement : FrameworkElement
     {
+        static MapElement()
+        {
+            MapPanel.ParentMapProperty.OverrideMetadata(typeof(MapElement),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
+        }
+
         protected MapElement()
         {
             HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -28,23 +29,26 @@ namespace MapControl
             get { return MapPanel.GetParentMap(this); }
         }
 
-        protected abstract void OnViewTransformChanged(Map parentMap);
+        protected abstract void OnViewportChanged();
 
-        private void OnViewTransformChanged(object sender, EventArgs eventArgs)
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
         {
-            OnViewTransformChanged((Map)sender);
-        }
+            MapElement mapElement = obj as MapElement;
 
-        void INotifyParentMapChanged.ParentMapChanged(Map oldParentMap, Map newParentMap)
-        {
-            if (oldParentMap != null)
+            if (mapElement != null)
             {
-                oldParentMap.ViewTransformChanged -= OnViewTransformChanged;
-            }
+                Map oldParentMap = eventArgs.OldValue as Map;
+                Map newParentMap = eventArgs.NewValue as Map;
 
-            if (newParentMap != null)
-            {
-                newParentMap.ViewTransformChanged += OnViewTransformChanged;
+                if (oldParentMap != null)
+                {
+                    oldParentMap.ViewportChanged -= mapElement.OnViewportChanged;
+                }
+
+                if (newParentMap != null)
+                {
+                    newParentMap.ViewportChanged += mapElement.OnViewportChanged;
+                }
             }
         }
     }

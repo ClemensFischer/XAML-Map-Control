@@ -125,8 +125,9 @@ namespace MapControl
             return visual;
         }
 
-        protected override void OnViewTransformChanged(Map parentMap)
+        protected override void OnViewportChanged()
         {
+            Map parentMap = ParentMap;
             Rect bounds = parentMap.ViewportTransform.Inverse.TransformBounds(new Rect(parentMap.RenderSize));
             Location loc1 = parentMap.MapTransform.TransformBack(bounds.TopLeft);
             Location loc2 = parentMap.MapTransform.TransformBack(bounds.BottomRight);
@@ -195,7 +196,7 @@ namespace MapControl
         private void UpdateBrush()
         {
             pen.Brush = null;
-            OnViewTransformChanged(ParentMap);
+            OnViewportChanged();
         }
 
         private static string CoordinateString(double value, string format, string hemispheres)

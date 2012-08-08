@@ -11,6 +11,7 @@
         <local:SampleItemCollection x:Key="Polylines"/>
         <local:SampleItemCollection x:Key="Points"/>
         <local:SampleItemCollection x:Key="Pushpins"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <DataTemplate x:Key="PolylineItemTemplate">
             <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
         </DataTemplate>
@@ -64,6 +65,7 @@
         </Style>
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Visibility" Value="{Binding (map:MapPanel.IsInsideMapBounds), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
@@ -85,10 +87,10 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map Name="map" IsManipulationEnabled="True" Margin="2" FontSize="10" 
+        <map:Map Name="map" IsManipulationEnabled="True" Margin="2" FontSize="10"
                  LightForeground="Black" LightBackground="White" DarkForeground="White" DarkBackground="#FF3F3F3F"
                  Center="53.5,8.2" ZoomLevel="11"
-                 MainTileLayer="{Binding ElementName=tileLayerComboBox, Path=SelectedItem}"
+                 MainTileLayer="{Binding SelectedItem, ElementName=tileLayerComboBox}"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
             <map:MapGraticule Opacity="0.6"/>
@@ -100,9 +102,10 @@
             <map:MapItemsControl ItemsSource="{StaticResource Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"
                                  IsSynchronizedWithCurrentItem="True"/>
-            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue">N 53° 30' E 8° 12'</map:Pushpin>
+            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"
+                         Visibility="{Binding (map:MapPanel.IsInsideMapBounds), Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,0,0,0" FontSize="10"
-                       Text="{Binding ElementName=map, Path=MainTileLayer.Description}"/>
+                       Text="{Binding MainTileLayer.Description, ElementName=map}"/>
         </map:Map>
         <Grid Grid.Row="1" Margin="2">
             <Grid.ColumnDefinitions>
@@ -112,9 +115,9 @@
             <TextBlock Name="mouseLocation" Margin="4" VerticalAlignment="Center"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Slider Name="zoomSlider" ToolTip="Zoom Level" Margin="4,0,4,0" Width="100" Minimum="1" Maximum="20" SmallChange="0.01"
-                        Value="{Binding ElementName=map, Path=TargetZoomLevel}" />
+                        Value="{Binding TargetZoomLevel, ElementName=map}" />
                 <Slider Name="headingSlider" ToolTip="Heading" Margin="4,0,4,0" Width="100" Minimum="0" Maximum="360" SmallChange="10" LargeChange="45"
-                        Value="{Binding ElementName=map, Path=TargetHeading}"/>
+                        Value="{Binding TargetHeading, ElementName=map}"/>
                 <CheckBox ToolTip="Map Overlay" Margin="4,0,4,0" VerticalAlignment="Center" Content="Seamarks" Click="SeamarksClick"/>
                 <ComboBox Name="tileLayerComboBox" ToolTip="Main Tile Layer" Margin="4,0,4,0" DisplayMemberPath="Name" SelectedIndex="0">
                     <ComboBox.Items>
@@ -129,7 +132,11 @@
                         <map:TileLayer Name="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
                                        TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
 
-                        <!--<map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
+                        <!-- Note: The providers of the below TileLayers do not allow access to their
+                             map content without using their APIs (i.e. Google Maps API or Bing Maps API).
+                             Hence the declarations below are for demonstration purpose only. -->
+
+                        <map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
                                        TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
                         <map:TileLayer Name="Google Images" Description="Google Maps - © {y} Google"
                                        TileSource="http://khm{i}.google.com/kh/v=113&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20" HasDarkBackground="True"/>
@@ -138,9 +145,9 @@
                         <map:TileLayer Name="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation"
                                        TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20" HasDarkBackground="True"/>
                         <map:TileLayer Name="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation"
-                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>-->
+                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>
 
-                        <!-- The TileLayer below uses an ImageTileSource that bypasses caching of map tile images -->
+                        <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
                         
                          <map:TileLayer Name="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
                             <map:TileLayer.TileSource>

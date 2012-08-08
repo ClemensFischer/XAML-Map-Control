@@ -27,7 +27,6 @@ namespace MapControl
             tileImageLoader = new TileImageLoader(this);
             VisualEdgeMode = EdgeMode.Aliased;
             VisualTransform = new MatrixTransform();
-            Name = string.Empty;
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
             MaxParallelDownloads = 8;
@@ -59,7 +58,7 @@ namespace MapControl
 
             tileImageLoader.CancelGetTiles();
 
-            if (VisualParent != null && TileSource != null)
+            if (TileSource != null)
             {
                 SelectTiles();
                 RenderTiles();
@@ -76,11 +75,11 @@ namespace MapControl
 
         private void SelectTiles()
         {
-            TileContainer tileContainer = VisualParent as TileContainer;
             int maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
             int minZoomLevel = maxZoomLevel;
+            ContainerVisual parent = Parent as ContainerVisual;
 
-            if (tileContainer != null && tileContainer.TileLayers.IndexOf(this) == 0)
+            if (parent != null && parent.Children.IndexOf(this) == 0)
             {
                 minZoomLevel = MinZoomLevel;
             }

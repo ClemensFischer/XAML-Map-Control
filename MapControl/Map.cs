@@ -3,6 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -41,7 +43,7 @@ namespace MapControl
 
         public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
             "TileLayers", typeof(TileLayerCollection), typeof(Map), new FrameworkPropertyMetadata(
-                (o, e) => ((Map)o).TileLayersPropertyChanged((TileLayerCollection)e.NewValue),
+                (o, e) => ((Map)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue),
                 (o, v) => ((Map)o).CoerceTileLayersProperty((TileLayerCollection)v)));
 
         public static readonly DependencyProperty MainTileLayerProperty = DependencyProperty.Register(
@@ -122,14 +124,9 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Raised when the ViewTransform property has changed.
+        /// Raised when the current viewport has changed.
         /// </summary>
-        public event EventHandler ViewTransformChanged;
-
-        /// <summary>
-        /// Raised when the TileLayers property has changed.
-        /// </summary>
-        public event EventHandler TileLayersChanged;
+        public event Action ViewportChanged;
 
         public double MinZoomLevel { get; set; }
         public double MaxZoomLevel { get; set; }
@@ -258,7 +255,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the map rotation angle in degrees.
+        /// Gets or sets the map heading, or clockwise rotation angle in degrees.
         /// </summary>
         public double Heading
         {
@@ -381,7 +378,7 @@ namespace MapControl
                 if (transformOrigin != null)
                 {
                     viewportOrigin += translation;
-                    UpdateViewTransform();
+                    UpdateTransform();
                 }
                 else
                 {
@@ -404,7 +401,7 @@ namespace MapControl
                 Heading = (((Heading + rotation) % 360d) + 360d) % 360d;
                 ZoomLevel += Math.Log(scale, 2d);
                 updateTransform = true;
-                UpdateViewTransform();
+                UpdateTransform();
             }
 
             TranslateMap(translation);
@@ -448,7 +445,7 @@ namespace MapControl
             base.OnRenderSizeChanged(sizeInfo);
 
             ResetTransformOrigin();
-            UpdateViewTransform();
+            UpdateTransform();
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -456,21 +453,89 @@ namespace MapControl
             drawingContext.DrawRectangle(Background, null, new Rect(RenderSize));
         }
 
-        protected override void OnViewTransformChanged(Map map)
+        protected override void OnViewportChanged()
         {
-            base.OnViewTransformChanged(map);
+            base.OnViewportChanged();
 
-            if (ViewTransformChanged != null)
+            if (ViewportChanged != null)
             {
-                ViewTransformChanged(this, EventArgs.Empty);
+                ViewportChanged();
             }
         }
 
-        protected internal virtual void OnTileLayersChanged()
+        private void TileLayerCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
         {
-            if (tileContainer.TileLayers != null &&
-                tileContainer.TileLayers.Count > 0 &&
-                tileContainer.TileLayers[0].HasDarkBackground)
+            switch (eventArgs.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    tileContainer.AddTileLayers(eventArgs.NewStartingIndex, eventArgs.NewItems.Cast<TileLayer>());
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    tileContainer.RemoveTileLayers(eventArgs.OldStartingIndex, eventArgs.OldItems.Cast<TileLayer>());
+                    break;
+
+                case NotifyCollectionChangedAction.Move:
+                case NotifyCollectionChangedAction.Replace:
+                    tileContainer.RemoveTileLayers(eventArgs.OldStartingIndex, eventArgs.OldItems.Cast<TileLayer>());
+                    tileContainer.AddTileLayers(eventArgs.NewStartingIndex, eventArgs.NewItems.Cast<TileLayer>());
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                    tileContainer.ClearTileLayers();
+                    if (eventArgs.NewItems != null)
+                    {
+                        tileContainer.AddTileLayers(0, eventArgs.NewItems.Cast<TileLayer>());
+                    }
+                    break;
+            }
+
+            UpdateMainTileLayer();
+        }
+
+        private void TileLayersPropertyChanged(TileLayerCollection oldTileLayers, TileLayerCollection newTileLayers)
+        {
+            tileContainer.ClearTileLayers();
+
+            if (oldTileLayers != null)
+            {
+                oldTileLayers.CollectionChanged -= TileLayerCollectionChanged;
+            }
+
+            if (newTileLayers != null)
+            {
+                newTileLayers.CollectionChanged += TileLayerCollectionChanged;
+                tileContainer.AddTileLayers(0, newTileLayers);
+            }
+
+            UpdateMainTileLayer();
+        }
+
+        private TileLayerCollection CoerceTileLayersProperty(TileLayerCollection tileLayers)
+        {
+            if (tileLayers == null)
+            {
+                tileLayers = new TileLayerCollection();
+            }
+
+            return tileLayers;
+        }
+
+        private void MainTileLayerPropertyChanged(TileLayer mainTileLayer)
+        {
+            if (mainTileLayer != null)
+            {
+                if (TileLayers.Count == 0)
+                {
+                    TileLayers.Add(mainTileLayer);
+                }
+                else if (TileLayers[0] != mainTileLayer)
+                {
+                    TileLayers[0] = mainTileLayer;
+                }
+            }
+
+            if (mainTileLayer != null && mainTileLayer.HasDarkBackground)
             {
                 if (DarkForeground != null)
                 {
@@ -494,55 +559,26 @@ namespace MapControl
                     Background = LightBackground;
                 }
             }
-
-            if (TileLayersChanged != null)
-            {
-                TileLayersChanged(this, EventArgs.Empty);
-            }
-        }
-
-        private void TileLayersPropertyChanged(TileLayerCollection tileLayers)
-        {
-            if (tileLayers != null)
-            {
-                tileContainer.TileLayers = tileLayers;
-                MainTileLayer = tileLayers.Count > 0 ? tileLayers[0] : null;
-            }
-        }
-
-        private TileLayerCollection CoerceTileLayersProperty(TileLayerCollection tileLayers)
-        {
-            if (tileLayers == null)
-            {
-                tileLayers = new TileLayerCollection();
-            }
-
-            return tileLayers;
-        }
-
-        private void MainTileLayerPropertyChanged(TileLayer mainTileLayer)
-        {
-            if (mainTileLayer != null)
-            {
-                if (tileContainer.TileLayers.Count == 0)
-                {
-                    tileContainer.TileLayers.Add(mainTileLayer);
-                }
-                else if (tileContainer.TileLayers[0] != mainTileLayer)
-                {
-                    tileContainer.TileLayers[0] = mainTileLayer;
-                }
-            }
         }
 
         private TileLayer CoerceMainTileLayerProperty(TileLayer mainTileLayer)
         {
-            if (mainTileLayer == null && tileContainer.TileLayers.Count > 0)
+            if (mainTileLayer == null && TileLayers.Count > 0)
             {
-                mainTileLayer = tileContainer.TileLayers[0];
+                mainTileLayer = TileLayers[0];
             }
 
             return mainTileLayer;
+        }
+
+        private void UpdateMainTileLayer()
+        {
+            TileLayer mainTileLayer = TileLayers.FirstOrDefault();
+
+            if (MainTileLayer != mainTileLayer)
+            {
+                MainTileLayer = mainTileLayer;
+            }
         }
 
         private void CenterPropertyChanged(Location center)
@@ -550,7 +586,7 @@ namespace MapControl
             if (updateTransform)
             {
                 ResetTransformOrigin();
-                UpdateViewTransform();
+                UpdateTransform();
             }
 
             if (centerAnimation == null)
@@ -600,7 +636,7 @@ namespace MapControl
         {
             if (updateTransform)
             {
-                UpdateViewTransform();
+                UpdateTransform();
             }
 
             if (zoomLevelAnimation == null)
@@ -649,7 +685,7 @@ namespace MapControl
         {
             if (updateTransform)
             {
-                UpdateViewTransform();
+                UpdateTransform();
             }
 
             if (headingAnimation == null)
@@ -704,20 +740,20 @@ namespace MapControl
             return ((heading % 360d) + 360d) % 360d;
         }
 
-        private void UpdateViewTransform()
+        private void UpdateTransform()
         {
             double scale;
 
             if (transformOrigin != null)
             {
-                scale = tileContainer.SetTransform(ZoomLevel, Heading, MapTransform.Transform(transformOrigin), viewportOrigin, RenderSize);
+                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, MapTransform.Transform(transformOrigin), viewportOrigin, RenderSize);
                 updateTransform = false;
                 Center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
                 updateTransform = true;
             }
             else
             {
-                scale = tileContainer.SetTransform(ZoomLevel, Heading, MapTransform.Transform(Center), viewportOrigin, RenderSize);
+                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, MapTransform.Transform(Center), viewportOrigin, RenderSize);
             }
 
             scale *= MapTransform.RelativeScale(Center) / MeterPerDegree; // Pixels per meter at center latitude
@@ -728,7 +764,7 @@ namespace MapControl
             rotateTransform.Angle = Heading;
             scaleRotateTransform.Matrix = scaleTransform.Value * rotateTransform.Value;
 
-            OnViewTransformChanged(this);
+            OnViewportChanged();
         }
     }
 }

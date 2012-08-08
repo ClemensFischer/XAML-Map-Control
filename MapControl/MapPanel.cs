@@ -15,7 +15,7 @@ namespace MapControl
     /// coordinates. IsInsideMapBounds indicates if the viewport coordinates are located
     /// inside the visible part of the map.
     /// </summary>
-    public class MapPanel : Panel, INotifyParentMapChanged
+    public class MapPanel : Panel
     {
         public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
             "ParentMap", typeof(Map), typeof(MapPanel),
@@ -102,8 +102,10 @@ namespace MapControl
             return finalSize;
         }
 
-        protected virtual void OnViewTransformChanged(Map parentMap)
+        protected virtual void OnViewportChanged()
         {
+            Map parentMap = ParentMap;
+
             foreach (UIElement element in InternalChildren)
             {
                 Location location = GetLocation(element);
@@ -115,31 +117,24 @@ namespace MapControl
             }
         }
 
-        private void OnViewTransformChanged(object sender, EventArgs eventArgs)
-        {
-            OnViewTransformChanged((Map)sender);
-        }
-
-        void INotifyParentMapChanged.ParentMapChanged(Map oldParentMap, Map newParentMap)
-        {
-            if (oldParentMap != null && oldParentMap != this)
-            {
-                oldParentMap.ViewTransformChanged -= OnViewTransformChanged;
-            }
-
-            if (newParentMap != null && newParentMap != this)
-            {
-                newParentMap.ViewTransformChanged += OnViewTransformChanged;
-            }
-        }
-
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
         {
-            INotifyParentMapChanged notifyChanged = obj as INotifyParentMapChanged;
+            MapPanel mapPanel = obj as MapPanel;
 
-            if (notifyChanged != null)
+            if (mapPanel != null)
             {
-                notifyChanged.ParentMapChanged(eventArgs.OldValue as Map, eventArgs.NewValue as Map);
+                Map oldParentMap = eventArgs.OldValue as Map;
+                Map newParentMap = eventArgs.NewValue as Map;
+
+                if (oldParentMap != null && oldParentMap != mapPanel)
+                {
+                    oldParentMap.ViewportChanged -= mapPanel.OnViewportChanged;
+                }
+
+                if (newParentMap != null && newParentMap != mapPanel)
+                {
+                    newParentMap.ViewportChanged += mapPanel.OnViewportChanged;
+                }
             }
         }
 
