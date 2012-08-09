@@ -121,8 +121,9 @@ namespace MapControl
                     foreach (object item in Items)
                     {
                         MapItem mapItem = GetMapItem(item);
+                        ViewportPosition viewportPosition = MapPanel.GetViewportPosition(mapItem);
 
-                        if (mapItem != null && MapPanel.HasViewportPosition(mapItem) && geometry.FillContains(MapPanel.GetViewportPosition(mapItem)))
+                        if (mapItem != null && viewportPosition != null && geometry.FillContains(viewportPosition.Position))
                         {
                             SelectedItems.Add(item);
                         }

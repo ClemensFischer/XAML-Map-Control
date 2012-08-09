@@ -2,9 +2,9 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace MapControl
 {
@@ -12,8 +12,7 @@ namespace MapControl
     /// Positions child elements on a Map. A child element's position is specified by the
     /// attached property Location, given as geographic location with latitude and longitude.
     /// The attached property ViewportPosition gets a child element's position in viewport
-    /// coordinates. IsInsideMapBounds indicates if the viewport coordinates are located
-    /// inside the visible part of the map.
+    /// coordinates and indicates if the coordinates are located inside the bounds of the ParentMap.
     /// </summary>
     public class MapPanel : Panel
     {
@@ -23,16 +22,13 @@ namespace MapControl
 
         public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
             "Location", typeof(Location), typeof(MapPanel),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, LocationPropertyChanged));
+            new FrameworkPropertyMetadata(LocationPropertyChanged));
 
         private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ViewportPosition", typeof(Point), typeof(MapPanel), null);
-
-        private static readonly DependencyPropertyKey IsInsideMapBoundsPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "IsInsideMapBounds", typeof(bool), typeof(MapPanel), null);
+            "ViewportPosition", typeof(ViewportPosition), typeof(MapPanel),
+            new FrameworkPropertyMetadata(ViewportPositionPropertyChanged));
 
         public static readonly DependencyProperty ViewportPositionProperty = ViewportPositionPropertyKey.DependencyProperty;
-        public static readonly DependencyProperty IsInsideMapBoundsProperty = IsInsideMapBoundsPropertyKey.DependencyProperty;
 
         public MapPanel()
         {
@@ -59,19 +55,9 @@ namespace MapControl
             element.SetValue(LocationProperty, value);
         }
 
-        public static bool HasViewportPosition(UIElement element)
+        public static ViewportPosition GetViewportPosition(UIElement element)
         {
-            return element.ReadLocalValue(ViewportPositionProperty) != DependencyProperty.UnsetValue;
-        }
-
-        public static Point GetViewportPosition(UIElement element)
-        {
-            return (Point)element.GetValue(ViewportPositionProperty);
-        }
-
-        public static bool GetIsInsideMapBounds(UIElement element)
-        {
-            return (bool)element.GetValue(IsInsideMapBoundsProperty);
+            return (ViewportPosition)element.GetValue(ViewportPositionProperty);
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -90,16 +76,20 @@ namespace MapControl
         {
             foreach (UIElement element in InternalChildren)
             {
-                object viewportPosition = element.ReadLocalValue(ViewportPositionProperty);
+                ViewportPosition viewportPosition = GetViewportPosition(element);
 
-                if (viewportPosition == DependencyProperty.UnsetValue ||
-                    !ArrangeElement(element, (Point)viewportPosition))
+                if (viewportPosition == null || !ArrangeElement(element, viewportPosition))
                 {
                     ArrangeElement(element, finalSize);
                 }
             }
 
             return finalSize;
+        }
+
+        protected virtual Point GetArrangePosition(ViewportPosition viewportPosition)
+        {
+            return viewportPosition.Position;
         }
 
         protected virtual void OnViewportChanged()
@@ -140,42 +130,59 @@ namespace MapControl
 
         private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
         {
-            UIElement element = (UIElement)obj;
-            Location location = (Location)eventArgs.NewValue;
-            Map parentMap;
+            UIElement element = obj as UIElement;
 
-            if (location != null && (parentMap = GetParentMap(element)) != null)
+            if (element != null)
             {
-                SetViewportPosition(element, parentMap, location);
-            }
-            else
-            {
-                element.ClearValue(ViewportPositionPropertyKey);
-                element.ClearValue(IsInsideMapBoundsPropertyKey);
-                element.Arrange(new Rect());
+                SetViewportPosition(element, GetParentMap(element), (Location)eventArgs.NewValue);
             }
         }
 
         private static void SetViewportPosition(UIElement element, Map parentMap, Location location)
         {
-            Point viewportPosition = parentMap.LocationToViewportPoint(location);
+            ViewportPosition viewportPosition = null;
+
+            if (parentMap != null && location != null)
+            {
+                Point position = parentMap.LocationToViewportPoint(location);
+
+                viewportPosition = new ViewportPosition(position,
+                    position.X >= 0d && position.X <= parentMap.ActualWidth &&
+                    position.Y >= 0d && position.Y <= parentMap.ActualHeight);
+            }
 
             element.SetValue(ViewportPositionPropertyKey, viewportPosition);
-            element.SetValue(IsInsideMapBoundsPropertyKey,
-                viewportPosition.X >= 0d && viewportPosition.X <= parentMap.ActualWidth &&
-                viewportPosition.Y >= 0d && viewportPosition.Y <= parentMap.ActualHeight);
-
-            ArrangeElement(element, viewportPosition);
         }
 
-        private static bool ArrangeElement(UIElement element, Point position)
+        private static void ViewportPositionPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
         {
+            UIElement element = obj as UIElement;
+
+            if (element != null)
+            {
+                ViewportPosition position = (ViewportPosition)eventArgs.NewValue;
+
+                if (position != null)
+                {
+                    ArrangeElement(element, position);
+                }
+                else
+                {
+                    element.Arrange(new Rect());
+                }
+            }
+        }
+
+        private static bool ArrangeElement(UIElement element, ViewportPosition viewportPosition)
+        {
+            MapPanel panel = VisualTreeHelper.GetParent(element) as MapPanel;
+            Point position = panel != null ? panel.GetArrangePosition(viewportPosition) : viewportPosition.Position;
             Rect rect = new Rect(position, element.DesiredSize);
             FrameworkElement frameworkElement = element as FrameworkElement;
 
             if (frameworkElement != null)
             {
-                if (frameworkElement.HorizontalAlignment == HorizontalAlignment.Stretch &&
+                if (frameworkElement.HorizontalAlignment == HorizontalAlignment.Stretch ||
                     frameworkElement.VerticalAlignment == VerticalAlignment.Stretch)
                 {
                     return false; // do not arrange at position

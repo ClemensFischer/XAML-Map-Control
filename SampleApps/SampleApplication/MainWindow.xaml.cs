@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Caching;
 using MapControl;
 
@@ -9,6 +11,12 @@ namespace SampleApplication
 {
     public partial class MainWindow : Window
     {
+        private SamplePoint movingPoint = new SamplePoint
+        {
+            Name = "Moving",
+            Location = new Location(53.5, 8.25)
+        };
+
         public MainWindow()
         {
             if (Properties.Settings.Default.UsePersistentCache)
@@ -67,6 +75,7 @@ namespace SampleApplication
                     Name = "Buhne 10",
                     Location = new Location(53.49350, 8.15563)
                 });
+            points.Add(movingPoint);
 
             ICollection<object> pushpins = (ICollection<object>)Resources["Pushpins"];
             pushpins.Add(
@@ -93,6 +102,22 @@ namespace SampleApplication
                     Name = "Eckwarderhörne",
                     Location = new Location(53.5207, 8.2323)
                 });
+
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(0.05);
+            timer.Tick += MovePoint;
+            timer.Start();
+        }
+
+        private void MovePoint(object sender, EventArgs e)
+        {
+            movingPoint.Location = new Location(movingPoint.Location.Latitude + 0.0005, movingPoint.Location.Longitude + 0.001);
+
+            if (movingPoint.Location.Latitude > 54d)
+            {
+                movingPoint.Name = "Stopped";
+                ((DispatcherTimer)sender).Stop();
+            }
         }
 
         private void MapManipulationInertiaStarting(object sender, ManipulationInertiaStartingEventArgs e)
