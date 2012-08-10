@@ -14,7 +14,7 @@ namespace MapControl
     {
         static MapElement()
         {
-            MapPanel.ParentMapProperty.OverrideMetadata(typeof(MapElement),
+            MapPanel.ParentMapPropertyKey.OverrideMetadata(typeof(MapElement),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
         }
 

@@ -108,7 +108,7 @@ namespace MapControl
             MaxZoomLevel = 20;
             AddVisualChild(tileContainer);
             TileLayers = new TileLayerCollection();
-            SetValue(ParentMapProperty, this);
+            SetValue(ParentMapPropertyKey, this);
 
             Loaded += (o, e) =>
             {

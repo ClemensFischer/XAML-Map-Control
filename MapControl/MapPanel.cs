@@ -16,19 +16,21 @@ namespace MapControl
     /// </summary>
     public class MapPanel : Panel
     {
-        public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
+        internal static readonly DependencyPropertyKey ParentMapPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
             "ParentMap", typeof(Map), typeof(MapPanel),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
 
-        public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
-            "Location", typeof(Location), typeof(MapPanel),
-            new FrameworkPropertyMetadata(LocationPropertyChanged));
+        public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
 
         private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
             "ViewportPosition", typeof(ViewportPosition), typeof(MapPanel),
             new FrameworkPropertyMetadata(ViewportPositionPropertyChanged));
 
         public static readonly DependencyProperty ViewportPositionProperty = ViewportPositionPropertyKey.DependencyProperty;
+
+        public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
+            "Location", typeof(Location), typeof(MapPanel),
+            new FrameworkPropertyMetadata(LocationPropertyChanged));
 
         public MapPanel()
         {
@@ -45,6 +47,11 @@ namespace MapControl
             return (Map)element.GetValue(ParentMapProperty);
         }
 
+        public static ViewportPosition GetViewportPosition(UIElement element)
+        {
+            return (ViewportPosition)element.GetValue(ViewportPositionProperty);
+        }
+
         public static Location GetLocation(UIElement element)
         {
             return (Location)element.GetValue(LocationProperty);
@@ -53,11 +60,6 @@ namespace MapControl
         public static void SetLocation(UIElement element, Location value)
         {
             element.SetValue(LocationProperty, value);
-        }
-
-        public static ViewportPosition GetViewportPosition(UIElement element)
-        {
-            return (ViewportPosition)element.GetValue(ViewportPositionProperty);
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -128,6 +130,25 @@ namespace MapControl
             }
         }
 
+        private static void ViewportPositionPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
+        {
+            UIElement element = obj as UIElement;
+
+            if (element != null)
+            {
+                ViewportPosition position = (ViewportPosition)eventArgs.NewValue;
+
+                if (position != null)
+                {
+                    ArrangeElement(element, position);
+                }
+                else
+                {
+                    element.Arrange(new Rect());
+                }
+            }
+        }
+
         private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
         {
             UIElement element = obj as UIElement;
@@ -152,25 +173,6 @@ namespace MapControl
             }
 
             element.SetValue(ViewportPositionPropertyKey, viewportPosition);
-        }
-
-        private static void ViewportPositionPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
-        {
-            UIElement element = obj as UIElement;
-
-            if (element != null)
-            {
-                ViewportPosition position = (ViewportPosition)eventArgs.NewValue;
-
-                if (position != null)
-                {
-                    ArrangeElement(element, position);
-                }
-                else
-                {
-                    element.Arrange(new Rect());
-                }
-            }
         }
 
         private static bool ArrangeElement(UIElement element, ViewportPosition viewportPosition)
