@@ -23,18 +23,6 @@ namespace MapControl
     /// </summary>
     public class TileImageLoader : DispatcherObject
     {
-        [Serializable]
-        private class CachedImage
-        {
-            public readonly DateTime CreationTime = DateTime.UtcNow;
-            public readonly byte[] ImageBuffer;
-
-            public CachedImage(byte[] imageBuffer)
-            {
-                ImageBuffer = imageBuffer;
-            }
-        }
-
         private readonly TileLayer tileLayer;
         private readonly ConcurrentQueue<Tile> pendingTiles = new ConcurrentQueue<Tile>();
 
@@ -151,19 +139,19 @@ namespace MapControl
                     newTiles.ForEach(tile =>
                     {
                         string key = CacheKey(tile);
-                        CachedImage cachedImage = Cache.Get(key) as CachedImage;
+                        byte[] imageBuffer = Cache.Get(key) as byte[];
 
-                        if (cachedImage == null)
+                        if (imageBuffer == null)
                         {
                             pendingTiles.Enqueue(tile);
                         }
-                        else if (!CreateTileImage(tile, cachedImage.ImageBuffer))
+                        else if (!CreateTileImage(tile, imageBuffer))
                         {
                             // got corrupted buffer from cache
                             Cache.Remove(key);
                             pendingTiles.Enqueue(tile);
                         }
-                        else if (cachedImage.CreationTime + CacheUpdateAge < DateTime.UtcNow)
+                        else if (GetCreationTime(imageBuffer) + CacheUpdateAge < DateTime.UtcNow)
                         {
                             // update cached image
                             outdatedTiles.Add(tile);
@@ -190,18 +178,16 @@ namespace MapControl
                 tile.Uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
                 byte[] imageBuffer = DownloadImage(tile);
 
-                if (imageBuffer != null &&
-                    CreateTileImage(tile, imageBuffer) &&
-                    Cache != null)
+                if (imageBuffer != null && CreateTileImage(tile, imageBuffer) && Cache != null)
                 {
-                    Cache.Set(CacheKey(tile), new CachedImage(imageBuffer), new CacheItemPolicy { SlidingExpiration = CacheExpiration });
+                    Cache.Set(CacheKey(tile), imageBuffer, new CacheItemPolicy { SlidingExpiration = CacheExpiration });
                 }
             }
         }
 
         private string CacheKey(Tile tile)
         {
-            return string.Format("{0}-{1}-{2}-{3}", tileLayer.Name, tile.ZoomLevel, tile.XIndex, tile.Y);
+            return string.Format("{0}/{1}/{2}/{3}", tileLayer.Name, tile.ZoomLevel, tile.XIndex, tile.Y);
         }
 
         private byte[] DownloadImage(Tile tile)
@@ -222,9 +208,9 @@ namespace MapControl
                 {
                     if (response.ContentLength > 0)
                     {
-                        using (MemoryStream memoryStream = new MemoryStream((int)response.ContentLength))
+                        using (MemoryStream memoryStream = new MemoryStream((int)response.ContentLength + 8))
                         {
-                            responseStream.CopyTo(memoryStream);
+                            CopyWithCreationTime(responseStream, memoryStream);
                             buffer = memoryStream.GetBuffer();
                         }
                     }
@@ -232,7 +218,7 @@ namespace MapControl
                     {
                         using (MemoryStream memoryStream = new MemoryStream())
                         {
-                            responseStream.CopyTo(memoryStream);
+                            CopyWithCreationTime(responseStream, memoryStream);
                             buffer = memoryStream.ToArray();
                         }
                     }
@@ -265,7 +251,7 @@ namespace MapControl
 
             try
             {
-                using (Stream stream = new MemoryStream(buffer))
+                using (Stream stream = new MemoryStream(buffer, 0, buffer.Length - 8, false))
                 {
                     bitmap.BeginInit();
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
@@ -282,6 +268,17 @@ namespace MapControl
 
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = bitmap));
             return true;
+        }
+
+        private static DateTime GetCreationTime(byte[] imageBuffer)
+        {
+            return new DateTime(BitConverter.ToInt64(imageBuffer, imageBuffer.Length - 8));
+        }
+
+        private static void CopyWithCreationTime(Stream source, Stream target)
+        {
+            source.CopyTo(target);
+            target.Write(BitConverter.GetBytes(DateTime.UtcNow.Ticks), 0, 8);
         }
 
         private static void TraceWarning(string format, params object[] args)

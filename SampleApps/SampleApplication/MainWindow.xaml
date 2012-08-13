@@ -5,8 +5,43 @@
         xmlns:local="clr-namespace:SampleApplication"
         Title="MainWindow" Height="600" Width="800">
     <Window.Resources>
-        <map:TileLayer x:Key="SeamarksTileLayer"
-                       Name="Seamarks" Description="© {y} OpenSeaMap Contributors, CC-BY-SA"
+        <map:TileLayerCollection x:Key="TileLayers">
+            <map:TileLayer Name="OpenStreetMap" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
+                           TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+            <map:TileLayer Name="OpenCycleMap" Description="OpenCycleMap - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+                           TileSource="http://{c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"/>
+            <map:TileLayer Name="OCM Transport" Description="OpenCycleMap Transport - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+                           TileSource="http://{c}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"/>
+            <map:TileLayer Name="OCM Landscape" Description="OpenCycleMap Landscape - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+                           TileSource="http://{c}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"/>
+            <map:TileLayer Name="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
+                           TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
+
+            <!-- Note: The providers of the below TileLayers do not allow access to their
+                 map content without using their APIs (i.e. Google Maps API or Bing Maps API).
+                 Hence the declarations below are for demonstration purpose only. -->
+
+            <map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
+                           TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
+            <map:TileLayer Name="Google Images" Description="Google Maps - © {y} Google"
+                           TileSource="http://khm{i}.google.com/kh/v=113&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20" HasDarkBackground="True"/>
+            <map:TileLayer Name="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h" MaxZoomLevel="20"/>
+            <map:TileLayer Name="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation"
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20" HasDarkBackground="True"/>
+            <map:TileLayer Name="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation"
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>
+
+            <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
+
+            <map:TileLayer Name="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
+                <map:TileLayer.TileSource>
+                    <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                </map:TileLayer.TileSource>
+            </map:TileLayer>
+        </map:TileLayerCollection>
+        <CollectionViewSource x:Key="TileLayersView" Source="{StaticResource TileLayers}"/>
+        <map:TileLayer x:Key="SeamarksTileLayer" Name="Seamarks" Description="© {y} OpenSeaMap Contributors, CC-BY-SA"
                        TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png" MinZoomLevel="10" MaxZoomLevel="18"/>
         <local:SampleItemCollection x:Key="Polylines"/>
         <local:SampleItemCollection x:Key="Points"/>
@@ -90,7 +125,7 @@
         <map:Map Name="map" IsManipulationEnabled="True" Margin="2" FontSize="10"
                  LightForeground="Black" LightBackground="White" DarkForeground="White" DarkBackground="#FF3F3F3F"
                  Center="53.5,8.2" ZoomLevel="11"
-                 MainTileLayer="{Binding SelectedItem, ElementName=tileLayerComboBox}"
+                 BaseTileLayer="{Binding Source={StaticResource TileLayersView}, Path=CurrentItem}"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
             <map:MapGraticule Opacity="0.6"/>
@@ -105,7 +140,7 @@
             <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"
                          Visibility="{Binding (map:MapPanel.ViewportPosition).IsInside, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,0,0,0" FontSize="10"
-                       Text="{Binding MainTileLayer.Description, ElementName=map}"/>
+                       Text="{Binding BaseTileLayer.Description, ElementName=map}"/>
         </map:Map>
         <Grid Grid.Row="1" Margin="2">
             <Grid.ColumnDefinitions>
@@ -119,43 +154,8 @@
                 <Slider Name="headingSlider" ToolTip="Heading" Margin="4,0,4,0" Width="100" Minimum="0" Maximum="360" SmallChange="10" LargeChange="45"
                         Value="{Binding TargetHeading, ElementName=map}"/>
                 <CheckBox ToolTip="Map Overlay" Margin="4,0,4,0" VerticalAlignment="Center" Content="Seamarks" Click="SeamarksClick"/>
-                <ComboBox Name="tileLayerComboBox" ToolTip="Main Tile Layer" Margin="4,0,0,0" DisplayMemberPath="Name" SelectedIndex="0">
-                    <ComboBox.Items>
-                        <map:TileLayer Name="OpenStreetMap" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
-                                       TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
-                        <map:TileLayer Name="OpenCycleMap" Description="OpenCycleMap - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
-                                       TileSource="http://{c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"/>
-                        <map:TileLayer Name="OCM Transport" Description="OpenCycleMap Transport - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
-                                       TileSource="http://{c}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"/>
-                        <map:TileLayer Name="OCM Landscape" Description="OpenCycleMap Landscape - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
-                                       TileSource="http://{c}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"/>
-                        <map:TileLayer Name="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
-                                       TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
-
-                        <!-- Note: The providers of the below TileLayers do not allow access to their
-                             map content without using their APIs (i.e. Google Maps API or Bing Maps API).
-                             Hence the declarations below are for demonstration purpose only. -->
-
-                        <!--<map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
-                                       TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
-                        <map:TileLayer Name="Google Images" Description="Google Maps - © {y} Google"
-                                       TileSource="http://khm{i}.google.com/kh/v=113&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20" HasDarkBackground="True"/>
-                        <map:TileLayer Name="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
-                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h" MaxZoomLevel="20"/>
-                        <map:TileLayer Name="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation"
-                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20" HasDarkBackground="True"/>
-                        <map:TileLayer Name="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation"
-                                       TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>-->
-
-                        <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
-                        
-                         <map:TileLayer Name="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
-                            <map:TileLayer.TileSource>
-                                <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
-                            </map:TileLayer.TileSource>
-                        </map:TileLayer>
-                    </ComboBox.Items>
-                </ComboBox>
+                <ComboBox ToolTip="Main Tile Layer" Margin="4,0,0,0" DisplayMemberPath="Name"
+                          ItemsSource="{Binding Source={StaticResource TileLayersView}}"/>
             </StackPanel>
         </Grid>
     </Grid>

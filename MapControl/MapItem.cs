@@ -113,6 +113,20 @@ namespace MapControl
             IsSelected = !IsSelected;
         }
 
+        private void IsSelectedChanged(bool isSelected)
+        {
+            if (isSelected)
+            {
+                VisualStateManager.GoToState(this, "Selected", true);
+                RaiseEvent(new RoutedEventArgs(SelectedEvent));
+            }
+            else
+            {
+                VisualStateManager.GoToState(this, "Unselected", true);
+                RaiseEvent(new RoutedEventArgs(UnselectedEvent));
+            }
+        }
+
         private void CommonStateChanged()
         {
             if (!IsEnabled)
@@ -126,20 +140,6 @@ namespace MapControl
             else
             {
                 VisualStateManager.GoToState(this, "Normal", true);
-            }
-        }
-
-        private void IsSelectedChanged(bool isSelected)
-        {
-            if (isSelected)
-            {
-                VisualStateManager.GoToState(this, "Selected", true);
-                RaiseEvent(new RoutedEventArgs(SelectedEvent));
-            }
-            else
-            {
-                VisualStateManager.GoToState(this, "Unselected", true);
-                RaiseEvent(new RoutedEventArgs(UnselectedEvent));
             }
         }
     }

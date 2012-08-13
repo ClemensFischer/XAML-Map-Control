@@ -104,14 +104,14 @@ namespace SampleApplication
                 });
 
             DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.05);
+            timer.Interval = TimeSpan.FromSeconds(0.1);
             timer.Tick += MovePoint;
             timer.Start();
         }
 
         private void MovePoint(object sender, EventArgs e)
         {
-            movingPoint.Location = new Location(movingPoint.Location.Latitude + 0.0005, movingPoint.Location.Longitude + 0.001);
+            movingPoint.Location = new Location(movingPoint.Location.Latitude + 0.001, movingPoint.Location.Longitude + 0.002);
 
             if (movingPoint.Location.Latitude > 54d)
             {

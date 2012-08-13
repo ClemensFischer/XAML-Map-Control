@@ -13,7 +13,7 @@ using System.Windows.Media.Animation;
 namespace MapControl
 {
     /// <summary>
-    /// The main map control. Draws map content provided by the TileLayers or the MainTileLayer property.
+    /// The main map control. Draws map content provided by the TileLayers or the BaseTileLayer property.
     /// The visible map area is defined by the Center and ZoomLevel properties. The map can be rotated
     /// by an angle that is given by the Heading property.
     /// Map is a MapPanel and hence can contain map overlays like other MapPanels or MapItemsControls.
@@ -46,10 +46,10 @@ namespace MapControl
                 (o, e) => ((Map)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue),
                 (o, v) => ((Map)o).CoerceTileLayersProperty((TileLayerCollection)v)));
 
-        public static readonly DependencyProperty MainTileLayerProperty = DependencyProperty.Register(
-            "MainTileLayer", typeof(TileLayer), typeof(Map), new FrameworkPropertyMetadata(
-                (o, e) => ((Map)o).MainTileLayerPropertyChanged((TileLayer)e.NewValue),
-                (o, v) => ((Map)o).CoerceMainTileLayerProperty((TileLayer)v)));
+        public static readonly DependencyProperty BaseTileLayerProperty = DependencyProperty.Register(
+            "BaseTileLayer", typeof(TileLayer), typeof(Map), new FrameworkPropertyMetadata(
+                (o, e) => ((Map)o).BaseTileLayerPropertyChanged((TileLayer)e.NewValue),
+                (o, v) => ((Map)o).CoerceBaseTileLayerProperty((TileLayer)v)));
 
         public static readonly DependencyProperty TileOpacityProperty = DependencyProperty.Register(
             "TileOpacity", typeof(double), typeof(Map), new FrameworkPropertyMetadata(1d,
@@ -112,9 +112,9 @@ namespace MapControl
 
             Loaded += (o, e) =>
             {
-                if (MainTileLayer == null)
+                if (BaseTileLayer == null)
                 {
-                    MainTileLayer = new TileLayer
+                    BaseTileLayer = new TileLayer
                     {
                         Name = "OpenStreetMap",
                         Description = "© {y} OpenStreetMap Contributors, CC-BY-SA",
@@ -202,12 +202,12 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the main TileLayer used by this Map, i.e. TileLayers[0].
+        /// Gets or sets the base TileLayer used by this Map, i.e. TileLayers[0].
         /// </summary>
-        public TileLayer MainTileLayer
+        public TileLayer BaseTileLayer
         {
-            get { return (TileLayer)GetValue(MainTileLayerProperty); }
-            set { SetValue(MainTileLayerProperty, value); }
+            get { return (TileLayer)GetValue(BaseTileLayerProperty); }
+            set { SetValue(BaseTileLayerProperty, value); }
         }
 
         /// <summary>
@@ -491,7 +491,7 @@ namespace MapControl
                     break;
             }
 
-            UpdateMainTileLayer();
+            UpdateBaseTileLayer();
         }
 
         private void TileLayersPropertyChanged(TileLayerCollection oldTileLayers, TileLayerCollection newTileLayers)
@@ -509,7 +509,7 @@ namespace MapControl
                 tileContainer.AddTileLayers(0, newTileLayers);
             }
 
-            UpdateMainTileLayer();
+            UpdateBaseTileLayer();
         }
 
         private TileLayerCollection CoerceTileLayersProperty(TileLayerCollection tileLayers)
@@ -522,21 +522,21 @@ namespace MapControl
             return tileLayers;
         }
 
-        private void MainTileLayerPropertyChanged(TileLayer mainTileLayer)
+        private void BaseTileLayerPropertyChanged(TileLayer baseTileLayer)
         {
-            if (mainTileLayer != null)
+            if (baseTileLayer != null)
             {
                 if (TileLayers.Count == 0)
                 {
-                    TileLayers.Add(mainTileLayer);
+                    TileLayers.Add(baseTileLayer);
                 }
-                else if (TileLayers[0] != mainTileLayer)
+                else if (TileLayers[0] != baseTileLayer)
                 {
-                    TileLayers[0] = mainTileLayer;
+                    TileLayers[0] = baseTileLayer;
                 }
             }
 
-            if (mainTileLayer != null && mainTileLayer.HasDarkBackground)
+            if (baseTileLayer != null && baseTileLayer.HasDarkBackground)
             {
                 if (DarkForeground != null)
                 {
@@ -562,23 +562,23 @@ namespace MapControl
             }
         }
 
-        private TileLayer CoerceMainTileLayerProperty(TileLayer mainTileLayer)
+        private TileLayer CoerceBaseTileLayerProperty(TileLayer baseTileLayer)
         {
-            if (mainTileLayer == null && TileLayers.Count > 0)
+            if (baseTileLayer == null && TileLayers.Count > 0)
             {
-                mainTileLayer = TileLayers[0];
+                baseTileLayer = TileLayers[0];
             }
 
-            return mainTileLayer;
+            return baseTileLayer;
         }
 
-        private void UpdateMainTileLayer()
+        private void UpdateBaseTileLayer()
         {
-            TileLayer mainTileLayer = TileLayers.FirstOrDefault();
+            TileLayer baseTileLayer = TileLayers.FirstOrDefault();
 
-            if (MainTileLayer != mainTileLayer)
+            if (BaseTileLayer != baseTileLayer)
             {
-                MainTileLayer = mainTileLayer;
+                BaseTileLayer = baseTileLayer;
             }
         }
 

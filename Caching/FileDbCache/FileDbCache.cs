@@ -56,14 +56,14 @@ namespace Caching
 
         public FileDbCache(string name, string directory)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("The parameter name must not be null or empty.");
+                throw new ArgumentException("The parameter name must not be null or empty or only white-space.");
             }
 
-            if (string.IsNullOrEmpty(directory))
+            if (string.IsNullOrWhiteSpace(directory))
             {
-                throw new ArgumentException("The parameter directory must not be null or empty.");
+                throw new ArgumentException("The parameter directory must not be null or empty or only white-space.");
             }
 
             this.name = name;
@@ -78,6 +78,14 @@ namespace Caching
             {
                 fileDb.Open(path, false);
                 Trace.TraceInformation("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, path);
+
+                fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, EqualityEnum.LessThan));
+
+                if (fileDb.NumDeleted > 0)
+                {
+                    Trace.TraceInformation("FileDbCache: Deleted {0} expired items", fileDb.NumDeleted);
+                    fileDb.Clean();
+                }
             }
             catch
             {
@@ -372,7 +380,10 @@ namespace Caching
         {
             try
             {
-                fileDb.Flush();
+                if (fileDb.IsOpen)
+                {
+                    fileDb.Flush();
+                }
             }
             catch (Exception ex)
             {
@@ -384,7 +395,10 @@ namespace Caching
         {
             try
             {
-                fileDb.Clean();
+                if (fileDb.IsOpen)
+                {
+                    fileDb.Clean();
+                }
             }
             catch (Exception ex)
             {
@@ -396,16 +410,6 @@ namespace Caching
         {
             if (fileDb.IsOpen)
             {
-                try
-                {
-                    fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, EqualityEnum.LessThanOrEqual));
-                    Trace.TraceInformation("FileDbCache: Deleted {0} expired items", fileDb.NumDeleted);
-                    fileDb.Clean();
-                }
-                catch
-                {
-                }
-
                 fileDb.Close();
             }
         }
