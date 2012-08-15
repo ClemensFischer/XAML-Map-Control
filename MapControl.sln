@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApplication", "Sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurfaceApplication", "SampleApps\SurfaceApplication\SurfaceApplication.csproj", "{6285FB9D-B7EA-469A-B464-224077967167}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageFileCache", "Caching\ImageFileCache\ImageFileCache.csproj", "{86470440-FEE2-4120-AF5A-3762FB9C536F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,16 @@ Global
 		{6285FB9D-B7EA-469A-B464-224077967167}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6285FB9D-B7EA-469A-B464-224077967167}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{6285FB9D-B7EA-469A-B464-224077967167}.Release|x86.ActiveCfg = Release|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

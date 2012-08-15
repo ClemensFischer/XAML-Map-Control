@@ -5,14 +5,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Caching;
 using System.Threading;
-using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -25,6 +23,17 @@ namespace MapControl
     {
         private readonly TileLayer tileLayer;
         private readonly ConcurrentQueue<Tile> pendingTiles = new ConcurrentQueue<Tile>();
+
+        /// <summary>
+        /// Default Name of an ObjectCache instance that is assigned to the Cache property.
+        /// </summary>
+        public static readonly string DefaultCacheName = "TileCache";
+
+        /// <summary>
+        /// Default value for the directory where an ObjectCache instance may save cached data.
+        /// </summary>
+        public static readonly string DefaultCacheDirectory =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl");
 
         /// <summary>
         /// The ObjectCache used to cache tile images.
@@ -48,53 +57,11 @@ namespace MapControl
         /// </summary>
         public static TimeSpan CacheUpdateAge { get; set; }
 
-        /// <summary>
-        /// Creates an instance of the ObjectCache-derived type T and sets the static Cache
-        /// property to this instance. Class T must (like System.Runtime.Caching.MemoryCache)
-        /// provide a constructor with two parameters, first a string that gets the name of
-        /// the cache instance, second a NameValueCollection that gets the config parameter.
-        /// If config is null, a new NameValueCollection is created. If config does not already
-        /// contain an entry with key "directory", a new entry is added with this key and a
-        /// value that specifies the path to an application data directory where the cache
-        /// implementation may store persistent cache data files.
-        /// </summary>
-        public static void CreateCache<T>(NameValueCollection config = null) where T : ObjectCache
-        {
-            if (config == null)
-            {
-                config = new NameValueCollection(1);
-            }
-
-            if (config["directory"] == null)
-            {
-                config["directory"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl");
-            }
-
-            try
-            {
-                Cache = (ObjectCache)Activator.CreateInstance(typeof(T), "TileCache", config);
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceWarning("Could not create instance of type {0} with String and NameValueCollection constructor parameters: {1}", typeof(T), ex.Message);
-                throw;
-            }
-        }
-
         static TileImageLoader()
         {
             Cache = MemoryCache.Default;
             CacheExpiration = TimeSpan.FromDays(30d);
             CacheUpdateAge = TimeSpan.FromDays(1d);
-
-            Application.Current.Exit += (o, e) =>
-            {
-                IDisposable disposableCache = Cache as IDisposable;
-                if (disposableCache != null)
-                {
-                    disposableCache.Dispose();
-                }
-            };
         }
 
         internal TileImageLoader(TileLayer tileLayer)
@@ -151,7 +118,7 @@ namespace MapControl
                             Cache.Remove(key);
                             pendingTiles.Enqueue(tile);
                         }
-                        else if (GetCreationTime(imageBuffer) + CacheUpdateAge < DateTime.UtcNow)
+                        else if (IsCacheOutdated(imageBuffer))
                         {
                             // update cached image
                             outdatedTiles.Add(tile);
@@ -206,21 +173,15 @@ namespace MapControl
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 using (Stream responseStream = response.GetResponseStream())
                 {
-                    if (response.ContentLength > 0)
+                    long length = response.ContentLength;
+                    long creationTime = DateTime.UtcNow.ToBinary();
+
+                    using (MemoryStream memoryStream = length > 0 ? new MemoryStream((int)length + 8) : new MemoryStream())
                     {
-                        using (MemoryStream memoryStream = new MemoryStream((int)response.ContentLength + 8))
-                        {
-                            CopyWithCreationTime(responseStream, memoryStream);
-                            buffer = memoryStream.GetBuffer();
-                        }
-                    }
-                    else
-                    {
-                        using (MemoryStream memoryStream = new MemoryStream())
-                        {
-                            CopyWithCreationTime(responseStream, memoryStream);
-                            buffer = memoryStream.ToArray();
-                        }
+                        memoryStream.Write(BitConverter.GetBytes(creationTime), 0, 8);
+                        responseStream.CopyTo(memoryStream);
+
+                        buffer = length > 0 ? memoryStream.GetBuffer() : memoryStream.ToArray();
                     }
                 }
 
@@ -245,13 +206,20 @@ namespace MapControl
             return buffer;
         }
 
-        private bool CreateTileImage(Tile tile, byte[] buffer)
+        private bool IsCacheOutdated(byte[] imageBuffer)
+        {
+            long creationTime = BitConverter.ToInt64(imageBuffer, 0);
+
+            return DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow;
+        }
+
+        private bool CreateTileImage(Tile tile, byte[] imageBuffer)
         {
             BitmapImage bitmap = new BitmapImage();
 
             try
             {
-                using (Stream stream = new MemoryStream(buffer, 0, buffer.Length - 8, false))
+                using (Stream stream = new MemoryStream(imageBuffer, 8, imageBuffer.Length - 8, false))
                 {
                     bitmap.BeginInit();
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
@@ -268,17 +236,6 @@ namespace MapControl
 
             Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = bitmap));
             return true;
-        }
-
-        private static DateTime GetCreationTime(byte[] imageBuffer)
-        {
-            return new DateTime(BitConverter.ToInt64(imageBuffer, imageBuffer.Length - 8));
-        }
-
-        private static void CopyWithCreationTime(Stream source, Stream target)
-        {
-            source.CopyTo(target);
-            target.Write(BitConverter.GetBytes(DateTime.UtcNow.Ticks), 0, 8);
         }
 
         private static void TraceWarning(string format, params object[] args)

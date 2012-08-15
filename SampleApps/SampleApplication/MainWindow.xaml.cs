@@ -19,9 +19,16 @@ namespace SampleApplication
 
         public MainWindow()
         {
-            if (Properties.Settings.Default.UsePersistentCache)
+            switch (Properties.Settings.Default.TileCache)
             {
-                TileImageLoader.CreateCache<FileDbCache>();
+                case "FileDbCache":
+                    TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
+                    break;
+                case "ImageFileCache":
+                    TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
+                    break;
+                default:
+                    break;
             }
 
             InitializeComponent();

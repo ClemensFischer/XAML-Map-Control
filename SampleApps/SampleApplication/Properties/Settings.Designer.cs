@@ -25,10 +25,10 @@ namespace SampleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UsePersistentCache {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TileCache {
             get {
-                return ((bool)(this["UsePersistentCache"]));
+                return ((string)(this["TileCache"]));
             }
         }
     }

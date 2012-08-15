@@ -21,7 +21,7 @@
                  map content without using their APIs (i.e. Google Maps API or Bing Maps API).
                  Hence the declarations below are for demonstration purpose only. -->
 
-            <map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
+            <!--<map:TileLayer Name="Google Maps" Description="Google Maps - © {y} Google"
                            TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
             <map:TileLayer Name="Google Images" Description="Google Maps - © {y} Google"
                            TileSource="http://khm{i}.google.com/kh/v=113&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20" HasDarkBackground="True"/>
@@ -30,7 +30,7 @@
             <map:TileLayer Name="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation"
                            TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20" HasDarkBackground="True"/>
             <map:TileLayer Name="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>-->
 
             <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
 

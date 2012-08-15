@@ -12,7 +12,7 @@ namespace Caching
     /// <summary>
     /// ObjectCache implementation based on EzTools FileDb - http://www.eztools-software.com/tools/filedb/.
     /// </summary>
-    public class FileDbCache : ObjectCache, IDisposable
+    public class FileDbCache : ObjectCache
     {
         private const string keyField = "Key";
         private const string valueField = "Value";
@@ -67,7 +67,7 @@ namespace Caching
             }
 
             this.name = name;
-            path = Path.Combine(directory, name);
+            path = Path.Combine(directory, name.Trim());
 
             if (string.IsNullOrEmpty(Path.GetExtension(path)))
             {
@@ -90,6 +90,11 @@ namespace Caching
             catch
             {
                 CreateDatabase();
+            }
+
+            if (fileDb.IsOpen)
+            {
+                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
             }
         }
 
@@ -406,12 +411,45 @@ namespace Caching
             }
         }
 
-        public void Dispose()
+        public void Close()
+        {
+            if (fileDb.IsOpen)
+            {
+                fileDb.Close();
+                AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
+            }
+        }
+
+        private void OnProcessExit(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void CreateDatabase()
         {
             if (fileDb.IsOpen)
             {
                 fileDb.Close();
             }
+
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            else
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
+
+            fileDb.Create(path,
+                new Field[]
+            {
+                new Field(keyField, DataTypeEnum.String) { IsPrimaryKey = true },
+                new Field(valueField, DataTypeEnum.Byte) { IsArray = true },
+                new Field(expiresField, DataTypeEnum.DateTime)
+            });
+
+            Trace.TraceInformation("FileDbCache: Created database {0}", path);
         }
 
         private bool RepairDatabase()
@@ -420,47 +458,19 @@ namespace Caching
             {
                 fileDb.Reindex();
             }
-            catch (Exception ex)
+            catch (Exception ex1)
             {
-                Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex.Message);
-                return CreateDatabase();
-            }
+                Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex1.Message);
 
-            return true;
-        }
-
-        private bool CreateDatabase()
-        {
-            if (fileDb.IsOpen)
-            {
-                fileDb.Close();
-            }
-
-            try
-            {
-                if (File.Exists(path))
+                try
                 {
-                    File.Delete(path);
+                    CreateDatabase();
                 }
-                else
+                catch (Exception ex2)
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    Trace.TraceWarning("FileDbCache: Creating database {0} failed: {1}", path, ex2.Message);
+                    return false;
                 }
-
-                fileDb.Create(path,
-                    new Field[]
-                {
-                    new Field(keyField, DataTypeEnum.String) { IsPrimaryKey = true },
-                    new Field(valueField, DataTypeEnum.Byte) { IsArray = true },
-                    new Field(expiresField, DataTypeEnum.DateTime)
-                });
-
-                Trace.TraceInformation("FileDbCache: Created database {0}", path);
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceWarning("FileDbCache: Creating database failed: {0}", ex.Message);
-                return false;
             }
 
             return true;
