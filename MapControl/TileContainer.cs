@@ -114,7 +114,7 @@ namespace MapControl
             return transform;
         }
 
-        private void UpdateTiles(object sender, EventArgs eventArgs)
+        private void UpdateTiles(object sender, EventArgs e)
         {
             updateTimer.IsEnabled = false;
 

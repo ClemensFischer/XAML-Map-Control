@@ -464,29 +464,29 @@ namespace MapControl
             }
         }
 
-        private void TileLayerCollectionChanged(object sender, NotifyCollectionChangedEventArgs eventArgs)
+        private void TileLayerCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (eventArgs.Action)
+            switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    tileContainer.AddTileLayers(eventArgs.NewStartingIndex, eventArgs.NewItems.Cast<TileLayer>());
+                    tileContainer.AddTileLayers(e.NewStartingIndex, e.NewItems.Cast<TileLayer>());
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    tileContainer.RemoveTileLayers(eventArgs.OldStartingIndex, eventArgs.OldItems.Cast<TileLayer>());
+                    tileContainer.RemoveTileLayers(e.OldStartingIndex, e.OldItems.Cast<TileLayer>());
                     break;
 
                 case NotifyCollectionChangedAction.Move:
                 case NotifyCollectionChangedAction.Replace:
-                    tileContainer.RemoveTileLayers(eventArgs.OldStartingIndex, eventArgs.OldItems.Cast<TileLayer>());
-                    tileContainer.AddTileLayers(eventArgs.NewStartingIndex, eventArgs.NewItems.Cast<TileLayer>());
+                    tileContainer.RemoveTileLayers(e.OldStartingIndex, e.OldItems.Cast<TileLayer>());
+                    tileContainer.AddTileLayers(e.NewStartingIndex, e.NewItems.Cast<TileLayer>());
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
                     tileContainer.ClearTileLayers();
-                    if (eventArgs.NewItems != null)
+                    if (e.NewItems != null)
                     {
-                        tileContainer.AddTileLayers(0, eventArgs.NewItems.Cast<TileLayer>());
+                        tileContainer.AddTileLayers(0, e.NewItems.Cast<TileLayer>());
                     }
                     break;
             }
@@ -619,7 +619,7 @@ namespace MapControl
             }
         }
 
-        private void CenterAnimationCompleted(object sender, EventArgs eventArgs)
+        private void CenterAnimationCompleted(object sender, EventArgs e)
         {
             Center = TargetCenter;
             centerAnimation.Completed -= CenterAnimationCompleted;
@@ -669,7 +669,7 @@ namespace MapControl
             }
         }
 
-        private void ZoomLevelAnimationCompleted(object sender, EventArgs eventArgs)
+        private void ZoomLevelAnimationCompleted(object sender, EventArgs e)
         {
             ZoomLevel = TargetZoomLevel;
             zoomLevelAnimation.Completed -= ZoomLevelAnimationCompleted;
@@ -729,7 +729,7 @@ namespace MapControl
             }
         }
 
-        private void HeadingAnimationCompleted(object sender, EventArgs eventArgs)
+        private void HeadingAnimationCompleted(object sender, EventArgs e)
         {
             Heading = TargetHeading;
             headingAnimation.Completed -= HeadingAnimationCompleted;

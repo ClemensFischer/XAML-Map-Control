@@ -3,40 +3,46 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace MapControl
 {
-    public enum MapItemSelectionMode { Single, Extended }
-
     /// <summary>
     /// Manages a collection of selectable items on a Map. Uses MapItem as container for items
-    /// and updates the MapItem.IsCurrent property when Items.CurrentItem changes.
+    /// and updates the IsCurrent attached property when the Items.CurrentItem property changes.
     /// </summary>
     public class MapItemsControl : MultiSelector
     {
         public static readonly DependencyProperty SelectionModeProperty = DependencyProperty.Register(
-            "SelectionMode", typeof(MapItemSelectionMode), typeof(MapItemsControl),
-            new FrameworkPropertyMetadata((o, e) => ((MapItemsControl)o).CanSelectMultipleItems = (MapItemSelectionMode)e.NewValue != MapItemSelectionMode.Single));
+            "SelectionMode", typeof(SelectionMode), typeof(MapItemsControl),
+            new FrameworkPropertyMetadata((o, e) => ((MapItemsControl)o).CanSelectMultipleItems = (SelectionMode)e.NewValue != SelectionMode.Single));
 
         public static readonly DependencyProperty SelectionGeometryProperty = DependencyProperty.Register(
             "SelectionGeometry", typeof(Geometry), typeof(MapItemsControl),
-            new FrameworkPropertyMetadata((o, e) => ((MapItemsControl)o).SelectionGeometryChanged((Geometry)e.NewValue)));
+            new FrameworkPropertyMetadata((o, e) => ((MapItemsControl)o).SelectionGeometryPropertyChanged((Geometry)e.NewValue)));
+
+        internal static readonly DependencyPropertyKey IsCurrentPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
+            "IsCurrent", typeof(bool), typeof(MapItemsControl), null);
+
+        public static readonly DependencyProperty IsCurrentProperty = IsCurrentPropertyKey.DependencyProperty;
 
         public MapItemsControl()
         {
-            CanSelectMultipleItems = false;
             Style = (Style)FindResource(typeof(MapItemsControl));
+            CanSelectMultipleItems = SelectionMode != SelectionMode.Single;
             Items.CurrentChanging += OnCurrentItemChanging;
             Items.CurrentChanged += OnCurrentItemChanged;
         }
 
-        public MapItemSelectionMode SelectionMode
+        public SelectionMode SelectionMode
         {
-            get { return (MapItemSelectionMode)GetValue(SelectionModeProperty); }
+            get { return (SelectionMode)GetValue(SelectionModeProperty); }
             set { SetValue(SelectionModeProperty, value); }
         }
 
@@ -46,26 +52,34 @@ namespace MapControl
             set { SetValue(SelectionGeometryProperty, value); }
         }
 
-        public MapItem GetMapItem(object item)
+        public static bool GetIsCurrent(UIElement element)
         {
-            return item != null ? ItemContainerGenerator.ContainerFromItem(item) as MapItem : null;
+            return (bool)element.GetValue(IsCurrentProperty);
         }
 
-        public object GetHitItem(Point point)
+        public static void SetIsCurrent(UIElement element, bool value)
         {
-            DependencyObject obj = InputHitTest(point) as DependencyObject;
+            element.SetValue(IsCurrentPropertyKey, value);
+        }
 
-            while (obj != null)
-            {
-                if (obj is MapItem)
-                {
-                    return ((MapItem)obj).Item;
-                }
+        public UIElement GetContainer(object item)
+        {
+            return item != null ? ItemContainerGenerator.ContainerFromItem(item) as UIElement : null;
+        }
 
-                obj = VisualTreeHelper.GetParent(obj);
-            }
+        public object GetItem(DependencyObject container)
+        {
+            return container != null ? ItemContainerGenerator.ItemFromContainer(container) : null;
+        }
 
-            return null;
+        public IList GetItemsInGeometry(Geometry geometry)
+        {
+            return GetItemsInGeometry(geometry, new ArrayList(Items.Count), Items.Count);
+        }
+
+        protected override bool IsItemItsOwnContainerOverride(object item)
+        {
+            return item is UIElement;
         }
 
         protected override DependencyObject GetContainerForItemOverride()
@@ -75,63 +89,118 @@ namespace MapControl
 
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
         {
-            MapItem mapItem = (MapItem)element;
-            mapItem.Item = item;
             base.PrepareContainerForItemOverride(element, item);
+
+            UIElement container = (UIElement)element;
+            container.MouseLeftButtonDown += ContainerMouseLeftButtonDown;
+            container.TouchDown += ContainerTouchDown;
+            container.TouchUp += ContainerTouchUp;
         }
 
         protected override void ClearContainerForItemOverride(DependencyObject element, object item)
         {
-            MapItem mapItem = (MapItem)element;
-            mapItem.Item = null;
             base.ClearContainerForItemOverride(element, item);
+
+            UIElement container = (UIElement)element;
+            container.MouseLeftButtonDown -= ContainerMouseLeftButtonDown;
+            container.TouchDown -= ContainerTouchDown;
+            container.TouchUp -= ContainerTouchUp;
         }
 
-        private void OnCurrentItemChanging(object sender, CurrentChangingEventArgs eventArgs)
+        private void ContainerMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            MapItem mapItem = GetMapItem(Items.CurrentItem);
+            e.Handled = true;
+            UIElement container = (UIElement)sender;
 
-            if (mapItem != null)
+            if (SelectionMode == SelectionMode.Extended &&
+                (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == 0)
             {
-                mapItem.IsCurrent = false;
+                SelectedItem = GetItem(container);
+            }
+            else
+            {
+                Selector.SetIsSelected(container, !Selector.GetIsSelected(container));
             }
         }
 
-        private void OnCurrentItemChanged(object sender, EventArgs eventArgs)
+        private void ContainerTouchDown(object sender, TouchEventArgs e)
         {
-            MapItem mapItem = GetMapItem(Items.CurrentItem);
+            e.Handled = true; // get TouchUp event
+        }
 
-            if (mapItem != null)
+        private void ContainerTouchUp(object sender, TouchEventArgs e)
+        {
+            e.Handled = true;
+            UIElement container = (UIElement)sender;
+            Selector.SetIsSelected(container, !Selector.GetIsSelected(container));
+        }
+
+        private void OnCurrentItemChanging(object sender, CurrentChangingEventArgs e)
+        {
+            UIElement container = GetContainer(Items.CurrentItem);
+
+            if (container != null)
             {
-                mapItem.IsCurrent = true;
+                SetIsCurrent(container, false);
             }
         }
 
-        private void SelectionGeometryChanged(Geometry geometry)
+        private void OnCurrentItemChanged(object sender, EventArgs e)
+        {
+            UIElement container = GetContainer(Items.CurrentItem);
+
+            if (container != null)
+            {
+                SetIsCurrent(container, true);
+            }
+        }
+
+        private void SelectionGeometryPropertyChanged(Geometry geometry)
         {
             if (geometry != null)
             {
-                SelectionMode = MapItemSelectionMode.Extended;
-
-                BeginUpdateSelectedItems();
-                SelectedItems.Clear();
-
-                if (!geometry.IsEmpty())
+                if (SelectionMode == SelectionMode.Single)
                 {
-                    foreach (object item in Items)
-                    {
-                        MapItem mapItem = GetMapItem(item);
-                        ViewportPosition viewportPosition = MapPanel.GetViewportPosition(mapItem);
+                    IList items = GetItemsInGeometry(geometry, new ArrayList(1), 1);
+                    SelectedItem = items.Count > 0 ? items[0] : null;
+                }
+                else
+                {
+                    BeginUpdateSelectedItems();
+                    GetItemsInGeometry(geometry, SelectedItems, Items.Count);
+                    EndUpdateSelectedItems();
+                }
+            }
+        }
 
-                        if (mapItem != null && viewportPosition != null && geometry.FillContains(viewportPosition.Position))
+        private IList GetItemsInGeometry(Geometry geometry, IList items, int maxItems)
+        {
+            items.Clear();
+
+            if (!geometry.IsEmpty())
+            {
+                foreach (object item in Items)
+                {
+                    UIElement container = GetContainer(item);
+
+                    if (container != null)
+                    {
+                        ViewportPosition viewportPosition = MapPanel.GetViewportPosition(container);
+
+                        if (viewportPosition != null && geometry.FillContains(viewportPosition.Position))
                         {
-                            SelectedItems.Add(item);
+                            items.Add(item);
+
+                            if (items.Count >= maxItems)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
-
-                EndUpdateSelectedItems();
             }
+
+            return items;
         }
     }
 }

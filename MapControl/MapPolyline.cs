@@ -149,9 +149,9 @@ namespace MapControl
             return visual;
         }
 
-        protected override void OnInitialized(EventArgs eventArgs)
+        protected override void OnInitialized(EventArgs e)
         {
-            base.OnInitialized(eventArgs);
+            base.OnInitialized(e);
 
             AddVisualChild(visual);
         }

@@ -109,14 +109,14 @@ namespace MapControl
             }
         }
 
-        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             MapPanel mapPanel = obj as MapPanel;
 
             if (mapPanel != null)
             {
-                Map oldParentMap = eventArgs.OldValue as Map;
-                Map newParentMap = eventArgs.NewValue as Map;
+                Map oldParentMap = e.OldValue as Map;
+                Map newParentMap = e.NewValue as Map;
 
                 if (oldParentMap != null && oldParentMap != mapPanel)
                 {
@@ -130,13 +130,13 @@ namespace MapControl
             }
         }
 
-        private static void ViewportPositionPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
+        private static void ViewportPositionPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             UIElement element = obj as UIElement;
 
             if (element != null)
             {
-                ViewportPosition position = (ViewportPosition)eventArgs.NewValue;
+                ViewportPosition position = (ViewportPosition)e.NewValue;
 
                 if (position != null)
                 {
@@ -149,13 +149,13 @@ namespace MapControl
             }
         }
 
-        private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
+        private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             UIElement element = obj as UIElement;
 
             if (element != null)
             {
-                SetViewportPosition(element, GetParentMap(element), (Location)eventArgs.NewValue);
+                SetViewportPosition(element, GetParentMap(element), (Location)e.NewValue);
             }
         }
 

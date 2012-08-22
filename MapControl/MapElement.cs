@@ -14,7 +14,8 @@ namespace MapControl
     {
         static MapElement()
         {
-            MapPanel.ParentMapPropertyKey.OverrideMetadata(typeof(MapElement),
+            MapPanel.ParentMapPropertyKey.OverrideMetadata(
+                typeof(MapElement),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
         }
 
@@ -31,14 +32,14 @@ namespace MapControl
 
         protected abstract void OnViewportChanged();
 
-        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             MapElement mapElement = obj as MapElement;
 
             if (mapElement != null)
             {
-                Map oldParentMap = eventArgs.OldValue as Map;
-                Map newParentMap = eventArgs.NewValue as Map;
+                Map oldParentMap = e.OldValue as Map;
+                Map newParentMap = e.NewValue as Map;
 
                 if (oldParentMap != null)
                 {

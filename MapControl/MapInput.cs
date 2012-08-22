@@ -19,41 +19,41 @@ namespace MapControl
             set { mouseWheelZoom = value; }
         }
 
-        protected override void OnMouseWheel(MouseWheelEventArgs eventArgs)
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
-            base.OnMouseWheel(eventArgs);
+            base.OnMouseWheel(e);
 
-            ZoomMap(eventArgs.GetPosition(this), TargetZoomLevel + mouseWheelZoom * Math.Sign(eventArgs.Delta));
+            ZoomMap(e.GetPosition(this), TargetZoomLevel + mouseWheelZoom * Math.Sign(e.Delta));
         }
 
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs eventArgs)
+        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
         {
-            base.OnMouseRightButtonDown(eventArgs);
+            base.OnMouseRightButtonDown(e);
 
-            if (eventArgs.ClickCount == 2)
+            if (e.ClickCount == 2)
             {
-                ZoomMap(eventArgs.GetPosition(this), Math.Ceiling(ZoomLevel - 1.5));
+                ZoomMap(e.GetPosition(this), Math.Ceiling(ZoomLevel - 1.5));
             }
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs eventArgs)
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            base.OnMouseLeftButtonDown(eventArgs);
+            base.OnMouseLeftButtonDown(e);
 
-            if (eventArgs.ClickCount == 1)
+            if (e.ClickCount == 1)
             {
-                mousePosition = eventArgs.GetPosition(this);
+                mousePosition = e.GetPosition(this);
                 CaptureMouse();
             }
-            else if (eventArgs.ClickCount == 2)
+            else if (e.ClickCount == 2)
             {
-                ZoomMap(eventArgs.GetPosition(this), Math.Floor(ZoomLevel + 1.5));
+                ZoomMap(e.GetPosition(this), Math.Floor(ZoomLevel + 1.5));
             }
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs eventArgs)
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
-            base.OnMouseLeftButtonUp(eventArgs);
+            base.OnMouseLeftButtonUp(e);
 
             if (mousePosition.HasValue)
             {
@@ -62,24 +62,24 @@ namespace MapControl
             }
         }
 
-        protected override void OnMouseMove(MouseEventArgs eventArgs)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
-            base.OnMouseMove(eventArgs);
+            base.OnMouseMove(e);
 
             if (mousePosition.HasValue)
             {
-                Point position = eventArgs.GetPosition(this);
+                Point position = e.GetPosition(this);
                 TranslateMap(position - mousePosition.Value);
                 mousePosition = position;
             }
         }
 
-        protected override void OnManipulationDelta(ManipulationDeltaEventArgs eventArgs)
+        protected override void OnManipulationDelta(ManipulationDeltaEventArgs e)
         {
-            base.OnManipulationDelta(eventArgs);
+            base.OnManipulationDelta(e);
 
-            ManipulationDelta d = eventArgs.DeltaManipulation;
-            TransformMap(eventArgs.ManipulationOrigin, d.Translation, d.Rotation, (d.Scale.X + d.Scale.Y) / 2d);
+            ManipulationDelta d = e.DeltaManipulation;
+            TransformMap(e.ManipulationOrigin, d.Translation, d.Rotation, (d.Scale.X + d.Scale.Y) / 2d);
         }
     }
 }
