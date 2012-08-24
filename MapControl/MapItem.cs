@@ -43,16 +43,9 @@ namespace MapControl
             IsEnabledChanged += IsEnabledPropertyChanged; 
         }
 
-        public event RoutedEventHandler Selected
+        public Map ParentMap
         {
-            add { AddHandler(SelectedEvent, value); }
-            remove { RemoveHandler(SelectedEvent, value); }
-        }
-
-        public event RoutedEventHandler Unselected
-        {
-            add { AddHandler(UnselectedEvent, value); }
-            remove { RemoveHandler(UnselectedEvent, value); }
+            get { return MapPanel.GetParentMap(this); }
         }
 
         public bool IsSelected
@@ -66,9 +59,16 @@ namespace MapControl
             get { return MapItemsControl.GetIsCurrent(this); }
         }
 
-        public Map ParentMap
+        public event RoutedEventHandler Selected
         {
-            get { return MapPanel.GetParentMap(this); }
+            add { AddHandler(SelectedEvent, value); }
+            remove { RemoveHandler(SelectedEvent, value); }
+        }
+
+        public event RoutedEventHandler Unselected
+        {
+            add { AddHandler(UnselectedEvent, value); }
+            remove { RemoveHandler(UnselectedEvent, value); }
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)

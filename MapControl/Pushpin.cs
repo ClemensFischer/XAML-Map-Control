@@ -23,6 +23,11 @@ namespace MapControl
                 typeof(Pushpin), new FrameworkPropertyMetadata(typeof(Pushpin)));
         }
 
+        public Map ParentMap
+        {
+            get { return MapPanel.GetParentMap(this); }
+        }
+
         public Location Location
         {
             get { return (Location)GetValue(LocationProperty); }

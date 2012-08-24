@@ -19,10 +19,11 @@ namespace MapControl
     /// <summary>
     /// Loads map tile images by their URIs and optionally caches the images in an ObjectCache.
     /// </summary>
-    public class TileImageLoader : DispatcherObject
+    public class TileImageLoader
     {
         private readonly TileLayer tileLayer;
         private readonly ConcurrentQueue<Tile> pendingTiles = new ConcurrentQueue<Tile>();
+        private int downloadThreadCount;
 
         /// <summary>
         /// Default Name of an ObjectCache instance that is assigned to the Cache property.
@@ -90,7 +91,7 @@ namespace MapControl
 
                 newTiles.ForEach(tile =>
                 {
-                    Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel)));
+                    tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel)));
                 });
             }
             else
@@ -106,19 +107,19 @@ namespace MapControl
                     newTiles.ForEach(tile =>
                     {
                         string key = CacheKey(tile);
-                        byte[] imageBuffer = Cache.Get(key) as byte[];
+                        byte[] buffer = Cache.Get(key) as byte[];
 
-                        if (imageBuffer == null)
+                        if (buffer == null)
                         {
                             pendingTiles.Enqueue(tile);
                         }
-                        else if (!CreateTileImage(tile, imageBuffer))
+                        else if (!CreateTileImage(tile, buffer))
                         {
                             // got corrupted buffer from cache
                             Cache.Remove(key);
                             pendingTiles.Enqueue(tile);
                         }
-                        else if (IsCacheOutdated(imageBuffer))
+                        else if (IsCacheOutdated(buffer))
                         {
                             // update cached image
                             outdatedTiles.Add(tile);
@@ -128,14 +129,15 @@ namespace MapControl
                     outdatedTiles.ForEach(tile => pendingTiles.Enqueue(tile));
                 }
 
-                int numDownloads = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads);
-
-                while (--numDownloads >= 0)
+                while (downloadThreadCount < Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads))
                 {
+                    Interlocked.Increment(ref downloadThreadCount);
+
                     ThreadPool.QueueUserWorkItem(DownloadTiles);
                 }
             }
         }
+
 
         private void DownloadTiles(object o)
         {
@@ -143,13 +145,15 @@ namespace MapControl
             while (pendingTiles.TryDequeue(out tile))
             {
                 tile.Uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-                byte[] imageBuffer = DownloadImage(tile);
+                byte[] buffer = DownloadImage(tile.Uri);
 
-                if (imageBuffer != null && CreateTileImage(tile, imageBuffer) && Cache != null)
+                if (buffer != null && CreateTileImage(tile, buffer) && Cache != null)
                 {
-                    Cache.Set(CacheKey(tile), imageBuffer, new CacheItemPolicy { SlidingExpiration = CacheExpiration });
+                    Cache.Set(CacheKey(tile), buffer, new CacheItemPolicy { SlidingExpiration = CacheExpiration });
                 }
             }
+
+            Interlocked.Decrement(ref downloadThreadCount);
         }
 
         private string CacheKey(Tile tile)
@@ -157,18 +161,39 @@ namespace MapControl
             return string.Format("{0}/{1}/{2}/{3}", tileLayer.Name, tile.ZoomLevel, tile.XIndex, tile.Y);
         }
 
-        private byte[] DownloadImage(Tile tile)
+        private bool CreateTileImage(Tile tile, byte[] buffer)
         {
-            HttpWebRequest request = null;
+            BitmapImage bitmap = new BitmapImage();
+
+            try
+            {
+                using (Stream stream = new MemoryStream(buffer, 8, buffer.Length - 8, false))
+                {
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.StreamSource = stream;
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("Creating tile image failed: {0}", ex.Message);
+                return false;
+            }
+
+            tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = bitmap));
+            return true;
+        }
+
+        private static byte[] DownloadImage(Uri uri)
+        {
             byte[] buffer = null;
 
             try
             {
-                TraceInformation("{0} - Requesting", tile.Uri);
-
-                request = (HttpWebRequest)WebRequest.Create(tile.Uri);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
                 request.UserAgent = typeof(TileImageLoader).ToString();
-                request.KeepAlive = true;
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 using (Stream responseStream = response.GetResponseStream())
@@ -185,67 +210,36 @@ namespace MapControl
                     }
                 }
 
-                TraceInformation("{0} - Completed", tile.Uri);
+                Trace.TraceInformation("Downloaded {0}", uri);
             }
             catch (WebException ex)
             {
                 if (ex.Status == WebExceptionStatus.ProtocolError)
                 {
-                    TraceInformation("{0} - {1}", tile.Uri, ((HttpWebResponse)ex.Response).StatusCode);
+                    HttpStatusCode statusCode = ((HttpWebResponse)ex.Response).StatusCode;
+                    if (statusCode != HttpStatusCode.NotFound)
+                    {
+                        Trace.TraceInformation("Downloading {0} failed: {1}", uri, ex.Message);
+                    }
                 }
                 else
                 {
-                    TraceWarning("{0} - {1}", tile.Uri, ex.Status);
+                    Trace.TraceWarning("Downloading {0} failed with {1}: {2}", uri, ex.Status, ex.Message);
                 }
             }
             catch (Exception ex)
             {
-                TraceWarning("{0} - {1}", tile.Uri, ex.Message);
+                Trace.TraceWarning("Downloading {0} failed: {1}", uri, ex.Message);
             }
 
             return buffer;
         }
 
-        private bool IsCacheOutdated(byte[] imageBuffer)
+        private static bool IsCacheOutdated(byte[] buffer)
         {
-            long creationTime = BitConverter.ToInt64(imageBuffer, 0);
+            long creationTime = BitConverter.ToInt64(buffer, 0);
 
             return DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow;
-        }
-
-        private bool CreateTileImage(Tile tile, byte[] imageBuffer)
-        {
-            BitmapImage bitmap = new BitmapImage();
-
-            try
-            {
-                using (Stream stream = new MemoryStream(imageBuffer, 8, imageBuffer.Length - 8, false))
-                {
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.StreamSource = stream;
-                    bitmap.EndInit();
-                    bitmap.Freeze();
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceWarning("Creating tile image failed: {0}", ex.Message);
-                return false;
-            }
-
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = bitmap));
-            return true;
-        }
-
-        private static void TraceWarning(string format, params object[] args)
-        {
-            Trace.TraceWarning("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
-        }
-
-        private static void TraceInformation(string format, params object[] args)
-        {
-            //Trace.TraceInformation("[{0:00}] {1}", Thread.CurrentThread.ManagedThreadId, string.Format(format, args));
         }
     }
 }
