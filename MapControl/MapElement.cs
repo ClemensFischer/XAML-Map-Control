@@ -19,12 +19,6 @@ namespace MapControl
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
         }
 
-        protected MapElement()
-        {
-            HorizontalAlignment = HorizontalAlignment.Stretch;
-            VerticalAlignment = VerticalAlignment.Stretch;
-        }
-
         public Map ParentMap
         {
             get { return MapPanel.GetParentMap(this); }

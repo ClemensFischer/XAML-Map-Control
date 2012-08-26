@@ -128,12 +128,12 @@ namespace MapControl
             }
             else if ((selectedContainer = GetContainer(SelectedItem)) != null)
             {
-                ViewportPosition p1 = MapPanel.GetViewportPosition(selectedContainer);
-                ViewportPosition p2 = MapPanel.GetViewportPosition(container);
+                Point? p1 = MapPanel.GetViewportPosition(selectedContainer);
+                Point? p2 = MapPanel.GetViewportPosition(container);
 
-                if (p1 != null && p2 != null)
+                if (p1.HasValue && p2.HasValue)
                 {
-                    Rect rect = new Rect(p1.Position, p2.Position);
+                    Rect rect = new Rect(p1.Value, p2.Value);
 
                     BeginUpdateSelectedItems();
                     SelectedItems.Clear();
@@ -237,21 +237,21 @@ namespace MapControl
         private bool IsItemInGeometry(object item, Geometry geometry)
         {
             UIElement container = GetContainer(item);
-            ViewportPosition viewportPosition;
+            Point? viewportPosition;
 
             return container != null
-                && (viewportPosition = MapPanel.GetViewportPosition(container)) != null
-                && geometry.FillContains(viewportPosition.Position);
+                && (viewportPosition = MapPanel.GetViewportPosition(container)).HasValue
+                && geometry.FillContains(viewportPosition.Value);
         }
 
         private bool IsItemInRect(object item, Rect rect)
         {
             UIElement container = GetContainer(item);
-            ViewportPosition viewportPosition;
+            Point? viewportPosition;
 
             return container != null
-                && (viewportPosition = MapPanel.GetViewportPosition(container)) != null
-                && rect.Contains(viewportPosition.Position);
+                && (viewportPosition = MapPanel.GetViewportPosition(container)).HasValue
+                && rect.Contains(viewportPosition.Value);
         }
     }
 }

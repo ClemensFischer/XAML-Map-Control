@@ -4,15 +4,13 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace MapControl
 {
     /// <summary>
     /// Positions child elements on a Map. A child element's position is specified by the
     /// attached property Location, given as geographic location with latitude and longitude.
-    /// The attached property ViewportPosition gets a child element's position in viewport
-    /// coordinates and indicates if the coordinates are located inside the bounds of the ParentMap.
+    /// The attached property ViewportPosition gets a child element's position in viewport coordinates.
     /// </summary>
     public class MapPanel : Panel
     {
@@ -23,7 +21,7 @@ namespace MapControl
         public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
 
         private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ViewportPosition", typeof(ViewportPosition), typeof(MapPanel),
+            "ViewportPosition", typeof(Point?), typeof(MapPanel),
             new FrameworkPropertyMetadata(ViewportPositionPropertyChanged));
 
         public static readonly DependencyProperty ViewportPositionProperty = ViewportPositionPropertyKey.DependencyProperty;
@@ -47,9 +45,9 @@ namespace MapControl
             return (Map)element.GetValue(ParentMapProperty);
         }
 
-        public static ViewportPosition GetViewportPosition(UIElement element)
+        public static Point? GetViewportPosition(UIElement element)
         {
-            return (ViewportPosition)element.GetValue(ViewportPositionProperty);
+            return (Point?)element.GetValue(ViewportPositionProperty);
         }
 
         public static Location GetLocation(UIElement element)
@@ -78,20 +76,19 @@ namespace MapControl
         {
             foreach (UIElement element in InternalChildren)
             {
-                ViewportPosition viewportPosition = GetViewportPosition(element);
+                Point? viewportPosition = GetViewportPosition(element);
 
-                if (viewportPosition == null || !ArrangeElement(element, viewportPosition))
+                if (viewportPosition.HasValue)
                 {
-                    ArrangeElement(element, finalSize);
+                    ArrangeElement(element, viewportPosition.Value);
+                }
+                else
+                {
+                    element.Arrange(new Rect(finalSize));
                 }
             }
 
             return finalSize;
-        }
-
-        protected virtual Point GetArrangePosition(ViewportPosition viewportPosition)
-        {
-            return viewportPosition.Position;
         }
 
         protected virtual void OnViewportChanged()
@@ -136,11 +133,11 @@ namespace MapControl
 
             if (element != null)
             {
-                ViewportPosition position = (ViewportPosition)e.NewValue;
+                Point? viewportPosition = (Point?)e.NewValue;
 
-                if (position != null)
+                if (viewportPosition.HasValue)
                 {
-                    ArrangeElement(element, position);
+                    ArrangeElement(element, viewportPosition.Value);
                 }
                 else
                 {
@@ -161,36 +158,23 @@ namespace MapControl
 
         private static void SetViewportPosition(UIElement element, Map parentMap, Location location)
         {
-            ViewportPosition viewportPosition = null;
+            Point? viewportPosition = null;
 
             if (parentMap != null && location != null)
             {
-                Point position = parentMap.LocationToViewportPoint(location);
-
-                viewportPosition = new ViewportPosition(position,
-                    position.X >= 0d && position.X <= parentMap.ActualWidth &&
-                    position.Y >= 0d && position.Y <= parentMap.ActualHeight);
+                viewportPosition = parentMap.LocationToViewportPoint(location);
             }
 
             element.SetValue(ViewportPositionPropertyKey, viewportPosition);
         }
 
-        private static bool ArrangeElement(UIElement element, ViewportPosition viewportPosition)
+        private static void ArrangeElement(UIElement element, Point position)
         {
-            MapPanel panel = VisualTreeHelper.GetParent(element) as MapPanel;
-            Point position = panel != null ? panel.GetArrangePosition(viewportPosition) : viewportPosition.Position;
             Rect rect = new Rect(position, element.DesiredSize);
-            FrameworkElement frameworkElement = element as FrameworkElement;
 
-            if (frameworkElement != null)
+            if (element is FrameworkElement)
             {
-                if (frameworkElement.HorizontalAlignment == HorizontalAlignment.Stretch ||
-                    frameworkElement.VerticalAlignment == VerticalAlignment.Stretch)
-                {
-                    return false; // do not arrange at position
-                }
-
-                switch (frameworkElement.HorizontalAlignment)
+                switch (((FrameworkElement)element).HorizontalAlignment)
                 {
                     case HorizontalAlignment.Center:
                         rect.X -= rect.Width / 2d;
@@ -198,11 +182,14 @@ namespace MapControl
                     case HorizontalAlignment.Right:
                         rect.X -= rect.Width;
                         break;
+                    case HorizontalAlignment.Stretch:
+                        rect.X = 0d;
+                        break;
                     default:
                         break;
                 }
 
-                switch (frameworkElement.VerticalAlignment)
+                switch (((FrameworkElement)element).VerticalAlignment)
                 {
                     case VerticalAlignment.Center:
                         rect.Y -= rect.Height / 2d;
@@ -210,47 +197,8 @@ namespace MapControl
                     case VerticalAlignment.Bottom:
                         rect.Y -= rect.Height;
                         break;
-                    default:
-                        break;
-                }
-            }
-
-            element.Arrange(rect);
-            return true;
-        }
-
-        private static void ArrangeElement(UIElement element, Size panelSize)
-        {
-            Rect rect = new Rect(element.DesiredSize);
-            FrameworkElement frameworkElement = element as FrameworkElement;
-
-            if (frameworkElement != null)
-            {
-                switch (frameworkElement.HorizontalAlignment)
-                {
-                    case HorizontalAlignment.Center:
-                        rect.X = (panelSize.Width - rect.Width) / 2d;
-                        break;
-                    case HorizontalAlignment.Right:
-                        rect.X = panelSize.Width - rect.Width;
-                        break;
-                    case HorizontalAlignment.Stretch:
-                        rect.Width = panelSize.Width;
-                        break;
-                    default:
-                        break;
-                }
-
-                switch (frameworkElement.VerticalAlignment)
-                {
-                    case VerticalAlignment.Center:
-                        rect.Y = (panelSize.Height - rect.Height) / 2d;
-                        break;
-                    case VerticalAlignment.Bottom:
-                        rect.Y = panelSize.Height - rect.Height;
-                        break;
                     case VerticalAlignment.Stretch:
-                        rect.Height = panelSize.Height;
+                        rect.Y = 0d;
                         break;
                     default:
                         break;

@@ -46,7 +46,7 @@
         <local:SampleItemCollection x:Key="Polylines"/>
         <local:SampleItemCollection x:Key="Points"/>
         <local:SampleItemCollection x:Key="Pushpins"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:ViewportPositionToVisibilityConverter x:Key="ViewportPositionToVisibilityConverter"/>
         <DataTemplate x:Key="PolylineItemTemplate">
             <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
         </DataTemplate>
@@ -100,7 +100,14 @@
         </Style>
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
-            <Setter Property="Visibility" Value="{Binding (map:MapPanel.ViewportPosition).IsInside, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="Visibility">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource ViewportPositionToVisibilityConverter}">
+                        <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
+                        <Binding Path="(map:MapPanel.ViewportPosition)" RelativeSource="{RelativeSource Self}"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
@@ -137,8 +144,14 @@
             <map:MapItemsControl ItemsSource="{StaticResource Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"
                                  IsSynchronizedWithCurrentItem="True"/>
-            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"
-                         Visibility="{Binding (map:MapPanel.ViewportPosition).IsInside, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
+            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
+                <map:Pushpin.Visibility>
+                    <MultiBinding Converter="{StaticResource ViewportPositionToVisibilityConverter}">
+                        <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
+                        <Binding Path="(map:MapPanel.ViewportPosition)" RelativeSource="{RelativeSource Self}"/>
+                    </MultiBinding>
+                </map:Pushpin.Visibility>
+            </map:Pushpin>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,0,0,0" FontSize="10"
                        Text="{Binding BaseTileLayer.Description, ElementName=map}"/>
         </map:Map>
