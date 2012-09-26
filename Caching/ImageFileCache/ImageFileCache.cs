@@ -171,11 +171,19 @@ namespace Caching
             if (extension != null)
             {
                 var path = GetPath(key) + extension;
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                using (FileStream fileStream = new FileStream(path, FileMode.Create))
+                try
                 {
-                    fileStream.Write(buffer, 8, buffer.Length - 8);
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+                    using (FileStream fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        fileStream.Write(buffer, 8, buffer.Length - 8);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceWarning("ImageFileCache: Writing file {0} failed: {1}", path, ex.Message);
                 }
             }
         }
