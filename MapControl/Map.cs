@@ -405,6 +405,7 @@ namespace MapControl
                 UpdateTransform();
             }
 
+            ResetTransformOrigin();
             TranslateMap(translation);
         }
 
@@ -414,8 +415,13 @@ namespace MapControl
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
-            SetTransformOrigin(origin);
+            double targetZoomLebel = TargetZoomLevel;
             TargetZoomLevel = zoomLevel;
+
+            if (TargetZoomLevel != targetZoomLebel) // TargetZoomLevel might be coerced
+            {
+                SetTransformOrigin(origin);
+            }
         }
 
         /// <summary>

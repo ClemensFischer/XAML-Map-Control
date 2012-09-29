@@ -22,7 +22,7 @@ namespace MapControl
 
         private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
             "ViewportPosition", typeof(Point?), typeof(MapPanel),
-            new FrameworkPropertyMetadata(ViewportPositionPropertyChanged));
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, ViewportPositionPropertyChanged));
 
         public static readonly DependencyProperty ViewportPositionProperty = ViewportPositionPropertyKey.DependencyProperty;
 
@@ -93,15 +93,13 @@ namespace MapControl
 
         protected virtual void OnViewportChanged()
         {
-            Map parentMap = ParentMap;
-
             foreach (UIElement element in InternalChildren)
             {
                 Location location = GetLocation(element);
 
                 if (location != null)
                 {
-                    SetViewportPosition(element, parentMap, location);
+                    SetViewportPosition(element, ParentMap, location);
                 }
             }
         }
