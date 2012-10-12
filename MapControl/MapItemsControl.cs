@@ -40,7 +40,7 @@ namespace MapControl
             Items.CurrentChanged += OnCurrentItemChanged;
         }
 
-        public Map ParentMap
+        public MapBase ParentMap
         {
             get { return MapPanel.GetParentMap(this); }
         }
@@ -67,12 +67,12 @@ namespace MapControl
             element.SetValue(IsCurrentPropertyKey, value);
         }
 
-        public UIElement GetContainer(object item)
+        public UIElement ContainerFromItem(object item)
         {
             return item != null ? ItemContainerGenerator.ContainerFromItem(item) as UIElement : null;
         }
 
-        public object GetItem(DependencyObject container)
+        public object ItemFromContainer(DependencyObject container)
         {
             return container != null ? ItemContainerGenerator.ItemFromContainer(container) : null;
         }
@@ -124,9 +124,9 @@ namespace MapControl
             }
             else if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
             {
-                SelectedItem = GetItem(container);
+                SelectedItem = ItemFromContainer(container);
             }
-            else if ((selectedContainer = GetContainer(SelectedItem)) != null)
+            else if ((selectedContainer = ContainerFromItem(SelectedItem)) != null)
             {
                 Point? p1 = MapPanel.GetViewportPosition(selectedContainer);
                 Point? p2 = MapPanel.GetViewportPosition(container);
@@ -166,7 +166,7 @@ namespace MapControl
 
         private void OnCurrentItemChanging(object sender, CurrentChangingEventArgs e)
         {
-            UIElement container = GetContainer(Items.CurrentItem);
+            UIElement container = ContainerFromItem(Items.CurrentItem);
 
             if (container != null)
             {
@@ -176,7 +176,7 @@ namespace MapControl
 
         private void OnCurrentItemChanged(object sender, EventArgs e)
         {
-            UIElement container = GetContainer(Items.CurrentItem);
+            UIElement container = ContainerFromItem(Items.CurrentItem);
 
             if (container != null)
             {
@@ -236,7 +236,7 @@ namespace MapControl
 
         private bool IsItemInGeometry(object item, Geometry geometry)
         {
-            UIElement container = GetContainer(item);
+            UIElement container = ContainerFromItem(item);
             Point? viewportPosition;
 
             return container != null
@@ -246,7 +246,7 @@ namespace MapControl
 
         private bool IsItemInRect(object item, Rect rect)
         {
-            UIElement container = GetContainer(item);
+            UIElement container = ContainerFromItem(item);
             Point? viewportPosition;
 
             return container != null

@@ -58,8 +58,8 @@
     <Compile Include="MapPolyline.cs" />
     <Compile Include="Pushpin.cs" />
     <Compile Include="MapTransform.cs" />
+    <Compile Include="MapBase.cs" />
     <Compile Include="Map.cs" />
-    <Compile Include="MapInput.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tile.cs" />

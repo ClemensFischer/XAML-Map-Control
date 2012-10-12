@@ -43,7 +43,7 @@ namespace MapControl
             IsEnabledChanged += IsEnabledPropertyChanged; 
         }
 
-        public Map ParentMap
+        public MapBase ParentMap
         {
             get { return MapPanel.GetParentMap(this); }
         }

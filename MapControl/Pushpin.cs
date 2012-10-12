@@ -23,7 +23,7 @@ namespace MapControl
                 typeof(Pushpin), new FrameworkPropertyMetadata(typeof(Pushpin)));
         }
 
-        public Map ParentMap
+        public MapBase ParentMap
         {
             get { return MapPanel.GetParentMap(this); }
         }

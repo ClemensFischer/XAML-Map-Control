@@ -162,7 +162,7 @@ namespace MapControl
 
             if (TransformStroke)
             {
-                scale = ParentMap.CenterScale * Map.MeterPerDegree;
+                scale = ParentMap.CenterScale * MapBase.MeterPerDegree;
             }
 
             drawing.Pen.Thickness = scale * StrokeThickness;

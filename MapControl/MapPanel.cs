@@ -2,6 +2,7 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -15,7 +16,7 @@ namespace MapControl
     public class MapPanel : Panel
     {
         internal static readonly DependencyPropertyKey ParentMapPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ParentMap", typeof(Map), typeof(MapPanel),
+            "ParentMap", typeof(MapBase), typeof(MapPanel),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
 
         public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
@@ -30,19 +31,14 @@ namespace MapControl
             "Location", typeof(Location), typeof(MapPanel),
             new FrameworkPropertyMetadata(LocationPropertyChanged));
 
-        public MapPanel()
+        public MapBase ParentMap
         {
-            ClipToBounds = true;
+            get { return (MapBase)GetValue(ParentMapProperty); }
         }
 
-        public Map ParentMap
+        public static MapBase GetParentMap(UIElement element)
         {
-            get { return (Map)GetValue(ParentMapProperty); }
-        }
-
-        public static Map GetParentMap(UIElement element)
-        {
-            return (Map)element.GetValue(ParentMapProperty);
+            return (MapBase)element.GetValue(ParentMapProperty);
         }
 
         public static Point? GetViewportPosition(UIElement element)
@@ -104,14 +100,19 @@ namespace MapControl
             }
         }
 
+        private void OnViewportChanged(object sender, EventArgs e)
+        {
+            OnViewportChanged();
+        }
+
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             MapPanel mapPanel = obj as MapPanel;
 
             if (mapPanel != null)
             {
-                Map oldParentMap = e.OldValue as Map;
-                Map newParentMap = e.NewValue as Map;
+                MapBase oldParentMap = e.OldValue as MapBase;
+                MapBase newParentMap = e.NewValue as MapBase;
 
                 if (oldParentMap != null && oldParentMap != mapPanel)
                 {
@@ -154,7 +155,7 @@ namespace MapControl
             }
         }
 
-        private static void SetViewportPosition(UIElement element, Map parentMap, Location location)
+        private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
         {
             Point? viewportPosition = null;
 

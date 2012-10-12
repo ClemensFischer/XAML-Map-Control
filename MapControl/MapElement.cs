@@ -19,12 +19,17 @@ namespace MapControl
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
         }
 
-        public Map ParentMap
+        public MapBase ParentMap
         {
             get { return MapPanel.GetParentMap(this); }
         }
 
         protected abstract void OnViewportChanged();
+
+        private void OnViewportChanged(object sender, EventArgs e)
+        {
+            OnViewportChanged();
+        }
 
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
@@ -32,8 +37,8 @@ namespace MapControl
 
             if (mapElement != null)
             {
-                Map oldParentMap = e.OldValue as Map;
-                Map newParentMap = e.NewValue as Map;
+                MapBase oldParentMap = e.OldValue as MapBase;
+                MapBase newParentMap = e.NewValue as MapBase;
 
                 if (oldParentMap != null)
                 {
