@@ -3,8 +3,10 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -13,60 +15,80 @@ namespace MapControl
     /// <summary>
     /// An open map polygon, defined by a collection of geographic locations in the Locations property.
     /// </summary>
-    public class MapPolyline : MapElement
+    public class MapPolyline : FrameworkElement
     {
         public static readonly DependencyProperty StrokeProperty = Shape.StrokeProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata(Brushes.Black, (o, e) => ((MapPolyline)o).drawing.Pen.Brush = (Brush)e.NewValue));
-
-        public static readonly DependencyProperty StrokeDashArrayProperty = Shape.StrokeDashArrayProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).drawing.Pen.DashStyle = new DashStyle((DoubleCollection)e.NewValue, ((MapPolyline)o).StrokeDashOffset)));
-
-        public static readonly DependencyProperty StrokeDashOffsetProperty = Shape.StrokeDashOffsetProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).drawing.Pen.DashStyle = new DashStyle(((MapPolyline)o).StrokeDashArray, (double)e.NewValue)));
-
-        public static readonly DependencyProperty StrokeDashCapProperty = Shape.StrokeDashCapProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).drawing.Pen.DashCap = (PenLineCap)e.NewValue));
-
-        public static readonly DependencyProperty StrokeStartLineCapProperty = Shape.StrokeStartLineCapProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).drawing.Pen.StartLineCap = (PenLineCap)e.NewValue));
-
-        public static readonly DependencyProperty StrokeEndLineCapProperty = Shape.StrokeEndLineCapProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).drawing.Pen.EndLineCap = (PenLineCap)e.NewValue));
-
-        public static readonly DependencyProperty StrokeLineJoinProperty = Shape.StrokeLineJoinProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).drawing.Pen.LineJoin = (PenLineJoin)e.NewValue));
-
-        public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).drawing.Pen.MiterLimit = (double)e.NewValue));
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.Brush = (Brush)e.NewValue));
 
         public static readonly DependencyProperty StrokeThicknessProperty = Shape.StrokeThicknessProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).UpdatePenThickness()));
+            typeof(MapPolyline));
+
+        public static readonly DependencyProperty StrokeDashArrayProperty = Shape.StrokeDashArrayProperty.AddOwner(
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.DashStyle = new DashStyle((DoubleCollection)e.NewValue, ((MapPolyline)o).StrokeDashOffset)));
+
+        public static readonly DependencyProperty StrokeDashOffsetProperty = Shape.StrokeDashOffsetProperty.AddOwner(
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.DashStyle = new DashStyle(((MapPolyline)o).StrokeDashArray, (double)e.NewValue)));
+
+        public static readonly DependencyProperty StrokeDashCapProperty = Shape.StrokeDashCapProperty.AddOwner(
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.DashCap = (PenLineCap)e.NewValue));
+
+        public static readonly DependencyProperty StrokeStartLineCapProperty = Shape.StrokeStartLineCapProperty.AddOwner(
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.StartLineCap = (PenLineCap)e.NewValue));
+
+        public static readonly DependencyProperty StrokeEndLineCapProperty = Shape.StrokeEndLineCapProperty.AddOwner(
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.EndLineCap = (PenLineCap)e.NewValue));
+
+        public static readonly DependencyProperty StrokeLineJoinProperty = Shape.StrokeLineJoinProperty.AddOwner(
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.LineJoin = (PenLineJoin)e.NewValue));
+
+        public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
+            typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).Drawing.Pen.MiterLimit = (double)e.NewValue));
 
         public static readonly DependencyProperty TransformStrokeProperty = DependencyProperty.Register(
-            "TransformStroke", typeof(bool), typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).UpdatePenThickness()));
+            "TransformStroke", typeof(bool), typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).SetPenThicknessBinding()));
 
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(LocationCollection), typeof(MapPolyline), new FrameworkPropertyMetadata((o, e) => ((MapPolyline)o).UpdateGeometry()));
 
-        protected readonly DrawingVisual visual = new DrawingVisual();
-        protected readonly GeometryDrawing drawing = new GeometryDrawing();
+        protected readonly GeometryDrawing Drawing = new GeometryDrawing();
+
+        static MapPolyline()
+        {
+            MapPanel.ParentMapPropertyKey.OverrideMetadata(
+                typeof(MapPolyline),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
+        }
 
         public MapPolyline()
         {
-            drawing.Pen = new Pen(Stroke, StrokeThickness);
-
-            using (DrawingContext drawingContext = visual.RenderOpen())
+            Drawing.Pen = new Pen
             {
-                drawingContext.DrawDrawing(drawing);
-            }
+                Brush = Stroke,
+                Thickness = StrokeThickness,
+                DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset),
+                DashCap = StrokeDashCap,
+                StartLineCap = StrokeStartLineCap,
+                EndLineCap = StrokeEndLineCap,
+                LineJoin = StrokeLineJoin,
+                MiterLimit = StrokeMiterLimit
+            };
+        }
 
-            Loaded += (o, e) => UpdateGeometry();
+        public MapBase ParentMap
+        {
+            get { return MapPanel.GetParentMap(this); }
         }
 
         public Brush Stroke
         {
             get { return (Brush)GetValue(StrokeProperty); }
             set { SetValue(StrokeProperty, value); }
+        }
+
+        public double StrokeThickness
+        {
+            get { return (double)GetValue(StrokeThicknessProperty); }
+            set { SetValue(StrokeThicknessProperty, value); }
         }
 
         public DoubleCollection StrokeDashArray
@@ -111,12 +133,6 @@ namespace MapControl
             set { SetValue(StrokeMiterLimitProperty, value); }
         }
 
-        public double StrokeThickness
-        {
-            get { return (double)GetValue(StrokeThicknessProperty); }
-            set { SetValue(StrokeThicknessProperty, value); }
-        }
-
         public bool TransformStroke
         {
             get { return (bool)GetValue(TransformStrokeProperty); }
@@ -129,43 +145,19 @@ namespace MapControl
             set { SetValue(LocationsProperty, value); }
         }
 
-        public double TransformedStrokeThickness
-        {
-            get { return drawing.Pen.Thickness; }
-        }
-
         public PathGeometry TransformedGeometry
         {
-            get { return drawing.Geometry as PathGeometry; }
+            get { return Drawing.Geometry as PathGeometry; }
         }
 
-        protected override int VisualChildrenCount
+        public double TransformedStrokeThickness
         {
-            get { return 1; }
+            get { return Drawing.Pen.Thickness; }
         }
 
-        protected override Visual GetVisualChild(int index)
+        protected override void OnRender(DrawingContext drawingContext)
         {
-            return visual;
-        }
-
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-
-            AddVisualChild(visual);
-        }
-
-        protected override void OnViewportChanged()
-        {
-            double scale = 1d;
-
-            if (TransformStroke)
-            {
-                scale = ParentMap.CenterScale * MapBase.MeterPerDegree;
-            }
-
-            drawing.Pen.Thickness = scale * StrokeThickness;
+            drawingContext.DrawDrawing(Drawing);
         }
 
         protected virtual void UpdateGeometry()
@@ -177,20 +169,11 @@ namespace MapControl
         {
             if (ParentMap != null && Locations != null && Locations.Count > 0)
             {
-                drawing.Geometry = CreateGeometry(Locations, closed);
-                OnViewportChanged();
+                Drawing.Geometry = CreateGeometry(Locations, closed);
             }
             else
             {
-                drawing.Geometry = null;
-            }
-        }
-
-        private void UpdatePenThickness()
-        {
-            if (ParentMap != null)
-            {
-                OnViewportChanged();
+                Drawing.Geometry = null;
             }
         }
 
@@ -212,6 +195,45 @@ namespace MapControl
             }
 
             return geometry;
+        }
+
+        private void SetPenThicknessBinding()
+        {
+            BindingBase binding = new Binding { Source = this, Path = new PropertyPath(MapPolyline.StrokeThicknessProperty)};
+
+            if (TransformStroke && ParentMap != null)
+            {
+                MultiBinding multiBinding = new MultiBinding { Converter = new PenThicknessConverter() };
+                multiBinding.Bindings.Add(binding);
+                multiBinding.Bindings.Add(new Binding { Source = ParentMap, Path = new PropertyPath(MapBase.CenterScaleProperty)});
+                binding = multiBinding;
+            }
+
+            BindingOperations.SetBinding(Drawing.Pen, Pen.ThicknessProperty, binding);
+        }
+
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            MapPolyline polyline = obj as MapPolyline;
+
+            if (polyline != null)
+            {
+                polyline.UpdateGeometry();
+                polyline.SetPenThicknessBinding();
+            }
+        }
+
+        private class PenThicknessConverter : IMultiValueConverter
+        {
+            public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+            {
+                return (double)values[0] * (double)values[1] * MapBase.MeterPerDegree;
+            }
+
+            public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

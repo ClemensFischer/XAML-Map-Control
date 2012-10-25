@@ -14,11 +14,11 @@ namespace MapControl
     public class MapPolygon : MapPolyline
     {
         public static readonly DependencyProperty FillProperty = Shape.FillProperty.AddOwner(
-            typeof(MapPolygon), new FrameworkPropertyMetadata((o, e) => ((MapPolygon)o).drawing.Brush = (Brush)e.NewValue));
+            typeof(MapPolygon), new FrameworkPropertyMetadata((o, e) => ((MapPolygon)o).Drawing.Brush = (Brush)e.NewValue));
 
         public MapPolygon()
         {
-            drawing.Brush = Fill;
+            Drawing.Brush = Fill;
         }
 
         public Brush Fill

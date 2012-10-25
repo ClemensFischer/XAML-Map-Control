@@ -10,17 +10,17 @@ namespace SampleApplication
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            Visibility visibility = Visibility.Visible;
+            Visibility visibility = Visibility.Hidden;
 
             if (values.Length == 2 && values[0] is Map && values[1] is Point? && ((Point?)values[1]).HasValue)
             {
                 Map parentMap = (Map)values[0];
                 Point position = ((Point?)values[1]).Value;
 
-                if (position.X < 0d || position.X > parentMap.ActualWidth ||
-                    position.Y < 0d || position.Y > parentMap.ActualHeight)
+                if (position.X >= 0d && position.X <= parentMap.ActualWidth &&
+                    position.Y >= 0d && position.Y <= parentMap.ActualHeight)
                 {
-                    visibility = Visibility.Hidden;
+                    visibility = Visibility.Visible;
                 }
             }
 
