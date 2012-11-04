@@ -119,7 +119,7 @@ namespace MapControl
                 {
                     BaseTileLayer = new TileLayer
                     {
-                        Name = "OpenStreetMap",
+                        SourceName = "OpenStreetMap",
                         Description = "© {y} OpenStreetMap Contributors, CC-BY-SA",
                         TileSource = new TileSource("http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png")
                     };

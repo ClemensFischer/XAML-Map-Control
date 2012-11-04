@@ -38,7 +38,7 @@ namespace MapControl
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("The value of the UriFormat proprty must not be null or empty or white-space only.");
+                    throw new ArgumentException("The value of the UriFormat property must not be null or empty or white-space only.");
                 }
 
                 if (value.Contains("{x}") && value.Contains("{y}") && value.Contains("{z}"))

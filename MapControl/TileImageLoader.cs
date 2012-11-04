@@ -91,7 +91,8 @@ namespace MapControl
 
                 newTiles.ForEach(tile =>
                 {
-                    tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel)));
+                    tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                        (Action)(() => tile.Image = imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel)));
                 });
             }
             else
@@ -138,7 +139,6 @@ namespace MapControl
             }
         }
 
-
         private void DownloadTiles(object o)
         {
             Tile tile;
@@ -158,7 +158,7 @@ namespace MapControl
 
         private string CacheKey(Tile tile)
         {
-            return string.Format("{0}/{1}/{2}/{3}", tileLayer.Name, tile.ZoomLevel, tile.XIndex, tile.Y);
+            return string.Format("{0}/{1}/{2}/{3}", tileLayer.SourceName, tile.ZoomLevel, tile.XIndex, tile.Y);
         }
 
         private bool CreateTileImage(Tile tile, byte[] buffer)

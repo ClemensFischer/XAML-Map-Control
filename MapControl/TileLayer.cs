@@ -32,7 +32,7 @@ namespace MapControl
             MaxParallelDownloads = 8;
         }
 
-        public string Name { get; set; }
+        public string SourceName { get; set; }
         public TileSource TileSource { get; set; }
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
@@ -118,7 +118,8 @@ namespace MapControl
 
             tiles.Sort((t1, t2) => t1.ZoomLevel - t2.ZoomLevel);
 
-            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
+            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count,
+            //    string.Join(", ", System.Linq.Enumerable.Select(tiles, t => t.ZoomLevel.ToString())));
         }
 
         private void RenderTiles()

@@ -37,9 +37,9 @@ namespace MapControl
 
             foreach (TileLayer tileLayer in tileLayers)
             {
-                if (string.IsNullOrEmpty(tileLayer.Name))
+                if (string.IsNullOrWhiteSpace(tileLayer.SourceName))
                 {
-                    throw new ArgumentException("TileLayer.Name property must not be null or empty.");
+                    throw new ArgumentException("TileLayer.SourceName property must not be null or empty or white-space only.");
                 }
 
                 Children.Insert(index++, tileLayer);
