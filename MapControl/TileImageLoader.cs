@@ -70,9 +70,9 @@ namespace MapControl
             this.tileLayer = tileLayer;
         }
 
-        internal void BeginGetTiles(ICollection<Tile> tiles)
+        internal void BeginGetTiles(IEnumerable<Tile> tiles)
         {
-            ThreadPool.QueueUserWorkItem(BeginGetTilesAsync, new List<Tile>(tiles.Where(t => t.Image == null && t.Uri == null)));
+            ThreadPool.QueueUserWorkItem(BeginGetTilesAsync, new List<Tile>(tiles.Where(t => t.Source == null && t.Uri == null)));
         }
 
         internal void CancelGetTiles()
@@ -89,23 +89,26 @@ namespace MapControl
             {
                 ImageTileSource imageTileSource = (ImageTileSource)tileLayer.TileSource;
 
-                newTiles.ForEach(tile =>
+                foreach (Tile tile in newTiles)
                 {
                     tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                        (Action)(() => tile.Image = imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel)));
-                });
+                        (Action)(() => tile.SetSource(imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel))));
+                }
             }
             else
             {
                 if (Cache == null)
                 {
-                    newTiles.ForEach(tile => pendingTiles.Enqueue(tile));
+                    foreach (Tile tile in newTiles)
+                    {
+                        pendingTiles.Enqueue(tile);
+                    }
                 }
                 else
                 {
                     List<Tile> outdatedTiles = new List<Tile>(newTiles.Count);
 
-                    newTiles.ForEach(tile =>
+                    foreach (Tile tile in newTiles)
                     {
                         string key = CacheKey(tile);
                         byte[] buffer = Cache.Get(key) as byte[];
@@ -125,9 +128,12 @@ namespace MapControl
                             // update cached image
                             outdatedTiles.Add(tile);
                         }
-                    });
+                    }
 
-                    outdatedTiles.ForEach(tile => pendingTiles.Enqueue(tile));
+                    foreach (Tile tile in outdatedTiles)
+                    {
+                        pendingTiles.Enqueue(tile);
+                    }
                 }
 
                 while (downloadThreadCount < Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads))
@@ -182,7 +188,7 @@ namespace MapControl
                 return false;
             }
 
-            tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.Image = bitmap));
+            tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.SetSource(bitmap)));
             return true;
         }
 

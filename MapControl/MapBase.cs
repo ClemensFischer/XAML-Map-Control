@@ -458,11 +458,6 @@ namespace MapControl
             UpdateTransform();
         }
 
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            drawingContext.DrawRectangle(Background, null, new Rect(RenderSize));
-        }
-
         protected override void OnViewportChanged()
         {
             base.OnViewportChanged();

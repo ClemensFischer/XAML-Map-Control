@@ -36,28 +36,30 @@ namespace MapControl
             }
         }
 
-        public ImageSource Image
+        public ImageSource Source
         {
             get { return Brush.ImageSource; }
-            set
+            set { Brush.ImageSource = value; }
+        }
+
+        public void SetSource(ImageSource source)
+        {
+            if (Source == null)
             {
-                if (Brush.ImageSource == null)
+                BitmapImage bitmap = source as BitmapImage;
+
+                if (bitmap != null && bitmap.IsDownloading)
                 {
-                    BitmapImage bitmap = value as BitmapImage;
-
-                    if (bitmap != null && bitmap.IsDownloading)
-                    {
-                        bitmap.DownloadCompleted += BitmapDownloadCompleted;
-                        bitmap.DownloadFailed += BitmapDownloadFailed;
-                    }
-                    else
-                    {
-                        Brush.BeginAnimation(ImageBrush.OpacityProperty, opacityAnimation);
-                    }
+                    bitmap.DownloadCompleted += BitmapDownloadCompleted;
+                    bitmap.DownloadFailed += BitmapDownloadFailed;
                 }
-
-                Brush.ImageSource = value;
+                else
+                {
+                    Brush.BeginAnimation(ImageBrush.OpacityProperty, opacityAnimation);
+                }
             }
+
+            Source = source;
         }
 
         private void BitmapDownloadCompleted(object sender, EventArgs e)
@@ -71,7 +73,7 @@ namespace MapControl
         {
             ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
             ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
-            Brush.ImageSource = null;
+            Source = null;
         }
     }
 }

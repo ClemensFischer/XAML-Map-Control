@@ -17,7 +17,7 @@ namespace MapControl
     public class TileLayer : DrawingVisual
     {
         private readonly TileImageLoader tileImageLoader;
-        private readonly List<Tile> tiles = new List<Tile>();
+        private List<Tile> tiles = new List<Tile>();
         private string description = string.Empty;
         private Int32Rect grid;
         private int zoomLevel;
@@ -25,8 +25,8 @@ namespace MapControl
         public TileLayer()
         {
             tileImageLoader = new TileImageLoader(this);
-            VisualEdgeMode = EdgeMode.Aliased;
             VisualTransform = new MatrixTransform();
+            VisualEdgeMode = EdgeMode.Aliased;
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
             MaxParallelDownloads = 8;
@@ -62,15 +62,15 @@ namespace MapControl
             {
                 SelectTiles();
                 RenderTiles();
-
                 tileImageLoader.BeginGetTiles(tiles);
             }
         }
 
         internal void ClearTiles()
         {
-            tiles.Clear();
             tileImageLoader.CancelGetTiles();
+            tiles.Clear();
+            RenderTiles();
         }
 
         private void SelectTiles()
@@ -84,7 +84,7 @@ namespace MapControl
                 minZoomLevel = MinZoomLevel;
             }
 
-            tiles.RemoveAll(t => t.ZoomLevel < minZoomLevel || t.ZoomLevel > maxZoomLevel);
+            List<Tile> newTiles = new List<Tile>();
 
             for (int z = minZoomLevel; z <= maxZoomLevel; z++)
             {
@@ -98,35 +98,33 @@ namespace MapControl
                 {
                     for (int x = x1; x <= x2; x++)
                     {
-                        if (tiles.Find(t => t.ZoomLevel == z && t.X == x && t.Y == y) == null)
+                        Tile tile = tiles.Find(t => t.ZoomLevel == z && t.X == x && t.Y == y);
+
+                        if (tile == null)
                         {
-                            Tile tile = new Tile(z, x, y);
-                            Tile equivalent = tiles.Find(t => t.Image != null && t.ZoomLevel == tile.ZoomLevel && t.XIndex == tile.XIndex && t.Y == tile.Y);
+                            tile = new Tile(z, x, y);
+                            Tile equivalent = tiles.Find(t => t.Source != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
 
                             if (equivalent != null)
                             {
-                                tile.Image = equivalent.Image;
+                                tile.Source = equivalent.Source;
                             }
-
-                            tiles.Add(tile);
                         }
+
+                        newTiles.Add(tile);
                     }
                 }
-
-                tiles.RemoveAll(t => t.ZoomLevel == z && (t.X < x1 || t.X > x2 || t.Y < y1 || t.Y > y2));
             }
 
-            tiles.Sort((t1, t2) => t1.ZoomLevel - t2.ZoomLevel);
-
-            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count,
-            //    string.Join(", ", System.Linq.Enumerable.Select(tiles, t => t.ZoomLevel.ToString())));
+            tiles = newTiles;
+            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
         }
 
         private void RenderTiles()
         {
             using (DrawingContext drawingContext = RenderOpen())
             {
-                tiles.ForEach(tile =>
+                foreach (Tile tile in tiles)
                 {
                     int tileSize = 256 << (zoomLevel - tile.ZoomLevel);
                     Rect tileRect = new Rect(tileSize * tile.X - 256 * grid.X, tileSize * tile.Y - 256 * grid.Y, tileSize, tileSize);
@@ -136,7 +134,7 @@ namespace MapControl
                     //if (tile.ZoomLevel == zoomLevel)
                     //    drawingContext.DrawText(new FormattedText(string.Format("{0}-{1}-{2}", tile.ZoomLevel, tile.X, tile.Y),
                     //        System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 14, Brushes.Black), tileRect.TopLeft);
-                });
+                }
             }
         }
     }

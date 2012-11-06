@@ -33,7 +33,7 @@ namespace MapControl
 
         public void AddTileLayers(int index, IEnumerable<TileLayer> tileLayers)
         {
-            Matrix transform = GetVisualTransform();
+            Matrix tileLayerTransform = GetTileLayerTransform();
 
             foreach (TileLayer tileLayer in tileLayers)
             {
@@ -43,7 +43,7 @@ namespace MapControl
                 }
 
                 Children.Insert(index++, tileLayer);
-                tileLayer.TransformMatrix = transform;
+                tileLayer.TransformMatrix = tileLayerTransform;
                 tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
             }
         }
@@ -73,12 +73,19 @@ namespace MapControl
 
         public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewportOrigin, Size viewportSize)
         {
-            zoomLevel = mapZoomLevel;
+            double scale = Math.Pow(2d, zoomLevel) * 256d / 360d;
+            double oldMapOriginX = (origin.X - offset.X) / scale - 180d;
+
+            if (zoomLevel != mapZoomLevel)
+            {
+                zoomLevel = mapZoomLevel;
+                scale = Math.Pow(2d, zoomLevel) * 256d / 360d;
+            }
+
             rotation = mapRotation;
             size = viewportSize;
             origin = viewportOrigin;
 
-            double scale = Math.Pow(2d, zoomLevel) * 256d / 360d;
             offset.X = origin.X - (180d + mapOrigin.X) * scale;
             offset.Y = origin.Y - (180d - mapOrigin.Y) * scale;
 
@@ -88,19 +95,27 @@ namespace MapControl
             transform.RotateAt(rotation, origin.X, origin.Y);
             ViewportTransform.Matrix = transform;
 
-            transform = GetVisualTransform();
+            Matrix tileLayerTransform = GetTileLayerTransform();
 
             foreach (TileLayer tileLayer in Children)
             {
-                tileLayer.TransformMatrix = transform;
+                tileLayer.TransformMatrix = tileLayerTransform;
             }
 
-            updateTimer.IsEnabled = true;
+            if (Math.Sign(mapOrigin.X) == Math.Sign(oldMapOriginX))
+            {
+                updateTimer.IsEnabled = true;
+            }
+            else
+            {
+                // immediately handle map origin leap when map center moves across the date line
+                UpdateTiles(this, EventArgs.Empty);
+            }
 
             return scale;
         }
 
-        private Matrix GetVisualTransform()
+        private Matrix GetTileLayerTransform()
         {
             // Calculates the transform matrix that enables rendering of 256x256 tile rectangles in
             // TileLayer.UpdateTiles with origin at tileGrid.X and tileGrid.Y to minimize rounding errors.
@@ -148,11 +163,11 @@ namespace MapControl
             {
                 tileZoomLevel = zoom;
                 tileGrid = grid;
-                transform = GetVisualTransform();
+                Matrix tileLayerTransform = GetTileLayerTransform();
 
                 foreach (TileLayer tileLayer in Children)
                 {
-                    tileLayer.TransformMatrix = transform;
+                    tileLayer.TransformMatrix = tileLayerTransform;
                     tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
                 }
             }
