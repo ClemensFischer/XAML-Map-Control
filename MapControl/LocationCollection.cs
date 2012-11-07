@@ -41,6 +41,9 @@ namespace MapControl
         }
     }
 
+    /// <summary>
+    /// Converts from string to LocationCollection.
+    /// </summary>
     public class LocationCollectionConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Caching;
 using System.Threading;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -84,18 +85,9 @@ namespace MapControl
         private void BeginGetTilesAsync(object newTilesList)
         {
             List<Tile> newTiles = (List<Tile>)newTilesList;
+            ImageTileSource imageTileSource = tileLayer.TileSource as ImageTileSource;
 
-            if (tileLayer.TileSource is ImageTileSource)
-            {
-                ImageTileSource imageTileSource = (ImageTileSource)tileLayer.TileSource;
-
-                foreach (Tile tile in newTiles)
-                {
-                    tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background,
-                        (Action)(() => tile.SetSource(imageTileSource.GetImage(tile.XIndex, tile.Y, tile.ZoomLevel))));
-                }
-            }
-            else
+            if (imageTileSource == null)
             {
                 if (Cache == null)
                 {
@@ -143,6 +135,22 @@ namespace MapControl
                     ThreadPool.QueueUserWorkItem(DownloadTiles);
                 }
             }
+            else if (imageTileSource.CanLoadAsync)
+            {
+                foreach (Tile tile in newTiles)
+                {
+                    tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                        (Action<Tile, ImageSource>)((t, s) => t.SetSource(s)), tile, imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel));
+                }
+            }
+            else
+            {
+                foreach (Tile tile in newTiles)
+                {
+                    tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background,
+                        (Action<Tile>)(t => t.SetSource(imageTileSource.LoadImage(t.XIndex, t.Y, t.ZoomLevel))), tile);
+                }
+            }
         }
 
         private void DownloadTiles(object o)
@@ -188,7 +196,7 @@ namespace MapControl
                 return false;
             }
 
-            tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)(() => tile.SetSource(bitmap)));
+            tileLayer.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action<Tile>)(t => t.SetSource(bitmap)), tile);
             return true;
         }
 

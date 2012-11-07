@@ -7,15 +7,13 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
     /// <summary>
     /// Provides the URI of a map tile.
     /// </summary>
-    [TypeConverter(typeof(TileSourceTypeConverter))]
+    [TypeConverter(typeof(TileSourceConverter))]
     public class TileSource
     {
         private Func<int, int, int, Uri> getUri;
@@ -157,22 +155,9 @@ namespace MapControl
     }
 
     /// <summary>
-    /// Provides the image of a map tile. ImageTileSource bypasses download and
-    /// cache processing in TileImageLoader. By overriding the GetImage method,
-    /// an application can provide tile images from an arbitrary source.
-    /// </summary>
-    public class ImageTileSource : TileSource
-    {
-        public virtual ImageSource GetImage(int x, int y, int zoomLevel)
-        {
-            return new BitmapImage(GetUri(x, y, zoomLevel));
-        }
-    }
-
-    /// <summary>
     /// Converts from string to TileSource.
     /// </summary>
-    public class TileSourceTypeConverter : TypeConverter
+    public class TileSourceConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {

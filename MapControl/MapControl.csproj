@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlyphRunText.cs" />
+    <Compile Include="ImageTileSource.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationAnimation.cs" />
     <Compile Include="LocationCollection.cs" />

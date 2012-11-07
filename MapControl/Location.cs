@@ -57,6 +57,9 @@ namespace MapControl
         }
     }
 
+    /// <summary>
+    /// Converts from string to Location.
+    /// </summary>
     public class LocationConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
