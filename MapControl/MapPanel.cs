@@ -1,49 +1,53 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+#if WINRT
+using Windows.Foundation;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+#else
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+#endif
 
 namespace MapControl
 {
-    /// <summary>
-    /// Positions child elements on a Map. A child element's position is specified by the
-    /// attached property Location, given as geographic location with latitude and longitude.
-    /// The attached property ViewportPosition gets a child element's position in viewport coordinates.
-    /// </summary>
-    public class MapPanel : Panel
+    internal interface IMapElement
     {
-        internal static readonly DependencyPropertyKey ParentMapPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ParentMap", typeof(MapBase), typeof(MapPanel),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
+        void ParentMapChanged(MapBase oldParentMap, MapBase newParentMap);
+    }
 
-        public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
-
-        private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ViewportPosition", typeof(Point?), typeof(MapPanel),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, ViewportPositionPropertyChanged));
-
-        public static readonly DependencyProperty ViewportPositionProperty = ViewportPositionPropertyKey.DependencyProperty;
+    /// <summary>
+    /// Positions child elements on a Map, at a position specified by the attached property Location.
+    /// The Location is transformed into a viewport position by the MapBase.LocationToViewportPoint
+    /// method and then applied to the RenderTransform as an appropriate TranslateTransform.
+    /// </summary>
+    public class MapPanel : Panel, IMapElement
+    {
+        public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
+            "ParentMap", typeof(MapBase), typeof(MapPanel), new PropertyMetadata(null, ParentMapPropertyChanged));
 
         public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
-            "Location", typeof(Location), typeof(MapPanel),
-            new FrameworkPropertyMetadata(LocationPropertyChanged));
+            "Location", typeof(Location), typeof(MapPanel), new PropertyMetadata(null, LocationPropertyChanged));
 
-        public MapBase ParentMap
+        public MapPanel()
         {
-            get { return (MapBase)GetValue(ParentMapProperty); }
+            AddParentMapHandlers(this);
+        }
+
+        public static void AddParentMapHandlers(FrameworkElement element)
+        {
+            element.Loaded += (o, e) => element.SetValue(ParentMapProperty, FindParentMap(element));
+            element.Unloaded += (o, e) => element.ClearValue(ParentMapProperty);
         }
 
         public static MapBase GetParentMap(UIElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);
-        }
-
-        public static Point? GetViewportPosition(UIElement element)
-        {
-            return (Point?)element.GetValue(ViewportPositionProperty);
         }
 
         public static Location GetLocation(UIElement element)
@@ -58,11 +62,9 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            Size infiniteSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
-
-            foreach (UIElement element in InternalChildren)
+            foreach (UIElement element in Children)
             {
-                element.Measure(infiniteSize);
+                element.Measure(availableSize);
             }
 
             return new Size();
@@ -70,18 +72,66 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (UIElement element in InternalChildren)
-            {
-                Point? viewportPosition = GetViewportPosition(element);
+            var parentMap = GetParentMap(this);
 
-                if (viewportPosition.HasValue)
+            foreach (UIElement element in Children)
+            {
+                var location = GetLocation(element);
+
+                if (location != null)
                 {
-                    ArrangeElement(element, viewportPosition.Value);
+                    SetViewportPosition(element, parentMap, location);
                 }
-                else
+
+                var frameworkElement = element as FrameworkElement;
+                var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
+
+                if (frameworkElement != null)
                 {
-                    element.Arrange(new Rect(finalSize));
+                    switch (frameworkElement.HorizontalAlignment)
+                    {
+                        case HorizontalAlignment.Center:
+                            rect.X = ((location == null ? finalSize.Width : 0) - rect.Width) / 2d;
+                            break;
+
+                        case HorizontalAlignment.Right:
+                            rect.X = (location == null ? finalSize.Width : 0) - rect.Width;
+                            break;
+
+                        case HorizontalAlignment.Stretch:
+                            if (location == null)
+                            {
+                                rect.Width = finalSize.Width;
+                            }
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    switch (frameworkElement.VerticalAlignment)
+                    {
+                        case VerticalAlignment.Center:
+                            rect.Y = ((location == null ? finalSize.Height : 0) - rect.Height) / 2d;
+                            break;
+
+                        case VerticalAlignment.Bottom:
+                            rect.Y = (location == null ? finalSize.Height : 0) - rect.Height;
+                            break;
+
+                        case VerticalAlignment.Stretch:
+                            if (location == null)
+                            {
+                                rect.Height = finalSize.Height;
+                            }
+                            break;
+
+                        default:
+                            break;
+                    }
                 }
+
+                element.Arrange(rect);
             }
 
             return finalSize;
@@ -89,13 +139,15 @@ namespace MapControl
 
         protected virtual void OnViewportChanged()
         {
-            foreach (UIElement element in InternalChildren)
+            var parentMap = GetParentMap(this);
+
+            foreach (UIElement element in Children)
             {
-                Location location = GetLocation(element);
+                var location = GetLocation(element);
 
                 if (location != null)
                 {
-                    SetViewportPosition(element, ParentMap, location);
+                    SetViewportPosition(element, parentMap, location);
                 }
             }
         }
@@ -105,49 +157,38 @@ namespace MapControl
             OnViewportChanged();
         }
 
-        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        void IMapElement.ParentMapChanged(MapBase oldParentMap, MapBase newParentMap)
         {
-            MapPanel mapPanel = obj as MapPanel;
-
-            if (mapPanel != null)
+            if (oldParentMap != null && oldParentMap != this)
             {
-                MapBase oldParentMap = e.OldValue as MapBase;
-                MapBase newParentMap = e.NewValue as MapBase;
+                oldParentMap.ViewportChanged -= OnViewportChanged;
+            }
 
-                if (oldParentMap != null && oldParentMap != mapPanel)
-                {
-                    oldParentMap.ViewportChanged -= mapPanel.OnViewportChanged;
-                }
-
-                if (newParentMap != null && newParentMap != mapPanel)
-                {
-                    newParentMap.ViewportChanged += mapPanel.OnViewportChanged;
-                }
+            if (newParentMap != null && newParentMap != this)
+            {
+                newParentMap.ViewportChanged += OnViewportChanged;
+                OnViewportChanged();
             }
         }
 
-        private static void ViewportPositionPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        private static MapBase FindParentMap(DependencyObject obj)
         {
-            UIElement element = obj as UIElement;
+            return (obj == null || obj is MapBase) ? (MapBase)obj : FindParentMap(VisualTreeHelper.GetParent(obj));
+        }
+
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            var element = obj as IMapElement;
 
             if (element != null)
             {
-                Point? viewportPosition = (Point?)e.NewValue;
-
-                if (viewportPosition.HasValue)
-                {
-                    ArrangeElement(element, viewportPosition.Value);
-                }
-                else
-                {
-                    element.Arrange(new Rect());
-                }
+                element.ParentMapChanged(e.OldValue as MapBase, e.NewValue as MapBase);
             }
         }
 
         private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            UIElement element = obj as UIElement;
+            var element = obj as UIElement;
 
             if (element != null)
             {
@@ -157,54 +198,43 @@ namespace MapControl
 
         private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
         {
-            Point? viewportPosition = null;
+            Transform transform = null;
 
             if (parentMap != null && location != null)
             {
-                viewportPosition = parentMap.LocationToViewportPoint(location);
+                Point position = parentMap.LocationToViewportPoint(location);
+                transform = new TranslateTransform { X = position.X, Y = position.Y };
             }
 
-            element.SetValue(ViewportPositionPropertyKey, viewportPosition);
-        }
+            var transformGroup = element.RenderTransform as TransformGroup;
 
-        private static void ArrangeElement(UIElement element, Point position)
-        {
-            Rect rect = new Rect(position, element.DesiredSize);
-
-            if (element is FrameworkElement)
+            if (transformGroup != null)
             {
-                switch (((FrameworkElement)element).HorizontalAlignment)
+                if (transform == null)
                 {
-                    case HorizontalAlignment.Center:
-                        rect.X -= rect.Width / 2d;
-                        break;
-                    case HorizontalAlignment.Right:
-                        rect.X -= rect.Width;
-                        break;
-                    case HorizontalAlignment.Stretch:
-                        rect.X = 0d;
-                        break;
-                    default:
-                        break;
+                    transform = new TranslateTransform();
                 }
 
-                switch (((FrameworkElement)element).VerticalAlignment)
+                var transformIndex = transformGroup.Children.Count - 1;
+
+                if (transformIndex >= 0 &&
+                    transformGroup.Children[transformIndex] is TranslateTransform)
                 {
-                    case VerticalAlignment.Center:
-                        rect.Y -= rect.Height / 2d;
-                        break;
-                    case VerticalAlignment.Bottom:
-                        rect.Y -= rect.Height;
-                        break;
-                    case VerticalAlignment.Stretch:
-                        rect.Y = 0d;
-                        break;
-                    default:
-                        break;
+                    transformGroup.Children[transformIndex] = transform;
+                }
+                else
+                {
+                    transformGroup.Children.Add(transform);
                 }
             }
-
-            element.Arrange(rect);
+            else if (transform != null)
+            {
+                element.RenderTransform = transform;
+            }
+            else
+            {
+                element.ClearValue(UIElement.RenderTransformProperty);
+            }
         }
     }
 }

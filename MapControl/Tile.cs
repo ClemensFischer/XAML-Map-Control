@@ -1,22 +1,21 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Windows.Media;
+#if WINRT
+using Windows.UI.Xaml.Media.Animation;
+#else
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
+#endif
 
 namespace MapControl
 {
-    internal class Tile
+    internal partial class Tile
     {
-        private static readonly DoubleAnimation opacityAnimation = new DoubleAnimation(0d, 1d, TimeSpan.FromSeconds(0.5), FillBehavior.Stop);
-
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;
-        public readonly ImageBrush Brush = new ImageBrush();
 
         public Tile(int zoomLevel, int x, int y)
         {
@@ -31,49 +30,22 @@ namespace MapControl
         {
             get
             {
-                int numTiles = 1 << ZoomLevel;
+                var numTiles = 1 << ZoomLevel;
                 return ((X % numTiles) + numTiles) % numTiles;
             }
         }
 
-        public ImageSource Source
+        DoubleAnimation OpacityAnimation
         {
-            get { return Brush.ImageSource; }
-            set { Brush.ImageSource = value; }
-        }
-
-        public void SetSource(ImageSource source)
-        {
-            if (Source == null)
+            get
             {
-                BitmapImage bitmap = source as BitmapImage;
-
-                if (bitmap != null && bitmap.IsDownloading)
+                return new DoubleAnimation
                 {
-                    bitmap.DownloadCompleted += BitmapDownloadCompleted;
-                    bitmap.DownloadFailed += BitmapDownloadFailed;
-                }
-                else
-                {
-                    Brush.BeginAnimation(ImageBrush.OpacityProperty, opacityAnimation);
-                }
+                    To = 1d,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    FillBehavior = FillBehavior.HoldEnd,
+                };
             }
-
-            Source = source;
-        }
-
-        private void BitmapDownloadCompleted(object sender, EventArgs e)
-        {
-            ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
-            ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
-            Brush.BeginAnimation(ImageBrush.OpacityProperty, opacityAnimation);
-        }
-
-        private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
-        {
-            ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
-            ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
-            Source = null;
         }
     }
 }

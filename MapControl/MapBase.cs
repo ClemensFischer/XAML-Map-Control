@@ -1,169 +1,126 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
 using System.Collections.Specialized;
 using System.Linq;
+#if WINRT
+using Windows.Foundation;
+using Windows.UI;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
+#else
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+#endif
 
 namespace MapControl
 {
     /// <summary>
-    /// The map control. Draws map content provided by the TileLayers or the BaseTileLayer property.
+    /// The map control. Draws map content provided by the TileLayers or the TileLayer property.
     /// The visible map area is defined by the Center and ZoomLevel properties. The map can be rotated
     /// by an angle that is given by the Heading property.
     /// MapBase is a MapPanel and hence can contain map overlays like other MapPanels or MapItemsControls.
     /// </summary>
-    public class MapBase : MapPanel
+    public partial class MapBase : MapPanel
     {
         public const double MeterPerDegree = 1852d * 60d;
-
-        public static readonly DependencyProperty FontSizeProperty = Control.FontSizeProperty.AddOwner(typeof(MapBase));
-        public static readonly DependencyProperty FontFamilyProperty = Control.FontFamilyProperty.AddOwner(typeof(MapBase));
-        public static readonly DependencyProperty FontStyleProperty = Control.FontStyleProperty.AddOwner(typeof(MapBase));
-        public static readonly DependencyProperty FontWeightProperty = Control.FontWeightProperty.AddOwner(typeof(MapBase));
-        public static readonly DependencyProperty FontStretchProperty = Control.FontStretchProperty.AddOwner(typeof(MapBase));
-        public static readonly DependencyProperty ForegroundProperty = Control.ForegroundProperty.AddOwner(typeof(MapBase));
+        public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.5);
+        public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
 
         public static readonly DependencyProperty LightForegroundProperty = DependencyProperty.Register(
-            "LightForeground", typeof(Brush), typeof(MapBase));
+            "LightForeground", typeof(Brush), typeof(MapBase), null);
 
         public static readonly DependencyProperty DarkForegroundProperty = DependencyProperty.Register(
-            "DarkForeground", typeof(Brush), typeof(MapBase));
+            "DarkForeground", typeof(Brush), typeof(MapBase), null);
 
         public static readonly DependencyProperty LightBackgroundProperty = DependencyProperty.Register(
-            "LightBackground", typeof(Brush), typeof(MapBase));
+            "LightBackground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Transparent), null));
 
         public static readonly DependencyProperty DarkBackgroundProperty = DependencyProperty.Register(
-            "DarkBackground", typeof(Brush), typeof(MapBase));
+            "DarkBackground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Transparent), null));
 
         public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
-            "TileLayers", typeof(TileLayerCollection), typeof(MapBase), new FrameworkPropertyMetadata(
-                (o, e) => ((MapBase)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceTileLayersProperty((TileLayerCollection)v)));
+            "TileLayers", typeof(TileLayerCollection), typeof(MapBase), new PropertyMetadata(null,
+                (o, e) => ((MapBase)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue)));
 
-        public static readonly DependencyProperty BaseTileLayerProperty = DependencyProperty.Register(
-            "BaseTileLayer", typeof(TileLayer), typeof(MapBase), new FrameworkPropertyMetadata(
-                (o, e) => ((MapBase)o).BaseTileLayerPropertyChanged((TileLayer)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceBaseTileLayerProperty((TileLayer)v)));
+        public static readonly DependencyProperty TileLayerProperty = DependencyProperty.Register(
+            "TileLayer", typeof(TileLayer), typeof(MapBase), new PropertyMetadata(null,
+                (o, e) => ((MapBase)o).TileLayerPropertyChanged((TileLayer)e.NewValue)));
 
         public static readonly DependencyProperty TileOpacityProperty = DependencyProperty.Register(
-            "TileOpacity", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(1d,
+            "TileOpacity", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
                 (o, e) => ((MapBase)o).tileContainer.Opacity = (double)e.NewValue));
 
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
-            "Center", typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(new Location(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((MapBase)o).CenterPropertyChanged((Location)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceCenterProperty((Location)v)));
+            "Center", typeof(Location), typeof(MapBase), new PropertyMetadata(new Location(),
+                (o, e) => ((MapBase)o).CenterPropertyChanged((Location)e.NewValue)));
 
         public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register(
-            "TargetCenter", typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(new Location(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((MapBase)o).TargetCenterPropertyChanged((Location)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceCenterProperty((Location)v)));
+            "TargetCenter", typeof(Location), typeof(MapBase), new PropertyMetadata(new Location(),
+                (o, e) => ((MapBase)o).TargetCenterPropertyChanged((Location)e.NewValue)));
+
+        internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
+            "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
+                (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
+
+        public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
+            "MinZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
+                (o, e) => ((MapBase)o).MinZoomLevelPropertyChanged((double)e.NewValue)));
+
+        public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
+            "MaxZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(18d,
+                (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
-            "ZoomLevel", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((MapBase)o).ZoomLevelPropertyChanged((double)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceZoomLevelProperty((double)v)));
+            "ZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
+                (o, e) => ((MapBase)o).ZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty TargetZoomLevelProperty = DependencyProperty.Register(
-            "TargetZoomLevel", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((MapBase)o).TargetZoomLevelPropertyChanged((double)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceZoomLevelProperty((double)v)));
+            "TargetZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
+                (o, e) => ((MapBase)o).TargetZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
-            "Heading", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((MapBase)o).HeadingPropertyChanged((double)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceHeadingProperty((double)v)));
+            "Heading", typeof(double), typeof(MapBase), new PropertyMetadata(0d,
+                (o, e) => ((MapBase)o).HeadingPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register(
-            "TargetHeading", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue),
-                (o, v) => ((MapBase)o).CoerceHeadingProperty((double)v)));
+            "TargetHeading", typeof(double), typeof(MapBase), new PropertyMetadata(0d,
+                (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue)));
 
-        private static readonly DependencyPropertyKey CenterScalePropertyKey = DependencyProperty.RegisterReadOnly(
+        public static readonly DependencyProperty CenterScaleProperty = DependencyProperty.Register(
             "CenterScale", typeof(double), typeof(MapBase), null);
-
-        public static readonly DependencyProperty CenterScaleProperty = CenterScalePropertyKey.DependencyProperty;
 
         private readonly TileContainer tileContainer = new TileContainer();
         private readonly MapTransform mapTransform = new MercatorTransform();
-        private readonly ScaleTransform scaleTransform = new ScaleTransform();
-        private readonly RotateTransform rotateTransform = new RotateTransform();
+        private readonly MatrixTransform scaleTransform = new MatrixTransform();
+        private readonly MatrixTransform rotateTransform = new MatrixTransform();
         private readonly MatrixTransform scaleRotateTransform = new MatrixTransform();
         private Location transformOrigin;
         private Point viewportOrigin;
-        private LocationAnimation centerAnimation;
+        private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
-        private bool updateTransform = true;
+        private bool internalPropertyChange;
 
         public MapBase()
         {
-            ClipToBounds = true;
-            MinZoomLevel = 1;
-            MaxZoomLevel = 20;
-
-            AddVisualChild(tileContainer);
+            Background = LightBackground;
             TileLayers = new TileLayerCollection();
+            Initialize();
 
-            SetValue(ParentMapPropertyKey, this);
-
-            Loaded += (o, e) =>
-            {
-                if (BaseTileLayer == null)
-                {
-                    BaseTileLayer = new TileLayer
-                    {
-                        SourceName = "OpenStreetMap",
-                        Description = "© {y} OpenStreetMap Contributors, CC-BY-SA",
-                        TileSource = new TileSource("http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-                    };
-                }
-            };
+            Loaded += OnLoaded;
         }
+
+        partial void Initialize();
 
         /// <summary>
         /// Raised when the current viewport has changed.
         /// </summary>
         public event EventHandler ViewportChanged;
-
-        public double MinZoomLevel { get; set; }
-        public double MaxZoomLevel { get; set; }
-
-        public double FontSize
-        {
-            get { return (double)GetValue(FontSizeProperty); }
-            set { SetValue(FontSizeProperty, value); }
-        }
-
-        public FontFamily FontFamily
-        {
-            get { return (FontFamily)GetValue(FontFamilyProperty); }
-            set { SetValue(FontFamilyProperty, value); }
-        }
-
-        public FontStyle FontStyle
-        {
-            get { return (FontStyle)GetValue(FontStyleProperty); }
-            set { SetValue(FontStyleProperty, value); }
-        }
-
-        public FontWeight FontWeight
-        {
-            get { return (FontWeight)GetValue(FontWeightProperty); }
-            set { SetValue(FontWeightProperty, value); }
-        }
-
-        public FontStretch FontStretch
-        {
-            get { return (FontStretch)GetValue(FontStretchProperty); }
-            set { SetValue(FontStretchProperty, value); }
-        }
 
         public Brush Foreground
         {
@@ -207,10 +164,10 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the base TileLayer used by this Map, i.e. TileLayers[0].
         /// </summary>
-        public TileLayer BaseTileLayer
+        public TileLayer TileLayer
         {
-            get { return (TileLayer)GetValue(BaseTileLayerProperty); }
-            set { SetValue(BaseTileLayerProperty, value); }
+            get { return (TileLayer)GetValue(TileLayerProperty); }
+            set { SetValue(TileLayerProperty, value); }
         }
 
         /// <summary>
@@ -238,6 +195,26 @@ namespace MapControl
         {
             get { return (Location)GetValue(TargetCenterProperty); }
             set { SetValue(TargetCenterProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the minimum value of the ZoomLevel and TargetZommLevel properties.
+        /// Must be greater than or equal to zero and less than or equal to MaxZoomLevel.
+        /// </summary>
+        public double MinZoomLevel
+        {
+            get { return (double)GetValue(MinZoomLevelProperty); }
+            set { SetValue(MinZoomLevelProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum value of the ZoomLevel and TargetZommLevel properties.
+        /// Must be greater than or equal to MinZoomLevel and less than or equal to 20.
+        /// </summary>
+        public double MaxZoomLevel
+        {
+            get { return (double)GetValue(MaxZoomLevelProperty); }
+            set { SetValue(MaxZoomLevelProperty, value); }
         }
 
         /// <summary>
@@ -282,7 +259,7 @@ namespace MapControl
         public double CenterScale
         {
             get { return (double)GetValue(CenterScaleProperty); }
-            private set { SetValue(CenterScalePropertyKey, value); }
+            private set { SetValue(CenterScaleProperty, value); }
         }
 
         /// <summary>
@@ -327,11 +304,19 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets the map scale at the specified location as viewport coordinate units (pixels) per meter.
+        /// </summary>
+        public double GetMapScale(Location location)
+        {
+            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * 256d / (MeterPerDegree * 360d);
+        }
+
+        /// <summary>
         /// Transforms a geographic location to a viewport coordinates point.
         /// </summary>
         public Point LocationToViewportPoint(Location location)
         {
-            return ViewportTransform.Transform(MapTransform.Transform(location));
+            return ViewportTransform.Transform(mapTransform.Transform(location));
         }
 
         /// <summary>
@@ -339,7 +324,7 @@ namespace MapControl
         /// </summary>
         public Location ViewportPointToLocation(Point point)
         {
-            return MapTransform.TransformBack(ViewportTransform.Inverse.Transform(point));
+            return mapTransform.Transform(ViewportTransform.Inverse.Transform(point));
         }
 
         /// <summary>
@@ -360,7 +345,7 @@ namespace MapControl
         {
             viewportOrigin.X = Math.Min(Math.Max(origin.X, 0d), RenderSize.Width);
             viewportOrigin.Y = Math.Min(Math.Max(origin.Y, 0d), RenderSize.Height);
-            transformOrigin = CoerceCenterProperty(ViewportPointToLocation(viewportOrigin));
+            transformOrigin = CoerceLocation(ViewportPointToLocation(viewportOrigin));
         }
 
         /// <summary>
@@ -375,18 +360,19 @@ namespace MapControl
         /// <summary>
         /// Changes the Center property according to the specified translation in viewport coordinates.
         /// </summary>
-        public void TranslateMap(Vector translation)
+        public void TranslateMap(Point translation)
         {
             if (translation.X != 0d || translation.Y != 0d)
             {
                 if (transformOrigin != null)
                 {
-                    viewportOrigin += translation;
+                    viewportOrigin.X += translation.X;
+                    viewportOrigin.Y += translation.Y;
                     UpdateTransform();
                 }
                 else
                 {
-                    Center = ViewportPointToLocation(viewportOrigin - translation);
+                    Center = ViewportPointToLocation(new Point(viewportOrigin.X - translation.X, viewportOrigin.Y - translation.Y));
                 }
             }
         }
@@ -396,15 +382,13 @@ namespace MapControl
         /// viewport coordinate translation, rotation and scale delta values. Rotation and scaling
         /// is performed relative to the specified origin point in viewport coordinates.
         /// </summary>
-        public void TransformMap(Point origin, Vector translation, double rotation, double scale)
+        public void TransformMap(Point origin, Point translation, double rotation, double scale)
         {
             if (rotation != 0d || scale != 1d)
             {
                 SetTransformOrigin(origin);
-                updateTransform = false;
-                Heading = (((Heading + rotation) % 360d) + 360d) % 360d;
-                ZoomLevel += Math.Log(scale, 2d);
-                updateTransform = true;
+                SetProperty(HeadingProperty, CoerceHeading(Heading + rotation));
+                SetProperty(ZoomLevelProperty, CoerceZoomLevel(ZoomLevel + Math.Log(scale, 2d)));
                 UpdateTransform();
             }
 
@@ -418,44 +402,13 @@ namespace MapControl
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
-            double targetZoomLebel = TargetZoomLevel;
+            var targetZoomLebel = TargetZoomLevel;
             TargetZoomLevel = zoomLevel;
 
             if (TargetZoomLevel != targetZoomLebel) // TargetZoomLevel might be coerced
             {
                 SetTransformOrigin(origin);
             }
-        }
-
-        /// <summary>
-        /// Gets the map scale at the specified location as viewport coordinate units (pixels) per meter.
-        /// </summary>
-        public double GetMapScale(Location location)
-        {
-            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * 256d / (MeterPerDegree * 360d);
-        }
-
-        protected override int VisualChildrenCount
-        {
-            get { return InternalChildren.Count + 1; }
-        }
-
-        protected override Visual GetVisualChild(int index)
-        {
-            if (index == 0)
-            {
-                return tileContainer;
-            }
-
-            return InternalChildren[index - 1];
-        }
-
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        {
-            base.OnRenderSizeChanged(sizeInfo);
-
-            ResetTransformOrigin();
-            UpdateTransform();
         }
 
         protected override void OnViewportChanged()
@@ -468,6 +421,18 @@ namespace MapControl
             }
         }
 
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= OnLoaded;
+
+            if (TileLayer == null)
+            {
+                TileLayer = TileLayer.Default;
+            }
+
+            UpdateTransform();
+        }
+
         private void TileLayerCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
@@ -477,12 +442,13 @@ namespace MapControl
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    tileContainer.RemoveTileLayers(e.OldStartingIndex, e.OldItems.Cast<TileLayer>());
+                    tileContainer.RemoveTileLayers(e.OldStartingIndex, e.OldItems.Count);
                     break;
-
+#if !SILVERLIGHT
                 case NotifyCollectionChangedAction.Move:
+#endif
                 case NotifyCollectionChangedAction.Replace:
-                    tileContainer.RemoveTileLayers(e.OldStartingIndex, e.OldItems.Cast<TileLayer>());
+                    tileContainer.RemoveTileLayers(e.NewStartingIndex, e.OldItems.Count);
                     tileContainer.AddTileLayers(e.NewStartingIndex, e.NewItems.Cast<TileLayer>());
                     break;
 
@@ -493,9 +459,12 @@ namespace MapControl
                         tileContainer.AddTileLayers(0, e.NewItems.Cast<TileLayer>());
                     }
                     break;
+
+                default:
+                    break;
             }
 
-            UpdateBaseTileLayer();
+            UpdateTileLayer();
         }
 
         private void TileLayersPropertyChanged(TileLayerCollection oldTileLayers, TileLayerCollection newTileLayers)
@@ -513,34 +482,29 @@ namespace MapControl
                 tileContainer.AddTileLayers(0, newTileLayers);
             }
 
-            UpdateBaseTileLayer();
+            UpdateTileLayer();
         }
 
-        private TileLayerCollection CoerceTileLayersProperty(TileLayerCollection tileLayers)
+        private void TileLayerPropertyChanged(TileLayer tileLayer)
         {
-            if (tileLayers == null)
+            if (tileLayer != null)
             {
-                tileLayers = new TileLayerCollection();
-            }
+                if (TileLayers == null)
+                {
+                    TileLayers = new TileLayerCollection();
+                }
 
-            return tileLayers;
-        }
-
-        private void BaseTileLayerPropertyChanged(TileLayer baseTileLayer)
-        {
-            if (baseTileLayer != null)
-            {
                 if (TileLayers.Count == 0)
                 {
-                    TileLayers.Add(baseTileLayer);
+                    TileLayers.Add(tileLayer);
                 }
-                else if (TileLayers[0] != baseTileLayer)
+                else if (TileLayers[0] != tileLayer)
                 {
-                    TileLayers[0] = baseTileLayer;
+                    TileLayers[0] = tileLayer;
                 }
             }
 
-            if (baseTileLayer != null && baseTileLayer.HasDarkBackground)
+            if (tileLayer != null && tileLayer.HasDarkBackground)
             {
                 if (DarkForeground != null)
                 {
@@ -566,93 +530,175 @@ namespace MapControl
             }
         }
 
-        private TileLayer CoerceBaseTileLayerProperty(TileLayer baseTileLayer)
+        private void UpdateTileLayer()
         {
-            if (baseTileLayer == null && TileLayers.Count > 0)
-            {
-                baseTileLayer = TileLayers[0];
-            }
+            var tileLayer = TileLayers.FirstOrDefault();
 
-            return baseTileLayer;
+            if (TileLayer != tileLayer)
+            {
+                TileLayer = tileLayer;
+            }
         }
 
-        private void UpdateBaseTileLayer()
+        private void SetProperty(DependencyProperty property, object value)
         {
-            TileLayer baseTileLayer = TileLayers.FirstOrDefault();
+            internalPropertyChange = true;
+            SetValue(property, value);
+            internalPropertyChange = false;
+        }
 
-            if (BaseTileLayer != baseTileLayer)
+        private Location CoerceLocation(Location location)
+        {
+            return new Location(
+                Math.Min(Math.Max(location.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude),
+                Location.NormalizeLongitude(location.Longitude));
+        }
+
+        private bool CoerceCenterProperty(DependencyProperty property, ref Location value)
+        {
+            Location coercedValue = CoerceLocation(value);
+
+            if (!coercedValue.Equals(value))
             {
-                BaseTileLayer = baseTileLayer;
+                SetProperty(property, coercedValue);
             }
+
+            return coercedValue != value;
         }
 
         private void CenterPropertyChanged(Location center)
         {
-            if (updateTransform)
+            if (!internalPropertyChange)
             {
+                CoerceCenterProperty(CenterProperty, ref center);
                 ResetTransformOrigin();
                 UpdateTransform();
-            }
 
-            if (centerAnimation == null)
-            {
-                TargetCenter = center;
+                if (centerAnimation == null)
+                {
+                    SetProperty(TargetCenterProperty, center);
+                    SetProperty(CenterPointProperty, new Point(center.Longitude, center.Latitude));
+                }
             }
         }
 
         private void TargetCenterPropertyChanged(Location targetCenter)
         {
-            if (targetCenter != Center)
+            if (!internalPropertyChange)
             {
-                if (centerAnimation != null)
+                CoerceCenterProperty(TargetCenterProperty, ref targetCenter);
+
+                if (targetCenter != Center)
                 {
-                    centerAnimation.Completed -= CenterAnimationCompleted;
+                    if (centerAnimation != null)
+                    {
+                        centerAnimation.Completed -= CenterAnimationCompleted;
+                    }
+
+                    // animate private CenterPoint property by PointAnimation
+                    centerAnimation = new PointAnimation
+                    {
+                        From = new Point(Center.Longitude, Center.Latitude),
+                        To = new Point(targetCenter.Longitude, targetCenter.Latitude),
+                        Duration = AnimationDuration,
+                        FillBehavior = AnimationFillBehavior,
+                        EasingFunction = AnimationEasingFunction
+                    };
+
+                    centerAnimation.Completed += CenterAnimationCompleted;
+                    this.BeginAnimation(CenterPointProperty, centerAnimation);
                 }
-
-                centerAnimation = new LocationAnimation
-                {
-                    From = Center,
-                    To = targetCenter,
-                    Duration = TimeSpan.FromSeconds(0.5),
-                    FillBehavior = FillBehavior.Stop,
-                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-                };
-
-                centerAnimation.Completed += CenterAnimationCompleted;
-                BeginAnimation(CenterProperty, centerAnimation);
             }
         }
 
-        private void CenterAnimationCompleted(object sender, EventArgs e)
+        private void CenterAnimationCompleted(object sender, object e)
         {
-            Center = TargetCenter;
-            centerAnimation.Completed -= CenterAnimationCompleted;
-            centerAnimation = null;
+            if (centerAnimation != null)
+            {
+                centerAnimation.Completed -= CenterAnimationCompleted;
+                centerAnimation = null;
+
+                SetProperty(CenterProperty, TargetCenter);
+                SetProperty(CenterPointProperty, new Point(TargetCenter.Longitude, TargetCenter.Latitude));
+                ResetTransformOrigin();
+                UpdateTransform();
+            }
         }
 
-        private Location CoerceCenterProperty(Location location)
+        private void CenterPointPropertyChanged(Point centerPoint)
         {
-            location.Latitude = Math.Min(Math.Max(location.Latitude, -MapTransform.MaxLatitude), MapTransform.MaxLatitude);
-            location.Longitude = Location.NormalizeLongitude(location.Longitude);
-            return location;
+            if (!internalPropertyChange)
+            {
+                SetProperty(CenterProperty, new Location(centerPoint.Y, centerPoint.X));
+                ResetTransformOrigin();
+                UpdateTransform();
+            }
+        }
+
+        private void MinZoomLevelPropertyChanged(double minZoomLevel)
+        {
+            var coercedValue = Math.Min(Math.Max(minZoomLevel, 0d), MaxZoomLevel);
+
+            if (coercedValue != minZoomLevel)
+            {
+                SetProperty(MinZoomLevelProperty, coercedValue);
+            }
+            else if (ZoomLevel < minZoomLevel)
+            {
+                ZoomLevel = minZoomLevel;
+            }
+        }
+
+        private void MaxZoomLevelPropertyChanged(double maxZoomLevel)
+        {
+            var coercedValue = Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), 20d);
+
+            if (coercedValue != maxZoomLevel)
+            {
+                SetProperty(MaxZoomLevelProperty, coercedValue);
+            }
+            else if (ZoomLevel > maxZoomLevel)
+            {
+                ZoomLevel = maxZoomLevel;
+            }
+        }
+
+        private double CoerceZoomLevel(double value)
+        {
+            return Math.Min(Math.Max(value, MinZoomLevel), MaxZoomLevel);
+        }
+
+        private bool CoerceZoomLevelProperty(DependencyProperty property, ref double value)
+        {
+            var coercedValue = CoerceZoomLevel(value);
+
+            if (coercedValue != value)
+            {
+                SetProperty(property, coercedValue);
+            }
+
+            return coercedValue != value;
         }
 
         private void ZoomLevelPropertyChanged(double zoomLevel)
         {
-            if (updateTransform)
+            if (!internalPropertyChange &&
+                !CoerceZoomLevelProperty(ZoomLevelProperty, ref zoomLevel))
             {
                 UpdateTransform();
-            }
 
-            if (zoomLevelAnimation == null)
-            {
-                TargetZoomLevel = zoomLevel;
+                if (zoomLevelAnimation == null)
+                {
+                    SetProperty(TargetZoomLevelProperty, zoomLevel);
+                }
             }
         }
 
         private void TargetZoomLevelPropertyChanged(double targetZoomLevel)
         {
-            if (targetZoomLevel != ZoomLevel)
+            if (!internalPropertyChange &&
+                !CoerceZoomLevelProperty(TargetZoomLevelProperty, ref targetZoomLevel) &&
+                targetZoomLevel != ZoomLevel)
             {
                 if (zoomLevelAnimation != null)
                 {
@@ -661,88 +707,109 @@ namespace MapControl
 
                 zoomLevelAnimation = new DoubleAnimation
                 {
-                    From = ZoomLevel,
                     To = targetZoomLevel,
-                    Duration = TimeSpan.FromSeconds(0.5),
-                    FillBehavior = FillBehavior.Stop,
-                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                    Duration = AnimationDuration,
+                    FillBehavior = AnimationFillBehavior,
+                    EasingFunction = AnimationEasingFunction
                 };
 
                 zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
-                BeginAnimation(ZoomLevelProperty, zoomLevelAnimation);
+                this.BeginAnimation(ZoomLevelProperty, zoomLevelAnimation);
             }
         }
 
-        private void ZoomLevelAnimationCompleted(object sender, EventArgs e)
+        private void ZoomLevelAnimationCompleted(object sender, object e)
         {
-            ZoomLevel = TargetZoomLevel;
-            zoomLevelAnimation.Completed -= ZoomLevelAnimationCompleted;
-            zoomLevelAnimation = null;
-            ResetTransformOrigin();
+            if (zoomLevelAnimation != null)
+            {
+                zoomLevelAnimation.Completed -= ZoomLevelAnimationCompleted;
+                zoomLevelAnimation = null;
+
+                SetProperty(ZoomLevelProperty, TargetZoomLevel);
+                UpdateTransform();
+                ResetTransformOrigin();
+            }
         }
 
-        private double CoerceZoomLevelProperty(double zoomLevel)
+        private double CoerceHeading(double value)
         {
-            return Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
+            return (value >= -180d && value <= 360d) ? value : ((value + 360d) % 360d);
+        }
+
+        private bool CoerceHeadingProperty(DependencyProperty property, ref double value)
+        {
+            var coercedValue = CoerceHeading(value);
+
+            if (coercedValue != value)
+            {
+                SetProperty(property, coercedValue);
+            }
+
+            return coercedValue != value;
         }
 
         private void HeadingPropertyChanged(double heading)
         {
-            if (updateTransform)
+            if (!internalPropertyChange)
             {
+                CoerceHeadingProperty(HeadingProperty, ref heading);
                 UpdateTransform();
-            }
 
-            if (headingAnimation == null)
-            {
-                TargetHeading = heading;
+                if (headingAnimation == null)
+                {
+                    SetProperty(TargetHeadingProperty, heading);
+                }
             }
         }
 
         private void TargetHeadingPropertyChanged(double targetHeading)
         {
-            if (targetHeading != Heading)
+            if (!internalPropertyChange)
             {
-                if (headingAnimation != null)
+                CoerceHeadingProperty(TargetHeadingProperty, ref targetHeading);
+
+                if (targetHeading != Heading)
                 {
-                    headingAnimation.Completed -= HeadingAnimationCompleted;
+                    var delta = targetHeading - Heading;
+
+                    if (delta > 180d)
+                    {
+                        delta -= 360d;
+                    }
+                    else if (delta < -180d)
+                    {
+                        delta += 360d;
+                    }
+
+                    if (headingAnimation != null)
+                    {
+                        headingAnimation.Completed -= HeadingAnimationCompleted;
+                    }
+
+                    headingAnimation = new DoubleAnimation
+                    {
+                        By = delta,
+                        Duration = AnimationDuration,
+                        FillBehavior = AnimationFillBehavior,
+                        EasingFunction = AnimationEasingFunction
+                    };
+
+                    headingAnimation.Completed += HeadingAnimationCompleted;
+                    this.BeginAnimation(HeadingProperty, headingAnimation);
                 }
-
-                double delta = targetHeading - Heading;
-
-                if (delta > 180d)
-                {
-                    delta -= 360d;
-                }
-                else if (delta < -180d)
-                {
-                    delta += 360d;
-                }
-
-                headingAnimation = new DoubleAnimation
-                {
-                    From = Heading,
-                    By = delta,
-                    Duration = TimeSpan.FromSeconds(0.5),
-                    FillBehavior = FillBehavior.Stop,
-                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-                };
-
-                headingAnimation.Completed += HeadingAnimationCompleted;
-                BeginAnimation(HeadingProperty, headingAnimation);
             }
         }
 
-        private void HeadingAnimationCompleted(object sender, EventArgs e)
+        private void HeadingAnimationCompleted(object sender, object e)
         {
-            Heading = TargetHeading;
-            headingAnimation.Completed -= HeadingAnimationCompleted;
-            headingAnimation = null;
-        }
+            if (headingAnimation != null)
+            {
+                headingAnimation.Completed -= HeadingAnimationCompleted;
+                headingAnimation = null;
 
-        private double CoerceHeadingProperty(double heading)
-        {
-            return ((heading % 360d) + 360d) % 360d;
+                SetProperty(HeadingProperty, TargetHeading);
+                UpdateTransform();
+            }
         }
 
         private void UpdateTransform()
@@ -751,23 +818,17 @@ namespace MapControl
 
             if (transformOrigin != null)
             {
-                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, MapTransform.Transform(transformOrigin), viewportOrigin, RenderSize);
-                updateTransform = false;
-                Center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
-                updateTransform = true;
+                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(transformOrigin), viewportOrigin, RenderSize);
+                SetProperty(CenterProperty, ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d)));
             }
             else
             {
-                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, MapTransform.Transform(Center), viewportOrigin, RenderSize);
+                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(Center), viewportOrigin, RenderSize);
             }
 
-            scale *= MapTransform.RelativeScale(Center) / MeterPerDegree; // Pixels per meter at center latitude
-
+            scale *= mapTransform.RelativeScale(Center) / MeterPerDegree; // Pixels per meter at center latitude
             CenterScale = scale;
-            scaleTransform.ScaleX = scale;
-            scaleTransform.ScaleY = scale;
-            rotateTransform.Angle = Heading;
-            scaleRotateTransform.Matrix = scaleTransform.Value * rotateTransform.Value;
+            SetTransformMatrixes(scale);
 
             OnViewportChanged();
         }

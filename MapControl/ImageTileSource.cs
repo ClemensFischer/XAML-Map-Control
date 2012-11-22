@@ -1,4 +1,4 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 

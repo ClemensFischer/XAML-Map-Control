@@ -1,9 +1,13 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+#if WINRT
+using Windows.Foundation;
+#else
 using System.Windows;
+#endif
 
 namespace MapControl
 {
@@ -35,28 +39,31 @@ namespace MapControl
 
         public override Point Transform(Location location)
         {
-            Point result = new Point(location.Longitude, 0d);
+            if (double.IsNaN(location.Y))
+            {
+                if (location.Latitude <= -90d)
+                {
+                    location.Y = double.NegativeInfinity;
+                }
+                else if (location.Latitude >= 90d)
+                {
+                    location.Y = double.PositiveInfinity;
+                }
+                else
+                {
+                    var lat = location.Latitude * Math.PI / 180d;
+                    location.Y = (Math.Log(Math.Tan(lat) + 1d / Math.Cos(lat))) / Math.PI * 180d;
+                }
+            }
 
-            if (location.Latitude <= -90d)
-            {
-                result.Y = double.NegativeInfinity;
-            }
-            else if (location.Latitude >= 90d)
-            {
-                result.Y = double.PositiveInfinity;
-            }
-            else
-            {
-                double lat = location.Latitude * Math.PI / 180d;
-                result.Y = (Math.Log(Math.Tan(lat) + 1d / Math.Cos(lat))) / Math.PI * 180d;
-            }
-
-            return result;
+            return new Point(location.Longitude, location.Y);
         }
 
-        public override Location TransformBack(Point point)
+        public override Location Transform(Point point)
         {
-            return new Location(Math.Atan(Math.Sinh(point.Y * Math.PI / 180d)) / Math.PI * 180d, point.X);
+            var location = new Location(Math.Atan(Math.Sinh(point.Y * Math.PI / 180d)) / Math.PI * 180d, point.X);
+            location.Y = point.Y;
+            return location;
         }
     }
 }

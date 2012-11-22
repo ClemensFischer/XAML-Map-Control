@@ -1,4 +1,8 @@
-﻿using System;
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
+// Copyright © 2012 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;

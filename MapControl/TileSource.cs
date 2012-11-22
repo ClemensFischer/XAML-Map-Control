@@ -1,20 +1,22 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+#if WINRT
+using Windows.Foundation;
+#else
 using System.Windows;
+#endif
 
 namespace MapControl
 {
     /// <summary>
     /// Provides the URI of a map tile.
     /// </summary>
-    [TypeConverter(typeof(TileSourceConverter))]
-    public class TileSource
+    public partial class TileSource
     {
         private Func<int, int, int, Uri> getUri;
         private string uriFormat = string.Empty;
@@ -123,9 +125,9 @@ namespace MapControl
 
         private Uri GetQuadKeyUri(int x, int y, int zoomLevel)
         {
-            StringBuilder key = new StringBuilder { Length = zoomLevel };
+            var key = new StringBuilder { Length = zoomLevel };
 
-            for (int z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)
+            for (var z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)
             {
                 key[z] = (char)('0' + 2 * (y % 2) + (x % 2));
             }
@@ -137,36 +139,20 @@ namespace MapControl
 
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
-            MercatorTransform t = new MercatorTransform();
-            double n = 1 << zoomLevel;
-            double x1 = (double)x * 360d / n - 180d;
-            double x2 = (double)(x + 1) * 360d / n - 180d;
-            double y1 = 180d - (double)(y + 1) * 360d / n;
-            double y2 = 180d - (double)y * 360d / n;
-            Location p1 = t.TransformBack(new Point(x1, y1));
-            Location p2 = t.TransformBack(new Point(x2, y2));
+            var t = new MercatorTransform();
+            var n = (double)(1 << zoomLevel);
+            var x1 = (double)x * 360d / n - 180d;
+            var x2 = (double)(x + 1) * 360d / n - 180d;
+            var y1 = 180d - (double)(y + 1) * 360d / n;
+            var y2 = 180d - (double)y * 360d / n;
+            var p1 = t.Transform(new Point(x1, y1));
+            var p2 = t.Transform(new Point(x2, y2));
 
             return new Uri(UriFormat.
                 Replace("{w}", p1.Longitude.ToString(CultureInfo.InvariantCulture)).
                 Replace("{s}", p1.Latitude.ToString(CultureInfo.InvariantCulture)).
                 Replace("{e}", p2.Longitude.ToString(CultureInfo.InvariantCulture)).
                 Replace("{n}", p2.Latitude.ToString(CultureInfo.InvariantCulture)));
-        }
-    }
-
-    /// <summary>
-    /// Converts from string to TileSource.
-    /// </summary>
-    public class TileSourceConverter : TypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            return new TileSource(value as string);
         }
     }
 }

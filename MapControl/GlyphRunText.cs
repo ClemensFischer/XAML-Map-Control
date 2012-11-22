@@ -1,4 +1,4 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
@@ -22,12 +22,12 @@ namespace MapControl
                 throw new ArgumentException(string.Format("{0}: no GlyphTypeface found", typeface.FontFamily));
             }
 
-            ushort[] glyphIndices = new ushort[text.Length];
-            double[] advanceWidths = new double[text.Length];
+            var glyphIndices = new ushort[text.Length];
+            var advanceWidths = new double[text.Length];
 
             for (int i = 0; i < text.Length; i++)
             {
-                ushort glyphIndex = glyphTypeface.CharacterToGlyphMap[text[i]];
+                var glyphIndex = glyphTypeface.CharacterToGlyphMap[text[i]];
                 glyphIndices[i] = glyphIndex;
                 advanceWidths[i] = glyphTypeface.AdvanceWidths[glyphIndex] * emSize;
             }
@@ -45,21 +45,20 @@ namespace MapControl
                 throw new ArgumentException(string.Format("{0}: no GlyphTypeface found", typeface.FontFamily));
             }
 
-            ushort[] glyphIndices = new ushort[text.Length];
-            double[] advanceWidths = new double[text.Length];
+            var glyphIndices = new ushort[text.Length];
+            var advanceWidths = new double[text.Length];
 
             for (int i = 0; i < text.Length; i++)
             {
-                ushort glyphIndex = glyphTypeface.CharacterToGlyphMap[text[i]];
+                var glyphIndex = glyphTypeface.CharacterToGlyphMap[text[i]];
                 glyphIndices[i] = glyphIndex;
                 advanceWidths[i] = glyphTypeface.AdvanceWidths[glyphIndex] * emSize;
             }
 
-            GlyphRun glyphRun = new GlyphRun(glyphTypeface, 0, false, emSize, glyphIndices, new Point(), advanceWidths,
-                                             null, null, null, null, null, null);
-
-            Rect bbox = glyphRun.ComputeInkBoundingBox();
-            Point baselineOrigin = new Point(centerOffset.X - bbox.X - bbox.Width / 2d, centerOffset.Y - bbox.Y - bbox.Height / 2d);
+            var glyphRun = new GlyphRun(glyphTypeface, 0, false, emSize, glyphIndices, new Point(), advanceWidths,
+                                        null, null, null, null, null, null);
+            var bbox = glyphRun.ComputeInkBoundingBox();
+            var baselineOrigin = new Point(centerOffset.X - bbox.X - bbox.Width / 2d, centerOffset.Y - bbox.Y - bbox.Height / 2d);
 
             return new GlyphRun(glyphTypeface, 0, false, emSize, glyphIndices, baselineOrigin, advanceWidths,
                                 null, null, null, null, null, null);

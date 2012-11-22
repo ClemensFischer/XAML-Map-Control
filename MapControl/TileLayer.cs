@@ -1,21 +1,45 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+#if WINRT
+using Windows.UI.Xaml.Markup;
+using Windows.UI.Xaml.Media;
+#else
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+#endif
 
 namespace MapControl
 {
     /// <summary>
     /// Fills a rectangular area with map tiles from a TileSource.
     /// </summary>
+#if WINRT
+    [ContentProperty(Name = "TileSource")]
+#else
     [ContentProperty("TileSource")]
-    public class TileLayer : DrawingVisual
+#endif
+    public partial class TileLayer
     {
+        public static TileLayer Default
+        {
+            get
+            {
+                return new TileLayer
+                {
+                    SourceName = "OpenStreetMap",
+                    Description = "© {y} OpenStreetMap Contributors, CC-BY-SA",
+                    TileSource = new TileSource("http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+                };
+            }
+        }
+
+        private readonly MatrixTransform transform = new MatrixTransform();
         private readonly TileImageLoader tileImageLoader;
         private List<Tile> tiles = new List<Tile>();
         private string description = string.Empty;
@@ -25,12 +49,13 @@ namespace MapControl
         public TileLayer()
         {
             tileImageLoader = new TileImageLoader(this);
-            VisualTransform = new MatrixTransform();
-            VisualEdgeMode = EdgeMode.Aliased;
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
             MaxParallelDownloads = 8;
+            Initialize();
         }
+
+        partial void Initialize();
 
         public string SourceName { get; set; }
         public TileSource TileSource { get; set; }
@@ -45,10 +70,16 @@ namespace MapControl
             set { description = value.Replace("{y}", DateTime.Now.Year.ToString()); }
         }
 
-        public Matrix TransformMatrix
+        public string TileSourceUriFormat
         {
-            get { return ((MatrixTransform)VisualTransform).Matrix; }
-            set { ((MatrixTransform)VisualTransform).Matrix = value; }
+            get { return TileSource != null ? TileSource.UriFormat : string.Empty; }
+            set { TileSource = new TileSource(value); }
+        }
+
+        internal Matrix TransformMatrix
+        {
+            get { return transform.Matrix; }
+            set { transform.Matrix = value; }
         }
 
         internal void UpdateTiles(int zoomLevel, Int32Rect grid)
@@ -75,39 +106,41 @@ namespace MapControl
 
         private void SelectTiles()
         {
-            int maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
-            int minZoomLevel = maxZoomLevel;
-            ContainerVisual parent = Parent as ContainerVisual;
+            var maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
+            var minZoomLevel = maxZoomLevel;
+            var container = TileContainer;
 
-            if (parent != null && parent.Children.IndexOf(this) == 0)
+            if (container != null && container.Children.IndexOf(this) == 0)
             {
                 minZoomLevel = MinZoomLevel;
             }
 
-            List<Tile> newTiles = new List<Tile>();
+            var newTiles = new List<Tile>();
 
-            for (int z = minZoomLevel; z <= maxZoomLevel; z++)
+            for (var z = minZoomLevel; z <= maxZoomLevel; z++)
             {
-                int tileSize = 1 << (zoomLevel - z);
-                int x1 = grid.X / tileSize;
-                int x2 = (grid.X + grid.Width - 1) / tileSize;
-                int y1 = Math.Max(0, grid.Y / tileSize);
-                int y2 = Math.Min((1 << z) - 1, (grid.Y + grid.Height - 1) / tileSize);
+                var tileSize = 1 << (zoomLevel - z);
+                var x1 = grid.X / tileSize;
+                var x2 = (grid.X + grid.Width - 1) / tileSize;
+                var y1 = Math.Max(0, grid.Y / tileSize);
+                var y2 = Math.Min((1 << z) - 1, (grid.Y + grid.Height - 1) / tileSize);
 
-                for (int y = y1; y <= y2; y++)
+                for (var y = y1; y <= y2; y++)
                 {
-                    for (int x = x1; x <= x2; x++)
+                    for (var x = x1; x <= x2; x++)
                     {
-                        Tile tile = tiles.Find(t => t.ZoomLevel == z && t.X == x && t.Y == y);
+                        var tile = tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
 
                         if (tile == null)
                         {
                             tile = new Tile(z, x, y);
-                            Tile equivalent = tiles.Find(t => t.Source != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
 
-                            if (equivalent != null)
+                            var equivalentTile = tiles.FirstOrDefault(t => t.ImageSource != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
+
+                            if (equivalentTile != null)
                             {
-                                tile.Source = equivalent.Source;
+                                // do not animate to avoid flicker when crossing date line
+                                tile.SetImageSource(equivalentTile.ImageSource, false);
                             }
                         }
 
@@ -117,25 +150,7 @@ namespace MapControl
             }
 
             tiles = newTiles;
-            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
         }
 
-        private void RenderTiles()
-        {
-            using (DrawingContext drawingContext = RenderOpen())
-            {
-                foreach (Tile tile in tiles)
-                {
-                    int tileSize = 256 << (zoomLevel - tile.ZoomLevel);
-                    Rect tileRect = new Rect(tileSize * tile.X - 256 * grid.X, tileSize * tile.Y - 256 * grid.Y, tileSize, tileSize);
-
-                    drawingContext.DrawRectangle(tile.Brush, null, tileRect);
-
-                    //if (tile.ZoomLevel == zoomLevel)
-                    //    drawingContext.DrawText(new FormattedText(string.Format("{0}-{1}-{2}", tile.ZoomLevel, tile.X, tile.Y),
-                    //        System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 14, Brushes.Black), tileRect.TopLeft);
-                }
-            }
-        }
     }
 }

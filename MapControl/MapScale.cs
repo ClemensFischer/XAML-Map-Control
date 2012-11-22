@@ -1,4 +1,4 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
@@ -46,42 +46,56 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            double scale = ParentMap.CenterScale; // px/m
-            length = MinWidth / scale;
-            double magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
+            var parentMap = MapPanel.GetParentMap(this);
 
-            if (length / magnitude < 2d)
+            if (parentMap != null && parentMap.CenterScale > 0d)
             {
-                length = 2d * magnitude;
-            }
-            else if (length / magnitude < 5d)
-            {
-                length = 5d * magnitude;
+                length = MinWidth / parentMap.CenterScale;
+                var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
+
+                if (length / magnitude < 2d)
+                {
+                    length = 2d * magnitude;
+                }
+                else if (length / magnitude < 5d)
+                {
+                    length = 5d * magnitude;
+                }
+                else
+                {
+                    length = 10d * magnitude;
+                }
+
+                size.Width = length * parentMap.CenterScale + StrokeThickness + Padding.Left + Padding.Right;
+                size.Height = FontSize + 2d * StrokeThickness + Padding.Top + Padding.Bottom;
             }
             else
             {
-                length = 10d * magnitude;
+                size.Width = size.Height = 0d;
             }
 
-            size.Width = length * scale + StrokeThickness + Padding.Left + Padding.Right;
-            size.Height = FontSize + 2d * StrokeThickness + Padding.Top + Padding.Bottom;
             return size;
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            double x1 = Padding.Left + StrokeThickness / 2d;
-            double x2 = size.Width - Padding.Right - StrokeThickness / 2d;
-            double y1 = size.Height / 2d;
-            double y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
-            string text = length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length);
+            var parentMap = MapPanel.GetParentMap(this);
 
-            drawingContext.DrawRectangle(Background ?? ParentMap.Background, null, new Rect(size));
-            drawingContext.DrawLine(Pen, new Point(x1, y1), new Point(x1, y2));
-            drawingContext.DrawLine(Pen, new Point(x2, y1), new Point(x2, y2));
-            drawingContext.DrawLine(Pen, new Point(x1, y2), new Point(x2, y2));
-            drawingContext.DrawGlyphRun(Foreground,
-                GlyphRunText.Create(text, Typeface, FontSize, new Vector(size.Width / 2d, y1 - StrokeThickness - 1d)));
+            if (parentMap != null)
+            {
+                var x1 = Padding.Left + StrokeThickness / 2d;
+                var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
+                var y1 = size.Height / 2d;
+                var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
+                var text = length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length);
+
+                drawingContext.DrawRectangle(Background ?? parentMap.Background, null, new Rect(size));
+                drawingContext.DrawLine(Pen, new Point(x1, y1), new Point(x1, y2));
+                drawingContext.DrawLine(Pen, new Point(x2, y1), new Point(x2, y2));
+                drawingContext.DrawLine(Pen, new Point(x1, y2), new Point(x2, y2));
+                drawingContext.DrawGlyphRun(Foreground,
+                    GlyphRunText.Create(text, Typeface, FontSize, new Vector(size.Width / 2d, y1 - StrokeThickness - 1d)));
+            }
         }
 
         protected override void OnViewportChanged()

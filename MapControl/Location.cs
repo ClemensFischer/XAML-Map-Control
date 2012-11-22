@@ -1,37 +1,39 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.ComponentModel;
 using System.Globalization;
-using System.Windows;
 
 namespace MapControl
 {
     /// <summary>
     /// A geographic location given as latitude and longitude.
     /// </summary>
-    [TypeConverter(typeof(LocationConverter))]
-    public class Location
+    public partial class Location : IEquatable<Location>
     {
         private double latitude;
         private double longitude;
+        internal double Y;
 
         public Location()
         {
         }
 
-        public Location(double latitude, double longitude)
+        public Location(double lat, double lon)
         {
-            Latitude = latitude;
-            Longitude = longitude;
+            Latitude = lat;
+            Longitude = lon;
         }
 
         public double Latitude
         {
             get { return latitude; }
-            set { latitude = Math.Min(Math.Max(value, -90d), 90d); }
+            set
+            {
+                latitude = Math.Min(Math.Max(value, -90d), 90d);
+                Y = double.NaN;
+            }
         }
 
         public double Longitude
@@ -40,36 +42,42 @@ namespace MapControl
             set { longitude = value; }
         }
 
-        public override string ToString()
+        public bool Equals(Location other)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0:0.00000},{1:0.00000}", latitude, longitude);
+            return other != null && other.latitude == latitude && other.longitude == longitude;
         }
 
-        public static Location Parse(string source)
+        public override bool Equals(object obj)
         {
-            Point p = Point.Parse(source);
-            return new Location(p.X, p.Y);
+            return Equals(obj as Location);
+        }
+
+        public override int GetHashCode()
+        {
+            return latitude.GetHashCode() ^ longitude.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0:F5},{1:F5}", latitude, longitude);
+        }
+
+        public static Location Parse(string s)
+        {
+            var tokens = s.Split(new char[] { ',' });
+            if (tokens.Length != 2)
+            {
+                throw new FormatException("Location string must be a comma-separated pair of double values");
+            }
+
+            return new Location(
+                double.Parse(tokens[0], NumberStyles.Float, CultureInfo.InvariantCulture),
+                double.Parse(tokens[1], NumberStyles.Float, CultureInfo.InvariantCulture));
         }
 
         public static double NormalizeLongitude(double longitude)
         {
-            return ((longitude + 180d) % 360d + 360d) % 360d - 180d;
-        }
-    }
-
-    /// <summary>
-    /// Converts from string to Location.
-    /// </summary>
-    public class LocationConverter : TypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            return Location.Parse((string)value);
+            return (longitude >= -180d && longitude <= 180d) ? longitude : ((longitude + 180d) % 360d + 360d) % 360d - 180d;
         }
     }
 }

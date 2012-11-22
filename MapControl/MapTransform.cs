@@ -1,11 +1,12 @@
-﻿// WPF MapControl - http://wpfmapcontrol.codeplex.com/
+﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System.Collections.Generic;
-using System.Linq;
+#if WINRT
+using Windows.Foundation;
+#else
 using System.Windows;
-using System.Windows.Media;
+#endif
 
 namespace MapControl
 {
@@ -35,22 +36,6 @@ namespace MapControl
         /// <summary>
         /// Transforms a cartesian coordinate point to a geographic location.
         /// </summary>
-        public abstract Location TransformBack(Point point);
-
-        /// <summary>
-        /// Transforms a collection of geographic locations to a collection of cartesian coordinate points.
-        /// </summary>
-        public PointCollection Transform(IEnumerable<Location> locations)
-        {
-            return new PointCollection(locations.Select(l => Transform(l)));
-        }
-
-        /// <summary>
-        /// Transforms a collection of cartesian coordinate points to a collections of geographic location.
-        /// </summary>
-        public LocationCollection TransformBack(IEnumerable<Point> points)
-        {
-            return new LocationCollection(points.Select(p => TransformBack(p)));
-        }
+        public abstract Location Transform(Point point);
     }
 }
