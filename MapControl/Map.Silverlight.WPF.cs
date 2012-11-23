@@ -12,22 +12,17 @@ namespace MapControl
     {
         partial void Initialize()
         {
-#if !SILVERLIGHT
-            ManipulationDelta += OnManipulationDelta;
-#endif
             MouseWheel += OnMouseWheel;
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
             MouseMove += OnMouseMove;
-        }
 
 #if !SILVERLIGHT
-        private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
-        {
-            var d = e.DeltaManipulation;
-            TransformMap(e.ManipulationOrigin, (Point)d.Translation, d.Rotation, (d.Scale.X + d.Scale.Y) / 2d);
-        }
+            ManipulationDelta += (o, e) => TransformMap(
+                e.ManipulationOrigin, (Point)e.DeltaManipulation.Translation, e.DeltaManipulation.Rotation,
+                (e.DeltaManipulation.Scale.X + e.DeltaManipulation.Scale.Y) / 2d); ;
 #endif
+        }
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {

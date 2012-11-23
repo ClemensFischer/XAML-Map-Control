@@ -14,7 +14,8 @@ namespace MapControl
 {
     /// <summary>
     /// Manages a collection of selectable items on a Map. Uses MapItem as container for items
-    /// and updates the IsCurrent attached property when the Items.CurrentItem property changes.
+    /// and (for WPF only) updates the IsCurrent attached property on each MapItem when the
+    /// Items.CurrentItem property changes.
     /// </summary>
     public partial class MapItemsControl : ListBox
     {

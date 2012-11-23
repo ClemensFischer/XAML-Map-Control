@@ -104,9 +104,9 @@
                                     <EllipseGeometry RadiusX="8" RadiusY="8"/>
                                 </Path.Data>
                             </Path>
-                            <Grid Canvas.Left="10" Canvas.Bottom="3">
+                            <Grid Canvas.Left="15" Canvas.Top="-8">
                                 <Rectangle Name="labelBackground" Fill="White" Opacity="0.7"/>
-                                <TextBlock Margin="2,0,2,1" Text="{Binding Name}"/>
+                                <TextBlock Margin="2,0,2,0" Text="{Binding Name}"/>
                             </Grid>
                         </Canvas>
                     </ControlTemplate>
