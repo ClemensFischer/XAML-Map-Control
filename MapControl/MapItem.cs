@@ -22,12 +22,6 @@ namespace MapControl
         public static readonly DependencyProperty LocationPathProperty = DependencyProperty.Register(
             "LocationPath", typeof(string), typeof(MapItem), new PropertyMetadata(null, LocationPathPropertyChanged));
 
-        public MapItem()
-        {
-            MapPanel.AddParentMapHandlers(this);
-            DefaultStyleKey = typeof(MapItem);
-        }
-
         /// <summary>
         /// Gets or sets the property path that is used to bind the MapPanel.Location attached property.
         /// </summary>

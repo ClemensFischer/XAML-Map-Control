@@ -22,12 +22,6 @@ namespace MapControl
         public static readonly DependencyProperty LocationPathProperty = DependencyProperty.Register(
             "LocationPath", typeof(string), typeof(Pushpin), new PropertyMetadata(null, LocationPathPropertyChanged));
 
-        public Pushpin()
-        {
-            MapPanel.AddParentMapHandlers(this);
-            DefaultStyleKey = typeof(Pushpin);
-        }
-
         /// <summary>
         /// Gets or sets the property path that is used to bind the MapPanel.Location attached property.
         /// </summary>

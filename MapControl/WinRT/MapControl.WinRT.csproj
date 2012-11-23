@@ -132,8 +132,14 @@
     <Compile Include="..\MapItem.cs">
       <Link>MapItem.cs</Link>
     </Compile>
+    <Compile Include="..\MapItem.Silverlight.WinRT.cs">
+      <Link>MapItem.Silverlight.WinRT.cs</Link>
+    </Compile>
     <Compile Include="..\MapItemsControl.cs">
       <Link>MapItemsControl.cs</Link>
+    </Compile>
+    <Compile Include="..\MapItemsControl.Silverlight.WinRT.cs">
+      <Link>MapItemsControl.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapOverlay.cs">
       <Link>MapOverlay.cs</Link>
@@ -143,6 +149,9 @@
     </Compile>
     <Compile Include="..\MapPanel.cs">
       <Link>MapPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\MapPanel.Silverlight.WinRT.cs">
+      <Link>MapPanel.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapPolygon.cs">
       <Link>MapPolygon.cs</Link>
@@ -164,6 +173,9 @@
     </Compile>
     <Compile Include="..\Pushpin.cs">
       <Link>Pushpin.cs</Link>
+    </Compile>
+    <Compile Include="..\Pushpin.Silverlight.WinRT.cs">
+      <Link>Pushpin.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\Tile.cs">
       <Link>Tile.cs</Link>

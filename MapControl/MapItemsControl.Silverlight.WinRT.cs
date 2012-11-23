@@ -2,15 +2,19 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Windows.UI.Xaml.Shapes;
+#if WINRT
+using Windows.UI.Xaml;
+#else
+using System.Windows;
+#endif
 
 namespace MapControl
 {
-    public partial class MapPolyline : Path
+    public partial class MapItemsControl
     {
-        public MapPolyline()
+        public MapItemsControl()
         {
-            Data = Geometry;
+            DefaultStyleKey = typeof(MapItemsControl);
             MapPanel.AddParentMapHandlers(this);
         }
     }

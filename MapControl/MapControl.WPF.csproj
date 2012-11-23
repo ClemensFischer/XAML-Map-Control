@@ -62,6 +62,7 @@
     <Compile Include="MapItemsControl.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />
     <Compile Include="MapPanel.cs" />
+    <Compile Include="MapPanel.WPF.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
     <Compile Include="MapTransform.cs" />

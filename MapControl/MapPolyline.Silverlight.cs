@@ -2,7 +2,6 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.Windows;
 using System.Windows.Shapes;
 
@@ -10,16 +9,17 @@ namespace MapControl
 {
     public partial class MapPolyline : Path
     {
-        partial void Initialize()
+        public MapPolyline()
         {
             Data = Geometry;
+            MapPanel.AddParentMapHandlers(this);
         }
 
         protected override Size MeasureOverride(Size constraint)
         {
-            return new Size(
-                Math.Max(Geometry.Bounds.Width, Geometry.Bounds.Right),
-                Math.Max(Geometry.Bounds.Height, Geometry.Bounds.Bottom));
+            // MeasureOverride in Silverlight occasionally tries to create
+            // negative width or height from a transformed geometry in Data.
+            return new Size(Geometry.Bounds.Width, Geometry.Bounds.Height);
         }
     }
 }

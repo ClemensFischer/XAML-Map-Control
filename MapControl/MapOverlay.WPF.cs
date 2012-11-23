@@ -69,10 +69,8 @@ namespace MapControl
                 typeof(MapOverlay), new FrameworkPropertyMetadata(false));
         }
 
-        partial void Initialize()
+        public MapOverlay()
         {
-            MapPanel.AddParentMapHandlers(this);
-
             pen = new Pen
             {
                 Brush = Stroke,

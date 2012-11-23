@@ -2,15 +2,13 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Windows.UI.Xaml.Shapes;
-
 namespace MapControl
 {
-    public partial class MapPolyline : Path
+    public partial class Pushpin
     {
-        public MapPolyline()
+        public Pushpin()
         {
-            Data = Geometry;
+            DefaultStyleKey = typeof(Pushpin);
             MapPanel.AddParentMapHandlers(this);
         }
     }

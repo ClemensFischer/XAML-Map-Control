@@ -18,20 +18,6 @@ namespace MapControl
     /// </summary>
     public partial class MapItemsControl : ListBox
     {
-        public MapItemsControl()
-        {
-            MapPanel.AddParentMapHandlers(this);
-            DefaultStyleKey = typeof(MapItemsControl);
-            Initialize();
-        }
-
-        partial void Initialize();
-
-        protected override DependencyObject GetContainerForItemOverride()
-        {
-            return new MapItem();
-        }
-
         public UIElement ContainerFromItem(object item)
         {
             return item != null ? ItemContainerGenerator.ContainerFromItem(item) as UIElement : null;
@@ -40,6 +26,11 @@ namespace MapControl
         public object ItemFromContainer(DependencyObject container)
         {
             return container != null ? ItemContainerGenerator.ItemFromContainer(container) : null;
+        }
+
+        protected override DependencyObject GetContainerForItemOverride()
+        {
+            return new MapItem();
         }
     }
 }

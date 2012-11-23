@@ -19,7 +19,7 @@ namespace MapControl
                 typeof(MapItemsControl), new FrameworkPropertyMetadata(typeof(MapItemsControl)));
         }
 
-        partial void Initialize()
+        public MapItemsControl()
         {
             Items.CurrentChanging += OnCurrentItemChanging;
             Items.CurrentChanged += OnCurrentItemChanged;

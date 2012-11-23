@@ -81,8 +81,9 @@ namespace MapControl
         protected readonly Path Path = new Path();
         protected readonly PathGeometry Geometry = new PathGeometry();
 
-        partial void Initialize()
+        public MapOverlay()
         {
+            IsHitTestVisible = false;
             Path.Stroke = Stroke;
             Path.StrokeThickness = StrokeThickness;
             Path.StrokeDashArray = StrokeDashArray;

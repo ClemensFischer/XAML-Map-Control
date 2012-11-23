@@ -108,6 +108,8 @@ namespace MapControl
 
         public MapBase()
         {
+            SetValue(MapPanel.ParentMapProperty, this);
+
             Background = LightBackground;
             TileLayers = new TileLayerCollection();
             Initialize();

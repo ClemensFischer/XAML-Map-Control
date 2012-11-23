@@ -17,14 +17,6 @@ namespace MapControl
     /// </summary>
     public partial class MapOverlay
     {
-        public MapOverlay()
-        {
-            IsHitTestVisible = false;
-            Initialize();
-        }
-
-        partial void Initialize();
-
         public FontFamily FontFamily
         {
             get { return (FontFamily)GetValue(FontFamilyProperty); }

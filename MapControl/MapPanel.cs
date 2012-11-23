@@ -26,29 +26,10 @@ namespace MapControl
     /// The Location is transformed into a viewport position by the MapBase.LocationToViewportPoint
     /// method and then applied to the RenderTransform as an appropriate TranslateTransform.
     /// </summary>
-    public class MapPanel : Panel, IMapElement
+    public partial class MapPanel : Panel, IMapElement
     {
-        public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
-            "ParentMap", typeof(MapBase), typeof(MapPanel), new PropertyMetadata(null, ParentMapPropertyChanged));
-
         public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
             "Location", typeof(Location), typeof(MapPanel), new PropertyMetadata(null, LocationPropertyChanged));
-
-        public MapPanel()
-        {
-            AddParentMapHandlers(this);
-        }
-
-        public static void AddParentMapHandlers(FrameworkElement element)
-        {
-            element.Loaded += (o, e) => element.SetValue(ParentMapProperty, FindParentMap(element));
-            element.Unloaded += (o, e) => element.ClearValue(ParentMapProperty);
-        }
-
-        public static MapBase GetParentMap(UIElement element)
-        {
-            return (MapBase)element.GetValue(ParentMapProperty);
-        }
 
         public static Location GetLocation(UIElement element)
         {
@@ -83,8 +64,8 @@ namespace MapControl
                     SetViewportPosition(element, parentMap, location);
                 }
 
-                var frameworkElement = element as FrameworkElement;
                 var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
+                var frameworkElement = element as FrameworkElement;
 
                 if (frameworkElement != null)
                 {
@@ -169,11 +150,6 @@ namespace MapControl
                 newParentMap.ViewportChanged += OnViewportChanged;
                 OnViewportChanged();
             }
-        }
-
-        private static MapBase FindParentMap(DependencyObject obj)
-        {
-            return (obj == null || obj is MapBase) ? (MapBase)obj : FindParentMap(VisualTreeHelper.GetParent(obj));
         }
 
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)

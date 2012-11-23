@@ -21,14 +21,6 @@ namespace MapControl
 
         protected PathGeometry Geometry = new PathGeometry();
 
-        public MapPolyline()
-        {
-            MapPanel.AddParentMapHandlers(this);
-            Initialize();
-        }
-
-        partial void Initialize();
-
         public LocationCollection Locations
         {
             get { return (LocationCollection)GetValue(LocationsProperty); }
