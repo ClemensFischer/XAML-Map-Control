@@ -99,24 +99,10 @@ namespace MapControl
         private bool IsItemInGeometry(object item, Geometry geometry)
         {
             var container = ContainerFromItem(item);
-            if (container == null)
-            {
-                return false;
-            }
 
-            var location = MapPanel.GetLocation(container);
-            if (location == null)
-            {
-                return false;
-            }
-
-            var parentMap = MapPanel.GetParentMap(container);
-            if (parentMap == null)
-            {
-                return false;
-            }
-
-            return geometry.FillContains(parentMap.LocationToViewportPoint(location));
+            return container != null &&
+                container.RenderTransform != null &&
+                geometry.FillContains(new Point(container.RenderTransform.Value.OffsetX, container.RenderTransform.Value.OffsetY));
         }
     }
 }
