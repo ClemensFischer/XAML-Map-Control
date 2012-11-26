@@ -13,7 +13,7 @@ namespace MapControl
 {
     /// <summary>
     /// Transforms latitude and longitude values in degrees to cartesian coordinates
-    /// according to the Mercator transform.
+    /// according to the Mercator projection.
     /// </summary>
     public class MercatorTransform : MapTransform
     {

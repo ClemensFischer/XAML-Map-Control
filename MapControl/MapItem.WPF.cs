@@ -21,6 +21,9 @@ namespace MapControl
                 typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
         }
 
+        /// <summary>
+        /// Gets a value that indicates if the MapItem is the CurrentItem of the containing items collection.
+        /// </summary>
         public bool IsCurrent
         {
             get { return (bool)GetValue(IsCurrentProperty); }

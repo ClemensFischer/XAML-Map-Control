@@ -124,30 +124,49 @@ namespace MapControl
         /// </summary>
         public event EventHandler ViewportChanged;
 
+        /// <summary>
+        /// Gets or sets the map foreground Brush.
+        /// </summary>
         public Brush Foreground
         {
             get { return (Brush)GetValue(ForegroundProperty); }
             set { SetValue(ForegroundProperty, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a Brush that (when not null) is used as value of the
+        /// Foreground property when TileLayer.HasDarkBackground is false.
+        /// </summary>
         public Brush LightForeground
         {
             get { return (Brush)GetValue(LightForegroundProperty); }
             set { SetValue(LightForegroundProperty, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a Brush that (when not null) is used as value of the
+        /// Foreground property when TileLayer.HasDarkBackground is true.
+        /// </summary>
         public Brush DarkForeground
         {
             get { return (Brush)GetValue(DarkForegroundProperty); }
             set { SetValue(DarkForegroundProperty, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a Brush that (when not null) is used as value of the
+        /// Background property when TileLayer.HasDarkBackground is false.
+        /// </summary>
         public Brush LightBackground
         {
             get { return (Brush)GetValue(LightBackgroundProperty); }
             set { SetValue(LightBackgroundProperty, value); }
         }
 
+        /// <summary>
+        /// Gets or sets a Brush that (when not null) is used as value of the
+        /// Background property when TileLayer.HasDarkBackground is true.
+        /// </summary>
         public Brush DarkBackground
         {
             get { return (Brush)GetValue(DarkBackgroundProperty); }

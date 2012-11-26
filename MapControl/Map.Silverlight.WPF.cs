@@ -10,8 +10,11 @@ namespace MapControl
 {
     public partial class Map
     {
-        partial void Initialize()
+        private Point? mousePosition;
+
+        public Map()
         {
+            MouseWheelZoomChange = 1d;
             MouseWheel += OnMouseWheel;
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
@@ -26,7 +29,7 @@ namespace MapControl
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            ZoomMap(e.GetPosition(this), TargetZoomLevel + mouseWheelZoom * Math.Sign(e.Delta));
+            ZoomMap(e.GetPosition(this), TargetZoomLevel + MouseWheelZoomChange * Math.Sign(e.Delta));
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

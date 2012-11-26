@@ -11,8 +11,11 @@ namespace MapControl
 {
     public partial class Map
     {
-        partial void Initialize()
+        private Point? mousePosition;
+
+        public Map()
         {
+            MouseWheelZoomChange = 1d;
             ManipulationMode = ManipulationModes.All;
             ManipulationDelta += OnManipulationDelta;
             PointerWheelChanged += OnPointerWheelChanged;
@@ -34,7 +37,7 @@ namespace MapControl
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
-            ZoomMap(point.Position, TargetZoomLevel + mouseWheelZoom * Math.Sign(point.Properties.MouseWheelDelta));
+            ZoomMap(point.Position, TargetZoomLevel + MouseWheelZoomChange * Math.Sign(point.Properties.MouseWheelDelta));
         }
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)

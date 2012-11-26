@@ -2,12 +2,6 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINRT
-using Windows.Foundation;
-#else
-using System.Windows;
-#endif
-
 namespace MapControl
 {
     /// <summary>
@@ -15,20 +9,9 @@ namespace MapControl
     /// </summary>
     public partial class Map : MapBase
     {
-        private double mouseWheelZoom = 1d;
-        private Point? mousePosition;
-
-        public Map()
-        {
-            Initialize();
-        }
-
-        partial void Initialize();
-
-        public double MouseWheelZoom
-        {
-            get { return mouseWheelZoom; }
-            set { mouseWheelZoom = value; }
-        }
+        /// <summary>
+        /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
+        /// </summary>
+        public double MouseWheelZoomChange { get; set; }
     }
 }

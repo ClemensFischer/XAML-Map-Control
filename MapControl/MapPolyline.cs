@@ -17,23 +17,37 @@ namespace MapControl
     {
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(LocationCollection), typeof(MapPolyline),
-            new PropertyMetadata(null, LocationsPropertyChanged));
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).UpdateGeometry()));
+
+        public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
+            "IsClosed", typeof(bool), typeof(MapPolyline),
+            new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateGeometry()));
 
         protected PathGeometry Geometry = new PathGeometry();
 
+        /// <summary>
+        /// Gets or sets the locations that define the polyline points.
+        /// </summary>
         public LocationCollection Locations
         {
             get { return (LocationCollection)GetValue(LocationsProperty); }
             set { SetValue(LocationsProperty, value); }
         }
 
-        protected virtual bool IsClosed
+        /// <summary>
+        /// Gets or sets a value that indicates if the polyline is closed, i.e. is a polygon.
+        /// </summary>
+        public bool IsClosed
         {
-            get { return false; }
+            get { return (bool)GetValue(IsClosedProperty); }
+            set { SetValue(IsClosedProperty, value); }
         }
 
-        protected virtual void UpdateGeometry(MapBase parentMap, LocationCollection locations)
+        protected virtual void UpdateGeometry()
         {
+            var parentMap = MapPanel.GetParentMap(this);
+            var locations = Locations;
+
             if (parentMap != null && locations != null && locations.Count > 0)
             {
                 var figure = new PathFigure
@@ -62,13 +76,7 @@ namespace MapControl
 
         void IMapElement.ParentMapChanged(MapBase oldParentMap, MapBase newParentMap)
         {
-            UpdateGeometry(newParentMap, Locations);
-        }
-
-        private static void LocationsPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            var polyline = (MapPolyline)obj;
-            polyline.UpdateGeometry(MapPanel.GetParentMap(polyline), (LocationCollection)e.NewValue);
+            UpdateGeometry();
         }
     }
 }

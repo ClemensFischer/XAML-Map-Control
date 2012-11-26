@@ -83,7 +83,6 @@
     <Compile Include="MapOverlay.Silverlight.WinRT.cs" />
     <Compile Include="MapPanel.cs" />
     <Compile Include="MapPanel.Silverlight.WinRT.cs" />
-    <Compile Include="MapPolygon.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.Silverlight.cs" />
     <Compile Include="MapTransform.cs" />

@@ -153,9 +153,6 @@
     <Compile Include="..\MapPanel.Silverlight.WinRT.cs">
       <Link>MapPanel.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\MapPolygon.cs">
-      <Link>MapPolygon.cs</Link>
-    </Compile>
     <Compile Include="..\MapPolyline.cs">
       <Link>MapPolyline.cs</Link>
     </Compile>

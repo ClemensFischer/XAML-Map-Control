@@ -31,6 +31,9 @@ namespace MapControl
         public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
             "Location", typeof(Location), typeof(MapPanel), new PropertyMetadata(null, LocationPropertyChanged));
 
+        public static readonly DependencyProperty ViewportPositionProperty = DependencyProperty.RegisterAttached(
+            "ViewportPosition", typeof(Point?), typeof(MapPanel), null);
+
         public static Location GetLocation(UIElement element)
         {
             return (Location)element.GetValue(LocationProperty);
@@ -39,6 +42,11 @@ namespace MapControl
         public static void SetLocation(UIElement element, Location value)
         {
             element.SetValue(LocationProperty, value);
+        }
+
+        public static Point? GetViewportPosition(UIElement element)
+        {
+            return (Point?)element.GetValue(ViewportPositionProperty);
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -174,21 +182,28 @@ namespace MapControl
 
         private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
         {
-            Transform transform = null;
+            Point? viewportPosition = null;
 
             if (parentMap != null && location != null)
             {
-                Point position = parentMap.LocationToViewportPoint(location);
-                transform = new TranslateTransform { X = position.X, Y = position.Y };
+                viewportPosition = parentMap.LocationToViewportPoint(location);
+                element.SetValue(ViewportPositionProperty, viewportPosition);
+            }
+            else
+            {
+                element.ClearValue(ViewportPositionProperty);
             }
 
             var transformGroup = element.RenderTransform as TransformGroup;
 
             if (transformGroup != null)
             {
-                if (transform == null)
+                var transform = new TranslateTransform();
+
+                if (viewportPosition.HasValue)
                 {
-                    transform = new TranslateTransform();
+                    transform.X = viewportPosition.Value.X;
+                    transform.Y = viewportPosition.Value.Y;
                 }
 
                 var transformIndex = transformGroup.Children.Count - 1;
@@ -203,9 +218,13 @@ namespace MapControl
                     transformGroup.Children.Add(transform);
                 }
             }
-            else if (transform != null)
+            else if (viewportPosition.HasValue)
             {
-                element.RenderTransform = transform;
+                element.RenderTransform = new TranslateTransform
+                {
+                    X = viewportPosition.Value.X,
+                    Y = viewportPosition.Value.Y
+                };
             }
             else
             {

@@ -33,6 +33,10 @@ namespace MapControl
             Items.CurrentChanged += OnCurrentItemChanged;
         }
 
+        /// <summary>
+        /// Gets or sets a Geometry that selects all items that lie inside its fill area,
+        /// i.e. where Geometry.FillContains returns true for the item's viewport position.
+        /// </summary>
         public Geometry SelectionGeometry
         {
             get { return (Geometry)GetValue(SelectionGeometryProperty); }
@@ -99,10 +103,11 @@ namespace MapControl
         private bool IsItemInGeometry(object item, Geometry geometry)
         {
             var container = ContainerFromItem(item);
+            Point? viewportPosition;
 
             return container != null &&
-                container.RenderTransform != null &&
-                geometry.FillContains(new Point(container.RenderTransform.Value.OffsetX, container.RenderTransform.Value.OffsetY));
+                (viewportPosition = MapPanel.GetViewportPosition(container)).HasValue &&
+                geometry.FillContains(viewportPosition.Value);
         }
     }
 }
