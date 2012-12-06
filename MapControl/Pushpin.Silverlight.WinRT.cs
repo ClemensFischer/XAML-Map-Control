@@ -2,9 +2,18 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+#if WINRT
+using Windows.UI.Xaml.Controls;
+#else
+using System.Windows.Controls;
+#endif
+
 namespace MapControl
 {
-    public partial class Pushpin
+    /// <summary>
+    /// Displays a pushpin at a geographic location provided by the MapPanel.Location attached property.
+    /// </summary>
+    public class Pushpin : ContentControl
     {
         public Pushpin()
         {

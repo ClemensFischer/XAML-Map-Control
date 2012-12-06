@@ -75,7 +75,6 @@
     <Compile Include="MapBase.Silverlight.WinRT.cs" />
     <Compile Include="MapGraticule.cs" />
     <Compile Include="MapGraticule.Silverlight.WinRT.cs" />
-    <Compile Include="MapItem.cs" />
     <Compile Include="MapItem.Silverlight.WinRT.cs" />
     <Compile Include="MapItemsControl.cs" />
     <Compile Include="MapItemsControl.Silverlight.WinRT.cs" />
@@ -89,7 +88,6 @@
     <Compile Include="MatrixEx.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Pushpin.cs" />
     <Compile Include="Pushpin.Silverlight.WinRT.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Tile.Silverlight.WinRT.cs" />

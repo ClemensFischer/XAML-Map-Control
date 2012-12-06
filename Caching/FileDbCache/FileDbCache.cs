@@ -30,8 +30,8 @@ namespace Caching
         public FileDbCache(string name, NameValueCollection config)
             : this(name, config["directory"])
         {
-            string autoFlush = config["autoFlush"];
-            string autoCleanThreshold = config["autoCleanThreshold"];
+            var autoFlush = config["autoFlush"];
+            var autoCleanThreshold = config["autoCleanThreshold"];
 
             if (autoFlush != null)
             {
@@ -221,13 +221,13 @@ namespace Caching
             }
 
             object value = null;
-            Record record = GetRecord(key);
+            var record = GetRecord(key);
 
             if (record != null)
             {
                 try
                 {
-                    using (MemoryStream stream = new MemoryStream((byte[])record[0]))
+                    using (var stream = new MemoryStream((byte[])record[0]))
                     {
                         value = formatter.Deserialize(stream);
                     }
@@ -296,7 +296,7 @@ namespace Caching
 
                 try
                 {
-                    using (MemoryStream stream = new MemoryStream())
+                    using (var stream = new MemoryStream())
                     {
                         formatter.Serialize(stream, value);
                         valueBuffer = stream.ToArray();
@@ -309,7 +309,7 @@ namespace Caching
 
                 if (valueBuffer != null)
                 {
-                    DateTime expires = DateTime.MaxValue;
+                    var expires = DateTime.MaxValue;
 
                     if (policy.AbsoluteExpiration != InfiniteAbsoluteExpiration)
                     {

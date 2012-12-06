@@ -112,10 +112,10 @@ namespace Caching
 
                     if (path != null)
                     {
-                        long creationTime = File.GetLastWriteTimeUtc(path).ToBinary();
+                        var creationTime = File.GetLastWriteTimeUtc(path).ToBinary();
 
-                        using (FileStream fileStream = new FileStream(path, FileMode.Open))
-                        using (MemoryStream memoryStream = new MemoryStream((int)(fileStream.Length + 8)))
+                        using (var fileStream = new FileStream(path, FileMode.Open))
+                        using (var memoryStream = new MemoryStream((int)(fileStream.Length + 8)))
                         {
                             memoryStream.Write(BitConverter.GetBytes(creationTime), 0, 8);
                             fileStream.CopyTo(memoryStream);
@@ -180,7 +180,7 @@ namespace Caching
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                    using (FileStream fileStream = new FileStream(path, FileMode.Create))
+                    using (var fileStream = new FileStream(path, FileMode.Create))
                     {
                         fileStream.Write(buffer, 8, buffer.Length - 8);
                     }
@@ -278,7 +278,7 @@ namespace Caching
         private static string GetFileExtension(byte[] buffer)
         {
             string extension = null;
-            DateTime creationTime = DateTime.FromBinary(BitConverter.ToInt64(buffer, 0));
+            var creationTime = DateTime.FromBinary(BitConverter.ToInt64(buffer, 0));
 
             if (creationTime.Kind == DateTimeKind.Utc && creationTime <= DateTime.UtcNow)
             {

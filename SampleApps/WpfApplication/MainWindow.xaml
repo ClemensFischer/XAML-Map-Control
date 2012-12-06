@@ -127,7 +127,7 @@
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate>
+                    <ControlTemplate TargetType="map:MapItem">
                         <map:Pushpin Content="{Binding Name}"/>
                     </ControlTemplate>
                 </Setter.Value>

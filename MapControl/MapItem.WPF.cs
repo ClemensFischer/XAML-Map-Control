@@ -7,9 +7,12 @@ using System.Windows.Controls;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Container class for an item in a MapItemsControl.
+    /// </summary>
     [TemplateVisualState(Name = "NotCurrent", GroupName = "CurrentStates")]
     [TemplateVisualState(Name = "Current", GroupName = "CurrentStates")]
-    public partial class MapItem
+    public class MapItem : ListBoxItem
     {
         public static readonly DependencyProperty IsCurrentProperty = MapItemsControl.IsCurrentProperty.AddOwner(
             typeof(MapItem),

@@ -217,8 +217,8 @@ namespace MapControl
                 var request = (HttpWebRequest)WebRequest.Create(uri);
                 request.UserAgent = typeof(TileImageLoader).ToString();
 
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                using (Stream responseStream = response.GetResponseStream())
+                using (var response = (HttpWebResponse)request.GetResponse())
+                using (var responseStream = response.GetResponseStream())
                 {
                     var length = response.ContentLength;
                     var creationTime = DateTime.UtcNow.ToBinary();

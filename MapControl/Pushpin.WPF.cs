@@ -3,10 +3,14 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
+using System.Windows.Controls;
 
 namespace MapControl
 {
-    public partial class Pushpin
+    /// <summary>
+    /// Displays a pushpin at a geographic location provided by the MapPanel.Location attached property.
+    /// </summary>
+    public class Pushpin : ContentControl
     {
         static Pushpin()
         {

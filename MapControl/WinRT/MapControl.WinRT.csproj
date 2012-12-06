@@ -129,9 +129,6 @@
     <Compile Include="..\MapGraticule.Silverlight.WinRT.cs">
       <Link>MapGraticule.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\MapItem.cs">
-      <Link>MapItem.cs</Link>
-    </Compile>
     <Compile Include="..\MapItem.Silverlight.WinRT.cs">
       <Link>MapItem.Silverlight.WinRT.cs</Link>
     </Compile>
@@ -167,9 +164,6 @@
     </Compile>
     <Compile Include="..\MercatorTransform.cs">
       <Link>MercatorTransform.cs</Link>
-    </Compile>
-    <Compile Include="..\Pushpin.cs">
-      <Link>Pushpin.cs</Link>
     </Compile>
     <Compile Include="..\Pushpin.Silverlight.WinRT.cs">
       <Link>Pushpin.Silverlight.WinRT.cs</Link>

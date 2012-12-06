@@ -35,7 +35,7 @@
             </Setter>
         </Style>
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
-            <Setter Property="LocationPath" Value="Location"/>
+            <Setter Property="local:BindingHelper.LocationPath" Value="Location"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Foreground" Value="Black"/>
@@ -82,13 +82,13 @@
             </Setter>
         </Style>
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
-            <Setter Property="LocationPath" Value="Location"/>
+            <Setter Property="local:BindingHelper.LocationPath" Value="Location"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate>
+                    <ControlTemplate TargetType="map:MapItem">
                         <map:Pushpin Content="{Binding Name}"/>
                     </ControlTemplate>
                 </Setter.Value>
@@ -122,7 +122,8 @@
             <map:MapItemsControl ItemsSource="{StaticResource Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-            <!--<map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"/>-->
+            <!-- No TypeConverter (yet?) for string to Location
+            <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"/>-->
 
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4" FontSize="10"
                        Text="{Binding TileLayer.Description, ElementName=map}"/>
