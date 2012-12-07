@@ -65,62 +65,28 @@ namespace MapControl
 
             foreach (UIElement element in Children)
             {
+                var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
                 var location = GetLocation(element);
+
+                if (element is FrameworkElement)
+                {
+                    if (location != null)
+                    {
+                        AlignElementWithLocation((FrameworkElement)element, ref rect);
+                    }
+                    else
+                    {
+                        AlignElementWithoutLocation((FrameworkElement)element, finalSize, ref rect);
+                    }
+                }
+
+                element.Arrange(rect);
 
                 if (location != null)
                 {
                     SetViewportPosition(element, parentMap, location);
                 }
 
-                var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
-                var frameworkElement = element as FrameworkElement;
-
-                if (frameworkElement != null)
-                {
-                    switch (frameworkElement.HorizontalAlignment)
-                    {
-                        case HorizontalAlignment.Center:
-                            rect.X = ((location == null ? finalSize.Width : 0) - rect.Width) / 2d;
-                            break;
-
-                        case HorizontalAlignment.Right:
-                            rect.X = (location == null ? finalSize.Width : 0) - rect.Width;
-                            break;
-
-                        case HorizontalAlignment.Stretch:
-                            if (location == null)
-                            {
-                                rect.Width = finalSize.Width;
-                            }
-                            break;
-
-                        default:
-                            break;
-                    }
-
-                    switch (frameworkElement.VerticalAlignment)
-                    {
-                        case VerticalAlignment.Center:
-                            rect.Y = ((location == null ? finalSize.Height : 0) - rect.Height) / 2d;
-                            break;
-
-                        case VerticalAlignment.Bottom:
-                            rect.Y = (location == null ? finalSize.Height : 0) - rect.Height;
-                            break;
-
-                        case VerticalAlignment.Stretch:
-                            if (location == null)
-                            {
-                                rect.Height = finalSize.Height;
-                            }
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-
-                element.Arrange(rect);
             }
 
             return finalSize;
@@ -229,6 +195,76 @@ namespace MapControl
             else
             {
                 element.ClearValue(UIElement.RenderTransformProperty);
+            }
+        }
+
+        private static void AlignElementWithLocation(FrameworkElement element, ref Rect arrangeRect)
+        {
+            switch (element.HorizontalAlignment)
+            {
+                case HorizontalAlignment.Center:
+                    arrangeRect.X = -arrangeRect.Width / 2d;
+                    break;
+
+                case HorizontalAlignment.Right:
+                    arrangeRect.X = -arrangeRect.Width;
+                    break;
+
+                default:
+                    break;
+            }
+
+            switch (element.VerticalAlignment)
+            {
+                case VerticalAlignment.Center:
+                    arrangeRect.Y = -arrangeRect.Height / 2d;
+                    break;
+
+                case VerticalAlignment.Bottom:
+                    arrangeRect.Y = -arrangeRect.Height;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private static void AlignElementWithoutLocation(FrameworkElement element, Size panelSize, ref Rect arrangeRect)
+        {
+            switch (element.HorizontalAlignment)
+            {
+                case HorizontalAlignment.Center:
+                    arrangeRect.X = (panelSize.Width - arrangeRect.Width) / 2d;
+                    break;
+
+                case HorizontalAlignment.Right:
+                    arrangeRect.X = panelSize.Width - arrangeRect.Width;
+                    break;
+
+                case HorizontalAlignment.Stretch:
+                    arrangeRect.Width = panelSize.Width;
+                    break;
+
+                default:
+                    break;
+            }
+
+            switch (element.VerticalAlignment)
+            {
+                case VerticalAlignment.Center:
+                    arrangeRect.Y = (panelSize.Height - arrangeRect.Height) / 2d;
+                    break;
+
+                case VerticalAlignment.Bottom:
+                    arrangeRect.Y = panelSize.Height - arrangeRect.Height;
+                    break;
+
+                case VerticalAlignment.Stretch:
+                    arrangeRect.Height = panelSize.Height;
+                    break;
+
+                default:
+                    break;
             }
         }
     }
