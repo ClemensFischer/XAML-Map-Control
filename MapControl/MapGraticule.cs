@@ -2,7 +2,7 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINRT
+#if NETFX_CORE
 using Windows.UI.Xaml;
 #else
 using System.Windows;

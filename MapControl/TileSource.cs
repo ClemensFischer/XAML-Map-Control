@@ -5,7 +5,7 @@
 using System;
 using System.Globalization;
 using System.Text;
-#if WINRT
+#if NETFX_CORE
 using Windows.Foundation;
 #else
 using System.Windows;

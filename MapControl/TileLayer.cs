@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if WINRT
+#if NETFX_CORE
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
 #else
@@ -19,7 +19,7 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area with map tiles from a TileSource.
     /// </summary>
-#if WINRT
+#if NETFX_CORE
     [ContentProperty(Name = "TileSource")]
 #else
     [ContentProperty("TileSource")]

@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Linq;
-#if WINRT
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;

@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-#if WINRT
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;

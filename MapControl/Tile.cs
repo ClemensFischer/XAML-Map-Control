@@ -3,7 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINRT
+#if NETFX_CORE
 using Windows.UI.Xaml.Media.Animation;
 #else
 using System.Windows.Media.Animation;
