@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightApplication", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightApplication.Web", "SampleApps\SilverlightApplication.Web\SilverlightApplication.Web.csproj", "{177C4EF8-0B0A-426E-BDCC-168DC10AC1C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplication", "SampleApps\WpfApplication\WpfApplication.csproj", "{CCBCDAE5-E68F-43A8-930A-0749E476D29D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.WPF", "MapControl\MapControl.WPF.csproj", "{226F3575-B683-446D-A2F0-181291DC8787}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.Silverlight", "MapControl\MapControl.Silverlight.csproj", "{EB133B78-DEFF-416A-8F0C-89E54D766576}"
@@ -20,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreApplication", "SampleApps\StoreApplication\StoreApplication.csproj", "{747A3F84-E11F-4EC8-9463-98BBB1E0D0A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.WinRT", "MapControl\WinRT\MapControl.WinRT.csproj", "{63CEFDF7-5170-43B6-86F8-5C4A383A1615}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplication", "SampleApps\WpfApplication\WpfApplication.csproj", "{9949326E-9261-4F95-89B1-151F60498951}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,20 +105,6 @@ Global
 		{177C4EF8-0B0A-426E-BDCC-168DC10AC1C1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{177C4EF8-0B0A-426E-BDCC-168DC10AC1C1}.Release|x64.ActiveCfg = Release|Any CPU
 		{177C4EF8-0B0A-426E-BDCC-168DC10AC1C1}.Release|x86.ActiveCfg = Release|Any CPU
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Debug|ARM.ActiveCfg = Debug|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Debug|x64.ActiveCfg = Debug|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Debug|x86.ActiveCfg = Debug|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Debug|x86.Build.0 = Debug|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|Any CPU.ActiveCfg = Release|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|ARM.ActiveCfg = Release|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|Mixed Platforms.Build.0 = Release|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|x64.ActiveCfg = Release|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|x86.ActiveCfg = Release|x86
-		{CCBCDAE5-E68F-43A8-930A-0749E476D29D}.Release|x86.Build.0 = Release|x86
 		{226F3575-B683-446D-A2F0-181291DC8787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{226F3575-B683-446D-A2F0-181291DC8787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{226F3575-B683-446D-A2F0-181291DC8787}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -197,6 +183,20 @@ Global
 		{63CEFDF7-5170-43B6-86F8-5C4A383A1615}.Release|x64.Build.0 = Release|x64
 		{63CEFDF7-5170-43B6-86F8-5C4A383A1615}.Release|x86.ActiveCfg = Release|x86
 		{63CEFDF7-5170-43B6-86F8-5C4A383A1615}.Release|x86.Build.0 = Release|x86
+		{9949326E-9261-4F95-89B1-151F60498951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Release|ARM.ActiveCfg = Release|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Release|x64.ActiveCfg = Release|Any CPU
+		{9949326E-9261-4F95-89B1-151F60498951}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
