@@ -136,24 +136,17 @@ namespace MapControl
 
                             label.Measure(measureSize);
 
-                            var translateTransform = new TranslateTransform
-                            {
-                                X = StrokeThickness / 2d + 2d,
-                                Y = -label.DesiredSize.Height / 2d
-                            };
+                            var transformGroup = (TransformGroup)label.RenderTransform;
 
-                            var transform = (TransformGroup)label.RenderTransform;
+                            if (transformGroup.Children.Count == 0)
+                            {
+                                transformGroup.Children.Add(new TranslateTransform());
+                                transformGroup.Children.Add(parentMap.RotateTransform);
+                            }
 
-                            if (transform.Children.Count == 0)
-                            {
-                                transform.Children.Add(translateTransform);
-                                transform.Children.Add(parentMap.RotateTransform);
-                            }
-                            else
-                            {
-                                transform.Children[0] = translateTransform;
-                                transform.Children[1] = parentMap.RotateTransform;
-                            }
+                            var translateTransform = (TranslateTransform)transformGroup.Children[0];
+                            translateTransform.X = StrokeThickness / 2d + 2d;
+                            translateTransform.Y = -label.DesiredSize.Height / 2d;
 
                             MapPanel.SetLocation(label, location);
                         }

@@ -148,7 +148,7 @@ namespace MapControl
 
         private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
         {
-            Point? viewportPosition = null;
+            Point viewportPosition = new Point();
 
             if (parentMap != null && location != null)
             {
@@ -160,42 +160,38 @@ namespace MapControl
                 element.ClearValue(ViewportPositionProperty);
             }
 
+            TranslateTransform translateTransform;
             var transformGroup = element.RenderTransform as TransformGroup;
 
             if (transformGroup != null)
             {
-                var transform = new TranslateTransform();
+                var last = transformGroup.Children.Count - 1;
 
-                if (viewportPosition.HasValue)
+                if (last >= 0 && transformGroup.Children[last] is TranslateTransform)
                 {
-                    transform.X = viewportPosition.Value.X;
-                    transform.Y = viewportPosition.Value.Y;
-                }
-
-                var transformIndex = transformGroup.Children.Count - 1;
-
-                if (transformIndex >= 0 &&
-                    transformGroup.Children[transformIndex] is TranslateTransform)
-                {
-                    transformGroup.Children[transformIndex] = transform;
+                    translateTransform = (TranslateTransform)transformGroup.Children[last];
                 }
                 else
                 {
-                    transformGroup.Children.Add(transform);
+                    translateTransform = new TranslateTransform();
+                    transformGroup.Children.Add(translateTransform);
                 }
-            }
-            else if (viewportPosition.HasValue)
-            {
-                element.RenderTransform = new TranslateTransform
-                {
-                    X = viewportPosition.Value.X,
-                    Y = viewportPosition.Value.Y
-                };
             }
             else
             {
-                element.ClearValue(UIElement.RenderTransformProperty);
+                if (element.RenderTransform is TranslateTransform)
+                {
+                    translateTransform = (TranslateTransform)element.RenderTransform;
+                }
+                else
+                {
+                    translateTransform = new TranslateTransform();
+                    element.RenderTransform = translateTransform;
+                }
             }
+
+            translateTransform.X = viewportPosition.X;
+            translateTransform.Y = viewportPosition.Y;
         }
 
         private static void AlignElementWithLocation(FrameworkElement element, ref Rect arrangeRect)
