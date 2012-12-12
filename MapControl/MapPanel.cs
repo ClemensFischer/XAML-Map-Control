@@ -148,7 +148,7 @@ namespace MapControl
 
         private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
         {
-            Point viewportPosition = new Point();
+            Point viewportPosition;
 
             if (parentMap != null && location != null)
             {
@@ -157,36 +157,33 @@ namespace MapControl
             }
             else
             {
+                viewportPosition = new Point();
                 element.ClearValue(ViewportPositionProperty);
             }
 
-            TranslateTransform translateTransform;
-            var transformGroup = element.RenderTransform as TransformGroup;
+            var translateTransform = element.RenderTransform as TranslateTransform;
 
-            if (transformGroup != null)
+            if (translateTransform == null)
             {
-                var last = transformGroup.Children.Count - 1;
+                var transformGroup = element.RenderTransform as TransformGroup;
 
-                if (last >= 0 && transformGroup.Children[last] is TranslateTransform)
-                {
-                    translateTransform = (TranslateTransform)transformGroup.Children[last];
-                }
-                else
-                {
-                    translateTransform = new TranslateTransform();
-                    transformGroup.Children.Add(translateTransform);
-                }
-            }
-            else
-            {
-                if (element.RenderTransform is TranslateTransform)
-                {
-                    translateTransform = (TranslateTransform)element.RenderTransform;
-                }
-                else
+                if (transformGroup == null)
                 {
                     translateTransform = new TranslateTransform();
                     element.RenderTransform = translateTransform;
+                }
+                else
+                {
+                    if (transformGroup.Children.Count > 0)
+                    {
+                        translateTransform = transformGroup.Children[transformGroup.Children.Count - 1] as TranslateTransform;
+                    }
+
+                    if (translateTransform == null)
+                    {
+                        translateTransform = new TranslateTransform();
+                        transformGroup.Children.Add(translateTransform);
+                    }
                 }
             }
 

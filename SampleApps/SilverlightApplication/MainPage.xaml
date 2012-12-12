@@ -104,7 +104,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <map:Map x:Name="map" Center="53.5,8.2" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
-                 MouseMove="MapMouseMove" MouseLeave="MapMouseLeave" Margin="0,-3,0,3">
+                 MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
             <map:MapGraticule Opacity="0.6"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
