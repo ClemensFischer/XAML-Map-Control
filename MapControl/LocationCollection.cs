@@ -19,7 +19,7 @@ namespace MapControl
 
         public LocationCollection(IEnumerable<Location> locations)
         {
-            foreach (Location location in locations)
+            foreach (var location in locations)
             {
                 Add(location);
             }

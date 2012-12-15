@@ -3,6 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Linq;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 #if NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -16,21 +18,21 @@ namespace MapControl
     public partial class MapPolyline : IMapElement
     {
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            "Locations", typeof(LocationCollection), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).UpdateGeometry()));
+            "Locations", typeof(IEnumerable<Location>), typeof(MapPolyline),
+            new PropertyMetadata(null, LocationsPropertyChanged));
 
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
             new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateGeometry()));
 
-        protected PathGeometry Geometry = new PathGeometry();
+        protected readonly PathGeometry Geometry = new PathGeometry();
 
         /// <summary>
         /// Gets or sets the locations that define the polyline points.
         /// </summary>
-        public LocationCollection Locations
+        public IEnumerable<Location> Locations
         {
-            get { return (LocationCollection)GetValue(LocationsProperty); }
+            get { return (IEnumerable<Location>)GetValue(LocationsProperty); }
             set { SetValue(LocationsProperty, value); }
         }
 
@@ -43,40 +45,71 @@ namespace MapControl
             set { SetValue(IsClosedProperty, value); }
         }
 
-        protected virtual void UpdateGeometry()
+        private void UpdateGeometry()
         {
             var parentMap = MapPanel.GetParentMap(this);
             var locations = Locations;
+            Location first;
 
-            if (parentMap != null && locations != null && locations.Count > 0)
+            Geometry.Figures.Clear();
+
+            if (parentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
             {
                 var figure = new PathFigure
                 {
-                    StartPoint = parentMap.MapTransform.Transform(locations[0]),
+                    StartPoint = parentMap.MapTransform.Transform(first),
                     IsClosed = IsClosed,
                     IsFilled = IsClosed
                 };
 
-                if (locations.Count > 1)
+                var segment = new PolyLineSegment();
+
+                foreach (var location in locations.Skip(1))
                 {
-                    var segment = new PolyLineSegment();
+                    segment.Points.Add(parentMap.MapTransform.Transform(location));
+                }
 
-                    foreach (Location location in locations.Skip(1))
-                    {
-                        segment.Points.Add(parentMap.MapTransform.Transform(location));
-                    }
-
+                if (segment.Points.Count > 0)
+                {
                     figure.Segments.Add(segment);
                 }
 
                 Geometry.Figures.Add(figure);
                 Geometry.Transform = parentMap.ViewportTransform;
             }
+            else
+            {
+                Geometry.Transform = null;
+            }
         }
 
         void IMapElement.ParentMapChanged(MapBase oldParentMap, MapBase newParentMap)
         {
             UpdateGeometry();
+        }
+
+        private void LocationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateGeometry();
+        }
+
+        private static void LocationsPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            var mapPolyline = (MapPolyline)obj;
+            var oldNotifyCollectionChanged = e.OldValue as INotifyCollectionChanged;
+            var newNotifyCollectionChanged = e.NewValue as INotifyCollectionChanged;
+
+            if (oldNotifyCollectionChanged != null)
+            {
+                oldNotifyCollectionChanged.CollectionChanged -= mapPolyline.LocationCollectionChanged;
+            }
+
+            if (newNotifyCollectionChanged != null)
+            {
+                newNotifyCollectionChanged.CollectionChanged += mapPolyline.LocationCollectionChanged;
+            }
+
+            mapPolyline.UpdateGeometry();
         }
     }
 }

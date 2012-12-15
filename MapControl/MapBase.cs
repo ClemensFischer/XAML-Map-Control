@@ -575,16 +575,16 @@ namespace MapControl
                 Location.NormalizeLongitude(location.Longitude));
         }
 
-        private bool CoerceCenterProperty(DependencyProperty property, ref Location value)
+        private bool CoerceCenterProperty(DependencyProperty property, ref Location center)
         {
-            Location coercedValue = CoerceLocation(value);
+            Location coercedValue = CoerceLocation(center);
 
-            if (!coercedValue.Equals(value))
+            if (!coercedValue.Equals(center))
             {
                 SetProperty(property, coercedValue);
             }
 
-            return coercedValue != value;
+            return coercedValue != center;
         }
 
         private void CenterPropertyChanged(Location center)
@@ -672,7 +672,7 @@ namespace MapControl
 
         private void MaxZoomLevelPropertyChanged(double maxZoomLevel)
         {
-            var coercedValue = Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), 20d);
+            var coercedValue = Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), 22d);
 
             if (coercedValue != maxZoomLevel)
             {
@@ -684,21 +684,21 @@ namespace MapControl
             }
         }
 
-        private double CoerceZoomLevel(double value)
+        private double CoerceZoomLevel(double zoomLevel)
         {
-            return Math.Min(Math.Max(value, MinZoomLevel), MaxZoomLevel);
+            return Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
         }
 
-        private bool CoerceZoomLevelProperty(DependencyProperty property, ref double value)
+        private bool CoerceZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
         {
-            var coercedValue = CoerceZoomLevel(value);
+            var coercedValue = CoerceZoomLevel(zoomLevel);
 
-            if (coercedValue != value)
+            if (coercedValue != zoomLevel)
             {
                 SetProperty(property, coercedValue);
             }
 
-            return coercedValue != value;
+            return coercedValue != zoomLevel;
         }
 
         private void ZoomLevelPropertyChanged(double zoomLevel)
@@ -752,21 +752,21 @@ namespace MapControl
             }
         }
 
-        private double CoerceHeading(double value)
+        private double CoerceHeading(double heading)
         {
-            return (value >= -180d && value <= 360d) ? value : ((value + 360d) % 360d);
+            return (heading >= -180d && heading <= 360d) ? heading : ((heading + 360d) % 360d);
         }
 
-        private bool CoerceHeadingProperty(DependencyProperty property, ref double value)
+        private bool CoerceHeadingProperty(DependencyProperty property, ref double heading)
         {
-            var coercedValue = CoerceHeading(value);
+            var coercedValue = CoerceHeading(heading);
 
-            if (coercedValue != value)
+            if (coercedValue != heading)
             {
                 SetProperty(property, coercedValue);
             }
 
-            return coercedValue != value;
+            return coercedValue != heading;
         }
 
         private void HeadingPropertyChanged(double heading)
