@@ -96,17 +96,17 @@ namespace MapControl
         private static void LocationsPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             var mapPolyline = (MapPolyline)obj;
-            var oldNotifyCollectionChanged = e.OldValue as INotifyCollectionChanged;
-            var newNotifyCollectionChanged = e.NewValue as INotifyCollectionChanged;
+            var oldCollection = e.OldValue as INotifyCollectionChanged;
+            var newCollection = e.NewValue as INotifyCollectionChanged;
 
-            if (oldNotifyCollectionChanged != null)
+            if (oldCollection != null)
             {
-                oldNotifyCollectionChanged.CollectionChanged -= mapPolyline.LocationCollectionChanged;
+                oldCollection.CollectionChanged -= mapPolyline.LocationCollectionChanged;
             }
 
-            if (newNotifyCollectionChanged != null)
+            if (newCollection != null)
             {
-                newNotifyCollectionChanged.CollectionChanged += mapPolyline.LocationCollectionChanged;
+                newCollection.CollectionChanged += mapPolyline.LocationCollectionChanged;
             }
 
             mapPolyline.UpdateGeometry();
