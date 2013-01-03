@@ -5,31 +5,31 @@
 using System;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace MapControl
 {
-    internal partial class Tile
+    public partial class Tile
     {
         public readonly ImageBrush Brush = new ImageBrush { Opacity = 0d };
 
         public ImageSource ImageSource
         {
             get { return Brush.ImageSource; }
-            private set { Brush.ImageSource = value; }
         }
 
-        public void SetImageSource(ImageSource source, bool animateOpacity)
+        public void SetImageSource(ImageSource image, bool animateOpacity)
         {
-            if (ImageSource == null)
+            if (Brush.ImageSource == null)
             {
                 if (animateOpacity)
                 {
-                    var bitmap = source as BitmapImage;
+                    var bitmapImage = image as BitmapImage;
 
-                    if (bitmap != null && bitmap.IsDownloading)
+                    if (bitmapImage != null && bitmapImage.IsDownloading)
                     {
-                        bitmap.DownloadCompleted += BitmapDownloadCompleted;
-                        bitmap.DownloadFailed += BitmapDownloadFailed;
+                        bitmapImage.DownloadCompleted += BitmapDownloadCompleted;
+                        bitmapImage.DownloadFailed += BitmapDownloadFailed;
                     }
                     else
                     {
@@ -42,7 +42,7 @@ namespace MapControl
                 }
             }
 
-            ImageSource = source;
+            Brush.ImageSource = image;
         }
 
         private void BitmapDownloadCompleted(object sender, EventArgs e)
@@ -56,7 +56,7 @@ namespace MapControl
         {
             ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
             ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
-            ImageSource = null;
+            Brush.ImageSource = null;
         }
     }
 }

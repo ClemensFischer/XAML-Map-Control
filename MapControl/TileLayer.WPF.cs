@@ -15,12 +15,12 @@ namespace MapControl
             VisualEdgeMode = EdgeMode.Aliased;
         }
 
-        private ContainerVisual TileContainer
+        protected ContainerVisual TileContainer
         {
             get { return Parent as ContainerVisual; }
         }
 
-        private void RenderTiles()
+        protected void RenderTiles()
         {
             //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
 

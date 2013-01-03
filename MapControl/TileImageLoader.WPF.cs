@@ -87,16 +87,31 @@ namespace MapControl
             var newTiles = (List<Tile>)newTilesList;
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
 
-            if (imageTileSource == null)
+            if (imageTileSource != null)
             {
-                if (Cache == null || string.IsNullOrWhiteSpace(tileLayer.SourceName))
+                if (imageTileSource.CanLoadAsync)
                 {
                     foreach (var tile in newTiles)
                     {
-                        pendingTiles.Enqueue(tile);
+                        tileLayer.Dispatcher.BeginInvoke(
+                            (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, true)),
+                            DispatcherPriority.Background, tile,
+                            imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel));
                     }
                 }
                 else
+                {
+                    foreach (var tile in newTiles)
+                    {
+                        tileLayer.Dispatcher.BeginInvoke(
+                            (Action<Tile, ImageTileSource>)((t, i) => t.SetImageSource(i.LoadImage(t.XIndex, t.Y, t.ZoomLevel), true)),
+                            DispatcherPriority.Background, tile, imageTileSource);
+                    }
+                }
+            }
+            else
+            {
+                if (Cache != null && !string.IsNullOrWhiteSpace(tileLayer.SourceName))
                 {
                     var outdatedTiles = new List<Tile>(newTiles.Count);
 
@@ -127,32 +142,19 @@ namespace MapControl
                         pendingTiles.Enqueue(tile);
                     }
                 }
+                else
+                {
+                    foreach (var tile in newTiles)
+                    {
+                        pendingTiles.Enqueue(tile);
+                    }
+                }
 
                 while (downloadThreadCount < Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads))
                 {
                     Interlocked.Increment(ref downloadThreadCount);
 
                     ThreadPool.QueueUserWorkItem(DownloadTiles);
-                }
-            }
-            else if (imageTileSource.CanLoadAsync)
-            {
-                foreach (var tile in newTiles)
-                {
-                    tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile, ImageSource>)((t, s) => t.SetImageSource(s, true)),
-                        DispatcherPriority.Background,
-                        tile, imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel));
-                }
-            }
-            else
-            {
-                foreach (var tile in newTiles)
-                {
-                    tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile>)(t => t.SetImageSource(imageTileSource.LoadImage(t.XIndex, t.Y, t.ZoomLevel), true)),
-                        DispatcherPriority.Background,
-                        tile);
                 }
             }
         }
@@ -181,17 +183,17 @@ namespace MapControl
 
         private bool CreateTileImage(Tile tile, byte[] buffer)
         {
-            var bitmap = new BitmapImage();
+            var image = new BitmapImage();
 
             try
             {
                 using (var stream = new MemoryStream(buffer, 8, buffer.Length - 8, false))
                 {
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.StreamSource = stream;
-                    bitmap.EndInit();
-                    bitmap.Freeze();
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.StreamSource = stream;
+                    image.EndInit();
+                    image.Freeze();
                 }
             }
             catch (Exception ex)
@@ -201,9 +203,8 @@ namespace MapControl
             }
 
             tileLayer.Dispatcher.BeginInvoke(
-                (Action<Tile>)(t => t.SetImageSource(bitmap, true)),
-                DispatcherPriority.Background,
-                tile);
+                (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, true)),
+                DispatcherPriority.Background, tile, image);
 
             return true;
         }

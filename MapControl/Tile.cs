@@ -11,7 +11,7 @@ using System.Windows.Media.Animation;
 
 namespace MapControl
 {
-    internal partial class Tile
+    public partial class Tile
     {
         public readonly int ZoomLevel;
         public readonly int X;
@@ -35,7 +35,7 @@ namespace MapControl
             }
         }
 
-        DoubleAnimation OpacityAnimation
+        public DoubleAnimation OpacityAnimation
         {
             get
             {

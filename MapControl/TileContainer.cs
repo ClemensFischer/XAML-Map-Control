@@ -54,7 +54,7 @@ namespace MapControl
                 }
 
                 index++;
-                tileLayer.TransformMatrix = tileLayerTransform;
+                tileLayer.SetTransformMatrix(tileLayerTransform);
                 tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
             }
         }
@@ -98,15 +98,15 @@ namespace MapControl
 
             ViewportTransform.Matrix = GetTransformMatrix(new Matrix(1d, 0d, 0d, -1d, 180d, 180d), scale);
 
-            var tileLayerTransform = GetTileLayerTransformMatrix();
-
-            foreach (TileLayer tileLayer in Children)
-            {
-                tileLayer.TransformMatrix = tileLayerTransform;
-            }
-
             if (Math.Sign(mapOrigin.X) == Math.Sign(oldMapOriginX))
             {
+                var tileLayerTransform = GetTileLayerTransformMatrix();
+
+                foreach (TileLayer tileLayer in Children)
+                {
+                    tileLayer.SetTransformMatrix(tileLayerTransform);
+                }
+
                 updateTimer.Start();
             }
             else
@@ -162,7 +162,7 @@ namespace MapControl
 
                 foreach (TileLayer tileLayer in Children)
                 {
-                    tileLayer.TransformMatrix = tileLayerTransform;
+                    tileLayer.SetTransformMatrix(tileLayerTransform);
                     tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
                 }
             }

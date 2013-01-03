@@ -17,28 +17,27 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
-    internal partial class Tile
+    public partial class Tile
     {
         public readonly Image Image = new Image { Stretch = Stretch.Uniform, Opacity = 0d };
 
         public ImageSource ImageSource
         {
             get { return Image.Source; }
-            private set { Image.Source = value; }
         }
 
-        public void SetImageSource(ImageSource source, bool animateOpacity)
+        public void SetImageSource(ImageSource image, bool animateOpacity)
         {
-            if (ImageSource == null)
+            if (Image.Source == null)
             {
                 if (animateOpacity)
                 {
-                    var bitmap = source as BitmapImage;
+                    var bitmapImage = image as BitmapImage;
 
-                    if (bitmap != null) // TODO Check if bitmap is downloading somehow, maybe PixelWidth == 0?
+                    if (bitmapImage != null)
                     {
-                        bitmap.ImageOpened += BitmapImageOpened;
-                        bitmap.ImageFailed += BitmapImageFailed;
+                        bitmapImage.ImageOpened += BitmapImageOpened;
+                        bitmapImage.ImageFailed += BitmapImageFailed;
                     }
                     else
                     {
@@ -51,7 +50,7 @@ namespace MapControl
                 }
             }
 
-            ImageSource = source;
+            Image.Source = image;
         }
 
         private void BitmapImageOpened(object sender, RoutedEventArgs e)
@@ -65,7 +64,7 @@ namespace MapControl
         {
             ((BitmapImage)sender).ImageOpened -= BitmapImageOpened;
             ((BitmapImage)sender).ImageFailed -= BitmapImageFailed;
-            ImageSource = null;
+            Image.Source = null;
         }
     }
 }

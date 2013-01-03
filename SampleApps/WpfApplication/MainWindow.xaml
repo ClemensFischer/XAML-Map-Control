@@ -24,7 +24,7 @@
             <!--<map:TileLayer SourceName="Google Maps" Description="Google Maps - © {y} Google"
                            TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
             <map:TileLayer SourceName="Google Images" Description="Google Maps - © {y} Google"
-                           TileSource="http://khm{i}.google.com/kh/v=119&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20" HasDarkBackground="True"/>
+                           TileSource="http://khm{i}.google.com/kh/v=123&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20" HasDarkBackground="True"/>
             <map:TileLayer SourceName="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
                            TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h" MaxZoomLevel="20"/>
             <map:TileLayer SourceName="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation"
@@ -35,9 +35,7 @@
             <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
 
             <!--<map:TileLayer SourceName="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
-                <map:TileLayer.TileSource>
-                    <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
-                </map:TileLayer.TileSource>
+                <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
             </map:TileLayer>-->
         </map:TileLayerCollection>
         <CollectionViewSource x:Key="TileLayersView" Source="{StaticResource TileLayers}"/>
@@ -149,7 +147,7 @@
         </Grid.RowDefinitions>
         <map:Map Name="map" IsManipulationEnabled="True" Margin="2"
                  LightForeground="Black" LightBackground="White" DarkForeground="White" DarkBackground="#FF3F3F3F"
-                 Center="53.5,8.2" ZoomLevel="11"
+                 Center="53.5,8.2" ZoomLevel="11" MaxZoomLevel="20"
                  TileLayer="{Binding Source={StaticResource TileLayersView}, Path=CurrentItem}"
                  MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"

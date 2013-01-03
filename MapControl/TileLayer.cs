@@ -76,13 +76,12 @@ namespace MapControl
             set { TileSource = new TileSource(value); }
         }
 
-        internal Matrix TransformMatrix
+        internal void SetTransformMatrix(Matrix transformMatrix)
         {
-            get { return transform.Matrix; }
-            set { transform.Matrix = value; }
+            transform.Matrix = transformMatrix;
         }
 
-        internal void UpdateTiles(int zoomLevel, Int32Rect grid)
+        protected internal virtual void UpdateTiles(int zoomLevel, Int32Rect grid)
         {
             this.grid = grid;
             this.zoomLevel = zoomLevel;
@@ -97,14 +96,14 @@ namespace MapControl
             }
         }
 
-        internal void ClearTiles()
+        protected internal virtual void ClearTiles()
         {
             tileImageLoader.CancelGetTiles();
             tiles.Clear();
             RenderTiles();
         }
 
-        private void SelectTiles()
+        protected void SelectTiles()
         {
             var maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
             var minZoomLevel = maxZoomLevel;
@@ -151,6 +150,5 @@ namespace MapControl
 
             tiles = newTiles;
         }
-
     }
 }
