@@ -2,6 +2,7 @@
 // Copyright © 2012 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -17,10 +18,6 @@ namespace MapControl
 {
     public partial class MapPolyline : IMapElement
     {
-        public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            "Locations", typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, LocationsPropertyChanged));
-
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
             new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateGeometry()));
