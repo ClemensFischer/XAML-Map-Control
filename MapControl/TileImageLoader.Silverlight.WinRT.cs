@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2012 Clemens Fischer
+// Copyright © 2013 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
@@ -26,10 +26,11 @@ namespace MapControl
 
         internal void BeginGetTiles(IEnumerable<Tile> tiles)
         {
-            foreach (var tile in tiles.Where(t => t.ImageSource == null && t.Uri == null))
+            foreach (var tile in tiles.Where(t => !t.HasImage))
             {
-                tile.Uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-                tile.SetImageSource(new BitmapImage(tile.Uri), true);
+                var uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+
+                tile.SetImageSource(new BitmapImage(uri), true);
             }
         }
 

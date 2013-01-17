@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2012 Clemens Fischer
+// Copyright © 2013 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -51,7 +51,7 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            foreach (UIElement element in Children)
+            foreach (UIElement element in InternalChildren)
             {
                 element.Measure(availableSize);
             }
@@ -63,7 +63,7 @@ namespace MapControl
         {
             var parentMap = GetParentMap(this);
 
-            foreach (UIElement element in Children)
+            foreach (UIElement element in InternalChildren)
             {
                 var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
                 var location = GetLocation(element);
@@ -96,7 +96,7 @@ namespace MapControl
         {
             var parentMap = GetParentMap(this);
 
-            foreach (UIElement element in Children)
+            foreach (UIElement element in InternalChildren)
             {
                 var location = GetLocation(element);
 

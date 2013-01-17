@@ -33,10 +33,13 @@
                            TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>-->
 
             <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
-
             <!--<map:TileLayer SourceName="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
                 <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
             </map:TileLayer>-->
+
+            <!-- The TileLayer below demonstrates how to access local tile image files (from ImageFileCache here) -->
+            <!--<map:TileLayer SourceName="OSM Local Files" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
+                           TileSource="file://C:/ProgramData/MapControl/TileCache/OpenStreetMap/{z}/{x}/{y}.png"/>-->
         </map:TileLayerCollection>
         <CollectionViewSource x:Key="TileLayersView" Source="{StaticResource TileLayers}"/>
         <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>

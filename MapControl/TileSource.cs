@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2012 Clemens Fischer
+// Copyright © 2013 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -92,35 +92,44 @@ namespace MapControl
 
         private Uri GetOpenStreetMapUri(int x, int y, int zoomLevel)
         {
-            hostIndex = (hostIndex + 1) % 3;
+            lock (getUri) // protect hostIndex
+            {
+                hostIndex = (hostIndex + 1) % 3;
 
-            return new Uri(UriFormat.
-                Replace("{c}", "abc".Substring(hostIndex, 1)).
-                Replace("{x}", x.ToString()).
-                Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                return new Uri(UriFormat.
+                    Replace("{c}", "abc".Substring(hostIndex, 1)).
+                    Replace("{x}", x.ToString()).
+                    Replace("{y}", y.ToString()).
+                    Replace("{z}", zoomLevel.ToString()));
+            }
         }
 
         private Uri GetGoogleMapsUri(int x, int y, int zoomLevel)
         {
-            hostIndex = (hostIndex + 1) % 4;
+            lock (getUri) // protect hostIndex
+            {
+                hostIndex = (hostIndex + 1) % 4;
 
-            return new Uri(UriFormat.
-                Replace("{i}", hostIndex.ToString()).
-                Replace("{x}", x.ToString()).
-                Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                return new Uri(UriFormat.
+                    Replace("{i}", hostIndex.ToString()).
+                    Replace("{x}", x.ToString()).
+                    Replace("{y}", y.ToString()).
+                    Replace("{z}", zoomLevel.ToString()));
+            }
         }
 
         private Uri GetMapQuestUri(int x, int y, int zoomLevel)
         {
-            hostIndex = (hostIndex % 4) + 1;
+            lock (getUri) // protect hostIndex
+            {
+                hostIndex = (hostIndex % 4) + 1;
 
-            return new Uri(UriFormat.
-                Replace("{n}", hostIndex.ToString()).
-                Replace("{x}", x.ToString()).
-                Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                return new Uri(UriFormat.
+                    Replace("{n}", hostIndex.ToString()).
+                    Replace("{x}", x.ToString()).
+                    Replace("{y}", y.ToString()).
+                    Replace("{z}", zoomLevel.ToString()));
+            }
         }
 
         private Uri GetQuadKeyUri(int x, int y, int zoomLevel)
