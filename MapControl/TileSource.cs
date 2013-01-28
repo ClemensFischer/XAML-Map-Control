@@ -41,45 +41,47 @@ namespace MapControl
                     throw new ArgumentException("The value of the UriFormat property must not be null or empty or white-space only.");
                 }
 
-                if (value.Contains("{x}") && value.Contains("{y}") && value.Contains("{z}"))
-                {
-                    if (value.Contains("{c}"))
-                    {
-                        getUri = GetOpenStreetMapUri;
-                    }
-                    else if (value.Contains("{i}"))
-                    {
-                        getUri = GetGoogleMapsUri;
-                    }
-                    else if (value.Contains("{n}"))
-                    {
-                        getUri = GetMapQuestUri;
-                    }
-                    else
-                    {
-                        getUri = GetDefaultUri;
-                    }
-                }
-                else if (value.Contains("{q}")) // {i} is optional
-                {
-                    getUri = GetQuadKeyUri;
-                }
-                else if (value.Contains("{w}") && value.Contains("{s}") && value.Contains("{e}") && value.Contains("{n}"))
-                {
-                    getUri = GetBoundingBoxUri;
-                }
-                else
-                {
-                    throw new ArgumentException("The specified UriFormat is not supported.");
-                }
-
                 uriFormat = value;
             }
         }
 
         public virtual Uri GetUri(int x, int y, int zoomLevel)
         {
-            return getUri != null ? getUri(x, y, zoomLevel) : null;
+            if (getUri == null)
+            {
+                SelectGetUriMethod();
+            }
+
+            return getUri(x, y, zoomLevel);
+        }
+
+        private void SelectGetUriMethod()
+        {
+            getUri = GetDefaultUri;
+
+            if (uriFormat.Contains("{x}") && uriFormat.Contains("{y}") && uriFormat.Contains("{z}"))
+            {
+                if (uriFormat.Contains("{c}"))
+                {
+                    getUri = GetOpenStreetMapUri;
+                }
+                else if (uriFormat.Contains("{i}"))
+                {
+                    getUri = GetGoogleMapsUri;
+                }
+                else if (uriFormat.Contains("{n}"))
+                {
+                    getUri = GetMapQuestUri;
+                }
+            }
+            else if (uriFormat.Contains("{q}")) // {i} is optional
+            {
+                getUri = GetQuadKeyUri;
+            }
+            else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
+            {
+                getUri = GetBoundingBoxUri;
+            }
         }
 
         private Uri GetDefaultUri(int x, int y, int zoomLevel)
