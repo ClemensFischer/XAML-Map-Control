@@ -42,46 +42,38 @@ namespace MapControl
                 }
 
                 uriFormat = value;
+
+                getUri = GetDefaultUri;
+
+                if (uriFormat.Contains("{x}") && uriFormat.Contains("{y}") && uriFormat.Contains("{z}"))
+                {
+                    if (uriFormat.Contains("{c}"))
+                    {
+                        getUri = GetOpenStreetMapUri;
+                    }
+                    else if (uriFormat.Contains("{i}"))
+                    {
+                        getUri = GetGoogleMapsUri;
+                    }
+                    else if (uriFormat.Contains("{n}"))
+                    {
+                        getUri = GetMapQuestUri;
+                    }
+                }
+                else if (uriFormat.Contains("{q}")) // {i} is optional
+                {
+                    getUri = GetQuadKeyUri;
+                }
+                else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
+                {
+                    getUri = GetBoundingBoxUri;
+                }
             }
         }
 
         public virtual Uri GetUri(int x, int y, int zoomLevel)
         {
-            if (getUri == null)
-            {
-                SelectGetUriMethod();
-            }
-
-            return getUri(x, y, zoomLevel);
-        }
-
-        private void SelectGetUriMethod()
-        {
-            getUri = GetDefaultUri;
-
-            if (uriFormat.Contains("{x}") && uriFormat.Contains("{y}") && uriFormat.Contains("{z}"))
-            {
-                if (uriFormat.Contains("{c}"))
-                {
-                    getUri = GetOpenStreetMapUri;
-                }
-                else if (uriFormat.Contains("{i}"))
-                {
-                    getUri = GetGoogleMapsUri;
-                }
-                else if (uriFormat.Contains("{n}"))
-                {
-                    getUri = GetMapQuestUri;
-                }
-            }
-            else if (uriFormat.Contains("{q}")) // {i} is optional
-            {
-                getUri = GetQuadKeyUri;
-            }
-            else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
-            {
-                getUri = GetBoundingBoxUri;
-            }
+            return getUri != null ? getUri(x, y, zoomLevel) : null;
         }
 
         private Uri GetDefaultUri(int x, int y, int zoomLevel)
@@ -94,44 +86,35 @@ namespace MapControl
 
         private Uri GetOpenStreetMapUri(int x, int y, int zoomLevel)
         {
-            lock (getUri) // protect hostIndex
-            {
-                hostIndex = (hostIndex + 1) % 3;
+            hostIndex = (hostIndex + 1) % 3;
 
-                return new Uri(UriFormat.
-                    Replace("{c}", "abc".Substring(hostIndex, 1)).
-                    Replace("{x}", x.ToString()).
-                    Replace("{y}", y.ToString()).
-                    Replace("{z}", zoomLevel.ToString()));
-            }
+            return new Uri(UriFormat.
+                Replace("{c}", "abc".Substring(hostIndex, 1)).
+                Replace("{x}", x.ToString()).
+                Replace("{y}", y.ToString()).
+                Replace("{z}", zoomLevel.ToString()));
         }
 
         private Uri GetGoogleMapsUri(int x, int y, int zoomLevel)
         {
-            lock (getUri) // protect hostIndex
-            {
-                hostIndex = (hostIndex + 1) % 4;
+            hostIndex = (hostIndex + 1) % 4;
 
-                return new Uri(UriFormat.
-                    Replace("{i}", hostIndex.ToString()).
-                    Replace("{x}", x.ToString()).
-                    Replace("{y}", y.ToString()).
-                    Replace("{z}", zoomLevel.ToString()));
-            }
+            return new Uri(UriFormat.
+                Replace("{i}", hostIndex.ToString()).
+                Replace("{x}", x.ToString()).
+                Replace("{y}", y.ToString()).
+                Replace("{z}", zoomLevel.ToString()));
         }
 
         private Uri GetMapQuestUri(int x, int y, int zoomLevel)
         {
-            lock (getUri) // protect hostIndex
-            {
-                hostIndex = (hostIndex % 4) + 1;
+            hostIndex = (hostIndex % 4) + 1;
 
-                return new Uri(UriFormat.
-                    Replace("{n}", hostIndex.ToString()).
-                    Replace("{x}", x.ToString()).
-                    Replace("{y}", y.ToString()).
-                    Replace("{z}", zoomLevel.ToString()));
-            }
+            return new Uri(UriFormat.
+                Replace("{n}", hostIndex.ToString()).
+                Replace("{x}", x.ToString()).
+                Replace("{y}", y.ToString()).
+                Replace("{z}", zoomLevel.ToString()));
         }
 
         private Uri GetQuadKeyUri(int x, int y, int zoomLevel)
