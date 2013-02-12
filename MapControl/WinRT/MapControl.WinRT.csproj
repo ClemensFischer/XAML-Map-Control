@@ -87,8 +87,8 @@
     <Compile Include="..\MapPolyline.cs">
       <Link>MapPolyline.cs</Link>
     </Compile>
-    <Compile Include="..\MapPolyline.WinRT.cs">
-      <Link>MapPolyline.WinRT.cs</Link>
+    <Compile Include="..\MapPolyline.Silverlight.WinRT.cs">
+      <Link>MapPolyline.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>

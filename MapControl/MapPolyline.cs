@@ -3,26 +3,32 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 #if NETFX_CORE
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Media;
 #endif
 
 namespace MapControl
 {
     public partial class MapPolyline : IMapElement
     {
+#if NETFX_CORE
+        // For WinRT, the Locations dependency property type is declared as object
+        // instead of IEnumerable. See http://stackoverflow.com/q/10544084/1136211
+        private static readonly Type LocationsPropertyType = typeof(object);
+#else
+        private static readonly Type LocationsPropertyType = typeof(IEnumerable<Location>);
+#endif
+        public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
+            "Locations", LocationsPropertyType, typeof(MapPolyline),
+            new PropertyMetadata(null, LocationsPropertyChanged));
+
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
             new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateGeometry()));
-
-        protected readonly PathGeometry Geometry = new PathGeometry();
 
         /// <summary>
         /// Gets or sets the locations that define the polyline points.
@@ -40,44 +46,6 @@ namespace MapControl
         {
             get { return (bool)GetValue(IsClosedProperty); }
             set { SetValue(IsClosedProperty, value); }
-        }
-
-        private void UpdateGeometry()
-        {
-            var parentMap = MapPanel.GetParentMap(this);
-            var locations = Locations;
-            Location first;
-
-            Geometry.Figures.Clear();
-
-            if (parentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
-            {
-                var figure = new PathFigure
-                {
-                    StartPoint = parentMap.MapTransform.Transform(first),
-                    IsClosed = IsClosed,
-                    IsFilled = IsClosed
-                };
-
-                var segment = new PolyLineSegment();
-
-                foreach (var location in locations.Skip(1))
-                {
-                    segment.Points.Add(parentMap.MapTransform.Transform(location));
-                }
-
-                if (segment.Points.Count > 0)
-                {
-                    figure.Segments.Add(segment);
-                }
-
-                Geometry.Figures.Add(figure);
-                Geometry.Transform = parentMap.ViewportTransform;
-            }
-            else
-            {
-                Geometry.Transform = null;
-            }
         }
 
         void IMapElement.ParentMapChanged(MapBase oldParentMap, MapBase newParentMap)
