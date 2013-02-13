@@ -575,7 +575,7 @@ namespace MapControl
                 Location.NormalizeLongitude(location.Longitude));
         }
 
-        private bool CoerceCenterProperty(DependencyProperty property, ref Location center)
+        private void CoerceCenterProperty(DependencyProperty property, ref Location center)
         {
             Location coercedValue = CoerceLocation(center);
 
@@ -583,8 +583,6 @@ namespace MapControl
             {
                 SetProperty(property, coercedValue);
             }
-
-            return coercedValue != center;
         }
 
         private void CenterPropertyChanged(Location center)
@@ -757,7 +755,7 @@ namespace MapControl
             return (heading >= -180d && heading <= 360d) ? heading : ((heading + 360d) % 360d);
         }
 
-        private bool CoerceHeadingProperty(DependencyProperty property, ref double heading)
+        private void CoerceHeadingProperty(DependencyProperty property, ref double heading)
         {
             var coercedValue = CoerceHeading(heading);
 
@@ -765,8 +763,6 @@ namespace MapControl
             {
                 SetProperty(property, coercedValue);
             }
-
-            return coercedValue != heading;
         }
 
         private void HeadingPropertyChanged(double heading)
