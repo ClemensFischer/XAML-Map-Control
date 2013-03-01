@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 #if NETFX_CORE
+using Windows.Foundation;
 using Windows.UI.Xaml;
 #else
 using System.Windows;
@@ -46,6 +47,16 @@ namespace MapControl
         {
             get { return (bool)GetValue(IsClosedProperty); }
             set { SetValue(IsClosedProperty, value); }
+        }
+
+        protected override Size MeasureOverride(Size constraint)
+        {
+            // Shape.MeasureOverride in WPF and WinRT sometimes return a Size with zero
+            // width or height, whereas Shape.MeasureOverride in Silverlight occasionally
+            // throws an ArgumentException, as it tries to create a Size from a negative
+            // width or height, apparently resulting from a transformed geometry in Path.Data.
+            // In either case it seems to be sufficient to simply return a non-zero size.
+            return new Size(1, 1);
         }
 
         void IMapElement.ParentMapChanged(MapBase oldParentMap, MapBase newParentMap)

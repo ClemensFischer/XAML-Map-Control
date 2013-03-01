@@ -4,7 +4,6 @@
 
 using System.Linq;
 #if NETFX_CORE
-using Windows.Foundation;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 #else
@@ -23,14 +22,6 @@ namespace MapControl
         {
             Data = Geometry;
             MapPanel.AddParentMapHandlers(this);
-        }
-
-        protected override Size MeasureOverride(Size constraint)
-        {
-            // The Silverlight Path.MeasureOverride occasionally tries to create a Size from
-            // a negative width or height, apparently resulting from a transformed geometry
-            // in Path.Data. It seems to be sufficient to always return a non-zero size.
-            return new Size(1, 1);
         }
 
         private void UpdateGeometry()
