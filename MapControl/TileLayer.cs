@@ -119,8 +119,8 @@ namespace MapControl
             for (var z = minZoomLevel; z <= maxZoomLevel; z++)
             {
                 var tileSize = 1 << (zoomLevel - z);
-                var x1 = grid.X / tileSize;
-                var x2 = (grid.X + grid.Width - 1) / tileSize;
+                var x1 = (int)Math.Floor((double)grid.X / (double)tileSize);
+                var x2 = (int)Math.Ceiling((double)(grid.X + grid.Width - 1) / (double)tileSize);
                 var y1 = Math.Max(0, grid.Y / tileSize);
                 var y2 = Math.Min((1 << z) - 1, (grid.Y + grid.Height - 1) / tileSize);
 
@@ -134,7 +134,8 @@ namespace MapControl
                         {
                             tile = new Tile(z, x, y);
 
-                            var equivalentTile = tiles.FirstOrDefault(t => t.ImageSource != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
+                            var equivalentTile = tiles.FirstOrDefault(
+                                t => t.ImageSource != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
 
                             if (equivalentTile != null)
                             {

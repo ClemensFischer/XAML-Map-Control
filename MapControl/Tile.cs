@@ -13,6 +13,8 @@ namespace MapControl
 {
     public partial class Tile
     {
+        public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.5);
+
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;
@@ -42,7 +44,7 @@ namespace MapControl
                 return new DoubleAnimation
                 {
                     To = 1d,
-                    Duration = TimeSpan.FromSeconds(0.5),
+                    Duration = AnimationDuration,
                     FillBehavior = FillBehavior.HoldEnd,
                 };
             }

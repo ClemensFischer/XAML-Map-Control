@@ -9,6 +9,8 @@ namespace MapControl
     /// </summary>
     public partial class Map : MapBase
     {
+        private const double MouseWheelDelta = 120;
+
         /// <summary>
         /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
         /// </summary>

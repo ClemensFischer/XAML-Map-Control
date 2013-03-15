@@ -29,7 +29,8 @@ namespace MapControl
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            ZoomMap(e.GetPosition(this), TargetZoomLevel + MouseWheelZoomChange * Math.Sign(e.Delta));
+            var zoomChange = MouseWheelZoomChange * (double)e.Delta / MouseWheelDelta;
+            ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomChange);
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

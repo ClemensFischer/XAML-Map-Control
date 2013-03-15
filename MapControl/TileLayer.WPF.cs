@@ -22,8 +22,6 @@ namespace MapControl
 
         protected void RenderTiles()
         {
-            //System.Diagnostics.Trace.TraceInformation("{0} Tiles: {1}", tiles.Count, string.Join(", ", tiles.Select(t => t.ZoomLevel.ToString())));
-
             using (var drawingContext = RenderOpen())
             {
                 foreach (var tile in tiles)
