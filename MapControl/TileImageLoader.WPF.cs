@@ -147,19 +147,20 @@ namespace MapControl
                 {
                     Interlocked.Increment(ref downloadThreadCount);
 
-                    ThreadPool.QueueUserWorkItem(LoadTiles);
+                    ThreadPool.QueueUserWorkItem(LoadTiles, imageTileSource);
                 }
             }
         }
 
-        private void LoadTiles(object o)
+        private void LoadTiles(object tileSource)
         {
+            var imageTileSource = (ImageTileSource)tileSource;
             Tile tile;
+
             while (pendingTiles.TryDequeue(out tile))
             {
                 byte[] buffer = null;
                 ImageSource image = null;
-                var imageTileSource = tileLayer.TileSource as ImageTileSource;
 
                 if (imageTileSource != null)
                 {
@@ -176,14 +177,17 @@ namespace MapControl
                 {
                     var uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-                    if (uri.Scheme != "http")
+                    if (uri != null)
                     {
-                        image = CreateImage(uri);
-                    }
-                    else
-                    {
-                        buffer = DownloadImage(uri);
-                        image = CreateImage(buffer);
+                        if (uri.Scheme == "http")
+                        {
+                            buffer = DownloadImage(uri);
+                            image = CreateImage(buffer);
+                        }
+                        else
+                        {
+                            image = CreateImage(uri);
+                        }
                     }
                 }
 
@@ -203,7 +207,7 @@ namespace MapControl
             Interlocked.Decrement(ref downloadThreadCount);
         }
 
-        private ImageSource CreateImage(Uri uri)
+        private static ImageSource CreateImage(Uri uri)
         {
             var image = new BitmapImage();
 
@@ -224,15 +228,15 @@ namespace MapControl
             return image;
         }
 
-        private ImageSource CreateImage(byte[] buffer)
+        private static ImageSource CreateImage(byte[] buffer)
         {
             BitmapImage image = null;
 
-            if (buffer != null && buffer.Length > 8)
+            if (buffer != null && buffer.Length > sizeof(long))
             {
                 try
                 {
-                    using (var stream = new MemoryStream(buffer, 8, buffer.Length - 8, false))
+                    using (var stream = new MemoryStream(buffer, sizeof(long), buffer.Length - sizeof(long), false))
                     {
                         image = new BitmapImage();
                         image.BeginInit();
@@ -264,12 +268,12 @@ namespace MapControl
                 using (var response = (HttpWebResponse)request.GetResponse())
                 using (var responseStream = response.GetResponseStream())
                 {
-                    var length = response.ContentLength;
                     var creationTime = DateTime.UtcNow.ToBinary();
+                    var length = (int)response.ContentLength;
 
-                    using (var memoryStream = length > 0 ? new MemoryStream((int)length + 8) : new MemoryStream())
+                    using (var memoryStream = length > 0 ? new MemoryStream(length + sizeof(long)) : new MemoryStream())
                     {
-                        memoryStream.Write(BitConverter.GetBytes(creationTime), 0, 8);
+                        memoryStream.Write(BitConverter.GetBytes(creationTime), 0, sizeof(long));
                         responseStream.CopyTo(memoryStream);
 
                         buffer = length > 0 ? memoryStream.GetBuffer() : memoryStream.ToArray();

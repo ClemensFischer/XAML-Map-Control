@@ -122,8 +122,20 @@
             <map:MapItemsControl ItemsSource="{StaticResource Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-            <!-- No TypeConverter (yet?) for string to Location
-            <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"/>-->
+            <Path Stroke="Blue" StrokeThickness="3">
+                <map:MapPanel.Location>
+                    <map:Location Latitude="53.5" Longitude="8.2"/>
+                </map:MapPanel.Location>
+                <Path.Data>
+                    <EllipseGeometry RadiusX="1000" RadiusY="1000" Transform="{Binding ScaleTransform, ElementName=map}"/>
+                </Path.Data>
+            </Path>
+
+            <map:Pushpin Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
+                <map:MapPanel.Location>
+                    <map:Location Latitude="53.5" Longitude="8.2"/>
+                </map:MapPanel.Location>
+            </map:Pushpin>
 
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4" FontSize="10"
                        Text="{Binding TileLayer.Description, ElementName=map}"/>

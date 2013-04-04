@@ -2,7 +2,6 @@
 // Copyright © 2013 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-
 #if NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -19,7 +18,7 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public readonly Image Image = new Image { Stretch = Stretch.Uniform, Opacity = 0d };
+        public readonly Image Image = new Image { IsHitTestVisible = false, Opacity = 0d };
 
         public ImageSource ImageSource
         {

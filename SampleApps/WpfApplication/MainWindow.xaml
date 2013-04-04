@@ -39,7 +39,7 @@
 
             <!-- The TileLayer below demonstrates how to access local tile image files (from ImageFileCache here) -->
             <!--<map:TileLayer SourceName="OSM Local Files" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
-                           TileSource="file://C:/ProgramData/MapControl/TileCache/OpenStreetMap/{z}/{x}/{y}.png"/>-->
+                           TileSource="file:///C:/ProgramData/MapControl/TileCache/OpenStreetMap/{z}/{x}/{y}.png"/>-->
         </map:TileLayerCollection>
         <CollectionViewSource x:Key="TileLayersView" Source="{StaticResource TileLayers}"/>
         <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
@@ -181,6 +181,12 @@
                     </MultiBinding>
                 </map:Pushpin.Visibility>
             </map:Pushpin>
+            
+            <Path map:MapPanel.Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Path.Data>
+                    <EllipseGeometry RadiusX="1852" RadiusY="1852" Transform="{Binding ScaleTransform, ElementName=map}"/>
+                </Path.Data>
+            </Path>
 
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4" FontSize="10"
                        Text="{Binding TileLayer.Description, ElementName=map}"/>

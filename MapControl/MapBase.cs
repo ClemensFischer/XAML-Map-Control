@@ -366,7 +366,7 @@ namespace MapControl
         {
             viewportOrigin.X = Math.Min(Math.Max(origin.X, 0d), RenderSize.Width);
             viewportOrigin.Y = Math.Min(Math.Max(origin.Y, 0d), RenderSize.Height);
-            transformOrigin = CoerceLocation(ViewportPointToLocation(viewportOrigin));
+            transformOrigin = ViewportPointToLocation(viewportOrigin);
         }
 
         /// <summary>
@@ -405,16 +405,27 @@ namespace MapControl
         /// </summary>
         public void TransformMap(Point origin, Point translation, double rotation, double scale)
         {
-            if (rotation != 0d || scale != 1d)
+            SetTransformOrigin(origin);
+
+            viewportOrigin.X += translation.X;
+            viewportOrigin.Y += translation.Y;
+
+            if (rotation != 0d)
             {
-                SetTransformOrigin(origin);
-                SetProperty(HeadingProperty, CoerceHeading(Heading + rotation));
-                SetProperty(ZoomLevelProperty, CoerceZoomLevel(ZoomLevel + Math.Log(scale, 2d)));
-                UpdateTransform();
+                var heading = (((Heading + rotation) % 360d) + 360d) % 360d;
+                InternalSetValue(HeadingProperty, heading);
+                InternalSetValue(TargetHeadingProperty, heading);
             }
 
+            if (scale != 1d)
+            {
+                var zoomLevel = Math.Min(Math.Max(ZoomLevel + Math.Log(scale, 2d), MinZoomLevel), MaxZoomLevel);
+                InternalSetValue(ZoomLevelProperty, zoomLevel);
+                InternalSetValue(TargetZoomLevelProperty, zoomLevel);
+            }
+
+            UpdateTransform();
             ResetTransformOrigin();
-            TranslateMap(translation);
         }
 
         /// <summary>
@@ -423,10 +434,10 @@ namespace MapControl
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
-            var targetZoomLebel = TargetZoomLevel;
+            var targetZoomLevel = TargetZoomLevel;
             TargetZoomLevel = zoomLevel;
 
-            if (TargetZoomLevel != targetZoomLebel) // TargetZoomLevel might be coerced
+            if (TargetZoomLevel != targetZoomLevel) // TargetZoomLevel might be coerced
             {
                 SetTransformOrigin(origin);
             }
@@ -561,27 +572,34 @@ namespace MapControl
             }
         }
 
-        private void SetProperty(DependencyProperty property, object value)
+        private void InternalSetValue(DependencyProperty property, object value)
         {
             internalPropertyChange = true;
             SetValue(property, value);
             internalPropertyChange = false;
         }
 
-        private Location CoerceLocation(Location location)
+        private bool CoerceLocation(Location location, double latitudeEpsilon = 0d)
         {
-            return new Location(
-                Math.Min(Math.Max(location.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude),
-                Location.NormalizeLongitude(location.Longitude));
+            var maxLatitude = mapTransform.MaxLatitude + latitudeEpsilon;
+            var latitude = Math.Min(Math.Max(location.Latitude, -maxLatitude), maxLatitude);
+            var longitude = Location.NormalizeLongitude(location.Longitude);
+
+            if (location.Latitude != latitude || location.Longitude != longitude)
+            {
+                location.Latitude = latitude;
+                location.Longitude = longitude;
+                return true;
+            }
+
+            return false;
         }
 
-        private void CoerceCenterProperty(DependencyProperty property, ref Location center)
+        private void CoerceCenterProperty(DependencyProperty property, Location center)
         {
-            Location coercedValue = CoerceLocation(center);
-
-            if (!coercedValue.Equals(center))
+            if (CoerceLocation(center))
             {
-                SetProperty(property, coercedValue);
+                InternalSetValue(property, center);
             }
         }
 
@@ -589,14 +607,14 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceCenterProperty(CenterProperty, ref center);
+                CoerceCenterProperty(CenterProperty, center);
                 ResetTransformOrigin();
                 UpdateTransform();
 
                 if (centerAnimation == null)
                 {
-                    SetProperty(TargetCenterProperty, center);
-                    SetProperty(CenterPointProperty, new Point(center.Longitude, center.Latitude));
+                    InternalSetValue(TargetCenterProperty, center);
+                    InternalSetValue(CenterPointProperty, new Point(center.Longitude, center.Latitude));
                 }
             }
         }
@@ -605,9 +623,9 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceCenterProperty(TargetCenterProperty, ref targetCenter);
+                CoerceCenterProperty(TargetCenterProperty, targetCenter);
 
-                if (targetCenter != Center)
+                if (!targetCenter.Equals(Center))
                 {
                     if (centerAnimation != null)
                     {
@@ -637,8 +655,8 @@ namespace MapControl
                 centerAnimation.Completed -= CenterAnimationCompleted;
                 centerAnimation = null;
 
-                SetProperty(CenterProperty, TargetCenter);
-                SetProperty(CenterPointProperty, new Point(TargetCenter.Longitude, TargetCenter.Latitude));
+                InternalSetValue(CenterProperty, TargetCenter);
+                InternalSetValue(CenterPointProperty, new Point(TargetCenter.Longitude, TargetCenter.Latitude));
                 ResetTransformOrigin();
                 UpdateTransform();
             }
@@ -648,7 +666,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                SetProperty(CenterProperty, new Location(centerPoint.Y, centerPoint.X));
+                InternalSetValue(CenterProperty, new Location(centerPoint.Y, centerPoint.X));
                 ResetTransformOrigin();
                 UpdateTransform();
             }
@@ -660,7 +678,7 @@ namespace MapControl
 
             if (coercedValue != minZoomLevel)
             {
-                SetProperty(MinZoomLevelProperty, coercedValue);
+                InternalSetValue(MinZoomLevelProperty, coercedValue);
             }
             else if (ZoomLevel < minZoomLevel)
             {
@@ -674,7 +692,7 @@ namespace MapControl
 
             if (coercedValue != maxZoomLevel)
             {
-                SetProperty(MaxZoomLevelProperty, coercedValue);
+                InternalSetValue(MaxZoomLevelProperty, coercedValue);
             }
             else if (ZoomLevel > maxZoomLevel)
             {
@@ -682,21 +700,17 @@ namespace MapControl
             }
         }
 
-        private double CoerceZoomLevel(double zoomLevel)
-        {
-            return Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
-        }
-
         private bool CoerceZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
         {
-            var coercedValue = CoerceZoomLevel(zoomLevel);
+            var coercedValue = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
 
             if (coercedValue != zoomLevel)
             {
-                SetProperty(property, coercedValue);
+                InternalSetValue(property, coercedValue);
+                return true;
             }
 
-            return coercedValue != zoomLevel;
+            return false;
         }
 
         private void ZoomLevelPropertyChanged(double zoomLevel)
@@ -708,7 +722,7 @@ namespace MapControl
 
                 if (zoomLevelAnimation == null)
                 {
-                    SetProperty(TargetZoomLevelProperty, zoomLevel);
+                    InternalSetValue(TargetZoomLevelProperty, zoomLevel);
                 }
             }
         }
@@ -744,24 +758,19 @@ namespace MapControl
                 zoomLevelAnimation.Completed -= ZoomLevelAnimationCompleted;
                 zoomLevelAnimation = null;
 
-                SetProperty(ZoomLevelProperty, TargetZoomLevel);
+                InternalSetValue(ZoomLevelProperty, TargetZoomLevel);
                 UpdateTransform();
                 ResetTransformOrigin();
             }
         }
 
-        private double CoerceHeading(double heading)
-        {
-            return (heading >= -180d && heading <= 360d) ? heading : ((heading + 360d) % 360d);
-        }
-
         private void CoerceHeadingProperty(DependencyProperty property, ref double heading)
         {
-            var coercedValue = CoerceHeading(heading);
+            var coercedValue = (heading >= -180d && heading <= 360d) ? heading : (((heading % 360d) + 360d) % 360d);
 
             if (coercedValue != heading)
             {
-                SetProperty(property, coercedValue);
+                InternalSetValue(property, coercedValue);
             }
         }
 
@@ -774,7 +783,7 @@ namespace MapControl
 
                 if (headingAnimation == null)
                 {
-                    SetProperty(TargetHeadingProperty, heading);
+                    InternalSetValue(TargetHeadingProperty, heading);
                 }
             }
         }
@@ -824,26 +833,32 @@ namespace MapControl
                 headingAnimation.Completed -= HeadingAnimationCompleted;
                 headingAnimation = null;
 
-                SetProperty(HeadingProperty, TargetHeading);
+                InternalSetValue(HeadingProperty, TargetHeading);
                 UpdateTransform();
             }
         }
 
         private void UpdateTransform()
         {
-            double scale;
+            var center = Center;
+            var origin = transformOrigin != null ? transformOrigin : center;
+            var scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin, RenderSize);
 
             if (transformOrigin != null)
             {
-                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(transformOrigin), viewportOrigin, RenderSize);
-                SetProperty(CenterProperty, ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d)));
-            }
-            else
-            {
-                scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(Center), viewportOrigin, RenderSize);
+                center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
+                var coerced = CoerceLocation(center, 1e-3);
+
+                InternalSetValue(CenterProperty, center);
+
+                if (coerced)
+                {
+                    ResetTransformOrigin();
+                    scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(center), viewportOrigin, RenderSize);
+                }
             }
 
-            scale *= mapTransform.RelativeScale(Center) / MeterPerDegree; // Pixels per meter at center latitude
+            scale *= mapTransform.RelativeScale(center) / MeterPerDegree; // Pixels per meter at center latitude
             CenterScale = scale;
             SetTransformMatrixes(scale);
 

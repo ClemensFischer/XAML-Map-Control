@@ -16,6 +16,6 @@ using System.Windows;
 [assembly: AssemblyCopyright("Copyright © 2013 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.1.9")]
-[assembly: AssemblyFileVersion("1.1.9")]
+[assembly: AssemblyVersion("1.1.10")]
+[assembly: AssemblyFileVersion("1.1.10")]
 [assembly: ComVisible(false)]

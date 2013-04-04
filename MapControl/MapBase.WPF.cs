@@ -29,12 +29,11 @@ namespace MapControl
         partial void Initialize()
         {
             AddVisualChild(tileContainer);
-
-            SizeChanged += OnRenderSizeChanged;
         }
 
-        private void OnRenderSizeChanged(object sender, SizeChangedEventArgs e)
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
+            base.OnRenderSizeChanged(sizeInfo);
             ResetTransformOrigin();
             UpdateTransform();
         }

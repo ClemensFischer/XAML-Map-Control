@@ -120,6 +120,12 @@
             <map:MapItemsControl ItemsSource="{StaticResource Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
+            <Path map:MapPanel.Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
+                <Path.Data>
+                    <EllipseGeometry RadiusX="500" RadiusY="500" Transform="{Binding ScaleTransform, ElementName=map}"/>
+                </Path.Data>
+            </Path>
+
             <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"/>
 
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4" FontSize="10"
