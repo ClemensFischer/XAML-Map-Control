@@ -50,6 +50,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="10_535_330.jpg" />
     <Content Include="Assets\Logo.png" />
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SplashScreen.png" />

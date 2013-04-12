@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Controls.Primitives;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -24,7 +24,7 @@ namespace StoreApplication
         {
             this.InitializeComponent();
 
-            ICollection<object> polylines = (ICollection<object>)Resources["Polylines"];
+            var polylines = (ICollection<object>)Resources["Polylines"];
             polylines.Add(
                 new SamplePolyline
                 {
@@ -36,7 +36,7 @@ namespace StoreApplication
                     Locations = LocationCollection.Parse("53.5978,8.1212 53.6018,8.1494 53.5859,8.1554 53.5852,8.1531 53.5841,8.1539 53.5802,8.1392 53.5826,8.1309 53.5867,8.1317 53.5978,8.1212")
                 });
 
-            ICollection<object> points = (ICollection<object>)Resources["Points"];
+            var points = (ICollection<object>)Resources["Points"];
             points.Add(
                 new SamplePoint
                 {
@@ -75,7 +75,7 @@ namespace StoreApplication
                 });
             points.Add(movingPoint);
 
-            ICollection<object> pushpins = (ICollection<object>)Resources["Pushpins"];
+            var pushpins = (ICollection<object>)Resources["Pushpins"];
             pushpins.Add(
                 new SamplePoint
                 {
@@ -101,8 +101,7 @@ namespace StoreApplication
                     Location = new Location(53.5207, 8.2323)
                 });
 
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.1);
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(0.1) };
             timer.Tick += MovePoint;
             timer.Start();
         }
@@ -118,13 +117,12 @@ namespace StoreApplication
             }
         }
 
-        /// <summary>
-        /// Invoked when this page is about to be displayed in a Frame.
-        /// </summary>
-        /// <param name="e">Event data that describes how this page was reached.  The Parameter
-        /// property is typically used to configure the page.</param>
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        private void ImageOpacitySliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
+            if (mapImage != null)
+            {
+                mapImage.Opacity = e.NewValue / 100;
+            }
         }
 
         private void SeamarksClick(object sender, RoutedEventArgs e)

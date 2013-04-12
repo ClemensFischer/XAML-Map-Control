@@ -13,7 +13,7 @@ namespace MapControl
     /// <summary>
     /// Draws a graticule overlay.
     /// </summary>
-    public partial class MapGraticule : MapOverlay
+    public partial class MapGraticule
     {
         /// <summary>
         /// Graticule line spacings in degrees.
@@ -23,11 +23,6 @@ namespace MapControl
 
         public static readonly DependencyProperty MinLineSpacingProperty = DependencyProperty.Register(
             "MinLineSpacing", typeof(double), typeof(MapGraticule), new PropertyMetadata(150d));
-
-        public MapGraticule()
-        {
-            StrokeThickness = 0.5;
-        }
 
         /// <summary>
         /// Minimum spacing in pixels between adjacent graticule lines.

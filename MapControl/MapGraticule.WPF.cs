@@ -9,18 +9,30 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    public partial class MapGraticule
+    public partial class MapGraticule : MapOverlay
     {
+        static MapGraticule()
+        {
+            UIElement.IsHitTestVisibleProperty.OverrideMetadata(
+                typeof(MapGraticule), new FrameworkPropertyMetadata(false));
+
+            MapOverlay.StrokeThicknessProperty.OverrideMetadata(
+                typeof(MapGraticule), new FrameworkPropertyMetadata(0.5));
+        }
+
+        protected override void OnViewportChanged()
+        {
+            InvalidateVisual();
+        }
+
         protected override void OnRender(DrawingContext drawingContext)
         {
-            var parentMap = MapPanel.GetParentMap(this);
-
-            if (parentMap != null)
+            if (ParentMap != null)
             {
-                var bounds = parentMap.ViewportTransform.Inverse.TransformBounds(new Rect(parentMap.RenderSize));
-                var start = parentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
-                var end = parentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
-                var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, parentMap.ZoomLevel) * 256d);
+                var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(ParentMap.RenderSize));
+                var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
+                var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
+                var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * 256d);
                 var spacing = LineSpacings[LineSpacings.Length - 1];
 
                 if (spacing >= minSpacing)
@@ -35,15 +47,15 @@ namespace MapControl
                 for (var lat = labelsStart.Latitude; lat <= end.Latitude; lat += spacing)
                 {
                     drawingContext.DrawLine(Pen,
-                        parentMap.LocationToViewportPoint(new Location(lat, start.Longitude)),
-                        parentMap.LocationToViewportPoint(new Location(lat, end.Longitude)));
+                        ParentMap.LocationToViewportPoint(new Location(lat, start.Longitude)),
+                        ParentMap.LocationToViewportPoint(new Location(lat, end.Longitude)));
                 }
 
                 for (var lon = labelsStart.Longitude; lon <= end.Longitude; lon += spacing)
                 {
                     drawingContext.DrawLine(Pen,
-                        parentMap.LocationToViewportPoint(new Location(start.Latitude, lon)),
-                        parentMap.LocationToViewportPoint(new Location(end.Latitude, lon)));
+                        ParentMap.LocationToViewportPoint(new Location(start.Latitude, lon)),
+                        ParentMap.LocationToViewportPoint(new Location(end.Latitude, lon)));
                 }
 
                 if (Foreground != null && Foreground != Brushes.Transparent)
@@ -55,13 +67,13 @@ namespace MapControl
                         for (var lon = labelsStart.Longitude; lon <= end.Longitude; lon += spacing)
                         {
                             var t = StrokeThickness / 2d;
-                            var p = parentMap.LocationToViewportPoint(new Location(lat, lon));
+                            var p = ParentMap.LocationToViewportPoint(new Location(lat, lon));
                             var latPos = new Point(p.X + t + 2d, p.Y - t - FontSize / 4d);
                             var lonPos = new Point(p.X + t + 2d, p.Y + t + FontSize);
                             var latLabel = CoordinateString(lat, format, "NS");
                             var lonLabel = CoordinateString(Location.NormalizeLongitude(lon), format, "EW");
 
-                            drawingContext.PushTransform(new RotateTransform(parentMap.Heading, p.X, p.Y));
+                            drawingContext.PushTransform(new RotateTransform(ParentMap.Heading, p.X, p.Y));
                             drawingContext.DrawGlyphRun(Foreground, GlyphRunText.Create(latLabel, Typeface, FontSize, latPos));
                             drawingContext.DrawGlyphRun(Foreground, GlyphRunText.Create(lonLabel, Typeface, FontSize, lonPos));
                             drawingContext.Pop();

@@ -2,6 +2,7 @@
 using MapControl;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -33,7 +34,7 @@ namespace WpfApplication
 
             InitializeComponent();
 
-            ICollection<object> polylines = (ICollection<object>)Resources["Polylines"];
+            var polylines = (ICollection<object>)Resources["Polylines"];
             polylines.Add(
                 new SamplePolyline
                 {
@@ -45,7 +46,7 @@ namespace WpfApplication
                     Locations = LocationCollection.Parse("53.5978,8.1212 53.6018,8.1494 53.5859,8.1554 53.5852,8.1531 53.5841,8.1539 53.5802,8.1392 53.5826,8.1309 53.5867,8.1317 53.5978,8.1212")
                 });
 
-            ICollection<object> points = (ICollection<object>)Resources["Points"];
+            var points = (ICollection<object>)Resources["Points"];
             points.Add(
                 new SamplePoint
                 {
@@ -84,7 +85,7 @@ namespace WpfApplication
                 });
             points.Add(movingPoint);
 
-            ICollection<object> pushpins = (ICollection<object>)Resources["Pushpins"];
+            var pushpins = (ICollection<object>)Resources["Pushpins"];
             pushpins.Add(
                 new SamplePoint
                 {
@@ -110,8 +111,7 @@ namespace WpfApplication
                     Location = new Location(53.5207, 8.2323)
                 });
 
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.1);
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(0.1) };
             timer.Tick += MovePoint;
             timer.Start();
         }
@@ -151,7 +151,15 @@ namespace WpfApplication
 
         private void MapMouseMove(object sender, MouseEventArgs e)
         {
-            mouseLocation.Text = map.ViewportPointToLocation(e.GetPosition(map)).ToString();
+            var location = map.ViewportPointToLocation(e.GetPosition(map));
+            var longitude = Location.NormalizeLongitude(location.Longitude);
+            var latString = location.Latitude < 0 ?
+                string.Format(CultureInfo.InvariantCulture, "S  {0:00.00000}", -location.Latitude) :
+                string.Format(CultureInfo.InvariantCulture, "N  {0:00.00000}", location.Latitude);
+            var lonString = longitude < 0 ?
+                string.Format(CultureInfo.InvariantCulture, "W {0:000.00000}", -longitude) :
+                string.Format(CultureInfo.InvariantCulture, "E {0:000.00000}", longitude);
+            mouseLocation.Text = latString + "\n" + lonString;
         }
 
         private void MapManipulationInertiaStarting(object sender, ManipulationInertiaStartingEventArgs e)

@@ -155,6 +155,8 @@
                  MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
+            <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
+                          Source="10_535_330.jpg" Opacity=".5"/>
             <map:MapGraticule Opacity="0.6"/>
             <map:MapScale Margin="4" Opacity="0.8"/>
 
@@ -196,17 +198,28 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Name="mouseLocation" Margin="4" VerticalAlignment="Center"/>
+            <TextBlock Name="mouseLocation" Margin="5" VerticalAlignment="Bottom" FontFamily="Consolas"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Slider ToolTip="Zoom Level" Margin="4" Width="100" SmallChange="0.01"
-                        Minimum="{Binding MinZoomLevel, ElementName=map}"
-                        Maximum="{Binding MaxZoomLevel, ElementName=map}"
-                        Value="{Binding TargetZoomLevel, ElementName=map}"/>
-                <Slider ToolTip="Heading" Margin="4" Width="100" Minimum="0" Maximum="360" SmallChange="5" LargeChange="45"
-                        Value="{Binding TargetHeading, ElementName=map}"/>
-                <CheckBox ToolTip="Map Overlay" Margin="4" VerticalAlignment="Center" Content="Seamarks" Click="SeamarksClick"/>
-                <ComboBox ToolTip="Main Tile Layer" Margin="4" DisplayMemberPath="SourceName" SelectedIndex="0"
-                          ItemsSource="{Binding Source={StaticResource TileLayersView}}"/>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Zoom Level" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
+                    <Slider ToolTip="Zoom Level" Width="100" VerticalAlignment="Center" SmallChange="0.01"
+                            Minimum="{Binding MinZoomLevel, ElementName=map}"
+                            Maximum="{Binding MaxZoomLevel, ElementName=map}"
+                            Value="{Binding TargetZoomLevel, ElementName=map}"/>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Heading" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
+                    <Slider ToolTip="Heading" Width="100" VerticalAlignment="Center" SmallChange="5" LargeChange="45"
+                            Minimum="0" Maximum="360" Value="{Binding TargetHeading, ElementName=map}"/>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Image Opacity" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
+                    <Slider ToolTip="Image Opacity" Width="100" VerticalAlignment="Center"
+                            Minimum="0" Maximum="1" Value="{Binding Opacity, ElementName=mapImage}"/>
+                </StackPanel>
+                <CheckBox ToolTip="Seamarks Overlay" Margin="7" VerticalAlignment="Bottom" Content="Seamarks" Click="SeamarksClick"/>
+                <ComboBox ToolTip="Tile Layer" Margin="5" VerticalAlignment="Bottom" DisplayMemberPath="SourceName"
+                          SelectedIndex="0" ItemsSource="{Binding Source={StaticResource TileLayersView}}"/>
             </StackPanel>
         </Grid>
     </Grid>

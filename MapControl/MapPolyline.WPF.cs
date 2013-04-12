@@ -4,42 +4,39 @@
 
 using System.Linq;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace MapControl
 {
-    public partial class MapPolyline : Shape
+    public partial class MapPolyline
     {
-        protected readonly StreamGeometry Geometry = new StreamGeometry();
-
-        protected override Geometry DefiningGeometry
+        public MapPolyline()
+            : base(new StreamGeometry())
         {
-            get { return Geometry; }
         }
 
-        private void UpdateGeometry()
+        protected override void UpdateGeometry()
         {
-            var parentMap = MapPanel.GetParentMap(this);
+            var geometry = (StreamGeometry)Geometry;
             var locations = Locations;
             Location first;
 
-            if (parentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
+            if (ParentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
             {
-                using (var context = Geometry.Open())
+                using (var context = geometry.Open())
                 {
-                    var startPoint = parentMap.MapTransform.Transform(first);
-                    var points = locations.Skip(1).Select(l => parentMap.MapTransform.Transform(l)).ToList();
+                    var startPoint = ParentMap.MapTransform.Transform(first);
+                    var points = locations.Skip(1).Select(l => ParentMap.MapTransform.Transform(l)).ToList();
 
                     context.BeginFigure(startPoint, IsClosed, IsClosed);
                     context.PolyLineTo(points, true, false);
                 }
 
-                Geometry.Transform = parentMap.ViewportTransform;
+                geometry.Transform = ParentMap.ViewportTransform;
             }
             else
             {
-                Geometry.Clear();
-                Geometry.Transform = null;
+                geometry.Clear();
+                geometry.ClearValue(Geometry.TransformProperty);
             }
         }
     }

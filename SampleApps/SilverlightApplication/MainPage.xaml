@@ -105,6 +105,8 @@
         </Grid.RowDefinitions>
         <map:Map x:Name="map" Center="53.5,8.2" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
+            <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
+                          Source="10_535_330.jpg" Opacity=".5"/>
             <map:MapGraticule Opacity="0.6"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
@@ -136,16 +138,27 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Name="mouseLocation" Margin="4" VerticalAlignment="Center"/>
+            <TextBlock Name="mouseLocation" Margin="4" VerticalAlignment="Bottom" FontFamily="Consolas"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Slider Margin="4" Width="100" SmallChange="0.01"
-                        Maximum="{Binding MaxZoomLevel, ElementName=map}"
-                        Minimum="{Binding MinZoomLevel, ElementName=map}"
-                        Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
-                <Slider Margin="4" Width="100" Minimum="0" Maximum="360" SmallChange="5" LargeChange="45"
-                        Value="{Binding TargetHeading, ElementName=map, Mode=TwoWay}"/>
-                <CheckBox Margin="4" VerticalAlignment="Center" Content="Seamarks" Click="SeamarksClick"/>
-                <ComboBox Margin="4" Width="120" SelectedIndex="0" SelectionChanged="TileLayerSelectionChanged">
+                <StackPanel Margin="5">
+                    <TextBlock Text="Zoom Level" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
+                    <Slider Width="100" SmallChange="0.01"
+                            Maximum="{Binding MaxZoomLevel, ElementName=map}"
+                            Minimum="{Binding MinZoomLevel, ElementName=map}"
+                            Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Heading" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
+                    <Slider Width="100" SmallChange="5" LargeChange="45" Minimum="0" Maximum="360"
+                            Value="{Binding TargetHeading, ElementName=map, Mode=TwoWay}"/>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Image Opacity" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
+                    <Slider Width="100" Minimum="0" Maximum="1"
+                            Value="{Binding Opacity, ElementName=mapImage, Mode=TwoWay}"/>
+                </StackPanel>
+                <CheckBox Margin="5" VerticalAlignment="Bottom" Content="Seamarks" Click="SeamarksClick"/>
+                <ComboBox Margin="5" VerticalAlignment="Bottom" Width="120" SelectedIndex="0" SelectionChanged="TileLayerSelectionChanged">
                     <sys:String>OpenStreetMap</sys:String>
                     <sys:String>OpenCycleMap</sys:String>
                     <sys:String>OCM Transport</sys:String>

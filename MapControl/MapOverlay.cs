@@ -2,31 +2,81 @@
 // Copyright © 2013 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
-using Windows.UI.Text;
-using Windows.UI.Xaml.Media;
-#else
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
-#endif
+using System.Windows.Shapes;
 
 namespace MapControl
 {
     /// <summary>
     /// Base class for map overlays with font, background, foreground and stroke properties.
+    /// Rendering is typically done by overriding OnRender in derived classes.
     /// </summary>
-    public partial class MapOverlay
+    public class MapOverlay : FrameworkElement, IMapElement
     {
-        public FontFamily FontFamily
-        {
-            get { return (FontFamily)GetValue(FontFamilyProperty); }
-            set { SetValue(FontFamilyProperty, value); }
-        }
+        public static readonly DependencyProperty FontSizeProperty = Control.FontSizeProperty.AddOwner(
+            typeof(MapOverlay));
+
+        public static readonly DependencyProperty FontFamilyProperty = Control.FontFamilyProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata((o, e) => ((MapOverlay)o).typeface = null));
+
+        public static readonly DependencyProperty FontStyleProperty = Control.FontStyleProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata((o, e) => ((MapOverlay)o).typeface = null));
+
+        public static readonly DependencyProperty FontStretchProperty = Control.FontStretchProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata((o, e) => ((MapOverlay)o).typeface = null));
+
+        public static readonly DependencyProperty FontWeightProperty = Control.FontWeightProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata((o, e) => ((MapOverlay)o).typeface = null));
+
+        public static readonly DependencyProperty BackgroundProperty = Control.BackgroundProperty.AddOwner(
+            typeof(MapOverlay));
+
+        public static readonly DependencyProperty ForegroundProperty = Control.ForegroundProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata((o, e) => ((MapOverlay)o).ForegroundChanged()));
+
+        public static readonly DependencyProperty StrokeProperty = Shape.StrokeProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeThicknessProperty = Shape.StrokeThicknessProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeDashArrayProperty = Shape.StrokeDashArrayProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeDashOffsetProperty = Shape.StrokeDashOffsetProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeDashCapProperty = Shape.StrokeDashCapProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(default(PenLineCap), FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeStartLineCapProperty = Shape.StrokeStartLineCapProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(default(PenLineCap), FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeEndLineCapProperty = Shape.StrokeEndLineCapProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(default(PenLineCap), FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeLineJoinProperty = Shape.StrokeLineJoinProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(default(PenLineJoin), FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
+            typeof(MapOverlay), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapOverlay)o).pen = null));
+
+        private MapBase parentMap;
+        private Typeface typeface;
+        private Pen pen;
 
         public double FontSize
         {
             get { return (double)GetValue(FontSizeProperty); }
             set { SetValue(FontSizeProperty, value); }
+        }
+
+        public FontFamily FontFamily
+        {
+            get { return (FontFamily)GetValue(FontFamilyProperty); }
+            set { SetValue(FontFamilyProperty, value); }
         }
 
         public FontStyle FontStyle
@@ -45,6 +95,12 @@ namespace MapControl
         {
             get { return (FontWeight)GetValue(FontWeightProperty); }
             set { SetValue(FontWeightProperty, value); }
+        }
+
+        public Brush Background
+        {
+            get { return (Brush)GetValue(BackgroundProperty); }
+            set { SetValue(BackgroundProperty, value); }
         }
 
         public Brush Foreground
@@ -105,6 +161,76 @@ namespace MapControl
         {
             get { return (double)GetValue(StrokeMiterLimitProperty); }
             set { SetValue(StrokeMiterLimitProperty, value); }
+        }
+
+        public MapBase ParentMap
+        {
+            get { return parentMap; }
+            set
+            {
+                if (parentMap != null)
+                {
+                    parentMap.ViewportChanged -= (o, e) => OnViewportChanged();
+                }
+
+                parentMap = value;
+
+                if (parentMap != null)
+                {
+                    parentMap.ViewportChanged += (o, e) => OnViewportChanged();
+                    OnViewportChanged();
+                }
+            }
+        }
+
+        protected Typeface Typeface
+        {
+            get
+            {
+                if (typeface == null)
+                {
+                    typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+                }
+
+                return typeface;
+            }
+        }
+
+        protected Pen Pen
+        {
+            get
+            {
+                if (pen == null)
+                {
+                    pen = new Pen
+                    {
+                        Brush = Stroke != null ? Stroke : Foreground,
+                        Thickness = StrokeThickness,
+                        DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset),
+                        DashCap = StrokeDashCap,
+                        StartLineCap = StrokeStartLineCap,
+                        EndLineCap = StrokeEndLineCap,
+                        LineJoin = StrokeLineJoin,
+                        MiterLimit = StrokeMiterLimit
+                    };
+
+                    pen.Freeze();
+                }
+
+                return pen;
+            }
+        }
+
+        protected virtual void OnViewportChanged()
+        {
+        }
+
+        private void ForegroundChanged()
+        {
+            if (Stroke == null)
+            {
+                pen = null;
+            }
         }
     }
 }

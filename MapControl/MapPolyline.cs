@@ -14,7 +14,7 @@ using System.Windows;
 
 namespace MapControl
 {
-    public partial class MapPolyline : IMapElement
+    public partial class MapPolyline : MapShape
     {
 #if NETFX_CORE
         // For WinRT, the Locations dependency property type is declared as object
@@ -47,21 +47,6 @@ namespace MapControl
         {
             get { return (bool)GetValue(IsClosedProperty); }
             set { SetValue(IsClosedProperty, value); }
-        }
-
-        protected override Size MeasureOverride(Size constraint)
-        {
-            // Shape.MeasureOverride in WPF and WinRT sometimes return a Size with zero
-            // width or height, whereas Shape.MeasureOverride in Silverlight occasionally
-            // throws an ArgumentException, as it tries to create a Size from a negative
-            // width or height, apparently resulting from a transformed geometry in Path.Data.
-            // In either case it seems to be sufficient to simply return a non-zero size.
-            return new Size(1, 1);
-        }
-
-        void IMapElement.ParentMapChanged(MapBase oldParentMap, MapBase newParentMap)
-        {
-            UpdateGeometry();
         }
 
         private void LocationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

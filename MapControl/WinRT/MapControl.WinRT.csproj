@@ -63,6 +63,9 @@
     <Compile Include="..\MapGraticule.Silverlight.WinRT.cs">
       <Link>MapGraticule.Silverlight.WinRT.cs</Link>
     </Compile>
+    <Compile Include="..\MapImage.cs">
+      <Link>MapImage.cs</Link>
+    </Compile>
     <Compile Include="..\MapItem.Silverlight.WinRT.cs">
       <Link>MapItem.Silverlight.WinRT.cs</Link>
     </Compile>
@@ -71,12 +74,6 @@
     </Compile>
     <Compile Include="..\MapItemsControl.Silverlight.WinRT.cs">
       <Link>MapItemsControl.Silverlight.WinRT.cs</Link>
-    </Compile>
-    <Compile Include="..\MapOverlay.cs">
-      <Link>MapOverlay.cs</Link>
-    </Compile>
-    <Compile Include="..\MapOverlay.Silverlight.WinRT.cs">
-      <Link>MapOverlay.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapPanel.cs">
       <Link>MapPanel.cs</Link>
@@ -89,6 +86,15 @@
     </Compile>
     <Compile Include="..\MapPolyline.Silverlight.WinRT.cs">
       <Link>MapPolyline.Silverlight.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\MapRectangle.cs">
+      <Link>MapRectangle.cs</Link>
+    </Compile>
+    <Compile Include="..\MapShape.cs">
+      <Link>MapShape.cs</Link>
+    </Compile>
+    <Compile Include="..\MapShape.Silverlight.WinRT.cs">
+      <Link>MapShape.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>

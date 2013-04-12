@@ -46,7 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapGraticule.WPF.cs" />
-    <Compile Include="MapOverlay.WPF.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />
     <Compile Include="LocationCollectionConverter.cs" />
@@ -60,10 +59,14 @@
     <Compile Include="MapItem.WPF.cs" />
     <Compile Include="MapItemsControl.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />
+    <Compile Include="MapImage.cs" />
     <Compile Include="MapPanel.cs" />
     <Compile Include="MapPanel.WPF.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
+    <Compile Include="MapRectangle.cs" />
+    <Compile Include="MapShape.cs" />
+    <Compile Include="MapShape.WPF.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

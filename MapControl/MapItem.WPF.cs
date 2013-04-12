@@ -15,8 +15,7 @@ namespace MapControl
     public class MapItem : ListBoxItem
     {
         public static readonly DependencyProperty IsCurrentProperty = MapItemsControl.IsCurrentProperty.AddOwner(
-            typeof(MapItem),
-            new PropertyMetadata((o, e) => ((MapItem)o).IsCurrentPropertyChanged((bool)e.NewValue)));
+            typeof(MapItem), new PropertyMetadata((o, e) => ((MapItem)o).IsCurrentPropertyChanged((bool)e.NewValue)));
 
         static MapItem()
         {

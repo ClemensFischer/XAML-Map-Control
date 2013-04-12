@@ -8,13 +8,20 @@ namespace MapControl
 {
     public partial class MapPanel
     {
-        public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
+        private static readonly DependencyPropertyKey ParentMapPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
             "ParentMap", typeof(MapBase), typeof(MapPanel),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
+
+        public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
 
         public static MapBase GetParentMap(UIElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);
+        }
+
+        internal void SetParentMap()
+        {
+            SetValue(ParentMapPropertyKey, this);
         }
     }
 }

@@ -72,5 +72,10 @@ namespace MapControl
 
             return parentMap;
         }
+
+        internal void SetParentMap()
+        {
+            SetValue(ParentMapProperty, this);
+        }
     }
 }

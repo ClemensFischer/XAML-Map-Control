@@ -15,13 +15,16 @@ namespace MapControl
     public class MapScale : MapOverlay
     {
         public static readonly DependencyProperty PaddingProperty = Control.PaddingProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata(new Thickness(2d)));
+            typeof(MapScale), new FrameworkPropertyMetadata(new Thickness(2d)));
 
         private double length;
         private Size size;
 
         static MapScale()
         {
+            UIElement.IsHitTestVisibleProperty.OverrideMetadata(
+                typeof(MapScale), new FrameworkPropertyMetadata(false));
+
             FrameworkElement.MinWidthProperty.OverrideMetadata(
                 typeof(MapScale), new FrameworkPropertyMetadata(100d));
 
@@ -46,11 +49,9 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            var parentMap = MapPanel.GetParentMap(this);
-
-            if (parentMap != null && parentMap.CenterScale > 0d)
+            if (ParentMap != null && ParentMap.CenterScale > 0d)
             {
-                length = MinWidth / parentMap.CenterScale;
+                length = MinWidth / ParentMap.CenterScale;
                 var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 
                 if (length / magnitude < 2d)
@@ -66,7 +67,7 @@ namespace MapControl
                     length = 10d * magnitude;
                 }
 
-                size.Width = length * parentMap.CenterScale + StrokeThickness + Padding.Left + Padding.Right;
+                size.Width = length * ParentMap.CenterScale + StrokeThickness + Padding.Left + Padding.Right;
                 size.Height = FontSize + 2d * StrokeThickness + Padding.Top + Padding.Bottom;
             }
             else
@@ -79,9 +80,7 @@ namespace MapControl
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            var parentMap = MapPanel.GetParentMap(this);
-
-            if (parentMap != null)
+            if (ParentMap != null)
             {
                 var x1 = Padding.Left + StrokeThickness / 2d;
                 var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
@@ -89,7 +88,7 @@ namespace MapControl
                 var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
                 var text = length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length);
 
-                drawingContext.DrawRectangle(Background ?? parentMap.Background, null, new Rect(size));
+                drawingContext.DrawRectangle(Background ?? ParentMap.Background, null, new Rect(size));
                 drawingContext.DrawLine(Pen, new Point(x1, y1), new Point(x1, y2));
                 drawingContext.DrawLine(Pen, new Point(x2, y1), new Point(x2, y2));
                 drawingContext.DrawLine(Pen, new Point(x1, y2), new Point(x2, y2));

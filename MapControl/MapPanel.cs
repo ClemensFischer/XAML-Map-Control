@@ -18,7 +18,7 @@ namespace MapControl
 {
     internal interface IMapElement
     {
-        void ParentMapChanged(MapBase oldParentMap, MapBase newParentMap);
+        MapBase ParentMap { get; set; }
     }
 
     /// <summary>
@@ -49,6 +49,41 @@ namespace MapControl
             return (Point?)element.GetValue(ViewportPositionProperty);
         }
 
+        private MapBase parentMap;
+
+        public MapBase ParentMap
+        {
+            get { return parentMap; }
+            set
+            {
+                if (parentMap != null && parentMap != this)
+                {
+                    parentMap.ViewportChanged -= (o, e) => OnViewportChanged();
+                }
+
+                parentMap = value;
+
+                if (parentMap != null && parentMap != this)
+                {
+                    parentMap.ViewportChanged += (o, e) => OnViewportChanged();
+                    OnViewportChanged();
+                }
+            }
+        }
+
+        protected virtual void OnViewportChanged()
+        {
+            foreach (UIElement element in InternalChildren)
+            {
+                var location = GetLocation(element);
+
+                if (location != null)
+                {
+                    SetViewportPosition(element, parentMap, location);
+                }
+            }
+        }
+
         protected override Size MeasureOverride(Size availableSize)
         {
             foreach (UIElement element in InternalChildren)
@@ -61,8 +96,6 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            var parentMap = GetParentMap(this);
-
             foreach (UIElement element in InternalChildren)
             {
                 var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
@@ -92,47 +125,13 @@ namespace MapControl
             return finalSize;
         }
 
-        protected virtual void OnViewportChanged()
-        {
-            var parentMap = GetParentMap(this);
-
-            foreach (UIElement element in InternalChildren)
-            {
-                var location = GetLocation(element);
-
-                if (location != null)
-                {
-                    SetViewportPosition(element, parentMap, location);
-                }
-            }
-        }
-
-        private void OnViewportChanged(object sender, EventArgs e)
-        {
-            OnViewportChanged();
-        }
-
-        void IMapElement.ParentMapChanged(MapBase oldParentMap, MapBase newParentMap)
-        {
-            if (oldParentMap != null && oldParentMap != this)
-            {
-                oldParentMap.ViewportChanged -= OnViewportChanged;
-            }
-
-            if (newParentMap != null && newParentMap != this)
-            {
-                newParentMap.ViewportChanged += OnViewportChanged;
-                OnViewportChanged();
-            }
-        }
-
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            var element = obj as IMapElement;
+            var mapElement = obj as IMapElement;
 
-            if (element != null)
+            if (mapElement != null)
             {
-                element.ParentMapChanged(e.OldValue as MapBase, e.NewValue as MapBase);
+                mapElement.ParentMap = e.NewValue as MapBase;
             }
         }
 
@@ -142,7 +141,10 @@ namespace MapControl
 
             if (element != null)
             {
-                SetViewportPosition(element, GetParentMap(element), (Location)e.NewValue);
+                var mapElement = element as IMapElement;
+                var parentMap = mapElement != null ? mapElement.ParentMap : GetParentMap(element);
+
+                SetViewportPosition(element, parentMap, (Location)e.NewValue);
             }
         }
 

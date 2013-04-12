@@ -22,7 +22,7 @@ namespace MapControl
         private const FillBehavior AnimationFillBehavior = FillBehavior.HoldEnd;
 
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
-            "Foreground", typeof(Brush), typeof(MapBase), null);
+            "Foreground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Black)));
 
         partial void Initialize()
         {

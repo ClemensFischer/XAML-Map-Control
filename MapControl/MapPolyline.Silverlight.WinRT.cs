@@ -5,38 +5,31 @@
 using System.Linq;
 #if NETFX_CORE
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
 #else
-using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
+
 #endif
 
 namespace MapControl
 {
-    public partial class MapPolyline : Path
+    public partial class MapPolyline
     {
-        protected readonly PathGeometry Geometry = new PathGeometry();
-
         public MapPolyline()
+            : base(new PathGeometry())
         {
-            Data = Geometry;
-            MapPanel.AddParentMapHandlers(this);
         }
 
-        private void UpdateGeometry()
+        protected override void UpdateGeometry()
         {
-            var parentMap = MapPanel.GetParentMap(this);
+            var geometry = (PathGeometry)Geometry;
             var locations = Locations;
             Location first;
 
-            Geometry.Figures.Clear();
-
-            if (parentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
+            if (ParentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
             {
                 var figure = new PathFigure
                 {
-                    StartPoint = parentMap.MapTransform.Transform(first),
+                    StartPoint = ParentMap.MapTransform.Transform(first),
                     IsClosed = IsClosed,
                     IsFilled = IsClosed
                 };
@@ -45,7 +38,7 @@ namespace MapControl
 
                 foreach (var location in locations.Skip(1))
                 {
-                    segment.Points.Add(parentMap.MapTransform.Transform(location));
+                    segment.Points.Add(ParentMap.MapTransform.Transform(location));
                 }
 
                 if (segment.Points.Count > 0)
@@ -53,12 +46,14 @@ namespace MapControl
                     figure.Segments.Add(segment);
                 }
 
-                Geometry.Figures.Add(figure);
-                Geometry.Transform = parentMap.ViewportTransform;
+                geometry.Figures.Clear();
+                geometry.Figures.Add(figure);
+                geometry.Transform = ParentMap.ViewportTransform;
             }
             else
             {
-                Geometry.Transform = null;
+                geometry.Figures.Clear();
+                geometry.ClearValue(Geometry.TransformProperty);
             }
         }
     }
