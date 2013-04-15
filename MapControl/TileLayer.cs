@@ -52,6 +52,7 @@ namespace MapControl
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
             MaxParallelDownloads = 8;
+            LoadLowerZoomLevels = true;
             Initialize();
         }
 
@@ -62,6 +63,7 @@ namespace MapControl
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
         public int MaxParallelDownloads { get; set; }
+        public bool LoadLowerZoomLevels { get; set; }
         public bool HasDarkBackground { get; set; }
 
         public string Description
@@ -109,7 +111,7 @@ namespace MapControl
             var minZoomLevel = maxZoomLevel;
             var container = TileContainer;
 
-            if (container != null && container.Children.IndexOf(this) == 0)
+            if (LoadLowerZoomLevels && container != null && container.Children.IndexOf(this) == 0)
             {
                 minZoomLevel = MinZoomLevel;
             }
@@ -119,8 +121,8 @@ namespace MapControl
             for (var z = minZoomLevel; z <= maxZoomLevel; z++)
             {
                 var tileSize = 1 << (zoomLevel - z);
-                var x1 = (int)Math.Floor((double)grid.X / (double)tileSize);
-                var x2 = (int)Math.Ceiling((double)(grid.X + grid.Width - 1) / (double)tileSize);
+                var x1 = grid.X / tileSize;
+                var x2 = (grid.X + grid.Width - 1) / tileSize;
                 var y1 = Math.Max(0, grid.Y / tileSize);
                 var y2 = Math.Min((1 << z) - 1, (grid.Y + grid.Height - 1) / tileSize);
 
