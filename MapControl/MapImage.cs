@@ -5,14 +5,16 @@
 #if NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 #else
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 #endif
 
 namespace MapControl
 {
-    public class MapImage : MapRectangle
+    public partial class MapImage : MapRectangle
     {
         private static readonly Transform imageTransform = new MatrixTransform
         {
@@ -29,13 +31,36 @@ namespace MapControl
             set { SetValue(SourceProperty, value); }
         }
 
-        private void SourceChanged(ImageSource source)
+        public bool AnimateOpacity { get; set; }
+
+        private void SourceChanged(ImageSource image)
         {
             Fill = new ImageBrush
             {
-                ImageSource = source,
-                RelativeTransform = imageTransform
+                ImageSource = image,
+                RelativeTransform = imageTransform,
+                Opacity = 0d
             };
+
+            if (AnimateOpacity)
+            {
+                BeginOpacityAnimation(image);
+            }
+            else
+            {
+                Fill.Opacity = 1d;
+            }
+        }
+
+        private void BeginOpacityAnimation()
+        {
+            Fill.BeginAnimation(Brush.OpacityProperty,
+                new DoubleAnimation
+                {
+                    To = 1d,
+                    Duration = Tile.AnimationDuration,
+                    FillBehavior = FillBehavior.HoldEnd
+                });
         }
     }
 }

@@ -64,7 +64,8 @@ namespace MapControl
         public int MaxZoomLevel { get; set; }
         public int MaxParallelDownloads { get; set; }
         public bool LoadLowerZoomLevels { get; set; }
-        public bool HasDarkBackground { get; set; }
+        public Brush Background { get; set; }
+        public Brush Foreground { get; set; }
 
         public string Description
         {
@@ -122,9 +123,12 @@ namespace MapControl
             {
                 var tileSize = 1 << (zoomLevel - z);
                 var x1 = grid.X / tileSize;
+                var y1 = grid.Y / tileSize;
                 var x2 = (grid.X + grid.Width - 1) / tileSize;
-                var y1 = Math.Max(0, grid.Y / tileSize);
-                var y2 = Math.Min((1 << z) - 1, (grid.Y + grid.Height - 1) / tileSize);
+                var y2 = (grid.Y + grid.Height - 1) / tileSize;
+
+                y1 = Math.Max(y1, 0);
+                y2 = Math.Min(y2, (1 << z) - 1);
 
                 for (var y = y1; y <= y2; y++)
                 {

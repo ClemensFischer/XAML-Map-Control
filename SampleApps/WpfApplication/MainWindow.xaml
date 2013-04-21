@@ -23,14 +23,14 @@
 
             <!--<map:TileLayer SourceName="Google Maps" Description="Google Maps - © {y} Google"
                            TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
-            <map:TileLayer SourceName="Google Images" Description="Google Maps - © {y} Google"
-                           TileSource="http://khm{i}.google.com/kh/v=123&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20" HasDarkBackground="True"/>
+            <map:TileLayer SourceName="Google Images" Description="Google Maps - © {y} Google" Background="#FF3F3F3F" Foreground="White"
+                           TileSource="http://khm{i}.google.com/kh/v=123&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
             <map:TileLayer SourceName="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
                            TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h" MaxZoomLevel="20"/>
-            <map:TileLayer SourceName="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20" HasDarkBackground="True"/>
-            <map:TileLayer SourceName="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20" HasDarkBackground="True"/>-->
+            <map:TileLayer SourceName="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation" Background="#FF3F3F3F" Foreground="White"
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20"/>
+            <map:TileLayer SourceName="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation" Background="#FF3F3F3F" Foreground="White"
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20"/>-->
 
             <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
             <!--<map:TileLayer SourceName="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
@@ -149,14 +149,15 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <map:Map Name="map" IsManipulationEnabled="True" Margin="2"
-                 LightForeground="Black" LightBackground="White" DarkForeground="White" DarkBackground="#FF3F3F3F"
                  Center="53.5,8.2" ZoomLevel="11" MaxZoomLevel="20"
                  TileLayer="{Binding Source={StaticResource TileLayersView}, Path=CurrentItem}"
                  MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
+            
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
-                          Source="10_535_330.jpg" Opacity=".5"/>
+                          Source="10_535_330.jpg" Opacity="0.5"/>
+
             <map:MapGraticule Opacity="0.6"/>
             <map:MapScale Margin="4" Opacity="0.8"/>
 
@@ -198,7 +199,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Name="mouseLocation" Margin="5" VerticalAlignment="Bottom" FontFamily="Consolas"/>
+            <TextBlock Name="mouseLocation" Margin="5" VerticalAlignment="Bottom" FontFamily="Segoe UI Mono"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <StackPanel Margin="5">
                     <TextBlock Text="Zoom Level" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>

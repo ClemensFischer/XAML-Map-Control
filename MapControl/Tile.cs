@@ -3,11 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if NETFX_CORE
-using Windows.UI.Xaml.Media.Animation;
-#else
-using System.Windows.Media.Animation;
-#endif
 
 namespace MapControl
 {
@@ -34,19 +29,6 @@ namespace MapControl
             {
                 var numTiles = 1 << ZoomLevel;
                 return ((X % numTiles) + numTiles) % numTiles;
-            }
-        }
-
-        public DoubleAnimation OpacityAnimation
-        {
-            get
-            {
-                return new DoubleAnimation
-                {
-                    To = 1d,
-                    Duration = AnimationDuration,
-                    FillBehavior = FillBehavior.HoldEnd,
-                };
             }
         }
     }

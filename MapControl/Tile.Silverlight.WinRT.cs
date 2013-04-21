@@ -6,11 +6,13 @@
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 #endif
 
@@ -18,7 +20,7 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public readonly Image Image = new Image { IsHitTestVisible = false, Opacity = 0d };
+        public readonly Image Image = new Image { Opacity = 0d };
 
         public ImageSource ImageSource
         {
@@ -40,7 +42,7 @@ namespace MapControl
                     }
                     else
                     {
-                        Image.BeginAnimation(Image.OpacityProperty, OpacityAnimation);
+                        BeginOpacityAnimation();
                     }
                 }
                 else
@@ -57,7 +59,7 @@ namespace MapControl
         {
             ((BitmapImage)sender).ImageOpened -= BitmapImageOpened;
             ((BitmapImage)sender).ImageFailed -= BitmapImageFailed;
-            Image.BeginAnimation(Image.OpacityProperty, OpacityAnimation);
+            BeginOpacityAnimation();
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
@@ -65,6 +67,17 @@ namespace MapControl
             ((BitmapImage)sender).ImageOpened -= BitmapImageOpened;
             ((BitmapImage)sender).ImageFailed -= BitmapImageFailed;
             Image.Source = null;
+        }
+
+        private void BeginOpacityAnimation()
+        {
+            Image.BeginAnimation(Image.OpacityProperty,
+                new DoubleAnimation
+                {
+                    To = 1d,
+                    Duration = AnimationDuration,
+                    FillBehavior = FillBehavior.HoldEnd
+                });
         }
     }
 }

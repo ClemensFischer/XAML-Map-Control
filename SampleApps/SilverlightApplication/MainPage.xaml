@@ -106,7 +106,7 @@
         <map:Map x:Name="map" Center="53.5,8.2" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
-                          Source="10_535_330.jpg" Opacity=".5"/>
+                          Source="10_535_330.jpg" Opacity="0.5"/>
             <map:MapGraticule Opacity="0.6"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
@@ -138,7 +138,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Name="mouseLocation" Margin="4" VerticalAlignment="Bottom" FontFamily="Consolas"/>
+            <TextBlock Name="mouseLocation" Margin="4" VerticalAlignment="Bottom" FontFamily="Segoe UI Mono"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <StackPanel Margin="5">
                     <TextBlock Text="Zoom Level" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>

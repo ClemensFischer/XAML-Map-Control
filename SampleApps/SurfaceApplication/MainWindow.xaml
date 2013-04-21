@@ -6,7 +6,6 @@
     Title="SurfaceApplication" WindowStyle="None" WindowState="Maximized">
     <Grid>
         <m:Map Center="53.5,8.2" ZoomLevel="11"
-               LightForeground="Black" LightBackground="LightGray"
                IsManipulationEnabled="True" TouchDown="MapTouchDown">
             <m:MapGraticule Opacity="0.5" MinLineSpacing="200"/>
         </m:Map>

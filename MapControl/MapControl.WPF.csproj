@@ -56,6 +56,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MapBase.WPF.cs" />
+    <Compile Include="MapImage.WPF.cs" />
     <Compile Include="MapItem.WPF.cs" />
     <Compile Include="MapItemsControl.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />

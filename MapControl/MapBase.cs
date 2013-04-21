@@ -7,7 +7,6 @@ using System.Collections.Specialized;
 using System.Linq;
 #if NETFX_CORE
 using Windows.Foundation;
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -30,18 +29,6 @@ namespace MapControl
         public const double MeterPerDegree = 1852d * 60d;
         public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.5);
         public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
-
-        public static readonly DependencyProperty LightForegroundProperty = DependencyProperty.Register(
-            "LightForeground", typeof(Brush), typeof(MapBase), null);
-
-        public static readonly DependencyProperty DarkForegroundProperty = DependencyProperty.Register(
-            "DarkForeground", typeof(Brush), typeof(MapBase), null);
-
-        public static readonly DependencyProperty LightBackgroundProperty = DependencyProperty.Register(
-            "LightBackground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Transparent), null));
-
-        public static readonly DependencyProperty DarkBackgroundProperty = DependencyProperty.Register(
-            "DarkBackground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Transparent), null));
 
         public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
             "TileLayers", typeof(TileLayerCollection), typeof(MapBase), new PropertyMetadata(null,
@@ -104,13 +91,14 @@ namespace MapControl
         private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
+        private Brush previousBackground;
+        private Brush previousForeground;
         private bool internalPropertyChange;
 
         public MapBase()
         {
             SetParentMap();
 
-            Background = LightBackground;
             TileLayers = new TileLayerCollection();
             Initialize();
 
@@ -131,46 +119,6 @@ namespace MapControl
         {
             get { return (Brush)GetValue(ForegroundProperty); }
             set { SetValue(ForegroundProperty, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets a Brush that (when not null) is used as value of the
-        /// Foreground property when TileLayer.HasDarkBackground is false.
-        /// </summary>
-        public Brush LightForeground
-        {
-            get { return (Brush)GetValue(LightForegroundProperty); }
-            set { SetValue(LightForegroundProperty, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets a Brush that (when not null) is used as value of the
-        /// Foreground property when TileLayer.HasDarkBackground is true.
-        /// </summary>
-        public Brush DarkForeground
-        {
-            get { return (Brush)GetValue(DarkForegroundProperty); }
-            set { SetValue(DarkForegroundProperty, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets a Brush that (when not null) is used as value of the
-        /// Background property when TileLayer.HasDarkBackground is false.
-        /// </summary>
-        public Brush LightBackground
-        {
-            get { return (Brush)GetValue(LightBackgroundProperty); }
-            set { SetValue(LightBackgroundProperty, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets a Brush that (when not null) is used as value of the
-        /// Background property when TileLayer.HasDarkBackground is true.
-        /// </summary>
-        public Brush DarkBackground
-        {
-            get { return (Brush)GetValue(DarkBackgroundProperty); }
-            set { SetValue(DarkBackgroundProperty, value); }
         }
 
         /// <summary>
@@ -536,29 +484,34 @@ namespace MapControl
                 }
             }
 
-            if (tileLayer != null && tileLayer.HasDarkBackground)
+            if (tileLayer != null && tileLayer.Background != null)
             {
-                if (DarkForeground != null)
+                if (previousBackground == null)
                 {
-                    Foreground = DarkForeground;
+                    previousBackground = Background;
                 }
 
-                if (DarkBackground != null)
-                {
-                    Background = DarkBackground;
-                }
+                Background = tileLayer.Background;
             }
-            else
+            else if (previousBackground != null)
             {
-                if (LightForeground != null)
+                Background = previousBackground;
+                previousBackground = null;
+            }
+
+            if (tileLayer != null && tileLayer.Foreground != null)
+            {
+                if (previousForeground == null)
                 {
-                    Foreground = LightForeground;
+                    previousForeground = Foreground;
                 }
 
-                if (LightBackground != null)
-                {
-                    Background = LightBackground;
-                }
+                Foreground = tileLayer.Foreground;
+            }
+            else if (previousForeground != null)
+            {
+                Foreground = previousForeground;
+                previousForeground = null;
             }
         }
 

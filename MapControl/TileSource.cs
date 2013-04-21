@@ -68,6 +68,10 @@ namespace MapControl
                 {
                     getUri = GetBoundingBoxUri;
                 }
+                else if (uriFormat.Contains("{x}") && uriFormat.Contains("{v}") && uriFormat.Contains("{z}"))
+                {
+                    getUri = GetTmsUri;
+                }
             }
         }
 
@@ -114,6 +118,16 @@ namespace MapControl
                 Replace("{n}", hostIndex.ToString()).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
+                Replace("{z}", zoomLevel.ToString()));
+        }
+
+        private Uri GetTmsUri(int x, int y, int zoomLevel)
+        {
+            y = (1 << zoomLevel) - 1 - y;
+
+            return new Uri(UriFormat.
+                Replace("{x}", x.ToString()).
+                Replace("{v}", y.ToString()).
                 Replace("{z}", zoomLevel.ToString()));
         }
 

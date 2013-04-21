@@ -4,6 +4,7 @@
 
 using System;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -33,7 +34,7 @@ namespace MapControl
                     }
                     else
                     {
-                        Brush.BeginAnimation(ImageBrush.OpacityProperty, OpacityAnimation);
+                        BeginOpacityAnimation();
                     }
                 }
                 else
@@ -50,7 +51,7 @@ namespace MapControl
         {
             ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
             ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
-            Brush.BeginAnimation(ImageBrush.OpacityProperty, OpacityAnimation);
+            BeginOpacityAnimation();
         }
 
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
@@ -58,6 +59,17 @@ namespace MapControl
             ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
             ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
             Brush.ImageSource = null;
+        }
+
+        private void BeginOpacityAnimation()
+        {
+            Brush.BeginAnimation(ImageBrush.OpacityProperty,
+                new DoubleAnimation
+                {
+                    To = 1d,
+                    Duration = AnimationDuration,
+                    FillBehavior = FillBehavior.HoldEnd
+                });
         }
     }
 }
