@@ -1,14 +1,16 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.Windows;
 using System.Windows.Input;
 
 namespace MapControl
 {
-    public partial class Map
+    /// <summary>
+    /// Default input event handling.
+    /// </summary>
+    public class Map : MapBase
     {
         private Point? mousePosition;
 
@@ -19,17 +21,16 @@ namespace MapControl
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
             MouseMove += OnMouseMove;
-
-#if !SILVERLIGHT
-            ManipulationDelta += (o, e) => TransformMap(
-                e.ManipulationOrigin, (Point)e.DeltaManipulation.Translation, e.DeltaManipulation.Rotation,
-                (e.DeltaManipulation.Scale.X + e.DeltaManipulation.Scale.Y) / 2d); ;
-#endif
         }
+
+        /// <summary>
+        /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
+        /// </summary>
+        public double MouseWheelZoomChange { get; set; }
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            var zoomChange = MouseWheelZoomChange * (double)e.Delta / MouseWheelDelta;
+            var zoomChange = MouseWheelZoomChange * (double)e.Delta / 120d;
             ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomChange);
         }
 

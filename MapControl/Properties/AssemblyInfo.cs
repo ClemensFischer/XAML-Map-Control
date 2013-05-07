@@ -3,19 +3,20 @@ using System.Runtime.InteropServices;
 using System.Windows;
 
 #if SILVERLIGHT
-[assembly: AssemblyTitle("MapControl.Silverlight")]
-[assembly: AssemblyDescription("XAML Map Control for Silverlight")]
+[assembly: AssemblyTitle("Silverlight Map Control")]
+[assembly: AssemblyDescription("XAML Map Control Library for Silverlight")]
 #else
-[assembly: AssemblyTitle("MapControl.WPF")]
-[assembly: AssemblyDescription("XAML Map Control for WPF")]
+[assembly: AssemblyTitle("WPF Map Control")]
+[assembly: AssemblyDescription("XAML Map Control Library for WPF")]
 [assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]
 #endif
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Clemens Fischer")]
+
 [assembly: AssemblyProduct("XAML Map Control")]
-[assembly: AssemblyCopyright("Copyright © 2013 Clemens Fischer")]
+[assembly: AssemblyCompany("Clemens Fischer")]
+[assembly: AssemblyCopyright("Copyright © Clemens Fischer 2012-2013")]
 [assembly: AssemblyTrademark("")]
+[assembly: AssemblyVersion("1.3.0")]
+[assembly: AssemblyFileVersion("1.3.0")]
+[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.2.2")]
-[assembly: AssemblyFileVersion("1.2.2")]
 [assembly: ComVisible(false)]

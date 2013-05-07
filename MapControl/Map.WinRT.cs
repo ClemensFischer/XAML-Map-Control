@@ -1,15 +1,17 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.UI.Xaml.Input;
 
 namespace MapControl
 {
-    public partial class Map
+    /// <summary>
+    /// Default input event handling.
+    /// </summary>
+    public class Map : MapBase
     {
         private Point? mousePosition;
 
@@ -26,18 +28,15 @@ namespace MapControl
             PointerMoved += OnPointerMoved;
         }
 
-        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType != PointerDeviceType.Mouse)
-            {
-                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
-            }
-        }
+        /// <summary>
+        /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
+        /// </summary>
+        public double MouseWheelZoomChange { get; set; }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
-            var zoomChange = MouseWheelZoomChange * (double)point.Properties.MouseWheelDelta / MouseWheelDelta;
+            var zoomChange = MouseWheelZoomChange * (double)point.Properties.MouseWheelDelta / 120d;
             ZoomMap(point.Position, TargetZoomLevel + zoomChange);
         }
 
@@ -66,6 +65,14 @@ namespace MapControl
                 var position = e.GetCurrentPoint(this).Position;
                 TranslateMap(new Point(position.X - mousePosition.Value.X, position.Y - mousePosition.Value.Y));
                 mousePosition = position;
+            }
+        }
+
+        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType != PointerDeviceType.Mouse)
+            {
+                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
             }
         }
     }

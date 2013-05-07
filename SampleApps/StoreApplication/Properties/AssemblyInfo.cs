@@ -1,14 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("StoreApplication")]
-[assembly: AssemblyDescription("XAML Map Control Sample Application for Windows Runtime")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Clemens Fischer")]
+[assembly: AssemblyTitle("Windows Runtime Sample Application")]
+[assembly: AssemblyDescription("XAML Map Control Windows Runtime Sample Application")]
+
 [assembly: AssemblyProduct("XAML Map Control")]
-[assembly: AssemblyCopyright("Copyright © 2013 Clemens Fischer")]
+[assembly: AssemblyCompany("Clemens Fischer")]
+[assembly: AssemblyCopyright("Copyright © Clemens Fischer 2012-2013")]
 [assembly: AssemblyTrademark("")]
+[assembly: AssemblyVersion("1.3.0")]
+[assembly: AssemblyFileVersion("1.3.0")]
+[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.2.2")]
-[assembly: AssemblyFileVersion("1.2.2")]
 [assembly: ComVisible(false)]

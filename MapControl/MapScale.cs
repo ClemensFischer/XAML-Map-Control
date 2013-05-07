@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;

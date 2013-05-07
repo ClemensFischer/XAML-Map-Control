@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -32,7 +32,7 @@ namespace MapControl
                 var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(ParentMap.RenderSize));
                 var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
                 var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
-                var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * 256d);
+                var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * TileSource.TileSize);
                 var spacing = LineSpacings[LineSpacings.Length - 1];
 
                 if (spacing >= minSpacing)

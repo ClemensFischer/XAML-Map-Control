@@ -1,12 +1,11 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace MapControl
 {
@@ -34,7 +33,7 @@ namespace MapControl
                     }
                     else
                     {
-                        BeginOpacityAnimation();
+                        Brush.BeginAnimation(ImageBrush.OpacityProperty, new DoubleAnimation(1d, AnimationDuration));
                     }
                 }
                 else
@@ -51,7 +50,7 @@ namespace MapControl
         {
             ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
             ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
-            BeginOpacityAnimation();
+            Brush.BeginAnimation(ImageBrush.OpacityProperty, new DoubleAnimation(1d, AnimationDuration));
         }
 
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
@@ -59,17 +58,6 @@ namespace MapControl
             ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
             ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
             Brush.ImageSource = null;
-        }
-
-        private void BeginOpacityAnimation()
-        {
-            Brush.BeginAnimation(ImageBrush.OpacityProperty,
-                new DoubleAnimation
-                {
-                    To = 1d,
-                    Duration = AnimationDuration,
-                    FillBehavior = FillBehavior.HoldEnd
-                });
         }
     }
 }

@@ -17,9 +17,13 @@
             <map:TileLayer SourceName="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
                            TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
 
-            <!-- Note: The providers of the below TileLayers do not allow access to their
+            <!-- Tiles from WORLD OSM WMS, a Web Map Service based on OpenStreetMap data -->
+            <!--<map:TileLayer SourceName="WORLD OSM WMS" Description="WORLD OSM WMS (http://wiki.openstreetmap.org/wiki/OSM-WMS-EUROPE)"
+                           TileSource="http://129.206.228.72/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH=256&amp;HEIGHT=256&amp;FORMAT=image/png"/>-->
+
+            <!-- Note: The providers of the following TileLayers do not allow access to their
                  map content without using their APIs (i.e. Google Maps API or Bing Maps API).
-                 Hence the declarations below are for demonstration purpose only. -->
+                 Hence the declarations shown below are for demonstration purpose only. -->
 
             <!--<map:TileLayer SourceName="Google Maps" Description="Google Maps - © {y} Google"
                            TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
@@ -32,12 +36,12 @@
             <map:TileLayer SourceName="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation" Background="#FF3F3F3F" Foreground="White"
                            TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20"/>-->
 
-            <!-- The TileLayer below uses an ImageTileSource, which bypasses caching of map tile images -->
+            <!-- The following TileLayer uses an ImageTileSource, which bypasses caching of map tile images -->
             <!--<map:TileLayer SourceName="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
                 <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
             </map:TileLayer>-->
 
-            <!-- The TileLayer below demonstrates how to access local tile image files (from ImageFileCache here) -->
+            <!-- The following TileLayer demonstrates how to access local tile image files (from ImageFileCache here) -->
             <!--<map:TileLayer SourceName="OSM Local Files" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
                            TileSource="file:///C:/ProgramData/MapControl/TileCache/OpenStreetMap/{z}/{x}/{y}.png"/>-->
         </map:TileLayerCollection>
@@ -154,7 +158,13 @@
                  MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
-            
+
+            <!-- experimental WMS map layers -->
+            <!--<map:MapImageLayer Opacity="0.5"
+                               UriFormat="http://129.206.228.72/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
+            <!--<map:MapImageLayer Opacity="0.5"
+                               UriFormat="http://ows.terrestris.de/osm-basemap/service?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=OSM-WMS-Deutschland&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
+
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
 

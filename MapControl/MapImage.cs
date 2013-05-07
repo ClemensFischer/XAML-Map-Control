@@ -1,24 +1,25 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 #else
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 #endif
 
 namespace MapControl
 {
-    public partial class MapImage : MapRectangle
+    /// <summary>
+    /// Fills a rectangular area with an ImageBrush from the Source property.
+    /// </summary>
+    public class MapImage : MapRectangle
     {
         private static readonly Transform imageTransform = new MatrixTransform
         {
-            Matrix = new Matrix(1, 0, 0, -1, 0, 1)
+            Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
         };
 
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
@@ -31,36 +32,13 @@ namespace MapControl
             set { SetValue(SourceProperty, value); }
         }
 
-        public bool AnimateOpacity { get; set; }
-
         private void SourceChanged(ImageSource image)
         {
             Fill = new ImageBrush
             {
                 ImageSource = image,
-                RelativeTransform = imageTransform,
-                Opacity = 0d
+                RelativeTransform = imageTransform
             };
-
-            if (AnimateOpacity)
-            {
-                BeginOpacityAnimation(image);
-            }
-            else
-            {
-                Fill.Opacity = 1d;
-            }
-        }
-
-        private void BeginOpacityAnimation()
-        {
-            Fill.BeginAnimation(Brush.OpacityProperty,
-                new DoubleAnimation
-                {
-                    To = 1d,
-                    Duration = Tile.AnimationDuration,
-                    FillBehavior = FillBehavior.HoldEnd
-                });
         }
     }
 }

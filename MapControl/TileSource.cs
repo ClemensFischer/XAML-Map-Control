@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -18,6 +18,9 @@ namespace MapControl
     /// </summary>
     public partial class TileSource
     {
+        public const int TileSize = 256;
+        public const double EarthRadius = 6378137d; // WGS 84 semi major axis
+
         private Func<int, int, int, Uri> getUri;
         private string uriFormat = string.Empty;
         private int hostIndex = -1;
@@ -31,6 +34,11 @@ namespace MapControl
             UriFormat = uriFormat;
         }
 
+        public virtual double MetersPerDegree
+        {
+            get { return EarthRadius * Math.PI / 180d; }
+        }
+
         public string UriFormat
         {
             get { return uriFormat; }
@@ -42,8 +50,6 @@ namespace MapControl
                 }
 
                 uriFormat = value;
-
-                getUri = GetDefaultUri;
 
                 if (uriFormat.Contains("{x}") && uriFormat.Contains("{y}") && uriFormat.Contains("{z}"))
                 {
@@ -59,14 +65,22 @@ namespace MapControl
                     {
                         getUri = GetMapQuestUri;
                     }
+                    else
+                    {
+                        getUri = GetBasicUri;
+                    }
                 }
                 else if (uriFormat.Contains("{q}")) // {i} is optional
                 {
                     getUri = GetQuadKeyUri;
                 }
-                else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
+                else if (uriFormat.Contains("{W}") && uriFormat.Contains("{S}") && uriFormat.Contains("{E}") && uriFormat.Contains("{N}"))
                 {
                     getUri = GetBoundingBoxUri;
+                }
+                else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
+                {
+                    getUri = GetLatLonBoundingBoxUri;
                 }
                 else if (uriFormat.Contains("{x}") && uriFormat.Contains("{v}") && uriFormat.Contains("{z}"))
                 {
@@ -80,7 +94,7 @@ namespace MapControl
             return getUri != null ? getUri(x, y, zoomLevel) : null;
         }
 
-        private Uri GetDefaultUri(int x, int y, int zoomLevel)
+        private Uri GetBasicUri(int x, int y, int zoomLevel)
         {
             return new Uri(UriFormat.
                 Replace("{x}", x.ToString()).
@@ -147,12 +161,28 @@ namespace MapControl
 
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
-            var t = new MercatorTransform();
+            var n = (double)(1 << zoomLevel);
+            var x1 = MetersPerDegree * ((double)x * 360d / n - 180d);
+            var x2 = MetersPerDegree * ((double)(x + 1) * 360d / n - 180d);
+            var y1 = MetersPerDegree * (180d - (double)(y + 1) * 360d / n);
+            var y2 = MetersPerDegree * (180d - (double)y * 360d / n);
+
+            return new Uri(UriFormat.
+                Replace("{W}", x1.ToString(CultureInfo.InvariantCulture)).
+                Replace("{S}", y1.ToString(CultureInfo.InvariantCulture)).
+                Replace("{E}", x2.ToString(CultureInfo.InvariantCulture)).
+                Replace("{N}", y2.ToString(CultureInfo.InvariantCulture)));
+        }
+
+        private Uri GetLatLonBoundingBoxUri(int x, int y, int zoomLevel)
+        {
             var n = (double)(1 << zoomLevel);
             var x1 = (double)x * 360d / n - 180d;
             var x2 = (double)(x + 1) * 360d / n - 180d;
             var y1 = 180d - (double)(y + 1) * 360d / n;
             var y2 = 180d - (double)y * 360d / n;
+
+            var t = new MercatorTransform();
             var p1 = t.Transform(new Point(x1, y1));
             var p2 = t.Transform(new Point(x2, y2));
 

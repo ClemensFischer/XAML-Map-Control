@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
@@ -20,7 +20,7 @@ namespace MapControl
     {
         // Set FillBehavior.HoldEnd to prevent animation from returning
         // to local value before invoking the Completed handler
-        private const FillBehavior AnimationFillBehavior = FillBehavior.HoldEnd;
+        private const FillBehavior animationFillBehavior = FillBehavior.HoldEnd;
 
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
             "Foreground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Black)));

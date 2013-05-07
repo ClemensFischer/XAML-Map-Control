@@ -1,6 +1,6 @@
-﻿using MapControl;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using MapControl;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;

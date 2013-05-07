@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -19,8 +19,11 @@ namespace MapControl
     internal partial class TileContainer
     {
         private const double maxScaledTileSize = 400d; // scaled tile size 200..400 units
-        private static double zoomLevelSwitchOffset = Math.Log(maxScaledTileSize / 256d, 2d);
+        private static double zoomLevelSwitchOffset = Math.Log(maxScaledTileSize / TileSource.TileSize, 2d);
 
+        internal static TimeSpan UpdateInterval = TimeSpan.FromSeconds(0.5);
+
+        private readonly DispatcherTimer updateTimer;
         private Size size;
         private Point origin;
         private Point offset;
@@ -28,13 +31,12 @@ namespace MapControl
         private double zoomLevel;
         private int tileZoomLevel;
         private Int32Rect tileGrid;
-        private readonly DispatcherTimer updateTimer;
 
         public readonly MatrixTransform ViewportTransform = new MatrixTransform();
 
         public TileContainer()
         {
-            updateTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(0.5) };
+            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += UpdateTiles;
         }
 
@@ -80,13 +82,13 @@ namespace MapControl
 
         public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewportOrigin, Size viewportSize)
         {
-            var scale = Math.Pow(2d, zoomLevel) * 256d / 360d;
+            var scale = Math.Pow(2d, zoomLevel) * TileSource.TileSize / 360d;
             var oldMapOriginX = (origin.X - offset.X) / scale - 180d;
 
             if (zoomLevel != mapZoomLevel)
             {
                 zoomLevel = mapZoomLevel;
-                scale = Math.Pow(2d, zoomLevel) * 256d / 360d;
+                scale = Math.Pow(2d, zoomLevel) * TileSource.TileSize / 360d;
             }
 
             rotation = mapRotation;
@@ -124,7 +126,7 @@ namespace MapControl
             // with origin at tileGrid.X and tileGrid.Y to minimize rounding errors.
 
             return GetTransformMatrix(
-                new Matrix(1d, 0d, 0d, 1d, tileGrid.X * 256d, tileGrid.Y * 256d),
+                new Matrix(1d, 0d, 0d, 1d, tileGrid.X * TileSource.TileSize, tileGrid.Y * TileSource.TileSize),
                 Math.Pow(2d, zoomLevel - tileZoomLevel));
         }
 

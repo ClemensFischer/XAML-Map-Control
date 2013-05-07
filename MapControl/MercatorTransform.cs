@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -54,7 +54,7 @@ namespace MapControl
                 else
                 {
                     var lat = location.Latitude * Math.PI / 180d;
-                    location.Y = (Math.Log(Math.Tan(lat) + 1d / Math.Cos(lat))) / Math.PI * 180d;
+                    location.Y = Math.Log(Math.Tan(lat) + 1d / Math.Cos(lat)) / Math.PI * 180d;
                 }
             }
 

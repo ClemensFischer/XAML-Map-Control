@@ -1,9 +1,9 @@
-﻿using MapControl;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using MapControl;
 
 namespace WpfApplication
 {
@@ -11,12 +11,12 @@ namespace WpfApplication
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            Visibility visibility = Visibility.Hidden;
+            var visibility = Visibility.Hidden;
 
             if (values.Length == 2 && values[0] is Map && values[1] is Transform)
             {
-                Map parentMap = (Map)values[0];
-                Matrix transform = ((Transform)values[1]).Value;
+                var parentMap = (Map)values[0];
+                var transform = ((Transform)values[1]).Value;
 
                 if (transform.OffsetX >= 0d && transform.OffsetX <= parentMap.ActualWidth &&
                     transform.OffsetY >= 0d && transform.OffsetY <= parentMap.ActualHeight)

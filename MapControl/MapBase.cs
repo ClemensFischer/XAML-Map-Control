@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -26,7 +26,6 @@ namespace MapControl
     /// </summary>
     public partial class MapBase : MapPanel
     {
-        public const double MeterPerDegree = 1852d * 60d;
         public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.5);
         public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
 
@@ -273,11 +272,23 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets the conversion factor from longitude degrees to meters, at latitude = 0.
+        /// </summary>
+        public double MetersPerDegree
+        {
+            get
+            {
+                return (TileLayer != null && TileLayer.TileSource != null) ?
+                    TileLayer.TileSource.MetersPerDegree : (TileSource.EarthRadius * Math.PI / 180d);
+            }
+        }
+
+        /// <summary>
         /// Gets the map scale at the specified location as viewport coordinate units (pixels) per meter.
         /// </summary>
         public double GetMapScale(Location location)
         {
-            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * 256d / (MeterPerDegree * 360d);
+            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * TileSource.TileSize / (MetersPerDegree * 360d);
         }
 
         /// <summary>
@@ -591,8 +602,8 @@ namespace MapControl
                         From = new Point(Center.Longitude, Center.Latitude),
                         To = new Point(targetCenter.Longitude, targetCenter.Latitude),
                         Duration = AnimationDuration,
-                        FillBehavior = AnimationFillBehavior,
-                        EasingFunction = AnimationEasingFunction
+                        EasingFunction = AnimationEasingFunction,
+                        FillBehavior = animationFillBehavior
                     };
 
                     centerAnimation.Completed += CenterAnimationCompleted;
@@ -695,8 +706,8 @@ namespace MapControl
                 {
                     To = targetZoomLevel,
                     Duration = AnimationDuration,
-                    FillBehavior = AnimationFillBehavior,
-                    EasingFunction = AnimationEasingFunction
+                    EasingFunction = AnimationEasingFunction,
+                    FillBehavior = animationFillBehavior
                 };
 
                 zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
@@ -719,7 +730,8 @@ namespace MapControl
 
         private void CoerceHeadingProperty(DependencyProperty property, ref double heading)
         {
-            var coercedValue = (heading >= -180d && heading <= 360d) ? heading : (((heading % 360d) + 360d) % 360d);
+            var coercedValue = (heading >= -180d && heading <= 360d) ?
+                heading : (((heading % 360d) + 360d) % 360d);
 
             if (coercedValue != heading)
             {
@@ -769,8 +781,8 @@ namespace MapControl
                     {
                         By = delta,
                         Duration = AnimationDuration,
-                        FillBehavior = AnimationFillBehavior,
-                        EasingFunction = AnimationEasingFunction
+                        EasingFunction = AnimationEasingFunction,
+                        FillBehavior = animationFillBehavior
                     };
 
                     headingAnimation.Completed += HeadingAnimationCompleted;
@@ -811,7 +823,7 @@ namespace MapControl
                 }
             }
 
-            scale *= mapTransform.RelativeScale(center) / MeterPerDegree; // Pixels per meter at center latitude
+            scale *= mapTransform.RelativeScale(center) / MetersPerDegree; // Pixels per meter at center latitude
             CenterScale = scale;
             SetTransformMatrixes(scale);
 

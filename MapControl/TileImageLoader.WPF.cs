@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -121,7 +121,7 @@ namespace MapControl
                                 (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, true)),
                                 DispatcherPriority.Background, tile, image);
 
-                            var creationTime = BitConverter.ToInt64(buffer, 0);
+                            long creationTime = BitConverter.ToInt64(buffer, 0);
 
                             if (DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow)
                             {
@@ -268,11 +268,12 @@ namespace MapControl
                 using (var response = (HttpWebResponse)request.GetResponse())
                 using (var responseStream = response.GetResponseStream())
                 {
-                    var creationTime = DateTime.UtcNow.ToBinary();
                     var length = (int)response.ContentLength;
 
                     using (var memoryStream = length > 0 ? new MemoryStream(length + sizeof(long)) : new MemoryStream())
                     {
+                        long creationTime = DateTime.UtcNow.ToBinary();
+
                         memoryStream.Write(BitConverter.GetBytes(creationTime), 0, sizeof(long));
                         responseStream.CopyTo(memoryStream);
 

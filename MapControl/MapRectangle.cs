@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
@@ -13,11 +13,11 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    public partial class MapRectangle : MapShape
+    /// <summary>
+    /// Fills a rectangular area defined by South, North, West and East with a Brush.
+    /// </summary>
+    public class MapRectangle : MapShape
     {
-        private static Transform DefaultFillRelativeTransform =
-            Brush.RelativeTransformProperty.GetMetadata(typeof(Brush)).DefaultValue as Transform;
-
         public static readonly DependencyProperty SouthProperty = DependencyProperty.Register(
             "South", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateGeometry()));
@@ -84,17 +84,5 @@ namespace MapControl
                 ClearValue(RenderTransformProperty);
             }
         }
-
-//#if !NETFX_CORE && !SILVERLIGHT
-//        protected override void OnRender(DrawingContext drawingContext)
-//        {
-//            if (ParentMap != null)
-//            {
-//                drawingContext.PushTransform(ParentMap.ViewportTransform);
-//                drawingContext.DrawRectangle(Fill, null, ((RectangleGeometry)Geometry).Rect);
-//                drawingContext.Pop();
-//            }
-//        }
-//#endif
     }
 }

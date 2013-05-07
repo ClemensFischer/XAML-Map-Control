@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
@@ -12,7 +12,7 @@ namespace MapControl
     public partial class MapBase
     {
         // FillBehavior must be set to Stop to re-enable local property values
-        private const FillBehavior AnimationFillBehavior = FillBehavior.Stop;
+        private const FillBehavior animationFillBehavior = FillBehavior.Stop;
 
         public static readonly DependencyProperty ForegroundProperty =
             System.Windows.Controls.Control.ForegroundProperty.AddOwner(typeof(MapBase));

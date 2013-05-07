@@ -45,9 +45,6 @@
     <Compile Include="..\LocationCollection.cs">
       <Link>LocationCollection.cs</Link>
     </Compile>
-    <Compile Include="..\Map.cs">
-      <Link>Map.cs</Link>
-    </Compile>
     <Compile Include="..\Map.WinRT.cs">
       <Link>Map.WinRT.cs</Link>
     </Compile>
@@ -65,9 +62,6 @@
     </Compile>
     <Compile Include="..\MapImage.cs">
       <Link>MapImage.cs</Link>
-    </Compile>
-    <Compile Include="..\MapImage.Silverlight.WinRT.cs">
-      <Link>MapImage.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapItem.Silverlight.WinRT.cs">
       <Link>MapItem.Silverlight.WinRT.cs</Link>

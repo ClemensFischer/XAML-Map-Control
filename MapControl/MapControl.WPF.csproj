@@ -45,18 +45,17 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Map.WPF.cs" />
     <Compile Include="MapGraticule.WPF.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />
     <Compile Include="LocationCollectionConverter.cs" />
     <Compile Include="LocationConverter.cs" />
-    <Compile Include="Map.cs" />
-    <Compile Include="Map.Silverlight.WPF.cs" />
     <Compile Include="MapBase.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MapBase.WPF.cs" />
-    <Compile Include="MapImage.WPF.cs" />
+    <Compile Include="MapImageLayer.cs" />
     <Compile Include="MapItem.WPF.cs" />
     <Compile Include="MapItemsControl.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />

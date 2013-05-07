@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
@@ -26,8 +26,11 @@ namespace MapControl
             {
                 foreach (var tile in tiles)
                 {
-                    var tileSize = 256 << (zoomLevel - tile.ZoomLevel);
-                    var tileRect = new Rect(tileSize * tile.X - 256 * grid.X, tileSize * tile.Y - 256 * grid.Y, tileSize, tileSize);
+                    var tileSize = TileSource.TileSize << (zoomLevel - tile.ZoomLevel);
+                    var tileRect = new Rect(
+                        tileSize * tile.X - TileSource.TileSize * grid.X,
+                        tileSize * tile.Y - TileSource.TileSize * grid.Y,
+                        tileSize, tileSize);
 
                     drawingContext.DrawRectangle(tile.Brush, null, tileRect);
 

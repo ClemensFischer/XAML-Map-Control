@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2013 Clemens Fischer
+// Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
@@ -42,7 +42,7 @@ namespace MapControl
                     }
                     else
                     {
-                        BeginOpacityAnimation();
+                        Image.BeginAnimation(Image.OpacityProperty, new DoubleAnimation { To = 1d, Duration = AnimationDuration });
                     }
                 }
                 else
@@ -59,7 +59,7 @@ namespace MapControl
         {
             ((BitmapImage)sender).ImageOpened -= BitmapImageOpened;
             ((BitmapImage)sender).ImageFailed -= BitmapImageFailed;
-            BeginOpacityAnimation();
+            Image.BeginAnimation(Image.OpacityProperty, new DoubleAnimation { To = 1d, Duration = AnimationDuration });
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
@@ -67,17 +67,6 @@ namespace MapControl
             ((BitmapImage)sender).ImageOpened -= BitmapImageOpened;
             ((BitmapImage)sender).ImageFailed -= BitmapImageFailed;
             Image.Source = null;
-        }
-
-        private void BeginOpacityAnimation()
-        {
-            Image.BeginAnimation(Image.OpacityProperty,
-                new DoubleAnimation
-                {
-                    To = 1d,
-                    Duration = AnimationDuration,
-                    FillBehavior = FillBehavior.HoldEnd
-                });
         }
     }
 }
