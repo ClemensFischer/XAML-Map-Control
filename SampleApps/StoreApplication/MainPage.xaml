@@ -109,7 +109,7 @@
             </map:MapBase.Center>
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
-            <map:MapGraticule Foreground="Black" Opacity="0.6"/>
+            <map:MapGraticule Opacity="0.6"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{StaticResource Polylines}"

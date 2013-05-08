@@ -7,8 +7,7 @@
     xmlns:map="clr-namespace:MapControl;assembly=MapControl.Silverlight"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:local="clr-namespace:SilverlightApplication"
-    mc:Ignorable="d"
-    d:DesignHeight="300" d:DesignWidth="400">
+    mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="400">
     <UserControl.Resources>
         <map:TileLayerCollection x:Key="TileLayers">
             <map:TileLayer SourceName="OpenStreetMap" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"

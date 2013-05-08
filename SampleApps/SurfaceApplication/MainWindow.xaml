@@ -5,8 +5,7 @@
     xmlns:m="clr-namespace:MapControl;assembly=MapControl.WPF"
     Title="SurfaceApplication" WindowStyle="None" WindowState="Maximized">
     <Grid>
-        <m:Map Center="53.5,8.2" ZoomLevel="11"
-               IsManipulationEnabled="True" TouchDown="MapTouchDown">
+        <m:Map Center="53.5,8.2" ZoomLevel="11" TouchDown="MapTouchDown">
             <m:MapGraticule Opacity="0.5" MinLineSpacing="200"/>
         </m:Map>
     </Grid>

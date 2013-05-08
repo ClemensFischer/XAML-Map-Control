@@ -15,6 +15,8 @@ namespace MapControl
             VisualEdgeMode = EdgeMode.Aliased;
         }
 
+        public Brush Background { get; set; }
+
         protected ContainerVisual TileContainer
         {
             get { return Parent as ContainerVisual; }

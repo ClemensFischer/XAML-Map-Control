@@ -64,7 +64,6 @@ namespace MapControl
         public int MaxZoomLevel { get; set; }
         public int MaxParallelDownloads { get; set; }
         public bool LoadLowerZoomLevels { get; set; }
-        public Brush Background { get; set; }
         public Brush Foreground { get; set; }
 
         public string Description

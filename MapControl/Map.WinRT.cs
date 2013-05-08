@@ -4,6 +4,7 @@
 
 using Windows.Devices.Input;
 using Windows.Foundation;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 
 namespace MapControl
@@ -13,11 +14,13 @@ namespace MapControl
     /// </summary>
     public class Map : MapBase
     {
+        public static readonly DependencyProperty MouseWheelZoomChangeProperty = DependencyProperty.Register(
+            "MouseWheelZoomChange", typeof(double), typeof(Map), new PropertyMetadata(1d));
+
         private Point? mousePosition;
 
         public Map()
         {
-            MouseWheelZoomChange = 1d;
             ManipulationMode = ManipulationModes.All;
             ManipulationDelta += OnManipulationDelta;
             PointerWheelChanged += OnPointerWheelChanged;
@@ -31,7 +34,11 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
         /// </summary>
-        public double MouseWheelZoomChange { get; set; }
+        public double MouseWheelZoomChange
+        {
+            get { return (double)GetValue(MouseWheelZoomChangeProperty); }
+            set { SetValue(MouseWheelZoomChangeProperty, value); }
+        }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {

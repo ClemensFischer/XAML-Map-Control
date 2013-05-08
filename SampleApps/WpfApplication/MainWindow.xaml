@@ -152,8 +152,7 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map Name="map" IsManipulationEnabled="True" Margin="2"
-                 Center="53.5,8.2" ZoomLevel="11" MaxZoomLevel="20"
+        <map:Map Name="map" Margin="2" Center="53.5,8.2" ZoomLevel="11" MaxZoomLevel="20"
                  TileLayer="{Binding Source={StaticResource TileLayersView}, Path=CurrentItem}"
                  MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"

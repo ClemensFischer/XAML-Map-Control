@@ -204,7 +204,7 @@ namespace MapControl
                 {
                     pen = new Pen
                     {
-                        Brush = Stroke != null ? Stroke : Foreground,
+                        Brush = Stroke ?? Foreground,
                         Thickness = StrokeThickness,
                         DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset),
                         DashCap = StrokeDashCap,

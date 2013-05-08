@@ -806,8 +806,8 @@ namespace MapControl
         private void UpdateTransform()
         {
             var center = Center;
-            var origin = transformOrigin != null ? transformOrigin : center;
-            var scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin, RenderSize);
+            var origin = mapTransform.Transform(transformOrigin ?? center);
+            var scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, origin, viewportOrigin, RenderSize);
 
             if (transformOrigin != null)
             {
