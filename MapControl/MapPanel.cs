@@ -24,7 +24,7 @@ namespace MapControl
     /// <summary>
     /// Positions child elements on a Map, at a position specified by the attached property Location.
     /// The Location is transformed into a viewport position by the MapBase.LocationToViewportPoint
-    /// method and then applied to the RenderTransform as an appropriate TranslateTransform.
+    /// method and applied to a child element's RenderTransform as an appropriate TranslateTransform.
     /// </summary>
     public partial class MapPanel : Panel, IMapElement
     {

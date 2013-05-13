@@ -121,13 +121,10 @@ namespace MapControl
             for (var z = minZoomLevel; z <= maxZoomLevel; z++)
             {
                 var tileSize = 1 << (zoomLevel - z);
-                var x1 = grid.X / tileSize;
-                var y1 = grid.Y / tileSize;
+                var x1 = (int)Math.Floor((double)grid.X / tileSize); // may be negative
                 var x2 = (grid.X + grid.Width - 1) / tileSize;
-                var y2 = (grid.Y + grid.Height - 1) / tileSize;
-
-                y1 = Math.Max(y1, 0);
-                y2 = Math.Min(y2, (1 << z) - 1);
+                var y1 = Math.Max(grid.Y / tileSize, 0);
+                var y2 = Math.Min((grid.Y + grid.Height - 1) / tileSize, (1 << z) - 1);
 
                 for (var y = y1; y <= y2; y++)
                 {

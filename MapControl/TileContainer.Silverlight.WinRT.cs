@@ -2,6 +2,7 @@
 // Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml.Controls;
@@ -16,21 +17,32 @@ namespace MapControl
 {
     internal partial class TileContainer : Panel
     {
-        private Matrix GetTransformMatrix(Matrix transform, double scale)
+        private void SetViewportTransform(Matrix transform)
         {
-            return transform
+            ViewportTransform.Matrix = transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
+        }
+
+        /// <summary>
+        /// Gets a transform matrix with origin at tileGrid.X and tileGrid.Y to minimize rounding errors.
+        /// </summary>
+        private Matrix GetTileLayerTransformMatrix()
+        {
+            var scale = Math.Pow(2d, zoomLevel - tileZoomLevel);
+
+            return new Matrix(1d, 0d, 0d, 1d, tileGrid.X * TileSource.TileSize, tileGrid.Y * TileSource.TileSize)
                 .Scale(scale, scale)
-                .Translate(offset.X, offset.Y)
-                .RotateAt(rotation, origin.X, origin.Y);
+                .Translate(tileLayerOffset.X, tileLayerOffset.Y)
+                .RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
         }
 
         private Matrix GetTileIndexMatrix(int numTiles)
         {
-            var mapToTileScale = (double)numTiles / 360d;
+            var scale = (double)numTiles / 360d;
+
             return ViewportTransform.Matrix
                 .Invert() // view to map coordinates
                 .Translate(180d, -180d)
-                .Scale(mapToTileScale, -mapToTileScale); // map coordinates to tile indices
+                .Scale(scale, -scale); // map coordinates to tile indices
         }
 
         protected override Size MeasureOverride(Size availableSize)

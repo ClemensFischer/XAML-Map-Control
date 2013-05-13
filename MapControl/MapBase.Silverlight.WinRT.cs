@@ -27,6 +27,7 @@ namespace MapControl
 
         partial void Initialize()
         {
+            Background = new SolidColorBrush(Colors.Transparent);
             Clip = new RectangleGeometry();
             Children.Add(tileContainer);
 

@@ -24,9 +24,9 @@ namespace MapControl
         internal static TimeSpan UpdateInterval = TimeSpan.FromSeconds(0.5);
 
         private readonly DispatcherTimer updateTimer;
-        private Size size;
-        private Point origin;
-        private Point offset;
+        private Size viewportSize;
+        private Point viewportOrigin;
+        private Point tileLayerOffset;
         private double rotation;
         private double zoomLevel;
         private int tileZoomLevel;
@@ -80,10 +80,10 @@ namespace MapControl
             Children.Clear();
         }
 
-        public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewportOrigin, Size viewportSize)
+        public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point vpOrigin, Size vpSize)
         {
             var scale = Math.Pow(2d, zoomLevel) * TileSource.TileSize / 360d;
-            var oldMapOriginX = (origin.X - offset.X) / scale - 180d;
+            var oldMapOriginX = (viewportOrigin.X - tileLayerOffset.X) / scale - 180d;
 
             if (zoomLevel != mapZoomLevel)
             {
@@ -92,15 +92,23 @@ namespace MapControl
             }
 
             rotation = mapRotation;
-            size = viewportSize;
-            origin = viewportOrigin;
+            viewportSize = vpSize;
+            viewportOrigin = vpOrigin;
 
-            offset.X = origin.X - (180d + mapOrigin.X) * scale;
-            offset.Y = origin.Y - (180d - mapOrigin.Y) * scale;
+            var transformOffsetX = viewportOrigin.X - mapOrigin.X * scale;
+            var transformOffsetY = viewportOrigin.Y + mapOrigin.Y * scale;
 
-            ViewportTransform.Matrix = GetTransformMatrix(new Matrix(1d, 0d, 0d, -1d, 180d, 180d), scale);
+            tileLayerOffset.X = transformOffsetX - 180d * scale;
+            tileLayerOffset.Y = transformOffsetY - 180d * scale;
 
-            if (Math.Sign(mapOrigin.X) == Math.Sign(oldMapOriginX))
+            SetViewportTransform(new Matrix(scale, 0d, 0d, -scale, transformOffsetX, transformOffsetY));
+
+            if (Math.Sign(mapOrigin.X) != Math.Sign(oldMapOriginX) && Math.Abs(mapOrigin.X) > 90d)
+            {
+                // immediately handle map origin leap when map center moves across the date line
+                UpdateTiles(this, EventArgs.Empty);
+            }
+            else
             {
                 var tileLayerTransform = GetTileLayerTransformMatrix();
 
@@ -111,23 +119,8 @@ namespace MapControl
 
                 updateTimer.Start();
             }
-            else
-            {
-                // immediately handle map origin leap when map center moves across the date line
-                UpdateTiles(this, EventArgs.Empty);
-            }
 
             return scale;
-        }
-
-        private Matrix GetTileLayerTransformMatrix()
-        {
-            // Calculates the TileLayer VisualTransform or RenderTransform matrix
-            // with origin at tileGrid.X and tileGrid.Y to minimize rounding errors.
-
-            return GetTransformMatrix(
-                new Matrix(1d, 0d, 0d, 1d, tileGrid.X * TileSource.TileSize, tileGrid.Y * TileSource.TileSize),
-                Math.Pow(2d, zoomLevel - tileZoomLevel));
         }
 
         private void UpdateTiles(object sender, object e)
@@ -140,9 +133,9 @@ namespace MapControl
 
             // tile indices of visible rectangle
             var p1 = transform.Transform(new Point(0d, 0d));
-            var p2 = transform.Transform(new Point(size.Width, 0d));
-            var p3 = transform.Transform(new Point(0d, size.Height));
-            var p4 = transform.Transform(new Point(size.Width, size.Height));
+            var p2 = transform.Transform(new Point(viewportSize.Width, 0d));
+            var p3 = transform.Transform(new Point(0d, viewportSize.Height));
+            var p4 = transform.Transform(new Point(viewportSize.Width, viewportSize.Height));
 
             var left = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
             var right = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));

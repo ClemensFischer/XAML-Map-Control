@@ -90,8 +90,8 @@ namespace MapControl
         private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
-        private Brush previousBackground;
-        private Brush previousForeground;
+        private Brush storedBackground;
+        private Brush storedForeground;
         private bool internalPropertyChange;
 
         public MapBase()
@@ -497,32 +497,32 @@ namespace MapControl
 
             if (tileLayer != null && tileLayer.Background != null)
             {
-                if (previousBackground == null)
+                if (storedBackground == null)
                 {
-                    previousBackground = Background;
+                    storedBackground = Background;
                 }
 
                 Background = tileLayer.Background;
             }
-            else if (previousBackground != null)
+            else if (storedBackground != null)
             {
-                Background = previousBackground;
-                previousBackground = null;
+                Background = storedBackground;
+                storedBackground = null;
             }
 
             if (tileLayer != null && tileLayer.Foreground != null)
             {
-                if (previousForeground == null)
+                if (storedForeground == null)
                 {
-                    previousForeground = Foreground;
+                    storedForeground = Foreground;
                 }
 
                 Foreground = tileLayer.Foreground;
             }
-            else if (previousForeground != null)
+            else if (storedForeground != null)
             {
-                Foreground = previousForeground;
-                previousForeground = null;
+                Foreground = storedForeground;
+                storedForeground = null;
             }
         }
 
@@ -806,12 +806,12 @@ namespace MapControl
         private void UpdateTransform()
         {
             var center = Center;
-            var origin = mapTransform.Transform(transformOrigin ?? center);
-            var scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, origin, viewportOrigin, RenderSize);
+            var scale = SetViewportTransform(transformOrigin ?? center);
 
             if (transformOrigin != null)
             {
                 center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
+
                 var coerced = CoerceLocation(center, 1e-3);
 
                 InternalSetValue(CenterProperty, center);
@@ -819,7 +819,7 @@ namespace MapControl
                 if (coerced)
                 {
                     ResetTransformOrigin();
-                    scale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(center), viewportOrigin, RenderSize);
+                    scale = SetViewportTransform(center);
                 }
             }
 
@@ -828,6 +828,11 @@ namespace MapControl
             SetTransformMatrixes(scale);
 
             OnViewportChanged();
+        }
+
+        private double SetViewportTransform(Location origin)
+        {
+            return tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin, RenderSize);
         }
     }
 }

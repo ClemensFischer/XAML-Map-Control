@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -27,7 +28,6 @@ namespace MapControl
     public class MapImageLayer : MapPanel
     {
         private readonly DispatcherTimer updateTimer;
-        private readonly WebClient webClient;
         private string uriFormat;
         private bool latLonBoundingBox;
         private bool imageIsValid;
@@ -38,9 +38,6 @@ namespace MapControl
         {
             Children.Add(new MapImage { Opacity = 0d });
             Children.Add(new MapImage { Opacity = 0d });
-
-            webClient = new WebClient();
-            webClient.Headers.Add(HttpRequestHeader.UserAgent, "XAML Map Control");
 
             updateTimer = new DispatcherTimer { Interval = TileContainer.UpdateInterval };
             updateTimer.Tick += UpdateImage;
@@ -86,6 +83,61 @@ namespace MapControl
             updateTimer.Start();
         }
 
+        protected virtual ImageSource GetImage(double west, double east, double south, double north, int width, int height)
+        {
+            ImageSource image = null;
+            var uri = uriFormat.Replace("{X}", width.ToString()).Replace("{Y}", height.ToString());
+
+            if (latLonBoundingBox)
+            {
+                uri = uri.
+                    Replace("{w}", west.ToString(CultureInfo.InvariantCulture)).
+                    Replace("{s}", south.ToString(CultureInfo.InvariantCulture)).
+                    Replace("{e}", east.ToString(CultureInfo.InvariantCulture)).
+                    Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
+                var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
+                var arc = TileSource.EarthRadius * Math.PI / 180d;
+
+                uri = uri.
+                    Replace("{W}", (arc * p1.X).ToString(CultureInfo.InvariantCulture)).
+                    Replace("{S}", (arc * p1.Y).ToString(CultureInfo.InvariantCulture)).
+                    Replace("{E}", (arc * p2.X).ToString(CultureInfo.InvariantCulture)).
+                    Replace("{N}", (arc * p2.Y).ToString(CultureInfo.InvariantCulture));
+            }
+
+            try
+            {
+                var bitmap = new BitmapImage();
+                var request = (HttpWebRequest)WebRequest.Create(uri);
+                request.UserAgent = "XAML Map Control";
+
+                using (var response = (HttpWebResponse)request.GetResponse())
+                using (var responseStream = response.GetResponseStream())
+                using (var memoryStream = new MemoryStream())
+                {
+                    responseStream.CopyTo(memoryStream);
+
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.StreamSource = memoryStream;
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+                }
+
+                image = bitmap;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("{0}: {1}", uri, ex.Message);
+            }
+
+            return image;
+        }
+
         private void UpdateImage(object sender, EventArgs e)
         {
             updateTimer.Stop();
@@ -98,14 +150,12 @@ namespace MapControl
             imageIsValid = true;
             updateInProgress = true;
 
-            var uri = uriFormat.
-                Replace("{X}", ActualWidth.ToString("F0", CultureInfo.InvariantCulture)).
-                Replace("{Y}", ActualHeight.ToString("F0", CultureInfo.InvariantCulture));
-
             var loc1 = ParentMap.ViewportPointToLocation(new Point(0d, 0d));
             var loc2 = ParentMap.ViewportPointToLocation(new Point(ActualWidth, 0d));
             var loc3 = ParentMap.ViewportPointToLocation(new Point(0d, ActualHeight));
             var loc4 = ParentMap.ViewportPointToLocation(new Point(ActualWidth, ActualHeight));
+            var width = (int)ActualWidth;
+            var height = (int)ActualHeight;
 
             ThreadPool.QueueUserWorkItem(o =>
             {
@@ -113,71 +163,37 @@ namespace MapControl
                 var east = Math.Max(loc1.Longitude, Math.Max(loc2.Longitude, Math.Max(loc3.Longitude, loc4.Longitude)));
                 var south = Math.Min(loc1.Latitude, Math.Min(loc2.Latitude, Math.Min(loc3.Latitude, loc4.Latitude)));
                 var north = Math.Max(loc1.Latitude, Math.Max(loc2.Latitude, Math.Max(loc3.Latitude, loc4.Latitude)));
+                var image = GetImage(west, east, south, north, width, height);
 
-                if (latLonBoundingBox)
+                if (image != null)
                 {
-                    uri = uri.
-                        Replace("{w}", west.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{s}", south.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{e}", east.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
-                }
-                else
-                {
-                    var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
-                    var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
-                    var arc = TileSource.EarthRadius * Math.PI / 180d;
-
-                    uri = uri.
-                        Replace("{W}", (arc * p1.X).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{S}", (arc * p1.Y).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{E}", (arc * p2.X).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{N}", (arc * p2.Y).ToString(CultureInfo.InvariantCulture));
-                }
-
-                try
-                {
-                    var buffer = webClient.DownloadData(uri);
-                    var bitmap = new BitmapImage();
-
-                    using (var stream = new MemoryStream(buffer))
-                    {
-                        bitmap.BeginInit();
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.StreamSource = stream;
-                        bitmap.EndInit();
-                        bitmap.Freeze();
-                    }
-
                     Dispatcher.BeginInvoke((Action)(() =>
                     {
-                        var image = (MapImage)Children[currentImageIndex];
-                        image.BeginAnimation(Image.OpacityProperty,
-                            new DoubleAnimation(0d, Tile.AnimationDuration)
+                        var mapImage = (MapImage)Children[currentImageIndex];
+                        mapImage.BeginAnimation(Image.OpacityProperty,
+                            new DoubleAnimation
                             {
+                                To = 0,
+                                Duration = Tile.AnimationDuration,
                                 BeginTime = Tile.AnimationDuration
                             });
 
                         currentImageIndex = (currentImageIndex + 1) % 2;
-                        image = (MapImage)Children[currentImageIndex];
-                        image.Source = null;
-                        image.North = double.NaN; // avoid frequent MapRectangle.UpdateGeometry() calls
-                        image.West = west;
-                        image.East = east;
-                        image.South = south;
-                        image.North = north;
-                        image.Source = bitmap;
-                        image.BeginAnimation(Image.OpacityProperty, new DoubleAnimation(1d, Tile.AnimationDuration));
+                        mapImage = (MapImage)Children[currentImageIndex];
+                        mapImage.Source = null;
+                        mapImage.North = double.NaN; // avoid frequent MapRectangle.UpdateGeometry() calls
+                        mapImage.West = west;
+                        mapImage.East = east;
+                        mapImage.South = south;
+                        mapImage.North = north;
+                        mapImage.Source = image;
+                        mapImage.BeginAnimation(Image.OpacityProperty, new DoubleAnimation(1d, Tile.AnimationDuration));
 
                         if (!imageIsValid)
                         {
                             UpdateImage(this, EventArgs.Empty);
                         }
                     }));
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceWarning("{0}: {1}", uri, ex.Message);
                 }
 
                 updateInProgress = false;
