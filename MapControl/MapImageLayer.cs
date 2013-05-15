@@ -45,6 +45,11 @@ namespace MapControl
             updateTimer.Tick += UpdateImage;
         }
 
+        /// <summary>
+        /// Relative size of the map images in relation to the current viewport size.
+        /// Setting a value greater than one will let MapImageLayer request images that
+        /// are larger than the viewport, in order to support smooth panning. 
+        /// </summary>
         public double RelativeImageSize
         {
             get { return (double)GetValue(RelativeImageSizeProperty); }
