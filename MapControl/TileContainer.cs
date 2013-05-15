@@ -19,7 +19,7 @@ namespace MapControl
     internal partial class TileContainer
     {
         private const double maxScaledTileSize = 400d; // scaled tile size 200..400 units
-        private static double zoomLevelSwitchOffset = Math.Log(maxScaledTileSize / TileSource.TileSize, 2d);
+        private static double zoomLevelSwitchDelta = Math.Log(maxScaledTileSize / TileSource.TileSize, 2d);
 
         internal static TimeSpan UpdateInterval = TimeSpan.FromSeconds(0.5);
 
@@ -127,7 +127,7 @@ namespace MapControl
         {
             updateTimer.Stop();
 
-            var zoom = (int)Math.Floor(zoomLevel + 1d - zoomLevelSwitchOffset);
+            var zoom = (int)Math.Floor(zoomLevel + 1d - zoomLevelSwitchDelta);
             var numTiles = 1 << zoom;
             var transform = GetTileIndexMatrix(numTiles);
 

@@ -416,7 +416,7 @@ namespace MapControl
         {
             Loaded -= OnLoaded;
 
-            if (TileLayer == null)
+            if (TileLayer == null && TileLayers == null)
             {
                 TileLayer = TileLayer.Default;
             }
