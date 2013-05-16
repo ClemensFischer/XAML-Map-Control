@@ -18,8 +18,8 @@ namespace MapControl
 {
     internal partial class TileContainer
     {
-        private const double maxScaledTileSize = 400d; // scaled tile size 200..400 units
-        private static double zoomLevelSwitchDelta = Math.Log(maxScaledTileSize / TileSource.TileSize, 2d);
+        // relative scaled tile size ranges from 0.75 to 1.5 (192 to 384 pixels)
+        private static double zoomLevelSwitchDelta = -Math.Log(0.75, 2d);
 
         internal static TimeSpan UpdateInterval = TimeSpan.FromSeconds(0.5);
 
@@ -127,9 +127,8 @@ namespace MapControl
         {
             updateTimer.Stop();
 
-            var zoom = (int)Math.Floor(zoomLevel + 1d - zoomLevelSwitchDelta);
-            var numTiles = 1 << zoom;
-            var transform = GetTileIndexMatrix(numTiles);
+            var zoom = (int)Math.Floor(zoomLevel + zoomLevelSwitchDelta);
+            var transform = GetTileIndexMatrix(1 << zoom);
 
             // tile indices of visible rectangle
             var p1 = transform.Transform(new Point(0d, 0d));
@@ -137,16 +136,11 @@ namespace MapControl
             var p3 = transform.Transform(new Point(0d, viewportSize.Height));
             var p4 = transform.Transform(new Point(viewportSize.Width, viewportSize.Height));
 
-            var left = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
-            var right = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
-            var top = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
-            var bottom = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
-
             // index ranges of visible tiles
-            var x1 = (int)Math.Floor(left);
-            var x2 = (int)Math.Floor(right);
-            var y1 = Math.Max((int)Math.Floor(top), 0);
-            var y2 = Math.Min((int)Math.Floor(bottom), numTiles - 1);
+            var x1 = (int)Math.Floor(Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X))));
+            var y1 = (int)Math.Floor(Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y))));
+            var x2 = (int)Math.Floor(Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X))));
+            var y2 = (int)Math.Floor(Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y))));
             var grid = new Int32Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 
             if (tileZoomLevel != zoom || tileGrid != grid)
