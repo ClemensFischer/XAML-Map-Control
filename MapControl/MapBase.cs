@@ -416,7 +416,7 @@ namespace MapControl
         {
             Loaded -= OnLoaded;
 
-            if (TileLayer == null && TileLayers == null)
+            if (TileLayer == null)
             {
                 TileLayer = TileLayer.Default;
             }
@@ -528,7 +528,12 @@ namespace MapControl
 
         private void UpdateTileLayer()
         {
-            var tileLayer = TileLayers.FirstOrDefault();
+            TileLayer tileLayer = null;
+
+            if (TileLayers != null)
+            {
+                tileLayer = TileLayers.FirstOrDefault();
+            }
 
             if (TileLayer != tileLayer)
             {
