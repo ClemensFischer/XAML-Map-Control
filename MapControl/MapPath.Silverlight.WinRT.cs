@@ -3,20 +3,17 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 #else
-using System.Windows.Media;
 using System.Windows.Shapes;
 #endif
 
 namespace MapControl
 {
-    public partial class MapShape : Path
+    public partial class MapPath : Path
     {
-        public MapShape(Geometry geometry)
+        public MapPath()
         {
-            Data = Geometry = geometry;
             MapPanel.AddParentMapHandlers(this);
         }
     }

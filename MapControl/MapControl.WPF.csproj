@@ -65,8 +65,8 @@
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
     <Compile Include="MapRectangle.cs" />
-    <Compile Include="MapShape.cs" />
-    <Compile Include="MapShape.WPF.cs" />
+    <Compile Include="MapPath.cs" />
+    <Compile Include="MapPath.WPF.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

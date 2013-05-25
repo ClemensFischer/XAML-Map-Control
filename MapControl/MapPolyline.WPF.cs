@@ -10,13 +10,13 @@ namespace MapControl
     public partial class MapPolyline
     {
         public MapPolyline()
-            : base(new StreamGeometry())
         {
+            Data = new StreamGeometry();
         }
 
-        protected override void UpdateGeometry()
+        protected override void UpdateData()
         {
-            var geometry = (StreamGeometry)Geometry;
+            var geometry = (StreamGeometry)Data;
             var locations = Locations;
             Location first;
 

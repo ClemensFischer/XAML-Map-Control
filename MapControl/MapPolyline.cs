@@ -14,7 +14,7 @@ using System.Windows;
 
 namespace MapControl
 {
-    public partial class MapPolyline : MapShape
+    public partial class MapPolyline : MapPath
     {
 #if NETFX_CORE
         // For WinRT, the Locations dependency property type is declared as object
@@ -29,7 +29,7 @@ namespace MapControl
 
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
-            new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateGeometry()));
+            new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateData()));
 
         /// <summary>
         /// Gets or sets the locations that define the polyline points.
@@ -51,7 +51,7 @@ namespace MapControl
 
         private void LocationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            UpdateGeometry();
+            UpdateData();
         }
 
         private static void LocationsPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
@@ -70,7 +70,7 @@ namespace MapControl
                 newCollection.CollectionChanged += mapPolyline.LocationCollectionChanged;
             }
 
-            mapPolyline.UpdateGeometry();
+            mapPolyline.UpdateData();
         }
     }
 }

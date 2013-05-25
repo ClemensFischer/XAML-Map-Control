@@ -203,7 +203,7 @@ namespace MapControl
             currentImageIndex = (currentImageIndex + 1) % 2;
             mapImage = (MapImage)Children[currentImageIndex];
             mapImage.Source = null;
-            mapImage.North = double.NaN; // avoid frequent MapRectangle.UpdateGeometry() calls
+            mapImage.North = double.NaN; // avoid frequent MapRectangle.UpdateData() calls
             mapImage.West = west;
             mapImage.East = east;
             mapImage.South = south;

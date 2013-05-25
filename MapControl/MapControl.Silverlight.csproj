@@ -80,11 +80,11 @@
     <Compile Include="MapItemsControl.Silverlight.WinRT.cs" />
     <Compile Include="MapPanel.cs" />
     <Compile Include="MapPanel.Silverlight.WinRT.cs" />
+    <Compile Include="MapPath.cs" />
     <Compile Include="MapRectangle.cs" />
-    <Compile Include="MapShape.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.Silverlight.WinRT.cs" />
-    <Compile Include="MapShape.Silverlight.WinRT.cs" />
+    <Compile Include="MapPath.Silverlight.WinRT.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MatrixEx.cs" />
     <Compile Include="MercatorTransform.cs" />

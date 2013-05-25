@@ -78,6 +78,12 @@
     <Compile Include="..\MapPanel.Silverlight.WinRT.cs">
       <Link>MapPanel.Silverlight.WinRT.cs</Link>
     </Compile>
+    <Compile Include="..\MapPath.cs">
+      <Link>MapPath.cs</Link>
+    </Compile>
+    <Compile Include="..\MapPath.Silverlight.WinRT.cs">
+      <Link>MapPath.Silverlight.WinRT.cs</Link>
+    </Compile>
     <Compile Include="..\MapPolyline.cs">
       <Link>MapPolyline.cs</Link>
     </Compile>
@@ -86,12 +92,6 @@
     </Compile>
     <Compile Include="..\MapRectangle.cs">
       <Link>MapRectangle.cs</Link>
-    </Compile>
-    <Compile Include="..\MapShape.cs">
-      <Link>MapShape.cs</Link>
-    </Compile>
-    <Compile Include="..\MapShape.Silverlight.WinRT.cs">
-      <Link>MapShape.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>

@@ -15,13 +15,13 @@ namespace MapControl
     public partial class MapPolyline
     {
         public MapPolyline()
-            : base(new PathGeometry())
         {
+            Data = new PathGeometry();
         }
 
-        protected override void UpdateGeometry()
+        protected override void UpdateData()
         {
-            var geometry = (PathGeometry)Geometry;
+            var geometry = (PathGeometry)Data;
             var locations = Locations;
             Location first;
 

@@ -2,7 +2,6 @@
 // Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -98,28 +97,14 @@ namespace MapControl
         {
             foreach (UIElement element in InternalChildren)
             {
-                var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
                 var location = GetLocation(element);
 
-                if (element is FrameworkElement)
-                {
-                    if (location != null)
-                    {
-                        AlignElementWithLocation((FrameworkElement)element, ref rect);
-                    }
-                    else
-                    {
-                        AlignElementWithoutLocation((FrameworkElement)element, finalSize, ref rect);
-                    }
-                }
-
-                element.Arrange(rect);
+                ArrangeElement(element, finalSize, location != null);
 
                 if (location != null)
                 {
                     SetViewportPosition(element, parentMap, location);
                 }
-
             }
 
             return finalSize;
@@ -143,8 +128,14 @@ namespace MapControl
             {
                 var mapElement = element as IMapElement;
                 var parentMap = mapElement != null ? mapElement.ParentMap : GetParentMap(element);
+                var location = e.NewValue as Location;
 
-                SetViewportPosition(element, parentMap, (Location)e.NewValue);
+                if ((location != null) != (e.OldValue != null))
+                {
+                    ArrangeElement(element, null, location != null);
+                }
+
+                SetViewportPosition(element, parentMap, location);
             }
         }
 
@@ -193,74 +184,90 @@ namespace MapControl
             translateTransform.Y = viewportPosition.Y;
         }
 
-        private static void AlignElementWithLocation(FrameworkElement element, ref Rect arrangeRect)
+        private static void ArrangeElement(UIElement element, Size? panelSize, bool hasLocation)
         {
-            switch (element.HorizontalAlignment)
+            var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
+            var frameworkElement = element as FrameworkElement;
+
+            if (frameworkElement != null)
             {
-                case HorizontalAlignment.Center:
-                    arrangeRect.X = -arrangeRect.Width / 2d;
-                    break;
+                if (hasLocation)
+                {
+                    switch (frameworkElement.HorizontalAlignment)
+                    {
+                        case HorizontalAlignment.Center:
+                            rect.X = -rect.Width / 2d;
+                            break;
 
-                case HorizontalAlignment.Right:
-                    arrangeRect.X = -arrangeRect.Width;
-                    break;
+                        case HorizontalAlignment.Right:
+                            rect.X = -rect.Width;
+                            break;
 
-                default:
-                    break;
+                        default:
+                            break;
+                    }
+
+                    switch (frameworkElement.VerticalAlignment)
+                    {
+                        case VerticalAlignment.Center:
+                            rect.Y = -rect.Height / 2d;
+                            break;
+
+                        case VerticalAlignment.Bottom:
+                            rect.Y = -rect.Height;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    if (!panelSize.HasValue)
+                    {
+                        var panel = frameworkElement.Parent as Panel;
+                        panelSize = panel != null ? panel.RenderSize : Size.Empty;
+                    }
+
+                    switch (frameworkElement.HorizontalAlignment)
+                    {
+                        case HorizontalAlignment.Center:
+                            rect.X = (panelSize.Value.Width - rect.Width) / 2d;
+                            break;
+
+                        case HorizontalAlignment.Right:
+                            rect.X = panelSize.Value.Width - rect.Width;
+                            break;
+
+                        case HorizontalAlignment.Stretch:
+                            rect.Width = panelSize.Value.Width;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    switch (frameworkElement.VerticalAlignment)
+                    {
+                        case VerticalAlignment.Center:
+                            rect.Y = (panelSize.Value.Height - rect.Height) / 2d;
+                            break;
+
+                        case VerticalAlignment.Bottom:
+                            rect.Y = panelSize.Value.Height - rect.Height;
+                            break;
+
+                        case VerticalAlignment.Stretch:
+                            rect.Height = panelSize.Value.Height;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
             }
 
-            switch (element.VerticalAlignment)
-            {
-                case VerticalAlignment.Center:
-                    arrangeRect.Y = -arrangeRect.Height / 2d;
-                    break;
-
-                case VerticalAlignment.Bottom:
-                    arrangeRect.Y = -arrangeRect.Height;
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        private static void AlignElementWithoutLocation(FrameworkElement element, Size panelSize, ref Rect arrangeRect)
-        {
-            switch (element.HorizontalAlignment)
-            {
-                case HorizontalAlignment.Center:
-                    arrangeRect.X = (panelSize.Width - arrangeRect.Width) / 2d;
-                    break;
-
-                case HorizontalAlignment.Right:
-                    arrangeRect.X = panelSize.Width - arrangeRect.Width;
-                    break;
-
-                case HorizontalAlignment.Stretch:
-                    arrangeRect.Width = panelSize.Width;
-                    break;
-
-                default:
-                    break;
-            }
-
-            switch (element.VerticalAlignment)
-            {
-                case VerticalAlignment.Center:
-                    arrangeRect.Y = (panelSize.Height - arrangeRect.Height) / 2d;
-                    break;
-
-                case VerticalAlignment.Bottom:
-                    arrangeRect.Y = panelSize.Height - arrangeRect.Height;
-                    break;
-
-                case VerticalAlignment.Stretch:
-                    arrangeRect.Height = panelSize.Height;
-                    break;
-
-                default:
-                    break;
-            }
+            element.Arrange(rect);
         }
     }
 }

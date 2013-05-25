@@ -4,11 +4,8 @@
 
 #if NETFX_CORE
 using Windows.Foundation;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
 #else
 using System.Windows;
-using System.Windows.Media;
 #endif
 
 namespace MapControl
@@ -16,7 +13,7 @@ namespace MapControl
     /// <summary>
     /// Base class for map shapes.
     /// </summary>
-    public partial class MapShape : IMapElement
+    public partial class MapPath : IMapElement
     {
         private MapBase parentMap;
 
@@ -26,20 +23,18 @@ namespace MapControl
             set
             {
                 parentMap = value;
-                UpdateGeometry();
+                UpdateData();
             }
         }
 
-        protected readonly Geometry Geometry;
-
-        protected virtual void UpdateGeometry()
+        protected virtual void UpdateData()
         {
         }
 
         protected override Size MeasureOverride(Size constraint)
         {
-            // Shape.MeasureOverride in WPF and WinRT sometimes return a Size with zero
-            // width or height, whereas Shape.MeasureOverride in Silverlight occasionally
+            // base.MeasureOverride in WPF and WinRT sometimes return a Size with zero
+            // width or height, whereas base.MeasureOverride in Silverlight occasionally
             // throws an ArgumentException, as it tries to create a Size from a negative
             // width or height, apparently resulting from a transformed Geometry.
             // In either case it seems to be sufficient to simply return a non-zero size.

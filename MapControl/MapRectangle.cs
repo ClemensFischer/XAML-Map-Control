@@ -16,27 +16,27 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area defined by South, North, West and East with a Brush.
     /// </summary>
-    public class MapRectangle : MapShape
+    public class MapRectangle : MapPath
     {
         public static readonly DependencyProperty SouthProperty = DependencyProperty.Register(
             "South", typeof(double), typeof(MapRectangle),
-            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateGeometry()));
+            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
         public static readonly DependencyProperty NorthProperty = DependencyProperty.Register(
             "North", typeof(double), typeof(MapRectangle),
-            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateGeometry()));
+            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
         public static readonly DependencyProperty WestProperty = DependencyProperty.Register(
             "West", typeof(double), typeof(MapRectangle),
-            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateGeometry()));
+            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
         public static readonly DependencyProperty EastProperty = DependencyProperty.Register(
             "East", typeof(double), typeof(MapRectangle),
-            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateGeometry()));
+            new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
         public MapRectangle()
-            : base(new RectangleGeometry())
         {
+            Data = new RectangleGeometry();
         }
 
         public double South
@@ -63,9 +63,9 @@ namespace MapControl
             set { SetValue(EastProperty, value); }
         }
 
-        protected override void UpdateGeometry()
+        protected override void UpdateData()
         {
-            var geometry = (RectangleGeometry)Geometry;
+            var geometry = (RectangleGeometry)Data;
 
             if (ParentMap != null &&
                 !double.IsNaN(South) && !double.IsNaN(North) &&
