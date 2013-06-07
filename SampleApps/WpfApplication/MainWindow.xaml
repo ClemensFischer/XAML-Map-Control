@@ -45,10 +45,10 @@
             <!--<map:TileLayer SourceName="OSM Local Files" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
                            TileSource="file:///C:/ProgramData/MapControl/TileCache/OpenStreetMap/{z}/{x}/{y}.png"/>-->
         </map:TileLayerCollection>
-        <CollectionViewSource x:Key="TileLayersView" Source="{StaticResource TileLayers}"/>
-        <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
         <map:TileLayer x:Key="SeamarksTileLayer" SourceName="Seamarks" Description="© {y} OpenSeaMap Contributors, CC-BY-SA"
                        TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png" MinZoomLevel="10" MaxZoomLevel="18"/>
+        <CollectionViewSource x:Key="TileLayersViewSource" Source="{StaticResource TileLayers}"/>
+        <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
         <DataTemplate x:Key="PolylineItemTemplate">
             <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
         </DataTemplate>
@@ -153,7 +153,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <map:Map Name="map" Margin="2" Center="53.5,8.2" ZoomLevel="11" MaxZoomLevel="20"
-                 TileLayer="{Binding Source={StaticResource TileLayersView}, Path=CurrentItem}"
+                 TileLayer="{Binding Source={StaticResource TileLayersViewSource}, Path=CurrentItem}"
                  MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
@@ -229,7 +229,7 @@
                 </StackPanel>
                 <CheckBox ToolTip="Seamarks Overlay" Margin="7" VerticalAlignment="Bottom" Content="Seamarks" Click="SeamarksClick"/>
                 <ComboBox ToolTip="Tile Layer" Margin="5" VerticalAlignment="Bottom" DisplayMemberPath="SourceName"
-                          SelectedIndex="0" ItemsSource="{Binding Source={StaticResource TileLayersView}}"/>
+                          SelectedIndex="0" ItemsSource="{Binding Source={StaticResource TileLayersViewSource}}"/>
             </StackPanel>
         </Grid>
     </Grid>

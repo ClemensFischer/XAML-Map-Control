@@ -2,6 +2,7 @@
 // Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -170,14 +171,14 @@ namespace MapControl
             {
                 if (parentMap != null)
                 {
-                    parentMap.ViewportChanged -= (o, e) => OnViewportChanged();
+                    parentMap.ViewportChanged -= OnViewportChanged;
                 }
 
                 parentMap = value;
 
                 if (parentMap != null)
                 {
-                    parentMap.ViewportChanged += (o, e) => OnViewportChanged();
+                    parentMap.ViewportChanged += OnViewportChanged;
                     OnViewportChanged();
                 }
             }
@@ -223,6 +224,11 @@ namespace MapControl
 
         protected virtual void OnViewportChanged()
         {
+        }
+
+        private void OnViewportChanged(object sender, EventArgs e)
+        {
+            OnViewportChanged();
         }
 
         private void ForegroundChanged()

@@ -388,17 +388,19 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets the value of the ZoomLevel property while retaining the specified origin point
+        /// Sets the value of the TargetZoomLevel property while retaining the specified origin point
         /// in viewport coordinates.
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
+            SetTransformOrigin(origin);
+
             var targetZoomLevel = TargetZoomLevel;
             TargetZoomLevel = zoomLevel;
 
-            if (TargetZoomLevel != targetZoomLevel) // TargetZoomLevel might be coerced
+            if (TargetZoomLevel == targetZoomLevel) // TargetZoomLevel might be coerced
             {
-                SetTransformOrigin(origin);
+                ResetTransformOrigin();
             }
         }
 

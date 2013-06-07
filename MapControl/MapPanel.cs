@@ -2,6 +2,7 @@
 // Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -57,28 +58,15 @@ namespace MapControl
             {
                 if (parentMap != null && parentMap != this)
                 {
-                    parentMap.ViewportChanged -= (o, e) => OnViewportChanged();
+                    parentMap.ViewportChanged -= OnViewportChanged;
                 }
 
                 parentMap = value;
 
                 if (parentMap != null && parentMap != this)
                 {
-                    parentMap.ViewportChanged += (o, e) => OnViewportChanged();
+                    parentMap.ViewportChanged += OnViewportChanged;
                     OnViewportChanged();
-                }
-            }
-        }
-
-        protected virtual void OnViewportChanged()
-        {
-            foreach (UIElement element in InternalChildren)
-            {
-                var location = GetLocation(element);
-
-                if (location != null)
-                {
-                    SetViewportPosition(element, parentMap, location);
                 }
             }
         }
@@ -108,6 +96,24 @@ namespace MapControl
             }
 
             return finalSize;
+        }
+
+        protected virtual void OnViewportChanged()
+        {
+            foreach (UIElement element in InternalChildren)
+            {
+                var location = GetLocation(element);
+
+                if (location != null)
+                {
+                    SetViewportPosition(element, parentMap, location);
+                }
+            }
+        }
+
+        private void OnViewportChanged(object sender, EventArgs e)
+        {
+            OnViewportChanged();
         }
 
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)

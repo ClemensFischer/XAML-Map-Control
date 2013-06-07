@@ -32,7 +32,6 @@ namespace MapControl
 
         private readonly DispatcherTimer updateTimer;
         private string uriFormat;
-        private bool latLonBoundingBox;
         private bool updateInProgress;
         private int currentImageIndex;
 
@@ -68,22 +67,16 @@ namespace MapControl
                         throw new ArgumentException("UriFormat must specify the requested image size by {X} and {Y}.");
                     }
 
-                    if (value.Contains("{w}") && value.Contains("{s}") && value.Contains("{e}") && value.Contains("{n}"))
+                    if (!(value.Contains("{W}") && value.Contains("{S}") && value.Contains("{E}") && value.Contains("{N}")) &&
+                        !(value.Contains("{w}") && value.Contains("{s}") && value.Contains("{e}") && value.Contains("{n}")))
                     {
-                        latLonBoundingBox = true;
-                    }
-                    else if (!(value.Contains("{W}") && value.Contains("{S}") && value.Contains("{E}") && value.Contains("{N}")))
-                    {
-                        throw new ArgumentException("UriFormat must specify a bounding box in meters by {W},{S},{E},{N} or as lat/lon by {w},{s},{e},{n}.");
+                        throw new ArgumentException("UriFormat must specify a bounding box in meters by {W},{S},{E},{N} or lat/lon by {w},{s},{e},{n}.");
                     }
                 }
 
                 uriFormat = value;
 
-                if (ParentMap != null)
-                {
-                    UpdateImage(this, EventArgs.Empty);
-                }
+                UpdateImage(this, EventArgs.Empty);
             }
         }
 
@@ -103,15 +96,7 @@ namespace MapControl
             {
                 var uri = uriFormat.Replace("{X}", width.ToString()).Replace("{Y}", height.ToString());
 
-                if (latLonBoundingBox)
-                {
-                    uri = uri.
-                        Replace("{w}", west.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{s}", south.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{e}", east.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
-                }
-                else
+                if (uri.Contains("{W}") && uri.Contains("{S}") && uri.Contains("{E}") && uri.Contains("{N}"))
                 {
                     var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
                     var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
@@ -122,6 +107,14 @@ namespace MapControl
                         Replace("{S}", (arc * p1.Y).ToString(CultureInfo.InvariantCulture)).
                         Replace("{E}", (arc * p2.X).ToString(CultureInfo.InvariantCulture)).
                         Replace("{N}", (arc * p2.Y).ToString(CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    uri = uri.
+                        Replace("{w}", west.ToString(CultureInfo.InvariantCulture)).
+                        Replace("{s}", south.ToString(CultureInfo.InvariantCulture)).
+                        Replace("{e}", east.ToString(CultureInfo.InvariantCulture)).
+                        Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
                 }
 
                 try
@@ -156,7 +149,7 @@ namespace MapControl
 
         private void UpdateImage(object sender, EventArgs e)
         {
-            if (!updateInProgress)
+            if (ParentMap != null && !updateInProgress)
             {
                 updateTimer.Stop();
                 updateInProgress = true;
@@ -179,10 +172,7 @@ namespace MapControl
                     var north = Math.Max(loc1.Latitude, Math.Max(loc2.Latitude, Math.Max(loc3.Latitude, loc4.Latitude)));
                     var image = GetImage(west, east, south, north, (int)width, (int)height);
 
-                    if (image != null)
-                    {
-                        Dispatcher.BeginInvoke((Action)(() => UpdateImage(west, east, south, north, image)));
-                    }
+                    Dispatcher.BeginInvoke((Action)(() => UpdateImage(west, east, south, north, image)));
 
                     updateInProgress = false;
                 });
