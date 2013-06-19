@@ -20,7 +20,7 @@ namespace MapControl
     {
         // Set FillBehavior.HoldEnd to prevent animation from returning
         // to local value before invoking the Completed handler
-        private const FillBehavior animationFillBehavior = FillBehavior.HoldEnd;
+        private const FillBehavior AnimationFillBehavior = FillBehavior.HoldEnd;
 
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
             "Foreground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Black)));

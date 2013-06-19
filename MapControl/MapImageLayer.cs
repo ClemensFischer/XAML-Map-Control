@@ -149,9 +149,15 @@ namespace MapControl
 
         private void UpdateImage(object sender, EventArgs e)
         {
-            if (ParentMap != null && !updateInProgress)
+            if (updateInProgress)
             {
-                updateTimer.Stop();
+                return; // update image on next timer tick
+            }
+
+            updateTimer.Stop();
+
+            if (ParentMap != null && ActualWidth > 0 && ActualHeight > 0)
+            {
                 updateInProgress = true;
 
                 var relativeSize = Math.Max(RelativeImageSize, 1d);
@@ -170,7 +176,7 @@ namespace MapControl
                     var east = Math.Max(loc1.Longitude, Math.Max(loc2.Longitude, Math.Max(loc3.Longitude, loc4.Longitude)));
                     var south = Math.Min(loc1.Latitude, Math.Min(loc2.Latitude, Math.Min(loc3.Latitude, loc4.Latitude)));
                     var north = Math.Max(loc1.Latitude, Math.Max(loc2.Latitude, Math.Max(loc3.Latitude, loc4.Latitude)));
-                    var image = GetImage(west, east, south, north, (int)width, (int)height);
+                    var image = GetImage(west, east, south, north, (int)Math.Round(width), (int)Math.Round(height));
 
                     Dispatcher.BeginInvoke((Action)(() => UpdateImage(west, east, south, north, image)));
 

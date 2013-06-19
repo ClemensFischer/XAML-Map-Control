@@ -12,7 +12,7 @@ namespace MapControl
     /// cache processing in TileImageLoader. By overriding the LoadImage method,
     /// an application can provide tile images from an arbitrary source.
     /// If the CanLoadAsync property is true, the LoadImage method will be called
-    /// from a separate non-UI thread and must hence return a frozen ImageSource.
+    /// from a separate, non-UI thread and must hence return a frozen ImageSource.
     /// </summary>
     public class ImageTileSource : TileSource
     {

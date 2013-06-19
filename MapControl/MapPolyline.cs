@@ -10,6 +10,7 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 #else
 using System.Windows;
+using System.ComponentModel;
 #endif
 
 namespace MapControl
@@ -34,6 +35,9 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the locations that define the polyline points.
         /// </summary>
+#if !NETFX_CORE
+        [TypeConverter(typeof(LocationCollectionConverter))]
+#endif
         public IEnumerable<Location> Locations
         {
             get { return (IEnumerable<Location>)GetValue(LocationsProperty); }

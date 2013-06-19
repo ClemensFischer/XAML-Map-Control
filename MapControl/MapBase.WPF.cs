@@ -12,7 +12,7 @@ namespace MapControl
     public partial class MapBase
     {
         // FillBehavior must be set to Stop to re-enable local property values
-        private const FillBehavior animationFillBehavior = FillBehavior.Stop;
+        private const FillBehavior AnimationFillBehavior = FillBehavior.Stop;
 
         public static readonly DependencyProperty ForegroundProperty =
             System.Windows.Controls.Control.ForegroundProperty.AddOwner(typeof(MapBase));
@@ -31,6 +31,21 @@ namespace MapControl
             AddVisualChild(tileContainer);
         }
 
+        protected override int VisualChildrenCount
+        {
+            get { return base.VisualChildrenCount + 1; }
+        }
+
+        protected override Visual GetVisualChild(int index)
+        {
+            if (index == 0)
+            {
+                return tileContainer;
+            }
+
+            return base.GetVisualChild(index - 1);
+        }
+
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -45,21 +60,6 @@ namespace MapControl
             rotateTransform.Matrix = rotateMatrix;
             scaleTransform.Matrix = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
             scaleRotateTransform.Matrix = scaleTransform.Matrix * rotateMatrix;
-        }
-
-        protected override int VisualChildrenCount
-        {
-            get { return InternalChildren.Count + 1; }
-        }
-
-        protected override Visual GetVisualChild(int index)
-        {
-            if (index == 0)
-            {
-                return tileContainer;
-            }
-
-            return InternalChildren[index - 1];
         }
     }
 }
