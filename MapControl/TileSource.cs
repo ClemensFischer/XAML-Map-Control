@@ -27,17 +27,16 @@ namespace MapControl
 
         public TileSource()
         {
+            MetersPerDegree = EarthRadius * Math.PI / 180d;
         }
 
         public TileSource(string uriFormat)
+            : this()
         {
             UriFormat = uriFormat;
         }
 
-        public virtual double MetersPerDegree
-        {
-            get { return EarthRadius * Math.PI / 180d; }
-        }
+        public double MetersPerDegree { get; protected set; }
 
         public string UriFormat
         {

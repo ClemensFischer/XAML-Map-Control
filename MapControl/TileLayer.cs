@@ -53,6 +53,7 @@ namespace MapControl
             MaxZoomLevel = 18;
             MaxParallelDownloads = 8;
             LoadLowerZoomLevels = true;
+            AnimateTileOpacity = true;
             Initialize();
         }
 
@@ -64,6 +65,7 @@ namespace MapControl
         public int MaxZoomLevel { get; set; }
         public int MaxParallelDownloads { get; set; }
         public bool LoadLowerZoomLevels { get; set; }
+        public bool AnimateTileOpacity { get; set; }
         public Brush Foreground { get; set; }
 
         public string Description

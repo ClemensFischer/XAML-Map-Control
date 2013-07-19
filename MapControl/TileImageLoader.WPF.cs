@@ -91,13 +91,14 @@ namespace MapControl
         {
             var newTiles = (List<Tile>)newTilesList;
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
+            var animateOpacity = tileLayer.AnimateTileOpacity;
 
             if (imageTileSource != null && !imageTileSource.CanLoadAsync)
             {
                 foreach (var tile in newTiles)
                 {
                     tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(ts.LoadImage(t.XIndex, t.Y, t.ZoomLevel), true)),
+                        (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(ts.LoadImage(t.XIndex, t.Y, t.ZoomLevel), animateOpacity)),
                         DispatcherPriority.Background, tile, imageTileSource);
                 }
             }
@@ -118,7 +119,7 @@ namespace MapControl
                         if (image != null)
                         {
                             tileLayer.Dispatcher.BeginInvoke(
-                                (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, true)),
+                                (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
                                 DispatcherPriority.Background, tile, image);
 
                             long creationTime = BitConverter.ToInt64(buffer, 0);
@@ -147,14 +148,13 @@ namespace MapControl
                 {
                     Interlocked.Increment(ref downloadThreadCount);
 
-                    ThreadPool.QueueUserWorkItem(LoadTiles, imageTileSource);
+                    ThreadPool.QueueUserWorkItem(o => LoadTiles(imageTileSource, animateOpacity));
                 }
             }
         }
 
-        private void LoadTiles(object tileSource)
+        private void LoadTiles(ImageTileSource imageTileSource, bool animateOpacity)
         {
-            var imageTileSource = (ImageTileSource)tileSource;
             Tile tile;
 
             while (pendingTiles.TryDequeue(out tile))
@@ -194,7 +194,7 @@ namespace MapControl
                 if (image != null)
                 {
                     tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, true)),
+                        (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
                         DispatcherPriority.Background, tile, image);
 
                     if (buffer != null && Cache != null)
