@@ -14,7 +14,7 @@ namespace MapControl
     {
         static Pushpin()
         {
-            FrameworkElement.DefaultStyleKeyProperty.OverrideMetadata(
+            DefaultStyleKeyProperty.OverrideMetadata(
                 typeof(Pushpin), new FrameworkPropertyMetadata(typeof(Pushpin)));
         }
     }

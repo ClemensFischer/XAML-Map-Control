@@ -66,9 +66,6 @@
     <Compile Include="..\MapItem.Silverlight.WinRT.cs">
       <Link>MapItem.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\MapItemsControl.cs">
-      <Link>MapItemsControl.cs</Link>
-    </Compile>
     <Compile Include="..\MapItemsControl.Silverlight.WinRT.cs">
       <Link>MapItemsControl.Silverlight.WinRT.cs</Link>
     </Compile>

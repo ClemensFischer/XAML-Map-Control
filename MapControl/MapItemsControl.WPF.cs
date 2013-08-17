@@ -12,40 +12,40 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    public partial class MapItemsControl
+    /// <summary>
+    /// Manages a collection of selectable items on a Map. Uses MapItem as item container class.
+    /// </summary>
+    public class MapItemsControl : ListBox
     {
         public static readonly DependencyProperty SelectionGeometryProperty = DependencyProperty.Register(
             "SelectionGeometry", typeof(Geometry), typeof(MapItemsControl),
             new PropertyMetadata((o, e) => ((MapItemsControl)o).SelectionGeometryPropertyChanged((Geometry)e.NewValue)));
 
-        public static readonly DependencyProperty IsCurrentProperty = DependencyProperty.RegisterAttached(
-            "IsCurrent", typeof(bool), typeof(MapItemsControl), null);
-
         static MapItemsControl()
         {
-            FrameworkElement.DefaultStyleKeyProperty.OverrideMetadata(
+            DefaultStyleKeyProperty.OverrideMetadata(
                 typeof(MapItemsControl), new FrameworkPropertyMetadata(typeof(MapItemsControl)));
         }
 
         public MapItemsControl()
         {
-            Items.CurrentChanging += OnCurrentItemChanging;
-            Items.CurrentChanged += OnCurrentItemChanged;
+            Items.CurrentChanging += CurrentItemChanging;
+            Items.CurrentChanged += CurrentItemChanged;
+        }
+
+        protected override DependencyObject GetContainerForItemOverride()
+        {
+            return new MapItem();
         }
 
         /// <summary>
-        /// Gets or sets a Geometry that selects all items that lie inside its fill area,
-        /// i.e. where Geometry.FillContains returns true for the item's viewport position.
+        /// Gets or sets a Geometry that selects all items inside its fill area, i.e.
+        /// where Geometry.FillContains returns true for the item's viewport position.
         /// </summary>
         public Geometry SelectionGeometry
         {
             get { return (Geometry)GetValue(SelectionGeometryProperty); }
             set { SetValue(SelectionGeometryProperty, value); }
-        }
-
-        public static bool GetIsCurrent(UIElement element)
-        {
-            return (bool)element.GetValue(IsCurrentProperty);
         }
 
         public object GetFirstItemInGeometry(Geometry geometry)
@@ -62,30 +62,20 @@ namespace MapControl
         {
             if (geometry == null || geometry.IsEmpty())
             {
-                return new List<object>();
+                return null;
             }
 
-            return new List<object>(Items.Cast<object>().Where(i => IsItemInGeometry(i, geometry)));
+            return Items.Cast<object>().Where(i => IsItemInGeometry(i, geometry)).ToList();
         }
 
-        private void OnCurrentItemChanging(object sender, CurrentChangingEventArgs e)
+        private bool IsItemInGeometry(object item, Geometry geometry)
         {
-            var container = ContainerFromItem(Items.CurrentItem);
+            var container = ItemContainerGenerator.ContainerFromItem(item) as UIElement;
+            Point? viewportPosition;
 
-            if (container != null)
-            {
-                container.SetValue(IsCurrentProperty, false);
-            }
-        }
-
-        private void OnCurrentItemChanged(object sender, EventArgs e)
-        {
-            var container = ContainerFromItem(Items.CurrentItem);
-
-            if (container != null)
-            {
-                container.SetValue(IsCurrentProperty, true);
-            }
+            return container != null &&
+                (viewportPosition = MapPanel.GetViewportPosition(container)).HasValue &&
+                geometry.FillContains(viewportPosition.Value);
         }
 
         private void SelectionGeometryPropertyChanged(Geometry geometry)
@@ -100,14 +90,26 @@ namespace MapControl
             }
         }
 
-        private bool IsItemInGeometry(object item, Geometry geometry)
+        private void CurrentItemChanging(object sender, CurrentChangingEventArgs e)
         {
-            var container = ContainerFromItem(item);
-            Point? viewportPosition;
+            var container = ItemContainerGenerator.ContainerFromItem(Items.CurrentItem) as UIElement;
 
-            return container != null &&
-                (viewportPosition = MapPanel.GetViewportPosition(container)).HasValue &&
-                geometry.FillContains(viewportPosition.Value);
+            if (container != null)
+            {
+                var zIndex = Panel.GetZIndex(container);
+                Panel.SetZIndex(container, zIndex & ~0x40000000);
+            }
+        }
+
+        private void CurrentItemChanged(object sender, EventArgs e)
+        {
+            var container = ItemContainerGenerator.ContainerFromItem(Items.CurrentItem) as UIElement;
+
+            if (container != null)
+            {
+                var zIndex = Panel.GetZIndex(container);
+                Panel.SetZIndex(container, zIndex | 0x40000000);
+            }
         }
     }
 }
