@@ -20,6 +20,7 @@ namespace SilverlightApplication
         public MainPage()
         {
             InitializeComponent();
+            tileLayerComboBox.SelectedIndex = 0;
 
             var polylines = (ICollection<object>)Resources["Polylines"];
             polylines.Add(
@@ -134,12 +135,9 @@ namespace SilverlightApplication
 
         private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (map != null)
-            {
-                var comboBox = (ComboBox)sender;
-                var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-                map.TileLayer = tileLayers[(string)comboBox.SelectedItem];
-            }
+            var comboBox = (ComboBox)sender;
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayer = tileLayers[(string)comboBox.SelectedItem];
         }
 
         private void SeamarksClick(object sender, RoutedEventArgs e)

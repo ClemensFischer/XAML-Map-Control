@@ -185,7 +185,7 @@
                     <Slider Margin="10,-10,10,-10" Width="200" Value="50" ValueChanged="ImageOpacitySliderValueChanged"/>
                 </StackPanel>
                 <CheckBox Margin="10" VerticalAlignment="Center" Content="Seamarks" Click="SeamarksClick"/>
-                <ComboBox Margin="10" Width="200" VerticalAlignment="Center" SelectedIndex="0" SelectionChanged="TileLayerSelectionChanged">
+                <ComboBox x:Name="tileLayerComboBox" Margin="10" Width="200" VerticalAlignment="Center" SelectionChanged="TileLayerSelectionChanged">
                     <ComboBoxItem>OpenStreetMap</ComboBoxItem>
                     <ComboBoxItem>OpenCycleMap</ComboBoxItem>
                     <ComboBoxItem>OCM Transport</ComboBoxItem>

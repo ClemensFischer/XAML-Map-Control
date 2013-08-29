@@ -157,7 +157,7 @@
                             Value="{Binding Opacity, ElementName=mapImage, Mode=TwoWay}"/>
                 </StackPanel>
                 <CheckBox Margin="5" VerticalAlignment="Bottom" Content="Seamarks" Click="SeamarksClick"/>
-                <ComboBox Margin="5" VerticalAlignment="Bottom" Width="120" SelectedIndex="0" SelectionChanged="TileLayerSelectionChanged">
+                <ComboBox x:Name="tileLayerComboBox" Margin="5" VerticalAlignment="Bottom" Width="120" SelectionChanged="TileLayerSelectionChanged">
                     <sys:String>OpenStreetMap</sys:String>
                     <sys:String>OpenCycleMap</sys:String>
                     <sys:String>OCM Transport</sys:String>

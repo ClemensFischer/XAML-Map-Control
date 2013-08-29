@@ -24,13 +24,16 @@ namespace MapControl
             this.tileLayer = tileLayer;
         }
 
-        internal void BeginGetTiles(IEnumerable<Tile> tiles)
+        internal void StartGetTiles(IEnumerable<Tile> tiles)
         {
-            foreach (var tile in tiles.Where(t => !t.HasImage))
+            foreach (var tile in tiles)
             {
                 var uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-                tile.SetImageSource(new BitmapImage(uri), true);
+                if (uri != null)
+                {
+                    tile.SetImageSource(new BitmapImage(uri), tileLayer.AnimateTileOpacity);
+                }
             }
         }
 

@@ -23,6 +23,7 @@ namespace StoreApplication
         public MainPage()
         {
             this.InitializeComponent();
+            tileLayerComboBox.SelectedIndex = 0;
 
             var polylines = (ICollection<object>)Resources["Polylines"];
             polylines.Add(
@@ -143,12 +144,9 @@ namespace StoreApplication
 
         private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (map != null)
-            {
-                var comboBox = (ComboBox)sender;
-                var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-                map.TileLayer = tileLayers[(string)((ComboBoxItem)comboBox.SelectedItem).Content];
-            }
+            var comboBox = (ComboBox)sender;
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayer = tileLayers[(string)((ComboBoxItem)comboBox.SelectedItem).Content];
         }
     }
 }

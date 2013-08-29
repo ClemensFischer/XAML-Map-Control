@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileDbCache", "Caching\FileDbCache\FileDbCache.csproj", "{EF44F661-B98A-4676-927F-85D138F82300}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurfaceApplication", "SampleApps\SurfaceApplication\SurfaceApplication.csproj", "{6285FB9D-B7EA-469A-B464-224077967167}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageFileCache", "Caching\ImageFileCache\ImageFileCache.csproj", "{86470440-FEE2-4120-AF5A-3762FB9C536F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightApplication", "SampleApps\SilverlightApplication\SilverlightApplication.csproj", "{CBA8C535-CCA3-4F60-8D3E-0E25791CBD21}"
@@ -31,10 +29,6 @@ Global
 		{EF44F661-B98A-4676-927F-85D138F82300}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF44F661-B98A-4676-927F-85D138F82300}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF44F661-B98A-4676-927F-85D138F82300}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6285FB9D-B7EA-469A-B464-224077967167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6285FB9D-B7EA-469A-B464-224077967167}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6285FB9D-B7EA-469A-B464-224077967167}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6285FB9D-B7EA-469A-B464-224077967167}.Release|Any CPU.Build.0 = Release|Any CPU
 		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86470440-FEE2-4120-AF5A-3762FB9C536F}.Release|Any CPU.ActiveCfg = Release|Any CPU

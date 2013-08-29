@@ -71,9 +71,12 @@ namespace MapControl
             this.tileLayer = tileLayer;
         }
 
-        internal void BeginGetTiles(IEnumerable<Tile> tiles)
+        internal void StartGetTiles(IEnumerable<Tile> tiles)
         {
-            ThreadPool.QueueUserWorkItem(BeginGetTilesAsync, new List<Tile>(tiles.Where(t => !t.HasImage)));
+            if (tiles.Any())
+            {
+                ThreadPool.QueueUserWorkItem(GetTilesAsync, tiles.ToList());
+            }
         }
 
         internal void CancelGetTiles()
@@ -87,15 +90,15 @@ namespace MapControl
             return string.Format("{0}/{1}/{2}/{3}", tileLayer.SourceName, tile.ZoomLevel, tile.XIndex, tile.Y);
         }
 
-        private void BeginGetTilesAsync(object newTilesList)
+        private void GetTilesAsync(object tileList)
         {
-            var newTiles = (List<Tile>)newTilesList;
+            var tiles = (List<Tile>)tileList;
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
             var animateOpacity = tileLayer.AnimateTileOpacity;
 
             if (imageTileSource != null && !imageTileSource.CanLoadAsync)
             {
-                foreach (var tile in newTiles)
+                foreach (var tile in tiles)
                 {
                     tileLayer.Dispatcher.BeginInvoke(
                         (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(ts.LoadImage(t.XIndex, t.Y, t.ZoomLevel), animateOpacity)),
@@ -108,9 +111,9 @@ namespace MapControl
                     !tileLayer.TileSource.UriFormat.StartsWith("file://") &&
                     !string.IsNullOrWhiteSpace(tileLayer.SourceName))
                 {
-                    var outdatedTiles = new List<Tile>(newTiles.Count);
+                    var outdatedTiles = new List<Tile>(tiles.Count);
 
-                    foreach (var tile in newTiles)
+                    foreach (var tile in tiles)
                     {
                         var key = GetCacheKey(tile);
                         var buffer = Cache.Get(key) as byte[];
@@ -136,10 +139,10 @@ namespace MapControl
                         }
                     }
 
-                    newTiles = outdatedTiles; // enqueue outdated tiles at last
+                    tiles = outdatedTiles; // enqueue outdated tiles at last
                 }
 
-                foreach (var tile in newTiles)
+                foreach (var tile in tiles)
                 {
                     pendingTiles.Enqueue(tile);
                 }

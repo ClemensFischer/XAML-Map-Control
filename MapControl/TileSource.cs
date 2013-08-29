@@ -23,7 +23,6 @@ namespace MapControl
 
         private Func<int, int, int, Uri> getUri;
         private string uriFormat = string.Empty;
-        private int hostIndex = -1;
 
         public TileSource()
         {
@@ -103,7 +102,7 @@ namespace MapControl
 
         private Uri GetOpenStreetMapUri(int x, int y, int zoomLevel)
         {
-            hostIndex = (hostIndex + 1) % 3;
+            var hostIndex = (x + y + zoomLevel) % 3;
 
             return new Uri(UriFormat.
                 Replace("{c}", "abc".Substring(hostIndex, 1)).
@@ -114,7 +113,7 @@ namespace MapControl
 
         private Uri GetGoogleMapsUri(int x, int y, int zoomLevel)
         {
-            hostIndex = (hostIndex + 1) % 4;
+            var hostIndex = (x + y + zoomLevel) % 4;
 
             return new Uri(UriFormat.
                 Replace("{i}", hostIndex.ToString()).
@@ -125,7 +124,7 @@ namespace MapControl
 
         private Uri GetMapQuestUri(int x, int y, int zoomLevel)
         {
-            hostIndex = (hostIndex % 4) + 1;
+            var hostIndex = (x + y + zoomLevel) % 4 + 1;
 
             return new Uri(UriFormat.
                 Replace("{n}", hostIndex.ToString()).

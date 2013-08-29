@@ -96,7 +96,7 @@ namespace MapControl
             {
                 SelectTiles();
                 RenderTiles();
-                tileImageLoader.BeginGetTiles(tiles);
+                tileImageLoader.StartGetTiles(tiles.Where(t => !t.HasImage));
             }
         }
 
