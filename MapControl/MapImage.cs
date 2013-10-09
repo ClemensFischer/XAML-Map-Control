@@ -17,11 +17,6 @@ namespace MapControl
     /// </summary>
     public class MapImage : MapRectangle
     {
-        private static readonly Transform imageTransform = new MatrixTransform
-        {
-            Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
-        };
-
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             "Source", typeof(ImageSource), typeof(MapImage),
             new PropertyMetadata(null, (o, e) => ((MapImage)o).SourceChanged((ImageSource)e.NewValue)));
@@ -34,11 +29,7 @@ namespace MapControl
 
         private void SourceChanged(ImageSource image)
         {
-            Fill = new ImageBrush
-            {
-                ImageSource = image,
-                RelativeTransform = imageTransform
-            };
+            Fill = new ImageBrush { ImageSource = image };
         }
     }
 }

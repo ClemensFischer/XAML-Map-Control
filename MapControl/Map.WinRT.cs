@@ -21,7 +21,9 @@ namespace MapControl
 
         public Map()
         {
-            ManipulationMode = ManipulationModes.All;
+            ManipulationMode = ManipulationModes.Scale | ManipulationModes.ScaleInertia |
+                ManipulationModes.TranslateX | ManipulationModes.TranslateY | ManipulationModes.TranslateInertia;
+
             ManipulationDelta += OnManipulationDelta;
             PointerWheelChanged += OnPointerWheelChanged;
             PointerPressed += OnPointerPressed;

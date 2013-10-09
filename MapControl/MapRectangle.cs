@@ -34,11 +34,6 @@ namespace MapControl
             "East", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
-        public MapRectangle()
-        {
-            Data = new RectangleGeometry();
-        }
-
         public double South
         {
             get { return (double)GetValue(SouthProperty); }
@@ -65,8 +60,6 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            var geometry = (RectangleGeometry)Data;
-
             if (ParentMap != null &&
                 !double.IsNaN(South) && !double.IsNaN(North) &&
                 !double.IsNaN(West) && !double.IsNaN(East) &&
@@ -75,13 +68,15 @@ namespace MapControl
                 var p1 = ParentMap.MapTransform.Transform(new Location(South, West));
                 var p2 = ParentMap.MapTransform.Transform(new Location(North, East));
 
-                geometry.Rect = new Rect(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y);
-                RenderTransform = ParentMap.ViewportTransform;
+                Data = new RectangleGeometry
+                {
+                    Rect = new Rect(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y),
+                    Transform = ParentMap.ViewportTransform
+                };
             }
             else
             {
-                geometry.Rect = Rect.Empty;
-                ClearValue(RenderTransformProperty);
+                ClearValue(DataProperty);
             }
         }
     }

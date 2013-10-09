@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace Caching
 {
@@ -20,6 +22,10 @@ namespace Caching
     /// </summary>
     public class ImageFileCache : ObjectCache
     {
+        private static readonly FileSystemAccessRule fullControlRule = new FileSystemAccessRule(
+            new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
+            FileSystemRights.FullControl, AccessControlType.Allow);
+
         private readonly string name;
         private readonly string directory;
 
@@ -184,6 +190,10 @@ namespace Caching
                     {
                         fileStream.Write(buffer, 8, buffer.Length - 8);
                     }
+
+                    var fileSecurity = File.GetAccessControl(path);
+                    fileSecurity.AddAccessRule(fullControlRule);
+                    File.SetAccessControl(path, fileSecurity);
                 }
                 catch (Exception ex)
                 {
