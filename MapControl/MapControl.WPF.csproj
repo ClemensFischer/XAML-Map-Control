@@ -55,10 +55,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MapBase.WPF.cs" />
+    <Compile Include="MapImage.cs" />
+    <Compile Include="MapImage.WPF.cs" />
     <Compile Include="MapImageLayer.cs" />
     <Compile Include="MapItem.WPF.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />
-    <Compile Include="MapImage.cs" />
     <Compile Include="MapPanel.cs" />
     <Compile Include="MapPanel.WPF.cs" />
     <Compile Include="MapPolyline.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="MapRectangle.cs" />
     <Compile Include="MapPath.cs" />
     <Compile Include="MapPath.WPF.cs" />
+    <Compile Include="MapRectangle.WPF.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

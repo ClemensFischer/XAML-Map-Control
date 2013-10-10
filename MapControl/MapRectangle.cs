@@ -16,7 +16,7 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area defined by South, North, West and East with a Brush.
     /// </summary>
-    public class MapRectangle : MapPath
+    public partial class MapRectangle : MapPath
     {
         public static readonly DependencyProperty SouthProperty = DependencyProperty.Register(
             "South", typeof(double), typeof(MapRectangle),
@@ -33,6 +33,12 @@ namespace MapControl
         public static readonly DependencyProperty EastProperty = DependencyProperty.Register(
             "East", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
+
+        public MapRectangle()
+        {
+            Data = new RectangleGeometry();
+            StrokeThickness = 0d;
+        }
 
         public double South
         {
@@ -68,15 +74,11 @@ namespace MapControl
                 var p1 = ParentMap.MapTransform.Transform(new Location(South, West));
                 var p2 = ParentMap.MapTransform.Transform(new Location(North, East));
 
-                Data = new RectangleGeometry
-                {
-                    Rect = new Rect(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y),
-                    Transform = ParentMap.ViewportTransform
-                };
+                SetGeometry(new Rect(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y));
             }
             else
             {
-                ClearValue(DataProperty);
+                ClearGeometry();
             }
         }
     }
