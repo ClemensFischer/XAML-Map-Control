@@ -13,20 +13,9 @@ namespace MapControl
         {
             StrokeThicknessProperty.OverrideMetadata(
                 typeof(MapRectangle), new FrameworkPropertyMetadata(0d));
-        }
 
-        protected void SetBrushTransform()
-        {
-            var tileBrush = Fill as TileBrush;
-
-            if (tileBrush != null && Data != null)
-            {
-                var geometry = (RectangleGeometry)Data;
-
-                tileBrush.ViewportUnits = BrushMappingMode.Absolute;
-                tileBrush.Viewport = geometry.Rect;
-                tileBrush.Transform = geometry.Transform;
-            }
+            FillProperty.OverrideMetadata(
+                typeof(MapRectangle), new FrameworkPropertyMetadata(FillPropertyChanged));
         }
 
         private void SetGeometry(Rect rect)
@@ -40,7 +29,8 @@ namespace MapControl
 
             geometry.Rect = rect;
             geometry.Transform = ParentMap.ViewportTransform;
-            SetBrushTransform();
+
+            SetBrushTransform(Fill as TileBrush);
         }
 
         private void ClearGeometry()
@@ -49,6 +39,26 @@ namespace MapControl
 
             geometry.ClearValue(RectangleGeometry.RectProperty);
             geometry.ClearValue(Geometry.TransformProperty);
+        }
+
+        private void SetBrushTransform(TileBrush tileBrush)
+        {
+            if (tileBrush != null && Data != null)
+            {
+                var geometry = (RectangleGeometry)Data;
+
+                tileBrush.ViewportUnits = BrushMappingMode.Absolute;
+                tileBrush.Viewport = geometry.Rect;
+                tileBrush.Transform = geometry.Transform;
+            }
+        }
+
+        private static void FillPropertyChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != e.OldValue)
+            {
+                ((MapRectangle)o).SetBrushTransform(e.NewValue as TileBrush);
+            }
         }
     }
 }

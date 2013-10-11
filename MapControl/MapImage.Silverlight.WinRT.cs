@@ -12,13 +12,13 @@ namespace MapControl
 {
     public partial class MapImage
     {
-        private static readonly Transform imageTransform = new MatrixTransform
-        {
-            Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
-        };
-
         private void SourceChanged(ImageSource image)
         {
+            var imageTransform = new MatrixTransform
+            {
+                Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
+            };
+
             Fill = new ImageBrush
             {
                 ImageSource = image,
