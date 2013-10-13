@@ -15,8 +15,18 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area with an ImageBrush from the Source property.
     /// </summary>
-    public partial class MapImage : MapRectangle
+    public class MapImage : MapRectangle
     {
+        private static readonly MatrixTransform imageTransform = new MatrixTransform
+        {
+            Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
+        };
+
+        static MapImage()
+        {
+            imageTransform.Freeze();
+        }
+
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             "Source", typeof(ImageSource), typeof(MapImage),
             new PropertyMetadata(null, (o, e) => ((MapImage)o).SourceChanged((ImageSource)e.NewValue)));
@@ -25,6 +35,18 @@ namespace MapControl
         {
             get { return (ImageSource)GetValue(SourceProperty); }
             set { SetValue(SourceProperty, value); }
+        }
+
+        private void SourceChanged(ImageSource image)
+        {
+            var imageBrush = new ImageBrush
+            {
+                ImageSource = image,
+                RelativeTransform = imageTransform
+            };
+
+            imageBrush.Freeze();
+            Fill = imageBrush;
         }
     }
 }

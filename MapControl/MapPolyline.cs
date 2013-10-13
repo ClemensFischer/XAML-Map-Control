@@ -15,6 +15,9 @@ using System.ComponentModel;
 
 namespace MapControl
 {
+    /// <summary>
+    /// A polyline or polygon created from a collection of Locations.
+    /// </summary>
     public partial class MapPolyline : MapPath
     {
 #if NETFX_CORE

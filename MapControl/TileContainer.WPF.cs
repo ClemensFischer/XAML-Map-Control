@@ -9,10 +9,11 @@ namespace MapControl
 {
     internal partial class TileContainer : ContainerVisual
     {
-        private void SetViewportTransform(Matrix transform)
+        private Matrix GetViewportTransformMatrix(Matrix transform)
         {
             transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
-            ViewportTransform.Matrix = transform;
+
+            return transform;
         }
 
         /// <summary>

@@ -16,8 +16,21 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area defined by South, North, West and East with a Brush.
     /// </summary>
-    public partial class MapRectangle : MapPath
+    public class MapRectangle : MapPath
     {
+        private const double geometryScale = 1e6;
+
+        private static readonly ScaleTransform geometryScaleTransform = new ScaleTransform
+        {
+            ScaleX = 1d / geometryScale,
+            ScaleY = 1d / geometryScale
+        };
+
+        static MapRectangle()
+        {
+            geometryScaleTransform.Freeze();
+        }
+
         public static readonly DependencyProperty SouthProperty = DependencyProperty.Register(
             "South", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
@@ -66,6 +79,8 @@ namespace MapControl
 
         protected override void UpdateData()
         {
+            var geometry = (RectangleGeometry)Data;
+
             if (ParentMap != null &&
                 !double.IsNaN(South) && !double.IsNaN(North) &&
                 !double.IsNaN(West) && !double.IsNaN(East) &&
@@ -74,11 +89,21 @@ namespace MapControl
                 var p1 = ParentMap.MapTransform.Transform(new Location(South, West));
                 var p2 = ParentMap.MapTransform.Transform(new Location(North, East));
 
-                SetGeometry(new Rect(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y));
+                // Create a scaled RectangleGeometry due to inaccurate hit testing in WPF.
+                // See http://stackoverflow.com/a/19335624/1136211
+
+                geometry.Rect = new Rect(p1.X * geometryScale, p1.Y * geometryScale,
+                    (p2.X - p1.X) * geometryScale, (p2.Y - p1.Y) * geometryScale);
+
+                var transform = new TransformGroup();
+                transform.Children.Add(geometryScaleTransform); // revert scaling
+                transform.Children.Add(ParentMap.ViewportTransform);
+                RenderTransform = transform;
             }
             else
             {
-                ClearGeometry();
+                geometry.ClearValue(RectangleGeometry.RectProperty);
+                ClearValue(RenderTransformProperty);
             }
         }
     }

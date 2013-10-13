@@ -36,6 +36,9 @@
     <Compile Include="..\AnimationEx.WinRT.cs">
       <Link>AnimationEx.WinRT.cs</Link>
     </Compile>
+    <Compile Include="..\Freezable.cs">
+      <Link>Freezable.cs</Link>
+    </Compile>
     <Compile Include="..\Int32Rect.cs">
       <Link>Int32Rect.cs</Link>
     </Compile>
@@ -63,9 +66,6 @@
     <Compile Include="..\MapImage.cs">
       <Link>MapImage.cs</Link>
     </Compile>
-    <Compile Include="..\MapImage.Silverlight.WinRT.cs">
-      <Link>MapImage.Silverlight.WinRT.cs</Link>
-    </Compile>
     <Compile Include="..\MapItem.Silverlight.WinRT.cs">
       <Link>MapItem.Silverlight.WinRT.cs</Link>
     </Compile>
@@ -92,9 +92,6 @@
     </Compile>
     <Compile Include="..\MapRectangle.cs">
       <Link>MapRectangle.cs</Link>
-    </Compile>
-    <Compile Include="..\MapRectangle.Silverlight.WinRT.cs">
-      <Link>MapRectangle.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>
