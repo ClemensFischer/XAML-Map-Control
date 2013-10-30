@@ -105,6 +105,7 @@ namespace MapControl
         }
 
         partial void Initialize();
+        partial void RemoveAnimation(DependencyProperty property);
 
         /// <summary>
         /// Raised when the current viewport has changed.
@@ -610,7 +611,7 @@ namespace MapControl
                         To = new Point(targetCenter.Longitude, targetCenter.Latitude),
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction,
-                        FillBehavior = AnimationFillBehavior
+                        FillBehavior = FillBehavior.HoldEnd
                     };
 
                     centerAnimation.Completed += CenterAnimationCompleted;
@@ -628,6 +629,8 @@ namespace MapControl
 
                 InternalSetValue(CenterProperty, TargetCenter);
                 InternalSetValue(CenterPointProperty, new Point(TargetCenter.Longitude, TargetCenter.Latitude));
+                RemoveAnimation(CenterPointProperty); // remove holding animation in WPF
+
                 ResetTransformOrigin();
                 UpdateTransform();
             }
@@ -714,7 +717,7 @@ namespace MapControl
                     To = targetZoomLevel,
                     Duration = AnimationDuration,
                     EasingFunction = AnimationEasingFunction,
-                    FillBehavior = AnimationFillBehavior
+                    FillBehavior = FillBehavior.HoldEnd
                 };
 
                 zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
@@ -730,6 +733,8 @@ namespace MapControl
                 zoomLevelAnimation = null;
 
                 InternalSetValue(ZoomLevelProperty, TargetZoomLevel);
+                RemoveAnimation(ZoomLevelProperty); // remove holding animation in WPF
+
                 UpdateTransform();
                 ResetTransformOrigin();
             }
@@ -789,7 +794,7 @@ namespace MapControl
                         By = delta,
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction,
-                        FillBehavior = AnimationFillBehavior
+                        FillBehavior = FillBehavior.HoldEnd
                     };
 
                     headingAnimation.Completed += HeadingAnimationCompleted;
@@ -806,6 +811,8 @@ namespace MapControl
                 headingAnimation = null;
 
                 InternalSetValue(HeadingProperty, TargetHeading);
+                RemoveAnimation(HeadingProperty); // remove holding animation in WPF
+
                 UpdateTransform();
             }
         }

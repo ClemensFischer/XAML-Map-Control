@@ -5,15 +5,11 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 
 namespace MapControl
 {
     public partial class MapBase
     {
-        // FillBehavior must be set to Stop to re-enable local property values
-        private const FillBehavior AnimationFillBehavior = FillBehavior.Stop;
-
         public static readonly DependencyProperty ForegroundProperty =
             System.Windows.Controls.Control.ForegroundProperty.AddOwner(typeof(MapBase));
 
@@ -29,6 +25,11 @@ namespace MapControl
         partial void Initialize()
         {
             AddVisualChild(tileContainer);
+        }
+
+        partial void RemoveAnimation(DependencyProperty property)
+        {
+            BeginAnimation(property, null);
         }
 
         protected override int VisualChildrenCount

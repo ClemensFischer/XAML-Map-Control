@@ -7,21 +7,15 @@ using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 #else
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 #endif
 
 namespace MapControl
 {
     public partial class MapBase
     {
-        // Set FillBehavior.HoldEnd to prevent animation from returning
-        // to local value before invoking the Completed handler
-        private const FillBehavior AnimationFillBehavior = FillBehavior.HoldEnd;
-
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
             "Foreground", typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Black)));
 
