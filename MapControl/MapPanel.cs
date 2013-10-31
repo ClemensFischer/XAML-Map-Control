@@ -232,7 +232,7 @@ namespace MapControl
                     if (!panelSize.HasValue)
                     {
                         var panel = frameworkElement.Parent as Panel;
-                        panelSize = panel != null ? panel.RenderSize : Size.Empty;
+                        panelSize = panel != null ? panel.RenderSize : new Size();
                     }
 
                     switch (frameworkElement.HorizontalAlignment)
