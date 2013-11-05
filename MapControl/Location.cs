@@ -8,13 +8,24 @@ using System.Globalization;
 namespace MapControl
 {
     /// <summary>
-    /// A geographic location given as latitude and longitude.
+    /// A geographic location with latitude and longitude values in degrees.
     /// </summary>
-    public partial class Location : IEquatable<Location>
+#if !SILVERLIGHT && !NETFX_CORE
+    [Serializable]
+#endif
+    public partial class Location
     {
+        /// <summary>
+        /// TransformedLatitude is set by the Transform methods in MercatorTransform.
+        /// It holds the transformed latitude value to avoid redundant recalculation. 
+        /// </summary>
+#if !SILVERLIGHT && !NETFX_CORE
+        [NonSerialized]
+#endif
+        internal double TransformedLatitude;
+
         private double latitude;
         private double longitude;
-        internal double Y;
 
         public Location()
         {
@@ -32,7 +43,7 @@ namespace MapControl
             set
             {
                 latitude = Math.Min(Math.Max(value, -90d), 90d);
-                Y = double.NaN;
+                TransformedLatitude = double.NaN;
             }
         }
 
@@ -40,21 +51,6 @@ namespace MapControl
         {
             get { return longitude; }
             set { longitude = value; }
-        }
-
-        public bool Equals(Location other)
-        {
-            return other != null && other.latitude == latitude && other.longitude == longitude;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Location);
-        }
-
-        public override int GetHashCode()
-        {
-            return latitude.GetHashCode() ^ longitude.GetHashCode();
         }
 
         public override string ToString()

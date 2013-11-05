@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Cache;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Windows.Media;
@@ -73,7 +74,7 @@ namespace MapControl
 
         internal void StartGetTiles(IEnumerable<Tile> tiles)
         {
-            if (tiles.Any())
+            if (tileLayer.TileSource != null && tiles.Any())
             {
                 ThreadPool.QueueUserWorkItem(GetTilesAsync, tiles.ToList());
             }
@@ -94,22 +95,21 @@ namespace MapControl
         {
             var tiles = (List<Tile>)tileList;
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
-            var animateOpacity = tileLayer.AnimateTileOpacity;
 
             if (imageTileSource != null && !imageTileSource.CanLoadAsync)
             {
                 foreach (var tile in tiles)
                 {
                     tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(ts.LoadImage(t.XIndex, t.Y, t.ZoomLevel), animateOpacity)),
+                        (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(ts.LoadImage(t.XIndex, t.Y, t.ZoomLevel), tileLayer.AnimateTileOpacity)),
                         DispatcherPriority.Background, tile, imageTileSource);
                 }
             }
             else
             {
                 if (imageTileSource == null && Cache != null &&
-                    !tileLayer.TileSource.UriFormat.StartsWith("file://") &&
-                    !string.IsNullOrWhiteSpace(tileLayer.SourceName))
+                    !string.IsNullOrWhiteSpace(tileLayer.SourceName) &&
+                    !tileLayer.TileSource.UriFormat.StartsWith("file://"))
                 {
                     var outdatedTiles = new List<Tile>(tiles.Count);
 
@@ -122,7 +122,7 @@ namespace MapControl
                         if (image != null)
                         {
                             tileLayer.Dispatcher.BeginInvoke(
-                                (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
+                                (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, tileLayer.AnimateTileOpacity)),
                                 DispatcherPriority.Background, tile, image);
 
                             long creationTime = BitConverter.ToInt64(buffer, 0);
@@ -151,13 +151,14 @@ namespace MapControl
                 {
                     Interlocked.Increment(ref downloadThreadCount);
 
-                    ThreadPool.QueueUserWorkItem(o => LoadTiles(imageTileSource, animateOpacity));
+                    ThreadPool.QueueUserWorkItem(LoadTiles);
                 }
             }
         }
 
-        private void LoadTiles(ImageTileSource imageTileSource, bool animateOpacity)
+        private void LoadTiles(object o)
         {
+            var imageTileSource = tileLayer.TileSource as ImageTileSource;
             Tile tile;
 
             while (pendingTiles.TryDequeue(out tile))
@@ -197,7 +198,7 @@ namespace MapControl
                 if (image != null)
                 {
                     tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
+                        (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, tileLayer.AnimateTileOpacity)),
                         DispatcherPriority.Background, tile, image);
 
                     if (buffer != null && Cache != null)
@@ -268,6 +269,11 @@ namespace MapControl
                 var request = (HttpWebRequest)WebRequest.Create(uri);
                 request.UserAgent = "XAML Map Control";
 
+                if (Cache != null)
+                {
+                    request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
+                }
+
                 using (var response = (HttpWebResponse)request.GetResponse())
                 using (var responseStream = response.GetResponseStream())
                 {
@@ -284,7 +290,7 @@ namespace MapControl
                     }
                 }
 
-                Trace.TraceInformation("Downloaded {0}", uri);
+                //Trace.TraceInformation("Downloaded {0}", uri);
             }
             catch (WebException ex)
             {
@@ -293,7 +299,7 @@ namespace MapControl
                     var statusCode = ((HttpWebResponse)ex.Response).StatusCode;
                     if (statusCode != HttpStatusCode.NotFound)
                     {
-                        Trace.TraceInformation("Downloading {0} failed: {1}", uri, ex.Message);
+                        Trace.TraceWarning("Downloading {0} failed: {1}", uri, ex.Message);
                     }
                 }
                 else

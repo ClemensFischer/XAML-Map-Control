@@ -35,6 +35,12 @@
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\MapControl.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -45,27 +51,30 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Map.WPF.cs" />
-    <Compile Include="MapGraticule.WPF.cs" />
+    <Compile Include="GlyphRunText.cs" />
+    <Compile Include="ImageTileSource.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />
     <Compile Include="LocationCollectionConverter.cs" />
     <Compile Include="LocationConverter.cs" />
-    <Compile Include="MapBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Map.WPF.cs" />
+    <Compile Include="MapBase.cs" />
     <Compile Include="MapBase.WPF.cs" />
+    <Compile Include="MapGraticule.cs" />
+    <Compile Include="MapGraticule.WPF.cs" />
     <Compile Include="MapImage.cs" />
     <Compile Include="MapImageLayer.cs" />
     <Compile Include="MapItem.WPF.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />
+    <Compile Include="MapOverlay.cs" />
     <Compile Include="MapPanel.cs" />
     <Compile Include="MapPanel.WPF.cs" />
+    <Compile Include="MapPath.cs" />
+    <Compile Include="MapPath.WPF.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
     <Compile Include="MapRectangle.cs" />
-    <Compile Include="MapPath.cs" />
-    <Compile Include="MapPath.WPF.cs" />
+    <Compile Include="MapScale.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,17 +83,12 @@
     <Compile Include="Tile.WPF.cs" />
     <Compile Include="TileContainer.cs" />
     <Compile Include="TileContainer.WPF.cs" />
+    <Compile Include="TileImageLoader.WPF.cs" />
     <Compile Include="TileLayer.cs" />
     <Compile Include="TileLayer.WPF.cs" />
     <Compile Include="TileLayerCollection.cs" />
     <Compile Include="TileSource.cs" />
     <Compile Include="TileSourceConverter.cs" />
-    <Compile Include="GlyphRunText.cs" />
-    <Compile Include="ImageTileSource.cs" />
-    <Compile Include="MapGraticule.cs" />
-    <Compile Include="MapOverlay.cs" />
-    <Compile Include="MapScale.cs" />
-    <Compile Include="TileImageLoader.WPF.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Themes\Generic.xaml">
@@ -92,7 +96,11 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="..\MapControl.snk">
+      <Link>MapControl.snk</Link>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

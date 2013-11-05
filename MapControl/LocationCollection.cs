@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace MapControl
 {
@@ -18,23 +19,20 @@ namespace MapControl
         }
 
         public LocationCollection(IEnumerable<Location> locations)
+            : base(locations)
         {
-            foreach (var location in locations)
-            {
-                Add(location);
-            }
+        }
+
+        public LocationCollection(List<Location> locations)
+            : base(locations)
+        {
         }
 
         public static LocationCollection Parse(string s)
         {
-            LocationCollection locations = new LocationCollection();
+            var strings = s.Split(new char[] { ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (var locString in s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                locations.Add(Location.Parse(locString));
-            }
-
-            return locations;
+            return new LocationCollection(strings.Select(l => Location.Parse(l)));
         }
     }
 }

@@ -51,6 +51,12 @@
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\MapControl.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System.Windows" />
@@ -81,10 +87,10 @@
     <Compile Include="MapPanel.cs" />
     <Compile Include="MapPanel.Silverlight.WinRT.cs" />
     <Compile Include="MapPath.cs" />
-    <Compile Include="MapRectangle.cs" />
+    <Compile Include="MapPath.Silverlight.WinRT.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.Silverlight.WinRT.cs" />
-    <Compile Include="MapPath.Silverlight.WinRT.cs" />
+    <Compile Include="MapRectangle.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MatrixEx.cs" />
     <Compile Include="MercatorTransform.cs" />
@@ -101,12 +107,16 @@
     <Compile Include="TileSource.cs" />
     <Compile Include="TileSourceConverter.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Page Include="Themes\Generic.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\MapControl.snk">
+      <Link>MapControl.snk</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>

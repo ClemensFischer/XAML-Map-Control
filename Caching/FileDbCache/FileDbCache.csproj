@@ -33,6 +33,12 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="FileDb, Version=3.10.0.0, Culture=neutral, PublicKeyToken=68cc942b9efb3282, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -49,6 +55,11 @@
   <ItemGroup>
     <Content Include="FileDb\FileDb.dll" />
     <Content Include="FileDb\FileDb.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\MapControl.snk">
+      <Link>MapControl.snk</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
