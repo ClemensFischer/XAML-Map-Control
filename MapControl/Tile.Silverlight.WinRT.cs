@@ -33,12 +33,12 @@ namespace MapControl
             {
                 if (animateOpacity)
                 {
-                    var bitmapImage = image as BitmapImage;
+                    var bitmap = image as BitmapImage;
 
-                    if (bitmapImage != null)
+                    if (bitmap != null)
                     {
-                        bitmapImage.ImageOpened += BitmapImageOpened;
-                        bitmapImage.ImageFailed += BitmapImageFailed;
+                        bitmap.ImageOpened += BitmapImageOpened;
+                        bitmap.ImageFailed += BitmapImageFailed;
                     }
                     else
                     {
@@ -52,20 +52,26 @@ namespace MapControl
             }
 
             Image.Source = image;
-            HasImage = true;
+            HasImageSource = true;
         }
 
         private void BitmapImageOpened(object sender, RoutedEventArgs e)
         {
-            ((BitmapImage)sender).ImageOpened -= BitmapImageOpened;
-            ((BitmapImage)sender).ImageFailed -= BitmapImageFailed;
+            var bitmap = (BitmapImage)sender;
+
+            bitmap.ImageOpened -= BitmapImageOpened;
+            bitmap.ImageFailed -= BitmapImageFailed;
+
             Image.BeginAnimation(Image.OpacityProperty, new DoubleAnimation { To = 1d, Duration = AnimationDuration });
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
         {
-            ((BitmapImage)sender).ImageOpened -= BitmapImageOpened;
-            ((BitmapImage)sender).ImageFailed -= BitmapImageFailed;
+            var bitmap = (BitmapImage)sender;
+
+            bitmap.ImageOpened -= BitmapImageOpened;
+            bitmap.ImageFailed -= BitmapImageFailed;
+
             Image.Source = null;
         }
     }

@@ -70,7 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnimationEx.Silverlight.cs" />
-    <Compile Include="Freezable.cs" />
+    <Compile Include="ImageTileSource.cs" />
     <Compile Include="Int32Rect.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />

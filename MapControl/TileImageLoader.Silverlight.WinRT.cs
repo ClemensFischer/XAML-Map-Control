@@ -2,37 +2,50 @@
 // Copyright © Clemens Fischer 2012-2013
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 #if NETFX_CORE
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 #endif
 
 namespace MapControl
 {
     /// <summary>
-    /// Loads map tile images by their URIs.
+    /// Loads map tile images.
     /// </summary>
     internal class TileImageLoader
     {
-        private readonly TileLayer tileLayer;
-
-        internal TileImageLoader(TileLayer tileLayer)
+        internal void BeginGetTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
         {
-            this.tileLayer = tileLayer;
-        }
+            var imageTileSource = tileLayer.TileSource as ImageTileSource;
 
-        internal void StartGetTiles(IEnumerable<Tile> tiles)
-        {
             foreach (var tile in tiles)
             {
-                var uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-
-                if (uri != null)
+                try
                 {
-                    tile.SetImageSource(new BitmapImage(uri), tileLayer.AnimateTileOpacity);
+                    ImageSource image;
+
+                    if (imageTileSource != null)
+                    {
+                        image = imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel);
+                    }
+                    else
+                    {
+                        var uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+
+                        image = uri != null ? new BitmapImage(uri) : null;
+                    }
+
+                    tile.SetImageSource(image, tileLayer.AnimateTileOpacity);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Creating tile image failed: {0}", ex.Message);
                 }
             }
         }

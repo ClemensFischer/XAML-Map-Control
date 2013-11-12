@@ -16,7 +16,7 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area defined by South, North, West and East with a Brush.
     /// </summary>
-    public class MapRectangle : MapPath
+    public partial class MapRectangle : MapPath
     {
         private const double geometryScale = 1e6;
 
@@ -25,11 +25,6 @@ namespace MapControl
             ScaleX = 1d / geometryScale,
             ScaleY = 1d / geometryScale
         };
-
-        static MapRectangle()
-        {
-            geometryScaleTransform.Freeze();
-        }
 
         public static readonly DependencyProperty SouthProperty = DependencyProperty.Register(
             "South", typeof(double), typeof(MapRectangle),

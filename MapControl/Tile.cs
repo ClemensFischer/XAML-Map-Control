@@ -21,7 +21,7 @@ namespace MapControl
             Y = y;
         }
 
-        public bool HasImage { get; private set; }
+        public bool HasImageSource { get; private set; }
 
         public int XIndex
         {

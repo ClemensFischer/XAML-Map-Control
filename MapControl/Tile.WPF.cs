@@ -24,12 +24,12 @@ namespace MapControl
             {
                 if (animateOpacity)
                 {
-                    var bitmapImage = image as BitmapImage;
+                    var bitmap = image as BitmapSource;
 
-                    if (bitmapImage != null && bitmapImage.IsDownloading)
+                    if (bitmap != null && !bitmap.IsFrozen && bitmap.IsDownloading)
                     {
-                        bitmapImage.DownloadCompleted += BitmapDownloadCompleted;
-                        bitmapImage.DownloadFailed += BitmapDownloadFailed;
+                        bitmap.DownloadCompleted += BitmapDownloadCompleted;
+                        bitmap.DownloadFailed += BitmapDownloadFailed;
                     }
                     else
                     {
@@ -43,20 +43,26 @@ namespace MapControl
             }
 
             Brush.ImageSource = image;
-            HasImage = true;
+            HasImageSource = true;
         }
 
         private void BitmapDownloadCompleted(object sender, EventArgs e)
         {
-            ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
-            ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
+            var bitmap = (BitmapSource)sender;
+
+            bitmap.DownloadCompleted -= BitmapDownloadCompleted;
+            bitmap.DownloadFailed -= BitmapDownloadFailed;
+
             Brush.BeginAnimation(ImageBrush.OpacityProperty, new DoubleAnimation(1d, AnimationDuration));
         }
 
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
         {
-            ((BitmapImage)sender).DownloadCompleted -= BitmapDownloadCompleted;
-            ((BitmapImage)sender).DownloadFailed -= BitmapDownloadFailed;
+            var bitmap = (BitmapSource)sender;
+
+            bitmap.DownloadCompleted -= BitmapDownloadCompleted;
+            bitmap.DownloadFailed -= BitmapDownloadFailed;
+
             Brush.ImageSource = null;
         }
     }

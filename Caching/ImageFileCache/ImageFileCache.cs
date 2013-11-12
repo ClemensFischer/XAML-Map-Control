@@ -16,12 +16,22 @@ namespace Caching
 {
     /// <summary>
     /// ObjectCache implementation based on local image files.
-    /// The only valid data type for cached values is a byte[], which contains
-    /// an 8-byte binary UTC time (as created by DateTime.ToBinary), followed
-    /// by a PNG, JPEG, BMP, GIF, TIFF or WMP image buffer.
+    /// The only valid data type for cached values is a byte array containing an
+    /// 8-byte timestamp followed by a PNG, JPEG, BMP, GIF, TIFF or WMP image buffer.
     /// </summary>
     public class ImageFileCache : ObjectCache
     {
+        private static readonly Tuple<string, byte[]>[] imageFileTypes = new Tuple<string, byte[]>[]
+        {
+            new Tuple<string, byte[]>(".png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0xD, 0xA, 0x1A, 0xA }),
+            new Tuple<string, byte[]>(".jpg", new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0 }),
+            new Tuple<string, byte[]>(".bmp", new byte[] { 0x42, 0x4D }),
+            new Tuple<string, byte[]>(".gif", new byte[] { 0x47, 0x49, 0x46 }),
+            new Tuple<string, byte[]>(".tif", new byte[] { 0x49, 0x49, 42, 0 }),
+            new Tuple<string, byte[]>(".tif", new byte[] { 0x4D, 0x4D, 0, 42 }),
+            new Tuple<string, byte[]>(".wdp", new byte[] { 0x49, 0x49, 0xBC }),
+        };
+
         private static readonly FileSystemAccessRule fullControlRule = new FileSystemAccessRule(
             new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
             FileSystemRights.FullControl, AccessControlType.Allow);
@@ -169,36 +179,31 @@ namespace Caching
 
             var buffer = value as byte[];
 
-            if (buffer == null)
+            if (buffer == null || buffer.Length <= 8)
             {
-                throw new NotSupportedException("The parameter value must be a byte[].");
+                throw new NotSupportedException("The parameter value must be a byte[] containing at least 9 bytes.");
             }
 
             MemoryCache.Default.Set(key, buffer, policy);
 
-            var extension = GetFileExtension(buffer);
+            var path = GetPath(key) + GetFileExtension(buffer);
 
-            if (extension != null)
+            try
             {
-                var path = GetPath(key) + extension;
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                try
+                using (var fileStream = new FileStream(path, FileMode.Create))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
-
-                    using (var fileStream = new FileStream(path, FileMode.Create))
-                    {
-                        fileStream.Write(buffer, 8, buffer.Length - 8);
-                    }
-
-                    var fileSecurity = File.GetAccessControl(path);
-                    fileSecurity.AddAccessRule(fullControlRule);
-                    File.SetAccessControl(path, fileSecurity);
+                    fileStream.Write(buffer, 8, buffer.Length - 8);
                 }
-                catch (Exception ex)
-                {
-                    Trace.TraceWarning("ImageFileCache: Writing file {0} failed: {1}", path, ex.Message);
-                }
+
+                var fileSecurity = File.GetAccessControl(path);
+                fileSecurity.AddAccessRule(fullControlRule);
+                File.SetAccessControl(path, fileSecurity);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("ImageFileCache: Writing file {0} failed: {1}", path, ex.Message);
             }
         }
 
@@ -274,42 +279,24 @@ namespace Caching
             return null;
         }
 
-        private static readonly Tuple<string, byte[]>[] fileTypes = new Tuple<string, byte[]>[]
-        {
-            new Tuple<string, byte[]>(".png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0xD, 0xA, 0x1A, 0xA }),
-            new Tuple<string, byte[]>(".jpg", new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0 }),
-            new Tuple<string, byte[]>(".bmp", new byte[] { 0x42, 0x4D }),
-            new Tuple<string, byte[]>(".gif", new byte[] { 0x47, 0x49, 0x46 }),
-            new Tuple<string, byte[]>(".tif", new byte[] { 0x49, 0x49, 42, 0 }),
-            new Tuple<string, byte[]>(".tif", new byte[] { 0x4D, 0x4D, 0, 42 }),
-            new Tuple<string, byte[]>(".wdp", new byte[] { 0x49, 0x49, 0xBC }),
-        };
-
         private static string GetFileExtension(byte[] buffer)
         {
-            string extension = null;
-            var creationTime = DateTime.FromBinary(BitConverter.ToInt64(buffer, 0));
-
-            if (creationTime.Kind == DateTimeKind.Utc && creationTime <= DateTime.UtcNow)
+            var fileType = imageFileTypes.FirstOrDefault(t =>
             {
-                Func<Tuple<string, byte[]>, bool> match =
-                    t =>
+                int i = 0;
+
+                if (t.Item2.Length <= buffer.Length - 8)
+                {
+                    while (i < t.Item2.Length && t.Item2[i] == buffer[i + 8])
                     {
-                        int i = 0;
-                        if (t.Item2.Length + 8 <= buffer.Length)
-                        {
-                            while (i < t.Item2.Length && t.Item2[i] == buffer[i + 8])
-                            {
-                                i++;
-                            }
-                        }
-                        return i == t.Item2.Length;
-                    };
+                        i++;
+                    }
+                }
 
-                extension = fileTypes.Where(match).Select(t => t.Item1).FirstOrDefault();
-            }
+                return i == t.Item2.Length;
+            });
 
-            return extension;
+            return fileType != null ? fileType.Item1 : ".bin";
         }
     }
 }

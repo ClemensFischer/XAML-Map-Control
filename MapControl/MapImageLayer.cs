@@ -119,7 +119,6 @@ namespace MapControl
 
                 try
                 {
-                    var bitmap = new BitmapImage();
                     var request = (HttpWebRequest)WebRequest.Create(uri);
                     request.UserAgent = "XAML Map Control";
 
@@ -128,15 +127,8 @@ namespace MapControl
                     using (var memoryStream = new MemoryStream())
                     {
                         responseStream.CopyTo(memoryStream);
-
-                        bitmap.BeginInit();
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.StreamSource = memoryStream;
-                        bitmap.EndInit();
-                        bitmap.Freeze();
+                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }
-
-                    image = bitmap;
                 }
                 catch (Exception ex)
                 {

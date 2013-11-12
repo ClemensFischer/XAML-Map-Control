@@ -39,8 +39,8 @@
     <Compile Include="..\AnimationEx.WinRT.cs">
       <Link>AnimationEx.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\Freezable.cs">
-      <Link>Freezable.cs</Link>
+    <Compile Include="..\ImageTileSource.cs">
+      <Link>ImageTileSource.cs</Link>
     </Compile>
     <Compile Include="..\Int32Rect.cs">
       <Link>Int32Rect.cs</Link>

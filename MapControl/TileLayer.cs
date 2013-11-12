@@ -40,7 +40,7 @@ namespace MapControl
         }
 
         private readonly MatrixTransform transform = new MatrixTransform();
-        private readonly TileImageLoader tileImageLoader;
+        private readonly TileImageLoader tileImageLoader = new TileImageLoader();
         private List<Tile> tiles = new List<Tile>();
         private string description = string.Empty;
         private Int32Rect grid;
@@ -48,7 +48,6 @@ namespace MapControl
 
         public TileLayer()
         {
-            tileImageLoader = new TileImageLoader(this);
             MinZoomLevel = 1;
             MaxZoomLevel = 18;
             MaxParallelDownloads = 8;
@@ -96,7 +95,7 @@ namespace MapControl
             {
                 SelectTiles();
                 RenderTiles();
-                tileImageLoader.StartGetTiles(tiles.Where(t => !t.HasImage));
+                tileImageLoader.BeginGetTiles(this, tiles.Where(t => !t.HasImageSource));
             }
         }
 

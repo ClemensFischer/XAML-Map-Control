@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Cache;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Windows.Media;
@@ -19,18 +18,14 @@ using System.Windows.Threading;
 namespace MapControl
 {
     /// <summary>
-    /// Loads map tile images by their URIs and optionally caches the images in an ObjectCache.
+    /// Loads map tile images and optionally caches them in a System.Runtime.Caching.ObjectCache.
     /// </summary>
     public class TileImageLoader
     {
-        private readonly TileLayer tileLayer;
-        private readonly ConcurrentQueue<Tile> pendingTiles = new ConcurrentQueue<Tile>();
-        private int downloadThreadCount;
-
         /// <summary>
         /// Default Name of an ObjectCache instance that is assigned to the Cache property.
         /// </summary>
-        public static readonly string DefaultCacheName = "TileCache";
+        public const string DefaultCacheName = "TileCache";
 
         /// <summary>
         /// Default value for the directory where an ObjectCache instance may save cached data.
@@ -39,44 +34,48 @@ namespace MapControl
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl");
 
         /// <summary>
-        /// The ObjectCache used to cache tile images.
-        /// The default is System.Runtime.Caching.MemoryCache.Default.
+        /// The ObjectCache used to cache tile images. The default is null.
         /// </summary>
         public static ObjectCache Cache { get; set; }
 
         /// <summary>
-        /// The time interval after which cached images expire. The default value is 30 days.
-        /// When an image is not retrieved from the cache during this interval it is considered
-        /// as expired and will be removed from the cache. If an image is retrieved from the
-        /// cache and the CacheUpdateAge time interval has expired, the image is downloaded
-        /// again and rewritten to the cache with a new expiration time.
+        /// The time interval after which cached images expire. The default value is seven days.
+        /// When an image is not retrieved from the cache during this interval it is considered as expired
+        /// and will be removed from the cache, provided that the cache implementation supports expiration.
+        /// If an image is retrieved from the cache and the CacheUpdateAge time interval has expired,
+        /// the image is downloaded again and rewritten to the cache with a new expiration time.
         /// </summary>
         public static TimeSpan CacheExpiration { get; set; }
 
         /// <summary>
         /// The time interval after which a cached image is updated and rewritten to the cache.
-        /// The default value is one day. This time interval should be shorter than the value
+        /// The default value is one day. This time interval should not be greater than the value
         /// of the CacheExpiration property.
         /// </summary>
         public static TimeSpan CacheUpdateAge { get; set; }
 
         static TileImageLoader()
         {
-            Cache = MemoryCache.Default;
-            CacheExpiration = TimeSpan.FromDays(30d);
-            CacheUpdateAge = TimeSpan.FromDays(1d);
+            CacheExpiration = TimeSpan.FromDays(7);
+            CacheUpdateAge = TimeSpan.FromDays(1);
         }
 
-        internal TileImageLoader(TileLayer tileLayer)
-        {
-            this.tileLayer = tileLayer;
-        }
+        private readonly ConcurrentQueue<Tile> pendingTiles = new ConcurrentQueue<Tile>();
+        private int threadCount;
 
-        internal void StartGetTiles(IEnumerable<Tile> tiles)
+        internal void BeginGetTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
         {
-            if (tileLayer.TileSource != null && tiles.Any())
+            if (tiles.Any())
             {
-                ThreadPool.QueueUserWorkItem(GetTilesAsync, tiles.ToList());
+                // get current TileLayer property values in UI thread
+                var dispatcher = tileLayer.Dispatcher;
+                var tileSource = tileLayer.TileSource;
+                var sourceName = tileLayer.SourceName;
+                var maxDownloads = tileLayer.MaxParallelDownloads;
+                var animateOpacity = tileLayer.AnimateTileOpacity;
+
+                ThreadPool.QueueUserWorkItem(o =>
+                    GetTiles(tiles.ToList(), dispatcher, tileSource, sourceName, maxDownloads, animateOpacity));
             }
         }
 
@@ -86,79 +85,87 @@ namespace MapControl
             while (pendingTiles.TryDequeue(out tile)) ; // no Clear method
         }
 
-        private string GetCacheKey(Tile tile)
+        private void GetTiles(List<Tile> tiles, Dispatcher dispatcher, TileSource tileSource,
+                              string sourceName, int maxDownloads, bool animateOpacity)
         {
-            return string.Format("{0}/{1}/{2}/{3}", tileLayer.SourceName, tile.ZoomLevel, tile.XIndex, tile.Y);
-        }
+            var imageTileSource = tileSource as ImageTileSource;
 
-        private void GetTilesAsync(object tileList)
-        {
-            var tiles = (List<Tile>)tileList;
-            var imageTileSource = tileLayer.TileSource as ImageTileSource;
-
-            if (imageTileSource != null && !imageTileSource.CanLoadAsync)
+            if (imageTileSource != null)
             {
-                foreach (var tile in tiles)
+                if (!imageTileSource.CanLoadAsync) // call LoadImage in UI thread
                 {
-                    tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(ts.LoadImage(t.XIndex, t.Y, t.ZoomLevel), tileLayer.AnimateTileOpacity)),
-                        DispatcherPriority.Background, tile, imageTileSource);
+                    foreach (var tile in tiles)
+                    {
+                        dispatcher.BeginInvoke(
+                            (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(LoadImage(ts, t), animateOpacity)),
+                            DispatcherPriority.Background, tile, imageTileSource);
+                    }
+
+                    return;
                 }
             }
-            else
+            else if (!tileSource.UriFormat.StartsWith("file:")) // always load local image files asynchronously
             {
-                if (imageTileSource == null && Cache != null &&
-                    !string.IsNullOrWhiteSpace(tileLayer.SourceName) &&
-                    !tileLayer.TileSource.UriFormat.StartsWith("file://"))
+                if (Cache == null || string.IsNullOrWhiteSpace(sourceName))
                 {
-                    var outdatedTiles = new List<Tile>(tiles.Count);
+                    // no caching here: use default asynchronous downloading and caching done by WPF
 
                     foreach (var tile in tiles)
                     {
-                        var key = GetCacheKey(tile);
-                        var buffer = Cache.Get(key) as byte[];
-                        var image = CreateImage(buffer);
-
-                        if (image != null)
-                        {
-                            tileLayer.Dispatcher.BeginInvoke(
-                                (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, tileLayer.AnimateTileOpacity)),
-                                DispatcherPriority.Background, tile, image);
-
-                            long creationTime = BitConverter.ToInt64(buffer, 0);
-
-                            if (DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow)
-                            {
-                                // update outdated cache
-                                outdatedTiles.Add(tile);
-                            }
-                        }
-                        else
-                        {
-                            pendingTiles.Enqueue(tile);
-                        }
+                        dispatcher.BeginInvoke(
+                            (Action<Tile, TileSource>)((t, ts) => t.SetImageSource(CreateImage(ts, t), animateOpacity)),
+                            DispatcherPriority.Background, tile, tileSource);
                     }
 
-                    tiles = outdatedTiles; // enqueue outdated tiles at last
+                    return;
                 }
+
+                var outdatedTiles = new List<Tile>(tiles.Count);
 
                 foreach (var tile in tiles)
                 {
-                    pendingTiles.Enqueue(tile);
+                    var key = GetCacheKey(sourceName, tile);
+                    var buffer = Cache.Get(key) as byte[];
+                    var image = CreateImage(buffer);
+
+                    if (image != null)
+                    {
+                        dispatcher.BeginInvoke(
+                            (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
+                            DispatcherPriority.Background, tile, image);
+
+                        long creationTime = BitConverter.ToInt64(buffer, 0);
+
+                        if (DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow)
+                        {
+                            outdatedTiles.Add(tile); // update outdated cache
+                        }
+                    }
+                    else
+                    {
+                        pendingTiles.Enqueue(tile); // not yet cached
+                    }
                 }
 
-                while (downloadThreadCount < Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads))
-                {
-                    Interlocked.Increment(ref downloadThreadCount);
+                tiles = outdatedTiles; // enqueue outdated tiles at last
+            }
 
-                    ThreadPool.QueueUserWorkItem(LoadTiles);
-                }
+            foreach (var tile in tiles)
+            {
+                pendingTiles.Enqueue(tile);
+            }
+
+            while (threadCount < Math.Min(pendingTiles.Count, maxDownloads))
+            {
+                Interlocked.Increment(ref threadCount);
+
+                ThreadPool.QueueUserWorkItem(o => LoadPendingTiles(dispatcher, tileSource, sourceName, animateOpacity));
             }
         }
 
-        private void LoadTiles(object o)
+        private void LoadPendingTiles(Dispatcher dispatcher, TileSource tileSource, string sourceName, bool animateOpacity)
         {
-            var imageTileSource = tileLayer.TileSource as ImageTileSource;
+            var imageTileSource = tileSource as ImageTileSource;
             Tile tile;
 
             while (pendingTiles.TryDequeue(out tile))
@@ -168,65 +175,96 @@ namespace MapControl
 
                 if (imageTileSource != null)
                 {
-                    try
-                    {
-                        image = imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel);
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.TraceWarning("Loading tile image failed: {0}", ex.Message);
-                    }
+                    image = LoadImage(imageTileSource, tile);
                 }
                 else
                 {
-                    var uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+                    var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
                     if (uri != null)
                     {
-                        if (uri.Scheme == "http")
+                        if (uri.Scheme == "file")
+                        {
+                            image = CreateImage(uri.AbsolutePath);
+                        }
+                        else
                         {
                             buffer = DownloadImage(uri);
                             image = CreateImage(buffer);
                         }
-                        else
-                        {
-                            image = CreateImage(uri);
-                        }
                     }
                 }
 
-                if (image != null)
+                if (image != null || !tile.HasImageSource) // do not set null if tile already has an image (from cache)
                 {
-                    tileLayer.Dispatcher.BeginInvoke(
-                        (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, tileLayer.AnimateTileOpacity)),
+                    dispatcher.BeginInvoke(
+                        (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
                         DispatcherPriority.Background, tile, image);
+                }
 
-                    if (buffer != null && Cache != null)
-                    {
-                        Cache.Set(GetCacheKey(tile), buffer, new CacheItemPolicy { SlidingExpiration = CacheExpiration });
-                    }
+                if (buffer != null && image != null)
+                {
+                    Cache.Set(GetCacheKey(sourceName, tile), buffer, new CacheItemPolicy { SlidingExpiration = CacheExpiration });
                 }
             }
 
-            Interlocked.Decrement(ref downloadThreadCount);
+            Interlocked.Decrement(ref threadCount);
         }
 
-        private static ImageSource CreateImage(Uri uri)
+        private static string GetCacheKey(string sourceName, Tile tile)
         {
-            var image = new BitmapImage();
+            return string.Format("{0}/{1}/{2}/{3}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y);
+        }
+
+        private static ImageSource LoadImage(ImageTileSource tileSource, Tile tile)
+        {
+            ImageSource image = null;
 
             try
             {
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = uri;
-                image.EndInit();
-                image.Freeze();
+                image = tileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceWarning("Loading tile image failed: {0}", ex.Message);
+            }
+
+            return image;
+        }
+
+        private static ImageSource CreateImage(TileSource tileSource, Tile tile)
+        {
+            ImageSource image = null;
+
+            try
+            {
+                image = BitmapFrame.Create(tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel));
             }
             catch (Exception ex)
             {
                 Trace.TraceWarning("Creating tile image failed: {0}", ex.Message);
-                image = null;
+            }
+
+            return image;
+        }
+
+        private static ImageSource CreateImage(string path)
+        {
+            ImageSource image = null;
+
+            if (File.Exists(path))
+            {
+                try
+                {
+                    using (var stream = new FileStream(path, FileMode.Open))
+                    {
+                        image = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceWarning("Creating tile image failed: {0}", ex.Message);
+                }
             }
 
             return image;
@@ -234,7 +272,7 @@ namespace MapControl
 
         private static ImageSource CreateImage(byte[] buffer)
         {
-            BitmapImage image = null;
+            ImageSource image = null;
 
             if (buffer != null && buffer.Length > sizeof(long))
             {
@@ -242,18 +280,12 @@ namespace MapControl
                 {
                     using (var stream = new MemoryStream(buffer, sizeof(long), buffer.Length - sizeof(long), false))
                     {
-                        image = new BitmapImage();
-                        image.BeginInit();
-                        image.CacheOption = BitmapCacheOption.OnLoad;
-                        image.StreamSource = stream;
-                        image.EndInit();
-                        image.Freeze();
+                        image = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }
                 }
                 catch (Exception ex)
                 {
                     Trace.TraceWarning("Creating tile image failed: {0}", ex.Message);
-                    image = null;
                 }
             }
 
@@ -268,11 +300,6 @@ namespace MapControl
             {
                 var request = (HttpWebRequest)WebRequest.Create(uri);
                 request.UserAgent = "XAML Map Control";
-
-                if (Cache != null)
-                {
-                    request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
-                }
 
                 using (var response = (HttpWebResponse)request.GetResponse())
                 using (var responseStream = response.GetResponseStream())
@@ -289,8 +316,6 @@ namespace MapControl
                         buffer = length > 0 ? memoryStream.GetBuffer() : memoryStream.ToArray();
                     }
                 }
-
-                //Trace.TraceInformation("Downloaded {0}", uri);
             }
             catch (WebException ex)
             {

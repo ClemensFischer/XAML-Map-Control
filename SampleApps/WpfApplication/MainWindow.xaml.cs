@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Caching;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,6 +23,9 @@ namespace WpfApplication
         {
             switch (Properties.Settings.Default.TileCache)
             {
+                case "MemoryCache":
+                    TileImageLoader.Cache = MemoryCache.Default;
+                    break;
                 case "FileDbCache":
                     TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
                     break;

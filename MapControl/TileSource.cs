@@ -102,7 +102,7 @@ namespace MapControl
 
         private Uri GetOpenStreetMapUri(int x, int y, int zoomLevel)
         {
-            var hostIndex = (x + y + zoomLevel) % 3;
+            var hostIndex = (x + y) % 3;
 
             return new Uri(UriFormat.
                 Replace("{c}", "abc".Substring(hostIndex, 1)).
@@ -113,7 +113,7 @@ namespace MapControl
 
         private Uri GetGoogleMapsUri(int x, int y, int zoomLevel)
         {
-            var hostIndex = (x + y + zoomLevel) % 4;
+            var hostIndex = (x + y) % 4;
 
             return new Uri(UriFormat.
                 Replace("{i}", hostIndex.ToString()).
@@ -124,7 +124,7 @@ namespace MapControl
 
         private Uri GetMapQuestUri(int x, int y, int zoomLevel)
         {
-            var hostIndex = (x + y + zoomLevel) % 4 + 1;
+            var hostIndex = (x + y) % 4 + 1;
 
             return new Uri(UriFormat.
                 Replace("{n}", hostIndex.ToString()).
