@@ -103,9 +103,10 @@ namespace MapControl
 
             ViewportTransform.Matrix = GetViewportTransformMatrix(scale, transformOffsetX, transformOffsetY);
 
-            if (Math.Sign(mapOrigin.X) != Math.Sign(oldMapOriginX) && Math.Abs(mapOrigin.X) > 90d)
+            if (Math.Abs(mapOrigin.X - oldMapOriginX) > 180d)
             {
-                // immediately handle map origin leap when map center moves across the date line
+                // immediately handle map origin leap when map center moves across 180° longitude
+
                 UpdateTiles(this, EventArgs.Empty);
             }
             else
