@@ -145,6 +145,11 @@ namespace MapControl
 
         private Uri GetQuadKeyUri(int x, int y, int zoomLevel)
         {
+            if (zoomLevel < 1)
+            {
+                return null;
+            }
+
             var key = new StringBuilder { Length = zoomLevel };
 
             for (var z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)

@@ -151,6 +151,23 @@ namespace MapControl
 
             if (parentMap != null && location != null)
             {
+                var longitude = Location.NormalizeLongitude(location.Longitude);
+                var centerDistance = longitude - parentMap.Center.Longitude;
+
+                if (centerDistance > 180d)
+                {
+                    longitude -= 360d;
+                }
+                else if (centerDistance < -180d)
+                {
+                    longitude += 360d;
+                }
+
+                if (location.Longitude != longitude) // keep viewport position near map center
+                {
+                    location = new Location(location.Latitude, longitude);
+                }
+
                 viewportPosition = parentMap.LocationToViewportPoint(location);
                 element.SetValue(ViewportPositionProperty, viewportPosition);
             }

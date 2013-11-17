@@ -101,7 +101,7 @@ namespace MapControl
             tileLayerOffset.X = transformOffsetX - 180d * scale;
             tileLayerOffset.Y = transformOffsetY - 180d * scale;
 
-            ViewportTransform.Matrix = GetViewportTransformMatrix(new Matrix(scale, 0d, 0d, -scale, transformOffsetX, transformOffsetY));
+            ViewportTransform.Matrix = GetViewportTransformMatrix(scale, transformOffsetX, transformOffsetY);
 
             if (Math.Sign(mapOrigin.X) != Math.Sign(oldMapOriginX) && Math.Abs(mapOrigin.X) > 90d)
             {

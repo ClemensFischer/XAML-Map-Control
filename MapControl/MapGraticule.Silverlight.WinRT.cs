@@ -226,7 +226,6 @@ namespace MapControl
                     {
                         for (var lon = labelsStart.Longitude; lon <= end.Longitude; lon += spacing)
                         {
-                            var location = new Location(lat, lon);
                             TextBlock label;
 
                             if (childIndex < Children.Count)
@@ -273,13 +272,17 @@ namespace MapControl
                             {
                                 transformGroup.Children.Add(new TranslateTransform());
                                 transformGroup.Children.Add(ParentMap.RotateTransform);
+                                transformGroup.Children.Add(new TranslateTransform());
                             }
 
                             var translateTransform = (TranslateTransform)transformGroup.Children[0];
                             translateTransform.X = StrokeThickness / 2d + 2d;
                             translateTransform.Y = -label.DesiredSize.Height / 2d;
 
-                            MapPanel.SetLocation(label, location);
+                            var viewportPosition = ParentMap.LocationToViewportPoint(new Location(lat, lon));
+                            translateTransform = (TranslateTransform)transformGroup.Children[2];
+                            translateTransform.X = viewportPosition.X;
+                            translateTransform.Y = viewportPosition.Y;
                         }
                     }
 

@@ -17,8 +17,10 @@ namespace MapControl
 {
     internal partial class TileContainer : Panel
     {
-        private Matrix GetViewportTransformMatrix(Matrix transform)
+        private Matrix GetViewportTransformMatrix(double scale, double offsetX, double offsetY)
         {
+            var transform = new Matrix(scale, 0d, 0d, -scale, offsetX, offsetY);
+
             return transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
         }
 

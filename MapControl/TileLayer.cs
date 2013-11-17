@@ -48,7 +48,7 @@ namespace MapControl
 
         public TileLayer()
         {
-            MinZoomLevel = 1;
+            MinZoomLevel = 0;
             MaxZoomLevel = 18;
             MaxParallelDownloads = 8;
             LoadLowerZoomLevels = true;

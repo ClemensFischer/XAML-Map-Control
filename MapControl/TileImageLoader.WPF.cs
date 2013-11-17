@@ -104,7 +104,7 @@ namespace MapControl
                     return;
                 }
             }
-            else if (!tileSource.UriFormat.StartsWith("file:")) // always load local image files asynchronously
+            else if (!tileSource.UriFormat.StartsWith("file:")) // load local image files asynchronously, without caching
             {
                 if (Cache == null || string.IsNullOrWhiteSpace(sourceName))
                 {
@@ -183,7 +183,7 @@ namespace MapControl
 
                     if (uri != null)
                     {
-                        if (uri.Scheme == "file")
+                        if (uri.Scheme == "file") // create from FileStream as creating from URI leaves the file open
                         {
                             image = CreateImage(uri.AbsolutePath);
                         }
@@ -256,7 +256,7 @@ namespace MapControl
             {
                 try
                 {
-                    using (var stream = new FileStream(path, FileMode.Open))
+                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                     {
                         image = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }

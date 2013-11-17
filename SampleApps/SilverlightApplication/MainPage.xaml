@@ -4,8 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:map="clr-namespace:MapControl;assembly=MapControl.Silverlight"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:map="clr-namespace:MapControl;assembly=MapControl.Silverlight"
+    xmlns:vm="clr-namespace:ViewModel"
     xmlns:local="clr-namespace:SilverlightApplication"
     mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="400">
     <UserControl.Resources>
@@ -93,32 +94,32 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <local:SampleItemCollection x:Key="Polylines"/>
-        <local:SampleItemCollection x:Key="Points"/>
-        <local:SampleItemCollection x:Key="Pushpins"/>
     </UserControl.Resources>
+    <UserControl.DataContext>
+        <vm:ViewModel/>
+    </UserControl.DataContext>
     <Grid x:Name="LayoutRoot" Background="White">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" Center="53.5,8.2" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
+        <map:Map x:Name="map" Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
             <map:MapGraticule Opacity="0.6"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
-            <map:MapItemsControl ItemsSource="{StaticResource Polylines}"
+            <map:MapItemsControl ItemsSource="{Binding Polylines}"
                                  ItemTemplate="{StaticResource PolylineItemTemplate}"/>
-            <!--<map:MapItemsControl ItemsSource="{StaticResource Polylines}"
+            <!--<map:MapItemsControl ItemsSource="{Binding Polylines}"
                                  ItemContainerStyle="{StaticResource PolylineItemStyle}"/>-->
 
-            <map:MapItemsControl ItemsSource="{StaticResource Points}"
+            <map:MapItemsControl ItemsSource="{Binding Points}"
                                  ItemContainerStyle="{StaticResource PointItemStyle}"
                                  SelectionMode="Extended"/>
 
-            <map:MapItemsControl ItemsSource="{StaticResource Pushpins}"
+            <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
             <Path map:MapPanel.Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">

@@ -37,6 +37,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Common\ViewModel.cs">
+      <Link>ViewModel.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
@@ -45,7 +48,6 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SampleItems.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -53,7 +55,9 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="10_535_330.jpg" />
+    <Content Include="..\Common\10_535_330.jpg">
+      <Link>10_535_330.jpg</Link>
+    </Content>
     <Content Include="Assets\Logo.png" />
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SplashScreen.png" />
