@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 #if NETFX_CORE
 using Windows.Foundation;
@@ -160,59 +161,69 @@ namespace MapControl
                     spacing = LineSpacings.FirstOrDefault(s => s >= minSpacing);
                 }
 
-                var labelsStart = new Location(
+                var labelStart = new Location(
                     Math.Ceiling(start.Latitude / spacing) * spacing,
                     Math.Ceiling(start.Longitude / spacing) * spacing);
 
-                var labelsEnd = new Location(
+                var labelEnd = new Location(
                     Math.Floor(end.Latitude / spacing) * spacing,
                     Math.Floor(end.Longitude / spacing) * spacing);
 
-                var linesStart = new Location(
-                    Math.Min(Math.Max(labelsStart.Latitude - spacing, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
-                    labelsStart.Longitude - spacing);
+                var lineStart = new Location(
+                    Math.Min(Math.Max(labelStart.Latitude - spacing, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
+                    labelStart.Longitude - spacing);
 
-                var linesEnd = new Location(
-                    Math.Min(Math.Max(labelsEnd.Latitude + spacing, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
-                    labelsEnd.Longitude + spacing);
+                var lineEnd = new Location(
+                    Math.Min(Math.Max(labelEnd.Latitude + spacing, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
+                    labelEnd.Longitude + spacing);
 
-                if (!linesStart.Equals(graticuleStart) || !linesEnd.Equals(graticuleEnd))
+                if (!lineStart.Equals(graticuleStart) || !lineEnd.Equals(graticuleEnd))
                 {
-                    graticuleStart = linesStart;
-                    graticuleEnd = linesEnd;
+                    ParentMap.MapTransform.Transform(lineStart); // get lineStart.TransformedLatitude
+                    ParentMap.MapTransform.Transform(lineEnd); // get lineEnd.TransformedLatitude
+
+                    graticuleStart = lineStart;
+                    graticuleEnd = lineEnd;
 
                     geometry.Figures.Clear();
                     geometry.Transform = ParentMap.ViewportTransform;
 
-                    for (var lat = labelsStart.Latitude; lat <= end.Latitude; lat += spacing)
+                    var latLocations = new List<Location>((int)((end.Latitude - labelStart.Latitude) / spacing) + 1);
+
+                    for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += spacing)
                     {
+                        var location = new Location(lat, lineStart.Longitude);
+                        latLocations.Add(location);
+
                         var figure = new PathFigure
                         {
-                            StartPoint = ParentMap.MapTransform.Transform(new Location(lat, linesStart.Longitude)),
+                            StartPoint = ParentMap.MapTransform.Transform(location),
                             IsClosed = false,
                             IsFilled = false
                         };
 
+                        location.Longitude = lineEnd.Longitude;
+
                         figure.Segments.Add(new LineSegment
                         {
-                            Point = ParentMap.MapTransform.Transform(new Location(lat, linesEnd.Longitude)),
+                            Point = ParentMap.MapTransform.Transform(location),
                         });
 
                         geometry.Figures.Add(figure);
                     }
 
-                    for (var lon = labelsStart.Longitude; lon <= end.Longitude; lon += spacing)
+                    for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += spacing)
                     {
                         var figure = new PathFigure
                         {
-                            StartPoint = ParentMap.MapTransform.Transform(new Location(linesStart.Latitude, lon)),
+                            StartPoint = ParentMap.MapTransform.Transform(new Location(lineStart.TransformedLatitude, lineStart.Latitude, lon)),
                             IsClosed = false,
                             IsFilled = false
                         };
 
                         figure.Segments.Add(new LineSegment
                         {
-                            Point = ParentMap.MapTransform.Transform(new Location(linesEnd.Latitude, lon)),
+                            Point = ParentMap.MapTransform.Transform(new Location(lineEnd.TransformedLatitude, lineEnd.Latitude, lon)),
                         });
 
                         geometry.Figures.Add(figure);
@@ -222,10 +233,12 @@ namespace MapControl
                     var format = spacing < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
                     var measureSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-                    for (var lat = labelsStart.Latitude; lat <= end.Latitude; lat += spacing)
+                    foreach (var location in latLocations)
                     {
-                        for (var lon = labelsStart.Longitude; lon <= end.Longitude; lon += spacing)
+                        for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += spacing)
                         {
+                            location.Longitude = lon;
+
                             TextBlock label;
 
                             if (childIndex < Children.Count)
@@ -261,8 +274,8 @@ namespace MapControl
                             label.FontWeight = FontWeight;
 
                             label.Text = string.Format("{0}\n{1}",
-                                CoordinateString(lat, format, "NS"),
-                                CoordinateString(Location.NormalizeLongitude(lon), format, "EW"));
+                                CoordinateString(location.Latitude, format, "NS"),
+                                CoordinateString(Location.NormalizeLongitude(location.Longitude), format, "EW"));
 
                             label.Measure(measureSize);
 
@@ -279,7 +292,7 @@ namespace MapControl
                             translateTransform.X = StrokeThickness / 2d + 2d;
                             translateTransform.Y = -label.DesiredSize.Height / 2d;
 
-                            var viewportPosition = ParentMap.LocationToViewportPoint(new Location(lat, lon));
+                            var viewportPosition = ParentMap.LocationToViewportPoint(location);
                             translateTransform = (TranslateTransform)transformGroup.Children[2];
                             translateTransform.X = viewportPosition.X;
                             translateTransform.Y = viewportPosition.Y;

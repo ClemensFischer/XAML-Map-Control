@@ -63,9 +63,7 @@ namespace MapControl
 
         public override Location Transform(Point point)
         {
-            var location = new Location(Math.Atan(Math.Sinh(point.Y * Math.PI / 180d)) / Math.PI * 180d, point.X);
-            location.TransformedLatitude = point.Y;
-            return location;
+            return new Location(point.Y, Math.Atan(Math.Sinh(point.Y * Math.PI / 180d)) / Math.PI * 180d, point.X);
         }
     }
 }

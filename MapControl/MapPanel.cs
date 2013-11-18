@@ -23,8 +23,8 @@ namespace MapControl
 
     /// <summary>
     /// Positions child elements on a Map, at a position specified by the attached property Location.
-    /// The Location is transformed into a viewport position by the MapBase.LocationToViewportPoint
-    /// method and applied to a child element's RenderTransform as an appropriate TranslateTransform.
+    /// The Location is transformed to a viewport position by ParentMap.MapTransform and ParentMap.ViewportTransform
+    /// and applied to a child element's RenderTransform as an appropriate TranslateTransform.
     /// </summary>
     public partial class MapPanel : Panel, IMapElement
     {
@@ -151,24 +151,22 @@ namespace MapControl
 
             if (parentMap != null && location != null)
             {
-                var longitude = Location.NormalizeLongitude(location.Longitude);
-                var centerDistance = longitude - parentMap.Center.Longitude;
+                // transform location before checking longitude to keep location.TransformedLatitude
+                var mapPosition = parentMap.MapTransform.Transform(location);
+                mapPosition.X = Location.NormalizeLongitude(mapPosition.X);
 
-                if (centerDistance > 180d)
+                var centerOffset = mapPosition.X - parentMap.Center.Longitude; // keep viewport position near map center
+               
+                if (centerOffset > 180d)
                 {
-                    longitude -= 360d;
+                    mapPosition.X -= 360d;
                 }
-                else if (centerDistance < -180d)
+                else if (centerOffset < -180d)
                 {
-                    longitude += 360d;
-                }
-
-                if (location.Longitude != longitude) // keep viewport position near map center
-                {
-                    location = new Location(location.Latitude, longitude);
+                    mapPosition.X += 360d;
                 }
 
-                viewportPosition = parentMap.LocationToViewportPoint(location);
+                viewportPosition = parentMap.ViewportTransform.Transform(mapPosition);
                 element.SetValue(ViewportPositionProperty, viewportPosition);
             }
             else

@@ -22,7 +22,7 @@ namespace MapControl
 #if !SILVERLIGHT && !NETFX_CORE
         [NonSerialized]
 #endif
-        internal double TransformedLatitude;
+        internal double TransformedLatitude = double.NaN;
 
         private double latitude;
         private double longitude;
@@ -31,10 +31,16 @@ namespace MapControl
         {
         }
 
-        public Location(double lat, double lon)
+        public Location(double latitude, double longitude)
         {
-            Latitude = lat;
-            Longitude = lon;
+            this.latitude = Math.Min(Math.Max(latitude, -90d), 90d);
+            this.longitude = longitude;
+        }
+
+        internal Location(double transformedLatitude, double latitude, double longitude)
+            : this(latitude, longitude)
+        {
+            TransformedLatitude = transformedLatitude;
         }
 
         public double Latitude
