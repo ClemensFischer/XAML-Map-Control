@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="TileCache" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">ImageFileCache</Value>
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>
