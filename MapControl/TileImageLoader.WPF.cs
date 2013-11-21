@@ -94,11 +94,11 @@ namespace MapControl
             {
                 if (!imageTileSource.CanLoadAsync) // call LoadImage in UI thread
                 {
+                    var setImageAction = new Action<Tile, ImageTileSource>((t, ts) => t.SetImageSource(LoadImage(ts, t), animateOpacity));
+
                     foreach (var tile in tiles)
                     {
-                        dispatcher.BeginInvoke(
-                            (Action<Tile, ImageTileSource>)((t, ts) => t.SetImageSource(LoadImage(ts, t), animateOpacity)),
-                            DispatcherPriority.Background, tile, imageTileSource);
+                        dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, imageTileSource);
                     }
 
                     return;
@@ -110,44 +110,48 @@ namespace MapControl
                 {
                     // no caching here: use default asynchronous downloading and caching done by WPF
 
+                    var setImageAction = new Action<Tile, TileSource>((t, ts) => t.SetImageSource(CreateImage(ts, t), animateOpacity));
+
                     foreach (var tile in tiles)
                     {
-                        dispatcher.BeginInvoke(
-                            (Action<Tile, TileSource>)((t, ts) => t.SetImageSource(CreateImage(ts, t), animateOpacity)),
-                            DispatcherPriority.Background, tile, tileSource);
+                        dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, tileSource);
                     }
 
                     return;
                 }
-
-                var outdatedTiles = new List<Tile>(tiles.Count);
-
-                foreach (var tile in tiles)
+                else
                 {
-                    var key = GetCacheKey(sourceName, tile);
-                    var buffer = Cache.Get(key) as byte[];
-                    var image = CreateImage(buffer);
+                    var setImageAction = new Action<Tile, ImageSource>((t, i) => t.SetImageSource(i, animateOpacity));
+                    var outdatedTiles = new List<Tile>(tiles.Count);
 
-                    if (image != null)
+                    foreach (var tile in tiles)
                     {
-                        dispatcher.BeginInvoke(
-                            (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
-                            DispatcherPriority.Background, tile, image);
+                        var key = GetCacheKey(sourceName, tile);
+                        var buffer = Cache.Get(key) as byte[];
+                        var image = CreateImage(buffer);
 
-                        long creationTime = BitConverter.ToInt64(buffer, 0);
-
-                        if (DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow)
+                        if (image != null)
                         {
-                            outdatedTiles.Add(tile); // update outdated cache
+                            var creationTime = BitConverter.ToInt64(buffer, 0);
+
+                            if (DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow)
+                            {
+                                dispatcher.Invoke(setImageAction, DispatcherPriority.Render, tile, image); // synchronously before enqueuing
+                                outdatedTiles.Add(tile); // update outdated cache
+                            }
+                            else
+                            {
+                                dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, image);
+                            }
+                        }
+                        else
+                        {
+                            pendingTiles.Enqueue(tile); // not yet cached
                         }
                     }
-                    else
-                    {
-                        pendingTiles.Enqueue(tile); // not yet cached
-                    }
-                }
 
-                tiles = outdatedTiles; // enqueue outdated tiles at last
+                    tiles = outdatedTiles; // enqueue outdated tiles at last
+                }
             }
 
             foreach (var tile in tiles)
@@ -165,6 +169,7 @@ namespace MapControl
 
         private void LoadPendingTiles(Dispatcher dispatcher, TileSource tileSource, string sourceName, bool animateOpacity)
         {
+            var setImageAction = new Action<Tile, ImageSource>((t, i) => t.SetImageSource(i, animateOpacity));
             var imageTileSource = tileSource as ImageTileSource;
             Tile tile;
 
@@ -197,9 +202,7 @@ namespace MapControl
 
                 if (image != null || !tile.HasImageSource) // do not set null if tile already has an image (from cache)
                 {
-                    dispatcher.BeginInvoke(
-                        (Action<Tile, ImageSource>)((t, i) => t.SetImageSource(i, animateOpacity)),
-                        DispatcherPriority.Background, tile, image);
+                    dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, image);
                 }
 
                 if (buffer != null && image != null)
@@ -308,7 +311,7 @@ namespace MapControl
 
                     using (var memoryStream = length > 0 ? new MemoryStream(length + sizeof(long)) : new MemoryStream())
                     {
-                        long creationTime = DateTime.UtcNow.ToBinary();
+                        var creationTime = DateTime.UtcNow.ToBinary();
 
                         memoryStream.Write(BitConverter.GetBytes(creationTime), 0, sizeof(long));
                         responseStream.CopyTo(memoryStream);

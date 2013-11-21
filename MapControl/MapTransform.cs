@@ -39,5 +39,27 @@ namespace MapControl
         /// Transforms a cartesian coordinate point to a geographic location.
         /// </summary>
         public abstract Location Transform(Point point);
+
+        /// <summary>
+        /// Transforms a geographic location to a cartesian coordinate point
+        /// with minumum distance to the specified reference longitude value.
+        /// </summary>
+        public Point Transform(Location location, double referenceLongitude)
+        {
+            var p = Transform(location);
+
+            p.X = Location.NormalizeLongitude(p.X);
+
+            if (p.X > referenceLongitude + 180d)
+            {
+                p.X -= 360d;
+            }
+            else if (p.X < referenceLongitude - 180d)
+            {
+                p.X += 360d;
+            }
+
+            return p;
+        }
     }
 }

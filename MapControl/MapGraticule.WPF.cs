@@ -12,28 +12,14 @@ namespace MapControl
 {
     public partial class MapGraticule : MapOverlay
     {
-        private class LonLabel
+        private class Label
         {
-            public readonly double Longitude;
+            public readonly double Position;
             public readonly string Text;
 
-            public LonLabel(double longitude, string text)
+            public Label(double position, string text)
             {
-                Longitude = longitude;
-                Text = text;
-            }
-        }
-
-        private class LatLabel
-        {
-            public readonly double TransformedLatitude;
-            public readonly double Latitude;
-            public readonly string Text;
-
-            public LatLabel(double transformedLatitude, double latitude, string text)
-            {
-                TransformedLatitude = transformedLatitude;
-                Latitude = latitude;
+                Position = position;
                 Text = text;
             }
         }
@@ -59,10 +45,8 @@ namespace MapControl
             if (ParentMap != null)
             {
                 var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(ParentMap.RenderSize));
-                var startPoint = new Point(bounds.X, bounds.Y);
-                var endPoint = new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height);
-                var startLocation = ParentMap.MapTransform.Transform(startPoint);
-                var endLocation = ParentMap.MapTransform.Transform(endPoint);
+                var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
+                var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
                 var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * TileSource.TileSize);
                 var spacing = LineSpacings[LineSpacings.Length - 1];
 
@@ -73,31 +57,28 @@ namespace MapControl
 
                 var labelFormat = spacing < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
                 var labelStart = new Location(
-                    Math.Ceiling(startLocation.Latitude / spacing) * spacing,
-                    Math.Ceiling(startLocation.Longitude / spacing) * spacing);
+                    Math.Ceiling(start.Latitude / spacing) * spacing,
+                    Math.Ceiling(start.Longitude / spacing) * spacing);
 
-                var latLabels = new List<LatLabel>((int)((endLocation.Latitude - labelStart.Latitude) / spacing) + 1);
-                var lonLabels = new List<LonLabel>((int)((endLocation.Longitude - labelStart.Longitude) / spacing) + 1);
+                var latLabels = new List<Label>((int)((end.Latitude - labelStart.Latitude) / spacing) + 1);
+                var lonLabels = new List<Label>((int)((end.Longitude - labelStart.Longitude) / spacing) + 1);
 
-                for (var lat = labelStart.Latitude; lat <= endLocation.Latitude; lat += spacing)
+                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += spacing)
                 {
-                    var location = new Location(lat, startLocation.Longitude);
-                    var p1 = ParentMap.LocationToViewportPoint(location);
-                    location.Longitude = endLocation.Longitude;
-                    var p2 = ParentMap.LocationToViewportPoint(location);
-
-                    latLabels.Add(new LatLabel(location.TransformedLatitude, lat, CoordinateString(lat, labelFormat, "NS")));
-
-                    drawingContext.DrawLine(Pen, p1, p2);
-                }
-
-                for (var lon = labelStart.Longitude; lon <= endLocation.Longitude; lon += spacing)
-                {
-                    lonLabels.Add(new LonLabel(lon, CoordinateString(Location.NormalizeLongitude(lon), labelFormat, "EW")));
+                    latLabels.Add(new Label(lat, CoordinateString(lat, labelFormat, "NS")));
 
                     drawingContext.DrawLine(Pen,
-                        ParentMap.LocationToViewportPoint(new Location(startPoint.Y, startLocation.Latitude, lon)),
-                        ParentMap.LocationToViewportPoint(new Location(endPoint.Y, endLocation.Latitude, lon)));
+                        ParentMap.LocationToViewportPoint(new Location(lat, start.Longitude)),
+                        ParentMap.LocationToViewportPoint(new Location(lat, end.Longitude)));
+                }
+
+                for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += spacing)
+                {
+                    lonLabels.Add(new Label(lon, CoordinateString(Location.NormalizeLongitude(lon), labelFormat, "EW")));
+
+                    drawingContext.DrawLine(Pen,
+                        ParentMap.LocationToViewportPoint(new Location(start.Latitude, lon)),
+                        ParentMap.LocationToViewportPoint(new Location(end.Latitude, lon)));
                 }
 
                 if (Foreground != null && Foreground != Brushes.Transparent && latLabels.Count > 0 && lonLabels.Count > 0)
@@ -126,7 +107,7 @@ namespace MapControl
                                 glyphRuns.Add(lonLabel.Text, lonGlyphRun);
                             }
 
-                            var position = ParentMap.LocationToViewportPoint(new Location(latLabel.TransformedLatitude, latLabel.Latitude, lonLabel.Longitude));
+                            var position = ParentMap.LocationToViewportPoint(new Location(latLabel.Position, lonLabel.Position));
 
                             drawingContext.PushTransform(new MatrixTransform(
                                 transform.M11, transform.M12, transform.M21, transform.M22, position.X, position.Y));

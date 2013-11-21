@@ -26,6 +26,8 @@ namespace MapControl
     /// </summary>
     public partial class MapBase : MapPanel
     {
+        private const double MaximumZoomLevel = 22d;
+
         public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.5);
         public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
 
@@ -394,14 +396,10 @@ namespace MapControl
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
-            SetTransformOrigin(origin);
-
-            var targetZoomLevel = TargetZoomLevel;
-            TargetZoomLevel = zoomLevel;
-
-            if (TargetZoomLevel == targetZoomLevel) // TargetZoomLevel might be coerced
+            if (zoomLevel >= MinZoomLevel && zoomLevel <= MaxZoomLevel)
             {
-                ResetTransformOrigin();
+                SetTransformOrigin(origin);
+                TargetZoomLevel = zoomLevel;
             }
         }
 
@@ -572,33 +570,23 @@ namespace MapControl
             internalPropertyChange = false;
         }
 
-        private bool CoerceLocation(ref Location location, double latitudeEpsilon = 0d)
+        private void AdjustCenterProperty(DependencyProperty property, ref Location center)
         {
-            if (location == null)
+            if (center == null)
             {
-                location = new Location();
-                return true;
-            }
-
-            var maxLatitude = mapTransform.MaxLatitude + latitudeEpsilon;
-            var latitude = Math.Min(Math.Max(location.Latitude, -maxLatitude), maxLatitude);
-            var longitude = Location.NormalizeLongitude(location.Longitude);
-
-            if (location.Latitude != latitude || location.Longitude != longitude)
-            {
-                location.Latitude = latitude;
-                location.Longitude = longitude;
-                return true;
-            }
-
-            return false;
-        }
-
-        private void CoerceCenterProperty(DependencyProperty property, ref Location center)
-        {
-            if (CoerceLocation(ref center))
-            {
+                center = new Location();
                 InternalSetValue(property, center);
+            }
+            else
+            {
+                var latitude = Math.Min(Math.Max(center.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude);
+                var longitude = Location.NormalizeLongitude(center.Longitude);
+
+                if (center.Latitude != latitude || center.Longitude != longitude)
+                {
+                    center = new Location(latitude, longitude);
+                    InternalSetValue(property, center);
+                }
             }
         }
 
@@ -606,14 +594,14 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceCenterProperty(CenterProperty, ref center);
+                AdjustCenterProperty(CenterProperty, ref center);
                 ResetTransformOrigin();
                 UpdateTransform();
 
                 if (centerAnimation == null)
                 {
                     InternalSetValue(TargetCenterProperty, center);
-                    InternalSetValue(CenterPointProperty, new Point(center.Longitude, center.Latitude));
+                    InternalSetValue(CenterPointProperty, MapTransform.Transform(center));
                 }
             }
         }
@@ -622,7 +610,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceCenterProperty(TargetCenterProperty, ref targetCenter);
+                AdjustCenterProperty(TargetCenterProperty, ref targetCenter);
 
                 if (targetCenter.Latitude != Center.Latitude || targetCenter.Longitude != Center.Longitude)
                 {
@@ -634,8 +622,8 @@ namespace MapControl
                     // animate private CenterPoint property by PointAnimation
                     centerAnimation = new PointAnimation
                     {
-                        From = new Point(Center.Longitude, Center.Latitude),
-                        To = new Point(targetCenter.Longitude, targetCenter.Latitude),
+                        From = MapTransform.Transform(Center),
+                        To = MapTransform.Transform(targetCenter, Center.Longitude),
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction,
                         FillBehavior = FillBehavior.HoldEnd
@@ -655,7 +643,7 @@ namespace MapControl
                 centerAnimation = null;
 
                 InternalSetValue(CenterProperty, TargetCenter);
-                InternalSetValue(CenterPointProperty, new Point(TargetCenter.Longitude, TargetCenter.Latitude));
+                InternalSetValue(CenterPointProperty, MapTransform.Transform(TargetCenter));
                 RemoveAnimation(CenterPointProperty); // remove holding animation in WPF
 
                 ResetTransformOrigin();
@@ -667,7 +655,8 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                InternalSetValue(CenterProperty, new Location(centerPoint.Y, centerPoint.X));
+                centerPoint.X = Location.NormalizeLongitude(centerPoint.X);
+                InternalSetValue(CenterProperty, MapTransform.Transform(centerPoint));
                 ResetTransformOrigin();
                 UpdateTransform();
             }
@@ -675,11 +664,9 @@ namespace MapControl
 
         private void MinZoomLevelPropertyChanged(double minZoomLevel)
         {
-            var coercedValue = Math.Min(Math.Max(minZoomLevel, 0d), MaxZoomLevel);
-
-            if (coercedValue != minZoomLevel)
+            if (minZoomLevel < 0d || minZoomLevel > MaxZoomLevel)
             {
-                minZoomLevel = coercedValue;
+                minZoomLevel = Math.Min(Math.Max(minZoomLevel, 0d), MaxZoomLevel);
                 InternalSetValue(MinZoomLevelProperty, minZoomLevel);
             }
 
@@ -691,11 +678,9 @@ namespace MapControl
 
         private void MaxZoomLevelPropertyChanged(double maxZoomLevel)
         {
-            var coercedValue = Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), 22d);
-
-            if (coercedValue != maxZoomLevel)
+            if (maxZoomLevel < MinZoomLevel || maxZoomLevel > MaximumZoomLevel)
             {
-                maxZoomLevel = coercedValue;
+                maxZoomLevel = Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), MaximumZoomLevel);
                 InternalSetValue(MaxZoomLevelProperty, maxZoomLevel);
             }
 
@@ -705,13 +690,11 @@ namespace MapControl
             }
         }
 
-        private void CoerceZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
+        private void AdjustZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
         {
-            var coercedValue = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
-
-            if (coercedValue != zoomLevel)
+            if (zoomLevel < MinZoomLevel || zoomLevel > MaxZoomLevel)
             {
-                zoomLevel = coercedValue;
+                zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
                 InternalSetValue(property, zoomLevel);
             }
         }
@@ -720,7 +703,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceZoomLevelProperty(ZoomLevelProperty, ref zoomLevel);
+                AdjustZoomLevelProperty(ZoomLevelProperty, ref zoomLevel);
                 UpdateTransform();
 
                 if (zoomLevelAnimation == null)
@@ -734,7 +717,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceZoomLevelProperty(TargetZoomLevelProperty, ref targetZoomLevel);
+                AdjustZoomLevelProperty(TargetZoomLevelProperty, ref targetZoomLevel);
 
                 if (targetZoomLevel != ZoomLevel)
                 {
@@ -772,13 +755,11 @@ namespace MapControl
             }
         }
 
-        private void CoerceHeadingProperty(DependencyProperty property, ref double heading)
+        private void AdjustHeadingProperty(DependencyProperty property, ref double heading)
         {
-            var coercedValue = (heading >= -180d && heading <= 360d) ? heading : (((heading % 360d) + 360d) % 360d);
-
-            if (coercedValue != heading)
+            if (heading < -180d || heading > 360d)
             {
-                heading = coercedValue;
+                heading = ((heading % 360d) + 360d) % 360d;
                 InternalSetValue(property, heading);
             }
         }
@@ -787,7 +768,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceHeadingProperty(HeadingProperty, ref heading);
+                AdjustHeadingProperty(HeadingProperty, ref heading);
                 UpdateTransform();
 
                 if (headingAnimation == null)
@@ -801,7 +782,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                CoerceHeadingProperty(TargetHeadingProperty, ref targetHeading);
+                AdjustHeadingProperty(TargetHeadingProperty, ref targetHeading);
 
                 if (targetHeading != Heading)
                 {
@@ -858,11 +839,18 @@ namespace MapControl
             {
                 center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
 
-                var coerced = CoerceLocation(ref center, 1e-3);
+                var latitude = center.Latitude;
+                center.Latitude = Math.Min(Math.Max(latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude);
 
                 InternalSetValue(CenterProperty, center);
 
-                if (coerced)
+                if (centerAnimation == null)
+                {
+                    InternalSetValue(TargetCenterProperty, center);
+                    InternalSetValue(CenterPointProperty, MapTransform.Transform(center));
+                }
+
+                if (center.Latitude != latitude)
                 {
                     ResetTransformOrigin();
                     scale = SetViewportTransform(center);

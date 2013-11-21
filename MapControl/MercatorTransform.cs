@@ -41,29 +41,30 @@ namespace MapControl
 
         public override Point Transform(Location location)
         {
-            if (double.IsNaN(location.TransformedLatitude))
+            double latitude;
+
+            if (location.Latitude <= -90d)
             {
-                if (location.Latitude <= -90d)
-                {
-                    location.TransformedLatitude = double.NegativeInfinity;
-                }
-                else if (location.Latitude >= 90d)
-                {
-                    location.TransformedLatitude = double.PositiveInfinity;
-                }
-                else
-                {
-                    var lat = location.Latitude * Math.PI / 180d;
-                    location.TransformedLatitude = Math.Log(Math.Tan(lat) + 1d / Math.Cos(lat)) / Math.PI * 180d;
-                }
+                latitude = double.NegativeInfinity;
+            }
+            else if (location.Latitude >= 90d)
+            {
+                latitude = double.PositiveInfinity;
+            }
+            else
+            {
+                latitude = location.Latitude * Math.PI / 180d;
+                latitude = Math.Log(Math.Tan(latitude) + 1d / Math.Cos(latitude)) / Math.PI * 180d;
             }
 
-            return new Point(location.Longitude, location.TransformedLatitude);
+            return new Point(location.Longitude, latitude);
         }
 
         public override Location Transform(Point point)
         {
-            return new Location(point.Y, Math.Atan(Math.Sinh(point.Y * Math.PI / 180d)) / Math.PI * 180d, point.X);
+            var latitude = Math.Atan(Math.Sinh(point.Y * Math.PI / 180d)) / Math.PI * 180d;
+
+            return new Location(latitude, point.X);
         }
     }
 }

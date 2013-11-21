@@ -15,15 +15,6 @@ namespace MapControl
 #endif
     public partial class Location
     {
-        /// <summary>
-        /// TransformedLatitude is set by the Transform methods in MercatorTransform.
-        /// It holds the transformed latitude value to avoid redundant recalculation. 
-        /// </summary>
-#if !SILVERLIGHT && !NETFX_CORE
-        [NonSerialized]
-#endif
-        internal double TransformedLatitude = double.NaN;
-
         private double latitude;
         private double longitude;
 
@@ -33,24 +24,14 @@ namespace MapControl
 
         public Location(double latitude, double longitude)
         {
-            this.latitude = Math.Min(Math.Max(latitude, -90d), 90d);
-            this.longitude = longitude;
-        }
-
-        internal Location(double transformedLatitude, double latitude, double longitude)
-            : this(latitude, longitude)
-        {
-            TransformedLatitude = transformedLatitude;
+            Latitude = latitude;
+            Longitude = longitude;
         }
 
         public double Latitude
         {
             get { return latitude; }
-            set
-            {
-                latitude = Math.Min(Math.Max(value, -90d), 90d);
-                TransformedLatitude = double.NaN;
-            }
+            set { latitude = Math.Min(Math.Max(value, -90d), 90d); }
         }
 
         public double Longitude
@@ -79,7 +60,16 @@ namespace MapControl
 
         public static double NormalizeLongitude(double longitude)
         {
-            return (longitude >= -180d && longitude <= 180d) ? longitude : ((longitude + 180d) % 360d + 360d) % 360d - 180d;
+            if (longitude > 180)
+            {
+                longitude = ((longitude - 180d) % 360d) - 180d;
+            }
+            else if (longitude < -180d)
+            {
+                longitude = ((longitude + 180d) % 360d) + 180d;
+            }
+
+            return longitude;
         }
     }
 }

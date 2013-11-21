@@ -151,21 +151,8 @@ namespace MapControl
 
             if (parentMap != null && location != null)
             {
-                // transform location before checking longitude to keep location.TransformedLatitude
-                var mapPosition = parentMap.MapTransform.Transform(location);
-                mapPosition.X = Location.NormalizeLongitude(mapPosition.X);
-
-                var centerOffset = mapPosition.X - parentMap.Center.Longitude; // keep viewport position near map center
-               
-                if (centerOffset > 180d)
-                {
-                    mapPosition.X -= 360d;
-                }
-                else if (centerOffset < -180d)
-                {
-                    mapPosition.X += 360d;
-                }
-
+                // keep viewport position near map center
+                var mapPosition = parentMap.MapTransform.Transform(location, parentMap.Center.Longitude);
                 viewportPosition = parentMap.ViewportTransform.Transform(mapPosition);
                 element.SetValue(ViewportPositionProperty, viewportPosition);
             }

@@ -179,9 +179,6 @@ namespace MapControl
 
                 if (!lineStart.Equals(graticuleStart) || !lineEnd.Equals(graticuleEnd))
                 {
-                    ParentMap.MapTransform.Transform(lineStart); // get lineStart.TransformedLatitude
-                    ParentMap.MapTransform.Transform(lineEnd); // get lineEnd.TransformedLatitude
-
                     graticuleStart = lineStart;
                     graticuleEnd = lineEnd;
 
@@ -216,14 +213,14 @@ namespace MapControl
                     {
                         var figure = new PathFigure
                         {
-                            StartPoint = ParentMap.MapTransform.Transform(new Location(lineStart.TransformedLatitude, lineStart.Latitude, lon)),
+                            StartPoint = ParentMap.MapTransform.Transform(new Location(lineStart.Latitude, lon)),
                             IsClosed = false,
                             IsFilled = false
                         };
 
                         figure.Segments.Add(new LineSegment
                         {
-                            Point = ParentMap.MapTransform.Transform(new Location(lineEnd.TransformedLatitude, lineEnd.Latitude, lon)),
+                            Point = ParentMap.MapTransform.Transform(new Location(lineEnd.Latitude, lon)),
                         });
 
                         geometry.Figures.Add(figure);

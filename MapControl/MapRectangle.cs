@@ -18,12 +18,12 @@ namespace MapControl
     /// </summary>
     public partial class MapRectangle : MapPath
     {
-        private const double geometryScale = 1e6;
+        private const double GeometryScale = 1e6;
 
         private static readonly ScaleTransform geometryScaleTransform = new ScaleTransform
         {
-            ScaleX = 1d / geometryScale,
-            ScaleY = 1d / geometryScale
+            ScaleX = 1d / GeometryScale,
+            ScaleY = 1d / GeometryScale
         };
 
         public static readonly DependencyProperty SouthProperty = DependencyProperty.Register(
@@ -87,8 +87,8 @@ namespace MapControl
                 // Create a scaled RectangleGeometry due to inaccurate hit testing in WPF.
                 // See http://stackoverflow.com/a/19335624/1136211
 
-                geometry.Rect = new Rect(p1.X * geometryScale, p1.Y * geometryScale,
-                    (p2.X - p1.X) * geometryScale, (p2.Y - p1.Y) * geometryScale);
+                geometry.Rect = new Rect(p1.X * GeometryScale, p1.Y * GeometryScale,
+                    (p2.X - p1.X) * GeometryScale, (p2.Y - p1.Y) * GeometryScale);
 
                 var transform = new TransformGroup();
                 transform.Children.Add(geometryScaleTransform); // revert scaling

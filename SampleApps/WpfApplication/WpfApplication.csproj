@@ -52,7 +52,6 @@
     <Compile Include="..\Common\ViewModel.cs">
       <Link>ViewModel.cs</Link>
     </Compile>
-    <Compile Include="ImageTileSource.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
