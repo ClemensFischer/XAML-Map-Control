@@ -98,26 +98,25 @@ namespace MapControl
             var transformOffsetX = viewportOrigin.X - mapOrigin.X * scale;
             var transformOffsetY = viewportOrigin.Y + mapOrigin.Y * scale;
 
+            ViewportTransform.Matrix = GetViewportTransformMatrix(scale, transformOffsetX, transformOffsetY);
+
             tileLayerOffset.X = transformOffsetX - 180d * scale;
             tileLayerOffset.Y = transformOffsetY - 180d * scale;
 
-            ViewportTransform.Matrix = GetViewportTransformMatrix(scale, transformOffsetX, transformOffsetY);
+            var tileLayerTransform = GetTileLayerTransformMatrix();
+
+            foreach (TileLayer tileLayer in Children)
+            {
+                tileLayer.SetTransformMatrix(tileLayerTransform);
+            }
 
             if (Math.Abs(mapOrigin.X - oldMapOriginX) > 180d)
             {
                 // immediately handle map origin leap when map center moves across 180° longitude
-
                 UpdateTiles(this, EventArgs.Empty);
             }
             else
             {
-                var tileLayerTransform = GetTileLayerTransformMatrix();
-
-                foreach (TileLayer tileLayer in Children)
-                {
-                    tileLayer.SetTransformMatrix(tileLayerTransform);
-                }
-
                 updateTimer.Start();
             }
 

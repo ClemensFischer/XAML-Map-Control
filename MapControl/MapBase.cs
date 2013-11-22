@@ -345,18 +345,14 @@ namespace MapControl
         /// </summary>
         public void TranslateMap(Point translation)
         {
+            if (transformOrigin != null)
+            {
+                ResetTransformOrigin();
+            }
+
             if (translation.X != 0d || translation.Y != 0d)
             {
-                if (transformOrigin != null)
-                {
-                    viewportOrigin.X += translation.X;
-                    viewportOrigin.Y += translation.Y;
-                    UpdateTransform();
-                }
-                else
-                {
-                    Center = ViewportPointToLocation(new Point(viewportOrigin.X - translation.X, viewportOrigin.Y - translation.Y));
-                }
+                Center = ViewportPointToLocation(new Point(viewportOrigin.X - translation.X, viewportOrigin.Y - translation.Y));
             }
         }
 
@@ -386,8 +382,7 @@ namespace MapControl
                 InternalSetValue(TargetZoomLevelProperty, zoomLevel);
             }
 
-            UpdateTransform();
-            ResetTransformOrigin();
+            UpdateTransform(true);
         }
 
         /// <summary>
@@ -577,16 +572,14 @@ namespace MapControl
                 center = new Location();
                 InternalSetValue(property, center);
             }
-            else
+            else if (center.Longitude < -180d || center.Longitude > 180d ||
+                center.Latitude < -mapTransform.MaxLatitude || center.Latitude > mapTransform.MaxLatitude)
             {
-                var latitude = Math.Min(Math.Max(center.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude);
-                var longitude = Location.NormalizeLongitude(center.Longitude);
+                center = new Location(
+                    Math.Min(Math.Max(center.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude),
+                    Location.NormalizeLongitude(center.Longitude));
 
-                if (center.Latitude != latitude || center.Longitude != longitude)
-                {
-                    center = new Location(latitude, longitude);
-                    InternalSetValue(property, center);
-                }
+                InternalSetValue(property, center);
             }
         }
 
@@ -750,8 +743,7 @@ namespace MapControl
                 InternalSetValue(ZoomLevelProperty, TargetZoomLevel);
                 RemoveAnimation(ZoomLevelProperty); // remove holding animation in WPF
 
-                UpdateTransform();
-                ResetTransformOrigin();
+                UpdateTransform(true);
             }
         }
 
@@ -830,7 +822,7 @@ namespace MapControl
             }
         }
 
-        private void UpdateTransform()
+        private void UpdateTransform(bool resetTransformOrigin = false)
         {
             var center = Center;
             var scale = SetViewportTransform(transformOrigin ?? center);
@@ -838,9 +830,13 @@ namespace MapControl
             if (transformOrigin != null)
             {
                 center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
+                center.Longitude = Location.NormalizeLongitude(center.Longitude);
 
-                var latitude = center.Latitude;
-                center.Latitude = Math.Min(Math.Max(latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude);
+                if (center.Latitude < -mapTransform.MaxLatitude || center.Latitude > mapTransform.MaxLatitude)
+                {
+                    center.Latitude = Math.Min(Math.Max(center.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude);
+                    resetTransformOrigin = true;
+                }
 
                 InternalSetValue(CenterProperty, center);
 
@@ -850,7 +846,7 @@ namespace MapControl
                     InternalSetValue(CenterPointProperty, MapTransform.Transform(center));
                 }
 
-                if (center.Latitude != latitude)
+                if (resetTransformOrigin)
                 {
                     ResetTransformOrigin();
                     scale = SetViewportTransform(center);
