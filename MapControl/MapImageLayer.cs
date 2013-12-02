@@ -158,9 +158,9 @@ namespace MapControl
                 var dx = (ActualWidth - width) / 2d;
                 var dy = (ActualHeight - height) / 2d;
                 var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
-                var loc2 = ParentMap.ViewportPointToLocation(new Point(width, dy));
-                var loc3 = ParentMap.ViewportPointToLocation(new Point(dx, height));
-                var loc4 = ParentMap.ViewportPointToLocation(new Point(width, height));
+                var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));
+                var loc3 = ParentMap.ViewportPointToLocation(new Point(dx, dy + height));
+                var loc4 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy + height));
 
                 ThreadPool.QueueUserWorkItem(o =>
                 {
