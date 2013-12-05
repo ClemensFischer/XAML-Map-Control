@@ -190,7 +190,7 @@ namespace MapControl
                     {
                         if (uri.Scheme == "file") // create from FileStream as creating from URI leaves the file open
                         {
-                            image = CreateImage(uri.AbsolutePath);
+                            image = CreateImage(uri.LocalPath);
                         }
                         else
                         {
@@ -259,7 +259,7 @@ namespace MapControl
             {
                 try
                 {
-                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
                         image = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }

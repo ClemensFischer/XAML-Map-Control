@@ -43,18 +43,6 @@ namespace MapControl
             "TileOpacity", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
                 (o, e) => ((MapBase)o).tileContainer.Opacity = (double)e.NewValue));
 
-        public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
-            "Center", typeof(Location), typeof(MapBase), new PropertyMetadata(new Location(),
-                (o, e) => ((MapBase)o).CenterPropertyChanged((Location)e.NewValue)));
-
-        public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register(
-            "TargetCenter", typeof(Location), typeof(MapBase), new PropertyMetadata(new Location(),
-                (o, e) => ((MapBase)o).TargetCenterPropertyChanged((Location)e.NewValue)));
-
-        internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
-            "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
-                (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
-
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             "MinZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
                 (o, e) => ((MapBase)o).MinZoomLevelPropertyChanged((double)e.NewValue)));
@@ -63,24 +51,12 @@ namespace MapControl
             "MaxZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(18d,
                 (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
 
-        public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
-            "ZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
-                (o, e) => ((MapBase)o).ZoomLevelPropertyChanged((double)e.NewValue)));
-
-        public static readonly DependencyProperty TargetZoomLevelProperty = DependencyProperty.Register(
-            "TargetZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
-                (o, e) => ((MapBase)o).TargetZoomLevelPropertyChanged((double)e.NewValue)));
-
-        public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
-            "Heading", typeof(double), typeof(MapBase), new PropertyMetadata(0d,
-                (o, e) => ((MapBase)o).HeadingPropertyChanged((double)e.NewValue)));
-
-        public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register(
-            "TargetHeading", typeof(double), typeof(MapBase), new PropertyMetadata(0d,
-                (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue)));
-
         public static readonly DependencyProperty CenterScaleProperty = DependencyProperty.Register(
             "CenterScale", typeof(double), typeof(MapBase), null);
+
+        internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
+            "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
+                (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
 
         private readonly TileContainer tileContainer = new TileContainer();
         private readonly MapTransform mapTransform = new MercatorTransform();

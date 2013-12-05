@@ -73,6 +73,8 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
+            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
+
             foreach (UIElement element in InternalChildren)
             {
                 element.Measure(availableSize);

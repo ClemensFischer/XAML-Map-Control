@@ -27,13 +27,13 @@ namespace MapControl
     /// </summary>
     public class MapImageLayer : MapPanel
     {
-        private static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
             "RelativeImageSize", typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
 
         private readonly DispatcherTimer updateTimer;
         private string uriFormat;
-        private bool updateInProgress;
         private int currentImageIndex;
+        private bool updateInProgress;
 
         public MapImageLayer()
         {
@@ -180,7 +180,7 @@ namespace MapControl
         private void UpdateImage(double west, double east, double south, double north, ImageSource image)
         {
             var mapImage = (MapImage)Children[currentImageIndex];
-            mapImage.BeginAnimation(Image.OpacityProperty,
+            mapImage.BeginAnimation(UIElement.OpacityProperty,
                 new DoubleAnimation
                 {
                     To = 0d,
@@ -197,7 +197,7 @@ namespace MapControl
             mapImage.South = south;
             mapImage.North = north;
             mapImage.Source = image;
-            mapImage.BeginAnimation(Image.OpacityProperty, new DoubleAnimation(1d, Tile.AnimationDuration));
+            mapImage.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1d, Tile.AnimationDuration));
         }
     }
 }
