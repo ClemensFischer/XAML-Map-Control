@@ -59,9 +59,9 @@ namespace MapControl
             UpdateTransform();
         }
 
-        private void SetTransformMatrixes(double scale)
+        private void SetTransformMatrixes()
         {
-            scaleTransform.Matrix = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+            scaleTransform.Matrix = new Matrix(CenterScale, 0d, 0d, CenterScale, 0d, 0d);
             rotateTransform.Matrix = Matrix.Identity.Rotate(Heading);
             scaleRotateTransform.Matrix = scaleTransform.Matrix.Multiply(rotateTransform.Matrix);
         }

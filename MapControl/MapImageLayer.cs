@@ -157,6 +157,7 @@ namespace MapControl
                 var height = ActualHeight * relativeSize;
                 var dx = (ActualWidth - width) / 2d;
                 var dy = (ActualHeight - height) / 2d;
+
                 var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
                 var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));
                 var loc3 = ParentMap.ViewportPointToLocation(new Point(dx, dy + height));
@@ -168,9 +169,16 @@ namespace MapControl
                     var east = Math.Max(loc1.Longitude, Math.Max(loc2.Longitude, Math.Max(loc3.Longitude, loc4.Longitude)));
                     var south = Math.Min(loc1.Latitude, Math.Min(loc2.Latitude, Math.Min(loc3.Latitude, loc4.Latitude)));
                     var north = Math.Max(loc1.Latitude, Math.Max(loc2.Latitude, Math.Max(loc3.Latitude, loc4.Latitude)));
-                    var image = GetImage(west, east, south, north, (int)Math.Round(width), (int)Math.Round(height));
 
-                    Dispatcher.BeginInvoke((Action)(() => UpdateImage(west, east, south, north, image)));
+                    var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
+                    var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
+
+                    width = Math.Round((p2.X - p1.X) * ParentMap.ViewportScale);
+                    height = Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale);
+
+                    var image = GetImage(west, east, south, north, (int)width, (int)height);
+
+                    Dispatcher.BeginInvoke(new Action(() => UpdateImage(west, east, south, north, image)));
 
                     updateInProgress = false;
                 });

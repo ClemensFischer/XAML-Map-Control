@@ -159,7 +159,7 @@
             <!--<map:MapImageLayer Opacity="0.5"
                                UriFormat="http://watzmann-geog.urz.uni-heidelberg.de/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
             <!--<map:MapImageLayer Opacity="0.5"
-                               UriFormat="http://ows.terrestris.de/osm-basemap/service?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=OSM-WMS-Deutschland&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
+                               UriFormat="http://ows.terrestris.de/osm/service?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=OSM-WMS&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
 
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>

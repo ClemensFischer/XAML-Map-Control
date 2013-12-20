@@ -60,13 +60,13 @@ namespace MapControl
 
         public static double NormalizeLongitude(double longitude)
         {
-            if (longitude > 180)
-            {
-                longitude = ((longitude - 180d) % 360d) - 180d;
-            }
-            else if (longitude < -180d)
+            if (longitude < -180d)
             {
                 longitude = ((longitude + 180d) % 360d) + 180d;
+            }
+            else if (longitude > 180d)
+            {
+                longitude = ((longitude - 180d) % 360d) - 180d;
             }
 
             return longitude;

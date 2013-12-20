@@ -231,7 +231,8 @@ namespace MapControl
                             break;
                     }
                 }
-                else
+                else if (frameworkElement.HorizontalAlignment != HorizontalAlignment.Left ||
+                         frameworkElement.VerticalAlignment != VerticalAlignment.Top)
                 {
                     if (!panelSize.HasValue)
                     {

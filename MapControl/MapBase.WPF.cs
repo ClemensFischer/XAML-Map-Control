@@ -84,12 +84,12 @@ namespace MapControl
             UpdateTransform();
         }
 
-        private void SetTransformMatrixes(double scale)
+        private void SetTransformMatrixes()
         {
             Matrix rotateMatrix = Matrix.Identity;
             rotateMatrix.Rotate(Heading);
             rotateTransform.Matrix = rotateMatrix;
-            scaleTransform.Matrix = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+            scaleTransform.Matrix = new Matrix(CenterScale, 0d, 0d, CenterScale, 0d, 0d);
             scaleRotateTransform.Matrix = scaleTransform.Matrix * rotateMatrix;
         }
     }

@@ -51,9 +51,6 @@ namespace MapControl
             "MaxZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(18d,
                 (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
 
-        public static readonly DependencyProperty CenterScaleProperty = DependencyProperty.Register(
-            "CenterScale", typeof(double), typeof(MapBase), null);
-
         internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
             "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
                 (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
@@ -201,13 +198,14 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the map scale at the Center location as viewport coordinate units (pixels) per meter.
+        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
         /// </summary>
-        public double CenterScale
-        {
-            get { return (double)GetValue(CenterScaleProperty); }
-            private set { SetValue(CenterScaleProperty, value); }
-        }
+        public double ViewportScale { get; private set; }
+
+        /// <summary>
+        /// Gets the scaling factor from meters to viewport coordinate units (pixels) at the Center location.
+        /// </summary>
+        public double CenterScale { get; private set; }
 
         /// <summary>
         /// Gets the transformation from geographic coordinates to cartesian map coordinates.
@@ -226,8 +224,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the scaling transformation from meters to viewport coordinate units (pixels)
-        /// at the viewport center point.
+        /// Gets the scaling transformation from meters to viewport coordinate units (pixels) at the Center location.
         /// </summary>
         public Transform ScaleTransform
         {
@@ -725,7 +722,7 @@ namespace MapControl
 
         private void AdjustHeadingProperty(DependencyProperty property, ref double heading)
         {
-            if (heading < -180d || heading > 360d)
+            if (heading < 0d || heading > 360d)
             {
                 heading = ((heading % 360d) + 360d) % 360d;
                 InternalSetValue(property, heading);
@@ -801,7 +798,8 @@ namespace MapControl
         private void UpdateTransform(bool resetTransformOrigin = false)
         {
             var center = Center;
-            var scale = SetViewportTransform(transformOrigin ?? center);
+
+            SetViewportTransform(transformOrigin ?? center);
 
             if (transformOrigin != null)
             {
@@ -825,20 +823,19 @@ namespace MapControl
                 if (resetTransformOrigin)
                 {
                     ResetTransformOrigin();
-                    scale = SetViewportTransform(center);
+                    SetViewportTransform(center);
                 }
             }
 
-            scale *= mapTransform.RelativeScale(center) / MetersPerDegree; // Pixels per meter at center latitude
-            CenterScale = scale;
-            SetTransformMatrixes(scale);
+            CenterScale = ViewportScale * mapTransform.RelativeScale(center) / MetersPerDegree; // Pixels per meter at center latitude
 
+            SetTransformMatrixes();
             OnViewportChanged();
         }
 
-        private double SetViewportTransform(Location origin)
+        private void SetViewportTransform(Location origin)
         {
-            return tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin, RenderSize);
+            ViewportScale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin, RenderSize);
         }
     }
 }
