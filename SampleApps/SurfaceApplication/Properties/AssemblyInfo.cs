@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
-[assembly: AssemblyCopyright("Copyright © Clemens Fischer 2012-2013")]
+[assembly: AssemblyCopyright("Copyright © 2014 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyVersion("1.11.1")]
-[assembly: AssemblyFileVersion("1.11.1")]
+[assembly: AssemblyVersion("1.11.2")]
+[assembly: AssemblyFileVersion("1.11.2")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

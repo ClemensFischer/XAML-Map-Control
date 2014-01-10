@@ -31,13 +31,13 @@
             <!--<map:TileLayer SourceName="Google Maps" Description="Google Maps - © {y} Google"
                            TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
             <map:TileLayer SourceName="Google Images" Description="Google Maps - © {y} Google" Background="#FF3F3F3F" Foreground="White"
-                           TileSource="http://khm{i}.google.com/kh/v=135&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
+                           TileSource="http://khm{i}.google.com/kh/v=144&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
             <map:TileLayer SourceName="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h" MaxZoomLevel="20"/>
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h" MinZoomLevel="1" MaxZoomLevel="19"/>
             <map:TileLayer SourceName="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation" Background="#FF3F3F3F" Foreground="White"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MaxZoomLevel="20"/>
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MinZoomLevel="1" MaxZoomLevel="19"/>
             <map:TileLayer SourceName="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation" Background="#FF3F3F3F" Foreground="White"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MaxZoomLevel="20"/>-->
+                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MinZoomLevel="1" MaxZoomLevel="19"/>-->
 
             <!-- The following TileLayer uses an ImageTileSource, which bypasses caching of map tile images -->
             <!--<map:TileLayer SourceName="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">

@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © Clemens Fischer 2012-2013
+// Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -127,6 +127,7 @@ namespace MapControl
                     using (var memoryStream = new MemoryStream())
                     {
                         responseStream.CopyTo(memoryStream);
+                        memoryStream.Position = 0;
                         image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }
                 }

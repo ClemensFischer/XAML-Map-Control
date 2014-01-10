@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © Clemens Fischer 2012-2013
+// Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -241,7 +241,12 @@ namespace MapControl
 
             try
             {
-                image = BitmapFrame.Create(tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel));
+                var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+
+                if (uri != null)
+                {
+                    image = BitmapFrame.Create(uri);
+                }
             }
             catch (Exception ex)
             {
