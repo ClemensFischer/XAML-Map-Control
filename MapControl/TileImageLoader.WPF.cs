@@ -51,6 +51,7 @@ namespace MapControl
         /// The time interval after which a cached image is updated and rewritten to the cache.
         /// The default value is one day. This time interval should not be greater than the value
         /// of the CacheExpiration property.
+        /// If CacheUpdateAge is less than or equal to TimeSpan.Zero, cached images are never updated.
         /// </summary>
         public static TimeSpan CacheUpdateAge { get; set; }
 
@@ -98,7 +99,7 @@ namespace MapControl
 
                     foreach (var tile in tiles)
                     {
-                        dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, imageTileSource);
+                        dispatcher.BeginInvoke(setImageAction, tile, imageTileSource);
                     }
 
                     return;
@@ -114,7 +115,7 @@ namespace MapControl
 
                     foreach (var tile in tiles)
                     {
-                        dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, tileSource);
+                        dispatcher.BeginInvoke(setImageAction, tile, tileSource);
                     }
 
                     return;
@@ -130,23 +131,19 @@ namespace MapControl
                         var buffer = Cache.Get(key) as byte[];
                         var image = CreateImage(buffer);
 
-                        if (image != null)
+                        if (image == null)
                         {
-                            var creationTime = BitConverter.ToInt64(buffer, 0);
-
-                            if (DateTime.FromBinary(creationTime) + CacheUpdateAge < DateTime.UtcNow)
-                            {
-                                dispatcher.Invoke(setImageAction, DispatcherPriority.Render, tile, image); // synchronously before enqueuing
-                                outdatedTiles.Add(tile); // update outdated cache
-                            }
-                            else
-                            {
-                                dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, image);
-                            }
+                            pendingTiles.Enqueue(tile); // not yet cached
+                        }
+                        else if (CacheUpdateAge > TimeSpan.Zero &&
+                            DateTime.FromBinary(BitConverter.ToInt64(buffer, 0)) + CacheUpdateAge < DateTime.UtcNow)
+                        {
+                            dispatcher.Invoke(setImageAction, tile, image); // synchronously before enqueuing
+                            outdatedTiles.Add(tile); // update outdated cache
                         }
                         else
                         {
-                            pendingTiles.Enqueue(tile); // not yet cached
+                            dispatcher.BeginInvoke(setImageAction, tile, image);
                         }
                     }
 
@@ -202,7 +199,7 @@ namespace MapControl
 
                 if (image != null || !tile.HasImageSource) // do not set null if tile already has an image (from cache)
                 {
-                    dispatcher.BeginInvoke(setImageAction, DispatcherPriority.Render, tile, image);
+                    dispatcher.BeginInvoke(setImageAction, tile, image);
                 }
 
                 if (buffer != null && image != null)
