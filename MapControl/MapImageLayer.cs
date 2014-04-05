@@ -3,35 +3,34 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Threading;
+#if NETFX_CORE
+using Windows.Foundation;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Media.Animation;
+#else
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
+#endif
 
 namespace MapControl
 {
     /// <summary>
     /// Map image overlay. Fills the entire viewport with a map image from a web request,
     /// for example from a Web Map Service (WMS).
-    /// The request Uri is specified by the UriFormat property, which has {X} and {Y}
-    /// format specifiers for the map width and height in pixels, and either
-    /// {w},{s},{e},{n} for the bounding box in lat/lon (like for example EPSG:4326) or
-    /// {W},{S},{E},{N} for the bounding box in meters (like for example EPSG:3857)
+    /// The image request Uri is specified by the UriFormat property.
     /// </summary>
-    public class MapImageLayer : MapPanel
+    public partial class MapImageLayer : MapPanel
     {
+        public static readonly DependencyProperty UriFormatProperty = DependencyProperty.Register(
+            "UriFormat", typeof(string), typeof(MapImageLayer),
+            new PropertyMetadata(null, (o, e) => ((MapImageLayer)o).UpdateImage()));
+
         public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
             "RelativeImageSize", typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
 
-        private readonly DispatcherTimer updateTimer;
-        private string uriFormat;
         private int currentImageIndex;
         private bool updateInProgress;
 
@@ -40,8 +39,20 @@ namespace MapControl
             Children.Add(new MapImage { Opacity = 0d });
             Children.Add(new MapImage { Opacity = 0d });
 
-            updateTimer = new DispatcherTimer { Interval = TileContainer.UpdateInterval };
-            updateTimer.Tick += UpdateImage;
+            updateTimer.Interval = TileContainer.UpdateInterval;
+            updateTimer.Tick += (o, e) => UpdateImage();
+        }
+
+        /// <summary>
+        /// The format string of the image request Uri. The format must contain {X} and {Y}
+        /// format specifiers for the map width and height in pixels, and either
+        /// {w},{s},{e},{n} for the bounding box in lat/lon (like for example EPSG:4326) or
+        /// {W},{S},{E},{N} for the bounding box in meters (like for example EPSG:3857).
+        /// </summary>
+        public string UriFormat
+        {
+            get { return (string)GetValue(UriFormatProperty); }
+            set { SetValue(UriFormatProperty, value); }
         }
 
         /// <summary>
@@ -55,31 +66,6 @@ namespace MapControl
             set { SetValue(RelativeImageSizeProperty, value); }
         }
 
-        public string UriFormat
-        {
-            get { return uriFormat; }
-            set
-            {
-                if (value != null)
-                {
-                    if (!(value.Contains("{X}") && value.Contains("{Y}")))
-                    {
-                        throw new ArgumentException("UriFormat must specify the requested image size by {X} and {Y}.");
-                    }
-
-                    if (!(value.Contains("{W}") && value.Contains("{S}") && value.Contains("{E}") && value.Contains("{N}")) &&
-                        !(value.Contains("{w}") && value.Contains("{s}") && value.Contains("{e}") && value.Contains("{n}")))
-                    {
-                        throw new ArgumentException("UriFormat must specify a bounding box in meters by {W},{S},{E},{N} or lat/lon by {w},{s},{e},{n}.");
-                    }
-                }
-
-                uriFormat = value;
-
-                UpdateImage(this, EventArgs.Empty);
-            }
-        }
-
         protected override void OnViewportChanged()
         {
             base.OnViewportChanged();
@@ -88,13 +74,13 @@ namespace MapControl
             updateTimer.Start();
         }
 
-        protected virtual ImageSource GetImage(double west, double east, double south, double north, int width, int height)
+        protected virtual BitmapSource GetBitmap(double west, double east, double south, double north, int width, int height)
         {
-            ImageSource image = null;
+            BitmapImage image = null;
 
-            if (uriFormat != null)
+            if (UriFormat != null && width > 0 && height > 0)
             {
-                var uri = uriFormat.Replace("{X}", width.ToString()).Replace("{Y}", height.ToString());
+                var uri = UriFormat.Replace("{X}", width.ToString()).Replace("{Y}", height.ToString());
 
                 if (uri.Contains("{W}") && uri.Contains("{S}") && uri.Contains("{E}") && uri.Contains("{N}"))
                 {
@@ -117,55 +103,37 @@ namespace MapControl
                         Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
                 }
 
-                try
-                {
-                    var request = (HttpWebRequest)WebRequest.Create(uri);
-                    request.UserAgent = "XAML Map Control";
-
-                    using (var response = (HttpWebResponse)request.GetResponse())
-                    using (var responseStream = response.GetResponseStream())
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        responseStream.CopyTo(memoryStream);
-                        memoryStream.Position = 0;
-                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceWarning("{0}: {1}", uri, ex.Message);
-                }
+                image = new BitmapImage(new Uri(uri));
             }
 
             return image;
         }
 
-        private void UpdateImage(object sender, EventArgs e)
+        protected void UpdateImage()
         {
             if (updateInProgress)
             {
-                return; // update image on next timer tick
+                updateTimer.Start(); // update image on next timer tick
             }
-
-            updateTimer.Stop();
-
-            if (ParentMap != null && ActualWidth > 0 && ActualHeight > 0)
+            else
             {
-                updateInProgress = true;
+                updateTimer.Stop();
 
-                var relativeSize = Math.Max(RelativeImageSize, 1d);
-                var width = ActualWidth * relativeSize;
-                var height = ActualHeight * relativeSize;
-                var dx = (ActualWidth - width) / 2d;
-                var dy = (ActualHeight - height) / 2d;
-
-                var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
-                var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));
-                var loc3 = ParentMap.ViewportPointToLocation(new Point(dx, dy + height));
-                var loc4 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy + height));
-
-                ThreadPool.QueueUserWorkItem(o =>
+                if (ParentMap != null && ActualWidth > 0 && ActualHeight > 0)
                 {
+                    updateInProgress = true;
+
+                    var relativeSize = Math.Max(RelativeImageSize, 1d);
+                    var width = ActualWidth * relativeSize;
+                    var height = ActualHeight * relativeSize;
+                    var dx = (ActualWidth - width) / 2d;
+                    var dy = (ActualHeight - height) / 2d;
+
+                    var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
+                    var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));
+                    var loc3 = ParentMap.ViewportPointToLocation(new Point(dx, dy + height));
+                    var loc4 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy + height));
+
                     var west = Math.Min(loc1.Longitude, Math.Min(loc2.Longitude, Math.Min(loc3.Longitude, loc4.Longitude)));
                     var east = Math.Max(loc1.Longitude, Math.Max(loc2.Longitude, Math.Max(loc3.Longitude, loc4.Longitude)));
                     var south = Math.Min(loc1.Latitude, Math.Min(loc2.Latitude, Math.Min(loc3.Latitude, loc4.Latitude)));
@@ -177,36 +145,58 @@ namespace MapControl
                     width = Math.Round((p2.X - p1.X) * ParentMap.ViewportScale);
                     height = Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale);
 
-                    var image = GetImage(west, east, south, north, (int)width, (int)height);
+                    var image = GetBitmap(west, east, south, north, (int)width, (int)height);
 
-                    Dispatcher.BeginInvoke(new Action(() => UpdateImage(west, east, south, north, image)));
-
-                    updateInProgress = false;
-                });
+                    UpdateImage(west, east, south, north, image);
+                }
             }
         }
 
-        private void UpdateImage(double west, double east, double south, double north, ImageSource image)
+        private void UpdateImage(double west, double east, double south, double north, BitmapSource image)
         {
-            var mapImage = (MapImage)Children[currentImageIndex];
-            mapImage.BeginAnimation(UIElement.OpacityProperty,
-                new DoubleAnimation
-                {
-                    To = 0d,
-                    Duration = Tile.AnimationDuration,
-                    BeginTime = Tile.AnimationDuration
-                });
-
             currentImageIndex = (currentImageIndex + 1) % 2;
-            mapImage = (MapImage)Children[currentImageIndex];
+            var mapImage = (MapImage)Children[currentImageIndex];
+
             mapImage.Source = null;
             mapImage.North = double.NaN; // avoid frequent MapRectangle.UpdateData() calls
             mapImage.West = west;
             mapImage.East = east;
             mapImage.South = south;
             mapImage.North = north;
-            mapImage.Source = image;
-            mapImage.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1d, Tile.AnimationDuration));
+
+            if (image != null)
+            {
+                mapImage.Source = image;
+                AddDownloadEventHandlers(image);
+            }
+            else
+            {
+                BlendImages();
+            }
+        }
+
+        private void BlendImages()
+        {
+#if NETFX_CORE
+            var duration = TimeSpan.Zero; // animation not working in WinRT (?)
+#else
+            var duration = Tile.AnimationDuration;
+#endif
+            var mapImage = (MapImage)Children[currentImageIndex];
+            var fadeOut = new DoubleAnimation { To = 0d, Duration = duration };
+
+            if (mapImage.Source != null)
+            {
+                mapImage.BeginAnimation(UIElement.OpacityProperty,
+                    new DoubleAnimation { To = 1d, Duration = duration });
+
+                fadeOut.BeginTime = duration;
+            }
+
+            mapImage = (MapImage)Children[(currentImageIndex + 1) % 2];
+            mapImage.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+
+            updateInProgress = false;
         }
     }
 }

@@ -82,6 +82,8 @@
     <Compile Include="MapGraticule.cs" />
     <Compile Include="MapGraticule.Silverlight.WinRT.cs" />
     <Compile Include="MapImage.cs" />
+    <Compile Include="MapImageLayer.cs" />
+    <Compile Include="MapImageLayer.Silverlight.WinRT.cs" />
     <Compile Include="MapItem.Silverlight.WinRT.cs" />
     <Compile Include="MapItemsControl.Silverlight.WinRT.cs" />
     <Compile Include="MapPanel.cs" />

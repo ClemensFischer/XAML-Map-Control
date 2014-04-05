@@ -69,6 +69,12 @@
     <Compile Include="..\MapImage.cs">
       <Link>MapImage.cs</Link>
     </Compile>
+    <Compile Include="..\MapImageLayer.cs">
+      <Link>MapImageLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\MapImageLayer.Silverlight.WinRT.cs">
+      <Link>MapImageLayer.Silverlight.WinRT.cs</Link>
+    </Compile>
     <Compile Include="..\MapItem.Silverlight.WinRT.cs">
       <Link>MapItem.Silverlight.WinRT.cs</Link>
     </Compile>

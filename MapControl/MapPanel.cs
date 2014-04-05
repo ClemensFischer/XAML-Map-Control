@@ -16,7 +16,7 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    internal interface IMapElement
+    public interface IMapElement
     {
         MapBase ParentMap { get; set; }
     }

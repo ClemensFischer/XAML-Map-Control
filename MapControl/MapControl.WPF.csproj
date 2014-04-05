@@ -66,6 +66,7 @@
     <Compile Include="MapImage.cs" />
     <Compile Include="MapImage.WPF.cs" />
     <Compile Include="MapImageLayer.cs" />
+    <Compile Include="MapImageLayer.WPF.cs" />
     <Compile Include="MapItem.WPF.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />
     <Compile Include="MapOverlay.cs" />
