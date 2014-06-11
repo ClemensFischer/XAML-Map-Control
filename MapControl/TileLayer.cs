@@ -41,8 +41,9 @@ namespace MapControl
 
         private readonly MatrixTransform transform = new MatrixTransform();
         private readonly TileImageLoader tileImageLoader = new TileImageLoader();
-        private List<Tile> tiles = new List<Tile>();
         private string description = string.Empty;
+        private TileSource tileSource;
+        private List<Tile> tiles = new List<Tile>();
         private Int32Rect grid;
         private int zoomLevel;
 
@@ -59,7 +60,6 @@ namespace MapControl
         partial void Initialize();
 
         public string SourceName { get; set; }
-        public TileSource TileSource { get; set; }
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
         public int MaxParallelDownloads { get; set; }
@@ -73,10 +73,36 @@ namespace MapControl
             set { description = value.Replace("{y}", DateTime.Now.Year.ToString()); }
         }
 
+        public TileSource TileSource
+        {
+            get { return tileSource; }
+            set
+            {
+                tileSource = value;
+
+                if (grid.Width > 0 && grid.Height > 0)
+                {
+                    tileImageLoader.CancelGetTiles();
+                    tiles.Clear();
+
+                    if (tileSource != null)
+                    {
+                        SelectTiles();
+                        RenderTiles();
+                        tileImageLoader.BeginGetTiles(this, tiles.Where(t => !t.HasImageSource));
+                    }
+                    else
+                    {
+                        RenderTiles();
+                    }
+                }
+            }
+        }
+
         public string TileSourceUriFormat
         {
-            get { return TileSource != null ? TileSource.UriFormat : string.Empty; }
-            set { TileSource = new TileSource(value); }
+            get { return tileSource != null ? tileSource.UriFormat : string.Empty; }
+            set { TileSource = !string.IsNullOrWhiteSpace(value) ? new TileSource(value) : null; }
         }
 
         internal void SetTransformMatrix(Matrix transformMatrix)
@@ -84,14 +110,14 @@ namespace MapControl
             transform.Matrix = transformMatrix;
         }
 
-        protected internal virtual void UpdateTiles(int zoomLevel, Int32Rect grid)
+        internal void UpdateTiles(int zoomLevel, Int32Rect grid)
         {
             this.grid = grid;
             this.zoomLevel = zoomLevel;
 
             tileImageLoader.CancelGetTiles();
 
-            if (TileSource != null)
+            if (tileSource != null)
             {
                 SelectTiles();
                 RenderTiles();
@@ -99,14 +125,14 @@ namespace MapControl
             }
         }
 
-        protected internal virtual void ClearTiles()
+        internal void ClearTiles()
         {
             tileImageLoader.CancelGetTiles();
             tiles.Clear();
             RenderTiles();
         }
 
-        protected void SelectTiles()
+        private void SelectTiles()
         {
             var maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
             var minZoomLevel = maxZoomLevel;

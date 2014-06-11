@@ -66,7 +66,9 @@ namespace MapControl
 
         internal void BeginGetTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
         {
-            if (tiles.Any())
+            var tileList = tiles.ToList();
+
+            if (tileList.Count > 0)
             {
                 // get current TileLayer property values in UI thread
                 var dispatcher = tileLayer.Dispatcher;
@@ -76,7 +78,7 @@ namespace MapControl
                 var animateOpacity = tileLayer.AnimateTileOpacity;
 
                 ThreadPool.QueueUserWorkItem(o =>
-                    GetTiles(tiles.ToList(), dispatcher, tileSource, sourceName, maxDownloads, animateOpacity));
+                    GetTiles(tileList, dispatcher, tileSource, sourceName, maxDownloads, animateOpacity));
             }
         }
 

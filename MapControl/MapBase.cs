@@ -381,8 +381,8 @@ namespace MapControl
             {
                 var p1 = MapTransform.Transform(southWest);
                 var p2 = MapTransform.Transform(northEast);
-                var lonScale = ActualWidth / (p2.X - p1.X) * 360d / TileSource.TileSize;
-                var latScale = ActualHeight / (p2.Y - p1.Y) * 360d / TileSource.TileSize;
+                var lonScale = RenderSize.Width / (p2.X - p1.X) * 360d / TileSource.TileSize;
+                var latScale = RenderSize.Height / (p2.Y - p1.Y) * 360d / TileSource.TileSize;
                 var lonZoom = Math.Log(lonScale, 2d);
                 var latZoom = Math.Log(latScale, 2d);
 

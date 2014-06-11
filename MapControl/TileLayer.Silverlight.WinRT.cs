@@ -19,14 +19,15 @@ namespace MapControl
             RenderTransform = transform;
         }
 
-        protected Panel TileContainer
+        private Panel TileContainer
         {
             get { return Parent as Panel; }
         }
 
-        protected void RenderTiles()
+        private void RenderTiles()
         {
             Children.Clear();
+
             foreach (var tile in tiles)
             {
                 Children.Add(tile.Image);

@@ -14,8 +14,8 @@ namespace MapControl
     /// </summary>
     public class Map : MapBase
     {
-        public static readonly DependencyProperty MouseWheelZoomChangeProperty = DependencyProperty.Register(
-            "MouseWheelZoomChange", typeof(double), typeof(Map), new PropertyMetadata(1d));
+        public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
+            "MouseWheelZoomDelta", typeof(double), typeof(Map), new PropertyMetadata(1d));
 
         private Point? mousePosition;
 
@@ -36,16 +36,16 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
         /// </summary>
-        public double MouseWheelZoomChange
+        public double MouseWheelZoomDelta
         {
-            get { return (double)GetValue(MouseWheelZoomChangeProperty); }
-            set { SetValue(MouseWheelZoomChangeProperty, value); }
+            get { return (double)GetValue(MouseWheelZoomDeltaProperty); }
+            set { SetValue(MouseWheelZoomDeltaProperty, value); }
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
-            var zoomChange = MouseWheelZoomChange * (double)point.Properties.MouseWheelDelta / 120d;
+            var zoomChange = MouseWheelZoomDelta * (double)point.Properties.MouseWheelDelta / 120d;
             ZoomMap(point.Position, TargetZoomLevel + zoomChange);
         }
 

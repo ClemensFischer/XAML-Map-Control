@@ -21,27 +21,21 @@ namespace StoreApplication
             }
         }
 
-        private void SeamarksClick(object sender, RoutedEventArgs e)
-        {
-            var checkBox = (CheckBox)sender;
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            var tileLayer = tileLayers["Seamarks"];
-
-            if ((bool)checkBox.IsChecked)
-            {
-                map.TileLayers.Add(tileLayer);
-            }
-            else
-            {
-                map.TileLayers.Remove(tileLayer);
-            }
-        }
-
         private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var comboBox = (ComboBox)sender;
             var tileLayers = (TileLayerCollection)Resources["TileLayers"];
             map.TileLayer = tileLayers[(string)((ComboBoxItem)comboBox.SelectedItem).Content];
+        }
+
+        private void SeamarksChecked(object sender, RoutedEventArgs e)
+        {
+            map.TileLayers.Add((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+        }
+
+        private void SeamarksUnchecked(object sender, RoutedEventArgs e)
+        {
+            map.TileLayers.Remove((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
         }
     }
 }

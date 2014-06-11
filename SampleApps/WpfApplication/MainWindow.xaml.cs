@@ -78,19 +78,14 @@ namespace WpfApplication
             e.Handled = true;
         }
 
-        private void SeamarksClick(object sender, RoutedEventArgs e)
+        private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            var seamarks = (TileLayer)Resources["SeamarksTileLayer"];
-            var checkBox = (CheckBox)sender;
+            map.TileLayers.Add((TileLayer)Resources["SeamarksTileLayer"]);
+        }
 
-            if ((bool)checkBox.IsChecked)
-            {
-                map.TileLayers.Add(seamarks);
-            }
-            else
-            {
-                map.TileLayers.Remove(seamarks);
-            }
+        private void SeamarksUnchecked(object sender, RoutedEventArgs e)
+        {
+            map.TileLayers.Remove((TileLayer)Resources["SeamarksTileLayer"]);
         }
     }
 }

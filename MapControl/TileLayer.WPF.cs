@@ -17,12 +17,12 @@ namespace MapControl
 
         public Brush Background { get; set; }
 
-        protected ContainerVisual TileContainer
+        private ContainerVisual TileContainer
         {
             get { return Parent as ContainerVisual; }
         }
 
-        protected void RenderTiles()
+        private void RenderTiles()
         {
             using (var drawingContext = RenderOpen())
             {

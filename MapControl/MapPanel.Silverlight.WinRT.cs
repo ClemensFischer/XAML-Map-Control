@@ -39,8 +39,8 @@ namespace MapControl
         /// </summary>
         public static void AddParentMapHandlers(FrameworkElement element)
         {
-            element.Loaded += (o, e) => GetParentMap(element);
-            element.Unloaded += (o, e) => element.ClearValue(ParentMapProperty);
+            element.Loaded += (s, e) => GetParentMap(element);
+            element.Unloaded += (s, e) => element.ClearValue(ParentMapProperty);
         }
 
         public static MapBase GetParentMap(UIElement element)

@@ -15,8 +15,8 @@ namespace MapControl
         public static readonly DependencyProperty ManipulationModeProperty = DependencyProperty.Register(
             "ManipulationMode", typeof(ManipulationModes), typeof(Map), new PropertyMetadata(ManipulationModes.All));
 
-        public static readonly DependencyProperty MouseWheelZoomChangeProperty = DependencyProperty.Register(
-            "MouseWheelZoomChange", typeof(double), typeof(Map), new PropertyMetadata(1d));
+        public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
+            "MouseWheelZoomDelta", typeof(double), typeof(Map), new PropertyMetadata(1d));
 
         private Point? mousePosition;
 
@@ -37,18 +37,18 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
         /// </summary>
-        public double MouseWheelZoomChange
+        public double MouseWheelZoomDelta
         {
-            get { return (double)GetValue(MouseWheelZoomChangeProperty); }
-            set { SetValue(MouseWheelZoomChangeProperty, value); }
+            get { return (double)GetValue(MouseWheelZoomDeltaProperty); }
+            set { SetValue(MouseWheelZoomDeltaProperty, value); }
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
             base.OnMouseWheel(e);
 
-            var zoomChange = MouseWheelZoomChange * (double)e.Delta / 120d;
-            ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomChange);
+            var zoomDelta = MouseWheelZoomDelta * (double)e.Delta / 120d;
+            ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomDelta);
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
@@ -79,7 +79,7 @@ namespace MapControl
             if (mousePosition.HasValue)
             {
                 var position = e.GetPosition(this);
-                TranslateMap((Point)(position - mousePosition));
+                TranslateMap((Point)(position - mousePosition.Value));
                 mousePosition = position;
             }
         }

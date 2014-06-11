@@ -39,20 +39,14 @@ namespace SilverlightApplication
             map.TileLayer = tileLayers[(string)comboBox.SelectedItem];
         }
 
-        private void SeamarksClick(object sender, RoutedEventArgs e)
+        private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            var checkBox = (CheckBox)sender;
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            var tileLayer = tileLayers["Seamarks"];
+            map.TileLayers.Add((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+        }
 
-            if ((bool)checkBox.IsChecked)
-            {
-                map.TileLayers.Add(tileLayer);
-            }
-            else
-            {
-                map.TileLayers.Remove(tileLayer);
-            }
+        private void SeamarksUnchecked(object sender, RoutedEventArgs e)
+        {
+            map.TileLayers.Remove((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
         }
     }
 }

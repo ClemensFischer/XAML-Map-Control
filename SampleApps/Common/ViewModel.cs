@@ -173,7 +173,7 @@ namespace ViewModel
                 Interval = TimeSpan.FromSeconds(0.1)
             };
 
-            timer.Tick += (sender, e) =>
+            timer.Tick += (s, e) =>
             {
                 var p = Points.Last();
                 p.Location = new Location(p.Location.Latitude + 0.001, p.Location.Longitude + 0.002);
@@ -181,7 +181,7 @@ namespace ViewModel
                 if (p.Location.Latitude > 54d)
                 {
                     p.Name = "Stopped";
-                    ((DispatcherTimer)sender).Stop();
+                    ((DispatcherTimer)s).Stop();
                 }
             };
 

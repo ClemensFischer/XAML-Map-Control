@@ -40,7 +40,7 @@ namespace MapControl
             Children.Add(new MapImage { Opacity = 0d });
 
             updateTimer.Interval = TileContainer.UpdateInterval;
-            updateTimer.Tick += (o, e) => UpdateImage();
+            updateTimer.Tick += (s, e) => UpdateImage();
         }
 
         /// <summary>
@@ -119,15 +119,15 @@ namespace MapControl
             {
                 updateTimer.Stop();
 
-                if (ParentMap != null && ActualWidth > 0 && ActualHeight > 0)
+                if (ParentMap != null && RenderSize.Width > 0 && RenderSize.Height > 0)
                 {
                     updateInProgress = true;
 
                     var relativeSize = Math.Max(RelativeImageSize, 1d);
-                    var width = ActualWidth * relativeSize;
-                    var height = ActualHeight * relativeSize;
-                    var dx = (ActualWidth - width) / 2d;
-                    var dy = (ActualHeight - height) / 2d;
+                    var width = RenderSize.Width * relativeSize;
+                    var height = RenderSize.Height * relativeSize;
+                    var dx = (RenderSize.Width - width) / 2d;
+                    var dy = (RenderSize.Height - height) / 2d;
 
                     var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
                     var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));

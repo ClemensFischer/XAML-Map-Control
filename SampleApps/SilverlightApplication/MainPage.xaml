@@ -38,8 +38,6 @@
         </Style>
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -84,7 +82,6 @@
         </Style>
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -157,7 +154,7 @@
                     <Slider Width="100" Minimum="0" Maximum="1"
                             Value="{Binding Opacity, ElementName=mapImage, Mode=TwoWay}"/>
                 </StackPanel>
-                <CheckBox Margin="5" VerticalAlignment="Bottom" Content="Seamarks" Click="SeamarksClick"/>
+                <CheckBox Margin="5" VerticalAlignment="Bottom" Content="Seamarks" Checked="SeamarksChecked" Unchecked="SeamarksUnchecked"/>
                 <ComboBox x:Name="tileLayerComboBox" Margin="5" VerticalAlignment="Bottom" Width="120" SelectionChanged="TileLayerSelectionChanged">
                     <sys:String>OpenStreetMap</sys:String>
                     <sys:String>OpenCycleMap</sys:String>

@@ -150,7 +150,7 @@ namespace MapControl
                 }
 
                 var geometry = (PathGeometry)path.Data;
-                var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(0d, 0d, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height));
+                var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(new Point(), ParentMap.RenderSize));
                 var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
                 var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
                 var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * 256d);

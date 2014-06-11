@@ -38,6 +38,11 @@ namespace MapControl
             return new MapItem();
         }
 
+        protected override bool IsItemItsOwnContainerOverride(object item)
+        {
+            return item is MapItem;
+        }
+
         /// <summary>
         /// Gets or sets a Geometry that selects all items inside its fill area, i.e.
         /// where Geometry.FillContains returns true for the item's viewport position.

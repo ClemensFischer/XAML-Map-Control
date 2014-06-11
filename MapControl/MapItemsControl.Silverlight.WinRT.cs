@@ -27,5 +27,10 @@ namespace MapControl
         {
             return new MapItem();
         }
+
+        protected override bool IsItemItsOwnContainerOverride(object item)
+        {
+            return item is MapItem;
+        }
     }
 }

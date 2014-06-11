@@ -66,8 +66,6 @@
         </Style>
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -124,7 +122,6 @@
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -224,7 +221,8 @@
                     <Slider ToolTip="Image Opacity" Width="100" VerticalAlignment="Center"
                             Minimum="0" Maximum="1" Value="{Binding Opacity, ElementName=mapImage}"/>
                 </StackPanel>
-                <CheckBox ToolTip="Seamarks Overlay" Margin="7" VerticalAlignment="Bottom" Content="Seamarks" Click="SeamarksClick"/>
+                <CheckBox ToolTip="Seamarks Overlay" Margin="7" VerticalAlignment="Bottom" Content="Seamarks"
+                          Checked="SeamarksChecked" Unchecked="SeamarksUnchecked"/>
                 <ComboBox ToolTip="Tile Layer" Margin="5" VerticalAlignment="Bottom" DisplayMemberPath="SourceName"
                           SelectedIndex="0" ItemsSource="{Binding Source={StaticResource TileLayersViewSource}}"/>
             </StackPanel>

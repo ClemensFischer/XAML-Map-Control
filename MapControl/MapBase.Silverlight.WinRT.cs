@@ -54,7 +54,7 @@ namespace MapControl
 
         private void OnRenderSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ((RectangleGeometry)Clip).Rect = new Rect(0d, 0d, RenderSize.Width, RenderSize.Height);
+            ((RectangleGeometry)Clip).Rect = new Rect(new Point(), e.NewSize);
             ResetTransformOrigin();
             UpdateTransform();
         }

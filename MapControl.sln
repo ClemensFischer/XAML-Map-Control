@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileDbCache", "Caching\FileDbCache\FileDbCache.csproj", "{EF44F661-B98A-4676-927F-85D138F82300}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageFileCache", "Caching\ImageFileCache\ImageFileCache.csproj", "{86470440-FEE2-4120-AF5A-3762FB9C536F}"
