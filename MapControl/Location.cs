@@ -10,9 +10,6 @@ namespace MapControl
     /// <summary>
     /// A geographic location with latitude and longitude values in degrees.
     /// </summary>
-#if !SILVERLIGHT && !NETFX_CORE
-    [Serializable]
-#endif
     public partial class Location
     {
         private double latitude;

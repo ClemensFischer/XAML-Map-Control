@@ -4,11 +4,8 @@
 
 namespace MapControl
 {
-    public partial class MapImage
+    public interface IMapElement
     {
-        static MapImage()
-        {
-            imageTransform.Freeze();
-        }
+        MapBase ParentMap { get; set; }
     }
 }

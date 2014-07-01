@@ -4,7 +4,7 @@
 
 using System;
 using System.Globalization;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
@@ -177,8 +177,8 @@ namespace MapControl
 
         private void BlendImages()
         {
-#if NETFX_CORE
-            var duration = TimeSpan.Zero; // animation not working in WinRT (?)
+#if WINDOWS_RUNTIME
+            var duration = TimeSpan.Zero; // animation not working in Windows Runtime (?)
 #else
             var duration = Tile.AnimationDuration;
 #endif

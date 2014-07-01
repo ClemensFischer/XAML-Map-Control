@@ -3,37 +3,19 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if NETFX_CORE
-using Windows.Foundation;
-using Windows.UI.Xaml.Controls;
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml.Media;
 #else
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 #endif
 
 namespace MapControl
 {
-    internal partial class TileContainer : Panel
+    internal partial class TileContainer
     {
         private Matrix GetViewportTransformMatrix(double scale, double offsetX, double offsetY)
         {
-            var transform = new Matrix(scale, 0d, 0d, -scale, offsetX, offsetY);
-
-            return transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
-        }
-
-        /// <summary>
-        /// Gets a transform matrix with origin at tileGrid.X and tileGrid.Y to minimize rounding errors.
-        /// </summary>
-        private Matrix GetTileLayerTransformMatrix()
-        {
-            var scale = Math.Pow(2d, zoomLevel - tileZoomLevel);
-
-            return new Matrix(1d, 0d, 0d, 1d, tileGrid.X * TileSource.TileSize, tileGrid.Y * TileSource.TileSize)
-                .Scale(scale, scale)
-                .Translate(tileLayerOffset.X, tileLayerOffset.Y)
+            return new Matrix(scale, 0d, 0d, -scale, offsetX, offsetY)
                 .RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
         }
 
@@ -47,24 +29,18 @@ namespace MapControl
                 .Scale(scale, -scale); // map coordinates to tile indices
         }
 
-        protected override Size MeasureOverride(Size availableSize)
+        /// <summary>
+        /// Sets a RenderTransform with origin at tileGrid.X and tileGrid.Y to minimize rounding errors.
+        /// </summary>
+        private void UpdateRenderTransform()
         {
-            foreach (TileLayer tileLayer in Children)
-            {
-                tileLayer.Measure(availableSize);
-            }
+            var scale = Math.Pow(2d, zoomLevel - tileZoomLevel);
 
-            return new Size();
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            foreach (TileLayer tileLayer in Children)
-            {
-                tileLayer.Arrange(new Rect());
-            }
-
-            return finalSize;
+            ((MatrixTransform)RenderTransform).Matrix =
+                new Matrix(1d, 0d, 0d, 1d, tileGrid.X * TileSource.TileSize, tileGrid.Y * TileSource.TileSize)
+                .Scale(scale, scale)
+                .Translate(tileLayerOffset.X, tileLayerOffset.Y)
+                .RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
         }
     }
 }

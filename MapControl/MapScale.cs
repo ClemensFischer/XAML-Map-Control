@@ -93,7 +93,9 @@ namespace MapControl
                 drawingContext.DrawLine(Pen, new Point(x2, y1), new Point(x2, y2));
                 drawingContext.DrawLine(Pen, new Point(x1, y2), new Point(x2, y2));
                 drawingContext.DrawGlyphRun(Foreground,
-                    GlyphRunText.Create(text, Typeface, FontSize, new Vector(size.Width / 2d, y1 - StrokeThickness - 1d)));
+                    GlyphRunText.Create(text, Typeface, FontSize),
+                    new Point(size.Width / 2d, y1 - StrokeThickness - 1d),
+                    HorizontalAlignment.Center, VerticalAlignment.Center);
             }
         }
 

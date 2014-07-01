@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 #else
 using System.Windows;
@@ -33,7 +33,7 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size constraint)
         {
-            // base.MeasureOverride in WPF and WinRT sometimes return a Size with zero
+            // base.MeasureOverride in WPF and Windows Runtime sometimes return a Size with zero
             // width or height, whereas base.MeasureOverride in Silverlight occasionally
             // throws an ArgumentException, as it tries to create a Size from a negative
             // width or height, apparently resulting from a transformed Geometry.

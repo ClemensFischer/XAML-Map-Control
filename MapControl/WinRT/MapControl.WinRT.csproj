@@ -13,17 +13,17 @@
     <AssemblyName>MapControl.WinRT</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
-    <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
-    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <TargetFrameworkProfile>Profile32</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS_RUNTIME</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -31,16 +31,22 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <DefineConstants>TRACE;WINDOWS_RUNTIME</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\AnimationEx.WinRT.cs">
-      <Link>AnimationEx.WinRT.cs</Link>
+    <Compile Include="..\Extensions.Silverlight.WinRT.cs">
+      <Link>Extensions.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\ImageTileSource.cs">
-      <Link>ImageTileSource.cs</Link>
+    <Compile Include="..\Extensions.WinRT.cs">
+      <Link>Extensions.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\ImageTileSource.Silverlight.WinRT.cs">
+      <Link>ImageTileSource.Silverlight.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\IMapElement.cs">
+      <Link>IMapElement.cs</Link>
     </Compile>
     <Compile Include="..\Int32Rect.cs">
       <Link>Int32Rect.cs</Link>
@@ -81,6 +87,12 @@
     <Compile Include="..\MapItemsControl.Silverlight.WinRT.cs">
       <Link>MapItemsControl.Silverlight.WinRT.cs</Link>
     </Compile>
+    <Compile Include="..\MapOverlay.cs">
+      <Link>MapOverlay.cs</Link>
+    </Compile>
+    <Compile Include="..\MapOverlay.Silverlight.WinRT.cs">
+      <Link>MapOverlay.Silverlight.WinRT.cs</Link>
+    </Compile>
     <Compile Include="..\MapPanel.cs">
       <Link>MapPanel.cs</Link>
     </Compile>
@@ -105,11 +117,11 @@
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>
     </Compile>
-    <Compile Include="..\MatrixEx.cs">
-      <Link>MatrixEx.cs</Link>
-    </Compile>
     <Compile Include="..\MercatorTransform.cs">
       <Link>MercatorTransform.cs</Link>
+    </Compile>
+    <Compile Include="..\PanelBase.cs">
+      <Link>PanelBase.cs</Link>
     </Compile>
     <Compile Include="..\Pushpin.Silverlight.WinRT.cs">
       <Link>Pushpin.Silverlight.WinRT.cs</Link>
@@ -132,17 +144,11 @@
     <Compile Include="..\TileLayer.cs">
       <Link>TileLayer.cs</Link>
     </Compile>
-    <Compile Include="..\TileLayer.Silverlight.WinRT.cs">
-      <Link>TileLayer.Silverlight.WinRT.cs</Link>
-    </Compile>
     <Compile Include="..\TileLayerCollection.cs">
       <Link>TileLayerCollection.cs</Link>
     </Compile>
     <Compile Include="..\TileSource.cs">
       <Link>TileSource.cs</Link>
-    </Compile>
-    <Compile Include="..\TransformEx.WinRT.cs">
-      <Link>TransformEx.WinRT.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -157,6 +163,10 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <TargetPlatform Include="Windows, Version=8.1" />
+    <TargetPlatform Include="WindowsPhoneApp, Version=8.1" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>
@@ -169,7 +179,7 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

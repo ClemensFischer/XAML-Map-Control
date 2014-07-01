@@ -52,29 +52,9 @@ namespace MapControl
                 typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
         }
 
-        partial void Initialize()
-        {
-            AddVisualChild(tileContainer);
-        }
-
         partial void RemoveAnimation(DependencyProperty property)
         {
             BeginAnimation(property, null);
-        }
-
-        protected override int VisualChildrenCount
-        {
-            get { return base.VisualChildrenCount + 1; }
-        }
-
-        protected override Visual GetVisualChild(int index)
-        {
-            if (index == 0)
-            {
-                return tileContainer;
-            }
-
-            return base.GetVisualChild(index - 1);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)

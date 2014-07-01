@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    public partial class MapGraticule : MapOverlay
+    public partial class MapGraticule
     {
         private class Label
         {

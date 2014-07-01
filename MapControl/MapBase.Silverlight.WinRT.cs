@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -47,7 +47,6 @@ namespace MapControl
         {
             Background = new SolidColorBrush(Colors.Transparent);
             Clip = new RectangleGeometry();
-            Children.Add(tileContainer);
 
             SizeChanged += OnRenderSizeChanged;
         }

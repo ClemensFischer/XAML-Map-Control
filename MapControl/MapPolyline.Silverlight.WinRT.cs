@@ -3,7 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Linq;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows.Media;

@@ -41,7 +41,7 @@
 
             <!-- The following TileLayer uses an ImageTileSource, which bypasses caching of map tile images -->
             <!--<map:TileLayer SourceName="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
-                <map:ImageTileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                <map:ImageTileSource IsAsync="True" UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
             </map:TileLayer>-->
 
             <!-- The following TileLayer demonstrates how to access local tile image files (from ImageFileCache here) -->

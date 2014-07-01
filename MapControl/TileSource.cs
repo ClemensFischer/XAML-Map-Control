@@ -5,7 +5,7 @@
 using System;
 using System.Globalization;
 using System.Text;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 #else
 using System.Windows;
@@ -94,7 +94,7 @@ namespace MapControl
 
         private Uri GetBasicUri(int x, int y, int zoomLevel)
         {
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
                 Replace("{z}", zoomLevel.ToString()));
@@ -104,7 +104,7 @@ namespace MapControl
         {
             var hostIndex = (x + y) % 3;
 
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{c}", "abc".Substring(hostIndex, 1)).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
@@ -115,7 +115,7 @@ namespace MapControl
         {
             var hostIndex = (x + y) % 4;
 
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{i}", hostIndex.ToString()).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
@@ -126,7 +126,7 @@ namespace MapControl
         {
             var hostIndex = (x + y) % 4 + 1;
 
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{n}", hostIndex.ToString()).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
@@ -137,7 +137,7 @@ namespace MapControl
         {
             y = (1 << zoomLevel) - 1 - y;
 
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{x}", x.ToString()).
                 Replace("{v}", y.ToString()).
                 Replace("{z}", zoomLevel.ToString()));
@@ -157,7 +157,7 @@ namespace MapControl
                 key[z] = (char)('0' + 2 * (y % 2) + (x % 2));
             }
 
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{i}", key.ToString(key.Length - 1, 1)).
                 Replace("{q}", key.ToString()));
         }
@@ -171,7 +171,7 @@ namespace MapControl
             var y1 = m * (180d - (double)(y + 1) * 360d / n);
             var y2 = m * (180d - (double)y * 360d / n);
 
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{W}", x1.ToString(CultureInfo.InvariantCulture)).
                 Replace("{S}", y1.ToString(CultureInfo.InvariantCulture)).
                 Replace("{E}", x2.ToString(CultureInfo.InvariantCulture)).
@@ -189,7 +189,7 @@ namespace MapControl
             var p1 = t.Transform(new Point(x1, y1));
             var p2 = t.Transform(new Point(x2, y2));
 
-            return new Uri(UriFormat.
+            return new Uri(uriFormat.
                 Replace("{w}", p1.Longitude.ToString(CultureInfo.InvariantCulture)).
                 Replace("{s}", p1.Latitude.ToString(CultureInfo.InvariantCulture)).
                 Replace("{e}", p2.Longitude.ToString(CultureInfo.InvariantCulture)).

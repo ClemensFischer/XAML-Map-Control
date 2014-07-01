@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
 #else
 using System.Windows;
@@ -13,7 +13,7 @@ namespace MapControl
     /// <summary>
     /// Draws a graticule overlay.
     /// </summary>
-    public partial class MapGraticule
+    public partial class MapGraticule : MapOverlay
     {
         /// <summary>
         /// Graticule line spacings in degrees.

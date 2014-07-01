@@ -3,7 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows.Media;
@@ -11,12 +11,17 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    public static class MatrixEx
+    internal static partial class Extensions
     {
+        public static void Freeze(this object freezable)
+        {
+        }
+
         public static Matrix Translate(this Matrix matrix, double offsetX, double offsetY)
         {
             matrix.OffsetX += offsetX;
             matrix.OffsetY += offsetY;
+
             return matrix;
         }
 
@@ -30,6 +35,7 @@ namespace MapControl
             angle = (angle % 360d) / 180d * Math.PI;
             var cos = Math.Cos(angle);
             var sin = Math.Sin(angle);
+
             return Multiply(matrix, new Matrix(cos, sin, -sin, cos, 0d, 0d));
         }
 
@@ -40,12 +46,14 @@ namespace MapControl
             var sin = Math.Sin(angle);
             var offsetX = centerX * (1d - cos) + centerY * sin;
             var offsetY = centerY * (1d - cos) - centerX * sin;
+
             return Multiply(matrix, new Matrix(cos, sin, -sin, cos, offsetX, offsetY));
         }
 
         public static Matrix Invert(this Matrix matrix)
         {
             var determinant = matrix.M11 * matrix.M22 - matrix.M12 * matrix.M21;
+
             return new Matrix(
                 matrix.M22 / determinant, -matrix.M12 / determinant,
                 -matrix.M21 / determinant, matrix.M11 / determinant,

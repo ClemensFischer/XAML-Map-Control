@@ -3,30 +3,23 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 #endif
 
 namespace MapControl
 {
-    public interface IMapElement
-    {
-        MapBase ParentMap { get; set; }
-    }
-
     /// <summary>
     /// Positions child elements on a Map, at a position specified by the attached property Location.
     /// The Location is transformed to a viewport position by ParentMap.MapTransform and ParentMap.ViewportTransform
     /// and applied to a child element's RenderTransform as an appropriate TranslateTransform.
     /// </summary>
-    public partial class MapPanel : Panel, IMapElement
+    public partial class MapPanel : PanelBase, IMapElement
     {
         public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
             "Location", typeof(Location), typeof(MapPanel), new PropertyMetadata(null, LocationPropertyChanged));
@@ -51,7 +44,7 @@ namespace MapControl
 
         private MapBase parentMap;
 
-        public MapBase ParentMap
+        public virtual MapBase ParentMap
         {
             get { return parentMap; }
             set
@@ -69,18 +62,6 @@ namespace MapControl
                     OnViewportChanged();
                 }
             }
-        }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
-
-            foreach (UIElement element in InternalChildren)
-            {
-                element.Measure(availableSize);
-            }
-
-            return new Size();
         }
 
         protected override Size ArrangeOverride(Size finalSize)
@@ -147,8 +128,7 @@ namespace MapControl
                 }
                 else if (e.OldValue == null)
                 {
-                    // Arrange element once when Location was null before
-                    ArrangeElementWithLocation(element);
+                    ArrangeElementWithLocation(element); // arrange element when Location was null before
                 }
 
                 SetViewportPosition(element, parentMap, location);
@@ -161,8 +141,7 @@ namespace MapControl
 
             if (parentMap != null && location != null)
             {
-                // Keep ViewportPosition near map center
-                var mapPosition = parentMap.MapTransform.Transform(location, parentMap.Center.Longitude);
+                var mapPosition = parentMap.MapTransform.Transform(location, parentMap.Center.Longitude); // nearest to center longitude
                 viewportPosition = parentMap.ViewportTransform.Transform(mapPosition);
                 element.SetValue(ViewportPositionProperty, viewportPosition);
             }

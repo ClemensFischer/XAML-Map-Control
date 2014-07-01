@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 #else
 using System.Windows;
@@ -31,14 +31,14 @@ namespace MapControl
         public abstract double RelativeScale(Location location);
 
         /// <summary>
-        /// Transforms a geographic location to a cartesian coordinate point.
-        /// </summary>
-        public abstract Point Transform(Location location);
-
-        /// <summary>
         /// Transforms a cartesian coordinate point to a geographic location.
         /// </summary>
         public abstract Location Transform(Point point);
+
+        /// <summary>
+        /// Transforms a geographic location to a cartesian coordinate point.
+        /// </summary>
+        public abstract Point Transform(Location location);
 
         /// <summary>
         /// Transforms a geographic location to a cartesian coordinate point

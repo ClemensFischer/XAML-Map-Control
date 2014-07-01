@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -27,15 +27,10 @@ namespace MapControl
             }
         }
 
-        private UIElementCollection InternalChildren
-        {
-            get { return Children; }
-        }
-
         /// <summary>
-        /// Helper method to work around missing property value inheritance in Silverlight and WinRT.
-        /// Adds Loaded and Unloaded handlers to the specified FrameworkElement, which set and clear
-        /// the value of the MapPanel.ParentMap attached property.
+        /// Helper method to work around missing property value inheritance in Silverlight and Windows Runtime.
+        /// Adds Loaded and Unloaded handlers to the specified FrameworkElement, which set and clear the value
+        /// of the MapPanel.ParentMap attached property.
         /// </summary>
         public static void AddParentMapHandlers(FrameworkElement element)
         {

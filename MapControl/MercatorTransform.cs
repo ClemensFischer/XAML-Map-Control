@@ -3,7 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 #else
 using System.Windows;

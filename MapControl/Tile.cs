@@ -3,6 +3,11 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+#if WINDOWS_RUNTIME
+using Windows.UI.Xaml.Controls;
+#else
+using System.Windows.Controls;
+#endif
 
 namespace MapControl
 {
@@ -13,6 +18,7 @@ namespace MapControl
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;
+        public readonly Image Image = new Image { Opacity = 0d };
 
         public Tile(int zoomLevel, int x, int y)
         {

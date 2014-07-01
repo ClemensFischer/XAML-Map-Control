@@ -52,8 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlyphRunText.cs" />
-    <Compile Include="ImageTileSource.cs" />
     <Compile Include="ImageTileSource.WPF.cs" />
+    <Compile Include="IMapElement.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />
     <Compile Include="LocationCollectionConverter.cs" />
@@ -64,20 +64,20 @@
     <Compile Include="MapGraticule.cs" />
     <Compile Include="MapGraticule.WPF.cs" />
     <Compile Include="MapImage.cs" />
-    <Compile Include="MapImage.WPF.cs" />
     <Compile Include="MapImageLayer.cs" />
     <Compile Include="MapImageLayer.WPF.cs" />
     <Compile Include="MapItem.WPF.cs" />
     <Compile Include="MapItemsControl.WPF.cs" />
     <Compile Include="MapOverlay.cs" />
+    <Compile Include="MapOverlay.WPF.cs" />
     <Compile Include="MapPanel.cs" />
     <Compile Include="MapPanel.WPF.cs" />
+    <Compile Include="PanelBase.cs" />
     <Compile Include="MapPath.cs" />
     <Compile Include="MapPath.WPF.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
     <Compile Include="MapRectangle.cs" />
-    <Compile Include="MapRectangle.WPF.cs" />
     <Compile Include="MapScale.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MercatorTransform.cs" />
@@ -89,7 +89,6 @@
     <Compile Include="TileContainer.WPF.cs" />
     <Compile Include="TileImageLoader.WPF.cs" />
     <Compile Include="TileLayer.cs" />
-    <Compile Include="TileLayer.WPF.cs" />
     <Compile Include="TileLayerCollection.cs" />
     <Compile Include="TileSource.cs" />
     <Compile Include="TileSourceConverter.cs" />

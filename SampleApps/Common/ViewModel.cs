@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
 #else
 using System.Windows.Threading;
@@ -15,11 +15,12 @@ namespace ViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string propertyName)
+        protected void RaisePropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
+            var propertyChanged = PropertyChanged;
+            if (propertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                propertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }
@@ -33,7 +34,7 @@ namespace ViewModel
             set
             {
                 name = value;
-                OnPropertyChanged("Name");
+                RaisePropertyChanged("Name");
             }
         }
 
@@ -44,7 +45,7 @@ namespace ViewModel
             set
             {
                 location = value;
-                OnPropertyChanged("Location");
+                RaisePropertyChanged("Location");
             }
         }
     }
@@ -67,7 +68,7 @@ namespace ViewModel
             set
             {
                 mapCenter = value;
-                OnPropertyChanged("MapCenter");
+                RaisePropertyChanged("MapCenter");
             }
         }
 

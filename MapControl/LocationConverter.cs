@@ -22,6 +22,9 @@ namespace MapControl
     }
 
     [TypeConverter(typeof(LocationConverter))]
+#if !SILVERLIGHT
+    [Serializable]
+#endif
     public partial class Location
     {
     }

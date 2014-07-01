@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -20,13 +20,6 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public readonly Image Image = new Image { Opacity = 0d };
-
-        public ImageSource ImageSource
-        {
-            get { return Image.Source; }
-        }
-
         public void SetImageSource(ImageSource image, bool animateOpacity)
         {
             if (image != null && Image.Source == null)

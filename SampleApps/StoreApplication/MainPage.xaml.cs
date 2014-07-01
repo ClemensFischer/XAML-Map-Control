@@ -10,7 +10,6 @@ namespace StoreApplication
         public MainPage()
         {
             this.InitializeComponent();
-            tileLayerComboBox.SelectedIndex = 0;
         }
 
         private void ImageOpacitySliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -21,21 +20,28 @@ namespace StoreApplication
             }
         }
 
+        private void TileLayerComboBoxLoaded(object sender, RoutedEventArgs e)
+        {
+            ((ComboBox)sender).SelectedIndex = 0;
+        }
+
         private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var comboBox = (ComboBox)sender;
+            var selectedValue = (string)((ComboBox)sender).SelectedValue;
             var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayer = tileLayers[(string)((ComboBoxItem)comboBox.SelectedItem).Content];
+            map.TileLayer = tileLayers[selectedValue];
         }
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayers.Add((TileLayer)tileLayers["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayers.Remove((TileLayer)tileLayers["Seamarks"]);
         }
     }
 }

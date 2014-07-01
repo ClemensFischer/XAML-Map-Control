@@ -4,7 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-#if NETFX_CORE
+using System.Linq;
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -16,7 +17,7 @@ using System.Windows.Threading;
 
 namespace MapControl
 {
-    internal partial class TileContainer
+    internal partial class TileContainer : PanelBase
     {
         // relative scaled tile size ranges from 0.75 to 1.5 (192 to 384 pixels)
         private static double zoomLevelSwitchDelta = -Math.Log(0.75, 2d);
@@ -36,27 +37,30 @@ namespace MapControl
 
         public TileContainer()
         {
+            RenderTransform = new MatrixTransform();
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += UpdateTiles;
         }
 
+        public IEnumerable<TileLayer> TileLayers
+        {
+            get { return InternalChildren.Cast<TileLayer>(); }
+        }
+
         public void AddTileLayers(int index, IEnumerable<TileLayer> tileLayers)
         {
-            var tileLayerTransform = GetTileLayerTransformMatrix();
-
             foreach (var tileLayer in tileLayers)
             {
-                if (index < Children.Count)
+                if (index < InternalChildren.Count)
                 {
-                    Children.Insert(index, tileLayer);
+                    InternalChildren.Insert(index, tileLayer);
                 }
                 else
                 {
-                    Children.Add(tileLayer);
+                    InternalChildren.Add(tileLayer);
                 }
 
                 index++;
-                tileLayer.SetTransformMatrix(tileLayerTransform);
                 tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
             }
         }
@@ -65,19 +69,19 @@ namespace MapControl
         {
             while (count-- > 0)
             {
-                ((TileLayer)Children[index]).ClearTiles();
-                Children.RemoveAt(index);
+                ((TileLayer)InternalChildren[index]).ClearTiles();
+                InternalChildren.RemoveAt(index);
             }
         }
 
         public void ClearTileLayers()
         {
-            foreach (TileLayer tileLayer in Children)
+            foreach (TileLayer tileLayer in InternalChildren)
             {
                 tileLayer.ClearTiles();
             }
 
-            Children.Clear();
+            InternalChildren.Clear();
         }
 
         public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point vpOrigin, Size vpSize)
@@ -103,12 +107,7 @@ namespace MapControl
             tileLayerOffset.X = transformOffsetX - 180d * scale;
             tileLayerOffset.Y = transformOffsetY - 180d * scale;
 
-            var tileLayerTransform = GetTileLayerTransformMatrix();
-
-            foreach (TileLayer tileLayer in Children)
-            {
-                tileLayer.SetTransformMatrix(tileLayerTransform);
-            }
+            UpdateRenderTransform();
 
             if (Math.Abs(mapOrigin.X - oldMapOriginX) > 180d)
             {
@@ -147,11 +146,11 @@ namespace MapControl
             {
                 tileZoomLevel = zoom;
                 tileGrid = grid;
-                var tileLayerTransform = GetTileLayerTransformMatrix();
 
-                foreach (TileLayer tileLayer in Children)
+                UpdateRenderTransform();
+
+                foreach (TileLayer tileLayer in InternalChildren)
                 {
-                    tileLayer.SetTransformMatrix(tileLayerTransform);
                     tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
                 }
             }

@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -16,16 +16,8 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area defined by South, North, West and East with a Brush.
     /// </summary>
-    public partial class MapRectangle : MapPath
+    public class MapRectangle : MapPath
     {
-        private const double GeometryScale = 1e6;
-
-        private static readonly ScaleTransform geometryScaleTransform = new ScaleTransform
-        {
-            ScaleX = 1d / GeometryScale,
-            ScaleY = 1d / GeometryScale
-        };
-
         public static readonly DependencyProperty SouthProperty = DependencyProperty.Register(
             "South", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
@@ -81,17 +73,23 @@ namespace MapControl
                 !double.IsNaN(West) && !double.IsNaN(East) &&
                 South < North && West < East)
             {
-                var p1 = ParentMap.MapTransform.Transform(new Location(South, West));
-                var p2 = ParentMap.MapTransform.Transform(new Location(North, East));
-
                 // Create a scaled RectangleGeometry due to inaccurate hit testing in WPF.
                 // See http://stackoverflow.com/a/19335624/1136211
 
-                geometry.Rect = new Rect(p1.X * GeometryScale, p1.Y * GeometryScale,
-                    (p2.X - p1.X) * GeometryScale, (p2.Y - p1.Y) * GeometryScale);
+                const double scale = 1e6;
+                var p1 = ParentMap.MapTransform.Transform(new Location(South, West));
+                var p2 = ParentMap.MapTransform.Transform(new Location(North, East));
+                geometry.Rect = new Rect(p1.X * scale, p1.Y * scale, (p2.X - p1.X) * scale, (p2.Y - p1.Y) * scale);
+
+                var scaleTransform = new ScaleTransform // revert scaling
+                {
+                    ScaleX = 1d / scale,
+                    ScaleY = 1d / scale
+                };
+                scaleTransform.Freeze();
 
                 var transform = new TransformGroup();
-                transform.Children.Add(geometryScaleTransform); // revert scaling
+                transform.Children.Add(scaleTransform);
                 transform.Children.Add(ParentMap.ViewportTransform);
                 RenderTransform = transform;
             }

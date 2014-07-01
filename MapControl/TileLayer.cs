@@ -5,7 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
+using Windows.Foundation;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
 #else
@@ -19,12 +20,12 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area with map tiles from a TileSource.
     /// </summary>
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
     [ContentProperty(Name = "TileSource")]
 #else
     [ContentProperty("TileSource")]
 #endif
-    public partial class TileLayer
+    public class TileLayer : PanelBase
     {
         public static TileLayer Default
         {
@@ -39,7 +40,6 @@ namespace MapControl
             }
         }
 
-        private readonly MatrixTransform transform = new MatrixTransform();
         private readonly TileImageLoader tileImageLoader = new TileImageLoader();
         private string description = string.Empty;
         private TileSource tileSource;
@@ -54,10 +54,7 @@ namespace MapControl
             MaxParallelDownloads = 8;
             LoadLowerZoomLevels = true;
             AnimateTileOpacity = true;
-            Initialize();
         }
-
-        partial void Initialize();
 
         public string SourceName { get; set; }
         public int MinZoomLevel { get; set; }
@@ -99,26 +96,14 @@ namespace MapControl
             }
         }
 
-        public string TileSourceUriFormat
-        {
-            get { return tileSource != null ? tileSource.UriFormat : string.Empty; }
-            set { TileSource = !string.IsNullOrWhiteSpace(value) ? new TileSource(value) : null; }
-        }
-
-        internal void SetTransformMatrix(Matrix transformMatrix)
-        {
-            transform.Matrix = transformMatrix;
-        }
-
         internal void UpdateTiles(int zoomLevel, Int32Rect grid)
         {
             this.grid = grid;
             this.zoomLevel = zoomLevel;
 
-            tileImageLoader.CancelGetTiles();
-
             if (tileSource != null)
             {
+                tileImageLoader.CancelGetTiles();
                 SelectTiles();
                 RenderTiles();
                 tileImageLoader.BeginGetTiles(this, tiles.Where(t => !t.HasImageSource));
@@ -136,9 +121,8 @@ namespace MapControl
         {
             var maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
             var minZoomLevel = maxZoomLevel;
-            var container = TileContainer;
 
-            if (LoadLowerZoomLevels && container != null && container.Children.IndexOf(this) == 0)
+            if (LoadLowerZoomLevels && Parent is TileContainer && ((TileContainer)Parent).TileLayers.FirstOrDefault() == this)
             {
                 minZoomLevel = MinZoomLevel;
             }
@@ -164,12 +148,12 @@ namespace MapControl
                             tile = new Tile(z, x, y);
 
                             var equivalentTile = tiles.FirstOrDefault(
-                                t => t.ImageSource != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
+                                t => t.Image.Source != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
 
                             if (equivalentTile != null)
                             {
                                 // do not animate to avoid flicker when crossing date line
-                                tile.SetImageSource(equivalentTile.ImageSource, false);
+                                tile.SetImageSource(equivalentTile.Image.Source, false);
                             }
                         }
 
@@ -179,6 +163,29 @@ namespace MapControl
             }
 
             tiles = newTiles;
+        }
+
+        private void RenderTiles()
+        {
+            InternalChildren.Clear();
+
+            foreach (var tile in tiles)
+            {
+                InternalChildren.Add(tile.Image);
+            }
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            foreach (var tile in tiles)
+            {
+                var tileSize = (double)(256 << (zoomLevel - tile.ZoomLevel));
+                tile.Image.Width = tileSize;
+                tile.Image.Height = tileSize;
+                tile.Image.Arrange(new Rect(tileSize * tile.X - 256 * grid.X, tileSize * tile.Y - 256 * grid.Y, tileSize, tileSize));
+            }
+
+            return finalSize;
         }
     }
 }

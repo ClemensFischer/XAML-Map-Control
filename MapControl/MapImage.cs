@@ -2,7 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -15,13 +15,8 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area with an ImageBrush from the Source property.
     /// </summary>
-    public partial class MapImage : MapRectangle
+    public class MapImage : MapRectangle
     {
-        private static readonly MatrixTransform imageTransform = new MatrixTransform
-        {
-            Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
-        };
-
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             "Source", typeof(ImageSource), typeof(MapImage),
             new PropertyMetadata(null, (o, e) => ((MapImage)o).SourceChanged((ImageSource)e.NewValue)));
@@ -34,13 +29,17 @@ namespace MapControl
 
         private void SourceChanged(ImageSource image)
         {
-            var imageBrush = new ImageBrush
+            var transform = new MatrixTransform
+            {
+                Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
+            };
+            transform.Freeze();
+
+            Fill = new ImageBrush
             {
                 ImageSource = image,
-                RelativeTransform = imageTransform
+                RelativeTransform = transform
             };
-
-            Fill = imageBrush;
         }
     }
 }

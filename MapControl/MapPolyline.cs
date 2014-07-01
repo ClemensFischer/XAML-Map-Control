@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI.Xaml;
 #else
@@ -20,8 +20,8 @@ namespace MapControl
     /// </summary>
     public partial class MapPolyline : MapPath
     {
-#if NETFX_CORE
-        // For WinRT, the Locations dependency property type is declared as object
+#if WINDOWS_RUNTIME
+        // For Windows Runtime, the Locations dependency property type is declared as object
         // instead of IEnumerable. See http://stackoverflow.com/q/10544084/1136211
         private static readonly Type LocationsPropertyType = typeof(object);
 #else
@@ -38,7 +38,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the locations that define the polyline points.
         /// </summary>
-#if !NETFX_CORE
+#if !WINDOWS_RUNTIME
         [TypeConverter(typeof(LocationCollectionConverter))]
 #endif
         public IEnumerable<Location> Locations

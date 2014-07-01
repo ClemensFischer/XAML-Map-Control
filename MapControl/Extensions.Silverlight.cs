@@ -7,7 +7,7 @@ using System.Windows.Media.Animation;
 
 namespace MapControl
 {
-    public static class AnimationEx
+    internal static partial class Extensions
     {
         public static void BeginAnimation(this DependencyObject obj, DependencyProperty property, Timeline animation)
         {

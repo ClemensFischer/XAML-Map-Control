@@ -13,7 +13,7 @@ namespace MapControl
     /// </summary>
     public static class GlyphRunText
     {
-        public static GlyphRun Create(string text, Typeface typeface, double emSize, Point baselineOrigin)
+        public static GlyphRun Create(string text, Typeface typeface, double emSize, Point baselineOrigin = new Point())
         {
             GlyphTypeface glyphTypeface;
 
@@ -32,36 +32,42 @@ namespace MapControl
                 advanceWidths[i] = glyphTypeface.AdvanceWidths[glyphIndex] * emSize;
             }
 
-            return new GlyphRun(glyphTypeface, 0, false, emSize, glyphIndices, baselineOrigin, advanceWidths,
-                                null, null, null, null, null, null);
+            return new GlyphRun(glyphTypeface, 0, false, emSize, glyphIndices, baselineOrigin, advanceWidths, null, null, null, null, null, null);
         }
 
-        public static GlyphRun Create(string text, Typeface typeface, double emSize, Vector centerOffset)
+        public static void DrawGlyphRun(this DrawingContext drawingContext, Brush foreground, GlyphRun glyphRun,
+            Point position, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
         {
-            GlyphTypeface glyphTypeface;
-
-            if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
-            {
-                throw new ArgumentException(string.Format("{0}: no GlyphTypeface found", typeface.FontFamily));
-            }
-
-            var glyphIndices = new ushort[text.Length];
-            var advanceWidths = new double[text.Length];
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                var glyphIndex = glyphTypeface.CharacterToGlyphMap[text[i]];
-                glyphIndices[i] = glyphIndex;
-                advanceWidths[i] = glyphTypeface.AdvanceWidths[glyphIndex] * emSize;
-            }
-
-            var glyphRun = new GlyphRun(glyphTypeface, 0, false, emSize, glyphIndices, new Point(), advanceWidths,
-                                        null, null, null, null, null, null);
             var bbox = glyphRun.ComputeInkBoundingBox();
-            var baselineOrigin = new Point(centerOffset.X - bbox.X - bbox.Width / 2d, centerOffset.Y - bbox.Y - bbox.Height / 2d);
+            var transform = new TranslateTransform(position.X - bbox.X, position.Y - bbox.Y);
 
-            return new GlyphRun(glyphTypeface, 0, false, emSize, glyphIndices, baselineOrigin, advanceWidths,
-                                null, null, null, null, null, null);
+            switch (horizontalAlignment)
+            {
+                case HorizontalAlignment.Center:
+                    transform.X -= bbox.Width / 2d;
+                    break;
+                case HorizontalAlignment.Right:
+                    transform.X -= bbox.Width;
+                    break;
+                default:
+                    break;
+            }
+
+            switch (verticalAlignment)
+            {
+                case VerticalAlignment.Center:
+                    transform.Y -= bbox.Height / 2d;
+                    break;
+                case VerticalAlignment.Bottom:
+                    transform.Y -= bbox.Height;
+                    break;
+                default:
+                    break;
+            }
+
+            drawingContext.PushTransform(transform);
+            drawingContext.DrawGlyphRun(foreground, glyphRun);
+            drawingContext.Pop();
         }
     }
 }

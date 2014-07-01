@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-#if NETFX_CORE
+#if WINDOWS_RUNTIME
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else
@@ -24,33 +24,40 @@ namespace MapControl
         {
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
 
-            foreach (var tile in tiles)
+            if (imageTileSource != null)
             {
-                try
+                foreach (var tile in tiles)
                 {
-                    ImageSource image;
-
-                    if (imageTileSource != null)
+                    try
                     {
-                        image = imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel);
+                        var image = imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel);
+                        tile.SetImageSource(image, tileLayer.AnimateTileOpacity);
                     }
-                    else
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Loading tile image failed: {0}", ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var tile in tiles)
+                {
+                    try
                     {
                         var uri = tileLayer.TileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-
-                        image = uri != null ? new BitmapImage(uri) : null;
+                        var image = uri != null ? new BitmapImage(uri) : null;
+                        tile.SetImageSource(image, tileLayer.AnimateTileOpacity);
                     }
-
-                    tile.SetImageSource(image, tileLayer.AnimateTileOpacity);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Creating tile image failed: {0}", ex.Message);
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Creating tile image failed: {0}", ex.Message);
+                    }
                 }
             }
         }
 
-        internal void CancelGetTiles()
+        public void CancelGetTiles()
         {
         }
     }
