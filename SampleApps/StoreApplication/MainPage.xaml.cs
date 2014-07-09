@@ -1,4 +1,5 @@
 ﻿using MapControl;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -9,7 +10,12 @@ namespace StoreApplication
     {
         public MainPage()
         {
+            TileImageLoader.Cache = new ImageFileCache();
+
             this.InitializeComponent();
+
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayer = tileLayers[0];
         }
 
         private void ImageOpacitySliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)

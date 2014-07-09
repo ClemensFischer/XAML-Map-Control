@@ -14,7 +14,13 @@ namespace PhoneApplication
 
         public MainPage()
         {
+            TileImageLoader.Cache = new ImageFileCache();
+
             InitializeComponent();
+
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayer = tileLayers[0];
+
             DataContext = new ViewModel(Dispatcher);
             NavigationCacheMode = NavigationCacheMode.Required;
         }

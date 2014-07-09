@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Runtime.Caching;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using Caching;
 using MapControl;
@@ -56,14 +55,27 @@ namespace WpfApplication
         private void MapMouseMove(object sender, MouseEventArgs e)
         {
             var location = map.ViewportPointToLocation(e.GetPosition(map));
-            var longitude = Location.NormalizeLongitude(location.Longitude);
-            var latString = location.Latitude < 0 ?
-                string.Format(CultureInfo.InvariantCulture, "S  {0:00.00000}", -location.Latitude) :
-                string.Format(CultureInfo.InvariantCulture, "N  {0:00.00000}", location.Latitude);
-            var lonString = longitude < 0 ?
-                string.Format(CultureInfo.InvariantCulture, "W {0:000.00000}", -longitude) :
-                string.Format(CultureInfo.InvariantCulture, "E {0:000.00000}", longitude);
-            mouseLocation.Text = latString + "\n" + lonString;
+            var latitude = (int)Math.Round(location.Latitude * 60000d);
+            var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
+            var latHemisphere = 'N';
+            var lonHemisphere = 'E';
+
+            if (latitude < 0)
+            {
+                latitude = -latitude;
+                latHemisphere = 'S';
+            }
+
+            if (longitude < 0)
+            {
+                longitude = -longitude;
+                lonHemisphere = 'W';
+            }
+
+            mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
+                "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
+                latHemisphere, latitude / 60000, (double)(latitude % 60000) / 1000d,
+                lonHemisphere, longitude / 60000, (double)(longitude % 60000) / 1000d);
         }
 
         private void MapManipulationInertiaStarting(object sender, ManipulationInertiaStartingEventArgs e)

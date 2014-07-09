@@ -9,14 +9,6 @@ namespace MapControl
 {
     internal partial class TileContainer
     {
-        private Matrix GetViewportTransformMatrix(double scale, double offsetX, double offsetY)
-        {
-            var transform = new Matrix(scale, 0d, 0d, -scale, offsetX, offsetY);
-            transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
-
-            return transform;
-        }
-
         private Matrix GetTileIndexMatrix(int numTiles)
         {
             var scale = (double)numTiles / 360d;
@@ -26,6 +18,14 @@ namespace MapControl
             transform.Scale(scale, -scale); // map coordinates to tile indices
 
             return transform;
+        }
+
+        private void UpdateViewportTransform(double scale, double offsetX, double offsetY)
+        {
+            var transform = new Matrix(scale, 0d, 0d, -scale, offsetX, offsetY);
+            transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
+
+            ViewportTransform.Matrix = transform;
         }
 
         /// <summary>

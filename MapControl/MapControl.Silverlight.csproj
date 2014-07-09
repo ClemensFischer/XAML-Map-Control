@@ -106,7 +106,7 @@
     <Compile Include="Tile.Silverlight.WinRT.cs" />
     <Compile Include="TileContainer.cs" />
     <Compile Include="TileContainer.Silverlight.WinRT.cs" />
-    <Compile Include="TileImageLoader.Silverlight.WinRT.cs" />
+    <Compile Include="TileImageLoader.Silverlight.cs" />
     <Compile Include="TileLayer.cs" />
     <Compile Include="TileLayerCollection.cs" />
     <Compile Include="TileSource.cs" />

@@ -35,7 +35,7 @@
         <local:ObjectReferenceConverter x:Key="ObjectReferenceConverter"/>
     </Page.Resources>
     <Grid>
-        <map:MapBase x:Name="map" ZoomLevel="11"
+        <map:MapBase x:Name="map" ZoomLevel="11" MinZoomLevel="2"
                      ManipulationMode="Scale,TranslateX,TranslateY,TranslateInertia"
                      ManipulationStarted="MapManipulationStarted"
                      ManipulationCompleted="MapManipulationCompleted"

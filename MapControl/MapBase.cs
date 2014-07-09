@@ -579,7 +579,7 @@ namespace MapControl
             {
                 AdjustCenterProperty(TargetCenterProperty, ref targetCenter);
 
-                if (targetCenter.Latitude != Center.Latitude || targetCenter.Longitude != Center.Longitude)
+                if (!targetCenter.Equals(Center))
                 {
                     if (centerAnimation != null)
                     {

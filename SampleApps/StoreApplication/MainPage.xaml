@@ -22,6 +22,12 @@
             <map:TileLayer SourceName="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors">
                 <map:TileSource UriFormat="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
             </map:TileLayer>
+            <map:TileLayer SourceName="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation" MinZoomLevel="1" MaxZoomLevel="19">
+                <map:TileSource UriFormat="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h"/>
+            </map:TileLayer>
+            <map:TileLayer SourceName="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation" MinZoomLevel="1" MaxZoomLevel="19" Background="#FF3F3F3F" Foreground="White">
+                <map:TileSource UriFormat="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0"/>
+            </map:TileLayer>
             <map:TileLayer SourceName="Seamarks" Description="© {y} OpenSeaMap Contributors, CC-BY-SA" MinZoomLevel="10" MaxZoomLevel="18">
                 <map:TileSource UriFormat="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
             </map:TileLayer>
@@ -124,7 +130,7 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" MinZoomLevel="2" Center="{Binding MapCenter}" MaxZoomLevel="18" ZoomLevel="11" Foreground="Black">
+        <map:Map x:Name="map" Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11" Foreground="Black">
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
             <map:MapGraticule Opacity="0.6"/>
@@ -190,6 +196,8 @@
                     <ComboBoxItem>OCM Transport</ComboBoxItem>
                     <ComboBoxItem>OCM Landscape</ComboBoxItem>
                     <ComboBoxItem>MapQuest OSM</ComboBoxItem>
+                    <ComboBoxItem>Bing Maps</ComboBoxItem>
+                    <ComboBoxItem>Bing Images</ComboBoxItem>
                 </ComboBox>
             </StackPanel>
         </Grid>

@@ -2,6 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 #if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
 #else
@@ -43,7 +44,7 @@ namespace MapControl
                 hemisphere = hemispheres[1];
             }
 
-            var minutes = (int)(value * 60d + 0.5);
+            var minutes = (int)Math.Round(value * 60d);
 
             return string.Format(format, hemisphere, minutes / 60, (double)(minutes % 60));
         }

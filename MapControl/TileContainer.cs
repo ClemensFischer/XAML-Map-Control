@@ -22,7 +22,7 @@ namespace MapControl
         // relative scaled tile size ranges from 0.75 to 1.5 (192 to 384 pixels)
         private static double zoomLevelSwitchDelta = -Math.Log(0.75, 2d);
 
-        internal static TimeSpan UpdateInterval = TimeSpan.FromSeconds(0.5);
+        public static TimeSpan UpdateInterval = TimeSpan.FromSeconds(0.5);
 
         private readonly DispatcherTimer updateTimer;
         private Size viewportSize;
@@ -102,7 +102,7 @@ namespace MapControl
             var transformOffsetX = viewportOrigin.X - mapOrigin.X * scale;
             var transformOffsetY = viewportOrigin.Y + mapOrigin.Y * scale;
 
-            ViewportTransform.Matrix = GetViewportTransformMatrix(scale, transformOffsetX, transformOffsetY);
+            UpdateViewportTransform(scale, transformOffsetX, transformOffsetY);
 
             tileLayerOffset.X = transformOffsetX - 180d * scale;
             tileLayerOffset.Y = transformOffsetY - 180d * scale;

@@ -42,6 +42,9 @@
     <Compile Include="..\Extensions.WinRT.cs">
       <Link>Extensions.WinRT.cs</Link>
     </Compile>
+    <Compile Include="..\ImageFileCache.WinRT.cs">
+      <Link>ImageFileCache.WinRT.cs</Link>
+    </Compile>
     <Compile Include="..\ImageTileSource.Silverlight.WinRT.cs">
       <Link>ImageTileSource.Silverlight.WinRT.cs</Link>
     </Compile>
@@ -50,6 +53,9 @@
     </Compile>
     <Compile Include="..\Int32Rect.cs">
       <Link>Int32Rect.cs</Link>
+    </Compile>
+    <Compile Include="..\IObjectCache.WinRT.cs">
+      <Link>IObjectCache.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\Location.cs">
       <Link>Location.cs</Link>
@@ -138,8 +144,8 @@
     <Compile Include="..\TileContainer.Silverlight.WinRT.cs">
       <Link>TileContainer.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\TileImageLoader.Silverlight.WinRT.cs">
-      <Link>TileImageLoader.Silverlight.WinRT.cs</Link>
+    <Compile Include="..\TileImageLoader.WinRT.cs">
+      <Link>TileImageLoader.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\TileLayer.cs">
       <Link>TileLayer.cs</Link>

@@ -38,16 +38,15 @@ namespace MapControl
         public static void DrawGlyphRun(this DrawingContext drawingContext, Brush foreground, GlyphRun glyphRun,
             Point position, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
         {
-            var bbox = glyphRun.ComputeInkBoundingBox();
-            var transform = new TranslateTransform(position.X - bbox.X, position.Y - bbox.Y);
+            var boundingBox = glyphRun.ComputeInkBoundingBox();
 
             switch (horizontalAlignment)
             {
                 case HorizontalAlignment.Center:
-                    transform.X -= bbox.Width / 2d;
+                    position.X -= boundingBox.Width / 2d;
                     break;
                 case HorizontalAlignment.Right:
-                    transform.X -= bbox.Width;
+                    position.X -= boundingBox.Width;
                     break;
                 default:
                     break;
@@ -56,16 +55,16 @@ namespace MapControl
             switch (verticalAlignment)
             {
                 case VerticalAlignment.Center:
-                    transform.Y -= bbox.Height / 2d;
+                    position.Y -= boundingBox.Height / 2d;
                     break;
                 case VerticalAlignment.Bottom:
-                    transform.Y -= bbox.Height;
+                    position.Y -= boundingBox.Height;
                     break;
                 default:
                     break;
             }
 
-            drawingContext.PushTransform(transform);
+            drawingContext.PushTransform(new TranslateTransform(position.X - boundingBox.X, position.Y - boundingBox.Y));
             drawingContext.DrawGlyphRun(foreground, glyphRun);
             drawingContext.Pop();
         }

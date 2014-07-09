@@ -3,10 +3,10 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 #if WINDOWS_RUNTIME
 using Windows.Foundation;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -31,7 +31,7 @@ namespace MapControl
         public MapGraticule()
         {
             IsHitTestVisible = false;
-            StrokeThickness = 0.5;
+            Stroke = new SolidColorBrush(Color.FromArgb(127, 0, 0, 0));
 
             path = new Path
             {
@@ -55,7 +55,6 @@ namespace MapControl
 
         protected override void OnViewportChanged()
         {
-            var geometry = (PathGeometry)path.Data;
             var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(new Point(), ParentMap.RenderSize));
             var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
             var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
@@ -88,28 +87,22 @@ namespace MapControl
                 graticuleStart = lineStart;
                 graticuleEnd = lineEnd;
 
+                var geometry = (PathGeometry)path.Data;
                 geometry.Figures.Clear();
                 geometry.Transform = ParentMap.ViewportTransform;
 
-                var latLocations = new List<Location>((int)((end.Latitude - labelStart.Latitude) / spacing) + 1);
-
                 for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += spacing)
                 {
-                    var location = new Location(lat, lineStart.Longitude);
-                    latLocations.Add(location);
-
                     var figure = new PathFigure
                     {
-                        StartPoint = ParentMap.MapTransform.Transform(location),
+                        StartPoint = ParentMap.MapTransform.Transform(new Location(lat, lineStart.Longitude)),
                         IsClosed = false,
                         IsFilled = false
                     };
 
-                    location.Longitude = lineEnd.Longitude;
-
                     figure.Segments.Add(new LineSegment
                     {
-                        Point = ParentMap.MapTransform.Transform(location),
+                        Point = ParentMap.MapTransform.Transform(new Location(lat, lineEnd.Longitude)),
                     });
 
                     geometry.Figures.Add(figure);
@@ -134,14 +127,11 @@ namespace MapControl
 
                 var childIndex = 1; // 0 for Path
                 var format = spacing < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
-                var measureSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-                foreach (var location in latLocations)
+                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += spacing)
                 {
                     for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += spacing)
                     {
-                        location.Longitude = lon;
-
                         TextBlock label;
 
                         if (childIndex < Children.Count)
@@ -150,9 +140,14 @@ namespace MapControl
                         }
                         else
                         {
+                            var renderTransform = new TransformGroup();
+                            renderTransform.Children.Add(new TranslateTransform());
+                            renderTransform.Children.Add(ParentMap.RotateTransform);
+                            renderTransform.Children.Add(new TranslateTransform());
+
                             label = new TextBlock
                             {
-                                RenderTransform = new TransformGroup()
+                                RenderTransform = renderTransform
                             };
 
                             label.SetBinding(TextBlock.ForegroundProperty, new Binding
@@ -175,30 +170,13 @@ namespace MapControl
                         label.FontStyle = FontStyle;
                         label.FontStretch = FontStretch;
                         label.FontWeight = FontWeight;
+                        label.Text = string.Format("{0}\n{1}", CoordinateString(lat, format, "NS"), CoordinateString(Location.NormalizeLongitude(lon), format, "EW"));
+                        label.Tag = new Location(lat, lon);
+                        label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
-                        label.Text = string.Format("{0}\n{1}",
-                            CoordinateString(location.Latitude, format, "NS"),
-                            CoordinateString(Location.NormalizeLongitude(location.Longitude), format, "EW"));
-
-                        label.Measure(measureSize);
-
-                        var transformGroup = (TransformGroup)label.RenderTransform;
-
-                        if (transformGroup.Children.Count == 0)
-                        {
-                            transformGroup.Children.Add(new TranslateTransform());
-                            transformGroup.Children.Add(ParentMap.RotateTransform);
-                            transformGroup.Children.Add(new TranslateTransform());
-                        }
-
-                        var translateTransform = (TranslateTransform)transformGroup.Children[0];
+                        var translateTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[0];
                         translateTransform.X = StrokeThickness / 2d + 2d;
                         translateTransform.Y = -label.DesiredSize.Height / 2d;
-
-                        var viewportPosition = ParentMap.LocationToViewportPoint(location);
-                        translateTransform = (TranslateTransform)transformGroup.Children[2];
-                        translateTransform.X = viewportPosition.X;
-                        translateTransform.Y = viewportPosition.Y;
                     }
                 }
 
@@ -206,6 +184,18 @@ namespace MapControl
                 {
                     Children.RemoveAt(Children.Count - 1);
                 }
+            }
+
+            // don't use MapPanel.Location because labels may be at more than 180° distance from map center
+
+            for (int i = 1; i < Children.Count; i++)
+            {
+                var label = (TextBlock)Children[i];
+                var location = (Location)label.Tag;
+                var viewportTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[2];
+                var viewportPosition = ParentMap.LocationToViewportPoint(location);
+                viewportTransform.X = viewportPosition.X;
+                viewportTransform.Y = viewportPosition.Y;
             }
 
             base.OnViewportChanged();
