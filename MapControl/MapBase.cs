@@ -199,16 +199,6 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
-        /// </summary>
-        public double ViewportScale { get; private set; }
-
-        /// <summary>
-        /// Gets the scaling factor from meters to viewport coordinate units (pixels) at the Center location.
-        /// </summary>
-        public double CenterScale { get; private set; }
-
-        /// <summary>
         /// Gets the transformation from geographic coordinates to cartesian map coordinates.
         /// </summary>
         public MapTransform MapTransform
@@ -249,23 +239,21 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the conversion factor from longitude degrees to meters, at latitude = 0.
+        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
         /// </summary>
-        public double MetersPerDegree
-        {
-            get
-            {
-                return (TileLayer != null && TileLayer.TileSource != null) ?
-                    TileLayer.TileSource.MetersPerDegree : (TileSource.EarthRadius * Math.PI / 180d);
-            }
-        }
+        public double ViewportScale { get; private set; }
+
+        /// <summary>
+        /// Gets the scaling factor from meters to viewport coordinate units (pixels) at the Center location.
+        /// </summary>
+        public double CenterScale { get; private set; }
 
         /// <summary>
         /// Gets the map scale at the specified location as viewport coordinate units (pixels) per meter.
         /// </summary>
         public double GetMapScale(Location location)
         {
-            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * TileSource.TileSize / (MetersPerDegree * 360d);
+            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * TileSource.TileSize / (TileSource.MetersPerDegree * 360d);
         }
 
         /// <summary>
@@ -446,7 +434,12 @@ namespace MapControl
                     break;
             }
 
-            UpdateTileLayer();
+            var firstTileLayer = TileLayers.FirstOrDefault();
+
+            if (TileLayer != firstTileLayer)
+            {
+                TileLayer = firstTileLayer;
+            }
         }
 
         private void TileLayersPropertyChanged(TileLayerCollection oldTileLayers, TileLayerCollection newTileLayers)
@@ -462,9 +455,18 @@ namespace MapControl
             {
                 newTileLayers.CollectionChanged += TileLayerCollectionChanged;
                 tileContainer.AddTileLayers(0, newTileLayers);
-            }
 
-            UpdateTileLayer();
+                var firstTileLayer = TileLayers.FirstOrDefault();
+
+                if (TileLayer != firstTileLayer)
+                {
+                    TileLayer = firstTileLayer;
+                }
+            }
+            else
+            {
+                TileLayer = null;
+            }
         }
 
         private void TileLayerPropertyChanged(TileLayer tileLayer)
@@ -514,21 +516,6 @@ namespace MapControl
             {
                 Foreground = storedForeground;
                 storedForeground = null;
-            }
-        }
-
-        private void UpdateTileLayer()
-        {
-            TileLayer tileLayer = null;
-
-            if (TileLayers != null)
-            {
-                tileLayer = TileLayers.FirstOrDefault();
-            }
-
-            if (TileLayer != tileLayer)
-            {
-                TileLayer = tileLayer;
             }
         }
 
@@ -828,7 +815,7 @@ namespace MapControl
                 }
             }
 
-            CenterScale = ViewportScale * mapTransform.RelativeScale(center) / MetersPerDegree; // Pixels per meter at center latitude
+            CenterScale = ViewportScale * mapTransform.RelativeScale(center) / TileSource.MetersPerDegree; // Pixels per meter at center latitude
 
             SetTransformMatrixes();
             OnViewportChanged();

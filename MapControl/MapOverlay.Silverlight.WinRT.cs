@@ -65,48 +65,44 @@ namespace MapControl
         private Binding foregroundBinding;
         private Binding strokeBinding;
 
-        public override MapBase ParentMap
+        protected override void SetParentMapOverride(MapBase parentMap)
         {
-            get { return base.ParentMap; }
-            set
+            if (foregroundBinding != null)
             {
-                if (foregroundBinding != null)
-                {
-                    foregroundBinding = null;
-                    ClearValue(ForegroundProperty);
-                }
-
-                if (strokeBinding != null)
-                {
-                    strokeBinding = null;
-                    ClearValue(StrokeProperty);
-                }
-
-                if (value != null)
-                {
-                    if (Foreground == null)
-                    {
-                        foregroundBinding = new Binding
-                        {
-                            Source = value,
-                            Path = new PropertyPath("Foreground")
-                        };
-                        SetBinding(ForegroundProperty, foregroundBinding);
-                    }
-
-                    if (Stroke == null)
-                    {
-                        strokeBinding = new Binding
-                        {
-                            Source = value,
-                            Path = new PropertyPath("Foreground")
-                        };
-                        SetBinding(StrokeProperty, strokeBinding);
-                    }
-                }
-
-                base.ParentMap = value;
+                foregroundBinding = null;
+                ClearValue(ForegroundProperty);
             }
+
+            if (strokeBinding != null)
+            {
+                strokeBinding = null;
+                ClearValue(StrokeProperty);
+            }
+
+            if (parentMap != null)
+            {
+                if (Foreground == null)
+                {
+                    foregroundBinding = new Binding
+                    {
+                        Source = parentMap,
+                        Path = new PropertyPath("Foreground")
+                    };
+                    SetBinding(ForegroundProperty, foregroundBinding);
+                }
+
+                if (Stroke == null)
+                {
+                    strokeBinding = new Binding
+                    {
+                        Source = parentMap,
+                        Path = new PropertyPath("Foreground")
+                    };
+                    SetBinding(StrokeProperty, strokeBinding);
+                }
+            }
+
+            base.SetParentMapOverride(parentMap);
         }
     }
 }

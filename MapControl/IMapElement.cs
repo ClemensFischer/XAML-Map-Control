@@ -6,6 +6,8 @@ namespace MapControl
 {
     public interface IMapElement
     {
-        MapBase ParentMap { get; set; }
+        MapBase ParentMap { get; }
+
+        void SetParentMap(MapBase parentMap);
     }
 }

@@ -31,7 +31,7 @@ namespace MapControl
         public MapGraticule()
         {
             IsHitTestVisible = false;
-            Stroke = new SolidColorBrush(Color.FromArgb(127, 0, 0, 0));
+            StrokeThickness = 0.5;
 
             path = new Path
             {

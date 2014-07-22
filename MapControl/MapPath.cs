@@ -20,11 +20,12 @@ namespace MapControl
         public MapBase ParentMap
         {
             get { return parentMap; }
-            set
-            {
-                parentMap = value;
-                UpdateData();
-            }
+        }
+
+        void IMapElement.SetParentMap(MapBase map)
+        {
+            parentMap = map;
+            UpdateData();
         }
 
         protected virtual void UpdateData()
@@ -33,10 +34,10 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size constraint)
         {
-            // base.MeasureOverride in WPF and Windows Runtime sometimes return a Size with zero
-            // width or height, whereas base.MeasureOverride in Silverlight occasionally
-            // throws an ArgumentException, as it tries to create a Size from a negative
-            // width or height, apparently resulting from a transformed Geometry.
+            // base.MeasureOverride in WPF and Windows Runtime sometimes return a Size
+            // with zero width or height, whereas in Silverlight it occasionally throws
+            // an ArgumentException, as it tries to create a Size from a negative width
+            // or height, apparently resulting from a transformed Geometry.
             // In either case it seems to be sufficient to simply return a non-zero size.
             return new Size(1, 1);
         }

@@ -22,6 +22,11 @@ namespace MapControl
 
         public ImageFileCache(IStorageFolder folder)
         {
+            if (folder == null)
+            {
+                throw new ArgumentNullException("The parameter folder must not be null.");
+            }
+
             rootFolder = folder;
         }
 

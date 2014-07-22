@@ -86,13 +86,12 @@ namespace MapControl
                 {
                     var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
                     var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
-                    var arc = TileSource.EarthRadius * Math.PI / 180d;
 
                     uri = uri.
-                        Replace("{W}", (arc * p1.X).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{S}", (arc * p1.Y).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{E}", (arc * p2.X).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{N}", (arc * p2.Y).ToString(CultureInfo.InvariantCulture));
+                        Replace("{W}", (TileSource.MetersPerDegree * p1.X).ToString(CultureInfo.InvariantCulture)).
+                        Replace("{S}", (TileSource.MetersPerDegree * p1.Y).ToString(CultureInfo.InvariantCulture)).
+                        Replace("{E}", (TileSource.MetersPerDegree * p2.X).ToString(CultureInfo.InvariantCulture)).
+                        Replace("{N}", (TileSource.MetersPerDegree * p2.Y).ToString(CultureInfo.InvariantCulture));
                 }
                 else
                 {

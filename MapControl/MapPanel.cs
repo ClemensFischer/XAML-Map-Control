@@ -44,23 +44,29 @@ namespace MapControl
 
         private MapBase parentMap;
 
-        public virtual MapBase ParentMap
+        public MapBase ParentMap
         {
             get { return parentMap; }
-            set
+        }
+
+        void IMapElement.SetParentMap(MapBase map)
+        {
+            SetParentMapOverride(map);
+        }
+
+        protected virtual void SetParentMapOverride(MapBase map)
+        {
+            if (parentMap != null && parentMap != this)
             {
-                if (parentMap != null && parentMap != this)
-                {
-                    parentMap.ViewportChanged -= OnViewportChanged;
-                }
+                parentMap.ViewportChanged -= OnViewportChanged;
+            }
 
-                parentMap = value;
+            parentMap = map;
 
-                if (parentMap != null && parentMap != this)
-                {
-                    parentMap.ViewportChanged += OnViewportChanged;
-                    OnViewportChanged();
-                }
+            if (parentMap != null && parentMap != this)
+            {
+                parentMap.ViewportChanged += OnViewportChanged;
+                OnViewportChanged();
             }
         }
 
@@ -108,7 +114,7 @@ namespace MapControl
 
             if (mapElement != null)
             {
-                mapElement.ParentMap = e.NewValue as MapBase;
+                mapElement.SetParentMap(e.NewValue as MapBase);
             }
         }
 

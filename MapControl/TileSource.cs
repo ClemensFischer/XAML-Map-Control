@@ -19,14 +19,13 @@ namespace MapControl
     public partial class TileSource
     {
         public const int TileSize = 256;
-        public const double EarthRadius = 6378137d; // WGS 84 semi major axis
+        public const double MetersPerDegree = 6378137d * Math.PI / 180d; // WGS 84 semi major axis
 
         private Func<int, int, int, Uri> getUri;
         private string uriFormat = string.Empty;
 
         public TileSource()
         {
-            MetersPerDegree = EarthRadius * Math.PI / 180d;
         }
 
         public TileSource(string uriFormat)
@@ -35,8 +34,6 @@ namespace MapControl
             UriFormat = uriFormat;
         }
 
-        public double MetersPerDegree { get; protected set; }
-
         public string UriFormat
         {
             get { return uriFormat; }
@@ -44,7 +41,7 @@ namespace MapControl
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("The value of the UriFormat property must not be null or empty or white-space only.");
+                    throw new ArgumentException("The value of the UriFormat property must not be null or empty or white-space only.", "value");
                 }
 
                 uriFormat = value;
@@ -164,12 +161,11 @@ namespace MapControl
 
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
-            var m = MetersPerDegree;
             var n = (double)(1 << zoomLevel);
-            var x1 = m * ((double)x * 360d / n - 180d);
-            var x2 = m * ((double)(x + 1) * 360d / n - 180d);
-            var y1 = m * (180d - (double)(y + 1) * 360d / n);
-            var y2 = m * (180d - (double)y * 360d / n);
+            var x1 = MetersPerDegree * ((double)x * 360d / n - 180d);
+            var x2 = MetersPerDegree * ((double)(x + 1) * 360d / n - 180d);
+            var y1 = MetersPerDegree * (180d - (double)(y + 1) * 360d / n);
+            var y2 = MetersPerDegree * (180d - (double)y * 360d / n);
 
             return new Uri(uriFormat.
                 Replace("{W}", x1.ToString(CultureInfo.InvariantCulture)).
