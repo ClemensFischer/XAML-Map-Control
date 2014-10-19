@@ -72,7 +72,7 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (UIElement element in InternalChildren)
+            foreach (UIElement element in Children)
             {
                 var location = GetLocation(element);
 
@@ -92,7 +92,7 @@ namespace MapControl
 
         protected virtual void OnViewportChanged()
         {
-            foreach (UIElement element in InternalChildren)
+            foreach (UIElement element in Children)
             {
                 var location = GetLocation(element);
 

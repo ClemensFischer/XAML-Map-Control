@@ -13,9 +13,9 @@ namespace MapControl
     /// <summary>
     /// Loads map tile images.
     /// </summary>
-    internal class TileImageLoader
+    internal class TileImageLoader : ITileImageLoader
     {
-        internal void BeginGetTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
+        public void BeginLoadTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
         {
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
 
@@ -48,7 +48,7 @@ namespace MapControl
             }
         }
 
-        internal void CancelGetTiles()
+        public void CancelLoadTiles(TileLayer tileLayer)
         {
         }
     }

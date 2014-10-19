@@ -13,8 +13,6 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.5);
-
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;

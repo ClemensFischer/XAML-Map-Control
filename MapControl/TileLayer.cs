@@ -7,16 +7,24 @@ using System.Collections.Generic;
 using System.Linq;
 #if WINDOWS_RUNTIME
 using Windows.Foundation;
+using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 #endif
 
 namespace MapControl
 {
+    public interface ITileImageLoader
+    {
+        void BeginLoadTiles(TileLayer tileLayer, IEnumerable<Tile> tiles);
+        void CancelLoadTiles(TileLayer tileLayer);
+    }
+
     /// <summary>
     /// Fills a rectangular area with map tiles from a TileSource.
     /// </summary>
@@ -34,29 +42,35 @@ namespace MapControl
                 return new TileLayer
                 {
                     SourceName = "OpenStreetMap",
-                    Description = "© {y} OpenStreetMap Contributors, CC-BY-SA",
-                    TileSource = new TileSource("http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+                    Description="© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
+                    TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" }
                 };
             }
         }
 
-        private readonly TileImageLoader tileImageLoader = new TileImageLoader();
-        private string description = string.Empty;
+        private readonly ITileImageLoader tileImageLoader;
         private TileSource tileSource;
         private List<Tile> tiles = new List<Tile>();
-        private Int32Rect grid;
         private int zoomLevel;
+        private Int32Rect grid;
 
         public TileLayer()
+            : this(new TileImageLoader())
         {
+        }
+
+        public TileLayer(ITileImageLoader tileImageLoader)
+        {
+            this.tileImageLoader = tileImageLoader;
             MinZoomLevel = 0;
             MaxZoomLevel = 18;
-            MaxParallelDownloads = 8;
+            MaxParallelDownloads = 4;
             LoadLowerZoomLevels = true;
             AnimateTileOpacity = true;
         }
 
         public string SourceName { get; set; }
+        public string Description { get; set; }
         public int MinZoomLevel { get; set; }
         public int MaxZoomLevel { get; set; }
         public int MaxParallelDownloads { get; set; }
@@ -64,10 +78,14 @@ namespace MapControl
         public bool AnimateTileOpacity { get; set; }
         public Brush Foreground { get; set; }
 
-        public string Description
+        /// <summary>
+        /// In case the Description text contains copyright links in markdown syntax [text](url),
+        /// the DescriptionInlines property may be used to create a collection of Run and Hyperlink
+        /// inlines to be displayed in e.g. a TextBlock or a Silverlight RichTextBlock.
+        /// </summary>
+        public ICollection<Inline> DescriptionInlines
         {
-            get { return description; }
-            set { description = value.Replace("{y}", DateTime.Now.Year.ToString()); }
+            get { return Description.ToInlines(); }
         }
 
         public TileSource TileSource
@@ -79,42 +97,43 @@ namespace MapControl
 
                 if (grid.Width > 0 && grid.Height > 0)
                 {
-                    tileImageLoader.CancelGetTiles();
-                    tiles.Clear();
-
-                    if (tileSource != null)
-                    {
-                        SelectTiles();
-                        RenderTiles();
-                        tileImageLoader.BeginGetTiles(this, tiles.Where(t => !t.HasImageSource));
-                    }
-                    else
-                    {
-                        RenderTiles();
-                    }
+                    ClearTiles();
+                    UpdateTiles();
                 }
-            }
-        }
-
-        internal void UpdateTiles(int zoomLevel, Int32Rect grid)
-        {
-            this.grid = grid;
-            this.zoomLevel = zoomLevel;
-
-            if (tileSource != null)
-            {
-                tileImageLoader.CancelGetTiles();
-                SelectTiles();
-                RenderTiles();
-                tileImageLoader.BeginGetTiles(this, tiles.Where(t => !t.HasImageSource));
             }
         }
 
         internal void ClearTiles()
         {
-            tileImageLoader.CancelGetTiles();
+            tileImageLoader.CancelLoadTiles(this);
             tiles.Clear();
-            RenderTiles();
+            Children.Clear();
+        }
+
+        internal void UpdateTiles(int zoomLevel, Int32Rect grid)
+        {
+            this.zoomLevel = zoomLevel;
+            this.grid = grid;
+
+            UpdateTiles();
+        }
+
+        private void UpdateTiles()
+        {
+            if (tileSource != null)
+            {
+                tileImageLoader.CancelLoadTiles(this);
+
+                SelectTiles();
+                Children.Clear();
+
+                foreach (var tile in tiles)
+                {
+                    Children.Add(tile.Image);
+                }
+
+                tileImageLoader.BeginLoadTiles(this, tiles.Where(t => !t.HasImageSource));
+            }
         }
 
         private void SelectTiles()
@@ -122,7 +141,9 @@ namespace MapControl
             var maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
             var minZoomLevel = maxZoomLevel;
 
-            if (LoadLowerZoomLevels && Parent is TileContainer && ((TileContainer)Parent).TileLayers.FirstOrDefault() == this)
+            if (LoadLowerZoomLevels &&
+                Parent is TileContainer &&
+                ((TileContainer)Parent).TileLayers.FirstOrDefault() == this)
             {
                 minZoomLevel = MinZoomLevel;
             }
@@ -163,16 +184,6 @@ namespace MapControl
             }
 
             tiles = newTiles;
-        }
-
-        private void RenderTiles()
-        {
-            InternalChildren.Clear();
-
-            foreach (var tile in tiles)
-            {
-                InternalChildren.Add(tile.Image);
-            }
         }
 
         protected override Size ArrangeOverride(Size finalSize)

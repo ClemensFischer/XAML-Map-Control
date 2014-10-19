@@ -13,10 +13,6 @@ namespace MapControl
 {
     internal static partial class Extensions
     {
-        public static void Freeze(this object freezable)
-        {
-        }
-
         public static Matrix Translate(this Matrix matrix, double offsetX, double offsetY)
         {
             matrix.OffsetX += offsetX;

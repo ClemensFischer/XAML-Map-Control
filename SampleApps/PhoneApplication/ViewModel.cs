@@ -63,10 +63,7 @@ namespace PhoneApplication
             if (args.Status != PositionStatus.Initializing &&
                 args.Status != PositionStatus.Ready)
             {
-                await dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                {
-                    Location = null;
-                });
+                await dispatcher.RunAsync(CoreDispatcherPriority.Low, () => Location = null);
             }
         }
 

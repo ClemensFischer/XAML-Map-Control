@@ -9,48 +9,75 @@
     Stylus.IsPressAndHoldEnabled="False">
     <Window.Resources>
         <map:TileLayerCollection x:Key="TileLayers">
-            <map:TileLayer SourceName="OpenStreetMap" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
-                           TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="OpenCycleMap" Description="OpenCycleMap - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
-                           TileSource="http://{c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="OCM Transport" Description="OpenCycleMap Transport - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
-                           TileSource="http://{c}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="OCM Landscape" Description="OpenCycleMap Landscape - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
-                           TileSource="http://{c}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="MapQuest OSM" Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
-                           TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
+            <!--
+            TileLayers with OpenStreetMap data.
+            -->
+            <map:TileLayer SourceName="OpenStreetMap"
+                           Description="Maps © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                           MaxZoomLevel="19"/>
+            <map:TileLayer SourceName="Thunderforest OpenCycleMap"
+                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           TileSource="http://{c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png"/>
+            <map:TileLayer SourceName="Thunderforest Landscape"
+                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           TileSource="http://{c}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png"/>
+            <map:TileLayer SourceName="Thunderforest Outdoors"
+                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           TileSource="http://{c}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png"/>
+            <map:TileLayer SourceName="Thunderforest Transport"
+                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           TileSource="http://{c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png"/>
+            <map:TileLayer SourceName="Thunderforest Transport Dark"
+                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           TileSource="http://{c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png"
+                           Background="Black" Foreground="White"/>
+            <map:TileLayer SourceName="MapQuest OpenStreetMap"
+                           Description="Maps © [MapQuest](http://www.mapquest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"
+                           MaxZoomLevel="19"/>
+            <map:TileLayer SourceName="Seamarks"
+                           TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
+                           MinZoomLevel="10" MaxZoomLevel="18"/>
 
-            <!-- Tiles from WORLD OSM WMS, a Web Map Service based on OpenStreetMap data -->
-            <!--<map:TileLayer SourceName="WORLD OSM WMS" Description="WORLD OSM WMS (http://wiki.openstreetmap.org/wiki/OSM-WMS-EUROPE)"
+            <!--
+            Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
+            (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
+            A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
+            for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
+            -->
+            <map:BingMapsTileLayer SourceName="Bing Maps Road"
+                                   Description="© [Microsoft Corporation](http://www.bing.com/maps/)"
+                                   Mode="Road" MaxZoomLevel="19"/>
+            <map:BingMapsTileLayer SourceName="Bing Maps Aerial"
+                                   Description="© [Microsoft Corporation](http://www.bing.com/maps/)"
+                                   Mode="Aerial" MaxZoomLevel="19" Foreground="White" Background="Black"/>
+            <map:BingMapsTileLayer SourceName="Bing Maps Hybrid"
+                                   Description="© [Microsoft Corporation](http://www.bing.com/maps/)"
+                                   Mode="AerialWithLabels" MaxZoomLevel="19" Foreground="White" Background="Black"/>
+
+            <!--
+            A TileLayer for World OSM WMS, a Web Map Service based on OpenStreetMap data.
+            -->
+            <!--<map:TileLayer SourceName="World OSM WMS"
+                           Description="[World OSM WMS](http://www.osm-wms.de/) © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
                            TileSource="http://129.206.228.72/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH=256&amp;HEIGHT=256&amp;FORMAT=image/png"/>-->
 
-            <!-- Note: The providers of the following TileLayers do not allow access to their
-                 map content without using their APIs (i.e. Google Maps API or Bing Maps API).
-                 Hence the declarations shown below are for demonstration purpose only. -->
-
-            <!--<map:TileLayer SourceName="Google Maps" Description="Google Maps - © {y} Google"
-                           TileSource="http://mt{i}.google.com/vt/x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
-            <map:TileLayer SourceName="Google Images" Description="Google Maps - © {y} Google" Background="#FF3F3F3F" Foreground="White"
-                           TileSource="http://khm{i}.google.com/kh/v=144&amp;x={x}&amp;y={y}&amp;z={z}" MaxZoomLevel="20"/>
-            <map:TileLayer SourceName="Bing Maps" Description="Bing Maps - © {y} Microsoft Corporation"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/r{q}.png?g=0&amp;stl=h" MinZoomLevel="1" MaxZoomLevel="19"/>
-            <map:TileLayer SourceName="Bing Images" Description="Bing Maps - © {y} Microsoft Corporation" Background="#FF3F3F3F" Foreground="White"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=0" MinZoomLevel="1" MaxZoomLevel="19"/>
-            <map:TileLayer SourceName="Bing Hybrid" Description="Bing Maps - © {y} Microsoft Corporation" Background="#FF3F3F3F" Foreground="White"
-                           TileSource="http://ecn.t{i}.tiles.virtualearth.net/tiles/h{q}.jpeg?g=0&amp;stl=h" MinZoomLevel="1" MaxZoomLevel="19"/>-->
-
-            <!-- The following TileLayer uses an ImageTileSource, which bypasses caching of map tile images -->
-            <!--<map:TileLayer SourceName="OSM Uncached" Description="© {y} OpenStreetMap Contributors, CC-BY-SA">
+            <!--
+            A TileLayer that uses an ImageTileSource, which bypasses caching of map tile images
+            -->
+            <!--<map:TileLayer SourceName="OSM Uncached"
+                           Description="© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
                 <map:ImageTileSource IsAsync="True" UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
             </map:TileLayer>-->
 
-            <!-- The following TileLayer demonstrates how to access local tile image files (from ImageFileCache here) -->
-            <!--<map:TileLayer SourceName="OSM Local Files" Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
+            <!--
+            A TileLayer that demonstrates how to access local tile image files (from ImageFileCache here)
+            -->
+            <!--<map:TileLayer SourceName="OSM Local Files"
+                           Description="© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
                            TileSource="file:///C:/ProgramData/MapControl/TileCache/OpenStreetMap/{z}/{x}/{y}.png"/>-->
         </map:TileLayerCollection>
-        <map:TileLayer x:Key="SeamarksTileLayer" SourceName="Seamarks" Description="© {y} OpenSeaMap Contributors, CC-BY-SA"
-                       TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png" MinZoomLevel="10" MaxZoomLevel="18"/>
-        <CollectionViewSource x:Key="TileLayersViewSource" Source="{StaticResource TileLayers}"/>
         <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
         <DataTemplate x:Key="PolylineItemTemplate">
             <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
@@ -66,6 +93,7 @@
         </Style>
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -146,23 +174,22 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" Margin="2" Center="{Binding MapCenter}" ZoomLevel="11" MaxZoomLevel="20"
-                 TileLayer="{Binding Source={StaticResource TileLayersViewSource}, Path=CurrentItem}"
+        <map:Map x:Name="map" Center="{Binding MapCenter}" ZoomLevel="11" MaxZoomLevel="20"
                  MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
 
             <!-- experimental WMS map layers -->
-            <!--<map:MapImageLayer Opacity="0.5"
-                               UriFormat="http://watzmann-geog.urz.uni-heidelberg.de/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
-            <!--<map:MapImageLayer Opacity="0.5"
-                               UriFormat="http://ows.terrestris.de/osm/service?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=OSM-WMS&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
+            <!--<map:MapImageLayer
+                UriFormat="http://129.206.228.72/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
+            <!--<map:MapImageLayer
+                UriFormat="http://ows.terrestris.de/osm/service?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=OSM-WMS&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
 
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
 
             <map:MapGraticule Opacity="0.6"/>
-            <map:MapScale Margin="4" Opacity="0.8"/>
+            <map:MapScale Margin="4" Opacity="0.8" HorizontalAlignment="Left"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"
@@ -193,10 +220,10 @@
                     <EllipseGeometry RadiusX="1852" RadiusY="1852" Transform="{Binding ScaleTransform, ElementName=map}"/>
                 </Path.Data>
             </Path>
-
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4" FontSize="10"
-                       Text="{Binding TileLayer.Description, ElementName=map}"/>
         </map:Map>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF">
+            <TextBlock x:Name="mapLegend" Margin="2" FontSize="10"/>
+        </Border>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -223,8 +250,19 @@
                 </StackPanel>
                 <CheckBox ToolTip="Seamarks Overlay" Margin="7" VerticalAlignment="Bottom" Content="Seamarks"
                           Checked="SeamarksChecked" Unchecked="SeamarksUnchecked"/>
-                <ComboBox ToolTip="Tile Layer" Margin="5" VerticalAlignment="Bottom" DisplayMemberPath="SourceName"
-                          SelectedIndex="0" ItemsSource="{Binding Source={StaticResource TileLayersViewSource}}"/>
+                <ComboBox x:Name="tileLayerComboBox" ToolTip="Tile Layer" Margin="5" VerticalAlignment="Bottom"
+                          SelectionChanged="TileLayerSelectionChanged">
+                    <ComboBoxItem Tag="OpenStreetMap">OpenStreetMap</ComboBoxItem>
+                    <ComboBoxItem Tag="Thunderforest OpenCycleMap">OpenCycleMap</ComboBoxItem>
+                    <ComboBoxItem Tag="Thunderforest Landscape">Landscape</ComboBoxItem>
+                    <ComboBoxItem Tag="Thunderforest Outdoors">Outdoors</ComboBoxItem>
+                    <ComboBoxItem Tag="Thunderforest Transport">Transport</ComboBoxItem>
+                    <ComboBoxItem Tag="Thunderforest Transport Dark">Transport Dark</ComboBoxItem>
+                    <ComboBoxItem Tag="MapQuest OpenStreetMap">MapQuest Open</ComboBoxItem>
+                    <!--<ComboBoxItem Tag="Bing Maps Road">Bing Maps Road</ComboBoxItem>
+                    <ComboBoxItem Tag="Bing Maps Aerial">Bing Maps Aerial</ComboBoxItem>
+                    <ComboBoxItem Tag="Bing Maps Hybrid">Bing Maps Hybrid</ComboBoxItem>-->
+                </ComboBox>
             </StackPanel>
         </Grid>
     </Grid>

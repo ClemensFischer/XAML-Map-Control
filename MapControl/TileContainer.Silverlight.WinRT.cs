@@ -13,10 +13,8 @@ namespace MapControl
 {
     internal partial class TileContainer
     {
-        private Matrix GetTileIndexMatrix(int numTiles)
+        private Matrix GetTileIndexMatrix(double scale)
         {
-            var scale = (double)numTiles / 360d;
-
             return ViewportTransform.Matrix
                 .Invert() // view to map coordinates
                 .Translate(180d, -180d)

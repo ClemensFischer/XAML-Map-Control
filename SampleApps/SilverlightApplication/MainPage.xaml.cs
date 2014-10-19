@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using MapControl;
 
@@ -9,9 +10,15 @@ namespace SilverlightApplication
 {
     public partial class MainPage : UserControl
     {
+        private TileLayerCollection tileLayers;
+
         public MainPage()
         {
+            //BingMapsTileLayer.ApiKey = ...
+
             InitializeComponent();
+
+            tileLayers = (TileLayerCollection)Resources["TileLayers"];
             tileLayerComboBox.SelectedIndex = 0;
         }
 
@@ -48,19 +55,29 @@ namespace SilverlightApplication
 
         private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var comboBox = (ComboBox)sender;
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayer = tileLayers[(string)comboBox.SelectedItem];
+            var selectedItem = (ComboBoxItem)tileLayerComboBox.SelectedItem;
+
+            map.TileLayer = tileLayers[(string)selectedItem.Tag];
+
+            var paragraph = new Paragraph();
+
+            foreach (var inline in map.TileLayer.DescriptionInlines)
+            {
+                paragraph.Inlines.Add(inline);
+            }
+
+            mapLegend.Blocks.Clear();
+            mapLegend.Blocks.Add(paragraph);
         }
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+            map.TileLayers.Add(tileLayers["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove((TileLayer)((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+            map.TileLayers.Remove(tileLayers["Seamarks"]);
         }
     }
 }

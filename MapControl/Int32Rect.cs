@@ -4,7 +4,7 @@
 
 namespace MapControl
 {
-    public struct Int32Rect
+    internal struct Int32Rect
     {
         public Int32Rect(int x, int y, int width, int height)
             : this()

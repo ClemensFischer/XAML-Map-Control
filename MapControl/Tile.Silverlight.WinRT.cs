@@ -35,7 +35,8 @@ namespace MapControl
                     }
                     else
                     {
-                        Image.BeginAnimation(Image.OpacityProperty, new DoubleAnimation { To = 1d, Duration = AnimationDuration });
+                        Image.BeginAnimation(Image.OpacityProperty,
+                            new DoubleAnimation { To = 1d, Duration = Settings.TileAnimationDuration });
                     }
                 }
                 else
@@ -55,7 +56,8 @@ namespace MapControl
             bitmap.ImageOpened -= BitmapImageOpened;
             bitmap.ImageFailed -= BitmapImageFailed;
 
-            Image.BeginAnimation(Image.OpacityProperty, new DoubleAnimation { To = 1d, Duration = AnimationDuration });
+            Image.BeginAnimation(Image.OpacityProperty,
+                new DoubleAnimation { To = 1d, Duration = Settings.TileAnimationDuration });
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)

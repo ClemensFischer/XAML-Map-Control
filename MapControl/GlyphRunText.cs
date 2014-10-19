@@ -19,7 +19,7 @@ namespace MapControl
 
             if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
             {
-                throw new ArgumentException(string.Format("{0}: no GlyphTypeface found", typeface.FontFamily));
+                throw new ArgumentException(string.Format("{0}: No GlyphTypeface found", typeface.FontFamily));
             }
 
             var glyphIndices = new ushort[text.Length];

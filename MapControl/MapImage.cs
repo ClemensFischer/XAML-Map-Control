@@ -29,16 +29,10 @@ namespace MapControl
 
         private void SourceChanged(ImageSource image)
         {
-            var transform = new MatrixTransform
-            {
-                Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
-            };
-            transform.Freeze();
-
             Fill = new ImageBrush
             {
                 ImageSource = image,
-                RelativeTransform = transform
+                RelativeTransform = FillTransform
             };
         }
     }

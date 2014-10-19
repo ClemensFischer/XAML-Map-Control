@@ -19,10 +19,8 @@ namespace MapControl
 {
     internal partial class TileContainer : PanelBase
     {
-        // relative scaled tile size ranges from 0.75 to 1.5 (192 to 384 pixels)
+        // relative size of scaled tile ranges from 0.75 to 1.5 (192 to 384 pixels)
         private static double zoomLevelSwitchDelta = -Math.Log(0.75, 2d);
-
-        public static TimeSpan UpdateInterval = TimeSpan.FromSeconds(0.5);
 
         private readonly DispatcherTimer updateTimer;
         private Size viewportSize;
@@ -38,26 +36,26 @@ namespace MapControl
         public TileContainer()
         {
             RenderTransform = new MatrixTransform();
-            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
+            updateTimer = new DispatcherTimer { Interval = Settings.TileUpdateInterval };
             updateTimer.Tick += UpdateTiles;
         }
 
         public IEnumerable<TileLayer> TileLayers
         {
-            get { return InternalChildren.Cast<TileLayer>(); }
+            get { return Children.Cast<TileLayer>(); }
         }
 
         public void AddTileLayers(int index, IEnumerable<TileLayer> tileLayers)
         {
             foreach (var tileLayer in tileLayers)
             {
-                if (index < InternalChildren.Count)
+                if (index < Children.Count)
                 {
-                    InternalChildren.Insert(index, tileLayer);
+                    Children.Insert(index, tileLayer);
                 }
                 else
                 {
-                    InternalChildren.Add(tileLayer);
+                    Children.Add(tileLayer);
                 }
 
                 index++;
@@ -69,19 +67,19 @@ namespace MapControl
         {
             while (count-- > 0)
             {
-                ((TileLayer)InternalChildren[index]).ClearTiles();
-                InternalChildren.RemoveAt(index);
+                ((TileLayer)Children[index]).ClearTiles();
+                Children.RemoveAt(index);
             }
         }
 
         public void ClearTileLayers()
         {
-            foreach (TileLayer tileLayer in InternalChildren)
+            foreach (TileLayer tileLayer in Children)
             {
                 tileLayer.ClearTiles();
             }
 
-            InternalChildren.Clear();
+            Children.Clear();
         }
 
         public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point vpOrigin, Size vpSize)
@@ -127,7 +125,8 @@ namespace MapControl
             updateTimer.Stop();
 
             var zoom = (int)Math.Floor(zoomLevel + zoomLevelSwitchDelta);
-            var transform = GetTileIndexMatrix(1 << zoom);
+            var scale = (double)(1 << zoom) / 360d;
+            var transform = GetTileIndexMatrix(scale);
 
             // tile indices of visible rectangle
             var p1 = transform.Transform(new Point(0d, 0d));
@@ -149,7 +148,7 @@ namespace MapControl
 
                 UpdateRenderTransform();
 
-                foreach (TileLayer tileLayer in InternalChildren)
+                foreach (TileLayer tileLayer in Children)
                 {
                     tileLayer.UpdateTiles(tileZoomLevel, tileGrid);
                 }

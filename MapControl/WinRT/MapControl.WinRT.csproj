@@ -36,11 +36,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\BingMapsTileLayer.cs">
+      <Link>BingMapsTileLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\BingMapsTileSource.cs">
+      <Link>BingMapsTileSource.cs</Link>
+    </Compile>
     <Compile Include="..\Extensions.Silverlight.WinRT.cs">
       <Link>Extensions.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\Extensions.WinRT.cs">
       <Link>Extensions.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\HyperlinkText.cs">
+      <Link>HyperlinkText.cs</Link>
     </Compile>
     <Compile Include="..\ImageFileCache.WinRT.cs">
       <Link>ImageFileCache.WinRT.cs</Link>
@@ -120,6 +129,9 @@
     <Compile Include="..\MapRectangle.cs">
       <Link>MapRectangle.cs</Link>
     </Compile>
+    <Compile Include="..\MapRectangle.Silverlight.WinRT.cs">
+      <Link>MapRectangle.Silverlight.WinRT.cs</Link>
+    </Compile>
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>
     </Compile>
@@ -131,6 +143,9 @@
     </Compile>
     <Compile Include="..\Pushpin.Silverlight.WinRT.cs">
       <Link>Pushpin.Silverlight.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\Settings.cs">
+      <Link>Settings.cs</Link>
     </Compile>
     <Compile Include="..\Tile.cs">
       <Link>Tile.cs</Link>
@@ -164,14 +179,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <TargetPlatform Include="Windows, Version=8.1" />
     <TargetPlatform Include="WindowsPhoneApp, Version=8.1" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

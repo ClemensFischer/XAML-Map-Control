@@ -4,7 +4,6 @@
 
 using System;
 using System.Globalization;
-using System.Text;
 #if WINDOWS_RUNTIME
 using Windows.Foundation;
 #else
@@ -28,12 +27,11 @@ namespace MapControl
         {
         }
 
-        public TileSource(string uriFormat)
-            : this()
+        protected TileSource(string uriFormat)
         {
-            UriFormat = uriFormat;
+            this.uriFormat = uriFormat;
         }
-
+        
         public string UriFormat
         {
             get { return uriFormat; }
@@ -147,16 +145,16 @@ namespace MapControl
                 return null;
             }
 
-            var key = new StringBuilder { Length = zoomLevel };
+            var quadkey = new char[zoomLevel];
 
             for (var z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)
             {
-                key[z] = (char)('0' + 2 * (y % 2) + (x % 2));
+                quadkey[z] = (char)('0' + 2 * (y % 2) + (x % 2));
             }
 
             return new Uri(uriFormat.
-                Replace("{i}", key.ToString(key.Length - 1, 1)).
-                Replace("{q}", key.ToString()));
+                Replace("{i}", new string(quadkey[zoomLevel - 1], 1)).
+                Replace("{q}", new string(quadkey)));
         }
 
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)

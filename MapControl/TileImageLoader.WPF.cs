@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,7 +21,7 @@ namespace MapControl
     /// <summary>
     /// Loads map tile images and optionally caches them in a System.Runtime.Caching.ObjectCache.
     /// </summary>
-    public class TileImageLoader
+    public class TileImageLoader : ITileImageLoader
     {
         /// <summary>
         /// Default Name of an ObjectCache instance that is assigned to the Cache property.
@@ -34,38 +35,26 @@ namespace MapControl
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl");
 
         /// <summary>
+        /// Default expiration time span for cached images. Used when no expiration date
+        /// was transmitted on download. The default value is seven days.
+        /// </summary>
+        public static TimeSpan DefaultCacheExpiration { get; set; }
+
+        /// <summary>
         /// The ObjectCache used to cache tile images. The default is MemoryCache.Default.
         /// </summary>
         public static ObjectCache Cache { get; set; }
 
-        /// <summary>
-        /// The time interval after which cached images expire. The default value is seven days.
-        /// When an image is not retrieved from the cache during this interval it is considered as expired
-        /// and will be removed from the cache, provided that the cache implementation supports expiration.
-        /// If an image is retrieved from the cache and the CacheUpdateAge time interval has expired,
-        /// the image is downloaded again and rewritten to the cache with a new expiration time.
-        /// </summary>
-        public static TimeSpan CacheExpiration { get; set; }
-
-        /// <summary>
-        /// The time interval after which a cached image is updated and rewritten to the cache.
-        /// The default value is one day. This time interval should not be greater than the value
-        /// of the CacheExpiration property.
-        /// If CacheUpdateAge is less than or equal to TimeSpan.Zero, cached images are never updated.
-        /// </summary>
-        public static TimeSpan CacheUpdateAge { get; set; }
-
         static TileImageLoader()
         {
+            DefaultCacheExpiration = TimeSpan.FromDays(7);
             Cache = MemoryCache.Default;
-            CacheExpiration = TimeSpan.FromDays(7);
-            CacheUpdateAge = TimeSpan.FromDays(1);
         }
 
         private readonly ConcurrentQueue<Tile> pendingTiles = new ConcurrentQueue<Tile>();
         private int threadCount;
 
-        internal void BeginGetTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
+        public void BeginLoadTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
         {
             if (tiles.Any())
             {
@@ -96,7 +85,7 @@ namespace MapControl
             }
         }
 
-        internal void CancelGetTiles()
+        public void CancelLoadTiles(TileLayer tileLayer)
         {
             Tile tile;
             while (pendingTiles.TryDequeue(out tile)) ; // no Clear method
@@ -119,7 +108,7 @@ namespace MapControl
                     {
                         pendingTiles.Enqueue(tile); // not yet cached
                     }
-                    else if (CacheUpdateAge > TimeSpan.Zero && TileCache.CreationTime(buffer) + CacheUpdateAge < DateTime.UtcNow)
+                    else if (TileCache.IsExpired(buffer))
                     {
                         dispatcher.Invoke(setImageAction, tile, image); // synchronously before enqueuing
                         outdatedTiles.Add(tile); // update outdated cache
@@ -154,7 +143,6 @@ namespace MapControl
 
             while (pendingTiles.TryDequeue(out tile))
             {
-                byte[] buffer = null;
                 ImageSource image = null;
 
                 if (imageTileSource != null)
@@ -167,14 +155,24 @@ namespace MapControl
 
                     if (uri != null)
                     {
-                        if (uri.Scheme == "file") // create from FileStream because creating from URI leaves the file open
+                        if (uri.Scheme == "file") // create from FileStream because creating from Uri leaves the file open
                         {
                             image = CreateImage(uri.LocalPath);
                         }
                         else
                         {
-                            buffer = DownloadImage(uri);
+                            DateTime expirationTime;
+                            var buffer = DownloadImage(uri, out expirationTime);
+
                             image = CreateImage(buffer);
+
+                            if (image != null &&
+                                Cache != null &&
+                                !string.IsNullOrWhiteSpace(sourceName) &&
+                                expirationTime > DateTime.UtcNow)
+                            {
+                                Cache.Set(TileCache.Key(sourceName, tile), buffer, new CacheItemPolicy { AbsoluteExpiration = expirationTime });
+                            }
                         }
                     }
                 }
@@ -182,11 +180,6 @@ namespace MapControl
                 if (image != null || !tile.HasImageSource) // set null image if tile does not yet have an ImageSource
                 {
                     dispatcher.BeginInvoke(setImageAction, tile, image);
-                }
-
-                if (image != null && buffer != null && Cache != null && !string.IsNullOrWhiteSpace(sourceName))
-                {
-                    Cache.Set(TileCache.Key(sourceName, tile), buffer, new CacheItemPolicy { SlidingExpiration = CacheExpiration });
                 }
             }
 
@@ -253,20 +246,33 @@ namespace MapControl
             return image;
         }
 
-        private static byte[] DownloadImage(Uri uri)
+        private static byte[] DownloadImage(Uri uri, out DateTime expirationTime)
         {
+            expirationTime = DateTime.UtcNow + DefaultCacheExpiration;
+
             byte[] buffer = null;
 
             try
             {
-                var request = (HttpWebRequest)WebRequest.Create(uri);
-                request.UserAgent = "XAML Map Control";
+                var request = HttpWebRequest.CreateHttp(uri);
 
                 using (var response = (HttpWebResponse)request.GetResponse())
                 using (var responseStream = response.GetResponseStream())
                 {
-                    buffer = TileCache.CreateBuffer(responseStream, (int)response.ContentLength);
+                    var expiresHeader = response.Headers["Expires"];
+                    DateTime expires;
+
+                    if (expiresHeader != null &&
+                        DateTime.TryParse(expiresHeader, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out expires) &&
+                        expirationTime > expires)
+                    {
+                        expirationTime = expires;
+                    }
+
+                    buffer = TileCache.CreateBuffer(responseStream, (int)response.ContentLength, expirationTime);
                 }
+
+                //Trace.TraceInformation("Downloaded {0}, expires {1}", uri, expirationTime);
             }
             catch (WebException ex)
             {
@@ -305,18 +311,16 @@ namespace MapControl
                 return new MemoryStream(cacheBuffer, imageBufferOffset, cacheBuffer.Length - imageBufferOffset, false);
             }
 
-            public static DateTime CreationTime(byte[] cacheBuffer)
+            public static bool IsExpired(byte[] cacheBuffer)
             {
-                return DateTime.FromBinary(BitConverter.ToInt64(cacheBuffer, 0));
+                return DateTime.FromBinary(BitConverter.ToInt64(cacheBuffer, 0)) < DateTime.UtcNow;
             }
 
-            public static byte[] CreateBuffer(Stream imageStream, int length)
+            public static byte[] CreateBuffer(Stream imageStream, int length, DateTime expirationTime)
             {
-                var creationTime = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
-
                 using (var memoryStream = length > 0 ? new MemoryStream(length + imageBufferOffset) : new MemoryStream())
                 {
-                    memoryStream.Write(creationTime, 0, imageBufferOffset);
+                    memoryStream.Write(BitConverter.GetBytes(expirationTime.ToBinary()), 0, imageBufferOffset);
                     imageStream.CopyTo(memoryStream);
 
                     return length > 0 ? memoryStream.GetBuffer() : memoryStream.ToArray();

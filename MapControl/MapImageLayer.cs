@@ -13,14 +13,14 @@ using Windows.UI.Xaml.Media.Animation;
 using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 #endif
 
 namespace MapControl
 {
     /// <summary>
-    /// Map image overlay. Fills the entire viewport with a map image from a web request,
-    /// for example from a Web Map Service (WMS).
-    /// The image request Uri is specified by the UriFormat property.
+    /// Map image overlay. Fills the entire viewport with map images provided by a web service,
+    /// e.g. a Web Map Service (WMS). The image request Uri is specified by the UriFormat property.
     /// </summary>
     public partial class MapImageLayer : MapPanel
     {
@@ -31,6 +31,7 @@ namespace MapControl
         public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
             "RelativeImageSize", typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
 
+        private readonly DispatcherTimer updateTimer;
         private int currentImageIndex;
         private bool updateInProgress;
 
@@ -39,15 +40,15 @@ namespace MapControl
             Children.Add(new MapImage { Opacity = 0d });
             Children.Add(new MapImage { Opacity = 0d });
 
-            updateTimer.Interval = TileContainer.UpdateInterval;
+            updateTimer = new DispatcherTimer { Interval = Settings.TileUpdateInterval };
             updateTimer.Tick += (s, e) => UpdateImage();
         }
 
         /// <summary>
-        /// The format string of the image request Uri. The format must contain {X} and {Y}
-        /// format specifiers for the map width and height in pixels, and either
-        /// {w},{s},{e},{n} for the bounding box in lat/lon (like for example EPSG:4326) or
-        /// {W},{S},{E},{N} for the bounding box in meters (like for example EPSG:3857).
+        /// The format string of the image request Uri. The format must contain
+        /// {X} and {Y} format specifiers for the map width and height in pixels and either
+        /// {w},{s},{e},{n} for the bounding box in lat/lon (like EPSG:4326) or
+        /// {W},{S},{E},{N} for the bounding box in meters (like EPSG:3857).
         /// </summary>
         public string UriFormat
         {
@@ -74,10 +75,46 @@ namespace MapControl
             updateTimer.Start();
         }
 
-        protected virtual BitmapSource GetBitmap(double west, double east, double south, double north, int width, int height)
+        protected void UpdateImage()
         {
-            BitmapImage image = null;
+            updateTimer.Stop();
 
+            if (updateInProgress)
+            {
+                updateTimer.Start(); // update image on next timer tick
+            }
+            else if (ParentMap != null && RenderSize.Width > 0 && RenderSize.Height > 0)
+            {
+                updateInProgress = true;
+
+                var relativeSize = Math.Max(RelativeImageSize, 1d);
+                var width = RenderSize.Width * relativeSize;
+                var height = RenderSize.Height * relativeSize;
+                var dx = (RenderSize.Width - width) / 2d;
+                var dy = (RenderSize.Height - height) / 2d;
+
+                var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
+                var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));
+                var loc3 = ParentMap.ViewportPointToLocation(new Point(dx, dy + height));
+                var loc4 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy + height));
+
+                var west = Math.Min(loc1.Longitude, Math.Min(loc2.Longitude, Math.Min(loc3.Longitude, loc4.Longitude)));
+                var east = Math.Max(loc1.Longitude, Math.Max(loc2.Longitude, Math.Max(loc3.Longitude, loc4.Longitude)));
+                var south = Math.Min(loc1.Latitude, Math.Min(loc2.Latitude, Math.Min(loc3.Latitude, loc4.Latitude)));
+                var north = Math.Max(loc1.Latitude, Math.Max(loc2.Latitude, Math.Max(loc3.Latitude, loc4.Latitude)));
+
+                var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
+                var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
+
+                width = Math.Round((p2.X - p1.X) * ParentMap.ViewportScale);
+                height = Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale);
+
+                UpdateImage(west, east, south, north, (int)width, (int)height);
+            }
+        }
+
+        protected virtual void UpdateImage(double west, double east, double south, double north, int width, int height)
+        {
             if (UriFormat != null && width > 0 && height > 0)
             {
                 var uri = UriFormat.Replace("{X}", width.ToString()).Replace("{Y}", height.ToString());
@@ -102,98 +139,56 @@ namespace MapControl
                         Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
                 }
 
-                image = new BitmapImage(new Uri(uri));
-            }
-
-            return image;
-        }
-
-        protected void UpdateImage()
-        {
-            if (updateInProgress)
-            {
-                updateTimer.Start(); // update image on next timer tick
+                UpdateImage(west, east, south, north, new Uri(uri));
             }
             else
             {
-                updateTimer.Stop();
-
-                if (ParentMap != null && RenderSize.Width > 0 && RenderSize.Height > 0)
-                {
-                    updateInProgress = true;
-
-                    var relativeSize = Math.Max(RelativeImageSize, 1d);
-                    var width = RenderSize.Width * relativeSize;
-                    var height = RenderSize.Height * relativeSize;
-                    var dx = (RenderSize.Width - width) / 2d;
-                    var dy = (RenderSize.Height - height) / 2d;
-
-                    var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
-                    var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));
-                    var loc3 = ParentMap.ViewportPointToLocation(new Point(dx, dy + height));
-                    var loc4 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy + height));
-
-                    var west = Math.Min(loc1.Longitude, Math.Min(loc2.Longitude, Math.Min(loc3.Longitude, loc4.Longitude)));
-                    var east = Math.Max(loc1.Longitude, Math.Max(loc2.Longitude, Math.Max(loc3.Longitude, loc4.Longitude)));
-                    var south = Math.Min(loc1.Latitude, Math.Min(loc2.Latitude, Math.Min(loc3.Latitude, loc4.Latitude)));
-                    var north = Math.Max(loc1.Latitude, Math.Max(loc2.Latitude, Math.Max(loc3.Latitude, loc4.Latitude)));
-
-                    var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
-                    var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
-
-                    width = Math.Round((p2.X - p1.X) * ParentMap.ViewportScale);
-                    height = Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale);
-
-                    var image = GetBitmap(west, east, south, north, (int)width, (int)height);
-
-                    UpdateImage(west, east, south, north, image);
-                }
+                UpdateImage(west, east, south, north, (BitmapSource)null);
             }
         }
 
-        private void UpdateImage(double west, double east, double south, double north, BitmapSource image)
+        protected virtual void UpdateImage(double west, double east, double south, double north, Uri uri)
+        {
+            UpdateImage(west, east, south, north, new BitmapImage(uri));
+        }
+
+        protected void UpdateImage(double west, double east, double south, double north, BitmapSource bitmap)
         {
             currentImageIndex = (currentImageIndex + 1) % 2;
             var mapImage = (MapImage)Children[currentImageIndex];
 
-            mapImage.Source = null;
             mapImage.North = double.NaN; // avoid frequent MapRectangle.UpdateData() calls
             mapImage.West = west;
             mapImage.East = east;
             mapImage.South = south;
             mapImage.North = north;
+            mapImage.Source = bitmap;
 
-            if (image != null)
-            {
-                mapImage.Source = image;
-                AddDownloadEventHandlers(image);
-            }
-            else
-            {
-                BlendImages();
-            }
+            ImageUpdated(bitmap);
         }
 
         private void BlendImages()
         {
-#if WINDOWS_RUNTIME
-            var duration = TimeSpan.Zero; // animation not working in Windows Runtime (?)
-#else
-            var duration = Tile.AnimationDuration;
-#endif
-            var mapImage = (MapImage)Children[currentImageIndex];
-            var fadeOut = new DoubleAnimation { To = 0d, Duration = duration };
+            var topImage = (MapImage)Children[currentImageIndex];
+            var bottomImage = (MapImage)Children[(currentImageIndex + 1) % 2];
 
-            if (mapImage.Source != null)
+            if (topImage.Source != null)
             {
-                mapImage.BeginAnimation(UIElement.OpacityProperty,
-                    new DoubleAnimation { To = 1d, Duration = duration });
-
-                fadeOut.BeginTime = duration;
+                topImage.BeginAnimation(UIElement.OpacityProperty,
+                    new DoubleAnimation { To = 1d, Duration = Settings.TileAnimationDuration });
             }
 
-            mapImage = (MapImage)Children[(currentImageIndex + 1) % 2];
-            mapImage.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+            if (bottomImage.Source != null)
+            {
+                var fadeOutAnimation = new DoubleAnimation { To = 0d, Duration = Settings.TileAnimationDuration };
+
+                if (topImage.Source != null)
+                {
+                    fadeOutAnimation.BeginTime = Settings.TileAnimationDuration;
+                }
+
+                bottomImage.BeginAnimation(UIElement.OpacityProperty, fadeOutAnimation);
+            }
 
             updateInProgress = false;
         }

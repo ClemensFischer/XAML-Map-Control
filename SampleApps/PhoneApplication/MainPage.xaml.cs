@@ -10,38 +10,49 @@ namespace PhoneApplication
 {
     public sealed partial class MainPage : Page
     {
+        private TileLayerCollection tileLayers;
         private bool manipulationActive;
 
         public MainPage()
         {
             TileImageLoader.Cache = new ImageFileCache();
+            //BingMapsTileLayer.ApiKey = ...
 
             InitializeComponent();
 
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayer = tileLayers[0];
+            tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            SetTileLayer(tileLayers[0].SourceName);
 
             DataContext = new ViewModel(Dispatcher);
             NavigationCacheMode = NavigationCacheMode.Required;
         }
 
+        private void SetTileLayer(string tileLayer)
+        {
+            map.TileLayer = tileLayers[tileLayer];
+
+            mapLegend.Inlines.Clear();
+
+            foreach (var inline in map.TileLayer.DescriptionInlines)
+            {
+                mapLegend.Inlines.Add(inline);
+            }
+        }
+
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
             map.TileLayers.Add((TileLayer)tileLayers["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
             map.TileLayers.Remove((TileLayer)tileLayers["Seamarks"]);
         }
 
         private void MapMenuItemClick(object sender, RoutedEventArgs e)
         {
-            var selectedValue = ((MenuFlyoutItem)sender).Text;
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayer = tileLayers[selectedValue];
+            var selectedItem = (MenuFlyoutItem)sender;
+            SetTileLayer((string)selectedItem.Tag);
         }
 
         private void CenterButtonClick(object sender, RoutedEventArgs e)

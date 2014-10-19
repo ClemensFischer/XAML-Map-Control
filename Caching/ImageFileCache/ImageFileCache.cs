@@ -128,12 +128,18 @@ namespace Caching
 
                     if (path != null)
                     {
-                        var creationTime = File.GetLastWriteTimeUtc(path).ToBinary();
+                        var expirationTime = File.GetLastAccessTimeUtc(path);
+                        var creationTime = File.GetLastWriteTimeUtc(path);
+
+                        if (expirationTime < creationTime)
+                        {
+                            expirationTime = creationTime;
+                        }
 
                         using (var fileStream = new FileStream(path, FileMode.Open))
                         using (var memoryStream = new MemoryStream((int)(fileStream.Length + 8)))
                         {
-                            memoryStream.Write(BitConverter.GetBytes(creationTime), 0, 8);
+                            memoryStream.Write(BitConverter.GetBytes(expirationTime.ToBinary()), 0, 8);
                             fileStream.CopyTo(memoryStream);
                             value = memoryStream.GetBuffer();
                         }
@@ -150,6 +156,7 @@ namespace Caching
         public override CacheItem GetCacheItem(string key, string regionName = null)
         {
             var value = Get(key, regionName);
+
             return value != null ? new CacheItem(key, value) : null;
         }
 
@@ -197,6 +204,9 @@ namespace Caching
                     fileStream.Write(buffer, 8, buffer.Length - 8);
                 }
 
+                var expirationTime = DateTime.FromBinary(BitConverter.ToInt64(buffer, 0));
+                File.SetLastAccessTimeUtc(path, expirationTime);
+
                 var fileSecurity = File.GetAccessControl(path);
                 fileSecurity.AddAccessRule(fullControlRule);
                 File.SetAccessControl(path, fileSecurity);
@@ -220,14 +230,18 @@ namespace Caching
         public override object AddOrGetExisting(string key, object value, CacheItemPolicy policy, string regionName = null)
         {
             var oldValue = Get(key, regionName);
+
             Set(key, value, policy);
+
             return oldValue;
         }
 
         public override CacheItem AddOrGetExisting(CacheItem item, CacheItemPolicy policy)
         {
             var oldItem = GetCacheItem(item.Key, item.RegionName);
+
             Set(item, policy);
+
             return oldItem;
         }
 

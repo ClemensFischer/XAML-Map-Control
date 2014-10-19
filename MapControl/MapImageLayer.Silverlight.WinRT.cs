@@ -8,16 +8,13 @@ using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 #endif
 
 namespace MapControl
 {
     public partial class MapImageLayer
     {
-        private readonly DispatcherTimer updateTimer = new DispatcherTimer();
-
-        private void AddDownloadEventHandlers(BitmapSource bitmap)
+        private void ImageUpdated(BitmapSource bitmap)
         {
             var bitmapImage = bitmap as BitmapImage;
 
@@ -35,7 +32,6 @@ namespace MapControl
         private void BitmapImageOpened(object sender, RoutedEventArgs e)
         {
             var bitmap = (BitmapImage)sender;
-
             bitmap.ImageOpened -= BitmapImageOpened;
             bitmap.ImageFailed -= BitmapImageFailed;
 
@@ -45,11 +41,12 @@ namespace MapControl
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
         {
             var bitmap = (BitmapImage)sender;
-
             bitmap.ImageOpened -= BitmapImageOpened;
             bitmap.ImageFailed -= BitmapImageFailed;
 
-            ((MapImage)Children[currentImageIndex]).Source = null;
+            var mapImage = (MapImage)Children[currentImageIndex];
+            mapImage.Source = null;
+
             BlendImages();
         }
     }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileDbCache", "Caching\FileDbCache\FileDbCache.csproj", "{EF44F661-B98A-4676-927F-85D138F82300}"
 EndProject
@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightApplication.Web"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.WPF", "MapControl\MapControl.WPF.csproj", "{226F3575-B683-446D-A2F0-181291DC8787}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.Silverlight", "MapControl\MapControl.Silverlight.csproj", "{EB133B78-DEFF-416A-8F0C-89E54D766576}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreApplication", "SampleApps\StoreApplication\StoreApplication.csproj", "{747A3F84-E11F-4EC8-9463-98BBB1E0D0A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.WinRT", "MapControl\WinRT\MapControl.WinRT.csproj", "{63CEFDF7-5170-43B6-86F8-5C4A383A1615}"
@@ -22,6 +20,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplication", "SampleApps\WpfApplication\WpfApplication.csproj", "{9949326E-9261-4F95-89B1-151F60498951}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhoneApplication", "SampleApps\PhoneApplication\PhoneApplication.csproj", "{8D0A57DF-FABF-4AEE-8768-9C18B2B43CA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.Silverlight", "MapControl\MapControl.Silverlight.csproj", "{EB133B78-DEFF-416A-8F0C-89E54D766576}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.PhoneSilverlight", "MapControl\MapControl.PhoneSilverlight.csproj", "{3499D618-2846-4FCE-A418-7D211FDBDCB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,10 +51,6 @@ Global
 		{226F3575-B683-446D-A2F0-181291DC8787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{226F3575-B683-446D-A2F0-181291DC8787}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{226F3575-B683-446D-A2F0-181291DC8787}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Release|Any CPU.Build.0 = Release|Any CPU
 		{747A3F84-E11F-4EC8-9463-98BBB1E0D0A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{747A3F84-E11F-4EC8-9463-98BBB1E0D0A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{747A3F84-E11F-4EC8-9463-98BBB1E0D0A4}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
@@ -73,6 +71,14 @@ Global
 		{8D0A57DF-FABF-4AEE-8768-9C18B2B43CA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D0A57DF-FABF-4AEE-8768-9C18B2B43CA9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8D0A57DF-FABF-4AEE-8768-9C18B2B43CA9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB133B78-DEFF-416A-8F0C-89E54D766576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3499D618-2846-4FCE-A418-7D211FDBDCB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3499D618-2846-4FCE-A418-7D211FDBDCB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3499D618-2846-4FCE-A418-7D211FDBDCB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3499D618-2846-4FCE-A418-7D211FDBDCB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

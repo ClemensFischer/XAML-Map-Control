@@ -1,5 +1,4 @@
 ﻿using MapControl;
-using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -8,14 +7,17 @@ namespace StoreApplication
 {
     public sealed partial class MainPage : Page
     {
+        private TileLayerCollection tileLayers;
+
         public MainPage()
         {
             TileImageLoader.Cache = new ImageFileCache();
+            //BingMapsTileLayer.ApiKey = ...
 
             this.InitializeComponent();
 
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayer = tileLayers[0];
+            tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            tileLayerComboBox.SelectedIndex = 0;
         }
 
         private void ImageOpacitySliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -26,28 +28,28 @@ namespace StoreApplication
             }
         }
 
-        private void TileLayerComboBoxLoaded(object sender, RoutedEventArgs e)
-        {
-            ((ComboBox)sender).SelectedIndex = 0;
-        }
-
         private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedValue = (string)((ComboBox)sender).SelectedValue;
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayer = tileLayers[selectedValue];
+            var selectedItem = (ComboBoxItem)tileLayerComboBox.SelectedItem;
+
+            map.TileLayer = tileLayers[(string)selectedItem.Tag];
+
+            mapLegend.Inlines.Clear();
+
+            foreach (var inline in map.TileLayer.DescriptionInlines)
+            {
+                mapLegend.Inlines.Add(inline);
+            }
         }
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayers.Add((TileLayer)tileLayers["Seamarks"]);
+            map.TileLayers.Add(tileLayers["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayers.Remove((TileLayer)tileLayers["Seamarks"]);
+            map.TileLayers.Remove(tileLayers["Seamarks"]);
         }
     }
 }

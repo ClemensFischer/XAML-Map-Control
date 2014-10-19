@@ -28,9 +28,6 @@ namespace MapControl
     {
         private const double MaximumZoomLevel = 22d;
 
-        public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.5);
-        public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
-
         public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
             "TileLayers", typeof(TileLayerCollection), typeof(MapBase), new PropertyMetadata(null,
                 (o, e) => ((MapBase)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue)));
@@ -74,7 +71,7 @@ namespace MapControl
             SetParentMap();
 
             TileLayers = new TileLayerCollection();
-            InternalChildren.Add(tileContainer);
+            Children.Add(tileContainer);
             Initialize();
 
             Loaded += OnLoaded;
@@ -578,8 +575,8 @@ namespace MapControl
                     {
                         From = MapTransform.Transform(Center),
                         To = MapTransform.Transform(targetCenter, Center.Longitude),
-                        Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction,
+                        Duration = Settings.MapAnimationDuration,
+                        EasingFunction = Settings.MapAnimationEasingFunction,
                         FillBehavior = FillBehavior.HoldEnd
                     };
 
@@ -683,8 +680,8 @@ namespace MapControl
                     zoomLevelAnimation = new DoubleAnimation
                     {
                         To = targetZoomLevel,
-                        Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction,
+                        Duration = Settings.MapAnimationDuration,
+                        EasingFunction = Settings.MapAnimationEasingFunction,
                         FillBehavior = FillBehavior.HoldEnd
                     };
 
@@ -758,8 +755,8 @@ namespace MapControl
                     headingAnimation = new DoubleAnimation
                     {
                         By = delta,
-                        Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction,
+                        Duration = Settings.MapAnimationDuration,
+                        EasingFunction = Settings.MapAnimationEasingFunction,
                         FillBehavior = FillBehavior.HoldEnd
                     };
 

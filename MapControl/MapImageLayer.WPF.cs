@@ -5,17 +5,14 @@
 using System;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace MapControl
 {
     public partial class MapImageLayer
     {
-        private readonly DispatcherTimer updateTimer = new DispatcherTimer(DispatcherPriority.Background);
-
-        private void AddDownloadEventHandlers(BitmapSource bitmap)
+        private void ImageUpdated(BitmapSource bitmap)
         {
-            if (bitmap.IsDownloading)
+            if (bitmap != null && !bitmap.IsFrozen && bitmap.IsDownloading)
             {
                 bitmap.DownloadCompleted += BitmapDownloadCompleted;
                 bitmap.DownloadFailed += BitmapDownloadFailed;
@@ -29,7 +26,6 @@ namespace MapControl
         private void BitmapDownloadCompleted(object sender, EventArgs e)
         {
             var bitmap = (BitmapSource)sender;
-
             bitmap.DownloadCompleted -= BitmapDownloadCompleted;
             bitmap.DownloadFailed -= BitmapDownloadFailed;
 
@@ -39,11 +35,12 @@ namespace MapControl
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
         {
             var bitmap = (BitmapSource)sender;
-
             bitmap.DownloadCompleted -= BitmapDownloadCompleted;
             bitmap.DownloadFailed -= BitmapDownloadFailed;
 
-            ((MapImage)Children[currentImageIndex]).Source = null;
+            var mapImage = (MapImage)Children[currentImageIndex];
+            mapImage.Source = null;
+
             BlendImages();
         }
     }

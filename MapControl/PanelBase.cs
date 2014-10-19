@@ -19,17 +19,11 @@ namespace MapControl
     /// </summary>
     public class PanelBase : Panel
     {
-#if WINDOWS_RUNTIME || SILVERLIGHT
-        protected internal UIElementCollection InternalChildren
-        {
-            get { return Children; }
-        }
-#endif
         protected override Size MeasureOverride(Size availableSize)
         {
             availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-            foreach (UIElement element in InternalChildren)
+            foreach (UIElement element in Children)
             {
                 element.Measure(availableSize);
             }
@@ -39,7 +33,7 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (UIElement child in InternalChildren)
+            foreach (UIElement child in Children)
             {
                 child.Arrange(new Rect(new Point(), finalSize));
             }

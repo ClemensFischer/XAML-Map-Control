@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Runtime.Caching;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Caching;
 using MapControl;
@@ -10,24 +11,34 @@ namespace WpfApplication
 {
     public partial class MainWindow : Window
     {
+        private TileLayerCollection tileLayers;
+
         public MainWindow()
         {
             switch (Properties.Settings.Default.TileCache)
             {
                 case "MemoryCache":
-                    TileImageLoader.Cache = MemoryCache.Default;
+                    TileImageLoader.Cache = MemoryCache.Default; // this is the default value of the TileImageLoader.Cache property
+                    break;
+                case "ImageFileCache":
+                    TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
                     break;
                 case "FileDbCache":
                     TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
                     break;
-                case "ImageFileCache":
-                    TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
+                case "None":
+                    TileImageLoader.Cache = null;
                     break;
                 default:
                     break;
             }
 
+            //BingMapsTileLayer.ApiKey = ...
+
             InitializeComponent();
+
+            tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            tileLayerComboBox.SelectedIndex = 0;
         }
 
         private void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -90,14 +101,24 @@ namespace WpfApplication
             e.Handled = true;
         }
 
+        private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedItem = (ComboBoxItem)tileLayerComboBox.SelectedItem;
+
+            map.TileLayer = tileLayers[(string)selectedItem.Tag]; 
+
+            mapLegend.Inlines.Clear();
+            mapLegend.Inlines.AddRange(map.TileLayer.DescriptionInlines);
+        }
+
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add((TileLayer)Resources["SeamarksTileLayer"]);
+            map.TileLayers.Add(tileLayers["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove((TileLayer)Resources["SeamarksTileLayer"]);
+            map.TileLayers.Remove(tileLayers["Seamarks"]);
         }
     }
 }

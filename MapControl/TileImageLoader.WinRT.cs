@@ -20,13 +20,13 @@ namespace MapControl
     /// <summary>
     /// Loads map tile images.
     /// </summary>
-    public class TileImageLoader
+    public class TileImageLoader : ITileImageLoader
     {
         public static IObjectCache Cache { get; set; }
 
         private HttpClient httpClient;
 
-        internal void BeginGetTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
+        public void BeginLoadTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
         {
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
 
@@ -69,7 +69,7 @@ namespace MapControl
             }
         }
 
-        internal void CancelGetTiles()
+        public void CancelLoadTiles(TileLayer tileLayer)
         {
         }
 
