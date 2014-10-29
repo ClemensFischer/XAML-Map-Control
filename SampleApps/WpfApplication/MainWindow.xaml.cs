@@ -58,11 +58,6 @@ namespace WpfApplication
             }
         }
 
-        private void MapMouseLeave(object sender, MouseEventArgs e)
-        {
-            mouseLocation.Text = string.Empty;
-        }
-
         private void MapMouseMove(object sender, MouseEventArgs e)
         {
             var location = map.ViewportPointToLocation(e.GetPosition(map));
@@ -87,6 +82,11 @@ namespace WpfApplication
                 "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
                 latHemisphere, latitude / 60000, (double)(latitude % 60000) / 1000d,
                 lonHemisphere, longitude / 60000, (double)(longitude % 60000) / 1000d);
+        }
+
+        private void MapMouseLeave(object sender, MouseEventArgs e)
+        {
+            mouseLocation.Text = string.Empty;
         }
 
         private void MapManipulationInertiaStarting(object sender, ManipulationInertiaStartingEventArgs e)

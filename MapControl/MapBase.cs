@@ -782,12 +782,12 @@ namespace MapControl
 
         private void UpdateTransform(bool resetTransformOrigin = false)
         {
-            var center = Center;
-
-            SetViewportTransform(transformOrigin ?? center);
+            Location center;
 
             if (transformOrigin != null)
             {
+                SetViewportTransform(transformOrigin);
+
                 center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
                 center.Longitude = Location.NormalizeLongitude(center.Longitude);
 
@@ -811,6 +811,11 @@ namespace MapControl
                     SetViewportTransform(center);
                 }
             }
+            else
+            {
+                center = Center;
+                SetViewportTransform(center);
+            }
 
             CenterScale = ViewportScale * mapTransform.RelativeScale(center) / TileSource.MetersPerDegree; // Pixels per meter at center latitude
 
@@ -820,7 +825,7 @@ namespace MapControl
 
         private void SetViewportTransform(Location origin)
         {
-            ViewportScale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin, RenderSize);
+            ViewportScale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace StoreApplication
 
         public MainPage()
         {
-            TileImageLoader.Cache = new ImageFileCache();
+            //TileImageLoader.Cache = new ImageFileCache();
             //BingMapsTileLayer.ApiKey = ...
 
             this.InitializeComponent();

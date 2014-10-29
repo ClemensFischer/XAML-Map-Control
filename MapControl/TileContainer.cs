@@ -23,7 +23,6 @@ namespace MapControl
         private static double zoomLevelSwitchDelta = -Math.Log(0.75, 2d);
 
         private readonly DispatcherTimer updateTimer;
-        private Size viewportSize;
         private Point viewportOrigin;
         private Point tileLayerOffset;
         private double rotation;
@@ -82,7 +81,7 @@ namespace MapControl
             Children.Clear();
         }
 
-        public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point vpOrigin, Size vpSize)
+        public double SetViewportTransform(double mapZoomLevel, double mapRotation, Point mapOrigin, Point viewOrigin)
         {
             var scale = Math.Pow(2d, zoomLevel) * TileSource.TileSize / 360d;
             var oldMapOriginX = (viewportOrigin.X - tileLayerOffset.X) / scale - 180d;
@@ -94,17 +93,11 @@ namespace MapControl
             }
 
             rotation = mapRotation;
-            viewportSize = vpSize;
-            viewportOrigin = vpOrigin;
+            viewportOrigin = viewOrigin;
+            tileLayerOffset.X = viewportOrigin.X - (180d + mapOrigin.X) * scale;
+            tileLayerOffset.Y = viewportOrigin.Y - (180d - mapOrigin.Y) * scale;
 
-            var transformOffsetX = viewportOrigin.X - mapOrigin.X * scale;
-            var transformOffsetY = viewportOrigin.Y + mapOrigin.Y * scale;
-
-            UpdateViewportTransform(scale, transformOffsetX, transformOffsetY);
-
-            tileLayerOffset.X = transformOffsetX - 180d * scale;
-            tileLayerOffset.Y = transformOffsetY - 180d * scale;
-
+            UpdateViewportTransform(scale, mapOrigin);
             UpdateRenderTransform();
 
             if (Math.Abs(mapOrigin.X - oldMapOriginX) > 180d)
@@ -130,9 +123,9 @@ namespace MapControl
 
             // tile indices of visible rectangle
             var p1 = transform.Transform(new Point(0d, 0d));
-            var p2 = transform.Transform(new Point(viewportSize.Width, 0d));
-            var p3 = transform.Transform(new Point(0d, viewportSize.Height));
-            var p4 = transform.Transform(new Point(viewportSize.Width, viewportSize.Height));
+            var p2 = transform.Transform(new Point(RenderSize.Width, 0d));
+            var p3 = transform.Transform(new Point(0d, RenderSize.Height));
+            var p4 = transform.Transform(new Point(RenderSize.Width, RenderSize.Height));
 
             // index ranges of visible tiles
             var x1 = (int)Math.Floor(Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X))));

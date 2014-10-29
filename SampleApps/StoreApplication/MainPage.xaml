@@ -158,7 +158,8 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11" Foreground="Black">
+        <map:Map x:Name="map" Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
+                 Foreground="Black" ManipulationMode="All">
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
             <map:MapGraticule Opacity="0.6"/>

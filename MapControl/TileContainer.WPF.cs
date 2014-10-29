@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Windows;
 using System.Windows.Media;
 
 namespace MapControl
@@ -19,10 +20,12 @@ namespace MapControl
             return transform;
         }
 
-        private void UpdateViewportTransform(double scale, double offsetX, double offsetY)
+        private void UpdateViewportTransform(double scale, Point mapOrigin)
         {
-            var transform = new Matrix(scale, 0d, 0d, -scale, offsetX, offsetY);
-            transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
+            var transform = new Matrix(1d, 0d, 0d, 1d, -mapOrigin.X, -mapOrigin.Y);
+            transform.Scale(scale, -scale);
+            transform.Rotate(rotation);
+            transform.Translate(viewportOrigin.X, viewportOrigin.Y);
 
             ViewportTransform.Matrix = transform;
         }

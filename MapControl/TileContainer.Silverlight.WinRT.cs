@@ -4,8 +4,10 @@
 
 using System;
 #if WINDOWS_RUNTIME
+using Windows.Foundation;
 using Windows.UI.Xaml.Media;
 #else
+using System.Windows;
 using System.Windows.Media;
 #endif
 
@@ -21,11 +23,13 @@ namespace MapControl
                 .Scale(scale, -scale); // map coordinates to tile indices
         }
 
-        private void UpdateViewportTransform(double scale, double offsetX, double offsetY)
+        private void UpdateViewportTransform(double scale, Point mapOrigin)
         {
             ViewportTransform.Matrix =
-                new Matrix(scale, 0d, 0d, -scale, offsetX, offsetY)
-                .RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);
+                new Matrix(1d, 0d, 0d, 1d, -mapOrigin.X, -mapOrigin.Y)
+                .Scale(scale, -scale)
+                .Rotate(rotation)
+                .Translate(viewportOrigin.X, viewportOrigin.Y);
         }
 
         /// <summary>
