@@ -11,7 +11,7 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    internal static partial class Extensions
+    internal static class MatrixEx
     {
         public static Matrix Translate(this Matrix matrix, double offsetX, double offsetY)
         {

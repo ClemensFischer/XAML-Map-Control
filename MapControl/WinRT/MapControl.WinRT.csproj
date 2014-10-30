@@ -42,9 +42,6 @@
     <Compile Include="..\BingMapsTileSource.cs">
       <Link>BingMapsTileSource.cs</Link>
     </Compile>
-    <Compile Include="..\Extensions.Silverlight.WinRT.cs">
-      <Link>Extensions.Silverlight.WinRT.cs</Link>
-    </Compile>
     <Compile Include="..\Extensions.WinRT.cs">
       <Link>Extensions.WinRT.cs</Link>
     </Compile>
@@ -134,6 +131,9 @@
     </Compile>
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>
+    </Compile>
+    <Compile Include="..\MatrixEx.cs">
+      <Link>MatrixEx.cs</Link>
     </Compile>
     <Compile Include="..\MercatorTransform.cs">
       <Link>MercatorTransform.cs</Link>

@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Media.Animation;
 
 namespace MapControl
 {
-    internal static partial class Extensions
+    internal static class Extensions
     {
         public static void BeginInvoke(this CoreDispatcher dispatcher, Action action)
         {

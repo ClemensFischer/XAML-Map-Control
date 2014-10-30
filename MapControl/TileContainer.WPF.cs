@@ -22,7 +22,8 @@ namespace MapControl
 
         private void UpdateViewportTransform(double scale, Point mapOrigin)
         {
-            var transform = new Matrix(1d, 0d, 0d, 1d, -mapOrigin.X, -mapOrigin.Y);
+            var transform = Matrix.Identity;
+            transform.Translate(-mapOrigin.X, -mapOrigin.Y);
             transform.Scale(scale, -scale);
             transform.Rotate(rotation);
             transform.Translate(viewportOrigin.X, viewportOrigin.Y);
@@ -36,7 +37,8 @@ namespace MapControl
         private void UpdateRenderTransform()
         {
             var scale = Math.Pow(2d, zoomLevel - tileZoomLevel);
-            var transform = new Matrix(1d, 0d, 0d, 1d, tileGrid.X * TileSource.TileSize, tileGrid.Y * TileSource.TileSize);
+            var transform = Matrix.Identity;
+            transform.Translate(tileGrid.X * TileSource.TileSize, tileGrid.Y * TileSource.TileSize);
             transform.Scale(scale, scale);
             transform.Translate(tileLayerOffset.X, tileLayerOffset.Y);
             transform.RotateAt(rotation, viewportOrigin.X, viewportOrigin.Y);

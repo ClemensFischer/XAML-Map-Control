@@ -44,7 +44,6 @@
     <Compile Include="BingMapsTileLayer.cs" />
     <Compile Include="BingMapsTileSource.cs" />
     <Compile Include="Extensions.Silverlight.cs" />
-    <Compile Include="Extensions.Silverlight.WinRT.cs" />
     <Compile Include="HyperlinkText.cs" />
     <Compile Include="ImageTileSource.Silverlight.WinRT.cs" />
     <Compile Include="IMapElement.cs" />
@@ -74,6 +73,7 @@
     <Compile Include="MapRectangle.cs" />
     <Compile Include="MapRectangle.Silverlight.WinRT.cs" />
     <Compile Include="MapTransform.cs" />
+    <Compile Include="MatrixEx.cs" />
     <Compile Include="MercatorTransform.cs" />
     <Compile Include="PanelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
