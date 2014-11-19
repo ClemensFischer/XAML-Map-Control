@@ -24,9 +24,6 @@ namespace MapControl
         public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
             "Location", typeof(Location), typeof(MapPanel), new PropertyMetadata(null, LocationPropertyChanged));
 
-        public static readonly DependencyProperty ViewportPositionProperty = DependencyProperty.RegisterAttached(
-            "ViewportPosition", typeof(Point?), typeof(MapPanel), null);
-
         public static Location GetLocation(UIElement element)
         {
             return (Location)element.GetValue(LocationProperty);
@@ -37,21 +34,12 @@ namespace MapControl
             element.SetValue(LocationProperty, value);
         }
 
-        public static Point? GetViewportPosition(UIElement element)
-        {
-            return (Point?)element.GetValue(ViewportPositionProperty);
-        }
-
         private MapBase parentMap;
 
         public MapBase ParentMap
         {
             get { return parentMap; }
-        }
-
-        void IMapElement.SetParentMap(MapBase map)
-        {
-            SetParentMapOverride(map);
+            set { SetParentMapOverride(value); }
         }
 
         protected virtual void SetParentMapOverride(MapBase map)
@@ -114,7 +102,7 @@ namespace MapControl
 
             if (mapElement != null)
             {
-                mapElement.SetParentMap(e.NewValue as MapBase);
+                mapElement.ParentMap = e.NewValue as MapBase;
             }
         }
 
@@ -149,12 +137,10 @@ namespace MapControl
             {
                 var mapPosition = parentMap.MapTransform.Transform(location, parentMap.Center.Longitude); // nearest to center longitude
                 viewportPosition = parentMap.ViewportTransform.Transform(mapPosition);
-                element.SetValue(ViewportPositionProperty, viewportPosition);
             }
             else
             {
                 viewportPosition = new Point();
-                element.ClearValue(ViewportPositionProperty);
             }
 
             var translateTransform = element.RenderTransform as TranslateTransform;
@@ -189,7 +175,7 @@ namespace MapControl
 
         private static void ArrangeElementWithLocation(UIElement element)
         {
-            var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
+            var rect = new Rect(new Point(), element.DesiredSize);
             var frameworkElement = element as FrameworkElement;
 
             if (frameworkElement != null)
@@ -228,7 +214,7 @@ namespace MapControl
 
         private static void ArrangeElementWithoutLocation(UIElement element, Size parentSize)
         {
-            var rect = new Rect(0d, 0d, element.DesiredSize.Width, element.DesiredSize.Height);
+            var rect = new Rect(new Point(), element.DesiredSize);
             var frameworkElement = element as FrameworkElement;
 
             if (frameworkElement != null)

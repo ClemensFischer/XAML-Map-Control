@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 #if WINDOWS_RUNTIME
@@ -14,6 +15,7 @@ using Windows.UI.Xaml.Media.Animation;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 #endif
 
 namespace MapControl
@@ -28,17 +30,17 @@ namespace MapControl
     {
         private const double MaximumZoomLevel = 22d;
 
-        public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
-            "TileLayers", typeof(TileLayerCollection), typeof(MapBase), new PropertyMetadata(null,
-                (o, e) => ((MapBase)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue)));
+        public static TimeSpan TileUpdateInterval = TimeSpan.FromSeconds(0.5);
+        public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.3);
+        public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
 
         public static readonly DependencyProperty TileLayerProperty = DependencyProperty.Register(
             "TileLayer", typeof(TileLayer), typeof(MapBase), new PropertyMetadata(null,
                 (o, e) => ((MapBase)o).TileLayerPropertyChanged((TileLayer)e.NewValue)));
 
-        public static readonly DependencyProperty TileOpacityProperty = DependencyProperty.Register(
-            "TileOpacity", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
-                (o, e) => ((MapBase)o).tileContainer.Opacity = (double)e.NewValue));
+        public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
+            "TileLayers", typeof(TileLayerCollection), typeof(MapBase), new PropertyMetadata(null,
+                (o, e) => ((MapBase)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue)));
 
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             "MinZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
@@ -52,29 +54,32 @@ namespace MapControl
             "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
                 (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
 
-        private readonly TileContainer tileContainer = new TileContainer();
+        private readonly PanelBase tileLayerPanel = new PanelBase();
+        private readonly DispatcherTimer tileUpdateTimer = new DispatcherTimer { Interval = TileUpdateInterval };
         private readonly MapTransform mapTransform = new MercatorTransform();
+        private readonly MatrixTransform viewportTransform = new MatrixTransform();
+        private readonly MatrixTransform tileLayerTransform = new MatrixTransform();
         private readonly MatrixTransform scaleTransform = new MatrixTransform();
         private readonly MatrixTransform rotateTransform = new MatrixTransform();
         private readonly MatrixTransform scaleRotateTransform = new MatrixTransform();
+
         private Location transformOrigin;
         private Point viewportOrigin;
+        private Point tileLayerOffset;
         private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
-        private Brush storedBackground;
-        private Brush storedForeground;
         private bool internalPropertyChange;
 
         public MapBase()
         {
-            SetParentMap();
-
+            Children.Add(tileLayerPanel);
             TileLayers = new TileLayerCollection();
-            Children.Add(tileContainer);
-            Initialize();
 
+            tileUpdateTimer.Tick += UpdateTiles;
             Loaded += OnLoaded;
+
+            Initialize();
         }
 
         partial void Initialize();
@@ -86,6 +91,11 @@ namespace MapControl
         public event EventHandler ViewportChanged;
 
         /// <summary>
+        /// Raised when the TileZoomLevel or TileGrid properties have changed.
+        /// </summary>
+        public event EventHandler TileGridChanged;
+
+        /// <summary>
         /// Gets or sets the map foreground Brush.
         /// </summary>
         public Brush Foreground
@@ -95,16 +105,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the TileLayers used by this Map.
-        /// </summary>
-        public TileLayerCollection TileLayers
-        {
-            get { return (TileLayerCollection)GetValue(TileLayersProperty); }
-            set { SetValue(TileLayersProperty, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the base TileLayer used by this Map, i.e. TileLayers[0].
+        /// Gets or sets the base TileLayer used by the Map control.
         /// </summary>
         public TileLayer TileLayer
         {
@@ -113,12 +114,15 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the opacity of the tile layers.
+        /// Gets or sets optional multiple TileLayers that are used simultaneously.
+        /// The first element in the collection is equal to the value of the TileLayer property.
+        /// The additional TileLayers usually have transparent backgrounds and their IsOverlay
+        /// property is set to true.
         /// </summary>
-        public double TileOpacity
+        public TileLayerCollection TileLayers
         {
-            get { return (double)GetValue(TileOpacityProperty); }
-            set { SetValue(TileOpacityProperty, value); }
+            get { return (TileLayerCollection)GetValue(TileLayersProperty); }
+            set { SetValue(TileLayersProperty, value); }
         }
 
         /// <summary>
@@ -208,7 +212,15 @@ namespace MapControl
         /// </summary>
         public Transform ViewportTransform
         {
-            get { return tileContainer.ViewportTransform; }
+            get { return viewportTransform; }
+        }
+
+        /// <summary>
+        /// Gets the RenderTransform to be used by TileLayers, with origin at TileGrid.X and TileGrid.Y.
+        /// </summary>
+        public Transform TileLayerTransform
+        {
+            get { return tileLayerTransform; }
         }
 
         /// <summary>
@@ -246,6 +258,16 @@ namespace MapControl
         public double CenterScale { get; private set; }
 
         /// <summary>
+        /// Gets the zoom level to be used by TileLayers.
+        /// </summary>
+        public int TileZoomLevel { get; private set; }
+
+        /// <summary>
+        /// Gets the tile grid to be used by TileLayers.
+        /// </summary>
+        public Int32Rect TileGrid { get; private set; }
+
+        /// <summary>
         /// Gets the map scale at the specified location as viewport coordinate units (pixels) per meter.
         /// </summary>
         public double GetMapScale(Location location)
@@ -258,7 +280,7 @@ namespace MapControl
         /// </summary>
         public Point LocationToViewportPoint(Location location)
         {
-            return ViewportTransform.Transform(mapTransform.Transform(location));
+            return viewportTransform.Transform(mapTransform.Transform(location));
         }
 
         /// <summary>
@@ -266,7 +288,7 @@ namespace MapControl
         /// </summary>
         public Location ViewportPointToLocation(Point point)
         {
-            return mapTransform.Transform(ViewportTransform.Inverse.Transform(point));
+            return mapTransform.Transform(viewportTransform.Inverse.Transform(point));
         }
 
         /// <summary>
@@ -365,26 +387,16 @@ namespace MapControl
         {
             if (southWest.Latitude < northEast.Latitude && southWest.Longitude < northEast.Longitude)
             {
-                var p1 = MapTransform.Transform(southWest);
-                var p2 = MapTransform.Transform(northEast);
+                var p1 = mapTransform.Transform(southWest);
+                var p2 = mapTransform.Transform(northEast);
                 var lonScale = RenderSize.Width / (p2.X - p1.X) * 360d / TileSource.TileSize;
                 var latScale = RenderSize.Height / (p2.Y - p1.Y) * 360d / TileSource.TileSize;
                 var lonZoom = Math.Log(lonScale, 2d);
                 var latZoom = Math.Log(latScale, 2d);
 
                 TargetZoomLevel = Math.Min(lonZoom, latZoom);
-                TargetCenter = MapTransform.Transform(new Point((p1.X + p2.X) / 2d, (p1.Y + p2.Y) / 2d));
+                TargetCenter = mapTransform.Transform(new Point((p1.X + p2.X) / 2d, (p1.Y + p2.Y) / 2d));
                 TargetHeading = 0d;
-            }
-        }
-
-        protected override void OnViewportChanged()
-        {
-            base.OnViewportChanged();
-
-            if (ViewportChanged != null)
-            {
-                ViewportChanged(this, EventArgs.Empty);
             }
         }
 
@@ -392,77 +404,9 @@ namespace MapControl
         {
             Loaded -= OnLoaded;
 
-            if (TileLayer == null)
+            if (tileLayerPanel.Children.Count == 0 && !Children.OfType<TileLayer>().Any())
             {
                 TileLayer = TileLayer.Default;
-            }
-
-            UpdateTransform();
-        }
-
-        private void TileLayerCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    tileContainer.AddTileLayers(e.NewStartingIndex, e.NewItems.Cast<TileLayer>());
-                    break;
-
-                case NotifyCollectionChangedAction.Remove:
-                    tileContainer.RemoveTileLayers(e.OldStartingIndex, e.OldItems.Count);
-                    break;
-#if !SILVERLIGHT
-                case NotifyCollectionChangedAction.Move:
-#endif
-                case NotifyCollectionChangedAction.Replace:
-                    tileContainer.RemoveTileLayers(e.NewStartingIndex, e.OldItems.Count);
-                    tileContainer.AddTileLayers(e.NewStartingIndex, e.NewItems.Cast<TileLayer>());
-                    break;
-
-                case NotifyCollectionChangedAction.Reset:
-                    tileContainer.ClearTileLayers();
-                    if (e.NewItems != null)
-                    {
-                        tileContainer.AddTileLayers(0, e.NewItems.Cast<TileLayer>());
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-            var firstTileLayer = TileLayers.FirstOrDefault();
-
-            if (TileLayer != firstTileLayer)
-            {
-                TileLayer = firstTileLayer;
-            }
-        }
-
-        private void TileLayersPropertyChanged(TileLayerCollection oldTileLayers, TileLayerCollection newTileLayers)
-        {
-            tileContainer.ClearTileLayers();
-
-            if (oldTileLayers != null)
-            {
-                oldTileLayers.CollectionChanged -= TileLayerCollectionChanged;
-            }
-
-            if (newTileLayers != null)
-            {
-                newTileLayers.CollectionChanged += TileLayerCollectionChanged;
-                tileContainer.AddTileLayers(0, newTileLayers);
-
-                var firstTileLayer = TileLayers.FirstOrDefault();
-
-                if (TileLayer != firstTileLayer)
-                {
-                    TileLayer = firstTileLayer;
-                }
-            }
-            else
-            {
-                TileLayer = null;
             }
         }
 
@@ -484,35 +428,94 @@ namespace MapControl
                     TileLayers[0] = tileLayer;
                 }
             }
+        }
 
-            if (tileLayer != null && tileLayer.Background != null)
+        private void TileLayersPropertyChanged(TileLayerCollection oldTileLayers, TileLayerCollection newTileLayers)
+        {
+            if (oldTileLayers != null)
             {
-                if (storedBackground == null)
+                oldTileLayers.CollectionChanged -= TileLayerCollectionChanged;
+                RemoveTileLayers(0, oldTileLayers.Count);
+            }
+
+            if (newTileLayers != null)
+            {
+                AddTileLayers(0, newTileLayers);
+                newTileLayers.CollectionChanged += TileLayerCollectionChanged;
+            }
+
+            TileLayer = TileLayers.FirstOrDefault();
+        }
+
+        private void TileLayerCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    AddTileLayers(e.NewStartingIndex, e.NewItems.Cast<TileLayer>());
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    RemoveTileLayers(e.OldStartingIndex, e.OldItems.Count);
+                    break;
+#if !SILVERLIGHT
+                case NotifyCollectionChangedAction.Move:
+#endif
+                case NotifyCollectionChangedAction.Replace:
+                    RemoveTileLayers(e.NewStartingIndex, e.OldItems.Count);
+                    AddTileLayers(e.NewStartingIndex, e.NewItems.Cast<TileLayer>());
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                    if (e.OldItems != null)
+                    {
+                        RemoveTileLayers(0, e.OldItems.Count);
+                    }
+                    if (e.NewItems != null)
+                    {
+                        AddTileLayers(0, e.NewItems.Cast<TileLayer>());
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            TileLayer = TileLayers.FirstOrDefault();
+        }
+
+        private void AddTileLayers(int index, IEnumerable<TileLayer> tileLayers)
+        {
+            foreach (var tileLayer in tileLayers)
+            {
+                if (index == 0)
                 {
-                    storedBackground = Background;
+                    if (tileLayer.Background != null)
+                    {
+                        Background = tileLayer.Background;
+                    }
+
+                    if (tileLayer.Foreground != null)
+                    {
+                        Foreground = tileLayer.Foreground;
+                    }
                 }
 
-                Background = tileLayer.Background;
+                tileLayerPanel.Children.Insert(index++, tileLayer);
             }
-            else if (storedBackground != null)
+        }
+
+        private void RemoveTileLayers(int index, int count)
+        {
+            while (count-- > 0)
             {
-                Background = storedBackground;
-                storedBackground = null;
+                tileLayerPanel.Children.RemoveAt(index + count);
             }
 
-            if (tileLayer != null && tileLayer.Foreground != null)
+            if (index == 0)
             {
-                if (storedForeground == null)
-                {
-                    storedForeground = Foreground;
-                }
-
-                Foreground = tileLayer.Foreground;
-            }
-            else if (storedForeground != null)
-            {
-                Foreground = storedForeground;
-                storedForeground = null;
+                ClearValue(BackgroundProperty);
+                ClearValue(ForegroundProperty);
             }
         }
 
@@ -552,7 +555,7 @@ namespace MapControl
                 if (centerAnimation == null)
                 {
                     InternalSetValue(TargetCenterProperty, center);
-                    InternalSetValue(CenterPointProperty, MapTransform.Transform(center));
+                    InternalSetValue(CenterPointProperty, mapTransform.Transform(center));
                 }
             }
         }
@@ -573,10 +576,10 @@ namespace MapControl
                     // animate private CenterPoint property by PointAnimation
                     centerAnimation = new PointAnimation
                     {
-                        From = MapTransform.Transform(Center),
-                        To = MapTransform.Transform(targetCenter, Center.Longitude),
-                        Duration = Settings.MapAnimationDuration,
-                        EasingFunction = Settings.MapAnimationEasingFunction,
+                        From = mapTransform.Transform(Center),
+                        To = mapTransform.Transform(targetCenter, Center.Longitude),
+                        Duration = AnimationDuration,
+                        EasingFunction = AnimationEasingFunction,
                         FillBehavior = FillBehavior.HoldEnd
                     };
 
@@ -594,7 +597,7 @@ namespace MapControl
                 centerAnimation = null;
 
                 InternalSetValue(CenterProperty, TargetCenter);
-                InternalSetValue(CenterPointProperty, MapTransform.Transform(TargetCenter));
+                InternalSetValue(CenterPointProperty, mapTransform.Transform(TargetCenter));
                 RemoveAnimation(CenterPointProperty); // remove holding animation in WPF
 
                 ResetTransformOrigin();
@@ -607,7 +610,7 @@ namespace MapControl
             if (!internalPropertyChange)
             {
                 centerPoint.X = Location.NormalizeLongitude(centerPoint.X);
-                InternalSetValue(CenterProperty, MapTransform.Transform(centerPoint));
+                InternalSetValue(CenterProperty, mapTransform.Transform(centerPoint));
                 ResetTransformOrigin();
                 UpdateTransform();
             }
@@ -680,8 +683,8 @@ namespace MapControl
                     zoomLevelAnimation = new DoubleAnimation
                     {
                         To = targetZoomLevel,
-                        Duration = Settings.MapAnimationDuration,
-                        EasingFunction = Settings.MapAnimationEasingFunction,
+                        Duration = AnimationDuration,
+                        EasingFunction = AnimationEasingFunction,
                         FillBehavior = FillBehavior.HoldEnd
                     };
 
@@ -755,8 +758,8 @@ namespace MapControl
                     headingAnimation = new DoubleAnimation
                     {
                         By = delta,
-                        Duration = Settings.MapAnimationDuration,
-                        EasingFunction = Settings.MapAnimationEasingFunction,
+                        Duration = AnimationDuration,
+                        EasingFunction = AnimationEasingFunction,
                         FillBehavior = FillBehavior.HoldEnd
                     };
 
@@ -784,7 +787,12 @@ namespace MapControl
         {
             Location center;
 
-            if (transformOrigin != null)
+            if (transformOrigin == null)
+            {
+                center = Center;
+                SetViewportTransform(center);
+            }
+            else
             {
                 SetViewportTransform(transformOrigin);
 
@@ -802,7 +810,7 @@ namespace MapControl
                 if (centerAnimation == null)
                 {
                     InternalSetValue(TargetCenterProperty, center);
-                    InternalSetValue(CenterPointProperty, MapTransform.Transform(center));
+                    InternalSetValue(CenterPointProperty, mapTransform.Transform(center));
                 }
 
                 if (resetTransformOrigin)
@@ -811,11 +819,6 @@ namespace MapControl
                     SetViewportTransform(center);
                 }
             }
-            else
-            {
-                center = Center;
-                SetViewportTransform(center);
-            }
 
             CenterScale = ViewportScale * mapTransform.RelativeScale(center) / TileSource.MetersPerDegree; // Pixels per meter at center latitude
 
@@ -823,9 +826,77 @@ namespace MapControl
             OnViewportChanged();
         }
 
+        protected override void OnViewportChanged()
+        {
+            base.OnViewportChanged();
+
+            var viewportChanged = ViewportChanged;
+
+            if (viewportChanged != null)
+            {
+                viewportChanged(this, EventArgs.Empty);
+            }
+        }
+
         private void SetViewportTransform(Location origin)
         {
-            ViewportScale = tileContainer.SetViewportTransform(ZoomLevel, Heading, mapTransform.Transform(origin), viewportOrigin);
+            var oldMapOriginX = (viewportOrigin.X - tileLayerOffset.X) / ViewportScale - 180d;
+            var mapOrigin = mapTransform.Transform(origin);
+
+            ViewportScale = Math.Pow(2d, ZoomLevel) * TileSource.TileSize / 360d;
+            SetViewportTransform(mapOrigin);
+
+            tileLayerOffset.X = viewportOrigin.X - (180d + mapOrigin.X) * ViewportScale;
+            tileLayerOffset.Y = viewportOrigin.Y - (180d - mapOrigin.Y) * ViewportScale;
+
+            if (Math.Abs(mapOrigin.X - oldMapOriginX) > 180d)
+            {
+                // immediately handle map origin leap when map center moves across 180° longitude
+                UpdateTiles(this, EventArgs.Empty);
+            }
+            else
+            {
+                SetTileLayerTransform();
+                tileUpdateTimer.Start();
+            }
+        }
+
+        private void UpdateTiles(object sender, object e)
+        {
+            tileUpdateTimer.Stop();
+
+            // relative size of scaled tile ranges from 0.75 to 1.5 (192 to 384 pixels)
+            var zoomLevelSwitchDelta = Math.Log(0.75, 2d);
+            var zoomLevel = (int)Math.Floor(ZoomLevel - zoomLevelSwitchDelta);
+            var transform = GetTileIndexMatrix((double)(1 << zoomLevel) / 360d);
+
+            // tile indices of visible rectangle
+            var p1 = transform.Transform(new Point(0d, 0d));
+            var p2 = transform.Transform(new Point(RenderSize.Width, 0d));
+            var p3 = transform.Transform(new Point(0d, RenderSize.Height));
+            var p4 = transform.Transform(new Point(RenderSize.Width, RenderSize.Height));
+
+            // index ranges of visible tiles
+            var x1 = (int)Math.Floor(Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X))));
+            var y1 = (int)Math.Floor(Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y))));
+            var x2 = (int)Math.Floor(Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X))));
+            var y2 = (int)Math.Floor(Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y))));
+            var grid = new Int32Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+
+            if (TileZoomLevel != zoomLevel || TileGrid != grid)
+            {
+                TileZoomLevel = zoomLevel;
+                TileGrid = grid;
+
+                SetTileLayerTransform();
+
+                var tileGridChanged = TileGridChanged;
+
+                if (tileGridChanged != null)
+                {
+                    tileGridChanged(this, EventArgs.Empty);
+                }
+            }
         }
     }
 }

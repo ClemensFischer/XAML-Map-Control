@@ -21,7 +21,7 @@ namespace MapControl
         /// Converts text containing hyperlinks in markdown syntax [text](url)
         /// to a collection of Run and Hyperlink inlines.
         /// </summary>
-        public static ICollection<Inline> ToInlines(this string text)
+        public static List<Inline> ToInlines(this string text)
         {
             var inlines = new List<Inline>();
 

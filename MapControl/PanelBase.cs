@@ -14,7 +14,7 @@ using System.Windows.Controls;
 namespace MapControl
 {
     /// <summary>
-    /// Common base class for MapPanel, TileLayer and TileContainer.
+    /// Common base class for MapPanel and TileLayer.
     /// </summary>
     public class PanelBase : Panel
     {
@@ -32,9 +32,9 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (UIElement child in Children)
+            foreach (UIElement element in Children)
             {
-                child.Arrange(new Rect(new Point(), finalSize));
+                element.Arrange(new Rect(new Point(), finalSize));
             }
 
             return finalSize;

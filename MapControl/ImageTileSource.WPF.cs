@@ -30,15 +30,16 @@ namespace MapControl
             {
                 if (IsAsync)
                 {
-                    var buffer = new WebClient().DownloadData(uri);
+                    var request = HttpWebRequest.CreateHttp(uri);
+                    request.UserAgent = TileImageLoader.HttpUserAgent;
 
-                    if (buffer != null)
+                    using (var response = (HttpWebResponse)request.GetResponse())
+                    using (var responseStream = response.GetResponseStream())
+                    using (var memoryStream = new MemoryStream())
                     {
-                        using (var stream = new MemoryStream(buffer))
-                        {
-                            image = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                            image.Freeze();
-                        }
+                        responseStream.CopyTo(memoryStream);
+                        memoryStream.Position = 0;
+                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }
                 }
                 else

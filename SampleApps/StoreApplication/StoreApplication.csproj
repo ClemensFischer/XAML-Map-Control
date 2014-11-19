@@ -16,6 +16,7 @@
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <TargetFrameworkVersion />
+    <AppxBundle>Always</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -78,6 +79,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Caching\FileDbCache.WinRT\FileDbCache.WinRT.csproj">
+      <Project>{c7bf2b18-cc74-430b-bcb2-600304efa3d8}</Project>
+      <Name>FileDbCache.WinRT</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Caching\ImageFileCache.WinRT\ImageFileCache.WinRT.csproj">
+      <Project>{f789647e-96f7-43e3-a895-fa3fe8d01260}</Project>
+      <Name>ImageFileCache.WinRT</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\MapControl\WinRT\MapControl.WinRT.csproj">
       <Project>{63cefdf7-5170-43b6-86f8-5c4a383a1615}</Project>
       <Name>MapControl.WinRT</Name>

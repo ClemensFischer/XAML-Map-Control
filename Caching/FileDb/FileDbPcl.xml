@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>FileDb</name>
+        <name>FileDbPcl</name>
     </assembly>
     <members>
         <member name="T:FileDbNs.FileDb">
@@ -9,6 +9,495 @@
             Represents an open FileDb database file.  None of the FileDb classes are re-entrant -
             access to the class objects must be syncronised by the calling application.
             </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.#ctor">
+            <summary>
+            Constructor for FileDb
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.ToString">
+            <summary>
+            ToString override - returns the DB filename or a string indicating its a memory DB
+            </summary>
+            <returns></returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.Open(System.IO.Stream)">
+            <summary>
+            Open with an existing database stream
+            </summary>
+            <param name="stream">The database stream to use - normally a FileStream</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.Close">
+            <summary>
+            Close an open database.
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.Create(System.IO.Stream,FileDbNs.Field[])">
+            <summary>
+            Create a new database using the passed stream, or if null and in-memory DB
+            </summary>
+            <param name="stream">The stream to use or null to create a memory DB</param>
+            <param name="fields">Array of Fields for the new database.</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.Create(System.IO.Stream,FileDbNs.Fields)">
+            <summary>
+            Create a new database using the passed stream, or if null and in-memory DB
+            </summary>
+            <param name="stream">The stream to use or null to create a memory DB</param>
+            <param name="fields">List of Fields for the new database.</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.BeginTrans">
+            <summary>
+            Start a transaction - a backup of the whole database file is made until the transaction is completed.
+            Be sure to call either CommitTrans or RollbackTrans so the backup can be disposed
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.CommitTrans">
+            <summary>
+            Commit the changes since the transaction was begun
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.RollbackTrans">
+            <summary>
+            Roll back the changes since the transaction was begun
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.AddRecord(FileDbNs.FieldValues)">
+            <summary>
+            Add a new record to the database using the name-value pairs in the FieldValues object.
+            Note that not all fields must be represented.  Missing fields will be set to default
+            values (0, empty or null).  Note that only Array datatypes can NULL.
+            </summary>
+            <param name="values">The name-value pairs to add.</param>
+            <returns>The volatile index of the newly added record.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression)">
+             <summary>
+             Return a Table of Records filtered by the filter parameter.
+             </summary>
+             <param name="filter">A FilterExpression representing the desired filter.</param>
+             <returns>A new Table with the requested Records</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression,System.String[])">
+            <summary>
+            Return a Table of Records filtered by the filter parameter. Only the specified Fields
+            will be in the Table.
+            </summary>
+            <param name="filter">A FilterExpression representing the desired filter.</param>
+            <param name="fieldList">The desired fields to be in the returned Table</param>
+            <returns>A new Table with the requested Records and Fields</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression,System.String[],System.String[])">
+            <summary>
+            Return a Table of Records filtered by the filter parameter. Only the specified Fields
+            will be in the Table.
+            </summary>
+            <param name="filter">A FilterExpression representing the desired filter.</param>
+            <param name="fieldList">The desired fields to be in the returned Table</param>
+            <param name="orderByList">A list of one or more fields to order the returned table by, 
+            or null for default order. If an orderByField is prefixed with "!", that field will sorted
+            in reverse order.</param>
+            <returns>A new Table with the requested Records and Fields ordered by the specified fields.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression,System.String[],System.String[],System.Boolean)">
+            <summary>
+            Get all records matching the search expression in the indicated order, if any.
+            </summary>
+            <param name="filter">Represents a single search expression, such as ID = 3</param>
+            <param name="fieldList">The list of fields to return or null for all fields</param>
+            <param name="includeIndex">If true, an additional Field named "index" will be returned
+            which is the ordinal index of the Record in the database, which can be used in
+            GetRecordByIndex and UpdateRecordByIndex.</param>
+            <param name="orderByList">A list of one or more fields to order the returned table by, 
+            or null for default order. If an orderByField is prefixed with "!", that field will sorted
+            in reverse order.</param>
+            <returns>A new Table with the requested Records and Fields</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup)">
+            <summary>
+            Return a Table of Records filtered by the filter parameter.
+            </summary>
+            <param name="filter">A FilterExpressionGroup representing the desired filter.</param>
+            <returns>A new Table with the requested Records</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup,System.String[])">
+            <summary>
+            Return a Table of Records filtered by the filter parameter. Only the specified Fields
+            will be in the Table.
+            </summary>
+            <param name="filter">A FilterExpression representing the desired filter.</param>
+            <param name="fieldList">The desired fields to be in the returned Table</param>
+            <returns>A new Table with the requested Records and Fields</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup,System.String[],System.String[])">
+            <summary>
+            Return a Table of Records filtered by the filter parameter. Only the specified Fields
+            will be in the Table.
+            </summary>
+            <param name="filter">A FilterExpression representing the desired filter.</param>
+            <param name="fieldList">The desired fields to be in the returned Table</param>
+            <param name="orderByList">A list of one or more fields to order the returned table by, 
+            or null for default order. If an orderByField is prefixed with "!", that field will sorted
+            in reverse order.</param>
+            <returns>A new Table with the requested Records and Fields in the specified order</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup,System.String[],System.String[],System.Boolean)">
+             <summary>
+             Get all records matching the FilterExpressionGroup in the indicated order, if any.
+             </summary>
+             <param name="filter">Represents a compound search expression, such as FirstName = "John" AND LastName = "Smith"</param>
+             <param name="fieldList">The list of fields to return or null for all fields</param>
+             <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
+             <param name="orderByList">A list of one or more fields to order the returned table by, 
+             or null for default order. If an orderByField is prefixed with "!", that field will sorted
+             in reverse order.</param>
+             <returns>A new Table with the requested Records and Fields</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(System.String)">
+            <summary>
+            Return a Table of Records filtered by the filter parameter.
+            </summary>
+            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
+            <returns>A new Table with the requested Records</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(System.String,System.String[])">
+            <summary>
+            Return a Table of Records filtered by the filter parameter. Only the specified Fields
+            will be in the Table.
+            </summary>
+            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
+            <param name="fieldList">The desired fields to be in the returned Table</param>
+            <returns>A new Table with the requested Records and Fields</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(System.String,System.String[],System.String[])">
+            <summary>
+            Return a Table of Records filtered by the filter parameter. Only the specified Fields
+            will be in the Table.
+            </summary>
+            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
+            <param name="fieldList">The desired fields to be in the returned Table</param>
+            <param name="orderByList">A list of one or more fields to order the returned table by, 
+            or null for default order. If an orderByField is prefixed with "!", that field will sorted
+            in reverse order.</param>
+            <returns>A new Table with the requested Records and Fields ordered by the specified list</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectRecords(System.String,System.String[],System.String[],System.Boolean)">
+            <summary>
+            Return a Table of Records filtered by the filter parameter.
+            </summary>
+            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
+            <param name="fieldList">The desired fields to be in the returned Table</param>
+            <param name="includeIndex">If true, an additional Field named "index" will be returned
+            which is the ordinal index of the Record in the database, which can be used in
+            GetRecordByIndex and UpdateRecordByIndex</param>
+            <param name="orderByList">A list of one or more fields to order the returned table by, 
+            or null for default order. If an orderByField is prefixed with "!", that field will sorted
+            in reverse order</param>
+            <returns>A new Table with the requested Records and Fields</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectAllRecords">
+            <summary>
+            Return all records in the database (table).
+            </summary>
+            <returns>A table containing all Records and Fields.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.String[])">
+            <summary>
+            Return all records in the database (table).
+            </summary>
+            <param name="fieldList">The list of Fields to return or null for all Fields</param>
+            <returns>A table containing all rows.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.String[],System.String[])">
+            <summary>
+            Return all records in the database (table).
+            </summary>
+            <param name="fieldList">The list of fields to return or null for all Fields</param>
+            <param name="orderByList">A list of one or more fields to order the returned table by, 
+            or null for default order</param>
+            <returns>A table containing all rows.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.Boolean)">
+            <summary>
+            Return all records in the database (table).
+            </summary>
+            <param name="includeIndex">Specify whether to include the Record index as one of the Fields</param>
+            <returns>A table containing all rows.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.String[],System.String[],System.Boolean)">
+            <summary>
+            Return all records in the database (table).
+            </summary>
+            <param name="fieldList">The list of fields to return or null for all fields</param>
+            <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
+            <param name="orderByList">A list of one or more fields to order the returned table by, 
+            or null for default order</param>
+            <returns>A table containing all Records and the specified Fields.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SelectEmptyTable">
+            <summary>
+            Sometimes you may need to get an empty table just for the field definitions.
+            Use this method because its much more efficient than using a contrived filter 
+            which is designed to return no results.
+            </summary>
+            <returns>An empty table containing all fields</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.GetCurrentRecord(System.String[],System.Boolean)">
+            <summary>
+            Returns a single Record object at the current location.  Meant to be used ONLY in conjunction
+            with the MoveFirst/MoveNext methods.
+            </summary>
+            <param name="fieldList">The list of fields to return or null for all fields</param>
+            <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
+            <returns>A Record object or null</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.GetRecordByIndex(System.Int32,System.String[])">
+            
+            <summary>
+            Returns a single Record object specified by the index.
+            </summary>
+            <param name="index">The index of the record to return. This value can be obtained from
+            Record returning queries by specifying true for the includeIndex parameter.</param>
+            <param name="fieldList">The list of fields to return or null for all fields</param>
+            <returns>A Record object or null</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.GetRecordByKey(System.Object,System.String[],System.Boolean)">
+            <summary>
+            Returns a single Record object specified by the primary key value or record number.
+            </summary>
+            <param name="key">The primary key value.  For databases without a primary key, 
+            'key' is the zero-based record number in the table.</param>
+            <param name="fieldList">The list of fields to return or null for all fields</param>
+            <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
+            <returns>A Record object or null</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.UpdateRecordByIndex(System.Int32,FileDbNs.FieldValues)">
+            <summary>
+            Update the record at the indicated index. To get the index, you would need to first
+            get a record from the database then use the index field from it.  The index is only
+            valid until a database operation which would invalidate it, such as adding/deleting
+            a record, or changing the value of a primary key.
+            </summary>
+            <param name="values">The record values to update</param>
+            <param name="index">The index of the record to update</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.UpdateRecordByKey(System.Object,FileDbNs.FieldValues)">
+            <summary>
+            Update the record with the indicated primary key value.
+            </summary>
+            <param name="values">The record values to update</param>
+            <param name="key">The primary key value of the record to update</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.UpdateRecords(FileDbNs.FilterExpression,FileDbNs.FieldValues)">
+            <summary>
+            Update all records which match the search criteria using the values in record.
+            </summary>
+            <param name="filter">The search expression, e.g. ID = 100</param>
+            <param name="values">A list of name-value pairs to use to update the matching records</param>
+            <returns>The number of records which were updated.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.UpdateRecords(FileDbNs.FilterExpressionGroup,FileDbNs.FieldValues)">
+            <summary>
+            Update all records which match the compound search criteria using the values in record.
+            </summary>
+            <param name="filter">The compound search expression, e.g. FirstName = "John" AND LastName = "Smith"</param>
+            <param name="values">A list of name-value pairs to use to update the matching records</param>
+            <returns>The number of records which were updated.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.UpdateRecords(System.String,FileDbNs.FieldValues)">
+            <summary>
+            Update all records which match the filter expression using the values in record.
+            </summary>
+            <param name="filter">The filter to use, eg. "~LastName = 'peacock' OR ~FirstName = 'nancy'".
+            This filter string will be parsed using FilterExpressionGroup.Parse.</param>
+            <param name="values">A list of name-value pairs to use to update the matching records</param>
+            <returns>The number of records which were updated.</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteAllRecords">
+            <summary>
+            Delete all records in the database
+            </summary>
+            <returns>The number of records deleted</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteRecordByIndex(System.Int32)">
+            <summary>
+            Delete the record at the specified index.  You would normally get the index from a previous
+            query.  This index is only valid until a record has been deleted.
+            </summary>
+            <param name="index">The zero-based index of the record to delete.</param>
+            <returns>true if the record was deleted, false otherwise</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteRecordByKey(System.Object)">
+            <summary>
+            Delete the record with the specified primary key value
+            </summary>
+            <param name="key">The primary key value of the record to delete</param>
+            <returns>true if the record was deleted, false otherwise</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteRecords(FileDbNs.FilterExpression)">
+            <summary>
+            Delete all records which match the search criteria.
+            </summary>
+            <param name="filter">The search expression, e.g. ID = 100</param>
+            <returns>The number of records deleted</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteRecords(FileDbNs.FilterExpressionGroup)">
+            <summary>
+            Delete all records which match the compound search criteria.
+            </summary>
+            <param name="filter">The compound search expression, e.g. FirstName = "John" AND LastName = "Smith"</param>
+            <returns>The number of records deleted</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteRecords(System.String)">
+            <summary>
+            Delete all records which match the filter criteria.
+            </summary>
+            <param name="filter">The filter to use, eg. "~LastName = 'peacock' OR ~FirstName = 'nancy'".
+            This filter string will be parsed using FilterExpressionGroup.Parse.</param>
+            <returns>The number of records deleted</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.MoveFirst">
+            <summary>
+            Move to the first record in the index.  Use this in conjunction with MoveNext and GetCurrentRecord
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.MoveNext">
+            <summary>
+            Move to the next record in the index.  Use this in conjunction with MoveFirst and GetCurrentRecord
+            </summary>
+        </member>
+        <member name="M:FileDbNs.FileDb.Clean">
+            <summary>
+            Call this to remove deleted records from the file (compact).
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.Flush">
+            <summary>
+            Call this to write the index and flush the stream buffer to disk.
+            Flushing will be done automatically if AutoFlush is On (and only writes the index
+            if necessary), whereas this call always writes the index.
+            You can use this to periodically write everything to disk rather than each time
+            as with AutoFlush.  Flush is always called when the file is closed, however in that
+            case the index is only written if AutoFlush is set to Off.
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.Reindex">
+            <summary>
+            Call this method to reindex the database if your index file should be deleted or corrupted.
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.AddField(FileDbNs.Field,System.Object)">
+            <summary>
+            Add the specified Field to the database.
+            </summary>
+            <param name="newField">The new Field to add</param>
+            <param name="defaultVal">A default value to use for the values of existing records for the new Field</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.AddFields(FileDbNs.Field[],System.Object[])">
+            <summary>
+            Add the specified Field to the database.
+            </summary>
+            <param name="newFields">The new Fields to add</param>
+            <param name="defaultVals">Default values to use for the values of existing records for the new Fields.
+            Can be null but if not then you must provide a value for each field in the Fields array</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteField(System.String)">
+            <summary>
+            Delete the specified Field from the database.
+            </summary>
+            <param name="fieldName">The name of the Field to delete</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DeleteFields(System.String[])">
+            <summary>
+            Delete the specified Fields from the database.
+            </summary>
+            <param name="fieldNames">The Fields to delete</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.RenameField(System.String,System.String)">
+            <summary>
+            Rename the specified Field.
+            </summary>
+            <param name="fieldName">The name of the Field to rename</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SetEncryptionKey(System.String)">
+            <summary>
+            Allows you to set an encryption key after the database has been opened.  You must set
+            the encryption key before reading or writing to the database.  Encryption is "all or nothing",
+            meaning all records are either encrypted or not.
+            </summary>
+            <param name="encryptionKey">A string value to use as the encryption key</param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.EncryptString(System.String,System.String)">
+            <summary>
+            Encrypt a string value.
+            Not syncronized.
+            </summary>
+            <param name="encryptKey">The key to use for encryption</param>
+            <param name="value">The value to encrypt</param>
+            <returns>The encrypted value as a string</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DecryptString(System.String,System.String)">
+            <summary>
+            Decrypt a string value.
+            Not syncronized.
+            </summary>
+            <param name="encryptKey">The key to use for decryption</param>
+            <param name="value">The value to decrypt</param>
+            <returns>The decrypted value as a string</returns>
             
         </member>
         <member name="M:FileDbNs.FileDb.SelectRecords``1(FileDbNs.FilterExpression)">
@@ -223,422 +712,48 @@
             <returns>A new object or null</returns>
             
         </member>
-        <member name="M:FileDbNs.FileDb.Open(System.String,System.Boolean)">
+        <member name="E:FileDbNs.FileDb.DbRecordUpdated">
             <summary>
-            Open the indicated database file.
+            Static event fired when a record has been updated.
             </summary>
-            <param name="dbName">The filename of the database file to open.  It can be a fully qualified
-            path or, if no path is specified the current folder will be used.</param>
-            
         </member>
-        <member name="M:FileDbNs.FileDb.Open(System.String,System.String,System.Boolean)">
+        <member name="E:FileDbNs.FileDb.DbRecordAdded">
             <summary>
-            Open the indicated database file for encryption. Encryption is "all or nothing",
-            meaning all records are either encrypted or not.
+            Static event fired when a record has been inserted.
             </summary>
-            <param name="dbName">The filename of the database file to open.  It can be a fully qualified
-            path or, if no path is specified the current folder will be used.</param>
-            <param name="encryptionKey">A string value to use as the encryption key</param>
-            
         </member>
-        <member name="M:FileDbNs.FileDb.Close">
+        <member name="E:FileDbNs.FileDb.DbRecordDeleted">
             <summary>
-            Close an open database.
+            Static event fired when a record has been deleted.
+            </summary>
+        </member>
+        <member name="E:FileDbNs.FileDb.RecordUpdated">
+            <summary>
+            Fired when a record has been updated.
             </summary>
             
         </member>
-        <member name="M:FileDbNs.FileDb.Create(System.String,FileDbNs.Field[])">
+        <member name="E:FileDbNs.FileDb.RecordAdded">
             <summary>
-            Create a new database file. If the file exists, it will be overwritten.
-            </summary>
-            <param name="dbName">The full pathname of the file.</param>
-            <param name="fields">Array of Fields for the new database.</param>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.Drop(System.String)">
-            <summary>
-            Delete an existing database.
-            </summary>
-            <param name="dbName">The pathname of the file to delete.</param>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.AddRecord(FileDbNs.FieldValues)">
-            <summary>
-            Add a new record to the database using the name-value pairs in the FieldValues object.
-            Note that not all fields must be represented.  Missing fields will be set to default
-            values (0, empty or null).  Note that only Array datatypes can NULL.
-            </summary>
-            <param name="record">The name-value pairs to add.</param>
-            <returns>The volatile index of the newly added record.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression)">
-             <summary>
-             Return a Table of Records filtered by the filter parameter.
-             </summary>
-             <param name="filter">A FilterExpression representing the desired filter.</param>
-             <returns>A new Table with the requested Records</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression,System.String[])">
-            <summary>
-            Return a Table of Records filtered by the filter parameter. Only the specified Fields
-            will be in the Table.
-            </summary>
-            <param name="filter">A FilterExpression representing the desired filter.</param>
-            <param name="fieldList">The desired fields to be in the returned Table</param>
-            <returns>A new Table with the requested Records and Fields</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression,System.String[],System.String[])">
-            <summary>
-            Return a Table of Records filtered by the filter parameter. Only the specified Fields
-            will be in the Table.
-            </summary>
-            <param name="filter">A FilterExpression representing the desired filter.</param>
-            <param name="fieldList">The desired fields to be in the returned Table</param>
-            <param name="orderByList">A list of one or more fields to order the returned table by, 
-            or null for default order. If an orderByField is prefixed with "!", that field will sorted
-            in reverse order.</param>
-            <returns>A new Table with the requested Records and Fields ordered by the specified fields.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpression,System.String[],System.String[],System.Boolean)">
-            <summary>
-            Get all records matching the search expression in the indicated order, if any.
-            </summary>
-            <param name="filter">Represents a single search expression, such as ID = 3</param>
-            <param name="fieldList">The list of fields to return or null for all fields</param>
-            <param name="includeIndex">If true, an additional Field named "index" will be returned
-            which is the ordinal index of the Record in the database, which can be used in
-            GetRecordByIndex and UpdateRecordByIndex.</param>
-            <param name="orderByList">A list of one or more fields to order the returned table by, 
-            or null for default order. If an orderByField is prefixed with "!", that field will sorted
-            in reverse order.</param>
-            <returns>A new Table with the requested Records and Fields</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup)">
-            <summary>
-            Return a Table of Records filtered by the filter parameter.
-            </summary>
-            <param name="filter">A FilterExpressionGroup representing the desired filter.</param>
-            <returns>A new Table with the requested Records</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup,System.String[])">
-            <summary>
-            Return a Table of Records filtered by the filter parameter. Only the specified Fields
-            will be in the Table.
-            </summary>
-            <param name="filter">A FilterExpression representing the desired filter.</param>
-            <param name="fieldList">The desired fields to be in the returned Table</param>
-            <returns>A new Table with the requested Records and Fields</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup,System.String[],System.String[])">
-            <summary>
-            Return a Table of Records filtered by the filter parameter. Only the specified Fields
-            will be in the Table.
-            </summary>
-            <param name="filter">A FilterExpression representing the desired filter.</param>
-            <param name="fieldList">The desired fields to be in the returned Table</param>
-            <param name="orderByList">A list of one or more fields to order the returned table by, 
-            or null for default order. If an orderByField is prefixed with "!", that field will sorted
-            in reverse order.</param>
-            <returns>A new Table with the requested Records and Fields in the specified order</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(FileDbNs.FilterExpressionGroup,System.String[],System.String[],System.Boolean)">
-             <summary>
-             Get all records matching the FilterExpressionGroup in the indicated order, if any.
-             </summary>
-             <param name="filter">Represents a compound search expression, such as FirstName = "John" AND LastName = "Smith"</param>
-             <param name="fieldList">The list of fields to return or null for all fields</param>
-             <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
-             <param name="orderByList">A list of one or more fields to order the returned table by, 
-             or null for default order. If an orderByField is prefixed with "!", that field will sorted
-             in reverse order.</param>
-             <returns>A new Table with the requested Records and Fields</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(System.String)">
-            <summary>
-            Return a Table of Records filtered by the filter parameter.
-            </summary>
-            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
-            <returns>A new Table with the requested Records</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(System.String,System.String[])">
-            <summary>
-            Return a Table of Records filtered by the filter parameter. Only the specified Fields
-            will be in the Table.
-            </summary>
-            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
-            <param name="fieldList">The desired fields to be in the returned Table</param>
-            <returns>A new Table with the requested Records and Fields</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(System.String,System.String[],System.String[])">
-            <summary>
-            Return a Table of Records filtered by the filter parameter. Only the specified Fields
-            will be in the Table.
-            </summary>
-            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
-            <param name="fieldList">The desired fields to be in the returned Table</param>
-            <param name="orderByList">A list of one or more fields to order the returned table by, 
-            or null for default order. If an orderByField is prefixed with "!", that field will sorted
-            in reverse order.</param>
-            <returns>A new Table with the requested Records and Fields ordered by the specified list</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectRecords(System.String,System.String[],System.String[],System.Boolean)">
-            <summary>
-            Return a Table of Records filtered by the filter parameter.
-            </summary>
-            <param name="filter">A string representing the desired filter, eg. LastName = 'Fuller'</param>
-            <param name="fieldList">The desired fields to be in the returned Table</param>
-            <param name="includeIndex">If true, an additional Field named "index" will be returned
-            which is the ordinal index of the Record in the database, which can be used in
-            GetRecordByIndex and UpdateRecordByIndex</param>
-            <param name="orderByList">A list of one or more fields to order the returned table by, 
-            or null for default order. If an orderByField is prefixed with "!", that field will sorted
-            in reverse order</param>
-            <returns>A new Table with the requested Records and Fields</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectAllRecords">
-            <summary>
-            Return all records in the database (table).
-            </summary>
-            <returns>A table containing all Records and Fields.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.String[])">
-            <summary>
-            Return all records in the database (table).
-            </summary>
-            <param name="fieldList">The list of Fields to return or null for all Fields</param>
-            <returns>A table containing all rows.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.String[],System.String[])">
-            <summary>
-            Return all records in the database (table).
-            </summary>
-            <param name="fieldList">The list of fields to return or null for all Fields</param>
-            <param name="orderByList">A list of one or more fields to order the returned table by, 
-            or null for default order</param>
-            <returns>A table containing all rows.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.Boolean)">
-            <summary>
-            Return all records in the database (table).
-            </summary>
-            <param name="includeIndex">Specify whether to include the Record index as one of the Fields</param>
-            <returns>A table containing all rows.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SelectAllRecords(System.String[],System.String[],System.Boolean)">
-            <summary>
-            Return all records in the database (table).
-            </summary>
-            <param name="fieldList">The list of fields to return or null for all fields</param>
-            <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
-            <param name="orderByList">A list of one or more fields to order the returned table by, 
-            or null for default order</param>
-            <returns>A table containing all Records and the specified Fields.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.GetCurrentRecord(System.String[],System.Boolean)">
-            <summary>
-            Returns a single Record object at the current location.  Meant to be used ONLY in conjunction
-            with the MoveFirst/MoveNext methods.
-            </summary>
-            <param name="fieldList">The list of fields to return or null for all fields</param>
-            <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
-            <returns>A Record object or null</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.GetRecordByIndex(System.Int32,System.String[])">
-            
-            <summary>
-            Returns a single Record object specified by the index.
-            </summary>
-            <param name="index">The index of the record to return. This value can be obtained from
-            Record returning queries by specifying true for the includeIndex parameter.</param>
-            <param name="fieldList">The list of fields to return or null for all fields</param>
-            <returns>A Record object or null</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.GetRecordByKey(System.Object,System.String[],System.Boolean)">
-            <summary>
-            Returns a single Record object specified by the primary key value or record number.
-            </summary>
-            <param name="key">The primary key value.  For databases without a primary key, 
-            'key' is the zero-based record number in the table.</param>
-            <param name="fieldList">The list of fields to return or null for all fields</param>
-            <param name="includeIndex">Specify whether to include the record index as one of the Fields</param>
-            <returns>A Record object or null</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.UpdateRecordByIndex(System.Int32,FileDbNs.FieldValues)">
-            <summary>
-            Update the record at the indicated index. To get the index, you would need to first
-            get a record from the database then use the index field from it.  The index is only
-            valid until a database operation which would invalidate it, such as adding/deleting
-            a record, or changing the value of a primary key.
-            </summary>
-            <param name="values">The record values to update</param>
-            <param name="index">The index of the record to update</param>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.UpdateRecordByKey(System.Object,FileDbNs.FieldValues)">
-            <summary>
-            Update the record with the indicated primary key value.
-            </summary>
-            <param name="values">The record values to update</param>
-            <param name="key">The primary key value of the record to update</param>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.UpdateRecords(FileDbNs.FilterExpression,FileDbNs.FieldValues)">
-            <summary>
-            Update all records which match the search criteria using the values in record.
-            </summary>
-            <param name="filter">The search expression, e.g. ID = 100</param>
-            <param name="values">A list of name-value pairs to use to update the matching records</param>
-            <returns>The number of records which were updated.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.UpdateRecords(FileDbNs.FilterExpressionGroup,FileDbNs.FieldValues)">
-            <summary>
-            Update all records which match the compound search criteria using the values in record.
-            </summary>
-            <param name="filter">The compound search expression, e.g. FirstName = "John" AND LastName = "Smith"</param>
-            <param name="values">A list of name-value pairs to use to update the matching records</param>
-            <returns>The number of records which were updated.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.UpdateRecords(System.String,FileDbNs.FieldValues)">
-            <summary>
-            Update all records which match the filter expression using the values in record.
-            </summary>
-            <param name="filter">The filter to use, eg. "~LastName = 'peacock' OR ~FirstName = 'nancy'".
-            This filter string will be parsed using FilterExpressionGroup.Parse.</param>
-            <param name="values">A list of name-value pairs to use to update the matching records</param>
-            <returns>The number of records which were updated.</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.DeleteRecordByIndex(System.Int32)">
-            <summary>
-            Delete the record at the specified index.  You would normally get the index from a previous
-            query.  This index is only valid until a record has been deleted.
-            </summary>
-            <param name="index">The zero-based index of the record to delete.</param>
-            <returns>true if the record was deleted, false otherwise</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.DeleteRecordByKey(System.Object)">
-            <summary>
-            Delete the record with the specified primary key value
-            </summary>
-            <param name="key">The primary key value of the record to delete</param>
-            <returns>true if the record was deleted, false otherwise</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.DeleteRecords(FileDbNs.FilterExpression)">
-            <summary>
-            Delete all records which match the search criteria.
-            </summary>
-            <param name="filter">The search expression, e.g. ID = 100</param>
-            <returns>The number of records deleted</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.DeleteRecords(FileDbNs.FilterExpressionGroup)">
-            <summary>
-            Delete all records which match the compound search criteria.
-            </summary>
-            <param name="filter">The compound search expression, e.g. FirstName = "John" AND LastName = "Smith"</param>
-            <returns>The number of records deleted</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.DeleteRecords(System.String)">
-            <summary>
-            Delete all records which match the filter criteria.
-            </summary>
-            <param name="filter">The filter to use, eg. "~LastName = 'peacock' OR ~FirstName = 'nancy'".
-            This filter string will be parsed using FilterExpressionGroup.Parse.</param>
-            <returns>The number of records deleted</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.MoveFirst">
-            <summary>
-            Move to the first record in the index.  Use this in conjunction with MoveNext and GetCurrentRecord
+            Fired when a record has been inserted.
             </summary>
             
         </member>
-        <member name="M:FileDbNs.FileDb.MoveNext">
+        <member name="E:FileDbNs.FileDb.RecordDeleted">
             <summary>
-            Move to the next record in the index.  Use this in conjunction with MoveFirst and GetCurrentRecord
-            </summary>
-        </member>
-        <member name="M:FileDbNs.FileDb.Clean">
-            <summary>
-            Call this to remove deleted records from the file (compact).
+            Fired when a record has been deleted.
             </summary>
             
         </member>
-        <member name="M:FileDbNs.FileDb.Flush">
+        <member name="P:FileDbNs.FileDb.DbFileName">
             <summary>
-            Call this to write the index and flush the stream buffer to disk.
-            Flushing will be done automatically if AutoFlush is On (and only writes the index
-            if necessary), whereas this call always writes the index.
-            You can use this to periodically write everything to disk rather than each time
-            as with AutoFlush.  Flush is always called when the file is closed, however in that
-            case the index is only written if AutoFlush is set to Off.
+            The full filename of the DB file
             </summary>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.Reindex">
-            <summary>
-            Call this method to reindex the database if your index file should be deleted or corrupted.
-            </summary>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.SetEncryptionKey(System.String)">
-            <summary>
-            Allows you to set an encryption key after the database has been opened.  You must set
-            the encryption key before reading or writing to the database.  Encryption is "all or nothing",
-            meaning all records are either encrypted or not.
-            </summary>
-            <param name="encryptionKey">A string value to use as the encryption key</param>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.EncryptString(System.String,System.String)">
-            <summary>
-            Encrypt a string value.
-            Not syncronized.
-            </summary>
-            <param name="encryptKey">The key to use for encryption</param>
-            <param name="value">The value to encrypt</param>
-            <returns>The encrypted value as a string</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.DecryptString(System.String,System.String)">
-            <summary>
-            Decrypt a string value.
-            Not syncronized.
-            </summary>
-            <param name="encryptKey">The key to use for decryption</param>
-            <param name="value">The value to decrypt</param>
-            <returns>The decrypted value as a string</returns>
             
         </member>
         <member name="P:FileDbNs.FileDb.UserVersion">
             <summary>
-            A string value which can be used to keep track of the database version for changes
+            A value which can be used to keep track of the database version for changes
             </summary>
         </member>
         <member name="P:FileDbNs.FileDb.Fields">
@@ -701,6 +816,51 @@
             </summary>
             
         </member>
+        <member name="T:FileDbNs.FileDb.DbRecordUpdatedHandler">
+            <summary>
+            Handler for static DbRecordUpdated event.
+            </summary>
+            <param name="dbFileName">The name of the updated database</param>
+            <param name="index">The record index</param>
+            <param name="fieldValues">The fields and new values which were updated</param>
+            
+        </member>
+        <member name="T:FileDbNs.FileDb.DbRecordAddedHandler">
+            <summary>
+            Handler for static DbRecordAdded event.
+            </summary>
+            <param name="dbFileName">The name of the updated database</param>
+            <param name="index">The record index</param>
+        </member>
+        <member name="T:FileDbNs.FileDb.DbRecordDeletedHandler">
+            <summary>
+            Handler for static DbRecordDeleted event.
+            </summary>
+            <param name="dbFileName">The name of the updated database</param>
+            <param name="index">The record index</param>
+        </member>
+        <member name="T:FileDbNs.FileDb.RecordUpdatedHandler">
+            <summary>
+            Handler for RecordUpdated event.
+            </summary>
+            <param name="index">The record index</param>
+            <param name="fieldValues">The fields and new values which were updated</param>
+            
+        </member>
+        <member name="T:FileDbNs.FileDb.RecordAddedHandler">
+            <summary>
+            Handler for RecordAdded event.
+            </summary>
+            <param name="index">The record index</param>
+            
+        </member>
+        <member name="T:FileDbNs.FileDb.RecordDeletedHandler">
+            <summary>
+            Handler for RecordDeleted event.
+            </summary>
+            <param name="index">The record index</param>
+            
+        </member>
         <member name="T:FileDbNs.DataTypeEnum_old">
             <summary>
             Specifies the data type for database Fields
@@ -712,7 +872,7 @@
             Specifies the type of match for FilterExpressions with String data types
             </summary>
         </member>
-        <member name="T:FileDbNs.EqualityEnum">
+        <member name="T:FileDbNs.ComparisonOperatorEnum">
             <summary>
             Specifies the comparison operator to use for FilterExpressions
             </summary>
@@ -722,89 +882,23 @@
             Boolean operands to use to join FilterExpressions 
             </summary>
         </member>
-        <member name="T:FileDbNs.FilterExpression">
-            <summary>
-            Use this class for single field searches.
-            </summary>
-            
-        </member>
-        <member name="M:FileDbNs.FilterExpression.#ctor(System.String,System.Object,FileDbNs.EqualityEnum)">
-            <summary>
-            Create a FilterExpression with the indicated values
-            </summary>
-            <param name="fieldName">The name of the Field to filter on</param>
-            <param name="searchVal">The Field value to filter on</param>
-            <param name="equality">The Equality operator to use in the value comparison</param>
-            
-        </member>
-        <member name="M:FileDbNs.FilterExpression.#ctor(System.String,System.Object,FileDbNs.EqualityEnum,FileDbNs.MatchTypeEnum)">
-            <summary>
-            Create a FilterExpression with the indicated values
-            </summary>
-            <param name="fieldName">The name of the Field to filter on</param>
-            <param name="searchVal">The Field value to filter on</param>
-            <param name="equality">The Equality operator to use in the value comparison</param>
-            <param name="matchType">The match type, eg. MatchType.Exact</param>
-            
-        </member>
-        <member name="M:FileDbNs.FilterExpression.Parse(System.String)">
-            <summary>
-            Parse the expression string to create a FilterExpressionGroup representing a simple expression.
-            </summary>
-            <param name="expression">The string expression.  Example: LastName = 'Fuller'</param>
-            <returns>A new FilterExpression representing the simple expression</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FilterExpression.CreateInExpressionFromTable(System.String,FileDbNs.Table,System.String)">
-            <summary>
-            Create a FilterExpression of type "IN". This type is a HashSet of the values which will be used
-            to filter the query.
-            </summary>
-            <param name="fieldName">The name of the Field which will be used in the FilterExpressions</param>
-            <param name="table">A Table to use to build the IN FilterExpressions</param>
-            <param name="fieldNameInTable">The name of the Field in the Table which holds the value to be used to build the IN FilterExpressions</param>
-            <returns>A new FilterExpression</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FilterExpression.CreateInExpressionFromTable``1(System.String,System.Collections.Generic.IList{``0},System.String)">
-            <summary>
-            Create a FilterExpression of type "IN". This type is a HashSet of the values which will be used
-            to filter the query.
-            </summary>
-            <param name="fieldName">The name of the Field which will be used in the FilterExpressions</param>
-            <param name="list">A List of custom objects to use to build the IN FilterExpression</param>
-            <param name="propertyName">The name of the Property of the custom class which holds the value to be 
-            used to build the IN FilterExpression</param>
-            <returns>A new FilterExpression</returns>
-            
-        </member>
-        <member name="T:FileDbNs.FilterExpressionGroup">
-            <summary>
-            Use this class to group FilterExpression and FilterExpressionGroup to form compound search expressions.
-            All expressions in the group will be evaluated by the same boolean And/Or operation.  Use multiple
-            FilterExpressionGroups to form any combination of And/Or logic.
-            </summary>
-            
-        </member>
-        <member name="M:FileDbNs.FilterExpressionGroup.Parse(System.String)">
-            <summary>
-            Parse the expression string to create a FilterExpressionGroup representing a compound expression.
-            </summary>
-            <param name="expression">The string compound expression.  Example: (FirstName ~= 'andrew' OR FirstName ~= 'nancy') AND LastName = 'Fuller'</param>
-            <returns>A new FilterExpressionGroup representing the compound expression</returns>
-            
-        </member>
         <member name="M:FileDbNs.FileDbEngine.#ctor">
             <summary>
             Constructor
             </summary>
         </member>
-        <member name="M:FileDbNs.FileDbEngine.openFiles(System.String,System.IO.FileMode)">
+        <member name="M:FileDbNs.FileDbEngine.getReaderWriter">
             <summary>
             Open the database files
             </summary>
-            <param name="dbName"></param>
+            <param name="dbFileName"></param>
             <param name="mode"></param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDbEngine.detachDataStreamAndClose">
+             <summary>
+             Flushes the Stream and detaches it, rendering this FileDb closed
+             </summary>
             
         </member>
         <member name="M:FileDbNs.FileDbEngine.updateRecordByKey(FileDbNs.FieldValues,System.Object)">
@@ -865,7 +959,7 @@
             deleted, but the actual data is only removed from the file when a 
             cleanup() is called.
             </summary>
-            <param name="recordNum">The record number (zero based) in the table to remove</param>
+            <param name="index">The record number (zero based) in the table to remove</param>
             <returns>true on success, false otherwise</returns>
             
         </member>
@@ -1102,6 +1196,118 @@
              <param name="field"></param>
             
         </member>
+        <member name="T:FileDbNs.FilterExpression">
+            <summary>
+            Use this class for single field searches.
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.#ctor(System.String,System.Object,FileDbNs.ComparisonOperatorEnum)">
+            <summary>
+            Create a FilterExpression with the indicated values
+            </summary>
+            <param name="fieldName">The name of the Field to filter on</param>
+            <param name="searchVal">The Field value to filter on</param>
+            <param name="equality">The Equality operator to use in the value comparison</param>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.#ctor(System.String,System.Object,FileDbNs.ComparisonOperatorEnum,FileDbNs.MatchTypeEnum)">
+            <summary>
+            Create a FilterExpression with the indicated values
+            </summary>
+            <param name="fieldName">The name of the Field to filter on</param>
+            <param name="searchVal">The Field value to filter on</param>
+            <param name="equality">The Equality operator to use in the value comparison</param>
+            <param name="matchType">The match type, eg. MatchType.Exact</param>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.#ctor(System.String,System.Object,FileDbNs.ComparisonOperatorEnum,FileDbNs.MatchTypeEnum,System.Boolean)">
+            <summary>
+            Create a FilterExpression with the indicated values
+            </summary>
+            <param name="fieldName">The name of the Field to filter on</param>
+            <param name="searchVal">The Field value to filter on</param>
+            <param name="equality">The Equality operator to use in the value comparison</param>
+            <param name="matchType">The match type, eg. MatchType.Exact</param>
+            <param name="isNot">Operator negation</param>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.Parse(System.String)">
+            <summary>
+            Parse the expression string to create a FilterExpressionGroup representing a simple expression.
+            </summary>
+            <param name="expression">The string expression.  Example: LastName = 'Fuller'</param>
+            <returns>A new FilterExpression representing the simple expression</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.WildcardToRegex(System.String)">
+            <summary>
+            Utility method to transform a filesystem wildcard pattern into a regex pattern
+            eg. december* or mary?
+            </summary>
+            <param name="pattern"></param>
+            <returns></returns>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.CreateInExpressionFromTable(System.String,FileDbNs.Table,System.String)">
+            <summary>
+            Create a FilterExpression of type "IN". This type is a HashSet of the values which will be used
+            to filter the query.
+            </summary>
+            <param name="fieldName">The name of the Field which will be used in the FilterExpressions</param>
+            <param name="table">A Table to use to build the IN FilterExpressions</param>
+            <param name="fieldNameInTable">The name of the Field in the Table which holds the value to be used to build the IN FilterExpressions</param>
+            <returns>A new FilterExpression</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.CreateInExpressionFromList``1(System.String,System.Collections.Generic.IList{``0},System.String)">
+            <summary>
+            Create a FilterExpression of type "IN". This type is a HashSet of the values which will be used
+            to filter the query.
+            </summary>
+            <param name="fieldName">The name of the Field which will be used in the FilterExpressions</param>
+            <param name="list">A List of custom objects to use to build the IN FilterExpression</param>
+            <param name="propertyName">The name of the Property of the custom class which holds the value to be 
+            used to build the IN FilterExpression</param>
+            <returns>A new FilterExpression</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.CreateInExpressionFromList(System.String,System.Collections.Generic.IList{System.String})">
+            <summary>
+            Create a FilterExpression of type "IN". This type is a HashSet of the values which will be used
+            to filter the query.
+            </summary>
+            <param name="fieldName">The name of the Field which will be used in the FilterExpressions</param>
+            <param name="list">A List of strings to use to build the IN FilterExpression</param>
+            <returns>A new FilterExpression</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpression.CreateInExpressionFromList(System.String,System.Collections.Generic.IList{System.Int32})">
+            <summary>
+            Create a FilterExpression of type "IN". This type is a HashSet of the values which will be used
+            to filter the query.
+            </summary>
+            <param name="fieldName">The name of the Field which will be used in the FilterExpressions</param>
+            <param name="list">A List of strings to use to build the IN FilterExpression</param>
+            <returns>A new FilterExpression</returns>
+            
+        </member>
+        <member name="T:FileDbNs.FilterExpressionGroup">
+            <summary>
+            Use this class to group FilterExpression and FilterExpressionGroup to form compound search expressions.
+            All expressions in the group will be evaluated by the same boolean And/Or operation.  Use multiple
+            FilterExpressionGroups to form any combination of And/Or logic.
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.FilterExpressionGroup.Parse(System.String)">
+            <summary>
+            Parse the expression string to create a FilterExpressionGroup representing a compound expression.
+            </summary>
+            <param name="expression">The string compound expression.  Example: (FirstName ~= 'andrew' OR FirstName ~= 'nancy') AND LastName = 'Fuller'</param>
+            <returns>A new FilterExpressionGroup representing the compound expression</returns>
+            
+        </member>
         <member name="T:Utils.HexEncoding">
             <summary>
             Summary description for HexEncoding.
@@ -1165,6 +1371,12 @@
             <param name="ordinal">The zero-based ordinal index of the field</param>
             
         </member>
+        <member name="M:FileDbNs.Field.Clone">
+            <summary>
+            Clone this Field
+            </summary>
+            <returns>A new Field with the same values</returns>
+        </member>
         <member name="P:FileDbNs.Field.Name">
             <summary>
             The name of the field.
@@ -1193,7 +1405,7 @@
         <member name="P:FileDbNs.Field.AutoIncStart">
             <summary>
             Used for auto-increment fields. Set to the number which you want incrementing to begin.
-            Set to -1 if not an auto-increment field.
+            Leave it null if not an auto-increment field.
             </summary>
         </member>
         <member name="P:FileDbNs.Field.IsAutoInc">
@@ -1232,8 +1444,17 @@
             Create a Record object with the indicated Fields and values.  If creating a list of Record objects 
             (for a Records list) be sure to use the same Fields list for each Record.
             </summary>
-            <param name="fields"></param>
-            <param name="values"></param>
+            <param name="fields">List of Field objects</param>
+            <param name="values">Array of values.  Each value will be converted to the Field type if possible.</param>
+            
+        </member>
+        <member name="M:FileDbNs.Record.#ctor(FileDbNs.Fields,FileDbNs.FieldValues)">
+            <summary>
+            Create a Record object with the indicated Fields and values.  If creating a list of Record objects 
+            (for a Records list) be sure to use the same Fields list for each Record.
+            </summary>
+            <param name="fields">List of Field objects</param>
+            <param name="values">Array of values.  Each value will be converted to the Field type if possible.</param>
             
         </member>
         <member name="M:FileDbNs.Record.ContainsField(System.String)">
@@ -1244,7 +1465,15 @@
             <returns>true if the field is in this Record</returns>
             
         </member>
-        <member name="M:FileDbNs.Record.GetInt(System.String)">
+        <member name="M:FileDbNs.Record.GetValue``1(System.String)">
+            <summary>
+            Return the Typed field value.
+            </summary>
+            <param name="fieldName">The name of the field</param>
+            <returns>The Type field value</returns>
+            
+        </member>
+        <member name="M:FileDbNs.Record.GetInt32(System.String)">
             <summary>
             Return the integer field value.
             </summary>
@@ -1252,7 +1481,7 @@
             <returns>The integer field value</returns>
             
         </member>
-        <member name="M:FileDbNs.Record.GetInt(System.Int32)">
+        <member name="M:FileDbNs.Record.GetInt32(System.Int32)">
             <summary>
             Return the integer field value.
             </summary>
@@ -1260,7 +1489,7 @@
             <returns>The integer field value</returns>
             
         </member>
-        <member name="M:FileDbNs.Record.GetUInt(System.String)">
+        <member name="M:FileDbNs.Record.GetUInt32(System.String)">
             <summary>
             Return the unsigned integer field value.
             </summary>
@@ -1268,7 +1497,7 @@
             <returns>The unsigned integer field value</returns>
             
         </member>
-        <member name="M:FileDbNs.Record.GetUInt(System.Int32)">
+        <member name="M:FileDbNs.Record.GetUInt32(System.Int32)">
             <summary>
             Return the unsigned integer field value.
             </summary>
@@ -1330,6 +1559,22 @@
             </summary>
             <param name="fieldName">The name of the field</param>
             <returns>The Double field value</returns>
+            
+        </member>
+        <member name="M:FileDbNs.Record.GetDecimal(System.Int32)">
+            <summary>
+            Return the Decimal field value.
+            </summary>
+            <param name="index">The ordinal index of the field</param>
+            <returns>The Decimal field value</returns>
+            
+        </member>
+        <member name="M:FileDbNs.Record.GetDecimal(System.String)">
+            <summary>
+            Return the Decimal field value.
+            </summary>
+            <param name="fieldName">The name of the field</param>
+            <returns>The Decimal field value</returns>
             
         </member>
         <member name="M:FileDbNs.Record.GetDouble(System.Int32)">
@@ -1408,6 +1653,24 @@
             </summary>
             
         </member>
+        <member name="M:FileDbNs.Table.#ctor(FileDbNs.Fields)">
+            <summary>
+            Create a table with the indicated Fields.
+            </summary>
+            <param name="fields">The Fields list to use (a copy is made)</param>
+            
+        </member>
+        <member name="M:FileDbNs.Table.#ctor(FileDbNs.Fields,System.Boolean)">
+            <summary>
+            Create a table with the indicated Fields and records.  If copyFields is true, a new
+            Fields list is created and a copy of each field is made and its ordinal adjusted.
+            Otherwise the original Fields object is adopted.  You should pass false for copyFields
+            only if you created the Fields list and its Field objects yourself.
+            </summary>
+            <param name="fields">The Fields list to use</param>
+            <param name="copyFields">Indicates whether to make a copy of the Fields object and each Field.</param>
+            
+        </member>
         <member name="M:FileDbNs.Table.#ctor(FileDbNs.Fields,System.Object[][],System.Boolean)">
             <summary>
             Create a table with the indicated Fields and records.  If copyFields is true, a new
@@ -1433,21 +1696,36 @@
              <param name="copyFields">Indicates whether to make a copy of the Fields object and each Field.</param>
             
         </member>
-        <member name="M:FileDbNs.Table.NewRow">
+        <member name="M:FileDbNs.Table.AddRecord">
             <summary>
-            Create a new Record with all of the fields of the Table.  The Record is not 
-            added to the Table.  To do this, call Records.Add.
+            Add a new Record to this Table with all null values.
             </summary>
             <returns></returns>
             
         </member>
-        <member name="M:FileDbNs.Table.SaveToDb(System.String)">
+        <member name="M:FileDbNs.Table.AddRecord(System.Object[])">
             <summary>
-            Save this Table to the indicated file as a new database.  If the file exists
-            it will be overwritten.  The new database will be just as if you had created
-            it from scratch.
+            Add a new Record to this Table with the specfied values, which must be in the order
+            of their corresponding fields.
             </summary>
-            <param name="dbName">The full path and filename of the new database</param>
+            <returns></returns>
+            
+        </member>
+        <member name="M:FileDbNs.Table.AddRecord(FileDbNs.FieldValues)">
+            <summary>
+            Add a new Record to this Table with the FieldValues
+            </summary>
+            <param name="values"></param>
+            <returns></returns>
+            
+        </member>
+        <member name="M:FileDbNs.Table.SaveToDb(System.IO.Stream)">
+            <summary>
+            Save this Table to the Stream as a new database.  If the Stream is null
+            one will be created and it will be a memory DB.  The new database will be just as if you had created
+            it from scratch and populated it with the Table data.
+            </summary>
+            <param name="dbFileName">The full path and filename of the new database</param>
             
         </member>
         <member name="M:FileDbNs.Table.SelectRecords(System.String)">

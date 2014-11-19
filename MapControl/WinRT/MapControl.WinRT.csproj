@@ -48,8 +48,8 @@
     <Compile Include="..\HyperlinkText.cs">
       <Link>HyperlinkText.cs</Link>
     </Compile>
-    <Compile Include="..\ImageFileCache.WinRT.cs">
-      <Link>ImageFileCache.WinRT.cs</Link>
+    <Compile Include="..\ImageCache.WinRT.cs">
+      <Link>ImageCache.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\ImageTileSource.Silverlight.WinRT.cs">
       <Link>ImageTileSource.Silverlight.WinRT.cs</Link>
@@ -60,8 +60,8 @@
     <Compile Include="..\Int32Rect.cs">
       <Link>Int32Rect.cs</Link>
     </Compile>
-    <Compile Include="..\IObjectCache.WinRT.cs">
-      <Link>IObjectCache.WinRT.cs</Link>
+    <Compile Include="..\ITileImageLoader.cs">
+      <Link>ITileImageLoader.cs</Link>
     </Compile>
     <Compile Include="..\Location.cs">
       <Link>Location.cs</Link>
@@ -144,26 +144,20 @@
     <Compile Include="..\Pushpin.Silverlight.WinRT.cs">
       <Link>Pushpin.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\Settings.cs">
-      <Link>Settings.cs</Link>
-    </Compile>
     <Compile Include="..\Tile.cs">
       <Link>Tile.cs</Link>
     </Compile>
     <Compile Include="..\Tile.Silverlight.WinRT.cs">
       <Link>Tile.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\TileContainer.cs">
-      <Link>TileContainer.cs</Link>
-    </Compile>
-    <Compile Include="..\TileContainer.Silverlight.WinRT.cs">
-      <Link>TileContainer.Silverlight.WinRT.cs</Link>
-    </Compile>
     <Compile Include="..\TileImageLoader.WinRT.cs">
       <Link>TileImageLoader.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\TileLayer.cs">
       <Link>TileLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\TileLayer.Silverlight.WinRT.cs">
+      <Link>TileLayer.Silverlight.WinRT.cs</Link>
     </Compile>
     <Compile Include="..\TileLayerCollection.cs">
       <Link>TileLayerCollection.cs</Link>

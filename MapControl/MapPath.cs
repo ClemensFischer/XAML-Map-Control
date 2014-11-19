@@ -20,12 +20,11 @@ namespace MapControl
         public MapBase ParentMap
         {
             get { return parentMap; }
-        }
-
-        void IMapElement.SetParentMap(MapBase map)
-        {
-            parentMap = map;
-            UpdateData();
+            set
+            {
+                parentMap = value;
+                UpdateData();
+            }
         }
 
         protected virtual void UpdateData()

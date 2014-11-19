@@ -7,7 +7,6 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
-using System;
 using System.Windows;
 using System.Windows.Media;
 #endif
@@ -82,10 +81,9 @@ namespace MapControl
                 !double.IsNaN(West) && !double.IsNaN(East) &&
                 South < North && West < East)
             {
-                var p1 = ParentMap.MapTransform.Transform(new Location(South, West));
-                var p2 = ParentMap.MapTransform.Transform(new Location(North, East));
-
-                SetRect(new Rect(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y));
+                SetRect(new Rect(
+                    ParentMap.MapTransform.Transform(new Location(South, West)),
+                    ParentMap.MapTransform.Transform(new Location(North, East))));
             }
             else
             {

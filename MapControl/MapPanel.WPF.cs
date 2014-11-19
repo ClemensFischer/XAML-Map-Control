@@ -14,14 +14,17 @@ namespace MapControl
 
         public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
 
+        public MapPanel()
+        {
+            if (this is MapBase)
+            {
+                SetValue(ParentMapPropertyKey, this);
+            }
+        }
+
         public static MapBase GetParentMap(UIElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);
-        }
-
-        internal void SetParentMap()
-        {
-            SetValue(ParentMapPropertyKey, this);
         }
     }
 }

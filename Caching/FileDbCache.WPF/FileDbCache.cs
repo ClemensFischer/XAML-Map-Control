@@ -7,28 +7,30 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.Caching;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows.Media.Imaging;
 using FileDbNs;
 
-namespace Caching
+namespace MapControl.Caching
 {
     /// <summary>
-    /// ObjectCache implementation based on EzTools FileDb - http://www.eztools-software.com/tools/filedb/.
+    /// ObjectCache implementation based on FileDb, a free and simple No-SQL database by EzTools Software.
+    /// See http://www.eztools-software.com/tools/filedb/.
+    /// The only valid data type for cached values is System.Windows.Media.Imaging.BitmapFrame.
     /// </summary>
-    public class FileDbCache : ObjectCache
+    public class FileDbCache : ObjectCache, IDisposable
     {
         private const string keyField = "Key";
         private const string valueField = "Value";
         private const string expiresField = "Expires";
 
-        private readonly BinaryFormatter formatter = new BinaryFormatter();
-        private readonly FileDb fileDb = new FileDb { AutoFlush = false, AutoCleanThreshold = -1 };
+        private readonly FileDb fileDb = new FileDb { AutoFlush = true, AutoCleanThreshold = -1 };
         private readonly string name;
         private readonly string path;
 
         public FileDbCache(string name, NameValueCollection config)
-            : this(name, config["directory"])
+            : this(name, config["folder"])
         {
             var autoFlush = config["autoFlush"];
             var autoCleanThreshold = config["autoCleanThreshold"];
@@ -58,20 +60,20 @@ namespace Caching
             }
         }
 
-        public FileDbCache(string name, string directory)
+        public FileDbCache(string name, string folder)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("The parameter name must not be null or empty or only white-space.");
+                throw new ArgumentException("The parameter name must not be null or empty or consist only of white-space characters.");
             }
 
-            if (string.IsNullOrWhiteSpace(directory))
+            if (string.IsNullOrWhiteSpace(folder))
             {
-                throw new ArgumentException("The parameter directory must not be null or empty or only white-space.");
+                throw new ArgumentException("The parameter folder must not be null or empty or consist only of white-space characters.");
             }
 
             this.name = name;
-            path = Path.Combine(directory, name.Trim());
+            path = Path.Combine(folder, name);
 
             if (string.IsNullOrEmpty(Path.GetExtension(path)))
             {
@@ -81,25 +83,16 @@ namespace Caching
             try
             {
                 fileDb.Open(path, false);
-                Trace.TraceInformation("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, path);
+                Debug.WriteLine("FileDbCache: Opened database with {0} cached items in {1}.", fileDb.NumRecords, path);
 
-                fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, EqualityEnum.LessThan));
-
-                if (fileDb.NumDeleted > 0)
-                {
-                    Trace.TraceInformation("FileDbCache: Deleted {0} expired items", fileDb.NumDeleted);
-                    fileDb.Clean();
-                }
+                Clean();
             }
             catch
             {
                 CreateDatabase();
             }
 
-            if (fileDb.IsOpen)
-            {
-                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-            }
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => Close();
         }
 
         public bool AutoFlush
@@ -147,50 +140,19 @@ namespace Caching
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            long count = 0;
-
             if (fileDb.IsOpen)
             {
                 try
                 {
-                    count = fileDb.NumRecords;
+                    return fileDb.NumRecords;
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: FileDb.NumRecords failed: {0}", ex.Message);
-
-                    if (RepairDatabase())
-                    {
-                        count = fileDb.NumRecords;
-                    }
+                    Debug.WriteLine("FileDbCache: FileDb.NumRecords failed: {0}", (object)ex.Message);
                 }
             }
 
-            return count;
-        }
-
-        private Record GetRecord(string key)
-        {
-            Record record = null;
-
-            if (fileDb.IsOpen)
-            {
-                try
-                {
-                    record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceWarning("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
-
-                    if (RepairDatabase())
-                    {
-                        record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
-                    }
-                }
-            }
-
-            return record;
+            return 0;
         }
 
         public override bool Contains(string key, string regionName = null)
@@ -205,7 +167,19 @@ namespace Caching
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            return GetRecord(key) != null;
+            if (fileDb.IsOpen)
+            {
+                try
+                {
+                    return fileDb.GetRecordByKey(key, new string[0], false) != null;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                }
+            }
+
+            return false;
         }
 
         public override object Get(string key, string regionName = null)
@@ -220,57 +194,57 @@ namespace Caching
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            object value = null;
-            var record = GetRecord(key);
-
-            if (record != null)
+            if (fileDb.IsOpen)
             {
+                Record record = null;
+
                 try
                 {
-                    using (var stream = new MemoryStream((byte[])record[0]))
-                    {
-                        value = formatter.Deserialize(stream);
-                    }
+                    record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
                 }
-                catch (Exception ex1)
+                catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: Deserializing item \"{0}\" failed: {1}", key, ex1.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                }
+
+                if (record != null)
+                {
+                    try
+                    {
+                        using (var memoryStream = new MemoryStream((byte[])record[0]))
+                        {
+                            return BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("FileDbCache: Decoding \"{0}\" failed: {1}", key, ex.Message);
+                    }
 
                     try
                     {
                         fileDb.DeleteRecordByKey(key);
                     }
-                    catch (Exception ex2)
+                    catch (Exception ex)
                     {
-                        Trace.TraceWarning("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex2.Message);
+                        Debug.WriteLine("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
                     }
                 }
             }
 
-            return value;
+            return null;
         }
 
         public override CacheItem GetCacheItem(string key, string regionName = null)
         {
             var value = Get(key, regionName);
+
             return value != null ? new CacheItem(key, value) : null;
         }
 
         public override IDictionary<string, object> GetValues(IEnumerable<string> keys, string regionName = null)
         {
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
-            }
-
-            var values = new Dictionary<string, object>();
-
-            foreach (string key in keys)
-            {
-                values[key] = Get(key);
-            }
-
-            return values;
+            return keys.ToDictionary(key => key, key => Get(key, regionName));
         }
 
         public override void Set(string key, object value, CacheItemPolicy policy, string regionName = null)
@@ -280,9 +254,9 @@ namespace Caching
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            if (value == null)
+            if (policy == null)
             {
-                throw new ArgumentNullException("The parameter value must not be null.");
+                throw new ArgumentNullException("The parameter policy must not be null.");
             }
 
             if (regionName != null)
@@ -290,24 +264,34 @@ namespace Caching
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
+            var bitmap = value as BitmapFrame;
+
+            if (bitmap == null)
+            {
+                throw new ArgumentException("The parameter value must contain a System.Windows.Media.Imaging.BitmapFrame.");
+            }
+
             if (fileDb.IsOpen)
             {
-                byte[] valueBuffer = null;
+                byte[] buffer = null;
 
                 try
                 {
-                    using (var stream = new MemoryStream())
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(bitmap);
+
+                    using (var memoryStream = new MemoryStream())
                     {
-                        formatter.Serialize(stream, value);
-                        valueBuffer = stream.ToArray();
+                        encoder.Save(memoryStream);
+                        buffer = memoryStream.ToArray();
                     }
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: Serializing item \"{0}\" failed: {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache: Encoding \"{0}\" failed: {1}", key, ex.Message);
                 }
 
-                if (valueBuffer != null)
+                if (buffer != null)
                 {
                     var expires = DateTime.MaxValue;
 
@@ -320,18 +304,9 @@ namespace Caching
                         expires = DateTime.UtcNow + policy.SlidingExpiration;
                     }
 
-                    try
+                    if (!AddOrUpdateRecord(key, buffer, expires) && RepairDatabase())
                     {
-                        AddOrUpdateRecord(key, valueBuffer, expires);
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.TraceWarning("FileDbCache: FileDb.UpdateRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
-
-                        if (RepairDatabase())
-                        {
-                            AddOrUpdateRecord(key, valueBuffer, expires);
-                        }
+                        AddOrUpdateRecord(key, buffer, expires);
                     }
                 }
             }
@@ -350,14 +325,18 @@ namespace Caching
         public override object AddOrGetExisting(string key, object value, CacheItemPolicy policy, string regionName = null)
         {
             var oldValue = Get(key, regionName);
+
             Set(key, value, policy);
+
             return oldValue;
         }
 
         public override CacheItem AddOrGetExisting(CacheItem item, CacheItemPolicy policy)
         {
             var oldItem = GetCacheItem(item.Key, item.RegionName);
+
             Set(item, policy);
+
             return oldItem;
         }
 
@@ -378,63 +357,51 @@ namespace Caching
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
                 }
             }
 
             return oldValue;
         }
 
+        public void Dispose()
+        {
+            Close();
+        }
+
         public void Flush()
         {
-            try
+            if (fileDb.IsOpen)
             {
-                if (fileDb.IsOpen)
-                {
-                    fileDb.Flush();
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceWarning("FileDbCache: FileDb.Flush() failed: {0}", ex.Message);
+                fileDb.Flush();
             }
         }
 
         public void Clean()
         {
-            try
+            if (fileDb.IsOpen)
             {
-                if (fileDb.IsOpen)
+                fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThan));
+
+                if (fileDb.NumDeleted > 0)
                 {
+                    Debug.WriteLine("FileDbCache: Deleted {0} expired items.", fileDb.NumDeleted);
                     fileDb.Clean();
                 }
             }
-            catch (Exception ex)
-            {
-                Trace.TraceWarning("FileDbCache: FileDb.Clean() failed: {0}", ex.Message);
-            }
         }
 
-        public void Close()
+        private void Close()
         {
             if (fileDb.IsOpen)
             {
                 fileDb.Close();
-                AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
             }
-        }
-
-        private void OnProcessExit(object sender, EventArgs e)
-        {
-            Close();
         }
 
         private void CreateDatabase()
         {
-            if (fileDb.IsOpen)
-            {
-                fileDb.Close();
-            }
+            Close();
 
             if (File.Exists(path))
             {
@@ -445,15 +412,14 @@ namespace Caching
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
             }
 
-            fileDb.Create(path,
-                new Field[]
+            fileDb.Create(path, new Field[]
             {
                 new Field(keyField, DataTypeEnum.String) { IsPrimaryKey = true },
                 new Field(valueField, DataTypeEnum.Byte) { IsArray = true },
                 new Field(expiresField, DataTypeEnum.DateTime)
             });
 
-            Trace.TraceInformation("FileDbCache: Created database {0}", path);
+            Debug.WriteLine("FileDbCache: Created database {0}.", (object)path);
         }
 
         private bool RepairDatabase()
@@ -461,40 +427,71 @@ namespace Caching
             try
             {
                 fileDb.Reindex();
+                return true;
             }
-            catch (Exception ex1)
+            catch (Exception ex)
             {
-                Trace.TraceWarning("FileDbCache: FileDb.Reindex() failed: {0}", ex1.Message);
+                Debug.WriteLine("FileDbCache: FileDb.Reindex() failed: {0}", (object)ex.Message);
+            }
 
+            try
+            {
+                CreateDatabase();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("FileDbCache: Creating database {0} failed: {1}", path, ex.Message);
+            }
+
+            return false;
+        }
+
+        private bool AddOrUpdateRecord(string key, byte[] value, DateTime expires)
+        {
+            var fieldValues = new FieldValues(3);
+            fieldValues.Add(valueField, value);
+            fieldValues.Add(expiresField, expires);
+
+            bool recordExists;
+
+            try
+            {
+                recordExists = fileDb.GetRecordByKey(key, new string[0], false) != null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                return false;
+            }
+
+            if (recordExists)
+            {
                 try
                 {
-                    CreateDatabase();
+                    fileDb.UpdateRecordByKey(key, fieldValues);
                 }
-                catch (Exception ex2)
+                catch (Exception ex)
                 {
-                    Trace.TraceWarning("FileDbCache: Creating database {0} failed: {1}", path, ex2.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.UpdateRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                    return false;
+                }
+            }
+            else
+            {
+                try
+                {
+                    fieldValues.Add(keyField, key);
+                    fileDb.AddRecord(fieldValues);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("FileDbCache: FileDb.AddRecord(\"{0}\") failed: {1}", key, ex.Message);
                     return false;
                 }
             }
 
             return true;
-        }
-
-        private void AddOrUpdateRecord(string key, object value, DateTime expires)
-        {
-            var fieldValues = new FieldValues(3); // capacity
-            fieldValues.Add(valueField, value);
-            fieldValues.Add(expiresField, expires);
-
-            if (fileDb.GetRecordByKey(key, new string[0], false) == null)
-            {
-                fieldValues.Add(keyField, key);
-                fileDb.AddRecord(fieldValues);
-            }
-            else
-            {
-                fileDb.UpdateRecordByKey(key, fieldValues);
-            }
         }
     }
 }

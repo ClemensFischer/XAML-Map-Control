@@ -31,14 +31,14 @@
             <map:TileLayer SourceName="Thunderforest Transport Dark"
                            Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
                            TileSource="http://{c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png"
-                           Background="Black" Foreground="White"/>
+                           Foreground="White" Background="Black"/>
             <map:TileLayer SourceName="MapQuest OpenStreetMap"
                            Description="Maps © [MapQuest](http://www.mapquest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
                            TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"
                            MaxZoomLevel="19"/>
             <map:TileLayer SourceName="Seamarks"
                            TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
-                           MinZoomLevel="10" MaxZoomLevel="18"/>
+                           MinZoomLevel="9" MaxZoomLevel="18"/>
 
             <!--
             Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
@@ -66,7 +66,7 @@
             <!--
             A TileLayer that uses an ImageTileSource, which bypasses caching of map tile images
             -->
-            <!--<map:TileLayer SourceName="OSM Uncached"
+            <!--<map:TileLayer SourceName="OpenStreetMap No Cache"
                            Description="© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
                 <map:ImageTileSource IsAsync="True" UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
             </map:TileLayer>-->
@@ -189,7 +189,7 @@
                           Source="10_535_330.jpg" Opacity="0.5"/>
 
             <map:MapGraticule Opacity="0.6"/>
-            <map:MapScale Margin="4" Opacity="0.8" HorizontalAlignment="Left"/>
+            <map:MapScale Margin="4" Opacity="0.8" HorizontalAlignment="Left" Background="Transparent"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"
@@ -206,6 +206,12 @@
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"
                                  IsSynchronizedWithCurrentItem="True"/>
 
+            <Path map:MapPanel.Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
+                <Path.Data>
+                    <EllipseGeometry RadiusX="1852" RadiusY="1852" Transform="{Binding ScaleTransform, ElementName=map}"/>
+                </Path.Data>
+            </Path>
+
             <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
                 <map:Pushpin.Visibility>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
@@ -214,16 +220,12 @@
                     </MultiBinding>
                 </map:Pushpin.Visibility>
             </map:Pushpin>
-
-            <Path map:MapPanel.Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Path.Data>
-                    <EllipseGeometry RadiusX="1852" RadiusY="1852" Transform="{Binding ScaleTransform, ElementName=map}"/>
-                </Path.Data>
-            </Path>
         </map:Map>
+
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF">
             <TextBlock x:Name="mapLegend" Margin="2" FontSize="10"/>
         </Border>
+
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

@@ -2,6 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 #if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,15 +21,15 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public void SetImageSource(ImageSource image, bool animateOpacity)
+        public void SetImage(ImageSource image, bool animateOpacity = true, bool isDownloading = true)
         {
             if (image != null && Image.Source == null)
             {
-                if (animateOpacity)
+                if (animateOpacity && OpacityAnimationDuration > TimeSpan.Zero)
                 {
-                    var bitmap = image as BitmapImage;
+                    BitmapImage bitmap;
 
-                    if (bitmap != null)
+                    if (isDownloading && (bitmap = image as BitmapImage) != null)
                     {
                         bitmap.ImageOpened += BitmapImageOpened;
                         bitmap.ImageFailed += BitmapImageFailed;
@@ -36,17 +37,18 @@ namespace MapControl
                     else
                     {
                         Image.BeginAnimation(Image.OpacityProperty,
-                            new DoubleAnimation { To = 1d, Duration = Settings.TileAnimationDuration });
+                            new DoubleAnimation { From = 0d, To = 1d, Duration = OpacityAnimationDuration });
                     }
                 }
                 else
                 {
                     Image.Opacity = 1d;
                 }
+
+                Image.Source = image;
             }
 
-            Image.Source = image;
-            HasImageSource = true;
+            Pending = false;
         }
 
         private void BitmapImageOpened(object sender, RoutedEventArgs e)
@@ -57,7 +59,7 @@ namespace MapControl
             bitmap.ImageFailed -= BitmapImageFailed;
 
             Image.BeginAnimation(Image.OpacityProperty,
-                new DoubleAnimation { To = 1d, Duration = Settings.TileAnimationDuration });
+                new DoubleAnimation { From = 0d, To = 1d, Duration = OpacityAnimationDuration });
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)

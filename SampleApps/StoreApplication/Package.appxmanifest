@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="199e6e5e-60fe-46b4-a699-07c78f31849c" Publisher="CN=Clemens" Version="1.1.0.0" />
+  <Identity Name="XamlMapControl.StoreApp" Publisher="CN=Clemens" Version="2.4.0.0" />
   <Properties>
-    <DisplayName>StoreApplication</DisplayName>
+    <DisplayName>XAML Map Control Store Application</DisplayName>
     <PublisherDisplayName>Clemens</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="StoreApplication.App">
-      <m2:VisualElements DisplayName="StoreApplication" Description="StoreApplication" BackgroundColor="#464646" ForegroundText="light" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png">
+      <m2:VisualElements DisplayName="XAML Map Control Test Application" Description="StoreApplication" BackgroundColor="#464646" ForegroundText="light" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png">
         <m2:DefaultTile>
           <m2:ShowNameOnTiles>
             <m2:ShowOn Tile="square150x150Logo" />

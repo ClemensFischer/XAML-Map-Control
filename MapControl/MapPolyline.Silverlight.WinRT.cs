@@ -7,7 +7,6 @@ using System.Linq;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows.Media;
-
 #endif
 
 namespace MapControl

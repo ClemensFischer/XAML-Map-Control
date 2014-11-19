@@ -13,6 +13,8 @@ namespace MapControl
 {
     public partial class Tile
     {
+        public static TimeSpan OpacityAnimationDuration = TimeSpan.FromSeconds(0.3);
+
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;
@@ -23,9 +25,10 @@ namespace MapControl
             ZoomLevel = zoomLevel;
             X = x;
             Y = y;
+            Pending = true;
         }
 
-        public bool HasImageSource { get; private set; }
+        public bool Pending { get; private set; }
 
         public int XIndex
         {

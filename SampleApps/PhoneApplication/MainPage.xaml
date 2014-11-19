@@ -32,7 +32,8 @@
                 <map:TileSource UriFormat="http://{c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png"/>
             </map:TileLayer>
             <map:TileLayer SourceName="Thunderforest Transport Dark"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
+                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                           Foreground="White" Background="Black">
                 <map:TileSource UriFormat="http://{c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png"/>
             </map:TileLayer>
             <map:TileLayer SourceName="MapQuest OpenStreetMap"

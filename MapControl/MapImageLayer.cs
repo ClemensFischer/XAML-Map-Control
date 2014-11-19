@@ -40,7 +40,7 @@ namespace MapControl
             Children.Add(new MapImage { Opacity = 0d });
             Children.Add(new MapImage { Opacity = 0d });
 
-            updateTimer = new DispatcherTimer { Interval = Settings.TileUpdateInterval };
+            updateTimer = new DispatcherTimer { Interval = MapBase.TileUpdateInterval };
             updateTimer.Tick += (s, e) => UpdateImage();
         }
 
@@ -59,7 +59,7 @@ namespace MapControl
         /// <summary>
         /// Relative size of the map images in relation to the current viewport size.
         /// Setting a value greater than one will let MapImageLayer request images that
-        /// are larger than the viewport, in order to support smooth panning. 
+        /// are larger than the viewport, in order to support smooth panning.
         /// </summary>
         public double RelativeImageSize
         {
@@ -175,16 +175,16 @@ namespace MapControl
             if (topImage.Source != null)
             {
                 topImage.BeginAnimation(UIElement.OpacityProperty,
-                    new DoubleAnimation { To = 1d, Duration = Settings.TileAnimationDuration });
+                    new DoubleAnimation { To = 1d, Duration = Tile.OpacityAnimationDuration });
             }
 
             if (bottomImage.Source != null)
             {
-                var fadeOutAnimation = new DoubleAnimation { To = 0d, Duration = Settings.TileAnimationDuration };
+                var fadeOutAnimation = new DoubleAnimation { To = 0d, Duration = Tile.OpacityAnimationDuration };
 
                 if (topImage.Source != null)
                 {
-                    fadeOutAnimation.BeginTime = Settings.TileAnimationDuration;
+                    fadeOutAnimation.BeginTime = Tile.OpacityAnimationDuration;
                 }
 
                 bottomImage.BeginAnimation(UIElement.OpacityProperty, fadeOutAnimation);

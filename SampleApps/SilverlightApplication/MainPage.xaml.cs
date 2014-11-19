@@ -14,7 +14,7 @@ namespace SilverlightApplication
 
         public MainPage()
         {
-            //BingMapsTileLayer.ApiKey = ...
+            //BingMapsTileLayer.ApiKey = "...";
 
             InitializeComponent();
 

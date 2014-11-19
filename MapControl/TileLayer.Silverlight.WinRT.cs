@@ -2,13 +2,14 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System.Threading.Tasks;
-
 namespace MapControl
 {
-    public interface IObjectCache
+    public partial class TileLayer
     {
-        Task<object> GetAsync(string key);
-        Task SetAsync(string key, object value);
+        partial void Initialize()
+        {
+            IsHitTestVisible = false;
+            MapPanel.AddParentMapHandlers(this);
+        }
     }
 }

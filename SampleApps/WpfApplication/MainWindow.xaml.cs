@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Globalization;
-using System.Runtime.Caching;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Caching;
 using MapControl;
+using MapControl.Caching;
 
 namespace WpfApplication
 {
@@ -15,25 +14,10 @@ namespace WpfApplication
 
         public MainWindow()
         {
-            switch (Properties.Settings.Default.TileCache)
-            {
-                case "MemoryCache":
-                    TileImageLoader.Cache = MemoryCache.Default; // this is the default value of the TileImageLoader.Cache property
-                    break;
-                case "ImageFileCache":
-                    TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
-                    break;
-                case "FileDbCache":
-                    TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheDirectory);
-                    break;
-                case "None":
-                    TileImageLoader.Cache = null;
-                    break;
-                default:
-                    break;
-            }
-
-            //BingMapsTileLayer.ApiKey = ...
+            //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.HttpUserAgent = "...";
+            //BingMapsTileLayer.ApiKey = "...";
 
             InitializeComponent();
 
@@ -105,7 +89,7 @@ namespace WpfApplication
         {
             var selectedItem = (ComboBoxItem)tileLayerComboBox.SelectedItem;
 
-            map.TileLayer = tileLayers[(string)selectedItem.Tag]; 
+            map.TileLayer = tileLayers[(string)selectedItem.Tag];
 
             mapLegend.Inlines.Clear();
             mapLegend.Inlines.AddRange(map.TileLayer.DescriptionInlines);

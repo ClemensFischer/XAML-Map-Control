@@ -19,7 +19,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             "Source", typeof(ImageSource), typeof(MapImage),
-            new PropertyMetadata(null, (o, e) => ((MapImage)o).SourceChanged((ImageSource)e.NewValue)));
+            new PropertyMetadata(null, (o, e) => ((MapImage)o).SourcePropertyChanged((ImageSource)e.NewValue)));
 
         public ImageSource Source
         {
@@ -27,7 +27,7 @@ namespace MapControl
             set { SetValue(SourceProperty, value); }
         }
 
-        private void SourceChanged(ImageSource image)
+        private void SourcePropertyChanged(ImageSource image)
         {
             Fill = new ImageBrush
             {

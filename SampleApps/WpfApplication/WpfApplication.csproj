@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -70,28 +72,19 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Caching\FileDbCache\FileDbCache.csproj">
+    <ProjectReference Include="..\..\Caching\FileDbCache.WPF\FileDbCache.WPF.csproj">
       <Project>{ef44f661-b98a-4676-927f-85d138f82300}</Project>
-      <Name>FileDbCache</Name>
+      <Name>FileDbCache.WPF</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Caching\ImageFileCache\ImageFileCache.csproj">
+    <ProjectReference Include="..\..\Caching\ImageFileCache.WPF\ImageFileCache.WPF.csproj">
       <Project>{86470440-fee2-4120-af5a-3762fb9c536f}</Project>
-      <Name>ImageFileCache</Name>
+      <Name>ImageFileCache.WPF</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\MapControl\MapControl.WPF.csproj">
       <Project>{226f3575-b683-446d-a2f0-181291dc8787}</Project>

@@ -39,7 +39,7 @@ namespace MapControl
                         }
                     }
 
-                    tile.SetImageSource(image, tileLayer.AnimateTileOpacity);
+                    tile.SetImage(image);
                 }
                 catch (Exception ex)
                 {

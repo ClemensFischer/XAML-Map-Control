@@ -4,11 +4,9 @@
 
 #if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 #endif
 
@@ -21,7 +19,11 @@ namespace MapControl
 
         public MapPanel()
         {
-            if (!(this is MapBase))
+            if (this is MapBase)
+            {
+                SetValue(ParentMapProperty, this);
+            }
+            else
             {
                 AddParentMapHandlers(this);
             }
@@ -66,11 +68,6 @@ namespace MapControl
             }
 
             return parentMap;
-        }
-
-        internal void SetParentMap()
-        {
-            SetValue(ParentMapProperty, this);
         }
     }
 }

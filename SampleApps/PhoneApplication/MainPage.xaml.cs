@@ -15,8 +15,7 @@ namespace PhoneApplication
 
         public MainPage()
         {
-            //TileImageLoader.Cache = new ImageFileCache();
-            //BingMapsTileLayer.ApiKey = ...
+            //BingMapsTileLayer.ApiKey = "...";
 
             InitializeComponent();
 

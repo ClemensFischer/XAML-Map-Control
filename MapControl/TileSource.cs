@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 #if WINDOWS_RUNTIME
 using Windows.Foundation;
@@ -20,6 +21,8 @@ namespace MapControl
         public const int TileSize = 256;
         public const double MetersPerDegree = 6378137d * Math.PI / 180d; // WGS 84 semi major axis
 
+        protected readonly HashSet<long> IgnoredTiles = new HashSet<long>();
+
         private Func<int, int, int, Uri> getUri;
         private string uriFormat = string.Empty;
 
@@ -31,7 +34,7 @@ namespace MapControl
         {
             this.uriFormat = uriFormat;
         }
-        
+
         public string UriFormat
         {
             get { return uriFormat; }
@@ -84,7 +87,38 @@ namespace MapControl
 
         public virtual Uri GetUri(int x, int y, int zoomLevel)
         {
-            return getUri != null ? getUri(x, y, zoomLevel) : null;
+            if (getUri == null)
+            {
+                return null;
+            }
+
+            if (IgnoredTiles.Count > 0)
+            {
+                lock (IgnoredTiles)
+                {
+                    if (IgnoredTiles.Contains(GetHashCode(x, y, zoomLevel)))
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            return getUri(x, y, zoomLevel);
+        }
+
+        public void IgnoreTile(int x, int y, int zoomLevel)
+        {
+            lock (IgnoredTiles)
+            {
+                IgnoredTiles.Add(GetHashCode(x, y, zoomLevel));
+            }
+        }
+
+        protected static long GetHashCode(int x, int y, int zoomLevel)
+        {
+            return (long)(x & 0xFFFFFF)
+                + ((long)(y & 0xFFFFFF) << 24)
+                + ((long)(zoomLevel & 0xFF) << 48);
         }
 
         private Uri GetBasicUri(int x, int y, int zoomLevel)

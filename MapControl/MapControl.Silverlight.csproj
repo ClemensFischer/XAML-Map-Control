@@ -75,6 +75,7 @@
     <Compile Include="ImageTileSource.Silverlight.WinRT.cs" />
     <Compile Include="IMapElement.cs" />
     <Compile Include="Int32Rect.cs" />
+    <Compile Include="ITileImageLoader.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />
     <Compile Include="LocationCollectionConverter.cs" />
@@ -105,13 +106,11 @@
     <Compile Include="PanelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pushpin.Silverlight.WinRT.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Tile.Silverlight.WinRT.cs" />
-    <Compile Include="TileContainer.cs" />
-    <Compile Include="TileContainer.Silverlight.WinRT.cs" />
     <Compile Include="TileImageLoader.Silverlight.cs" />
     <Compile Include="TileLayer.cs" />
+    <Compile Include="TileLayer.Silverlight.WinRT.cs" />
     <Compile Include="TileLayerCollection.cs" />
     <Compile Include="TileSource.cs" />
     <Compile Include="TileSourceConverter.cs" />

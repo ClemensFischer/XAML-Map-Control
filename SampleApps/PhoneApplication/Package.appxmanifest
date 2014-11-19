@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="45fd5832-8021-45d0-909e-dd7af206f388" Publisher="CN=Clemens" Version="1.0.0.0" />
-  <mp:PhoneIdentity PhoneProductId="45fd5832-8021-45d0-909e-dd7af206f388" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="XamlMapControl.PhoneApp" Publisher="CN=Clemens" Version="2.4.0.0" />
+  <mp:PhoneIdentity PhoneProductId="a28a99bb-a24b-4713-a6ea-3015d8aa2d72" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>PhoneApplication</DisplayName>
+    <DisplayName>XAML Map Control Phone Application</DisplayName>
     <PublisherDisplayName>Clemens</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -16,7 +16,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="PhoneApplication.App">
-      <m3:VisualElements DisplayName="PhoneApplication" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="PhoneApplication" ForegroundText="light" BackgroundColor="transparent">
+      <m3:VisualElements DisplayName="XAML Map Control Test Application" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="PhoneApplication" ForegroundText="light" BackgroundColor="transparent">
         <m3:DefaultTile Wide310x150Logo="Assets\WideLogo.png" Square71x71Logo="Assets\Square71x71Logo.png">
         </m3:DefaultTile>
         <m3:SplashScreen Image="Assets\SplashScreen.png" />

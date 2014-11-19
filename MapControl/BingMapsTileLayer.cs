@@ -57,8 +57,7 @@ namespace MapControl
                 var request = (HttpWebRequest)asyncResult.AsyncState;
 
                 using (var response = request.EndGetResponse(asyncResult))
-                using (var responseStream = response.GetResponseStream())
-                using (var xmlReader = XmlReader.Create(responseStream))
+                using (var xmlReader = XmlReader.Create(response.GetResponseStream()))
                 {
                     ReadImageryMetadataResponse(xmlReader);
                 }

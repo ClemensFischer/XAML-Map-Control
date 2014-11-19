@@ -2,6 +2,7 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,7 +12,7 @@ namespace MapControl
     public partial class MapBase
     {
         public static readonly DependencyProperty ForegroundProperty =
-            System.Windows.Controls.Control.ForegroundProperty.AddOwner(typeof(MapBase));
+            Control.ForegroundProperty.AddOwner(typeof(MapBase));
 
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
             "Center", typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(
@@ -64,13 +65,50 @@ namespace MapControl
             UpdateTransform();
         }
 
+        private void SetViewportTransform(Point mapOrigin)
+        {
+            var transform = Matrix.Identity;
+            transform.Translate(-mapOrigin.X, -mapOrigin.Y);
+            transform.Scale(ViewportScale, -ViewportScale);
+            transform.Rotate(Heading);
+            transform.Translate(viewportOrigin.X, viewportOrigin.Y);
+
+            viewportTransform.Matrix = transform;
+        }
+
+        private void SetTileLayerTransform()
+        {
+            var scale = Math.Pow(2d, ZoomLevel - TileZoomLevel);
+            var transform = Matrix.Identity;
+            transform.Translate(TileGrid.X * TileSource.TileSize, TileGrid.Y * TileSource.TileSize);
+            transform.Scale(scale, scale);
+            transform.Translate(tileLayerOffset.X, tileLayerOffset.Y);
+            transform.RotateAt(Heading, viewportOrigin.X, viewportOrigin.Y);
+
+            tileLayerTransform.Matrix = transform;
+        }
+
         private void SetTransformMatrixes()
         {
-            Matrix rotateMatrix = Matrix.Identity;
+            var rotateMatrix = Matrix.Identity;
             rotateMatrix.Rotate(Heading);
             rotateTransform.Matrix = rotateMatrix;
-            scaleTransform.Matrix = new Matrix(CenterScale, 0d, 0d, CenterScale, 0d, 0d);
-            scaleRotateTransform.Matrix = scaleTransform.Matrix * rotateMatrix;
+
+            var scaleMatrix = Matrix.Identity;
+            scaleMatrix.Scale(CenterScale, CenterScale);
+            scaleTransform.Matrix = scaleMatrix;
+
+            scaleRotateTransform.Matrix = scaleMatrix * rotateMatrix;
+        }
+
+        private Matrix GetTileIndexMatrix(double scale)
+        {
+            var transform = viewportTransform.Matrix;
+            transform.Invert(); // view to map coordinates
+            transform.Translate(180d, -180d);
+            transform.Scale(scale, -scale); // map coordinates to tile indices
+
+            return transform;
         }
     }
 }

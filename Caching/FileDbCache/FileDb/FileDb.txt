@@ -1,5 +1,0 @@
-FileDbCache uses FileDb by Brett Goodman (aka EzTools), a simple No-SQL database for .NET.
-FileDb is Open Source on Google Code Hosting at http://code.google.com/p/filedb-database/
-and licensed under the Apache License 2.0, http://www.apache.org/licenses/LICENSE-2.0.
-See the product homepage at http://www.eztools-software.com/tools/filedb/.
-Download FileDb from http://www.eztools-software.com/downloads/filedb.exe.
