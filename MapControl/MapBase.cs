@@ -416,10 +416,9 @@ namespace MapControl
             {
                 if (TileLayers == null)
                 {
-                    TileLayers = new TileLayerCollection();
+                    TileLayers = new TileLayerCollection(tileLayer);
                 }
-
-                if (TileLayers.Count == 0)
+                else if (TileLayers.Count == 0)
                 {
                     TileLayers.Add(tileLayer);
                 }
@@ -435,16 +434,18 @@ namespace MapControl
             if (oldTileLayers != null)
             {
                 oldTileLayers.CollectionChanged -= TileLayerCollectionChanged;
+
+                TileLayer = null;
                 RemoveTileLayers(0, oldTileLayers.Count);
             }
 
             if (newTileLayers != null)
             {
+                TileLayer = newTileLayers.FirstOrDefault();
                 AddTileLayers(0, newTileLayers);
+
                 newTileLayers.CollectionChanged += TileLayerCollectionChanged;
             }
-
-            TileLayer = TileLayers.FirstOrDefault();
         }
 
         private void TileLayerCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -481,7 +482,12 @@ namespace MapControl
                     break;
             }
 
-            TileLayer = TileLayers.FirstOrDefault();
+            var tileLayer = TileLayers.FirstOrDefault();
+
+            if (TileLayer != tileLayer)
+            {
+                TileLayer = tileLayer;
+            }
         }
 
         private void AddTileLayers(int index, IEnumerable<TileLayer> tileLayers)

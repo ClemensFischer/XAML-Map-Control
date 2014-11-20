@@ -9,6 +9,15 @@ namespace MapControl
 {
     public class TileLayerCollection : ObservableCollection<TileLayer>
     {
+        internal TileLayerCollection(TileLayer tileLayer)
+        {
+            Add(tileLayer);
+        }
+
+        public TileLayerCollection()
+        {
+        }
+
         public TileLayer this[string sourceName]
         {
             get { return this.FirstOrDefault(t => t.SourceName == sourceName); }
