@@ -85,7 +85,7 @@ namespace MapControl
                 }
                 else
                 {
-                    var tileList = tiles.ToList();
+                    var tileList = tiles.ToList(); // force immediate evaluation
                     var sourceName = tileLayer.SourceName;
                     var maxDownloads = tileLayer.MaxParallelDownloads;
 
@@ -101,7 +101,7 @@ namespace MapControl
             while (pendingTiles.TryDequeue(out pendingTile)) ; // no Clear method
         }
 
-        private void GetTiles(List<Tile> tiles, Dispatcher dispatcher, TileSource tileSource, string sourceName, int maxDownloads)
+        private void GetTiles(IEnumerable<Tile> tiles, Dispatcher dispatcher, TileSource tileSource, string sourceName, int maxDownloads)
         {
             if (Cache != null &&
                 !string.IsNullOrWhiteSpace(sourceName) &&

@@ -126,9 +126,6 @@
     <Compile Include="..\MapRectangle.cs">
       <Link>MapRectangle.cs</Link>
     </Compile>
-    <Compile Include="..\MapRectangle.Silverlight.WinRT.cs">
-      <Link>MapRectangle.Silverlight.WinRT.cs</Link>
-    </Compile>
     <Compile Include="..\MapTransform.cs">
       <Link>MapTransform.cs</Link>
     </Compile>

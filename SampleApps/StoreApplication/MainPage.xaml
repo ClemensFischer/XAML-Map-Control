@@ -61,9 +61,11 @@
                                    Description="Bing Maps - © Microsoft Corporation"
                                    Mode="AerialWithLabels" MaxZoomLevel="19" Foreground="White" Background="Black"/>
         </map:TileLayerCollection>
+
         <DataTemplate x:Key="PolylineItemTemplate">
             <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
         </DataTemplate>
+
         <Style x:Key="PolylineItemStyle" TargetType="map:MapItem">
             <Setter Property="Template">
                 <Setter.Value>
@@ -73,6 +75,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <Setter Property="local:BindingHelper.LocationPath" Value="Location"/>
             <Setter Property="Foreground" Value="Black"/>
@@ -138,6 +141,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <Setter Property="local:BindingHelper.LocationPath" Value="Location"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
@@ -151,16 +155,18 @@
             </Setter>
         </Style>
     </Page.Resources>
+
     <Page.DataContext>
         <vm:ViewModel/>
     </Page.DataContext>
+
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
-                 Foreground="Black" ManipulationMode="All">
+        <map:Map x:Name="map" TileLayer="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}"
+                 Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11" ManipulationMode="All">
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
             <map:MapGraticule Opacity="0.6"/>
@@ -194,7 +200,8 @@
             </map:Pushpin>
         </map:Map>
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#BFFFFFFF">
-            <TextBlock x:Name="mapLegend" Margin="2" FontSize="10" Foreground="Black"/>
+            <TextBlock Margin="2" FontSize="10" Foreground="Black"
+                       map:HyperlinkText.InlinesSource="{Binding TileLayer.Description, ElementName=map}"/>
         </Border>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -220,18 +227,18 @@
                 </StackPanel>
                 <CheckBox Margin="10" VerticalAlignment="Center" Content="Seamarks"
                           Checked="SeamarksChecked" Unchecked="SeamarksUnchecked"/>
-                <ComboBox x:Name="tileLayerComboBox" Width="200" Margin="10" VerticalAlignment="Center"
-                          SelectionChanged="TileLayerSelectionChanged">
-                    <ComboBoxItem Tag="OpenStreetMap">OpenStreetMap</ComboBoxItem>
-                    <ComboBoxItem Tag="Thunderforest OpenCycleMap">OpenCycleMap</ComboBoxItem>
-                    <ComboBoxItem Tag="Thunderforest Landscape">Landscape</ComboBoxItem>
-                    <ComboBoxItem Tag="Thunderforest Outdoors">Outdoors</ComboBoxItem>
-                    <ComboBoxItem Tag="Thunderforest Transport">Transport</ComboBoxItem>
-                    <ComboBoxItem Tag="Thunderforest Transport Dark">Transport Dark</ComboBoxItem>
-                    <ComboBoxItem Tag="MapQuest OpenStreetMap">MapQuest Open</ComboBoxItem>
-                    <!--<ComboBoxItem Tag="Bing Maps Road">Bing Maps Road</ComboBoxItem>
-                    <ComboBoxItem Tag="Bing Maps Aerial">Bing Maps Aerial</ComboBoxItem>
-                    <ComboBoxItem Tag="Bing Maps Hybrid">Bing Maps Hybrid</ComboBoxItem>-->
+                <ComboBox Width="200" Margin="10" VerticalAlignment="Center"
+                          SelectedValuePath="Tag" SelectedValue="{Binding TileLayer, ElementName=map, Mode=TwoWay}">
+                    <ComboBoxItem Tag="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}">OpenStreetMap</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [Thunderforest OpenCycleMap], Source={StaticResource TileLayers}}">OpenCycleMap</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [Thunderforest Landscape], Source={StaticResource TileLayers}}">Landscape</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [Thunderforest Outdoors], Source={StaticResource TileLayers}}">Outdoors</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [Thunderforest Transport], Source={StaticResource TileLayers}}">Transport</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [Thunderforest Transport Dark], Source={StaticResource TileLayers}}">Transport Dark</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [MapQuest OpenStreetMap], Source={StaticResource TileLayers}}">MapQuest Open</ComboBoxItem>
+                    <!--<ComboBoxItem Tag="{Binding [Bing Maps Road], Source={StaticResource TileLayers}}">Bing Maps Road</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [Bing Maps Aerial], Source={StaticResource TileLayers}}">Bing Maps Aerial</ComboBoxItem>
+                    <ComboBoxItem Tag="{Binding [Bing Maps Hybrid], Source={StaticResource TileLayers}}">Bing Maps Hybrid</ComboBoxItem>-->
                 </ComboBox>
             </StackPanel>
         </Grid>

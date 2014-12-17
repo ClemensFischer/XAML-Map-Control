@@ -18,14 +18,6 @@ namespace MapControl
     /// </summary>
     public partial class MapRectangle : MapPath
     {
-        /// <summary>
-        /// Used in derived classes like MapImage.
-        /// </summary>
-        protected static readonly MatrixTransform FillTransform = new MatrixTransform
-        {
-            Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
-        };
-
         public static readonly DependencyProperty WestProperty = DependencyProperty.Register(
             "West", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
@@ -81,9 +73,14 @@ namespace MapControl
                 !double.IsNaN(West) && !double.IsNaN(East) &&
                 South < North && West < East)
             {
-                SetRect(new Rect(
-                    ParentMap.MapTransform.Transform(new Location(South, West)),
-                    ParentMap.MapTransform.Transform(new Location(North, East))));
+                var rect = new Rect(ParentMap.MapTransform.Transform(new Location(South, West)),
+                                    ParentMap.MapTransform.Transform(new Location(North, East)));
+                var transform = ParentMap.ViewportTransform;
+
+                ScaleRect(ref rect, ref transform);
+
+                geometry.Rect = rect;
+                RenderTransform = transform;
             }
             else
             {
@@ -91,5 +88,7 @@ namespace MapControl
                 ClearValue(RenderTransformProperty);
             }
         }
+
+        static partial void ScaleRect(ref Rect rect, ref Transform transform);
     }
 }

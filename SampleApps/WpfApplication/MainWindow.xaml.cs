@@ -1,28 +1,21 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using MapControl;
-using MapControl.Caching;
 
 namespace WpfApplication
 {
     public partial class MainWindow : Window
     {
-        private TileLayerCollection tileLayers;
-
         public MainWindow()
         {
-            //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.HttpUserAgent = "...";
             //BingMapsTileLayer.ApiKey = "...";
 
             InitializeComponent();
-
-            tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            tileLayerComboBox.SelectedIndex = 0;
         }
 
         private void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -85,24 +78,14 @@ namespace WpfApplication
             e.Handled = true;
         }
 
-        private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var selectedItem = (ComboBoxItem)tileLayerComboBox.SelectedItem;
-
-            map.TileLayer = tileLayers[(string)selectedItem.Tag];
-
-            mapLegend.Inlines.Clear();
-            mapLegend.Inlines.AddRange(map.TileLayer.DescriptionInlines);
-        }
-
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add(tileLayers["Seamarks"]);
+            map.TileLayers.Add((TileLayer)Resources["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove(tileLayers["Seamarks"]);
+            map.TileLayers.Remove((TileLayer)Resources["Seamarks"]);
         }
     }
 }

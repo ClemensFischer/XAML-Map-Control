@@ -99,7 +99,6 @@
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.Silverlight.WinRT.cs" />
     <Compile Include="MapRectangle.cs" />
-    <Compile Include="MapRectangle.Silverlight.WinRT.cs" />
     <Compile Include="MapTransform.cs" />
     <Compile Include="MatrixEx.cs" />
     <Compile Include="MercatorTransform.cs" />

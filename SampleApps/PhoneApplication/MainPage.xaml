@@ -65,9 +65,9 @@
     </Page.Resources>
     <Grid>
         <map:MapBase x:Name="map" ZoomLevel="11" MinZoomLevel="2"
+                     TileLayer="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}"
                      ManipulationMode="Scale,TranslateX,TranslateY,TranslateInertia"
                      ManipulationStarted="MapManipulationStarted"
-                     ManipulationCompleted="MapManipulationCompleted"
                      ManipulationDelta="MapManipulationDelta">
             <map:MapBase.Center>
                 <map:Location Latitude="53.5" Longitude="8.2"/>
@@ -97,7 +97,7 @@
         </map:MapBase>
 
         <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#7F000000">
-            <TextBlock x:Name="mapLegend" Margin="2" FontSize="12"/>
+            <TextBlock Margin="2" FontSize="12" map:HyperlinkText.InlinesSource="{Binding TileLayer.Description, ElementName=map}"/>
         </Border>
     </Grid>
 

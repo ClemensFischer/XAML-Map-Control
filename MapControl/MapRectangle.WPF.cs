@@ -2,7 +2,6 @@
 // Copyright © 2014 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.Windows;
 using System.Windows.Media;
 
@@ -10,31 +9,21 @@ namespace MapControl
 {
     public partial class MapRectangle
     {
-        static MapRectangle()
+        static partial void ScaleRect(ref Rect rect, ref Transform transform)
         {
-            FillTransform.Freeze();
-        }
-
-        private void SetRect(Rect rect)
-        {
-            // Apply scaling to the RectangleGeometry to compensate for inaccurate hit testing in WPF.
+            // Scales the RectangleGeometry to compensate inaccurate hit testing in WPF.
             // See http://stackoverflow.com/a/19335624/1136211
 
-            var scale = 1e6 / Math.Min(rect.Width, rect.Height);
-            rect.X *= scale;
-            rect.Y *= scale;
-            rect.Width *= scale;
-            rect.Height *= scale;
+            rect.Scale(1e6, 1e6);
 
-            var scaleTransform = new ScaleTransform(1d / scale, 1d / scale);
+            var scaleTransform = new ScaleTransform(1e-6, 1e-6); // reverts rect scaling
             scaleTransform.Freeze();
 
-            var transform = new TransformGroup();
-            transform.Children.Add(scaleTransform); // revert scaling
-            transform.Children.Add(ParentMap.ViewportTransform);
+            var transformGroup = new TransformGroup();
+            transformGroup.Children.Add(scaleTransform);
+            transformGroup.Children.Add(transform);
 
-            ((RectangleGeometry)Data).Rect = rect;
-            RenderTransform = transform;
+            transform = transformGroup;
         }
     }
 }

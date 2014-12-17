@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 #if WINDOWS_RUNTIME
@@ -39,8 +40,8 @@ namespace MapControl
                 (o, e) => ((MapBase)o).TileLayerPropertyChanged((TileLayer)e.NewValue)));
 
         public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
-            "TileLayers", typeof(TileLayerCollection), typeof(MapBase), new PropertyMetadata(null,
-                (o, e) => ((MapBase)o).TileLayersPropertyChanged((TileLayerCollection)e.OldValue, (TileLayerCollection)e.NewValue)));
+            "TileLayers", typeof(IList<TileLayer>), typeof(MapBase), new PropertyMetadata(null,
+                (o, e) => ((MapBase)o).TileLayersPropertyChanged((IList<TileLayer>)e.OldValue, (IList<TileLayer>)e.NewValue)));
 
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             "MinZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
@@ -74,7 +75,7 @@ namespace MapControl
         public MapBase()
         {
             Children.Add(tileLayerPanel);
-            TileLayers = new TileLayerCollection();
+            TileLayers = new ObservableCollection<TileLayer>();
 
             tileUpdateTimer.Tick += UpdateTiles;
             Loaded += OnLoaded;
@@ -119,9 +120,9 @@ namespace MapControl
         /// The additional TileLayers usually have transparent backgrounds and their IsOverlay
         /// property is set to true.
         /// </summary>
-        public TileLayerCollection TileLayers
+        public IList<TileLayer> TileLayers
         {
-            get { return (TileLayerCollection)GetValue(TileLayersProperty); }
+            get { return (IList<TileLayer>)GetValue(TileLayersProperty); }
             set { SetValue(TileLayersProperty, value); }
         }
 
@@ -416,7 +417,7 @@ namespace MapControl
             {
                 if (TileLayers == null)
                 {
-                    TileLayers = new TileLayerCollection(tileLayer);
+                    TileLayers = new ObservableCollection<TileLayer>(new TileLayer[] { tileLayer });
                 }
                 else if (TileLayers.Count == 0)
                 {
@@ -429,11 +430,15 @@ namespace MapControl
             }
         }
 
-        private void TileLayersPropertyChanged(TileLayerCollection oldTileLayers, TileLayerCollection newTileLayers)
+        private void TileLayersPropertyChanged(IList<TileLayer> oldTileLayers, IList<TileLayer> newTileLayers)
         {
             if (oldTileLayers != null)
             {
-                oldTileLayers.CollectionChanged -= TileLayerCollectionChanged;
+                var oldCollection = oldTileLayers as INotifyCollectionChanged;
+                if (oldCollection != null)
+                {
+                    oldCollection.CollectionChanged -= TileLayerCollectionChanged;
+                }
 
                 TileLayer = null;
                 RemoveTileLayers(0, oldTileLayers.Count);
@@ -444,7 +449,11 @@ namespace MapControl
                 TileLayer = newTileLayers.FirstOrDefault();
                 AddTileLayers(0, newTileLayers);
 
-                newTileLayers.CollectionChanged += TileLayerCollectionChanged;
+                var newCollection = newTileLayers as INotifyCollectionChanged;
+                if (newCollection != null)
+                {
+                    newCollection.CollectionChanged += TileLayerCollectionChanged;
+                }
             }
         }
 

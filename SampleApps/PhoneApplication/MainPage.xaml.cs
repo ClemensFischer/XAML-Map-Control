@@ -10,8 +10,7 @@ namespace PhoneApplication
 {
     public sealed partial class MainPage : Page
     {
-        private TileLayerCollection tileLayers;
-        private bool manipulationActive;
+        private bool mapCentered;
 
         public MainPage()
         {
@@ -19,66 +18,48 @@ namespace PhoneApplication
 
             InitializeComponent();
 
-            tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            SetTileLayer(tileLayers[0].SourceName);
-
             DataContext = new ViewModel(Dispatcher);
             NavigationCacheMode = NavigationCacheMode.Required;
         }
 
-        private void SetTileLayer(string tileLayer)
+        private void MapMenuItemClick(object sender, RoutedEventArgs e)
         {
-            map.TileLayer = tileLayers[tileLayer];
-
-            mapLegend.Inlines.Clear();
-
-            foreach (var inline in map.TileLayer.DescriptionInlines)
-            {
-                mapLegend.Inlines.Add(inline);
-            }
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayer = tileLayers[(string)((FrameworkElement)sender).Tag];
         }
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add((TileLayer)tileLayers["Seamarks"]);
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayers.Add(tileLayers["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove((TileLayer)tileLayers["Seamarks"]);
-        }
-
-        private void MapMenuItemClick(object sender, RoutedEventArgs e)
-        {
-            var selectedItem = (MenuFlyoutItem)sender;
-            SetTileLayer((string)selectedItem.Tag);
+            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
+            map.TileLayers.Remove(tileLayers["Seamarks"]);
         }
 
         private void CenterButtonClick(object sender, RoutedEventArgs e)
         {
-            manipulationActive = false;            
             map.TargetCenter = ((ViewModel)DataContext).Location;
+            mapCentered = true;
         }
 
         private void MapManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
-            manipulationActive = true;
-        }
-
-        private void MapManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-        {
-            manipulationActive = false;
+            mapCentered = false;
         }
 
         private void MapManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (manipulationActive)
+            if (mapCentered)
             {
-                map.TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+                e.Complete();
             }
             else
             {
-                e.Complete();
+                map.TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
             }
         }
     }

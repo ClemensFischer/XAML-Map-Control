@@ -7,17 +7,12 @@ using System.Linq;
 
 namespace MapControl
 {
-    public class TileLayerCollection : ObservableCollection<TileLayer>
+    /// <summary>
+    /// A collection of TileLayers with a string indexer that allows
+    /// to retrieve individual TileLayers by their SourceName property.
+    /// </summary>
+    public class TileLayerCollection : Collection<TileLayer>
     {
-        internal TileLayerCollection(TileLayer tileLayer)
-        {
-            Add(tileLayer);
-        }
-
-        public TileLayerCollection()
-        {
-        }
-
         public TileLayer this[string sourceName]
         {
             get { return this.FirstOrDefault(t => t.SourceName == sourceName); }

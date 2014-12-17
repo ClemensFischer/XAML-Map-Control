@@ -8,12 +8,10 @@ using System.Linq;
 #if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 #endif
@@ -156,16 +154,6 @@ namespace MapControl
         {
             get { return (Brush)GetValue(BackgroundProperty); }
             set { SetValue(BackgroundProperty, value); }
-        }
-
-        /// <summary>
-        /// In case the Description text contains copyright links in markdown syntax [text](url),
-        /// the DescriptionInlines property may be used to create a collection of Run and Hyperlink
-        /// inlines to be displayed in e.g. a TextBlock or a Silverlight RichTextBlock.
-        /// </summary>
-        public List<Inline> DescriptionInlines
-        {
-            get { return Description.ToInlines(); }
         }
 
         public MapBase ParentMap

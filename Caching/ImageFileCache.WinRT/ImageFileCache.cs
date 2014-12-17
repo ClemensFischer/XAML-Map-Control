@@ -49,7 +49,7 @@ namespace MapControl.Caching
 
             var cacheItem = new ImageCacheItem
             {
-                Buffer = await FileIO.ReadBufferAsync(file),
+                Buffer = await FileIO.ReadBufferAsync(file)
             };
 
             try

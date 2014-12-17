@@ -19,21 +19,23 @@ namespace MapControl
     {
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             "Source", typeof(ImageSource), typeof(MapImage),
-            new PropertyMetadata(null, (o, e) => ((MapImage)o).SourcePropertyChanged((ImageSource)e.NewValue)));
+            new PropertyMetadata(null, (o, e) => ((ImageBrush)((MapImage)o).Fill).ImageSource = (ImageSource)e.NewValue));
+
+        public MapImage()
+        {
+            Fill = new ImageBrush
+            {
+                RelativeTransform = new MatrixTransform
+                {
+                    Matrix = new Matrix(1d, 0d, 0d, -1d, 0d, 1d)
+                }
+            };
+        }
 
         public ImageSource Source
         {
             get { return (ImageSource)GetValue(SourceProperty); }
             set { SetValue(SourceProperty, value); }
-        }
-
-        private void SourcePropertyChanged(ImageSource image)
-        {
-            Fill = new ImageBrush
-            {
-                ImageSource = image,
-                RelativeTransform = FillTransform
-            };
         }
     }
 }

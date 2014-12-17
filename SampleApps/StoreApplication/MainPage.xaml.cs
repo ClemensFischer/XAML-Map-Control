@@ -7,8 +7,6 @@ namespace StoreApplication
 {
     public sealed partial class MainPage : Page
     {
-        private TileLayerCollection tileLayers;
-
         public MainPage()
         {
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache();
@@ -16,9 +14,6 @@ namespace StoreApplication
             //BingMapsTileLayer.ApiKey = "...";
 
             this.InitializeComponent();
-
-            tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            tileLayerComboBox.SelectedIndex = 0;
         }
 
         private void ImageOpacitySliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -29,28 +24,14 @@ namespace StoreApplication
             }
         }
 
-        private void TileLayerSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var selectedItem = (ComboBoxItem)tileLayerComboBox.SelectedItem;
-
-            map.TileLayer = tileLayers[(string)selectedItem.Tag];
-
-            mapLegend.Inlines.Clear();
-
-            foreach (var inline in map.TileLayer.DescriptionInlines)
-            {
-                mapLegend.Inlines.Add(inline);
-            }
-        }
-
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add(tileLayers["Seamarks"]);
+            map.TileLayers.Add(((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove(tileLayers["Seamarks"]);
+            map.TileLayers.Remove(((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
         }
     }
 }
