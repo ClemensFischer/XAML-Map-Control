@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -57,7 +57,7 @@ namespace MapControl
             public readonly Tile Tile;
             public readonly ImageSource CachedImage;
 
-            public PendingTile(Tile tile, ImageSource cachedImage = null)
+            public PendingTile(Tile tile, ImageSource cachedImage)
             {
                 Tile = tile;
                 CachedImage = cachedImage;
@@ -85,7 +85,7 @@ namespace MapControl
                 }
                 else
                 {
-                    var tileList = tiles.ToList(); // force immediate evaluation
+                    var tileList = tiles.ToList(); // evaluate immediately
                     var sourceName = tileLayer.SourceName;
                     var maxDownloads = tileLayer.MaxParallelDownloads;
 
@@ -103,30 +103,22 @@ namespace MapControl
 
         private void GetTiles(IEnumerable<Tile> tiles, Dispatcher dispatcher, TileSource tileSource, string sourceName, int maxDownloads)
         {
-            if (Cache != null &&
-                !string.IsNullOrWhiteSpace(sourceName) &&
-                !(tileSource is ImageTileSource) &&
-                !tileSource.UriFormat.StartsWith("file:"))
-            {
-                foreach (var tile in tiles)
-                {
-                    BitmapSource image;
+            var useCache = Cache != null
+                && !string.IsNullOrWhiteSpace(sourceName)
+                && !(tileSource is ImageTileSource)
+                && !tileSource.UriFormat.StartsWith("file:");
 
-                    if (GetCachedImage(GetCacheKey(sourceName, tile), out image))
-                    {
-                        dispatcher.BeginInvoke(new Action<Tile, ImageSource>((t, i) => t.SetImage(i)), tile, image);
-                    }
-                    else
-                    {
-                        pendingTiles.Enqueue(new PendingTile(tile, image));
-                    }
-                }
-            }
-            else
+            foreach (var tile in tiles)
             {
-                foreach (var tile in tiles)
+                BitmapSource cachedImage = null;
+
+                if (useCache && GetCachedImage(CacheKey(sourceName, tile), out cachedImage))
                 {
-                    pendingTiles.Enqueue(new PendingTile(tile));
+                    dispatcher.BeginInvoke(new Action<Tile, ImageSource>((t, i) => t.SetImage(i)), tile, cachedImage);
+                }
+                else
+                {
+                    pendingTiles.Enqueue(new PendingTile(tile, cachedImage));
                 }
             }
 
@@ -160,24 +152,14 @@ namespace MapControl
 
                     if (uri != null)
                     {
-                        if (uri.Scheme == "file") // create from FileStream because creating from Uri leaves the file open
+                        if (uri.Scheme == "file") // load from FileStream as loading from Uri leaves file open
                         {
-                            image = CreateImage(uri.LocalPath);
+                            image = LoadImage(uri.LocalPath);
                         }
                         else
                         {
-                            HttpStatusCode statusCode;
-
-                            image = DownloadImage(uri, GetCacheKey(sourceName, tile), out statusCode);
-
-                            if (statusCode == HttpStatusCode.NotFound)
-                            {
-                                tileSource.IgnoreTile(tile.XIndex, tile.Y, tile.ZoomLevel); // do not request again
-                            }
-                            else if (image == null) // download failed, use cached image if available
-                            {
-                                image = pendingTile.CachedImage;
-                            }
+                            image = DownloadImage(uri, CacheKey(sourceName, tile))
+                                ?? pendingTile.CachedImage; // use possibly cached image if download failed
                         }
                     }
                 }
@@ -211,7 +193,7 @@ namespace MapControl
             return image;
         }
 
-        private static ImageSource CreateImage(string path)
+        private static ImageSource LoadImage(string path)
         {
             ImageSource image = null;
 
@@ -233,10 +215,9 @@ namespace MapControl
             return image;
         }
 
-        private static ImageSource DownloadImage(Uri uri, string cacheKey, out HttpStatusCode statusCode)
+        private static ImageSource DownloadImage(Uri uri, string cacheKey)
         {
             BitmapSource image = null;
-            statusCode = HttpStatusCode.Unused;
 
             try
             {
@@ -245,8 +226,6 @@ namespace MapControl
 
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
-                    statusCode = response.StatusCode;
-
                     using (var responseStream = response.GetResponseStream())
                     using (var memoryStream = new MemoryStream())
                     {
@@ -263,12 +242,6 @@ namespace MapControl
             }
             catch (WebException ex)
             {
-                var response = ex.Response as HttpWebResponse;
-                if (response != null)
-                {
-                    statusCode = response.StatusCode;
-                }
-
                 Debug.WriteLine("Downloading {0} failed: {1}: {2}", uri, ex.Status, ex.Message);
             }
             catch (Exception ex)
@@ -279,14 +252,14 @@ namespace MapControl
             return image;
         }
 
-        private static string GetCacheKey(string sourceName, Tile tile)
+        private static string TileKey(TileSource tileSource, Tile tile)
         {
-            if (Cache == null || string.IsNullOrWhiteSpace(sourceName))
-            {
-                return null;
-            }
+            return string.Format("{0:X}/{1:X}/{2:X}/{3:X}", tileSource.GetHashCode(), tile.ZoomLevel, tile.XIndex, tile.Y);
+        }
 
-            return string.Format("{0}/{1}/{2}/{3}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y);
+        private static string CacheKey(string sourceName, Tile tile)
+        {
+            return string.IsNullOrEmpty(sourceName) ? null : string.Format("{0}/{1}/{2}/{3}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y);
         }
 
         private static bool GetCachedImage(string cacheKey, out BitmapSource image)

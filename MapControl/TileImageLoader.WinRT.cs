@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -125,8 +125,8 @@ namespace MapControl
             while (pendingTiles.TryDequeue(out pendingTile))
             {
                 var tile = pendingTile.Tile;
-                var image = pendingTile.Image;
                 var uri = pendingTile.Uri;
+                var image = pendingTile.Image;
                 var extension = Path.GetExtension(uri.LocalPath);
 
                 if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
@@ -136,19 +136,22 @@ namespace MapControl
 
                 var cacheKey = string.Format(@"{0}\{1}\{2}\{3}{4}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
                 var cacheItem = await Cache.GetAsync(cacheKey);
-                var cachedBuffer = cacheItem != null ? cacheItem.Buffer : null;
+                var loaded = false;
 
-                if (cachedBuffer != null && cacheItem.Expires > DateTime.UtcNow)
+                if (cacheItem == null || cacheItem.Expires <= DateTime.UtcNow)
                 {
-                    await LoadImageFromBuffer(tile, image, cachedBuffer);
+                    loaded = await DownloadImage(tile, image, uri, cacheKey);
                 }
-                else
-                {
-                    var statusCode = await DownloadImage(tile, image, uri, cacheKey, cachedBuffer);
 
-                    if (statusCode == HttpStatusCode.NotFound)
+                if (!loaded && cacheItem != null && cacheItem.Buffer != null)
+                {
+                    using (var stream = new InMemoryRandomAccessStream())
                     {
-                        tileSource.IgnoreTile(tile.XIndex, tile.Y, tile.ZoomLevel); // do not request again
+                        await stream.WriteAsync(cacheItem.Buffer);
+                        await stream.FlushAsync();
+                        stream.Seek(0);
+
+                        await LoadImageFromStream(tile, image, stream);
                     }
                 }
             }
@@ -156,21 +159,16 @@ namespace MapControl
             Interlocked.Decrement(ref taskCount);
         }
 
-        private async Task<HttpStatusCode> DownloadImage(Tile tile, BitmapSource image, Uri uri, string cacheKey, IBuffer cachedBuffer)
+        private async Task<bool> DownloadImage(Tile tile, BitmapSource image, Uri uri, string cacheKey)
         {
-            HttpStatusCode result = HttpStatusCode.None;
-
             try
             {
                 using (var httpClient = new HttpClient(new HttpBaseProtocolFilter { AllowAutoRedirect = false }))
                 using (var response = await httpClient.GetAsync(uri))
                 {
-                    result = response.StatusCode;
-
                     if (response.IsSuccessStatusCode)
                     {
-                        await LoadImageFromHttpResponse(response, tile, image, cacheKey);
-                        return result;
+                        return await LoadImageFromHttpResponse(response, tile, image, cacheKey);
                     }
 
                     Debug.WriteLine("{0}: ({1}) {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
@@ -181,15 +179,10 @@ namespace MapControl
                 Debug.WriteLine("{0}: {1}", uri, ex.Message);
             }
 
-            if (cachedBuffer != null)
-            {
-                await LoadImageFromBuffer(tile, image, cachedBuffer);
-            }
-
-            return result;
+            return false;
         }
 
-        private async Task LoadImageFromHttpResponse(HttpResponseMessage response, Tile tile, BitmapSource image, string cacheKey)
+        private async Task<bool> LoadImageFromHttpResponse(HttpResponseMessage response, Tile tile, BitmapSource image, string cacheKey)
         {
             using (var stream = new InMemoryRandomAccessStream())
             {
@@ -220,18 +213,8 @@ namespace MapControl
 
                     await Cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(maxAge));
                 }
-            }
-        }
 
-        private async Task<bool> LoadImageFromBuffer(Tile tile, BitmapSource image, IBuffer buffer)
-        {
-            using (var stream = new InMemoryRandomAccessStream())
-            {
-                await stream.WriteAsync(buffer);
-                await stream.FlushAsync();
-                stream.Seek(0);
-
-                return await LoadImageFromStream(tile, image, stream);
+                return loaded;
             }
         }
 

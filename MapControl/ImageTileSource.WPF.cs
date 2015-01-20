@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.IO;
@@ -31,7 +31,6 @@ namespace MapControl
                 if (IsAsync)
                 {
                     var request = HttpWebRequest.CreateHttp(uri);
-                    request.UserAgent = TileImageLoader.HttpUserAgent;
 
                     using (var response = (HttpWebResponse)request.GetResponse())
                     using (var responseStream = response.GetResponseStream())

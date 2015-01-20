@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -43,7 +43,7 @@ namespace MapControl
 
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
             "TileSource", typeof(TileSource), typeof(TileLayer),
-            new PropertyMetadata(null, (o, e) => ((TileLayer)o).UpdateTiles()));
+            new PropertyMetadata(null, (o, e) => ((TileLayer)o).UpdateTiles(true)));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
             "SourceName", typeof(string), typeof(TileLayer), new PropertyMetadata(null));
@@ -179,14 +179,20 @@ namespace MapControl
             }
         }
 
-        protected virtual void UpdateTiles()
+        protected virtual void UpdateTiles(bool clearTiles = false)
         {
             if (tiles.Count > 0)
             {
                 tileImageLoader.CancelLoadTiles(this);
             }
 
+            if (clearTiles)
+            {
+                tiles.Clear();
+            }
+
             SelectTiles();
+
             Children.Clear();
 
             if (tiles.Count > 0)
@@ -241,7 +247,7 @@ namespace MapControl
                                 tile = new Tile(z, x, y);
 
                                 var equivalentTile = tiles.FirstOrDefault(
-                                    t => t.Image.Source != null && t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y);
+                                    t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && t.Image.Source != null);
 
                                 if (equivalentTile != null)
                                 {

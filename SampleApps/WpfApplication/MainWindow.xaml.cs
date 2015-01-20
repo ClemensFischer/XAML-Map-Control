@@ -12,7 +12,6 @@ namespace WpfApplication
         {
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.HttpUserAgent = "...";
             //BingMapsTileLayer.ApiKey = "...";
 
             InitializeComponent();

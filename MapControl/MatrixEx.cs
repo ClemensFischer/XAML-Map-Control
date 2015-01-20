@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -28,6 +28,11 @@ namespace MapControl
 
         public static Matrix Rotate(this Matrix matrix, double angle)
         {
+            if (angle == 0d)
+            {
+                return matrix;
+            }
+
             angle = (angle % 360d) / 180d * Math.PI;
             var cos = Math.Cos(angle);
             var sin = Math.Sin(angle);
@@ -37,6 +42,11 @@ namespace MapControl
 
         public static Matrix RotateAt(this Matrix matrix, double angle, double centerX, double centerY)
         {
+            if (angle == 0d)
+            {
+                return matrix;
+            }
+
             angle = (angle % 360d) / 180d * Math.PI;
             var cos = Math.Cos(angle);
             var sin = Math.Sin(angle);
@@ -51,8 +61,10 @@ namespace MapControl
             var determinant = matrix.M11 * matrix.M22 - matrix.M12 * matrix.M21;
 
             return new Matrix(
-                matrix.M22 / determinant, -matrix.M12 / determinant,
-                -matrix.M21 / determinant, matrix.M11 / determinant,
+                matrix.M22 / determinant,
+                -matrix.M12 / determinant,
+                -matrix.M21 / determinant,
+                matrix.M11 / determinant,
                 (matrix.M21 * matrix.OffsetY - matrix.M22 * matrix.OffsetX) / determinant,
                 (matrix.M12 * matrix.OffsetX - matrix.M11 * matrix.OffsetY) / determinant);
         }

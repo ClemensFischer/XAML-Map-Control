@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -61,15 +61,15 @@ namespace MapControl
 
         public static Location Parse(string s)
         {
-            var tokens = s.Split(new char[] { ',' });
-            if (tokens.Length != 2)
+            var pair = s.Split(new char[] { ',' });
+            if (pair.Length != 2)
             {
                 throw new FormatException("Location string must be a comma-separated pair of double values");
             }
 
             return new Location(
-                double.Parse(tokens[0], NumberStyles.Float, CultureInfo.InvariantCulture),
-                double.Parse(tokens[1], NumberStyles.Float, CultureInfo.InvariantCulture));
+                double.Parse(pair[0], NumberStyles.Float, CultureInfo.InvariantCulture),
+                double.Parse(pair[1], NumberStyles.Float, CultureInfo.InvariantCulture));
         }
 
         public static double NormalizeLongitude(double longitude)

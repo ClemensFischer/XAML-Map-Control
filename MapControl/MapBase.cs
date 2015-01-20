@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -31,6 +31,7 @@ namespace MapControl
     {
         private const double MaximumZoomLevel = 22d;
 
+        public static double ZoomLevelSwitchDelta = 0d;
         public static TimeSpan TileUpdateInterval = TimeSpan.FromSeconds(0.5);
         public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.3);
         public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
@@ -554,7 +555,6 @@ namespace MapControl
                 center = new Location(
                     Math.Min(Math.Max(center.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude),
                     Location.NormalizeLongitude(center.Longitude));
-
                 InternalSetValue(property, center);
             }
         }
@@ -880,9 +880,7 @@ namespace MapControl
         {
             tileUpdateTimer.Stop();
 
-            // relative size of scaled tile ranges from 0.75 to 1.5 (192 to 384 pixels)
-            var zoomLevelSwitchDelta = Math.Log(0.75, 2d);
-            var zoomLevel = (int)Math.Floor(ZoomLevel - zoomLevelSwitchDelta);
+            var zoomLevel = (int)Math.Round(ZoomLevel + ZoomLevelSwitchDelta);
             var transform = GetTileIndexMatrix((double)(1 << zoomLevel) / 360d);
 
             // tile indices of visible rectangle

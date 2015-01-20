@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// Copyright © 2014 Clemens Fischer
+// © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -14,7 +14,9 @@ namespace MapControl
     {
         public void SetImage(ImageSource image, bool animateOpacity = true)
         {
-            if (image != null && Image.Source == null)
+            Pending = false;
+
+            if (image != null)
             {
                 if (animateOpacity && OpacityAnimationDuration > TimeSpan.Zero)
                 {
@@ -38,8 +40,6 @@ namespace MapControl
 
                 Image.Source = image;
             }
-
-            Pending = false;
         }
 
         private void BitmapDownloadCompleted(object sender, EventArgs e)
