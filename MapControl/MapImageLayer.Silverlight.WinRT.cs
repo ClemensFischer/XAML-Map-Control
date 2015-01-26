@@ -25,7 +25,7 @@ namespace MapControl
             }
             else
             {
-                BlendImages();
+                SwapImages();
             }
         }
 
@@ -35,7 +35,7 @@ namespace MapControl
             bitmap.ImageOpened -= BitmapImageOpened;
             bitmap.ImageFailed -= BitmapImageFailed;
 
-            BlendImages();
+            SwapImages();
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
@@ -47,7 +47,7 @@ namespace MapControl
             var mapImage = (MapImage)Children[currentImageIndex];
             mapImage.Source = null;
 
-            BlendImages();
+            SwapImages();
         }
     }
 }

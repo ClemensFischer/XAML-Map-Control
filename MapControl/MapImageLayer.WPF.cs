@@ -19,7 +19,7 @@ namespace MapControl
             }
             else
             {
-                BlendImages();
+                SwapImages();
             }
         }
 
@@ -29,7 +29,7 @@ namespace MapControl
             bitmap.DownloadCompleted -= BitmapDownloadCompleted;
             bitmap.DownloadFailed -= BitmapDownloadFailed;
 
-            BlendImages();
+            SwapImages();
         }
 
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
@@ -41,7 +41,7 @@ namespace MapControl
             var mapImage = (MapImage)Children[currentImageIndex];
             mapImage.Source = null;
 
-            BlendImages();
+            SwapImages();
         }
     }
 }

@@ -34,6 +34,8 @@ namespace MapControl
             "North", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
+        private bool updatingBoundBox;
+
         public MapRectangle()
         {
             Data = new RectangleGeometry();
@@ -64,28 +66,41 @@ namespace MapControl
             set { SetValue(NorthProperty, value); }
         }
 
+        public void SetBoundingBox(double west, double east, double south, double north)
+        {
+            updatingBoundBox = true;
+            West = west;
+            East = east;
+            South = south;
+            updatingBoundBox = false;
+            North = north;
+        }
+
         protected override void UpdateData()
         {
-            var geometry = (RectangleGeometry)Data;
-
-            if (ParentMap != null &&
-                !double.IsNaN(South) && !double.IsNaN(North) &&
-                !double.IsNaN(West) && !double.IsNaN(East) &&
-                South < North && West < East)
+            if (!updatingBoundBox)
             {
-                var rect = new Rect(ParentMap.MapTransform.Transform(new Location(South, West)),
-                                    ParentMap.MapTransform.Transform(new Location(North, East)));
-                var transform = ParentMap.ViewportTransform;
+                var geometry = (RectangleGeometry)Data;
 
-                ScaleRect(ref rect, ref transform);
+                if (ParentMap != null &&
+                    !double.IsNaN(South) && !double.IsNaN(North) &&
+                    !double.IsNaN(West) && !double.IsNaN(East) &&
+                    South < North && West < East)
+                {
+                    var rect = new Rect(ParentMap.MapTransform.Transform(new Location(South, West)),
+                                        ParentMap.MapTransform.Transform(new Location(North, East)));
+                    var transform = ParentMap.ViewportTransform;
 
-                geometry.Rect = rect;
-                RenderTransform = transform;
-            }
-            else
-            {
-                geometry.ClearValue(RectangleGeometry.RectProperty);
-                ClearValue(RenderTransformProperty);
+                    ScaleRect(ref rect, ref transform);
+
+                    geometry.Rect = rect;
+                    RenderTransform = transform;
+                }
+                else
+                {
+                    geometry.ClearValue(RectangleGeometry.RectProperty);
+                    ClearValue(RenderTransformProperty);
+                }
             }
         }
 

@@ -222,10 +222,10 @@ namespace MapControl
                 var maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
                 var minZoomLevel = MinZoomLevel;
 
-                if (parentMap.TileLayers.FirstOrDefault() != this)
+                if (minZoomLevel < maxZoomLevel && this != parentMap.TileLayers.FirstOrDefault())
                 {
                     // do not load background tiles if this is not the base layer
-                    minZoomLevel = Math.Max(maxZoomLevel, minZoomLevel);
+                    minZoomLevel = maxZoomLevel;
                 }
 
                 for (var z = minZoomLevel; z <= maxZoomLevel; z++)

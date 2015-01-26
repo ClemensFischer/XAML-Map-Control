@@ -7,10 +7,12 @@ using System.Globalization;
 #if WINDOWS_RUNTIME
 using Windows.Foundation;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Media.Animation;
 #else
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -157,37 +159,39 @@ namespace MapControl
             currentImageIndex = (currentImageIndex + 1) % 2;
             var mapImage = (MapImage)Children[currentImageIndex];
 
-            mapImage.North = double.NaN; // avoid frequent MapRectangle.UpdateData() calls
-            mapImage.West = west;
-            mapImage.East = east;
-            mapImage.South = south;
-            mapImage.North = north;
+            mapImage.SetBoundingBox(west, east, south, north);
             mapImage.Source = bitmap;
 
             ImageUpdated(bitmap);
         }
 
-        private void BlendImages()
+        private void SwapImages()
         {
             var topImage = (MapImage)Children[currentImageIndex];
             var bottomImage = (MapImage)Children[(currentImageIndex + 1) % 2];
 
+            Canvas.SetZIndex(topImage, 1);
+            Canvas.SetZIndex(bottomImage, 0);
+
             if (topImage.Source != null)
             {
-                topImage.BeginAnimation(UIElement.OpacityProperty,
-                    new DoubleAnimation { To = 1d, Duration = Tile.OpacityAnimationDuration });
-            }
-
-            if (bottomImage.Source != null)
-            {
-                var fadeOutAnimation = new DoubleAnimation { To = 0d, Duration = Tile.OpacityAnimationDuration };
-
-                if (topImage.Source != null)
+                var fadeAnimation = new DoubleAnimation
                 {
-                    fadeOutAnimation.BeginTime = Tile.OpacityAnimationDuration;
-                }
+                    From = 0d,
+                    To = 1d,
+                    Duration = Tile.OpacityAnimationDuration,
+                    FillBehavior = FillBehavior.Stop
+                };
 
-                bottomImage.BeginAnimation(UIElement.OpacityProperty, fadeOutAnimation);
+                fadeAnimation.Completed += (s, e) => bottomImage.Opacity = 0d;
+
+                topImage.BeginAnimation(UIElement.OpacityProperty, fadeAnimation);
+                topImage.Opacity = 1d;
+            }
+            else
+            {
+                topImage.Opacity = 0d;
+                bottomImage.Opacity = 0d;
             }
 
             updateInProgress = false;

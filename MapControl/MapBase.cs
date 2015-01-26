@@ -32,6 +32,7 @@ namespace MapControl
         private const double MaximumZoomLevel = 22d;
 
         public static double ZoomLevelSwitchDelta = 0d;
+        public static bool UpdateTilesWhileViewportChanging = true;
         public static TimeSpan TileUpdateInterval = TimeSpan.FromSeconds(0.5);
         public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.3);
         public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
@@ -594,8 +595,7 @@ namespace MapControl
                         From = mapTransform.Transform(Center),
                         To = mapTransform.Transform(targetCenter, Center.Longitude),
                         Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction,
-                        FillBehavior = FillBehavior.HoldEnd
+                        EasingFunction = AnimationEasingFunction
                     };
 
                     centerAnimation.Completed += CenterAnimationCompleted;
@@ -699,8 +699,7 @@ namespace MapControl
                     {
                         To = targetZoomLevel,
                         Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction,
-                        FillBehavior = FillBehavior.HoldEnd
+                        EasingFunction = AnimationEasingFunction
                     };
 
                     zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
@@ -774,8 +773,7 @@ namespace MapControl
                     {
                         By = delta,
                         Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction,
-                        FillBehavior = FillBehavior.HoldEnd
+                        EasingFunction = AnimationEasingFunction
                     };
 
                     headingAnimation.Completed += HeadingAnimationCompleted;
@@ -872,6 +870,12 @@ namespace MapControl
             else
             {
                 SetTileLayerTransform();
+
+                if (!UpdateTilesWhileViewportChanging)
+                {
+                    tileUpdateTimer.Stop();
+                }
+
                 tileUpdateTimer.Start();
             }
         }
