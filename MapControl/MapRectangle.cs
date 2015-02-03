@@ -34,7 +34,7 @@ namespace MapControl
             "North", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
-        private bool updatingBoundBox;
+        private bool boundingBoxValid = true;
 
         public MapRectangle()
         {
@@ -68,17 +68,21 @@ namespace MapControl
 
         public void SetBoundingBox(double west, double east, double south, double north)
         {
-            updatingBoundBox = true;
-            West = west;
-            East = east;
-            South = south;
-            updatingBoundBox = false;
-            North = north;
+            if (West != west || East != east || South != south || North != north)
+            {
+                boundingBoxValid = false;
+                West = west;
+                East = east;
+                South = south;
+                North = north;
+                boundingBoxValid = true;
+                UpdateData();
+            }
         }
 
         protected override void UpdateData()
         {
-            if (!updatingBoundBox)
+            if (boundingBoxValid)
             {
                 var geometry = (RectangleGeometry)Data;
 
