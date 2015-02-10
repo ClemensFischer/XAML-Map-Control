@@ -21,37 +21,32 @@ namespace MapControl
         protected override void UpdateData()
         {
             var geometry = (PathGeometry)Data;
-            var locations = Locations;
-            Location first;
+            geometry.Figures.Clear();
 
-            if (ParentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
+            if (ParentMap != null && Locations != null && Locations.Any())
             {
+                var points = Locations.Select(l => ParentMap.MapTransform.Transform(l));
+
                 var figure = new PathFigure
                 {
-                    StartPoint = ParentMap.MapTransform.Transform(first),
+                    StartPoint = points.First(),
                     IsClosed = IsClosed,
                     IsFilled = IsClosed
                 };
 
                 var segment = new PolyLineSegment();
 
-                foreach (var location in locations.Skip(1))
+                foreach (var point in points.Skip(1))
                 {
-                    segment.Points.Add(ParentMap.MapTransform.Transform(location));
+                    segment.Points.Add(point);
                 }
 
-                if (segment.Points.Count > 0)
-                {
-                    figure.Segments.Add(segment);
-                }
-
-                geometry.Figures.Clear();
+                figure.Segments.Add(segment);
                 geometry.Figures.Add(figure);
                 geometry.Transform = ParentMap.ViewportTransform;
             }
             else
             {
-                geometry.Figures.Clear();
                 geometry.ClearValue(Geometry.TransformProperty);
             }
         }

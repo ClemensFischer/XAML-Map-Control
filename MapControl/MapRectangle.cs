@@ -34,12 +34,13 @@ namespace MapControl
             "North", typeof(double), typeof(MapRectangle),
             new PropertyMetadata(double.NaN, (o, e) => ((MapRectangle)o).UpdateData()));
 
-        private bool boundingBoxValid = true;
+        private bool boundingBoxValid;
 
         public MapRectangle()
         {
-            Data = new RectangleGeometry();
             StrokeThickness = 0d;
+            Data = new RectangleGeometry();
+            boundingBoxValid = true;
         }
 
         public double West

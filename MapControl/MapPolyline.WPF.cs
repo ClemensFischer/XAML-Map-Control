@@ -17,18 +17,15 @@ namespace MapControl
         protected override void UpdateData()
         {
             var geometry = (StreamGeometry)Data;
-            var locations = Locations;
-            Location first;
 
-            if (ParentMap != null && locations != null && (first = locations.FirstOrDefault()) != null)
+            if (ParentMap != null && Locations != null && Locations.Any())
             {
                 using (var context = geometry.Open())
                 {
-                    var startPoint = ParentMap.MapTransform.Transform(first);
-                    var points = locations.Skip(1).Select(l => ParentMap.MapTransform.Transform(l)).ToList();
+                    var points = Locations.Select(l => ParentMap.MapTransform.Transform(l));
 
-                    context.BeginFigure(startPoint, IsClosed, IsClosed);
-                    context.PolyLineTo(points, true, false);
+                    context.BeginFigure(points.First(), IsClosed, IsClosed);
+                    context.PolyLineTo(points.Skip(1).ToList(), true, false);
                 }
 
                 geometry.Transform = ParentMap.ViewportTransform;
