@@ -218,6 +218,15 @@
                 </Path.Data>
             </Path>
 
+            <map:MapPath Fill="Aqua" Opacity="0.5">
+                <map:MapPath.Data>
+                    <GeometryGroup FillRule="EvenOdd">
+                        <EllipseGeometry Center="8.2,63.5" RadiusX="0.025" RadiusY="0.025"/>
+                        <EllipseGeometry Center="8.2,63.51" RadiusX="0.015" RadiusY="0.015"/>
+                    </GeometryGroup>
+                </map:MapPath.Data>
+            </map:MapPath>
+
             <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
                 <map:Pushpin.Visibility>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">

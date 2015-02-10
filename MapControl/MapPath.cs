@@ -3,10 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if WINDOWS_RUNTIME
-using Windows.Foundation;
 using Windows.UI.Xaml.Media;
 #else
-using System.Windows;
 using System.Windows.Media;
 #endif
 
@@ -43,16 +41,6 @@ namespace MapControl
                     Data.ClearValue(Geometry.TransformProperty);
                 }
             }
-        }
-
-        protected override Size MeasureOverride(Size constraint)
-        {
-            // base.MeasureOverride in WPF and Windows Runtime sometimes return a Size
-            // with zero width or height, whereas in Silverlight it occasionally throws
-            // an ArgumentException, as it tries to create a Size from a negative width
-            // or height, apparently resulting from a transformed Geometry.
-            // In either case it seems to be sufficient to simply return a non-zero size.
-            return new Size(1, 1);
         }
     }
 }

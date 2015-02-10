@@ -24,5 +24,11 @@ namespace MapControl
         {
             get { return Data; }
         }
+
+        protected override Size MeasureOverride(Size constraint)
+        {
+            // Shape.MeasureOverride sometimes returns an empty Size.
+            return new Size(1, 1);
+        }
     }
 }
