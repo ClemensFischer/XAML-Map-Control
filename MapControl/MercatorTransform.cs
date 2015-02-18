@@ -17,54 +17,62 @@ namespace MapControl
     /// </summary>
     public class MercatorTransform : MapTransform
     {
-        private static readonly double maxLatitude = Math.Atan(Math.Sinh(Math.PI)) / Math.PI * 180d;
+        public static readonly double MaxLatitudeValue = Math.Atan(Math.Sinh(Math.PI)) / Math.PI * 180d;
 
-        public override double MaxLatitude
+        public static double RelativeScale(double latitude)
         {
-            get { return maxLatitude; }
-        }
-
-        public override double RelativeScale(Location location)
-        {
-            if (location.Latitude <= -90d)
+            if (latitude <= -90d)
             {
                 return double.NegativeInfinity;
             }
 
-            if (location.Latitude >= 90d)
+            if (latitude >= 90d)
             {
                 return double.PositiveInfinity;
             }
 
-            return 1d / Math.Cos(location.Latitude * Math.PI / 180d);
+            return 1d / Math.Cos(latitude * Math.PI / 180d);
+        }
+
+        public static double LatitudeToY(double latitude)
+        {
+            if (latitude <= -90d)
+            {
+                return double.NegativeInfinity;
+            }
+
+            if (latitude >= 90d)
+            {
+                return double.PositiveInfinity;
+            }
+
+            latitude *= Math.PI / 180d;
+            return Math.Log(Math.Tan(latitude) + 1d / Math.Cos(latitude)) / Math.PI * 180d;
+        }
+
+        public static double YToLatitude(double y)
+        {
+            return Math.Atan(Math.Sinh(y * Math.PI / 180d)) / Math.PI * 180d;
+        }
+
+        public override double MaxLatitude
+        {
+            get { return MaxLatitudeValue; }
+        }
+
+        public override double RelativeScale(Location location)
+        {
+            return RelativeScale(location.Latitude);
         }
 
         public override Point Transform(Location location)
         {
-            double latitude;
-
-            if (location.Latitude <= -90d)
-            {
-                latitude = double.NegativeInfinity;
-            }
-            else if (location.Latitude >= 90d)
-            {
-                latitude = double.PositiveInfinity;
-            }
-            else
-            {
-                latitude = location.Latitude * Math.PI / 180d;
-                latitude = Math.Log(Math.Tan(latitude) + 1d / Math.Cos(latitude)) / Math.PI * 180d;
-            }
-
-            return new Point(location.Longitude, latitude);
+            return new Point(location.Longitude, LatitudeToY(location.Latitude));
         }
 
         public override Location Transform(Point point)
         {
-            var latitude = Math.Atan(Math.Sinh(point.Y * Math.PI / 180d)) / Math.PI * 180d;
-
-            return new Location(latitude, point.X);
+            return new Location(YToLatitude(point.Y), point.X);
         }
     }
 }

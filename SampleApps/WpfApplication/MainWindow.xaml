@@ -218,7 +218,7 @@
                 </Path.Data>
             </Path>
 
-            <map:MapPath Fill="Aqua" Opacity="0.5">
+            <map:MapPath Stroke="Blue" Fill="Aqua" Opacity="0.5">
                 <map:MapPath.Data>
                     <GeometryGroup FillRule="EvenOdd">
                         <EllipseGeometry Center="8.2,63.5" RadiusX="0.025" RadiusY="0.025"/>

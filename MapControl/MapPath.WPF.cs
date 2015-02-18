@@ -12,7 +12,14 @@ namespace MapControl
     {
         public static readonly DependencyProperty DataProperty = DependencyProperty.Register(
             "Data", typeof(Geometry), typeof(MapPath), new FrameworkPropertyMetadata(
-                null, FrameworkPropertyMetadataOptions.AffectsRender, (o, e) => ((MapPath)o).UpdateData()));
+                null, FrameworkPropertyMetadataOptions.AffectsRender,
+                (o, e) => ((MapPath)o).UpdateData(), CoerceDataProperty));
+
+        static MapPath()
+        {
+            StretchProperty.OverrideMetadata(typeof(MapPath),
+                new FrameworkPropertyMetadata { CoerceValueCallback = (o, v) => Stretch.None });
+        }
 
         public Geometry Data
         {
@@ -29,6 +36,12 @@ namespace MapControl
         {
             // Shape.MeasureOverride sometimes returns an empty Size.
             return new Size(1, 1);
+        }
+
+        private static object CoerceDataProperty(DependencyObject obj, object value)
+        {
+            var data = (Geometry)value;
+            return data != null && data.IsFrozen ? data.CloneCurrentValue() : data;
         }
     }
 }

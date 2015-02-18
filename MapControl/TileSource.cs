@@ -4,11 +4,6 @@
 
 using System;
 using System.Globalization;
-#if WINDOWS_RUNTIME
-using Windows.Foundation;
-#else
-using System.Windows;
-#endif
 
 namespace MapControl
 {
@@ -159,35 +154,32 @@ namespace MapControl
 
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
-            var n = (double)(1 << zoomLevel);
-            var x1 = MetersPerDegree * ((double)x * 360d / n - 180d);
-            var x2 = MetersPerDegree * ((double)(x + 1) * 360d / n - 180d);
-            var y1 = MetersPerDegree * (180d - (double)(y + 1) * 360d / n);
-            var y2 = MetersPerDegree * (180d - (double)y * 360d / n);
+            var numTiles = (double)(1 << zoomLevel);
+            var west = MetersPerDegree * ((double)x * 360d / numTiles - 180d);
+            var east = MetersPerDegree * ((double)(x + 1) * 360d / numTiles - 180d);
+            var south = MetersPerDegree * (180d - (double)(y + 1) * 360d / numTiles);
+            var north = MetersPerDegree * (180d - (double)y * 360d / numTiles);
 
             return new Uri(uriFormat.
-                Replace("{W}", x1.ToString(CultureInfo.InvariantCulture)).
-                Replace("{S}", y1.ToString(CultureInfo.InvariantCulture)).
-                Replace("{E}", x2.ToString(CultureInfo.InvariantCulture)).
-                Replace("{N}", y2.ToString(CultureInfo.InvariantCulture)));
+                Replace("{W}", west.ToString(CultureInfo.InvariantCulture)).
+                Replace("{S}", south.ToString(CultureInfo.InvariantCulture)).
+                Replace("{E}", east.ToString(CultureInfo.InvariantCulture)).
+                Replace("{N}", north.ToString(CultureInfo.InvariantCulture)));
         }
 
         private Uri GetLatLonBoundingBoxUri(int x, int y, int zoomLevel)
         {
-            var t = new MercatorTransform();
-            var n = (double)(1 << zoomLevel);
-            var x1 = (double)x * 360d / n - 180d;
-            var x2 = (double)(x + 1) * 360d / n - 180d;
-            var y1 = 180d - (double)(y + 1) * 360d / n;
-            var y2 = 180d - (double)y * 360d / n;
-            var p1 = t.Transform(new Point(x1, y1));
-            var p2 = t.Transform(new Point(x2, y2));
+            var numTiles = (double)(1 << zoomLevel);
+            var west = (double)x * 360d / numTiles - 180d;
+            var east = (double)(x + 1) * 360d / numTiles - 180d;
+            var south = MercatorTransform.YToLatitude(180d - (double)(y + 1) * 360d / numTiles);
+            var north = MercatorTransform.YToLatitude(180d - (double)y * 360d / numTiles);
 
             return new Uri(uriFormat.
-                Replace("{w}", p1.Longitude.ToString(CultureInfo.InvariantCulture)).
-                Replace("{s}", p1.Latitude.ToString(CultureInfo.InvariantCulture)).
-                Replace("{e}", p2.Longitude.ToString(CultureInfo.InvariantCulture)).
-                Replace("{n}", p2.Latitude.ToString(CultureInfo.InvariantCulture)));
+                Replace("{w}", west.ToString(CultureInfo.InvariantCulture)).
+                Replace("{s}", south.ToString(CultureInfo.InvariantCulture)).
+                Replace("{e}", east.ToString(CultureInfo.InvariantCulture)).
+                Replace("{n}", north.ToString(CultureInfo.InvariantCulture)));
         }
     }
 }

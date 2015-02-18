@@ -16,15 +16,20 @@ namespace MapControl
 {
     public partial class MapPath : Path
     {
+        private Geometry data;
+
         public MapPath()
         {
             MapPanel.AddParentMapHandlers(this);
         }
 
-        private Geometry data;
-
         protected override Size MeasureOverride(Size constraint)
         {
+            if (Stretch != Stretch.None)
+            {
+                Stretch = Stretch.None;
+            }
+
             // Work-around for missing PropertyChangedCallback for the Data property.
             if (data != Data)
             {
