@@ -17,7 +17,7 @@ namespace MapControl.Caching
 
         public ImageFileCache(string name = null, StorageFolder folder = null)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrEmpty(name))
             {
                 name = TileImageLoader.DefaultCacheName;
             }

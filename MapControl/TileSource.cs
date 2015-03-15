@@ -32,9 +32,9 @@ namespace MapControl
             get { return uriFormat; }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (string.IsNullOrEmpty(value))
                 {
-                    throw new ArgumentException("The value of the UriFormat property must not be null or empty or white-space only.", "value");
+                    throw new ArgumentException("The value of the UriFormat property must not be null or empty.");
                 }
 
                 uriFormat = value;
@@ -154,11 +154,11 @@ namespace MapControl
 
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
-            var numTiles = (double)(1 << zoomLevel);
-            var west = MetersPerDegree * ((double)x * 360d / numTiles - 180d);
-            var east = MetersPerDegree * ((double)(x + 1) * 360d / numTiles - 180d);
-            var south = MetersPerDegree * (180d - (double)(y + 1) * 360d / numTiles);
-            var north = MetersPerDegree * (180d - (double)y * 360d / numTiles);
+            var tileSize = 360d / (double)(1 << zoomLevel); // tile width in degrees
+            var west = MetersPerDegree * ((double)x * tileSize - 180d);
+            var east = MetersPerDegree * ((double)(x + 1) * tileSize - 180d);
+            var south = MetersPerDegree * (180d - (double)(y + 1) * tileSize);
+            var north = MetersPerDegree * (180d - (double)y * tileSize);
 
             return new Uri(uriFormat.
                 Replace("{W}", west.ToString(CultureInfo.InvariantCulture)).
@@ -169,11 +169,11 @@ namespace MapControl
 
         private Uri GetLatLonBoundingBoxUri(int x, int y, int zoomLevel)
         {
-            var numTiles = (double)(1 << zoomLevel);
-            var west = (double)x * 360d / numTiles - 180d;
-            var east = (double)(x + 1) * 360d / numTiles - 180d;
-            var south = MercatorTransform.YToLatitude(180d - (double)(y + 1) * 360d / numTiles);
-            var north = MercatorTransform.YToLatitude(180d - (double)y * 360d / numTiles);
+            var tileSize = 360d / (double)(1 << zoomLevel); // tile width in degrees
+            var west = (double)x * tileSize - 180d;
+            var east = (double)(x + 1) * tileSize - 180d;
+            var south = MercatorTransform.YToLatitude(180d - (double)(y + 1) * tileSize);
+            var north = MercatorTransform.YToLatitude(180d - (double)y * tileSize);
 
             return new Uri(uriFormat.
                 Replace("{w}", west.ToString(CultureInfo.InvariantCulture)).

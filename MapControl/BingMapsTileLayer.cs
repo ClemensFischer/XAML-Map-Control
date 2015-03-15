@@ -10,8 +10,10 @@ using System.Net;
 using System.Xml;
 #if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows;
+using System.Windows.Media.Imaging;
 #endif
 
 namespace MapControl
@@ -39,7 +41,7 @@ namespace MapControl
         {
             Loaded -= OnLoaded;
 
-            if (string.IsNullOrWhiteSpace(ApiKey))
+            if (string.IsNullOrEmpty(ApiKey))
             {
                 throw new InvalidOperationException("A Bing Maps API Key must be assigned to the ApiKey property.");
             }
@@ -70,6 +72,7 @@ namespace MapControl
 
         private void ReadImageryMetadataResponse(XmlReader xmlReader)
         {
+            string logoUri = null;
             string imageUrl = null;
             string[] imageUrlSubdomains = null;
             int? zoomMin = null;
@@ -81,6 +84,9 @@ namespace MapControl
                 {
                     switch (xmlReader.Name)
                     {
+                        case "BrandLogoUri":
+                            logoUri = xmlReader.ReadElementContentAsString();
+                            break;
                         case "ImageUrl":
                             imageUrl = xmlReader.ReadElementContentAsString();
                             break;
@@ -105,11 +111,11 @@ namespace MapControl
             }
             while (xmlReader.NodeType != XmlNodeType.None);
 
-            if (imageUrl != null && imageUrlSubdomains != null && imageUrlSubdomains.Length > 0)
+            if (!string.IsNullOrEmpty(imageUrl) && imageUrlSubdomains != null && imageUrlSubdomains.Length > 0)
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    if (string.IsNullOrWhiteSpace(Culture))
+                    if (string.IsNullOrEmpty(Culture))
                     {
                         Culture = CultureInfo.CurrentUICulture.Name;
                     }
@@ -124,6 +130,11 @@ namespace MapControl
                     if (zoomMax.HasValue && zoomMax.Value < MaxZoomLevel)
                     {
                         MaxZoomLevel = zoomMax.Value;
+                    }
+
+                    if (!string.IsNullOrEmpty(logoUri))
+                    {
+                        LogoImage = new BitmapImage(new Uri(logoUri));
                     }
                 }));
             }

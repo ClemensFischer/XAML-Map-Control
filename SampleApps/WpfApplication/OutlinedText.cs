@@ -111,7 +111,7 @@ namespace WpfApplication
         {
             if (glyphRun == null)
             {
-                if (string.IsNullOrWhiteSpace(Text))
+                if (string.IsNullOrEmpty(Text))
                 {
                     return false;
                 }

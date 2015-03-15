@@ -80,7 +80,7 @@ namespace MapControl
             TileLayers = new ObservableCollection<TileLayer>();
 
             tileUpdateTimer.Tick += UpdateTiles;
-            Loaded += OnLoaded;
+            Loaded += MapLoaded;
 
             Initialize();
         }
@@ -403,9 +403,21 @@ namespace MapControl
             }
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
+        protected override void OnViewportChanged()
         {
-            Loaded -= OnLoaded;
+            base.OnViewportChanged();
+
+            var viewportChanged = ViewportChanged;
+
+            if (viewportChanged != null)
+            {
+                viewportChanged(this, EventArgs.Empty);
+            }
+        }
+
+        private void MapLoaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= MapLoaded;
 
             if (tileLayerPanel.Children.Count == 0 && !Children.OfType<TileLayer>().Any())
             {
@@ -837,18 +849,6 @@ namespace MapControl
 
             SetTransformMatrixes();
             OnViewportChanged();
-        }
-
-        protected override void OnViewportChanged()
-        {
-            base.OnViewportChanged();
-
-            var viewportChanged = ViewportChanged;
-
-            if (viewportChanged != null)
-            {
-                viewportChanged(this, EventArgs.Empty);
-            }
         }
 
         private void SetViewportTransform(Location origin)

@@ -131,16 +131,21 @@ namespace MapControl
 
         private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
         {
-            Point viewportPosition;
+            var viewportPosition = new Point();
 
             if (parentMap != null && location != null)
             {
                 var mapPosition = parentMap.MapTransform.Transform(location, parentMap.Center.Longitude); // nearest to center longitude
+
                 viewportPosition = parentMap.ViewportTransform.Transform(mapPosition);
-            }
-            else
-            {
-                viewportPosition = new Point();
+
+                var useLayoutRounding = element.GetValue(FrameworkElement.UseLayoutRoundingProperty);
+
+                if (useLayoutRounding != null && (bool)useLayoutRounding)
+                {
+                    viewportPosition.X = Math.Round(viewportPosition.X);
+                    viewportPosition.Y = Math.Round(viewportPosition.Y);
+                }
             }
 
             var translateTransform = element.RenderTransform as TranslateTransform;

@@ -104,7 +104,7 @@ namespace MapControl
         private void GetTiles(IEnumerable<Tile> tiles, Dispatcher dispatcher, TileSource tileSource, string sourceName, int maxDownloads)
         {
             var useCache = Cache != null
-                && !string.IsNullOrWhiteSpace(sourceName)
+                && !string.IsNullOrEmpty(sourceName)
                 && !(tileSource is ImageTileSource)
                 && !tileSource.UriFormat.StartsWith("file:");
 
@@ -307,7 +307,6 @@ namespace MapControl
                 int.TryParse(cacheControl.Substring(8), out maxAge))
             {
                 maxAge = Math.Min(maxAge, (int)DefaultCacheExpiration.TotalSeconds);
-
                 expiration = DateTime.UtcNow.AddSeconds(maxAge);
             }
             else

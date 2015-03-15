@@ -37,14 +37,14 @@ namespace MapControl.Caching
 
         public ImageFileCache(string name, string folder)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException("The parameter name must not be null or empty or consist only of white-space characters.");
+                throw new ArgumentException("The parameter name must not be null or empty.");
             }
 
-            if (string.IsNullOrWhiteSpace(folder))
+            if (string.IsNullOrEmpty(folder))
             {
-                throw new ArgumentException("The parameter folder must not be null or empty or consist only of white-space characters.");
+                throw new ArgumentException("The parameter folder must not be null or empty.");
             }
 
             this.name = name;

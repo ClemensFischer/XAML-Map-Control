@@ -51,6 +51,9 @@ namespace MapControl
         public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
             "Description", typeof(string), typeof(TileLayer), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty LogoImageProperty = DependencyProperty.Register(
+            "LogoImage", typeof(ImageSource), typeof(TileLayer), new PropertyMetadata(null));
+
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             "MinZoomLevel", typeof(int), typeof(TileLayer), new PropertyMetadata(0));
 
@@ -84,7 +87,7 @@ namespace MapControl
         partial void Initialize();
 
         /// <summary>
-        /// Controls how map tiles are loaded.
+        /// Provides map tile URIs or images.
         /// </summary>
         public TileSource TileSource
         {
@@ -93,7 +96,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Name of the TileSource. Used as key in a TileLayerCollection and to name an optional tile cache.
+        /// Name of the TileSource. Used as key in a TileLayerCollection and as component of a tile cache key.
         /// </summary>
         public string SourceName
         {
@@ -102,12 +105,21 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Description of the TileLayer.
+        /// Description of the TileLayer. Used to display copyright information on top of the map.
         /// </summary>
         public string Description
         {
             get { return (string)GetValue(DescriptionProperty); }
             set { SetValue(DescriptionProperty, value); }
+        }
+
+        /// <summary>
+        /// Logo image. Used to display a provider brand logo on top of the map.
+        /// </summary>
+        public ImageSource LogoImage
+        {
+            get { return (ImageSource)GetValue(LogoImageProperty); }
+            set { SetValue(LogoImageProperty, value); }
         }
 
         /// <summary>
@@ -138,7 +150,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets MapBase.Foreground, if not null.
+        /// Optional foreground brush. Sets MapBase.Foreground, if not null.
         /// </summary>
         public Brush Foreground
         {
@@ -147,7 +159,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets MapBase.Background, if not null.
+        /// Optional background brush. Sets MapBase.Background, if not null.
         /// New property prevents filling of RenderTransformed TileLayer with Panel.Background.
         /// </summary>
         public new Brush Background
