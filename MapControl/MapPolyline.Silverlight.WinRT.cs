@@ -4,8 +4,10 @@
 
 using System.Linq;
 #if WINDOWS_RUNTIME
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
+using System.Windows;
 using System.Windows.Media;
 #endif
 
@@ -13,6 +15,10 @@ namespace MapControl
 {
     public partial class MapPolyline
     {
+        public static readonly DependencyProperty FillRuleProperty = DependencyProperty.Register(
+            "FillRule", typeof(FillRule), typeof(MapPolyline), new PropertyMetadata(FillRule.EvenOdd,
+                (o, e) => ((PathGeometry)((MapPolyline)o).Data).FillRule = (FillRule)e.NewValue));
+
         public MapPolyline()
         {
             Data = new PathGeometry();

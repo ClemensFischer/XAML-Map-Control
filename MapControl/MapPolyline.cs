@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 #if WINDOWS_RUNTIME
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 #else
-using System.Windows;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Media;
 #endif
 
 namespace MapControl
@@ -45,6 +47,15 @@ namespace MapControl
         {
             get { return (bool)GetValue(IsClosedProperty); }
             set { SetValue(IsClosedProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the FillRule of the PathGeometry that represents the polyline.
+        /// </summary>
+        public FillRule FillRule
+        {
+            get { return (FillRule)GetValue(FillRuleProperty); }
+            set { SetValue(FillRuleProperty, value); }
         }
 
         private void LocationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
