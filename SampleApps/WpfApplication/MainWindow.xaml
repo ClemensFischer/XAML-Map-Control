@@ -94,6 +94,7 @@
         </Style>
 
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
+            <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
@@ -140,11 +141,18 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Panel.ZIndex" Value="1"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
+            <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Visibility">
                 <Setter.Value>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
@@ -153,17 +161,16 @@
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
-                        <map:Pushpin Content="{Binding Name}"/>
+                        <map:Pushpin Content="{Binding Name}" Foreground="{TemplateBinding Foreground}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Panel.ZIndex" Value="1"/>
                     <Setter Property="Foreground" Value="OrangeRed"/>
                 </Trigger>
             </Style.Triggers>

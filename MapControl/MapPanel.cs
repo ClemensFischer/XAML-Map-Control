@@ -15,9 +15,9 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Positions child elements on a Map, at a position specified by the attached property Location.
-    /// The Location is transformed to a viewport position by ParentMap.MapTransform and ParentMap.ViewportTransform
-    /// and applied to a child element's RenderTransform as an appropriate TranslateTransform.
+    /// Arranges child elements on a Map at positions specified by the attached property Location,
+    /// which is transformed to a viewport position by ParentMap.MapTransform and ParentMap.ViewportTransform
+    /// and assigned to the child element's RenderTransform as a TranslateTransform.
     /// </summary>
     public partial class MapPanel : PanelBase, IMapElement
     {

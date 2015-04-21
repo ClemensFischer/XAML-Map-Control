@@ -62,6 +62,7 @@ namespace MapControl
         public static Location Parse(string s)
         {
             var pair = s.Split(new char[] { ',' });
+
             if (pair.Length != 2)
             {
                 throw new FormatException("Location string must be a comma-separated pair of double values");

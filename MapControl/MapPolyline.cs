@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 #if WINDOWS_RUNTIME
+using System.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -20,10 +21,16 @@ namespace MapControl
     /// </summary>
     public partial class MapPolyline : MapPath
     {
+#if WINDOWS_RUNTIME
+        // Binding fails on Windows Phone when property type is IEnumerable<Location>
+        public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
+            "Locations", typeof(IEnumerable), typeof(MapPolyline),
+            new PropertyMetadata(null, LocationsPropertyChanged));
+#else
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(IEnumerable<Location>), typeof(MapPolyline),
             new PropertyMetadata(null, LocationsPropertyChanged));
-
+#endif
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
             new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateData()));
