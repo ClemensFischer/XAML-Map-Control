@@ -87,7 +87,8 @@ namespace MapControl
             return new Uri(uriFormat.
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                Replace("{z}", zoomLevel.ToString()),
+                UriKind.RelativeOrAbsolute);
         }
 
         private Uri GetOpenStreetMapUri(int x, int y, int zoomLevel)
@@ -98,7 +99,8 @@ namespace MapControl
                 Replace("{c}", "abc".Substring(hostIndex, 1)).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                Replace("{z}", zoomLevel.ToString()),
+                UriKind.RelativeOrAbsolute);
         }
 
         private Uri GetGoogleMapsUri(int x, int y, int zoomLevel)
@@ -109,7 +111,8 @@ namespace MapControl
                 Replace("{i}", hostIndex.ToString()).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                Replace("{z}", zoomLevel.ToString()),
+                UriKind.RelativeOrAbsolute);
         }
 
         private Uri GetMapQuestUri(int x, int y, int zoomLevel)
@@ -120,7 +123,8 @@ namespace MapControl
                 Replace("{n}", hostIndex.ToString()).
                 Replace("{x}", x.ToString()).
                 Replace("{y}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                Replace("{z}", zoomLevel.ToString()),
+                UriKind.RelativeOrAbsolute);
         }
 
         private Uri GetTmsUri(int x, int y, int zoomLevel)
@@ -130,7 +134,8 @@ namespace MapControl
             return new Uri(uriFormat.
                 Replace("{x}", x.ToString()).
                 Replace("{v}", y.ToString()).
-                Replace("{z}", zoomLevel.ToString()));
+                Replace("{z}", zoomLevel.ToString()),
+                UriKind.RelativeOrAbsolute);
         }
 
         private Uri GetQuadKeyUri(int x, int y, int zoomLevel)
@@ -149,7 +154,8 @@ namespace MapControl
 
             return new Uri(uriFormat.
                 Replace("{i}", new string(quadkey[zoomLevel - 1], 1)).
-                Replace("{q}", new string(quadkey)));
+                Replace("{q}", new string(quadkey)),
+                UriKind.RelativeOrAbsolute);
         }
 
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)

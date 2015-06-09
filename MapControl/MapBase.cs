@@ -455,7 +455,7 @@ namespace MapControl
                 }
 
                 TileLayer = null;
-                RemoveTileLayers(0, oldTileLayers.Count);
+                ClearTileLayers();
             }
 
             if (newTileLayers != null)
@@ -491,10 +491,7 @@ namespace MapControl
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    if (e.OldItems != null)
-                    {
-                        RemoveTileLayers(0, e.OldItems.Count);
-                    }
+                    ClearTileLayers();
                     if (e.NewItems != null)
                     {
                         AddTileLayers(0, e.NewItems.Cast<TileLayer>());
@@ -546,6 +543,13 @@ namespace MapControl
                 ClearValue(BackgroundProperty);
                 ClearValue(ForegroundProperty);
             }
+        }
+
+        private void ClearTileLayers()
+        {
+            tileLayerPanel.Children.Clear();
+            ClearValue(BackgroundProperty);
+            ClearValue(ForegroundProperty);
         }
 
         private void InternalSetValue(DependencyProperty property, object value)

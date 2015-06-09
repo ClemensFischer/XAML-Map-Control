@@ -152,7 +152,11 @@ namespace MapControl
 
                     if (uri != null)
                     {
-                        if (uri.Scheme == "file") // load from FileStream as loading from Uri leaves file open
+                        if (!uri.IsAbsoluteUri)
+                        {
+                            image = LoadImage(uri.OriginalString);
+                        }
+                        else if (uri.Scheme == "file")
                         {
                             image = LoadImage(uri.LocalPath);
                         }

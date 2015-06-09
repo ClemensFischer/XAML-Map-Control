@@ -79,7 +79,7 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (e.PointerDeviceType != PointerDeviceType.Mouse)
+            if (e.PointerDeviceType == PointerDeviceType.Touch)
             {
                 TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
             }
