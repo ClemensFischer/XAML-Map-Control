@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using System.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -21,7 +21,7 @@ namespace MapControl
     /// </summary>
     public partial class MapPolyline : MapPath
     {
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
         // Binding fails on Windows Phone when property type is IEnumerable<Location>
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(IEnumerable), typeof(MapPolyline),
@@ -38,7 +38,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the locations that define the polyline points.
         /// </summary>
-#if !WINDOWS_RUNTIME
+#if !NETFX_CORE
         [TypeConverter(typeof(LocationCollectionConverter))]
 #endif
         public IEnumerable<Location> Locations

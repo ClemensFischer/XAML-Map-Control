@@ -3,7 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -15,9 +15,9 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Arranges child elements on a Map at positions specified by the attached property Location,
-    /// which is transformed to a viewport position by ParentMap.MapTransform and ParentMap.ViewportTransform
-    /// and assigned to the child element's RenderTransform as a TranslateTransform.
+    /// Arranges child elements on a Map at positions specified by the attached property Location.
+    /// The Location value is transformed to a viewport position and assigned as TranslateTransform
+    /// to the RenderTransform of the element, either directly or as last child of a TransformGroup.
     /// </summary>
     public partial class MapPanel : PanelBase, IMapElement
     {
@@ -42,22 +42,6 @@ namespace MapControl
             set { SetParentMapOverride(value); }
         }
 
-        protected virtual void SetParentMapOverride(MapBase map)
-        {
-            if (parentMap != null && parentMap != this)
-            {
-                parentMap.ViewportChanged -= OnViewportChanged;
-            }
-
-            parentMap = map;
-
-            if (parentMap != null && parentMap != this)
-            {
-                parentMap.ViewportChanged += OnViewportChanged;
-                OnViewportChanged();
-            }
-        }
-
         protected override Size ArrangeOverride(Size finalSize)
         {
             foreach (UIElement element in Children)
@@ -76,6 +60,22 @@ namespace MapControl
             }
 
             return finalSize;
+        }
+
+        protected virtual void SetParentMapOverride(MapBase map)
+        {
+            if (parentMap != null && parentMap != this)
+            {
+                parentMap.ViewportChanged -= OnViewportChanged;
+            }
+
+            parentMap = map;
+
+            if (parentMap != null && parentMap != this)
+            {
+                parentMap.ViewportChanged += OnViewportChanged;
+                OnViewportChanged();
+            }
         }
 
         protected virtual void OnViewportChanged()
@@ -112,8 +112,6 @@ namespace MapControl
 
             if (element != null)
             {
-                var mapElement = element as IMapElement;
-                var parentMap = mapElement != null ? mapElement.ParentMap : GetParentMap(element);
                 var location = e.NewValue as Location;
 
                 if (location == null)
@@ -125,7 +123,7 @@ namespace MapControl
                     ArrangeElementWithLocation(element); // arrange element when Location was null before
                 }
 
-                SetViewportPosition(element, parentMap, location);
+                SetViewportPosition(element, GetParentMap(element), location);
             }
         }
 
@@ -139,9 +137,7 @@ namespace MapControl
 
                 viewportPosition = parentMap.ViewportTransform.Transform(mapPosition);
 
-                var useLayoutRounding = element.GetValue(FrameworkElement.UseLayoutRoundingProperty);
-
-                if (useLayoutRounding != null && (bool)useLayoutRounding)
+                if ((bool)element.GetValue(FrameworkElement.UseLayoutRoundingProperty))
                 {
                     viewportPosition.X = Math.Round(viewportPosition.X);
                     viewportPosition.Y = Math.Round(viewportPosition.Y);

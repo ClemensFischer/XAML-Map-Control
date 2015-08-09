@@ -2,7 +2,7 @@
 // © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else

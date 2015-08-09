@@ -2,7 +2,7 @@
 // © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -94,7 +94,7 @@ namespace MapControl
                 {
                     var rect = new Rect(ParentMap.MapTransform.Transform(new Location(South, West)),
                                         ParentMap.MapTransform.Transform(new Location(North, East)));
-                    var transform = ParentMap.ViewportTransform;
+                    Transform transform = ParentMap.ViewportTransform;
 
                     ScaleRect(ref rect, ref transform);
 
@@ -109,6 +109,6 @@ namespace MapControl
             }
         }
 
-        static partial void ScaleRect(ref Rect rect, ref Transform transform);
+        static partial void ScaleRect(ref Rect rect, ref Transform transform); // WPF only
     }
 }

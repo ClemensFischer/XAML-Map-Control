@@ -4,7 +4,7 @@
 
 using System;
 using System.Globalization;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -33,6 +33,10 @@ namespace MapControl
         public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
             "RelativeImageSize", typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
 
+        public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
+            "UpdateInterval", typeof(TimeSpan), typeof(MapImageLayer),
+            new PropertyMetadata(TimeSpan.FromSeconds(0.5), (o, e) => ((MapImageLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
+
         private readonly DispatcherTimer updateTimer;
         private int currentImageIndex;
         private bool updateInProgress;
@@ -42,7 +46,7 @@ namespace MapControl
             Children.Add(new MapImage { Opacity = 0d });
             Children.Add(new MapImage { Opacity = 0d });
 
-            updateTimer = new DispatcherTimer { Interval = MapBase.TileUpdateInterval };
+            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => UpdateImage();
         }
 
@@ -67,6 +71,15 @@ namespace MapControl
         {
             get { return (double)GetValue(RelativeImageSizeProperty); }
             set { SetValue(RelativeImageSizeProperty, value); }
+        }
+
+        /// <summary>
+        /// Minimum time interval between images updates.
+        /// </summary>
+        public TimeSpan UpdateInterval
+        {
+            get { return (TimeSpan)GetValue(UpdateIntervalProperty); }
+            set { SetValue(UpdateIntervalProperty, value); }
         }
 
         protected override void OnViewportChanged()
@@ -119,26 +132,28 @@ namespace MapControl
         {
             if (UriFormat != null && width > 0 && height > 0)
             {
-                var uri = UriFormat.Replace("{X}", width.ToString()).Replace("{Y}", height.ToString());
+                var uri = UriFormat
+                    .Replace("{X}", width.ToString())
+                    .Replace("{Y}", height.ToString());
 
                 if (uri.Contains("{W}") && uri.Contains("{S}") && uri.Contains("{E}") && uri.Contains("{N}"))
                 {
                     var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
                     var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
 
-                    uri = uri.
-                        Replace("{W}", (TileSource.MetersPerDegree * p1.X).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{S}", (TileSource.MetersPerDegree * p1.Y).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{E}", (TileSource.MetersPerDegree * p2.X).ToString(CultureInfo.InvariantCulture)).
-                        Replace("{N}", (TileSource.MetersPerDegree * p2.Y).ToString(CultureInfo.InvariantCulture));
+                    uri = uri
+                        .Replace("{W}", (TileSource.MetersPerDegree * p1.X).ToString(CultureInfo.InvariantCulture))
+                        .Replace("{S}", (TileSource.MetersPerDegree * p1.Y).ToString(CultureInfo.InvariantCulture))
+                        .Replace("{E}", (TileSource.MetersPerDegree * p2.X).ToString(CultureInfo.InvariantCulture))
+                        .Replace("{N}", (TileSource.MetersPerDegree * p2.Y).ToString(CultureInfo.InvariantCulture));
                 }
                 else
                 {
-                    uri = uri.
-                        Replace("{w}", west.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{s}", south.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{e}", east.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
+                    uri = uri
+                        .Replace("{w}", west.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{s}", south.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{e}", east.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
                 }
 
                 UpdateImage(west, east, south, north, new Uri(uri));

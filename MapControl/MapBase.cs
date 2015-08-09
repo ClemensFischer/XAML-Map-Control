@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -16,24 +16,20 @@ using Windows.UI.Xaml.Media.Animation;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Threading;
 #endif
 
 namespace MapControl
 {
     /// <summary>
-    /// The map control. Draws map content provided by the TileLayers or the TileLayer property.
-    /// The visible map area is defined by the Center and ZoomLevel properties. The map can be rotated
-    /// by an angle that is given by the Heading property.
-    /// MapBase is a MapPanel and hence can contain map overlays like other MapPanels or MapItemsControls.
+    /// The map control. Renders map content provided by the TileLayer or TileLayers property.
+    /// The visible map area is defined by the Center and ZoomLevel properties.
+    /// The map can be rotated by an angle that is given by the Heading property.
+    /// MapBase can contain map overlay child elements like other MapPanels or MapItemsControls.
     /// </summary>
     public partial class MapBase : MapPanel
     {
         private const double MaximumZoomLevel = 22d;
 
-        public static double ZoomLevelSwitchDelta = 0d;
-        public static bool UpdateTilesWhileViewportChanging = true;
-        public static TimeSpan TileUpdateInterval = TimeSpan.FromSeconds(0.5);
         public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.3);
         public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
 
@@ -50,7 +46,7 @@ namespace MapControl
                 (o, e) => ((MapBase)o).MinZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
-            "MaxZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(18d,
+            "MaxZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(19d,
                 (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
 
         internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
@@ -58,45 +54,39 @@ namespace MapControl
                 (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
 
         private readonly PanelBase tileLayerPanel = new PanelBase();
-        private readonly DispatcherTimer tileUpdateTimer = new DispatcherTimer { Interval = TileUpdateInterval };
         private readonly MapTransform mapTransform = new MercatorTransform();
         private readonly MatrixTransform viewportTransform = new MatrixTransform();
-        private readonly MatrixTransform tileLayerTransform = new MatrixTransform();
-        private readonly MatrixTransform scaleTransform = new MatrixTransform();
-        private readonly MatrixTransform rotateTransform = new MatrixTransform();
-        private readonly MatrixTransform scaleRotateTransform = new MatrixTransform();
+        private readonly ScaleTransform scaleTransform = new ScaleTransform();
+        private readonly RotateTransform rotateTransform = new RotateTransform();
+        private readonly TransformGroup scaleRotateTransform = new TransformGroup();
 
         private Location transformOrigin;
-        private Point viewportOrigin;
-        private Point tileLayerOffset;
         private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
         private bool internalPropertyChange;
 
+        internal Point MapOrigin { get; private set; }
+        internal Point ViewportOrigin { get; private set; }
+
         public MapBase()
         {
+            Initialize();
+
+            scaleRotateTransform.Children.Add(scaleTransform);
+            scaleRotateTransform.Children.Add(rotateTransform);
+
             Children.Add(tileLayerPanel);
             TileLayers = new ObservableCollection<TileLayer>();
-
-            tileUpdateTimer.Tick += UpdateTiles;
-            Loaded += MapLoaded;
-
-            Initialize();
         }
 
-        partial void Initialize();
-        partial void RemoveAnimation(DependencyProperty property);
+        partial void Initialize(); // Windows Runtime and Silverlight only
+        partial void RemoveAnimation(DependencyProperty property); // WPF only
 
         /// <summary>
         /// Raised when the current viewport has changed.
         /// </summary>
         public event EventHandler ViewportChanged;
-
-        /// <summary>
-        /// Raised when the TileZoomLevel or TileGrid properties have changed.
-        /// </summary>
-        public event EventHandler TileGridChanged;
 
         /// <summary>
         /// Gets or sets the map foreground Brush.
@@ -118,9 +108,8 @@ namespace MapControl
 
         /// <summary>
         /// Gets or sets optional multiple TileLayers that are used simultaneously.
-        /// The first element in the collection is equal to the value of the TileLayer property.
-        /// The additional TileLayers usually have transparent backgrounds and their IsOverlay
-        /// property is set to true.
+        /// The first element in the collection is equal to the value of the TileLayer
+        /// property. The additional TileLayers usually have transparent backgrounds.
         /// </summary>
         public IList<TileLayer> TileLayers
         {
@@ -185,7 +174,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the map heading, or clockwise rotation angle in degrees.
+        /// Gets or sets the map heading, i.e. a clockwise rotation angle in degrees.
         /// </summary>
         public double Heading
         {
@@ -211,25 +200,17 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the transformation from cartesian map coordinates to viewport coordinates.
+        /// Gets the transformation from cartesian map coordinates to viewport coordinates (i.e. pixels).
         /// </summary>
-        public Transform ViewportTransform
+        public MatrixTransform ViewportTransform
         {
             get { return viewportTransform; }
         }
 
         /// <summary>
-        /// Gets the RenderTransform to be used by TileLayers, with origin at TileGrid.X and TileGrid.Y.
+        /// Gets the scaling transformation from meters to viewport coordinate units at the Center location.
         /// </summary>
-        public Transform TileLayerTransform
-        {
-            get { return tileLayerTransform; }
-        }
-
-        /// <summary>
-        /// Gets the scaling transformation from meters to viewport coordinate units (pixels) at the Center location.
-        /// </summary>
-        public Transform ScaleTransform
+        public ScaleTransform ScaleTransform
         {
             get { return scaleTransform; }
         }
@@ -237,7 +218,7 @@ namespace MapControl
         /// <summary>
         /// Gets the transformation that rotates by the value of the Heading property.
         /// </summary>
-        public Transform RotateTransform
+        public RotateTransform RotateTransform
         {
             get { return rotateTransform; }
         }
@@ -245,7 +226,7 @@ namespace MapControl
         /// <summary>
         /// Gets the combination of ScaleTransform and RotateTransform
         /// </summary>
-        public Transform ScaleRotateTransform
+        public TransformGroup ScaleRotateTransform
         {
             get { return scaleRotateTransform; }
         }
@@ -256,26 +237,17 @@ namespace MapControl
         public double ViewportScale { get; private set; }
 
         /// <summary>
-        /// Gets the scaling factor from meters to viewport coordinate units (pixels) at the Center location.
+        /// Gets the scaling factor from meters to viewport coordinate units at the Center location.
         /// </summary>
         public double CenterScale { get; private set; }
 
         /// <summary>
-        /// Gets the zoom level to be used by TileLayers.
-        /// </summary>
-        public int TileZoomLevel { get; private set; }
-
-        /// <summary>
-        /// Gets the tile grid to be used by TileLayers.
-        /// </summary>
-        public Int32Rect TileGrid { get; private set; }
-
-        /// <summary>
-        /// Gets the map scale at the specified location as viewport coordinate units (pixels) per meter.
+        /// Gets the map scale at the specified location as viewport coordinate units per meter.
         /// </summary>
         public double GetMapScale(Location location)
         {
-            return mapTransform.RelativeScale(location) * Math.Pow(2d, ZoomLevel) * TileSource.TileSize / (TileSource.MetersPerDegree * 360d);
+            return mapTransform.RelativeScale(location) *
+                Math.Pow(2d, ZoomLevel) * TileSource.TileSize / (TileSource.MetersPerDegree * 360d);
         }
 
         /// <summary>
@@ -296,32 +268,33 @@ namespace MapControl
 
         /// <summary>
         /// Sets a temporary origin location in geographic coordinates for scaling and rotation transformations.
-        /// This origin location is automatically removed when the Center property is set by application code.
+        /// This origin location is automatically reset when the Center property is set by application code.
         /// </summary>
         public void SetTransformOrigin(Location origin)
         {
             transformOrigin = origin;
-            viewportOrigin = LocationToViewportPoint(origin);
+            ViewportOrigin = LocationToViewportPoint(origin);
         }
 
         /// <summary>
         /// Sets a temporary origin point in viewport coordinates for scaling and rotation transformations.
-        /// This origin point is automatically removed when the Center property is set by application code.
+        /// This origin point is automatically reset when the Center property is set by application code.
         /// </summary>
         public void SetTransformOrigin(Point origin)
         {
-            viewportOrigin.X = Math.Min(Math.Max(origin.X, 0d), RenderSize.Width);
-            viewportOrigin.Y = Math.Min(Math.Max(origin.Y, 0d), RenderSize.Height);
-            transformOrigin = ViewportPointToLocation(viewportOrigin);
+            ViewportOrigin = new Point(
+                Math.Min(Math.Max(origin.X, 0d), RenderSize.Width),
+                Math.Min(Math.Max(origin.Y, 0d), RenderSize.Height));
+            transformOrigin = ViewportPointToLocation(ViewportOrigin);
         }
 
         /// <summary>
-        /// Removes the temporary transform origin point set by SetTransformOrigin.
+        /// Resets the temporary transform origin point set by SetTransformOrigin.
         /// </summary>
         public void ResetTransformOrigin()
         {
             transformOrigin = null;
-            viewportOrigin = new Point(RenderSize.Width / 2d, RenderSize.Height / 2d);
+            ViewportOrigin = new Point(RenderSize.Width / 2d, RenderSize.Height / 2d);
         }
 
         /// <summary>
@@ -336,7 +309,7 @@ namespace MapControl
 
             if (translation.X != 0d || translation.Y != 0d)
             {
-                Center = ViewportPointToLocation(new Point(viewportOrigin.X - translation.X, viewportOrigin.Y - translation.Y));
+                Center = ViewportPointToLocation(new Point(ViewportOrigin.X - translation.X, ViewportOrigin.Y - translation.Y));
             }
         }
 
@@ -349,8 +322,7 @@ namespace MapControl
         {
             SetTransformOrigin(origin);
 
-            viewportOrigin.X += translation.X;
-            viewportOrigin.Y += translation.Y;
+            ViewportOrigin = new Point(ViewportOrigin.X + translation.X, ViewportOrigin.Y + translation.Y);
 
             if (rotation != 0d)
             {
@@ -400,28 +372,6 @@ namespace MapControl
                 TargetZoomLevel = Math.Min(lonZoom, latZoom);
                 TargetCenter = mapTransform.Transform(new Point((p1.X + p2.X) / 2d, (p1.Y + p2.Y) / 2d));
                 TargetHeading = 0d;
-            }
-        }
-
-        protected override void OnViewportChanged()
-        {
-            base.OnViewportChanged();
-
-            var viewportChanged = ViewportChanged;
-
-            if (viewportChanged != null)
-            {
-                viewportChanged(this, EventArgs.Empty);
-            }
-        }
-
-        private void MapLoaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= MapLoaded;
-
-            if (tileLayerPanel.Children.Count == 0 && !Children.OfType<TileLayer>().Any())
-            {
-                TileLayer = TileLayer.Default;
             }
         }
 
@@ -849,74 +799,23 @@ namespace MapControl
                 }
             }
 
-            CenterScale = ViewportScale * mapTransform.RelativeScale(center) / TileSource.MetersPerDegree; // Pixels per meter at center latitude
+            CenterScale = ViewportScale * mapTransform.RelativeScale(center) / TileSource.MetersPerDegree; // pixels per meter at center latitude
+            scaleTransform.ScaleX = CenterScale;
+            scaleTransform.ScaleY = CenterScale;
+            rotateTransform.Angle = Heading;
 
-            SetTransformMatrixes();
             OnViewportChanged();
         }
 
-        private void SetViewportTransform(Location origin)
+        protected override void OnViewportChanged()
         {
-            var oldMapOriginX = (viewportOrigin.X - tileLayerOffset.X) / ViewportScale - 180d;
-            var mapOrigin = mapTransform.Transform(origin);
+            base.OnViewportChanged();
 
-            ViewportScale = Math.Pow(2d, ZoomLevel) * TileSource.TileSize / 360d;
-            SetViewportTransform(mapOrigin);
+            var viewportChanged = ViewportChanged;
 
-            tileLayerOffset.X = viewportOrigin.X - (180d + mapOrigin.X) * ViewportScale;
-            tileLayerOffset.Y = viewportOrigin.Y - (180d - mapOrigin.Y) * ViewportScale;
-
-            if (Math.Abs(mapOrigin.X - oldMapOriginX) > 180d)
+            if (viewportChanged != null)
             {
-                // immediately handle map origin leap when map center moves across 180° longitude
-                UpdateTiles(this, EventArgs.Empty);
-            }
-            else
-            {
-                SetTileLayerTransform();
-
-                if (!UpdateTilesWhileViewportChanging)
-                {
-                    tileUpdateTimer.Stop();
-                }
-
-                tileUpdateTimer.Start();
-            }
-        }
-
-        private void UpdateTiles(object sender, object e)
-        {
-            tileUpdateTimer.Stop();
-
-            var zoomLevel = (int)Math.Round(ZoomLevel + ZoomLevelSwitchDelta);
-            var transform = GetTileIndexMatrix((double)(1 << zoomLevel) / 360d);
-
-            // tile indices of visible rectangle
-            var p1 = transform.Transform(new Point(0d, 0d));
-            var p2 = transform.Transform(new Point(RenderSize.Width, 0d));
-            var p3 = transform.Transform(new Point(0d, RenderSize.Height));
-            var p4 = transform.Transform(new Point(RenderSize.Width, RenderSize.Height));
-
-            // index ranges of visible tiles
-            var x1 = (int)Math.Floor(Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X))));
-            var y1 = (int)Math.Floor(Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y))));
-            var x2 = (int)Math.Floor(Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X))));
-            var y2 = (int)Math.Floor(Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y))));
-            var grid = new Int32Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-
-            if (TileZoomLevel != zoomLevel || TileGrid != grid)
-            {
-                TileZoomLevel = zoomLevel;
-                TileGrid = grid;
-
-                SetTileLayerTransform();
-
-                var tileGridChanged = TileGridChanged;
-
-                if (tileGridChanged != null)
-                {
-                    tileGridChanged(this, EventArgs.Empty);
-                }
+                viewportChanged(this, EventArgs.Empty);
             }
         }
     }

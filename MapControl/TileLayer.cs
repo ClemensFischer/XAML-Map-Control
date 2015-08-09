@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Media;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Threading;
+using System.Diagnostics;
 #endif
 
 namespace MapControl
@@ -21,14 +23,14 @@ namespace MapControl
     /// <summary>
     /// Fills a rectangular area with map tiles from a TileSource.
     /// </summary>
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
     [ContentProperty(Name = "TileSource")]
 #else
     [ContentProperty("TileSource")]
 #endif
     public partial class TileLayer : PanelBase, IMapElement
     {
-        public static TileLayer Default
+        public static TileLayer OpenStreetMapTileLayer
         {
             get
             {
@@ -54,6 +56,10 @@ namespace MapControl
         public static readonly DependencyProperty LogoImageProperty = DependencyProperty.Register(
             "LogoImage", typeof(ImageSource), typeof(TileLayer), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty ZoomLevelOffsetProperty = DependencyProperty.Register(
+            "ZoomLevelOffset", typeof(double), typeof(TileLayer),
+            new PropertyMetadata(0d, (o, e) => ((TileLayer)o).UpdateTileRect()));
+
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             "MinZoomLevel", typeof(int), typeof(TileLayer), new PropertyMetadata(0));
 
@@ -63,15 +69,22 @@ namespace MapControl
         public static readonly DependencyProperty MaxParallelDownloadsProperty = DependencyProperty.Register(
             "MaxParallelDownloads", typeof(int), typeof(TileLayer), new PropertyMetadata(4));
 
+        public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
+            "UpdateInterval", typeof(TimeSpan), typeof(TileLayer),
+            new PropertyMetadata(TimeSpan.FromSeconds(0.5), (o, e) => ((TileLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
+
+        public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
+            "UpdateWhileViewportChanging", typeof(bool), typeof(TileLayer), new PropertyMetadata(true));
+
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
             "Foreground", typeof(Brush), typeof(TileLayer), new PropertyMetadata(null));
 
         public static readonly new DependencyProperty BackgroundProperty = DependencyProperty.Register(
             "Background", typeof(Brush), typeof(TileLayer), new PropertyMetadata(null));
 
-        private readonly ITileImageLoader tileImageLoader;
-        private List<Tile> tiles = new List<Tile>();
+        private readonly DispatcherTimer updateTimer;
         private MapBase parentMap;
+        private double mapOriginX;
 
         public TileLayer()
             : this(new TileImageLoader())
@@ -80,11 +93,23 @@ namespace MapControl
 
         public TileLayer(ITileImageLoader tileImageLoader)
         {
-            this.tileImageLoader = tileImageLoader;
             Initialize();
+
+            RenderTransform = new MatrixTransform();
+            TileImageLoader = tileImageLoader;
+            Tiles = new List<Tile>();
+            TileZoomLevel = -1;
+
+            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
+            updateTimer.Tick += (s, e) => UpdateTileRect();
         }
 
-        partial void Initialize();
+        partial void Initialize(); // Windows Runtime and Silverlight only
+
+        public ITileImageLoader TileImageLoader { get; private set; }
+        public ICollection<Tile> Tiles { get; private set; }
+        public Int32Rect TileRect { get; private set; }
+        public int TileZoomLevel { get; private set; }
 
         /// <summary>
         /// Provides map tile URIs or images.
@@ -123,6 +148,15 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Adds an offset to the Map's ZoomLevel for a relative scale between the Map and the TileLayer.
+        /// </summary>
+        public double ZoomLevelOffset
+        {
+            get { return (double)GetValue(ZoomLevelOffsetProperty); }
+            set { SetValue(ZoomLevelOffsetProperty, value); }
+        }
+
+        /// <summary>
         /// Minimum zoom level supported by the TileLayer.
         /// </summary>
         public int MinZoomLevel
@@ -147,6 +181,24 @@ namespace MapControl
         {
             get { return (int)GetValue(MaxParallelDownloadsProperty); }
             set { SetValue(MaxParallelDownloadsProperty, value); }
+        }
+
+        /// <summary>
+        /// Minimum time interval between tile updates.
+        /// </summary>
+        public TimeSpan UpdateInterval
+        {
+            get { return (TimeSpan)GetValue(UpdateIntervalProperty); }
+            set { SetValue(UpdateIntervalProperty, value); }
+        }
+
+        /// <summary>
+        /// Controls if tiles are updates while the viewport is still changing.
+        /// </summary>
+        public bool UpdateWhileViewportChanging
+        {
+            get { return (bool)GetValue(UpdateWhileViewportChangingProperty); }
+            set { SetValue(UpdateWhileViewportChangingProperty, value); }
         }
 
         /// <summary>
@@ -175,63 +227,110 @@ namespace MapControl
             {
                 if (parentMap != null)
                 {
-                    parentMap.TileGridChanged -= UpdateTiles;
-                    ClearValue(RenderTransformProperty);
+                    parentMap.ViewportChanged -= ViewportChanged;
+                    TileZoomLevel = -1;
+                    UpdateTiles(true);
                 }
 
                 parentMap = value;
 
                 if (parentMap != null)
                 {
-                    parentMap.TileGridChanged += UpdateTiles;
-                    RenderTransform = parentMap.TileLayerTransform;
+                    parentMap.ViewportChanged += ViewportChanged;
+                    ViewportChanged(this, EventArgs.Empty);
                 }
-
-                UpdateTiles();
             }
         }
 
-        protected virtual void UpdateTiles(bool clearTiles = false)
+        private void ViewportChanged(object sender, EventArgs e)
         {
-            if (tiles.Count > 0)
+            if (TileZoomLevel < 0 || Math.Abs(parentMap.MapOrigin.X - mapOriginX) > 180d)
             {
-                tileImageLoader.CancelLoadTiles(this);
+                // immediately handle map origin leap when map center moves across 180° longitude
+                UpdateTileRect();
+            }
+            else
+            {
+                SetRenderTransform();
+
+                if (!UpdateWhileViewportChanging)
+                {
+                    updateTimer.Stop();
+                }
+
+                updateTimer.Start();
+            }
+
+            mapOriginX = parentMap.MapOrigin.X;
+        }
+
+        protected void UpdateTileRect()
+        {
+            updateTimer.Stop();
+
+            if (parentMap != null)
+            {
+                var zoomLevel = (int)Math.Round(parentMap.ZoomLevel + ZoomLevelOffset);
+                var transform = GetTileIndexMatrix(zoomLevel);
+
+                // tile indices of visible rectangle
+                var p1 = transform.Transform(new Point(0d, 0d));
+                var p2 = transform.Transform(new Point(parentMap.RenderSize.Width, 0d));
+                var p3 = transform.Transform(new Point(0d, parentMap.RenderSize.Height));
+                var p4 = transform.Transform(new Point(parentMap.RenderSize.Width, parentMap.RenderSize.Height));
+
+                // index ranges of visible tiles
+                var x1 = (int)Math.Floor(Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X))));
+                var y1 = (int)Math.Floor(Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y))));
+                var x2 = (int)Math.Floor(Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X))));
+                var y2 = (int)Math.Floor(Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y))));
+                var rect = new Int32Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+
+                if (TileZoomLevel != zoomLevel || TileRect != rect)
+                {
+                    TileZoomLevel = zoomLevel;
+                    TileRect = rect;
+
+                    SetRenderTransform();
+                    UpdateTiles(false);
+                }
+            }
+        }
+
+        protected virtual void UpdateTiles(bool clearTiles)
+        {
+            if (Tiles.Count > 0)
+            {
+                TileImageLoader.CancelLoadTiles(this);
             }
 
             if (clearTiles)
             {
-                tiles.Clear();
+                Tiles.Clear();
             }
 
             SelectTiles();
 
             Children.Clear();
 
-            if (tiles.Count > 0)
+            if (Tiles.Count > 0)
             {
-                foreach (var tile in tiles)
+                foreach (var tile in Tiles)
                 {
                     Children.Add(tile.Image);
                 }
 
-                tileImageLoader.BeginLoadTiles(this, tiles.Where(t => t.Pending));
+                TileImageLoader.BeginLoadTiles(this, Tiles.Where(t => t.Pending).OrderByDescending(t => t.ZoomLevel));
             }
         }
 
-        private void UpdateTiles(object sender, EventArgs e)
-        {
-            UpdateTiles();
-        }
-
-        private void SelectTiles()
+        protected void SelectTiles()
         {
             var newTiles = new List<Tile>();
 
-            if (parentMap != null && TileSource != null)
+            if (TileZoomLevel >= 0 && parentMap != null && TileSource != null)
             {
-                var grid = parentMap.TileGrid;
-                var zoomLevel = parentMap.TileZoomLevel;
-                var maxZoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
+                var maxZoomLevel = Math.Min(TileZoomLevel, MaxZoomLevel);
                 var minZoomLevel = MinZoomLevel;
 
                 if (minZoomLevel < maxZoomLevel && this != parentMap.TileLayers.FirstOrDefault())
@@ -242,23 +341,23 @@ namespace MapControl
 
                 for (var z = minZoomLevel; z <= maxZoomLevel; z++)
                 {
-                    var tileSize = 1 << (zoomLevel - z);
-                    var x1 = (int)Math.Floor((double)grid.X / tileSize); // may be negative
-                    var x2 = (grid.X + grid.Width - 1) / tileSize;
-                    var y1 = Math.Max(grid.Y / tileSize, 0);
-                    var y2 = Math.Min((grid.Y + grid.Height - 1) / tileSize, (1 << z) - 1);
+                    var tileSize = 1 << (TileZoomLevel - z);
+                    var x1 = (int)Math.Floor((double)TileRect.X / tileSize); // may be negative
+                    var x2 = (TileRect.X + TileRect.Width - 1) / tileSize;
+                    var y1 = Math.Max(TileRect.Y / tileSize, 0);
+                    var y2 = Math.Min((TileRect.Y + TileRect.Height - 1) / tileSize, (1 << z) - 1);
 
                     for (var y = y1; y <= y2; y++)
                     {
                         for (var x = x1; x <= x2; x++)
                         {
-                            var tile = tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
+                            var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
 
                             if (tile == null)
                             {
                                 tile = new Tile(z, x, y);
 
-                                var equivalentTile = tiles.FirstOrDefault(
+                                var equivalentTile = Tiles.FirstOrDefault(
                                     t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && t.Image.Source != null);
 
                                 if (equivalentTile != null)
@@ -274,18 +373,18 @@ namespace MapControl
                 }
             }
 
-            tiles = newTiles;
+            Tiles = newTiles;
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            if (parentMap != null)
+            if (TileZoomLevel >= 0)
             {
-                foreach (var tile in tiles)
+                foreach (var tile in Tiles)
                 {
-                    var tileSize = (double)(256 << (parentMap.TileZoomLevel - tile.ZoomLevel));
-                    var x = tileSize * tile.X - 256 * parentMap.TileGrid.X;
-                    var y = tileSize * tile.Y - 256 * parentMap.TileGrid.Y;
+                    var tileSize = (double)(256 << (TileZoomLevel - tile.ZoomLevel));
+                    var x = tileSize * tile.X - 256 * TileRect.X;
+                    var y = tileSize * tile.Y - 256 * TileRect.Y;
 
                     tile.Image.Width = tileSize;
                     tile.Image.Height = tileSize;

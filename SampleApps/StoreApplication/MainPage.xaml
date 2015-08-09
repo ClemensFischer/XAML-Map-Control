@@ -8,7 +8,7 @@
     <Page.Resources>
         <map:TileLayerCollection x:Key="TileLayers">
             <!--
-            TileLayers with OpenStreetMap data.
+                TileLayers with OpenStreetMap data.
             -->
             <map:TileLayer SourceName="OpenStreetMap"
                            Description="Maps © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
@@ -46,10 +46,10 @@
             </map:TileLayer>
 
             <!--
-            Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
-            (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
-            A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
-            for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
+                Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
+                (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
+                A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
+                for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
             -->
             <map:BingMapsTileLayer SourceName="Bing Maps Road"
                                    Description="Bing Maps - © Microsoft Corporation"

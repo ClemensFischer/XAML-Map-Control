@@ -9,7 +9,7 @@
     Stylus.IsPressAndHoldEnabled="False">
     <Window.Resources>
         <!--
-        TileLayers with OpenStreetMap data.
+            TileLayers with OpenStreetMap data.
         -->
         <map:TileLayer x:Key="OpenStreetMap" SourceName="OpenStreetMap"
                        Description="Maps © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
@@ -40,10 +40,18 @@
                        MinZoomLevel="9" MaxZoomLevel="18"/>
 
         <!--
-        Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
-        (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
-        A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
-        for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
+            A TileLayer using World OSM WMS, a Web Map Service based on OpenStreetMap data.
+            Please contact the provider at http://www.osm-wms.de/ if you intend to use this in an application.
+        -->
+        <map:TileLayer x:Key="WorldOsm" SourceName="World OSM WMS"
+                       Description="[World OSM WMS](http://www.osm-wms.de/) © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+                       TileSource="http://129.206.228.72/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>
+
+        <!--
+            Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
+            (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
+            A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
+            for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
         -->
         <map:BingMapsTileLayer x:Key="BingRoad" SourceName="Bing Maps Road"
                                Description="© [Microsoft Corporation](http://www.bing.com/maps/)"
@@ -56,14 +64,7 @@
                                Mode="AerialWithLabels" MaxZoomLevel="19" Foreground="White" Background="Black"/>
 
         <!--
-        A TileLayer for World OSM WMS, a Web Map Service based on OpenStreetMap data.
-        -->
-        <!--<map:TileLayer x:Key="WorldOsm" SourceName="World OSM WMS"
-                       Description="[World OSM WMS](http://www.osm-wms.de/) © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                       TileSource="http://129.206.228.72/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH=256&amp;HEIGHT=256&amp;FORMAT=image/png"/>-->
-
-        <!--
-        A TileLayer that uses an ImageTileSource
+            A TileLayer that uses an ImageTileSource
         -->
         <!--<map:TileLayer x:Key="OsmImageTileSource"
                        Description="© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
@@ -71,7 +72,7 @@
         </map:TileLayer>-->
 
         <!--
-        A TileLayer that demonstrates how to access local tile image files (from ImageFileCache here)
+            A TileLayer that demonstrates how to access local tile image files (from ImageFileCache here)
         -->
         <!--<map:TileLayer x:Key="OsmLocalFiles"
                        Description="© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
@@ -283,6 +284,7 @@
                     <ComboBoxItem Tag="{StaticResource Transport}">Transport</ComboBoxItem>
                     <ComboBoxItem Tag="{StaticResource TransportDark}">Transport Dark</ComboBoxItem>
                     <ComboBoxItem Tag="{StaticResource MapQuest}">MapQuest Open</ComboBoxItem>
+                    <!--<ComboBoxItem Tag="{StaticResource WorldOsm}">World OSM WMS</ComboBoxItem>-->
                     <!--<ComboBoxItem Tag="{StaticResource BingRoad}">Bing Maps Road</ComboBoxItem>
                     <ComboBoxItem Tag="{StaticResource BingAerial}">Bing Maps Aerial</ComboBoxItem>
                     <ComboBoxItem Tag="{StaticResource BingHybrid}">Bing Maps Hybrid</ComboBoxItem>-->

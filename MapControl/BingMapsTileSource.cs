@@ -31,9 +31,9 @@ namespace MapControl
                 quadkey[z] = (char)('0' + 2 * (y % 2) + (x % 2));
             }
 
-            return new Uri(UriFormat.
-                Replace("{subdomain}", subdomain).
-                Replace("{quadkey}", new string(quadkey)));
+            return new Uri(UriFormat
+                .Replace("{subdomain}", subdomain)
+                .Replace("{quadkey}", new string(quadkey)));
         }
     }
 }

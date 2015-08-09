@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.UI.Xaml;
 #else
 using System.Windows.Threading;

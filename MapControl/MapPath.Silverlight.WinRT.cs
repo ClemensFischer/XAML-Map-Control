@@ -2,7 +2,7 @@
 // © 2015 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
@@ -30,7 +30,7 @@ namespace MapControl
                 Stretch = Stretch.None;
             }
 
-            // Work-around for missing PropertyChangedCallback for the Data property.
+            // Workaround for missing PropertyChangedCallback for the Data property.
             if (data != Data)
             {
                 data = Data;

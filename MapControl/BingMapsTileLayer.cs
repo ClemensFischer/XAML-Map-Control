@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Xml;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 #else

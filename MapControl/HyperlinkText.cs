@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-#if WINDOWS_RUNTIME
+#if NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
@@ -45,7 +45,7 @@ namespace MapControl
                     link.Inlines.Add(new Run { Text = match.Groups[1].Value });
 #if SILVERLIGHT
                     link.TargetName = "_blank";
-#elif !WINDOWS_RUNTIME
+#elif !NETFX_CORE
                     link.ToolTip = uri.ToString();
                     link.RequestNavigate += (s, e) => System.Diagnostics.Process.Start(e.Uri.ToString());
 #endif
@@ -86,7 +86,7 @@ namespace MapControl
             {
                 inlines = ((Paragraph)obj).Inlines;
             }
-#if WINDOWS_RUNTIME || SILVERLIGHT
+#if NETFX_CORE || SILVERLIGHT
             else if (obj is RichTextBlock)
             {
                 var paragraph = new Paragraph();

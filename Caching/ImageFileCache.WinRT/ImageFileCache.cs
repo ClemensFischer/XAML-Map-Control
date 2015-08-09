@@ -62,6 +62,7 @@ namespace MapControl.Caching
             {
             }
 
+            //Debug.WriteLine("Loaded cached image {0}", file.Path);
             return cacheItem;
         }
 
