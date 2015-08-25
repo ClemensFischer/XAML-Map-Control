@@ -54,7 +54,6 @@
   <ItemGroup>
     <Compile Include="BingMapsTileLayer.cs" />
     <Compile Include="BingMapsTileSource.cs" />
-    <Compile Include="GlyphRunText.cs" />
     <Compile Include="HyperlinkText.cs" />
     <Compile Include="ImageTileSource.WPF.cs" />
     <Compile Include="IMapElement.cs" />

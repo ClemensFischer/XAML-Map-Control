@@ -13,7 +13,7 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public static TimeSpan OpacityAnimationDuration = TimeSpan.FromSeconds(0.3);
+        public static TimeSpan OpacityAnimationDuration = TimeSpan.FromSeconds(0.1);
 
         public readonly int ZoomLevel;
         public readonly int X;

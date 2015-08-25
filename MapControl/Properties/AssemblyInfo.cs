@@ -2,10 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 
-#if WINDOWS_PHONE
-[assembly: AssemblyTitle("XAML Map Control (Windows Phone Silverlight)")]
-[assembly: AssemblyDescription("XAML Map Control Library for Windows Phone Silverlight")]
-#elif SILVERLIGHT
+#if SILVERLIGHT
 [assembly: AssemblyTitle("XAML Map Control (Silverlight)")]
 [assembly: AssemblyDescription("XAML Map Control Library for Silverlight")]
 #else
@@ -17,8 +14,8 @@ using System.Windows;
 [assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyCopyright("© 2015 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyVersion("2.5.0")]
-[assembly: AssemblyFileVersion("2.5.0")]
+[assembly: AssemblyVersion("2.5.1")]
+[assembly: AssemblyFileVersion("2.5.1")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

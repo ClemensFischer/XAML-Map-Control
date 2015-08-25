@@ -53,17 +53,15 @@ namespace MapControl
             style.Setters.Add(new Setter(Panel.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             Style = style;
 
-            Clip = new RectangleGeometry();
+            var clip = new RectangleGeometry();
+            Clip = clip;
 
-            SizeChanged += OnRenderSizeChanged;
-        }
-
-        private void OnRenderSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            ((RectangleGeometry)Clip).Rect = new Rect(new Point(), e.NewSize);
-
-            ResetTransformOrigin();
-            UpdateTransform();
+            SizeChanged += (s, e) =>
+            {
+                clip.Rect = new Rect(new Point(), e.NewSize);
+                ResetTransformOrigin();
+                UpdateTransform();
+            };
         }
 
         private void SetViewportTransform(Location origin)

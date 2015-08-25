@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -68,7 +69,7 @@ namespace MapControl
                 }
 
                 size.Width = length * ParentMap.CenterScale + StrokeThickness + Padding.Left + Padding.Right;
-                size.Height = FontSize + 2d * StrokeThickness + Padding.Top + Padding.Bottom;
+                size.Height = FontSize * FontFamily.LineSpacing + StrokeThickness + Padding.Top + Padding.Bottom;
             }
             else
             {
@@ -86,16 +87,15 @@ namespace MapControl
                 var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
                 var y1 = size.Height / 2d;
                 var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
-                var text = length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length);
+                var text = new FormattedText(
+                    length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length),
+                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground);
 
                 drawingContext.DrawRectangle(Background ?? ParentMap.Background, null, new Rect(size));
                 drawingContext.DrawLine(Pen, new Point(x1, y1), new Point(x1, y2));
                 drawingContext.DrawLine(Pen, new Point(x2, y1), new Point(x2, y2));
                 drawingContext.DrawLine(Pen, new Point(x1, y2), new Point(x2, y2));
-                drawingContext.DrawGlyphRun(Foreground,
-                    GlyphRunText.Create(text, Typeface, FontSize),
-                    new Point(size.Width / 2d, y1 - StrokeThickness - 1d),
-                    HorizontalAlignment.Center, VerticalAlignment.Center);
+                drawingContext.DrawText(text, new Point((size.Width - text.Width) / 2d, 0d));
             }
         }
 
