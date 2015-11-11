@@ -33,7 +33,7 @@
                        Foreground="White" Background="Black"/>
         <map:TileLayer x:Key="MapQuest" SourceName="MapQuest OpenStreetMap"
                        Description="Maps © [MapQuest](http://www.mapquest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                       TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"
+                       TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg"
                        MaxZoomLevel="19"/>
         <map:TileLayer x:Key="Seamarks" SourceName="Seamarks"
                        TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"

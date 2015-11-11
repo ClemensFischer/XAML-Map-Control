@@ -90,6 +90,7 @@
     <Compile Include="Pushpin.WPF.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Tile.WPF.cs" />
+    <Compile Include="TileGrid.cs" />
     <Compile Include="TileImageLoader.WPF.cs" />
     <Compile Include="TileLayer.cs" />
     <Compile Include="TileLayer.WPF.cs" />

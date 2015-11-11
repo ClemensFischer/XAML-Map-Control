@@ -35,7 +35,7 @@
                            Foreground="White" Background="Black"/>
             <map:TileLayer SourceName="MapQuest OpenStreetMap"
                            Description="Maps © [MapQuest](http://www.mapquest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"
+                           TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg"
                            MaxZoomLevel="19"/>
             <map:TileLayer SourceName="Seamarks"
                            TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
@@ -140,7 +140,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <map:Map x:Name="map" TileLayer="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}"
-                 Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11"
+                 Center="{Binding MapCenter}" MinZoomLevel="2" ZoomLevel="11"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
 
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"

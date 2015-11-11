@@ -39,7 +39,7 @@
             </map:TileLayer>
             <map:TileLayer SourceName="MapQuest OpenStreetMap"
                            Description="Maps © [MapQuest](http://www.mapquest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
-                <map:TileSource UriFormat="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
+                <map:TileSource UriFormat="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg"/>
             </map:TileLayer>
             <map:TileLayer SourceName="Seamarks" Description="© OpenSeaMap Contributors"
                            MinZoomLevel="10" MaxZoomLevel="18">
@@ -167,7 +167,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <map:Map x:Name="map" TileLayer="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}"
-                 Center="{Binding MapCenter}" MinZoomLevel="2" MaxZoomLevel="18" ZoomLevel="11" ManipulationMode="All">
+                 Center="{Binding MapCenter}" MinZoomLevel="2" ZoomLevel="11" ManipulationMode="All">
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
             <map:MapGraticule Opacity="0.6"/>
@@ -194,7 +194,7 @@
                 </Path.Data>
             </Path>
 
-            <map:MapPath Fill="Aqua" Opacity="0.5">
+            <map:MapPath Stroke="Blue" Fill="Aqua" Opacity="0.5">
                 <map:MapPath.Data>
                     <GeometryGroup FillRule="EvenOdd">
                         <EllipseGeometry Center="8.2,63.5" RadiusX="0.025" RadiusY="0.025"/>

@@ -194,7 +194,7 @@ namespace MapControl
                 {
                     From = 0d,
                     To = 1d,
-                    Duration = Tile.OpacityAnimationDuration,
+                    Duration = Tile.FadeDuration,
                     FillBehavior = FillBehavior.Stop
                 };
 

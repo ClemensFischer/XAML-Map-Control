@@ -57,9 +57,6 @@
     <Compile Include="..\IMapElement.cs">
       <Link>IMapElement.cs</Link>
     </Compile>
-    <Compile Include="..\Int32Rect.cs">
-      <Link>Int32Rect.cs</Link>
-    </Compile>
     <Compile Include="..\ITileImageLoader.cs">
       <Link>ITileImageLoader.cs</Link>
     </Compile>
@@ -146,6 +143,9 @@
     </Compile>
     <Compile Include="..\Tile.Silverlight.WinRT.cs">
       <Link>Tile.Silverlight.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\TileGrid.cs">
+      <Link>TileGrid.cs</Link>
     </Compile>
     <Compile Include="..\TileImageLoader.WinRT.cs">
       <Link>TileImageLoader.WinRT.cs</Link>

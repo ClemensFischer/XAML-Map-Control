@@ -23,22 +23,22 @@ namespace MapControl
 
         static MapScale()
         {
-            UIElement.IsHitTestVisibleProperty.OverrideMetadata(
+            IsHitTestVisibleProperty.OverrideMetadata(
                 typeof(MapScale), new FrameworkPropertyMetadata(false));
 
-            FrameworkElement.MinWidthProperty.OverrideMetadata(
+            MinWidthProperty.OverrideMetadata(
                 typeof(MapScale), new FrameworkPropertyMetadata(100d));
 
-            FrameworkElement.HorizontalAlignmentProperty.OverrideMetadata(
+            HorizontalAlignmentProperty.OverrideMetadata(
                 typeof(MapScale), new FrameworkPropertyMetadata(HorizontalAlignment.Right));
 
-            FrameworkElement.VerticalAlignmentProperty.OverrideMetadata(
+            VerticalAlignmentProperty.OverrideMetadata(
                 typeof(MapScale), new FrameworkPropertyMetadata(VerticalAlignment.Bottom));
 
-            MapOverlay.StrokeStartLineCapProperty.OverrideMetadata(
+            StrokeStartLineCapProperty.OverrideMetadata(
                 typeof(MapScale), new FrameworkPropertyMetadata(PenLineCap.Round));
 
-            MapOverlay.StrokeEndLineCapProperty.OverrideMetadata(
+            StrokeEndLineCapProperty.OverrideMetadata(
                 typeof(MapScale), new FrameworkPropertyMetadata(PenLineCap.Round));
         }
 

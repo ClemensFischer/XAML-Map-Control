@@ -12,13 +12,13 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public void SetImage(ImageSource image, bool animateOpacity = true)
+        public void SetImage(ImageSource image, bool fadeIn = true)
         {
             Pending = false;
 
             if (image != null)
             {
-                if (animateOpacity && OpacityAnimationDuration > TimeSpan.Zero)
+                if (fadeIn && FadeDuration > TimeSpan.Zero)
                 {
                     var bitmap = image as BitmapSource;
 
@@ -30,7 +30,7 @@ namespace MapControl
                     else
                     {
                         Image.BeginAnimation(Image.OpacityProperty,
-                            new DoubleAnimation(0d, 1d, OpacityAnimationDuration));
+                            new DoubleAnimation(0d, 1d, FadeDuration));
                     }
                 }
                 else
@@ -50,7 +50,7 @@ namespace MapControl
             bitmap.DownloadFailed -= BitmapDownloadFailed;
 
             Image.BeginAnimation(Image.OpacityProperty,
-                new DoubleAnimation(0d, 1d, OpacityAnimationDuration));
+                new DoubleAnimation(0d, 1d, FadeDuration));
         }
 
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)

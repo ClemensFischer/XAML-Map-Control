@@ -11,8 +11,8 @@ namespace MapControl
     public partial class MapPolyline
     {
         public static readonly DependencyProperty FillRuleProperty = StreamGeometry.FillRuleProperty.AddOwner(
-            typeof(MapPolyline), new FrameworkPropertyMetadata(
-                (o, e) => ((StreamGeometry)((MapPolyline)o).Data).FillRule = (FillRule)e.NewValue));
+            typeof(MapPolyline),
+            new FrameworkPropertyMetadata((o, e) => ((StreamGeometry)((MapPolyline)o).Data).FillRule = (FillRule)e.NewValue));
 
         public MapPolyline()
         {

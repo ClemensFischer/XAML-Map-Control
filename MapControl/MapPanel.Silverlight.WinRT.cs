@@ -31,8 +31,8 @@ namespace MapControl
 
         /// <summary>
         /// Helper method to work around missing property value inheritance in Silverlight and Windows Runtime.
-        /// Adds Loaded and Unloaded handlers to the specified FrameworkElement, which set and clear the value
-        /// of the MapPanel.ParentMap attached property.
+        /// Adds Loaded and Unloaded event handlers to the specified FrameworkElement, which set and clear the
+        /// value of the MapPanel.ParentMap attached property.
         /// </summary>
         public static void AddParentMapHandlers(FrameworkElement element)
         {

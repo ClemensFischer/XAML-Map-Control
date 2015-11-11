@@ -12,7 +12,7 @@ namespace MapControl
     /// </summary>
     public partial class TileSource
     {
-        public const double TileSize = 256;
+        public const int TileSize = 256;
         public const double MetersPerDegree = 6378137d * Math.PI / 180d; // WGS 84 semi major axis
 
         private Func<int, int, int, Uri> getUri;
@@ -165,15 +165,14 @@ namespace MapControl
             var east = MetersPerDegree * ((double)(x + 1) * tileSize - 180d);
             var south = MetersPerDegree * (180d - (double)(y + 1) * tileSize);
             var north = MetersPerDegree * (180d - (double)y * tileSize);
-            var imageSize = TileSize.ToString("F0");
 
             return new Uri(uriFormat
                 .Replace("{W}", west.ToString(CultureInfo.InvariantCulture))
                 .Replace("{S}", south.ToString(CultureInfo.InvariantCulture))
                 .Replace("{E}", east.ToString(CultureInfo.InvariantCulture))
                 .Replace("{N}", north.ToString(CultureInfo.InvariantCulture))
-                .Replace("{X}", imageSize)
-                .Replace("{Y}", imageSize));
+                .Replace("{X}", TileSize.ToString())
+                .Replace("{Y}", TileSize.ToString()));
         }
 
         private Uri GetLatLonBoundingBoxUri(int x, int y, int zoomLevel)
@@ -183,15 +182,14 @@ namespace MapControl
             var east = (double)(x + 1) * tileSize - 180d;
             var south = MercatorTransform.YToLatitude(180d - (double)(y + 1) * tileSize);
             var north = MercatorTransform.YToLatitude(180d - (double)y * tileSize);
-            var imageSize = TileSize.ToString("F0");
 
             return new Uri(uriFormat
                 .Replace("{w}", west.ToString(CultureInfo.InvariantCulture))
                 .Replace("{s}", south.ToString(CultureInfo.InvariantCulture))
                 .Replace("{e}", east.ToString(CultureInfo.InvariantCulture))
                 .Replace("{n}", north.ToString(CultureInfo.InvariantCulture))
-                .Replace("{X}", imageSize)
-                .Replace("{Y}", imageSize));
+                .Replace("{X}", TileSize.ToString())
+                .Replace("{Y}", TileSize.ToString()));
         }
     }
 }

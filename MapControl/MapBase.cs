@@ -30,28 +30,37 @@ namespace MapControl
     {
         private const double MaximumZoomLevel = 22d;
 
-        public static TimeSpan AnimationDuration = TimeSpan.FromSeconds(0.3);
-        public static EasingFunctionBase AnimationEasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut };
-
         public static readonly DependencyProperty TileLayerProperty = DependencyProperty.Register(
-            "TileLayer", typeof(TileLayer), typeof(MapBase), new PropertyMetadata(null,
-                (o, e) => ((MapBase)o).TileLayerPropertyChanged((TileLayer)e.NewValue)));
+            "TileLayer", typeof(TileLayer), typeof(MapBase),
+            new PropertyMetadata(null, (o, e) => ((MapBase)o).TileLayerPropertyChanged((TileLayer)e.NewValue)));
 
         public static readonly DependencyProperty TileLayersProperty = DependencyProperty.Register(
-            "TileLayers", typeof(IList<TileLayer>), typeof(MapBase), new PropertyMetadata(null,
-                (o, e) => ((MapBase)o).TileLayersPropertyChanged((IList<TileLayer>)e.OldValue, (IList<TileLayer>)e.NewValue)));
+            "TileLayers", typeof(IList<TileLayer>), typeof(MapBase),
+            new PropertyMetadata(null, (o, e) => ((MapBase)o).TileLayersPropertyChanged((IList<TileLayer>)e.OldValue, (IList<TileLayer>)e.NewValue)));
 
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
-            "MinZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(1d,
-                (o, e) => ((MapBase)o).MinZoomLevelPropertyChanged((double)e.NewValue)));
+            "MinZoomLevel", typeof(double), typeof(MapBase),
+            new PropertyMetadata(1d, (o, e) => ((MapBase)o).MinZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
-            "MaxZoomLevel", typeof(double), typeof(MapBase), new PropertyMetadata(19d,
-                (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
+            "MaxZoomLevel", typeof(double), typeof(MapBase),
+            new PropertyMetadata(19d, (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
+
+        public static readonly DependencyProperty AnimationDurationProperty = DependencyProperty.Register(
+            "AnimationDuration", typeof(TimeSpan), typeof(MapBase),
+            new PropertyMetadata(TimeSpan.FromSeconds(0.3)));
+
+        public static readonly DependencyProperty AnimationEasingFunctionProperty = DependencyProperty.Register(
+            "AnimationEasingFunction", typeof(EasingFunctionBase), typeof(MapBase),
+            new PropertyMetadata(new QuadraticEase { EasingMode = EasingMode.EaseOut }));
+
+        public static readonly DependencyProperty TileFadeDurationProperty = DependencyProperty.Register(
+            "TileFadeDuration", typeof(TimeSpan), typeof(MapBase),
+            new PropertyMetadata(Tile.FadeDuration, (o, e) => Tile.FadeDuration = (TimeSpan)e.NewValue));
 
         internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
-            "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
-                (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
+            "CenterPoint", typeof(Point), typeof(MapBase),
+            new PropertyMetadata(new Point(), (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
 
         private readonly PanelBase tileLayerPanel = new PanelBase();
         private readonly MapTransform mapTransform = new MercatorTransform();
@@ -138,6 +147,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the minimum value of the ZoomLevel and TargetZommLevel properties.
         /// Must be greater than or equal to zero and less than or equal to MaxZoomLevel.
+        /// The default value is 1.
         /// </summary>
         public double MinZoomLevel
         {
@@ -148,6 +158,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the maximum value of the ZoomLevel and TargetZommLevel properties.
         /// Must be greater than or equal to MinZoomLevel and less than or equal to 20.
+        /// The default value is 19.
         /// </summary>
         public double MaxZoomLevel
         {
@@ -189,6 +200,36 @@ namespace MapControl
         {
             get { return (double)GetValue(TargetHeadingProperty); }
             set { SetValue(TargetHeadingProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the Duration of the Center, ZoomLevel and Heading animations.
+        /// The default value is 0.3 seconds.
+        /// </summary>
+        public TimeSpan AnimationDuration
+        {
+            get { return (TimeSpan)GetValue(AnimationDurationProperty); }
+            set { SetValue(AnimationDurationProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the EasingFunction of the Center, ZoomLevel and Heading animations.
+        /// The default value is a QuadraticEase with EasingMode.EaseOut.
+        /// </summary>
+        public EasingFunctionBase AnimationEasingFunction
+        {
+            get { return (EasingFunctionBase)GetValue(AnimationEasingFunctionProperty); }
+            set { SetValue(AnimationEasingFunctionProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the Duration of the Tile Opacity animation.
+        /// The default value is 0.2 seconds.
+        /// </summary>
+        public TimeSpan TileFadeDuration
+        {
+            get { return (TimeSpan)GetValue(TileFadeDurationProperty); }
+            set { SetValue(TileFadeDurationProperty, value); }
         }
 
         /// <summary>
@@ -247,7 +288,7 @@ namespace MapControl
         public double GetMapScale(Location location)
         {
             return mapTransform.RelativeScale(location) *
-                Math.Pow(2d, ZoomLevel) * TileSource.TileSize / (TileSource.MetersPerDegree * 360d);
+                Math.Pow(2d, ZoomLevel) * (double)TileSource.TileSize / (TileSource.MetersPerDegree * 360d);
         }
 
         /// <summary>
@@ -364,8 +405,8 @@ namespace MapControl
             {
                 var p1 = mapTransform.Transform(southWest);
                 var p2 = mapTransform.Transform(northEast);
-                var lonScale = RenderSize.Width / (p2.X - p1.X) * 360d / TileSource.TileSize;
-                var latScale = RenderSize.Height / (p2.Y - p1.Y) * 360d / TileSource.TileSize;
+                var lonScale = RenderSize.Width / (p2.X - p1.X) * 360d / (double)TileSource.TileSize;
+                var latScale = RenderSize.Height / (p2.Y - p1.Y) * 360d / (double)TileSource.TileSize;
                 var lonZoom = Math.Log(lonScale, 2d);
                 var latZoom = Math.Log(latScale, 2d);
 
@@ -764,17 +805,12 @@ namespace MapControl
 
         private void UpdateTransform(bool resetTransformOrigin = false)
         {
-            Location center;
+            var center = transformOrigin ?? Center;
 
-            if (transformOrigin == null)
-            {
-                center = Center;
-                SetViewportTransform(center);
-            }
-            else
-            {
-                SetViewportTransform(transformOrigin);
+            SetViewportTransform(center);
 
+            if (transformOrigin != null)
+            {
                 center = ViewportPointToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
                 center.Longitude = Location.NormalizeLongitude(center.Longitude);
 
@@ -799,7 +835,7 @@ namespace MapControl
                 }
             }
 
-            CenterScale = ViewportScale * mapTransform.RelativeScale(center) / TileSource.MetersPerDegree; // pixels per meter at center latitude
+            CenterScale = ViewportScale * mapTransform.RelativeScale(center) / TileSource.MetersPerDegree;
             scaleTransform.ScaleX = CenterScale;
             scaleTransform.ScaleY = CenterScale;
             rotateTransform.Angle = Heading;

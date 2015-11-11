@@ -57,29 +57,23 @@ namespace MapControl
             var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(new Point(), ParentMap.RenderSize));
             var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
             var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
-            var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * 256d);
-            var spacing = LineSpacings[LineSpacings.Length - 1];
-
-            if (spacing >= minSpacing)
-            {
-                spacing = LineSpacings.FirstOrDefault(s => s >= minSpacing);
-            }
+            var lineDistance = GetLineDistance();
 
             var labelStart = new Location(
-                Math.Ceiling(start.Latitude / spacing) * spacing,
-                Math.Ceiling(start.Longitude / spacing) * spacing);
+                Math.Ceiling(start.Latitude / lineDistance) * lineDistance,
+                Math.Ceiling(start.Longitude / lineDistance) * lineDistance);
 
             var labelEnd = new Location(
-                Math.Floor(end.Latitude / spacing) * spacing,
-                Math.Floor(end.Longitude / spacing) * spacing);
+                Math.Floor(end.Latitude / lineDistance) * lineDistance,
+                Math.Floor(end.Longitude / lineDistance) * lineDistance);
 
             var lineStart = new Location(
-                Math.Min(Math.Max(labelStart.Latitude - spacing, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
-                labelStart.Longitude - spacing);
+                Math.Min(Math.Max(labelStart.Latitude - lineDistance, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
+                labelStart.Longitude - lineDistance);
 
             var lineEnd = new Location(
-                Math.Min(Math.Max(labelEnd.Latitude + spacing, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
-                labelEnd.Longitude + spacing);
+                Math.Min(Math.Max(labelEnd.Latitude + lineDistance, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
+                labelEnd.Longitude + lineDistance);
 
             if (!lineStart.Equals(graticuleStart) || !lineEnd.Equals(graticuleEnd))
             {
@@ -90,7 +84,7 @@ namespace MapControl
                 geometry.Figures.Clear();
                 geometry.Transform = ParentMap.ViewportTransform;
 
-                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += spacing)
+                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += lineDistance)
                 {
                     var figure = new PathFigure
                     {
@@ -107,7 +101,7 @@ namespace MapControl
                     geometry.Figures.Add(figure);
                 }
 
-                for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += spacing)
+                for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += lineDistance)
                 {
                     var figure = new PathFigure
                     {
@@ -124,12 +118,12 @@ namespace MapControl
                     geometry.Figures.Add(figure);
                 }
 
+                var labelFormat = GetLabelFormat(lineDistance);
                 var childIndex = 1; // 0 for Path
-                var format = spacing < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
 
-                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += spacing)
+                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += lineDistance)
                 {
-                    for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += spacing)
+                    for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += lineDistance)
                     {
                         TextBlock label;
 
@@ -169,7 +163,7 @@ namespace MapControl
                         label.FontStyle = FontStyle;
                         label.FontStretch = FontStretch;
                         label.FontWeight = FontWeight;
-                        label.Text = string.Format("{0}\n{1}", CoordinateString(lat, format, "NS"), CoordinateString(Location.NormalizeLongitude(lon), format, "EW"));
+                        label.Text = GetLabelText(lat, labelFormat, "NS") + "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
                         label.Tag = new Location(lat, lon);
                         label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 

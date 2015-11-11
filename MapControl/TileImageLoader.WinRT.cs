@@ -38,12 +38,17 @@ namespace MapControl
         /// was transmitted on download. The default and recommended minimum value is seven days.
         /// See OpenStreetMap tile usage policy: http://wiki.openstreetmap.org/wiki/Tile_usage_policy
         /// </summary>
-        public static TimeSpan DefaultCacheExpiration = TimeSpan.FromDays(7);
+        public static TimeSpan DefaultCacheExpiration { get; set; }
 
         /// <summary>
         /// The IImageCache implementation used to cache tile images. The default is null.
         /// </summary>
         public static Caching.IImageCache Cache;
+
+        static TileImageLoader()
+        {
+            DefaultCacheExpiration = TimeSpan.FromDays(7);
+        }
 
         private class PendingTile
         {

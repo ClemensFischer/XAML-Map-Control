@@ -46,10 +46,10 @@ namespace MapControl
 
         static MapBase()
         {
-            UIElement.ClipToBoundsProperty.OverrideMetadata(
+            ClipToBoundsProperty.OverrideMetadata(
                 typeof(MapBase), new FrameworkPropertyMetadata(true));
 
-            Panel.BackgroundProperty.OverrideMetadata(
+            BackgroundProperty.OverrideMetadata(
                 typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
         }
 
@@ -69,7 +69,7 @@ namespace MapControl
         private void SetViewportTransform(Location origin)
         {
             MapOrigin = mapTransform.Transform(origin);
-            ViewportScale = Math.Pow(2d, ZoomLevel) * TileSource.TileSize / 360d;
+            ViewportScale = Math.Pow(2d, ZoomLevel) * (double)TileSource.TileSize / 360d;
 
             var transform = new Matrix(1d, 0d, 0d, 1d, -MapOrigin.X, -MapOrigin.Y);
             transform.Scale(ViewportScale, -ViewportScale);

@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -27,10 +26,10 @@ namespace MapControl
 
         static MapGraticule()
         {
-            UIElement.IsHitTestVisibleProperty.OverrideMetadata(
+            IsHitTestVisibleProperty.OverrideMetadata(
                 typeof(MapGraticule), new FrameworkPropertyMetadata(false));
 
-            MapOverlay.StrokeThicknessProperty.OverrideMetadata(
+            StrokeThicknessProperty.OverrideMetadata(
                 typeof(MapGraticule), new FrameworkPropertyMetadata(0.5));
         }
 
@@ -46,24 +45,17 @@ namespace MapControl
                 var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(ParentMap.RenderSize));
                 var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
                 var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
-                var minSpacing = MinLineSpacing * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * TileSource.TileSize);
-                var spacing = LineSpacings[LineSpacings.Length - 1];
+                var lineDistance = GetLineDistance();
+                var labelFormat = GetLabelFormat(lineDistance);
+                var latLabelStart = Math.Ceiling(start.Latitude / lineDistance) * lineDistance;
+                var lonLabelStart = Math.Ceiling(start.Longitude / lineDistance) * lineDistance;
+                var latLabels = new List<Label>((int)((end.Latitude - latLabelStart) / lineDistance) + 1);
+                var lonLabels = new List<Label>((int)((end.Longitude - lonLabelStart) / lineDistance) + 1);
 
-                if (spacing >= minSpacing)
-                {
-                    spacing = LineSpacings.FirstOrDefault(s => s >= minSpacing);
-                }
-
-                var latLabelStart = Math.Ceiling(start.Latitude / spacing) * spacing;
-                var lonLabelStart = Math.Ceiling(start.Longitude / spacing) * spacing;
-                var latLabels = new List<Label>((int)((end.Latitude - latLabelStart) / spacing) + 1);
-                var lonLabels = new List<Label>((int)((end.Longitude - lonLabelStart) / spacing) + 1);
-                var labelFormat = spacing < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
-
-                for (var lat = latLabelStart; lat <= end.Latitude; lat += spacing)
+                for (var lat = latLabelStart; lat <= end.Latitude; lat += lineDistance)
                 {
                     latLabels.Add(new Label(lat, new FormattedText(
-                        CoordinateString(lat, labelFormat, "NS"),
+                        GetLabelText(lat, labelFormat, "NS"),
                         CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground)));
 
                     drawingContext.DrawLine(Pen,
@@ -71,10 +63,10 @@ namespace MapControl
                         ParentMap.LocationToViewportPoint(new Location(lat, end.Longitude)));
                 }
 
-                for (var lon = lonLabelStart; lon <= end.Longitude; lon += spacing)
+                for (var lon = lonLabelStart; lon <= end.Longitude; lon += lineDistance)
                 {
                     lonLabels.Add(new Label(lon, new FormattedText(
-                        CoordinateString(Location.NormalizeLongitude(lon), labelFormat, "EW"),
+                        GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW"),
                         CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground)));
 
                     drawingContext.DrawLine(Pen,

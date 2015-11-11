@@ -74,7 +74,6 @@
     <Compile Include="HyperlinkText.cs" />
     <Compile Include="ImageTileSource.Silverlight.WinRT.cs" />
     <Compile Include="IMapElement.cs" />
-    <Compile Include="Int32Rect.cs" />
     <Compile Include="ITileImageLoader.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />
@@ -107,6 +106,7 @@
     <Compile Include="Pushpin.Silverlight.WinRT.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Tile.Silverlight.WinRT.cs" />
+    <Compile Include="TileGrid.cs" />
     <Compile Include="TileImageLoader.Silverlight.cs" />
     <Compile Include="TileLayer.cs" />
     <Compile Include="TileLayer.Silverlight.WinRT.cs" />
