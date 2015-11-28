@@ -10,6 +10,7 @@ namespace UniversalApp
         public MainPage()
         {
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache();
+            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache();
 
             this.InitializeComponent();
         }

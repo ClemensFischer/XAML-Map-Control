@@ -6,8 +6,10 @@
     <members>
         <member name="T:FileDbNs.FileDb">
             <summary>
-            Represents an open FileDb database file.  None of the FileDb classes are re-entrant -
-            access to the class objects must be syncronised by the calling application.
+            Represents an open FileDb database file.  All of the FileDb classes/methods are re-entrant -
+            there is no need to syncronise access to the class objects by the calling application.
+            However you should use the try-finally pattern when you open a FileDb to ensure
+            prompt closing in the finally code block.
             </summary>
             
         </member>
@@ -503,34 +505,39 @@
             <param name="fieldName">The name of the Field to rename</param>
             
         </member>
-        <member name="M:FileDbNs.FileDb.SetEncryptionKey(System.String)">
+        <member name="M:FileDbNs.FileDb.SetEncryptor(FileDbNs.IEncryptor)">
             <summary>
+            Used to set your own encryptor.  Use this for cross-platform encryption scenarios, where you
+            have control over the encryption method being used.  See the Windows Sample apps for an example.
+            </summary>
+            <param name="encryptor"></param>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.EncryptString(System.String)">
+            <summary>
+            Convienience method to encrypt a string value. You must first call SetEncryptor with an Encryptor.
+            </summary>
+            <param name="value">The string to encrypt</param>
+            <returns>The encrypted value</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.DecryptString(System.String)">
+            <summary>
+            Decrypt a string value. You must first call SetEncryptor with an Encryptor.
+            </summary>
+            <param name="value">The string to decrypt</param>
+            <returns>The decrypted value</returns>
+            
+        </member>
+        <member name="M:FileDbNs.FileDb.SetEncryptionKey(System.String,System.String)">
+            <summary>
+            *** Only works on Windows platform.  Use SetEncryptor to provide your own encryptor for cross platform databases ***
+            *** Do not use this method anymore ***
             Allows you to set an encryption key after the database has been opened.  You must set
             the encryption key before reading or writing to the database.  Encryption is "all or nothing",
             meaning all records are either encrypted or not.
             </summary>
             <param name="encryptionKey">A string value to use as the encryption key</param>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.EncryptString(System.String,System.String)">
-            <summary>
-            Encrypt a string value.
-            Not syncronized.
-            </summary>
-            <param name="encryptKey">The key to use for encryption</param>
-            <param name="value">The value to encrypt</param>
-            <returns>The encrypted value as a string</returns>
-            
-        </member>
-        <member name="M:FileDbNs.FileDb.DecryptString(System.String,System.String)">
-            <summary>
-            Decrypt a string value.
-            Not syncronized.
-            </summary>
-            <param name="encryptKey">The key to use for decryption</param>
-            <param name="value">The value to decrypt</param>
-            <returns>The decrypted value as a string</returns>
-            
         </member>
         <member name="M:FileDbNs.FileDb.SelectRecords``1(FileDbNs.FilterExpression)">
              <summary>
@@ -891,6 +898,39 @@
             Handler for RecordDeleted event.
             </summary>
             <param name="index">The record index</param>
+            
+        </member>
+        <member name="T:FileDbNs.Encryptor">
+            <summary>
+            Class uses the .NET AesManaged class for data encryption, but ONLY on the Windows platform
+            build...the PCL build just returns the same data without doing anything.  This is because
+            encryption namespace isn't available for PCLs.  In this case, create your own Encryptor
+            class using the IEncryptor interface and set it into the FileDb object via SetEncryptor.
+            </summary>
+            
+        </member>
+        <member name="M:FileDbNs.Encryptor.#ctor(System.String,System.String)">
+            <summary>
+            Constructor taking a key (password) and salt as a string
+            </summary>
+            <param name="encryptionKey"></param>
+            <param name="salt"></param>
+            
+        </member>
+        <member name="M:FileDbNs.Encryptor.Encrypt(System.Byte[])">
+            <summary>
+            Encrypt the passed byte array
+            </summary>
+            <param name="dataToEncrypt">The data to encrypt</param>
+            <returns>The encrypted data</returns>
+            
+        </member>
+        <member name="M:FileDbNs.Encryptor.Decrypt(System.Byte[])">
+            <summary>
+            Decrypt the passed byte array
+            </summary>
+            <param name="encryptedData">The data to decrypt</param>
+            <returns>The decrypted data</returns>
             
         </member>
         <member name="T:FileDbNs.DataTypeEnum_old">

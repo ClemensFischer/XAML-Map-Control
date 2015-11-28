@@ -8,7 +8,7 @@ namespace MapControl
 {
     internal class BingMapsTileSource : TileSource
     {
-        private string[] subdomains;
+        private readonly string[] subdomains;
 
         public BingMapsTileSource(string uriFormat, string[] subdomains)
             : base(uriFormat)

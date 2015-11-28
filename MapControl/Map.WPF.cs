@@ -8,7 +8,7 @@ using System.Windows.Input;
 namespace MapControl
 {
     /// <summary>
-    /// Default input event handling.
+    /// MapBase with default input event handling.
     /// </summary>
     public class Map : MapBase
     {

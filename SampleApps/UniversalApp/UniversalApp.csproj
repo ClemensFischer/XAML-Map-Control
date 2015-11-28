@@ -144,6 +144,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Caching\FileDbCache.WinRT\FileDbCache.WinRT.csproj">
+      <Project>{c7bf2b18-cc74-430b-bcb2-600304efa3d8}</Project>
+      <Name>FileDbCache.WinRT</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Caching\ImageFileCache.WinRT\ImageFileCache.WinRT.csproj">
       <Project>{f789647e-96f7-43e3-a895-fa3fe8d01260}</Project>
       <Name>ImageFileCache.WinRT</Name>

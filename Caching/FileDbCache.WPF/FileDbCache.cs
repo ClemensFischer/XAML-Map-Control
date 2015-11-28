@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
-using System.Windows.Media.Imaging;
 using FileDbNs;
 
 namespace MapControl.Caching
@@ -17,7 +16,6 @@ namespace MapControl.Caching
     /// <summary>
     /// ObjectCache implementation based on FileDb, a free and simple No-SQL database by EzTools Software.
     /// See http://www.eztools-software.com/tools/filedb/.
-    /// The only valid data type for cached values is System.Windows.Media.Imaging.BitmapFrame.
     /// </summary>
     public class FileDbCache : ObjectCache, IDisposable
     {
@@ -196,39 +194,18 @@ namespace MapControl.Caching
 
             if (fileDb.IsOpen)
             {
-                Record record = null;
-
                 try
                 {
-                    record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
+                    var record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
+
+                    if (record != null)
+                    {
+                        return record[0];
+                    }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
-                }
-
-                if (record != null)
-                {
-                    try
-                    {
-                        using (var memoryStream = new MemoryStream((byte[])record[0]))
-                        {
-                            return BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("FileDbCache: Decoding \"{0}\" failed: {1}", key, ex.Message);
-                    }
-
-                    try
-                    {
-                        fileDb.DeleteRecordByKey(key);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
-                    }
                 }
             }
 
@@ -254,6 +231,11 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
+            if (value == null)
+            {
+                throw new ArgumentNullException("The parameter value must not be null.");
+            }
+
             if (policy == null)
             {
                 throw new ArgumentNullException("The parameter policy must not be null.");
@@ -264,50 +246,22 @@ namespace MapControl.Caching
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            var bitmap = value as BitmapFrame;
-
-            if (bitmap == null)
-            {
-                throw new ArgumentException("The parameter value must contain a System.Windows.Media.Imaging.BitmapFrame.");
-            }
-
             if (fileDb.IsOpen)
             {
-                byte[] buffer = null;
+                var expires = DateTime.MaxValue;
 
-                try
+                if (policy.AbsoluteExpiration != InfiniteAbsoluteExpiration)
                 {
-                    var encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(bitmap);
-
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        encoder.Save(memoryStream);
-                        buffer = memoryStream.ToArray();
-                    }
+                    expires = policy.AbsoluteExpiration.DateTime;
                 }
-                catch (Exception ex)
+                else if (policy.SlidingExpiration != NoSlidingExpiration)
                 {
-                    Debug.WriteLine("FileDbCache: Encoding \"{0}\" failed: {1}", key, ex.Message);
+                    expires = DateTime.UtcNow + policy.SlidingExpiration;
                 }
 
-                if (buffer != null)
+                if (!AddOrUpdateRecord(key, value, expires) && RepairDatabase())
                 {
-                    var expires = DateTime.MaxValue;
-
-                    if (policy.AbsoluteExpiration != InfiniteAbsoluteExpiration)
-                    {
-                        expires = policy.AbsoluteExpiration.DateTime;
-                    }
-                    else if (policy.SlidingExpiration != NoSlidingExpiration)
-                    {
-                        expires = DateTime.UtcNow + policy.SlidingExpiration;
-                    }
-
-                    if (!AddOrUpdateRecord(key, buffer, expires) && RepairDatabase())
-                    {
-                        AddOrUpdateRecord(key, buffer, expires);
-                    }
+                    AddOrUpdateRecord(key, value, expires);
                 }
             }
         }
@@ -447,7 +401,7 @@ namespace MapControl.Caching
             return false;
         }
 
-        private bool AddOrUpdateRecord(string key, byte[] value, DateTime expires)
+        private bool AddOrUpdateRecord(string key, object value, DateTime expires)
         {
             var fieldValues = new FieldValues(3);
             fieldValues.Add(valueField, value);

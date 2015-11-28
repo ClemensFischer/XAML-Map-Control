@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Input;
 namespace MapControl
 {
     /// <summary>
-    /// Default input event handling.
+    /// MapBase with default input event handling.
     /// </summary>
     public class Map : MapBase
     {

@@ -20,7 +20,7 @@ using System.Windows.Threading;
 namespace MapControl
 {
     /// <summary>
-    /// Fills a rectangular area with map tiles from a TileSource.
+    /// Fills the map viewport with map tiles from a TileSource.
     /// </summary>
 #if NETFX_CORE
     [ContentProperty(Name = "TileSource")]

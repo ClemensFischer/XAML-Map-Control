@@ -153,7 +153,7 @@ namespace MapControl
             }
 
             return new Uri(uriFormat
-                .Replace("{i}", new string(quadkey[zoomLevel - 1], 1))
+                .Replace("{i}", new string(quadkey, zoomLevel - 1, 1))
                 .Replace("{q}", new string(quadkey)),
                 UriKind.RelativeOrAbsolute);
         }

@@ -18,6 +18,9 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Displays Bing Maps tiles. The static ApiKey property must be set to a Bing Maps API Key.
+    /// </summary>
     public class BingMapsTileLayer : TileLayer
     {
         public enum MapMode
@@ -26,6 +29,12 @@ namespace MapControl
         }
 
         public BingMapsTileLayer()
+            : this(new TileImageLoader())
+        {
+        }
+
+        public BingMapsTileLayer(ITileImageLoader tileImageLoader)
+            : base(tileImageLoader)
         {
             MinZoomLevel = 1;
             MaxZoomLevel = 21;
@@ -43,7 +52,7 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(ApiKey))
             {
-                throw new InvalidOperationException("A Bing Maps API Key must be assigned to the ApiKey property.");
+                throw new InvalidOperationException("BingMapsTileLayer requires a Bing Maps API Key.");
             }
 
             var uri = string.Format("http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{0}?output=xml&key={1}", Mode, ApiKey);

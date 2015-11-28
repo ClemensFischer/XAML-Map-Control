@@ -44,12 +44,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\FileDb\FileDb.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileDbCache.cs" />

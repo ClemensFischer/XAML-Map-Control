@@ -6,22 +6,32 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Windows.Media.Imaging;
 
 namespace MapControl.Caching
 {
     /// <summary>
     /// ObjectCache implementation based on local image files.
-    /// The only valid data type for cached values is System.Windows.Media.Imaging.BitmapFrame.
+    /// The only valid data type for cached values is byte[].
     /// </summary>
     public class ImageFileCache : ObjectCache
     {
+        private static readonly Tuple<string, byte[]>[] imageFileTypes = new Tuple<string, byte[]>[]
+        {
+            new Tuple<string, byte[]>(".png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0xD, 0xA, 0x1A, 0xA }),
+            new Tuple<string, byte[]>(".jpg", new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0 }),
+            new Tuple<string, byte[]>(".bmp", new byte[] { 0x42, 0x4D }),
+            new Tuple<string, byte[]>(".gif", new byte[] { 0x47, 0x49, 0x46 }),
+            new Tuple<string, byte[]>(".tif", new byte[] { 0x49, 0x49, 42, 0 }),
+            new Tuple<string, byte[]>(".tif", new byte[] { 0x4D, 0x4D, 0, 42 }),
+            new Tuple<string, byte[]>(".wdp", new byte[] { 0x49, 0x49, 0xBC }),
+            new Tuple<string, byte[]>(".bin", new byte[] { }),
+        };
+
         private static readonly FileSystemAccessRule fullControlRule = new FileSystemAccessRule(
             new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
             FileSystemRights.FullControl, AccessControlType.Allow);
@@ -87,44 +97,52 @@ namespace MapControl.Caching
 
         public override bool Contains(string key, string regionName = null)
         {
-            return memoryCache.Contains(key, regionName) || FindFile(GetPath(key)) != null;
+            if (key == null)
+            {
+                throw new ArgumentNullException("The parameter key must not be null.");
+            }
+
+            if (regionName != null)
+            {
+                throw new NotSupportedException("The parameter regionName must be null.");
+            }
+
+            return memoryCache.Contains(key) || FindFile(key) != null;
         }
 
         public override object Get(string key, string regionName = null)
         {
-            var bitmap = memoryCache.Get(key, regionName) as BitmapFrame;
-
-            if (bitmap == null)
+            if (key == null)
             {
-                try
-                {
-                    var path = FindFile(GetPath(key));
+                throw new ArgumentNullException("The parameter key must not be null.");
+            }
 
-                    if (path != null)
+            if (regionName != null)
+            {
+                throw new NotSupportedException("The parameter regionName must be null.");
+            }
+
+            var buffer = memoryCache.Get(key) as byte[];
+
+            if (buffer == null)
+            {
+                var path = FindFile(key);
+
+                if (path != null)
+                {
+                    try
                     {
-                        using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        {
-                            bitmap = BitmapFrame.Create(fileStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-
-                            var metadata = (BitmapMetadata)bitmap.Metadata;
-                            DateTime expiration;
-
-                            // metadata.DateTaken must be parsed in CurrentCulture
-                            if (metadata != null &&
-                                metadata.DateTaken != null &&
-                                DateTime.TryParse(metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out expiration))
-                            {
-                                memoryCache.Set(key, bitmap, expiration, regionName);
-                            }
-                        }
+                        buffer = File.ReadAllBytes(path);
+                        memoryCache.Set(key, buffer, new CacheItemPolicy());
                     }
-                }
-                catch
-                {
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("ImageFileCache: Writing file {0} failed: {1}", path, ex.Message);
+                    }
                 }
             }
 
-            return bitmap;
+            return buffer;
         }
 
         public override CacheItem GetCacheItem(string key, string regionName = null)
@@ -141,59 +159,32 @@ namespace MapControl.Caching
 
         public override void Set(string key, object value, CacheItemPolicy policy, string regionName = null)
         {
-            var bitmap = value as BitmapFrame;
-
-            if (bitmap == null)
+            if (key == null)
             {
-                throw new ArgumentException("The parameter value must contain a System.Windows.Media.Imaging.BitmapFrame.");
+                throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            var metadata = (BitmapMetadata)bitmap.Metadata;
-            var format = metadata != null ? metadata.Format : "bmp";
-            BitmapEncoder encoder = null;
-
-            switch (format)
+            if (regionName != null)
             {
-                case "bmp":
-                    encoder = new BmpBitmapEncoder();
-                    break;
-                case "gif":
-                    encoder = new GifBitmapEncoder();
-                    break;
-                case "jpg":
-                    encoder = new JpegBitmapEncoder();
-                    break;
-                case "png":
-                    encoder = new PngBitmapEncoder();
-                    break;
-                case "tiff":
-                    encoder = new TiffBitmapEncoder();
-                    break;
-                case "wmphoto":
-                    encoder = new WmpBitmapEncoder();
-                    break;
-                default:
-                    break;
+                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            if (encoder == null)
+            var buffer = value as byte[];
+
+            if (buffer == null || buffer.Length == 0)
             {
-                throw new NotSupportedException(string.Format("The bitmap format {0} is not supported.", format));
+                throw new NotSupportedException("The parameter value must be a non-empty byte array.");
             }
 
-            memoryCache.Set(key, bitmap, policy, regionName);
+            memoryCache.Set(key, buffer, policy);
 
-            var path = string.Format("{0}.{1}", GetPath(key), format);
+            var path = Path.Combine(rootFolder, key)
+                + imageFileTypes.First(t => t.Item2.SequenceEqual(buffer.Take(t.Item2.Length))).Item1;
 
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
-
-                using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
-                {
-                    encoder.Frames.Add(bitmap);
-                    encoder.Save(fileStream);
-                }
+                File.WriteAllBytes(path, buffer);
 
                 var fileSecurity = File.GetAccessControl(path);
                 fileSecurity.AddAccessRule(fullControlRule);
@@ -240,43 +231,56 @@ namespace MapControl.Caching
 
         public override object Remove(string key, string regionName = null)
         {
-            var oldValue = Get(key, regionName);
-
-            memoryCache.Remove(key, regionName);
-
-            try
+            if (key == null)
             {
-                var path = FindFile(GetPath(key));
+                throw new ArgumentNullException("The parameter key must not be null.");
+            }
 
-                if (path != null)
+            if (regionName != null)
+            {
+                throw new NotSupportedException("The parameter regionName must be null.");
+            }
+
+            memoryCache.Remove(key);
+
+            var path = FindFile(key);
+
+            if (path != null)
+            {
+                try
                 {
                     File.Delete(path);
                 }
-            }
-            catch
-            {
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ImageFileCache: Removing file {0} failed: {1}", path, ex.Message);
+                }
             }
 
-            return oldValue;
+            return null;
         }
 
-        private string GetPath(string key)
+        private string FindFile(string key)
         {
-            return Path.Combine(rootFolder, key);
-        }
+            var path = Path.Combine(rootFolder, key);
 
-        private static string FindFile(string path)
-        {
-            if (!string.IsNullOrEmpty(Path.GetExtension(path)))
+            try
             {
-                return path;
+                if (!string.IsNullOrEmpty(Path.GetExtension(path)))
+                {
+                    return path;
+                }
+
+                string folderName = Path.GetDirectoryName(path);
+
+                if (Directory.Exists(folderName))
+                {
+                    return Directory.EnumerateFiles(folderName, Path.GetFileName(path) + ".*").FirstOrDefault();
+                }
             }
-
-            string folderName = Path.GetDirectoryName(path);
-
-            if (Directory.Exists(folderName))
+            catch (Exception ex)
             {
-                return Directory.EnumerateFiles(folderName, Path.GetFileName(path) + ".*").FirstOrDefault();
+                Debug.WriteLine("ImageFileCache: Finding file {0} failed: {1}", path, ex.Message);
             }
 
             return null;

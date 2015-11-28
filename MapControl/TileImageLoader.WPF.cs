@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Caching;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -197,7 +198,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Loading tile image failed: {0}", (object)ex.Message);
+                Debug.WriteLine("ImageTileSource.LoadImage: " + ex.Message);
             }
 
             return image;
@@ -218,7 +219,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Creating tile image failed: {0}", (object)ex.Message);
+                    Debug.WriteLine("{0}: {1}", path, ex.Message);
                 }
             }
 
@@ -232,7 +233,11 @@ namespace MapControl
             try
             {
                 var request = HttpWebRequest.CreateHttp(uri);
-                request.UserAgent = HttpUserAgent;
+
+                if (HttpUserAgent != null)
+                {
+                    request.UserAgent = HttpUserAgent;
+                }
 
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
@@ -240,23 +245,24 @@ namespace MapControl
                     using (var memoryStream = new MemoryStream())
                     {
                         responseStream.CopyTo(memoryStream);
-                        memoryStream.Position = 0;
-                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                    }
+                        memoryStream.Seek(0, SeekOrigin.Begin);
 
-                    if (cacheKey != null)
-                    {
-                        SetCachedImage(cacheKey, image, GetExpiration(response.Headers));
+                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+
+                        if (cacheKey != null)
+                        {
+                            SetCachedImage(cacheKey, memoryStream, GetExpiration(response.Headers));
+                        }
                     }
                 }
             }
             catch (WebException ex)
             {
-                Debug.WriteLine("Downloading {0} failed: {1}: {2}", uri, ex.Status, ex.Message);
+                Debug.WriteLine("{0}: {1}: {2}", uri, ex.Status, ex.Message);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Downloading {0} failed: {1}", uri, ex.Message);
+                Debug.WriteLine("{0}: {1}", uri, ex.Message);
             }
 
             return image;
@@ -274,34 +280,44 @@ namespace MapControl
 
         private static bool GetCachedImage(string cacheKey, out BitmapSource image)
         {
-            image = Cache.Get(cacheKey) as BitmapSource;
+            image = null;
 
-            if (image == null)
+            var buffer = Cache.Get(cacheKey) as byte[];
+
+            if (buffer != null)
             {
-                return false;
+                try
+                {
+                    using (var memoryStream = new MemoryStream(buffer))
+                    {
+                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                    }
+
+                    DateTime expiration = DateTime.MinValue;
+
+                    if (buffer.Length >= 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == "EXPIRES:")
+                    {
+                        expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
+                    }
+
+                    return expiration > DateTime.UtcNow;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("{0}: {1}", cacheKey, ex.Message);
+                }
             }
 
-            var metadata = (BitmapMetadata)image.Metadata;
-            DateTime expiration;
-
-            // get cache expiration date from BitmapMetadata.DateTaken, must be parsed with CurrentCulture
-            return metadata == null
-                || metadata.DateTaken == null
-                || !DateTime.TryParse(metadata.DateTaken, CultureInfo.CurrentCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out expiration)
-                || expiration > DateTime.UtcNow;
+            return false;
         }
 
-        private static void SetCachedImage(string cacheKey, BitmapSource image, DateTime expiration)
+        private static void SetCachedImage(string cacheKey, MemoryStream memoryStream, DateTime expiration)
         {
-            var bitmap = BitmapFrame.Create(image);
-            var metadata = (BitmapMetadata)bitmap.Metadata;
+            memoryStream.Seek(0, SeekOrigin.End);
+            memoryStream.Write(Encoding.ASCII.GetBytes("EXPIRES:"), 0, 8);
+            memoryStream.Write(BitConverter.GetBytes(expiration.Ticks), 0, 8);
 
-            // store cache expiration date in BitmapMetadata.DateTaken
-            metadata.DateTaken = expiration.ToString(CultureInfo.InvariantCulture);
-            metadata.Freeze();
-            bitmap.Freeze();
-
-            Cache.Set(cacheKey, bitmap, new CacheItemPolicy { AbsoluteExpiration = expiration });
+            Cache.Set(cacheKey, memoryStream.ToArray(), new CacheItemPolicy { AbsoluteExpiration = expiration });
 
             //Debug.WriteLine("Cached {0}, Expires {1}", cacheKey, expiration);
         }
