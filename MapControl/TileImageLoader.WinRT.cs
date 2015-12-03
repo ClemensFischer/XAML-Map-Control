@@ -35,10 +35,15 @@ namespace MapControl
 
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
-        /// was transmitted on download. The default and recommended minimum value is seven days.
-        /// See OpenStreetMap tile usage policy: http://wiki.openstreetmap.org/wiki/Tile_usage_policy
+        /// was transmitted on download. The default value is one day.
         /// </summary>
         public static TimeSpan DefaultCacheExpiration { get; set; }
+
+        /// <summary>
+        /// Minimum expiration time for cached tile images. Used when an unnecessarily small expiration time
+        /// was transmitted on download (e.g. Cache-Control: max-age=0). The default value is one hour.
+        /// </summary>
+        public static TimeSpan MinimumCacheExpiration { get; set; }
 
         /// <summary>
         /// The IImageCache implementation used to cache tile images. The default is null.
@@ -47,7 +52,8 @@ namespace MapControl
 
         static TileImageLoader()
         {
-            DefaultCacheExpiration = TimeSpan.FromDays(7);
+            DefaultCacheExpiration = TimeSpan.FromDays(1);
+            MinimumCacheExpiration = TimeSpan.FromHours(1);
         }
 
         private class PendingTile
@@ -102,7 +108,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Loading tile image failed: {0}", ex.Message);
+                    Debug.WriteLine(ex.Message);
                 }
 
                 var newTaskCount = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads) - taskCount;
@@ -143,7 +149,7 @@ namespace MapControl
                 var cacheItem = await Cache.GetAsync(cacheKey);
                 var loaded = false;
 
-                if (cacheItem == null || cacheItem.Expires <= DateTime.UtcNow)
+                if (cacheItem == null || cacheItem.Expiration <= DateTime.UtcNow)
                 {
                     loaded = await DownloadImage(tile, image, uri, cacheKey);
                 }
@@ -176,7 +182,7 @@ namespace MapControl
                         return await LoadImageFromHttpResponse(response, tile, image, cacheKey);
                     }
 
-                    Debug.WriteLine("{0}: ({1}) {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    Debug.WriteLine("{0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
                 }
             }
             catch (Exception ex)
@@ -208,15 +214,19 @@ namespace MapControl
                     stream.Seek(0);
                     await stream.ReadAsync(buffer, buffer.Capacity, InputStreamOptions.None);
 
-                    var maxAge = DefaultCacheExpiration;
+                    var expiration = DefaultCacheExpiration;
 
-                    if (response.Headers.CacheControl.MaxAge.HasValue &&
-                        response.Headers.CacheControl.MaxAge.Value < maxAge)
+                    if (response.Headers.CacheControl.MaxAge.HasValue)
                     {
-                        maxAge = response.Headers.CacheControl.MaxAge.Value;
+                        expiration = response.Headers.CacheControl.MaxAge.Value;
+
+                        if (expiration < MinimumCacheExpiration)
+                        {
+                            expiration = MinimumCacheExpiration;
+                        }
                     }
 
-                    await Cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(maxAge));
+                    await Cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(expiration));
                 }
 
                 return loaded;
@@ -235,14 +245,12 @@ namespace MapControl
                     {
                         await image.SetSourceAsync(stream);
                         tile.SetImage(image, true, false);
-
                         completion.SetResult(true);
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex.Message);
                         tile.SetImage(null);
-
                         completion.SetResult(false);
                     }
                 });

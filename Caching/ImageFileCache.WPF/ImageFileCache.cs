@@ -22,13 +22,12 @@ namespace MapControl.Caching
     {
         private static readonly Tuple<string, byte[]>[] imageFileTypes = new Tuple<string, byte[]>[]
         {
-            new Tuple<string, byte[]>(".png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0xD, 0xA, 0x1A, 0xA }),
-            new Tuple<string, byte[]>(".jpg", new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0 }),
+            new Tuple<string, byte[]>(".png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }),
+            new Tuple<string, byte[]>(".jpg", new byte[] { 0xFF, 0xD8, 0xFF }),
             new Tuple<string, byte[]>(".bmp", new byte[] { 0x42, 0x4D }),
             new Tuple<string, byte[]>(".gif", new byte[] { 0x47, 0x49, 0x46 }),
-            new Tuple<string, byte[]>(".tif", new byte[] { 0x49, 0x49, 42, 0 }),
-            new Tuple<string, byte[]>(".tif", new byte[] { 0x4D, 0x4D, 0, 42 }),
-            new Tuple<string, byte[]>(".wdp", new byte[] { 0x49, 0x49, 0xBC }),
+            new Tuple<string, byte[]>(".tif", new byte[] { 0x49, 0x49, 0x2A, 0x00 }),
+            new Tuple<string, byte[]>(".tif", new byte[] { 0x4D, 0x4D, 0x00, 0x2A }),
             new Tuple<string, byte[]>(".bin", new byte[] { }),
         };
 
@@ -61,7 +60,7 @@ namespace MapControl.Caching
             rootFolder = Path.Combine(folder, name);
             Directory.CreateDirectory(rootFolder);
 
-            Debug.WriteLine("Created ImageFileCache in {0}.", (object)rootFolder);
+            Debug.WriteLine("Created ImageFileCache in " + rootFolder);
         }
 
         public override string Name
@@ -132,12 +131,13 @@ namespace MapControl.Caching
                 {
                     try
                     {
+                        //Debug.WriteLine("ImageFileCache: Reading " + path);
                         buffer = File.ReadAllBytes(path);
                         memoryCache.Set(key, buffer, new CacheItemPolicy());
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("ImageFileCache: Writing file {0} failed: {1}", path, ex.Message);
+                        Debug.WriteLine("ImageFileCache: Reading {0}: {1}", path, ex.Message);
                     }
                 }
             }
@@ -183,6 +183,7 @@ namespace MapControl.Caching
 
             try
             {
+                //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", path, policy.AbsoluteExpiration.DateTime.ToLocalTime());
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
                 File.WriteAllBytes(path, buffer);
 
@@ -192,7 +193,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Writing file {0} failed: {1}", path, ex.Message);
+                Debug.WriteLine("ImageFileCache: Writing {0}: {1}", path, ex.Message);
             }
         }
 
@@ -253,7 +254,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("ImageFileCache: Removing file {0} failed: {1}", path, ex.Message);
+                    Debug.WriteLine("ImageFileCache: Removing {0}: {1}", path, ex.Message);
                 }
             }
 
@@ -280,7 +281,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Finding file {0} failed: {1}", path, ex.Message);
+                Debug.WriteLine("ImageFileCache: Finding {0}: {1}", path, ex.Message);
             }
 
             return null;

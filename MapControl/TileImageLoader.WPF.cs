@@ -6,7 +6,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -38,10 +37,15 @@ namespace MapControl
 
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
-        /// was transmitted on download. The default and recommended minimum value is seven days.
-        /// See OpenStreetMap tile usage policy: http://wiki.openstreetmap.org/wiki/Tile_usage_policy
+        /// was transmitted on download. The default value is one day.
         /// </summary>
         public static TimeSpan DefaultCacheExpiration { get; set; }
+
+        /// <summary>
+        /// Minimum expiration time for cached tile images. Used when an unnecessarily small expiration time
+        /// was transmitted on download (e.g. Cache-Control: max-age=0). The default value is one hour.
+        /// </summary>
+        public static TimeSpan MinimumCacheExpiration { get; set; }
 
         /// <summary>
         /// The ObjectCache used to cache tile images. The default is MemoryCache.Default.
@@ -55,7 +59,8 @@ namespace MapControl
 
         static TileImageLoader()
         {
-            DefaultCacheExpiration = TimeSpan.FromDays(7);
+            DefaultCacheExpiration = TimeSpan.FromDays(1);
+            MinimumCacheExpiration = TimeSpan.FromHours(1);
             Cache = MemoryCache.Default;
         }
 
@@ -198,7 +203,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageTileSource.LoadImage: " + ex.Message);
+                Debug.WriteLine(ex.Message);
             }
 
             return image;
@@ -318,37 +323,33 @@ namespace MapControl
             memoryStream.Write(BitConverter.GetBytes(expiration.Ticks), 0, 8);
 
             Cache.Set(cacheKey, memoryStream.ToArray(), new CacheItemPolicy { AbsoluteExpiration = expiration });
-
-            //Debug.WriteLine("Cached {0}, Expires {1}", cacheKey, expiration);
         }
 
         private static DateTime GetExpiration(WebHeaderCollection headers)
         {
+            var expiration = DefaultCacheExpiration;
             var cacheControl = headers["Cache-Control"];
-            int maxAge;
-            DateTime expiration;
 
-            if (cacheControl != null &&
-                cacheControl.StartsWith("max-age=") &&
-                int.TryParse(cacheControl.Substring(8), out maxAge))
+            if (cacheControl != null)
             {
-                maxAge = Math.Min(maxAge, (int)DefaultCacheExpiration.TotalSeconds);
-                expiration = DateTime.UtcNow.AddSeconds(maxAge);
-            }
-            else
-            {
-                var expires = headers["Expires"];
-                var maxExpiration = DateTime.UtcNow.Add(DefaultCacheExpiration);
+                int maxAgeValue;
+                var maxAgeDirective = cacheControl
+                    .Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault(s => s.StartsWith("max-age="));
 
-                if (expires == null ||
-                    !DateTime.TryParse(expires, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out expiration) ||
-                    expiration > maxExpiration)
+                if (maxAgeDirective != null &&
+                    int.TryParse(maxAgeDirective.Substring(8), out maxAgeValue))
                 {
-                    expiration = maxExpiration;
+                    expiration = TimeSpan.FromSeconds(maxAgeValue);
+
+                    if (expiration < MinimumCacheExpiration)
+                    {
+                        expiration = MinimumCacheExpiration;
+                    }
                 }
             }
 
-            return expiration;
+            return DateTime.UtcNow.Add(expiration);
         }
     }
 }

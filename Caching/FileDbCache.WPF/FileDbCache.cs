@@ -81,7 +81,7 @@ namespace MapControl.Caching
             try
             {
                 fileDb.Open(path, false);
-                Debug.WriteLine("FileDbCache: Opened database with {0} cached items in {1}.", fileDb.NumRecords, path);
+                Debug.WriteLine("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, path);
 
                 Clean();
             }
@@ -146,7 +146,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache: FileDb.NumRecords failed: {0}", (object)ex.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.NumRecords: " + ex.Message);
                 }
             }
 
@@ -173,7 +173,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\"): {1}", key, ex.Message);
                 }
             }
 
@@ -205,7 +205,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\"): {1}", key, ex.Message);
                 }
             }
 
@@ -248,20 +248,20 @@ namespace MapControl.Caching
 
             if (fileDb.IsOpen)
             {
-                var expires = DateTime.MaxValue;
+                var expiration = DateTime.MaxValue;
 
                 if (policy.AbsoluteExpiration != InfiniteAbsoluteExpiration)
                 {
-                    expires = policy.AbsoluteExpiration.DateTime;
+                    expiration = policy.AbsoluteExpiration.DateTime;
                 }
                 else if (policy.SlidingExpiration != NoSlidingExpiration)
                 {
-                    expires = DateTime.UtcNow + policy.SlidingExpiration;
+                    expiration = DateTime.UtcNow + policy.SlidingExpiration;
                 }
 
-                if (!AddOrUpdateRecord(key, value, expires) && RepairDatabase())
+                if (!AddOrUpdateRecord(key, value, expiration) && RepairDatabase())
                 {
-                    AddOrUpdateRecord(key, value, expires);
+                    AddOrUpdateRecord(key, value, expiration);
                 }
             }
         }
@@ -311,7 +311,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.DeleteRecordByKey(\"{0}\"): {1}", key, ex.Message);
                 }
             }
 
@@ -335,11 +335,11 @@ namespace MapControl.Caching
         {
             if (fileDb.IsOpen)
             {
-                fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThan));
+                int deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThan));
 
-                if (fileDb.NumDeleted > 0)
+                if (deleted > 0)
                 {
-                    Debug.WriteLine("FileDbCache: Deleted {0} expired items.", fileDb.NumDeleted);
+                    Debug.WriteLine("FileDbCache: Deleted {0} expired items", deleted);
                     fileDb.Clean();
                 }
             }
@@ -373,7 +373,7 @@ namespace MapControl.Caching
                 new Field(expiresField, DataTypeEnum.DateTime)
             });
 
-            Debug.WriteLine("FileDbCache: Created database {0}.", (object)path);
+            Debug.WriteLine("FileDbCache: Created database " + path);
         }
 
         private bool RepairDatabase()
@@ -385,7 +385,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache: FileDb.Reindex() failed: {0}", (object)ex.Message);
+                Debug.WriteLine("FileDbCache: FileDb.Reindex(): " + ex.Message);
             }
 
             try
@@ -395,17 +395,17 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache: Creating database {0} failed: {1}", path, ex.Message);
+                Debug.WriteLine("FileDbCache: Creating database {0}: {1}", path, ex.Message);
             }
 
             return false;
         }
 
-        private bool AddOrUpdateRecord(string key, object value, DateTime expires)
+        private bool AddOrUpdateRecord(string key, object value, DateTime expiration)
         {
             var fieldValues = new FieldValues(3);
             fieldValues.Add(valueField, value);
-            fieldValues.Add(expiresField, expires);
+            fieldValues.Add(expiresField, expiration);
 
             bool recordExists;
 
@@ -415,7 +415,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                Debug.WriteLine("FileDbCache: FileDb.GetRecordByKey(\"{0}\"): {1}", key, ex.Message);
                 return false;
             }
 
@@ -427,7 +427,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache: FileDb.UpdateRecordByKey(\"{0}\") failed: {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.UpdateRecordByKey(\"{0}\"): {1}", key, ex.Message);
                     return false;
                 }
             }
@@ -440,11 +440,12 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache: FileDb.AddRecord(\"{0}\") failed: {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache: FileDb.AddRecord(\"{0}\"): {1}", key, ex.Message);
                     return false;
                 }
             }
 
+            //Debug.WriteLine("FileDbCache: Writing \"{0}\", Expires {1}", key, expiration.ToLocalTime());
             return true;
         }
     }

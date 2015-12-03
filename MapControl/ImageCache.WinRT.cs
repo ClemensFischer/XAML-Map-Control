@@ -11,12 +11,12 @@ namespace MapControl.Caching
     public class ImageCacheItem
     {
         public IBuffer Buffer { get; set; }
-        public DateTime Expires { get; set; }
+        public DateTime Expiration { get; set; }
     }
 
     public interface IImageCache
     {
         Task<ImageCacheItem> GetAsync(string key);
-        Task SetAsync(string key, IBuffer buffer, DateTime expires);
+        Task SetAsync(string key, IBuffer buffer, DateTime expiration);
     }
 }
