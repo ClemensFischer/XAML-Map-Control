@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using MapControl.Caching;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
@@ -77,47 +78,54 @@ namespace MapControl
         {
             var tileSource = tileLayer.TileSource;
             var imageTileSource = tileSource as ImageTileSource;
-            var sourceName = tileLayer.SourceName;
-            var useCache = Cache != null && !string.IsNullOrEmpty(sourceName);
 
-            foreach (var tile in tiles)
+            if (imageTileSource != null)
             {
-                try
+                foreach (var tile in tiles)
                 {
-                    if (imageTileSource != null)
+                    try
                     {
                         tile.SetImage(imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel));
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-
-                        if (uri == null)
-                        {
-                            tile.SetImage(null);
-                        }
-                        else if (!useCache)
-                        {
-                            tile.SetImage(new BitmapImage(uri));
-                        }
-                        else
-                        {
-                            pendingTiles.Enqueue(new PendingTile(tile, uri));
-                        }
+                        Debug.WriteLine(ex.Message);
                     }
                 }
-                catch (Exception ex)
+            }
+            else
+            {
+                foreach (var tile in tiles)
                 {
-                    Debug.WriteLine(ex.Message);
-                }
+                    Uri uri = null;
 
-                var newTaskCount = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads) - taskCount;
+                    try
+                    {
+                        uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                    }
 
-                while (newTaskCount-- > 0)
-                {
-                    Interlocked.Increment(ref taskCount);
+                    if (uri == null)
+                    {
+                        tile.SetImage(null);
+                    }
+                    else
+                    {
+                        pendingTiles.Enqueue(new PendingTile(tile, uri));
 
-                    Task.Run(async () => await LoadPendingTiles(tileSource, sourceName));
+                        var newTaskCount = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads) - taskCount;
+                        var sourceName = tileLayer.SourceName;
+
+                        while (newTaskCount-- > 0)
+                        {
+                            Interlocked.Increment(ref taskCount);
+
+                            Task.Run(async () => await LoadPendingTiles(tileSource, sourceName));
+                        }
+                    }
                 }
             }
         }
@@ -132,37 +140,48 @@ namespace MapControl
         private async Task LoadPendingTiles(TileSource tileSource, string sourceName)
         {
             PendingTile pendingTile;
+            var cache = Cache;
 
-            while (pendingTiles.TryDequeue(out pendingTile))
+            if (cache == null || sourceName == null)
             {
-                var tile = pendingTile.Tile;
-                var uri = pendingTile.Uri;
-                var image = pendingTile.Image;
-                var extension = Path.GetExtension(uri.LocalPath);
-
-                if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                while (pendingTiles.TryDequeue(out pendingTile))
                 {
-                    extension = ".jpg";
+                    await DownloadImage(pendingTile.Tile, pendingTile.Image, pendingTile.Uri, null);
                 }
-
-                var cacheKey = string.Format(@"{0}\{1}\{2}\{3}{4}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-                var cacheItem = await Cache.GetAsync(cacheKey);
-                var loaded = false;
-
-                if (cacheItem == null || cacheItem.Expiration <= DateTime.UtcNow)
+            }
+            else
+            {
+                while (pendingTiles.TryDequeue(out pendingTile))
                 {
-                    loaded = await DownloadImage(tile, image, uri, cacheKey);
-                }
+                    var tile = pendingTile.Tile;
+                    var image = pendingTile.Image;
+                    var uri = pendingTile.Uri;
+                    var extension = Path.GetExtension(uri.LocalPath);
 
-                if (!loaded && cacheItem != null && cacheItem.Buffer != null)
-                {
-                    using (var stream = new InMemoryRandomAccessStream())
+                    if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
                     {
-                        await stream.WriteAsync(cacheItem.Buffer);
-                        await stream.FlushAsync();
-                        stream.Seek(0);
+                        extension = ".jpg";
+                    }
 
-                        await LoadImageFromStream(tile, image, stream);
+                    var cacheKey = string.Format(@"{0}\{1}\{2}\{3}{4}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+                    var cacheItem = await cache.GetAsync(cacheKey);
+                    var loaded = false;
+
+                    if (cacheItem == null || cacheItem.Expiration <= DateTime.UtcNow)
+                    {
+                        loaded = await DownloadImage(tile, image, uri, cacheKey);
+                    }
+
+                    if (!loaded && cacheItem != null && cacheItem.Buffer != null)
+                    {
+                        using (var stream = new InMemoryRandomAccessStream())
+                        {
+                            await stream.WriteAsync(cacheItem.Buffer);
+                            await stream.FlushAsync();
+                            stream.Seek(0);
+
+                            await LoadImageFromStream(tile, image, stream);
+                        }
                     }
                 }
             }
@@ -206,8 +225,9 @@ namespace MapControl
                 stream.Seek(0);
 
                 var loaded = await LoadImageFromStream(tile, image, stream);
+                IImageCache cache;
 
-                if (loaded && cacheKey != null)
+                if (loaded && cacheKey != null && (cache = Cache) != null)
                 {
                     var buffer = new Windows.Storage.Streams.Buffer((uint)stream.Size);
 
@@ -226,7 +246,7 @@ namespace MapControl
                         }
                     }
 
-                    await Cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(expiration));
+                    await cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(expiration));
                 }
 
                 return loaded;

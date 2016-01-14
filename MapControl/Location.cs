@@ -39,9 +39,10 @@ namespace MapControl
 
         public bool Equals(Location location)
         {
-            return location != null
+            return ReferenceEquals(this, location)
+                || (location != null
                 && location.latitude == latitude
-                && location.longitude == longitude;
+                && location.longitude == longitude);
         }
 
         public override bool Equals(object obj)

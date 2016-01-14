@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="XamlMapControl.PhoneApp" Publisher="CN=Clemens" Version="2.5.0.0" />
+  <Identity Name="XamlMapControl.PhoneApp" Publisher="CN=Clemens" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="a28a99bb-a24b-4713-a6ea-3015d8aa2d72" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>XAML Map Control Phone Application</DisplayName>

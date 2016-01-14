@@ -25,12 +25,13 @@ namespace MapControl
 
         public bool Equals(TileGrid tileGrid)
         {
-            return tileGrid != null
+            return ReferenceEquals(this, tileGrid)
+                || (tileGrid != null
                 && tileGrid.ZoomLevel == ZoomLevel
                 && tileGrid.XMin == XMin
                 && tileGrid.YMin == YMin
                 && tileGrid.XMax == XMax
-                && tileGrid.YMax == YMax;
+                && tileGrid.YMax == YMax);
         }
 
         public override bool Equals(object obj)

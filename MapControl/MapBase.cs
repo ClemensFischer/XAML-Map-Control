@@ -323,10 +323,8 @@ namespace MapControl
         /// </summary>
         public void SetTransformOrigin(Point origin)
         {
-            ViewportOrigin = new Point(
-                Math.Min(Math.Max(origin.X, 0d), RenderSize.Width),
-                Math.Min(Math.Max(origin.Y, 0d), RenderSize.Height));
-            transformOrigin = ViewportPointToLocation(ViewportOrigin);
+            transformOrigin = ViewportPointToLocation(origin);
+            ViewportOrigin = origin;
         }
 
         /// <summary>
@@ -388,11 +386,8 @@ namespace MapControl
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
-            if (zoomLevel >= MinZoomLevel && zoomLevel <= MaxZoomLevel)
-            {
-                SetTransformOrigin(origin);
-                TargetZoomLevel = zoomLevel;
-            }
+            SetTransformOrigin(origin);
+            TargetZoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
         }
 
         /// <summary>

@@ -37,7 +37,8 @@ namespace MapControl
                 {
                     SourceName = "OpenStreetMap",
                     Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" }
+                    TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
+                    MaxZoomLevel = 19
                 };
             }
         }
@@ -74,6 +75,9 @@ namespace MapControl
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
             "UpdateWhileViewportChanging", typeof(bool), typeof(TileLayer), new PropertyMetadata(true));
+
+        public static readonly DependencyProperty LoadTilesDescendingProperty = DependencyProperty.Register(
+            "LoadTilesDescending", typeof(bool), typeof(TileLayer), new PropertyMetadata(false));
 
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
             "Foreground", typeof(Brush), typeof(TileLayer), new PropertyMetadata(null));
@@ -199,6 +203,16 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Controls the order of zoom levels in which map tiles are loaded.
+        /// The default is value is false, i.e. tiles are loaded in ascending order.
+        /// </summary>
+        public bool LoadTilesDescending
+        {
+            get { return (bool)GetValue(LoadTilesDescendingProperty); }
+            set { SetValue(LoadTilesDescendingProperty, value); }
+        }
+
+        /// <summary>
         /// Optional foreground brush. Sets MapBase.Foreground, if not null.
         /// </summary>
         public Brush Foreground
@@ -313,7 +327,14 @@ namespace MapControl
                     Children.Add(tile.Image);
                 }
 
-                TileImageLoader.BeginLoadTiles(this, Tiles.Where(t => t.Pending).OrderByDescending(t => t.ZoomLevel));
+                var pendingTiles = Tiles.Where(t => t.Pending);
+
+                if (LoadTilesDescending)
+                {
+                    pendingTiles = pendingTiles.OrderByDescending(t => t.ZoomLevel); // higher zoom levels first
+                }
+
+                TileImageLoader.BeginLoadTiles(this, pendingTiles);
             }
         }
 
