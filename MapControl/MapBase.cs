@@ -75,9 +75,6 @@ namespace MapControl
         private DoubleAnimation headingAnimation;
         private bool internalPropertyChange;
 
-        internal Point MapOrigin { get; private set; }
-        internal Point ViewportOrigin { get; private set; }
-
         public MapBase()
         {
             Initialize();
@@ -272,6 +269,9 @@ namespace MapControl
             get { return scaleRotateTransform; }
         }
 
+        internal Point MapOrigin { get; private set; }
+        internal Point ViewportOrigin { get; private set; }
+
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
         /// </summary>
@@ -337,18 +337,32 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Changes the Center property according to the specified translation in viewport coordinates.
+        /// Changes the Center property according to the specified map translation in viewport coordinates.
         /// </summary>
         public void TranslateMap(Point translation)
         {
             if (transformOrigin != null)
             {
                 ResetTransformOrigin();
+                UpdateTransform();
             }
 
             if (translation.X != 0d || translation.Y != 0d)
             {
-                Center = ViewportPointToLocation(new Point(ViewportOrigin.X - translation.X, ViewportOrigin.Y - translation.Y));
+                if (Heading != 0d)
+                {
+                    var cos = Math.Cos(Heading / 180d * Math.PI);
+                    var sin = Math.Sin(Heading / 180d * Math.PI);
+
+                    translation = new Point(
+                        translation.X * cos + translation.Y * sin,
+                        translation.Y * cos - translation.X * sin);
+                }
+
+                translation.X /= -ViewportScale;
+                translation.Y /= ViewportScale;
+
+                Center = mapTransform.Transform(Center, MapOrigin, translation);
             }
         }
 
@@ -359,25 +373,31 @@ namespace MapControl
         /// </summary>
         public void TransformMap(Point origin, Point translation, double rotation, double scale)
         {
-            SetTransformOrigin(origin);
-
-            ViewportOrigin = new Point(ViewportOrigin.X + translation.X, ViewportOrigin.Y + translation.Y);
-
-            if (rotation != 0d)
+            if (rotation != 0d || scale != 1d)
             {
-                var heading = (((Heading + rotation) % 360d) + 360d) % 360d;
-                InternalSetValue(HeadingProperty, heading);
-                InternalSetValue(TargetHeadingProperty, heading);
-            }
+                transformOrigin = ViewportPointToLocation(origin);
+                ViewportOrigin = new Point(origin.X + translation.X, origin.Y + translation.Y);
 
-            if (scale != 1d)
+                if (rotation != 0d)
+                {
+                    var heading = (((Heading + rotation) % 360d) + 360d) % 360d;
+                    InternalSetValue(HeadingProperty, heading);
+                    InternalSetValue(TargetHeadingProperty, heading);
+                }
+
+                if (scale != 1d)
+                {
+                    var zoomLevel = Math.Min(Math.Max(ZoomLevel + Math.Log(scale, 2d), MinZoomLevel), MaxZoomLevel);
+                    InternalSetValue(ZoomLevelProperty, zoomLevel);
+                    InternalSetValue(TargetZoomLevelProperty, zoomLevel);
+                }
+
+                UpdateTransform(true);
+            }
+            else
             {
-                var zoomLevel = Math.Min(Math.Max(ZoomLevel + Math.Log(scale, 2d), MinZoomLevel), MaxZoomLevel);
-                InternalSetValue(ZoomLevelProperty, zoomLevel);
-                InternalSetValue(TargetZoomLevelProperty, zoomLevel);
+                TranslateMap(translation); // more precise
             }
-
-            UpdateTransform(true);
         }
 
         /// <summary>
@@ -567,7 +587,6 @@ namespace MapControl
             if (!internalPropertyChange)
             {
                 AdjustCenterProperty(CenterProperty, ref center);
-                ResetTransformOrigin();
                 UpdateTransform();
 
                 if (centerAnimation == null)
@@ -616,8 +635,6 @@ namespace MapControl
                 InternalSetValue(CenterProperty, TargetCenter);
                 InternalSetValue(CenterPointProperty, mapTransform.Transform(TargetCenter));
                 RemoveAnimation(CenterPointProperty); // remove holding animation in WPF
-
-                ResetTransformOrigin();
                 UpdateTransform();
             }
         }
@@ -628,7 +645,6 @@ namespace MapControl
             {
                 centerPoint.X = Location.NormalizeLongitude(centerPoint.X);
                 InternalSetValue(CenterProperty, mapTransform.Transform(centerPoint));
-                ResetTransformOrigin();
                 UpdateTransform();
             }
         }
@@ -720,7 +736,7 @@ namespace MapControl
                 InternalSetValue(ZoomLevelProperty, TargetZoomLevel);
                 RemoveAnimation(ZoomLevelProperty); // remove holding animation in WPF
 
-                UpdateTransform(true);
+                Dispatcher.BeginInvoke(() => UpdateTransform(true));
             }
         }
 
@@ -793,12 +809,11 @@ namespace MapControl
 
                 InternalSetValue(HeadingProperty, TargetHeading);
                 RemoveAnimation(HeadingProperty); // remove holding animation in WPF
-
                 UpdateTransform();
             }
         }
 
-        private void UpdateTransform(bool resetTransformOrigin = false)
+        private void UpdateTransform(bool resetOrigin = false)
         {
             var center = transformOrigin ?? Center;
 
@@ -812,7 +827,7 @@ namespace MapControl
                 if (center.Latitude < -mapTransform.MaxLatitude || center.Latitude > mapTransform.MaxLatitude)
                 {
                     center.Latitude = Math.Min(Math.Max(center.Latitude, -mapTransform.MaxLatitude), mapTransform.MaxLatitude);
-                    resetTransformOrigin = true;
+                    resetOrigin = true;
                 }
 
                 InternalSetValue(CenterProperty, center);
@@ -823,7 +838,7 @@ namespace MapControl
                     InternalSetValue(CenterPointProperty, mapTransform.Transform(center));
                 }
 
-                if (resetTransformOrigin)
+                if (resetOrigin)
                 {
                     ResetTransformOrigin();
                     SetViewportTransform(center);

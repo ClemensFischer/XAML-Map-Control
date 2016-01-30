@@ -17,7 +17,7 @@ namespace MapControl
     /// </summary>
     public class MercatorTransform : MapTransform
     {
-        public static readonly double MaxLatitudeValue = Math.Atan(Math.Sinh(Math.PI)) / Math.PI * 180d;
+        public static readonly double MaxLatitudeValue = YToLatitude(180d);
 
         public static double RelativeScale(double latitude)
         {
@@ -46,13 +46,12 @@ namespace MapControl
                 return double.PositiveInfinity;
             }
 
-            latitude *= Math.PI / 180d;
-            return Math.Log(Math.Tan(latitude) + 1d / Math.Cos(latitude)) / Math.PI * 180d;
+            return Math.Log(Math.Tan((latitude + 90d) * Math.PI / 360d)) / Math.PI * 180d;
         }
 
         public static double YToLatitude(double y)
         {
-            return Math.Atan(Math.Sinh(y * Math.PI / 180d)) / Math.PI * 180d;
+            return Math.Atan(Math.Exp(y * Math.PI / 180d)) / Math.PI * 360d - 90d;
         }
 
         public override double MaxLatitude

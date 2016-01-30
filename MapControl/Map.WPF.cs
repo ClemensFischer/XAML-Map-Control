@@ -79,7 +79,7 @@ namespace MapControl
             if (mousePosition.HasValue)
             {
                 var position = e.GetPosition(this);
-                TranslateMap((Point)(position - mousePosition.Value));
+                TranslateMap(position - mousePosition.Value);
                 mousePosition = position;
             }
         }
@@ -96,7 +96,7 @@ namespace MapControl
             base.OnManipulationDelta(e);
 
             TransformMap(e.ManipulationOrigin,
-                (Point)e.DeltaManipulation.Translation, e.DeltaManipulation.Rotation,
+                e.DeltaManipulation.Translation, e.DeltaManipulation.Rotation,
                 (e.DeltaManipulation.Scale.X + e.DeltaManipulation.Scale.Y) / 2d);
         }
     }

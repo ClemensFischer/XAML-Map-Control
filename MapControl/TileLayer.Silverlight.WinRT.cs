@@ -46,7 +46,7 @@ namespace MapControl
                 new Matrix(1d, 0d, 0d, 1d, TileSource.TileSize * TileGrid.XMin, TileSource.TileSize * TileGrid.YMin)
                 .Scale(scale, scale)
                 .Translate(offsetX, offsetY)
-                .RotateAt(parentMap.Heading, parentMap.ViewportOrigin.X, parentMap.ViewportOrigin.Y); ;
+                .RotateAt(parentMap.Heading, parentMap.ViewportOrigin.X, parentMap.ViewportOrigin.Y);
         }
     }
 }

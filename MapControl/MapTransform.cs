@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
+using System;
 using Windows.Foundation;
 #else
 using System.Windows;
@@ -25,20 +26,20 @@ namespace MapControl
         public abstract double MaxLatitude { get; }
 
         /// <summary>
-        /// Gets the scale factor of the map projection at the specified geographic location
-        /// relative to the scale at latitude zero.
+        /// Gets the scale factor of the map projection at the specified
+        /// geographic location relative to the scale at latitude zero.
         /// </summary>
         public abstract double RelativeScale(Location location);
-
-        /// <summary>
-        /// Transforms a cartesian coordinate point to a geographic location.
-        /// </summary>
-        public abstract Location Transform(Point point);
 
         /// <summary>
         /// Transforms a geographic location to a cartesian coordinate point.
         /// </summary>
         public abstract Point Transform(Location location);
+
+        /// <summary>
+        /// Transforms a cartesian coordinate point to a geographic location.
+        /// </summary>
+        public abstract Location Transform(Point point);
 
         /// <summary>
         /// Transforms a geographic location to a cartesian coordinate point
@@ -61,5 +62,22 @@ namespace MapControl
 
             return p;
         }
+
+        /// <summary>
+        /// Transforms a geographic location by the specified translation in viewport coordinates.
+        /// </summary>
+        public Location Transform(Location origin, Point mapOrigin, Point translation)
+        {
+#if NETFX_CORE
+            var latitudeTranslation = translation.Y / RelativeScale(origin);
+
+            if (Math.Abs(latitudeTranslation) < 1e-3) // avoid rounding errors
+            {
+                return new Location(origin.Latitude + latitudeTranslation, origin.Longitude + translation.X);
+            }
+#endif
+            return Transform(new Point(mapOrigin.X + translation.X, mapOrigin.Y + translation.Y));
+        }
     }
+
 }

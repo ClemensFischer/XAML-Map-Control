@@ -70,11 +70,12 @@ namespace MapControl
             MapOrigin = mapTransform.Transform(origin);
             ViewportScale = Math.Pow(2d, ZoomLevel) * (double)TileSource.TileSize / 360d;
 
-            viewportTransform.Matrix =
-                new Matrix(1d, 0d, 0d, 1d, -MapOrigin.X, -MapOrigin.Y)
+            var transform = new Matrix(1d, 0d, 0d, 1d, -MapOrigin.X, -MapOrigin.Y)
+                .Rotate(-Heading)
                 .Scale(ViewportScale, -ViewportScale)
-                .Rotate(Heading)
                 .Translate(ViewportOrigin.X, ViewportOrigin.Y);
+
+            viewportTransform.Matrix = transform;
         }
     }
 }

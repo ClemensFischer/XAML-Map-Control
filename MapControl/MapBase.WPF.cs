@@ -53,6 +53,24 @@ namespace MapControl
                 typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
         }
 
+        /// <summary>
+        /// Changes the Center property according to the specified translation in viewport coordinates.
+        /// </summary>
+        public void TranslateMap(Vector translation)
+        {
+            TranslateMap((Point)translation);
+        }
+
+        /// <summary>
+        /// Changes the Center, Heading and ZoomLevel properties according to the specified
+        /// viewport coordinate translation, rotation and scale delta values. Rotation and scaling
+        /// is performed relative to the specified origin point in viewport coordinates.
+        /// </summary>
+        public void TransformMap(Point origin, Vector translation, double rotation, double scale)
+        {
+            TransformMap(origin, (Point)translation, rotation, scale);
+        }
+
         partial void RemoveAnimation(DependencyProperty property)
         {
             BeginAnimation(property, null);
@@ -72,8 +90,8 @@ namespace MapControl
             ViewportScale = Math.Pow(2d, ZoomLevel) * (double)TileSource.TileSize / 360d;
 
             var transform = new Matrix(1d, 0d, 0d, 1d, -MapOrigin.X, -MapOrigin.Y);
+            transform.Rotate(-Heading);
             transform.Scale(ViewportScale, -ViewportScale);
-            transform.Rotate(Heading);
             transform.Translate(ViewportOrigin.X, ViewportOrigin.Y);
 
             viewportTransform.Matrix = transform;
