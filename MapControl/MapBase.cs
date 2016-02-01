@@ -736,7 +736,7 @@ namespace MapControl
                 InternalSetValue(ZoomLevelProperty, TargetZoomLevel);
                 RemoveAnimation(ZoomLevelProperty); // remove holding animation in WPF
 
-                Dispatcher.BeginInvoke(() => UpdateTransform(true));
+                Dispatcher.BeginInvoke(new Action(() => UpdateTransform(true)));
             }
         }
 
