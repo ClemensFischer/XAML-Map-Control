@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2015 Clemens Fischer
+// © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -735,8 +735,7 @@ namespace MapControl
 
                 InternalSetValue(ZoomLevelProperty, TargetZoomLevel);
                 RemoveAnimation(ZoomLevelProperty); // remove holding animation in WPF
-
-                Dispatcher.BeginInvoke(new Action(() => UpdateTransform(true)));
+                UpdateTransform(true);
             }
         }
 
