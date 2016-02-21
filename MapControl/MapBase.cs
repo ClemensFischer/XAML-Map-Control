@@ -406,8 +406,13 @@ namespace MapControl
         /// </summary>
         public void ZoomMap(Point origin, double zoomLevel)
         {
-            SetTransformOrigin(origin);
-            TargetZoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
+            zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
+
+            if (TargetZoomLevel != zoomLevel)
+            {
+                SetTransformOrigin(origin);
+                TargetZoomLevel = zoomLevel;
+            }
         }
 
         /// <summary>
