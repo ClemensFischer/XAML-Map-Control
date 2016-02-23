@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2015 Clemens Fischer
+// © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -26,9 +26,37 @@ namespace MapControl
     /// </summary>
     public partial class MapImageLayer : MapPanel
     {
+        public struct BoundingBox
+        {
+            public readonly double West;
+            public readonly double East;
+            public readonly double South;
+            public readonly double North;
+
+            public BoundingBox(double west, double east, double south, double north)
+            {
+                West = west;
+                East = east;
+                South = south;
+                North = north;
+            }
+        }
+
         public static readonly DependencyProperty UriFormatProperty = DependencyProperty.Register(
             "UriFormat", typeof(string), typeof(MapImageLayer),
             new PropertyMetadata(null, (o, e) => ((MapImageLayer)o).UpdateImage()));
+
+        public static readonly DependencyProperty MinLongitudeProperty = DependencyProperty.Register(
+            "MinLongitude", typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
+
+        public static readonly DependencyProperty MaxLongitudeProperty = DependencyProperty.Register(
+            "MaxLongitude", typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
+
+        public static readonly DependencyProperty MinLatitudeProperty = DependencyProperty.Register(
+            "MinLatitude", typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
+
+        public static readonly DependencyProperty MaxLatitudeProperty = DependencyProperty.Register(
+            "MaxLatitude", typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
 
         public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
             "RelativeImageSize", typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
@@ -53,13 +81,49 @@ namespace MapControl
         /// <summary>
         /// The format string of the image request Uri. The format must contain
         /// {X} and {Y} format specifiers for the map width and height in pixels and either
-        /// {w},{s},{e},{n} for the bounding box in lat/lon (like EPSG:4326) or
-        /// {W},{S},{E},{N} for the bounding box in meters (like EPSG:3857).
+        /// {w},{s},{e},{n} for a latitude/longitude bounding box (like EPSG:4326) or
+        /// {W},{S},{E},{N} for a projected bounding box (e.g. in meters like EPSG:3857).
         /// </summary>
         public string UriFormat
         {
             get { return (string)GetValue(UriFormatProperty); }
             set { SetValue(UriFormatProperty, value); }
+        }
+
+        /// <summary>
+        /// Optional minimum longitude value. Default is NaN.
+        /// </summary>
+        public double MinLongitude
+        {
+            get { return (double)GetValue(MinLongitudeProperty); }
+            set { SetValue(MinLongitudeProperty, value); }
+        }
+
+        /// <summary>
+        /// Optional maximum longitude value. Default is NaN.
+        /// </summary>
+        public double MaxLongitude
+        {
+            get { return (double)GetValue(MaxLongitudeProperty); }
+            set { SetValue(MaxLongitudeProperty, value); }
+        }
+
+        /// <summary>
+        /// Optional minimum latitude value. Default is NaN.
+        /// </summary>
+        public double MinLatitude
+        {
+            get { return (double)GetValue(MinLatitudeProperty); }
+            set { SetValue(MinLatitudeProperty, value); }
+        }
+
+        /// <summary>
+        /// Optional maximum latitude value. Default is NaN.
+        /// </summary>
+        public double MaxLatitude
+        {
+            get { return (double)GetValue(MaxLatitudeProperty); }
+            set { SetValue(MaxLatitudeProperty, value); }
         }
 
         /// <summary>
@@ -82,6 +146,16 @@ namespace MapControl
             set { SetValue(UpdateIntervalProperty, value); }
         }
 
+        protected virtual BoundingBox ProjectBoundingBox(BoundingBox boundingBox)
+        {
+            var p1 = ParentMap.MapTransform.Transform(new Location(boundingBox.South, boundingBox.West));
+            var p2 = ParentMap.MapTransform.Transform(new Location(boundingBox.North, boundingBox.East));
+
+            return new BoundingBox(
+                TileSource.MetersPerDegree * p1.X, TileSource.MetersPerDegree * p2.X,
+                TileSource.MetersPerDegree * p1.Y, TileSource.MetersPerDegree * p2.Y);
+        }
+
         protected override void OnViewportChanged()
         {
             base.OnViewportChanged();
@@ -98,15 +172,15 @@ namespace MapControl
             {
                 updateTimer.Start(); // update image on next timer tick
             }
-            else if (ParentMap != null && RenderSize.Width > 0 && RenderSize.Height > 0)
+            else if (ParentMap != null && ParentMap.RenderSize.Width > 0 && ParentMap.RenderSize.Height > 0)
             {
                 updateInProgress = true;
 
                 var relativeSize = Math.Max(RelativeImageSize, 1d);
-                var width = RenderSize.Width * relativeSize;
-                var height = RenderSize.Height * relativeSize;
-                var dx = (RenderSize.Width - width) / 2d;
-                var dy = (RenderSize.Height - height) / 2d;
+                var width = ParentMap.RenderSize.Width * relativeSize;
+                var height = ParentMap.RenderSize.Height * relativeSize;
+                var dx = (ParentMap.RenderSize.Width - width) / 2d;
+                var dy = (ParentMap.RenderSize.Height - height) / 2d;
 
                 var loc1 = ParentMap.ViewportPointToLocation(new Point(dx, dy));
                 var loc2 = ParentMap.ViewportPointToLocation(new Point(dx + width, dy));
@@ -118,17 +192,36 @@ namespace MapControl
                 var south = Math.Min(loc1.Latitude, Math.Min(loc2.Latitude, Math.Min(loc3.Latitude, loc4.Latitude)));
                 var north = Math.Max(loc1.Latitude, Math.Max(loc2.Latitude, Math.Max(loc3.Latitude, loc4.Latitude)));
 
+                if (!double.IsNaN(MinLongitude) && west < MinLongitude)
+                {
+                    west = MinLongitude;
+                }
+
+                if (!double.IsNaN(MaxLongitude) && east > MaxLongitude)
+                {
+                    east = MaxLongitude;
+                }
+
+                if (!double.IsNaN(MinLatitude) && south < MinLatitude)
+                {
+                    south = MinLatitude;
+                }
+
+                if (!double.IsNaN(MaxLatitude) && north > MaxLatitude)
+                {
+                    north = MaxLatitude;
+                }
+
                 var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
                 var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
 
-                width = Math.Round((p2.X - p1.X) * ParentMap.ViewportScale);
-                height = Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale);
-
-                UpdateImage(west, east, south, north, (int)width, (int)height);
+                UpdateImage(new BoundingBox(west, east, south, north),
+                    (int)Math.Round((p2.X - p1.X) * ParentMap.ViewportScale),
+                    (int)Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale));
             }
         }
 
-        protected virtual void UpdateImage(double west, double east, double south, double north, int width, int height)
+        protected virtual void UpdateImage(BoundingBox boundingBox, int width, int height)
         {
             if (UriFormat != null && width > 0 && height > 0)
             {
@@ -136,48 +229,40 @@ namespace MapControl
                     .Replace("{X}", width.ToString())
                     .Replace("{Y}", height.ToString());
 
-                if (uri.Contains("{W}") && uri.Contains("{S}") && uri.Contains("{E}") && uri.Contains("{N}"))
+                if (uri.Contains("{W}") && uri.Contains("{E}") && uri.Contains("{S}") && uri.Contains("{N}"))
                 {
-                    var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
-                    var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
+                    var projectedBoundingBox = ProjectBoundingBox(boundingBox);
 
                     uri = uri
-                        .Replace("{W}", (TileSource.MetersPerDegree * p1.X).ToString(CultureInfo.InvariantCulture))
-                        .Replace("{S}", (TileSource.MetersPerDegree * p1.Y).ToString(CultureInfo.InvariantCulture))
-                        .Replace("{E}", (TileSource.MetersPerDegree * p2.X).ToString(CultureInfo.InvariantCulture))
-                        .Replace("{N}", (TileSource.MetersPerDegree * p2.Y).ToString(CultureInfo.InvariantCulture));
+                        .Replace("{W}", projectedBoundingBox.West.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{S}", projectedBoundingBox.South.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{E}", projectedBoundingBox.East.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{N}", projectedBoundingBox.North.ToString(CultureInfo.InvariantCulture));
                 }
                 else
                 {
                     uri = uri
-                        .Replace("{w}", west.ToString(CultureInfo.InvariantCulture))
-                        .Replace("{s}", south.ToString(CultureInfo.InvariantCulture))
-                        .Replace("{e}", east.ToString(CultureInfo.InvariantCulture))
-                        .Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
+                        .Replace("{w}", boundingBox.West.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{s}", boundingBox.South.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{e}", boundingBox.East.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{n}", boundingBox.North.ToString(CultureInfo.InvariantCulture));
                 }
 
-                UpdateImage(west, east, south, north, new Uri(uri));
+                UpdateImage(boundingBox, new Uri(uri));
             }
             else
             {
-                UpdateImage(west, east, south, north, (BitmapSource)null);
+                UpdateImage(boundingBox, (BitmapSource)null);
             }
         }
 
-        protected virtual void UpdateImage(double west, double east, double south, double north, Uri uri)
-        {
-            UpdateImage(west, east, south, north, new BitmapImage(uri));
-        }
-
-        protected void UpdateImage(double west, double east, double south, double north, BitmapSource bitmap)
+        private void SetTopImage(BoundingBox boundingBox, BitmapSource bitmap)
         {
             currentImageIndex = (currentImageIndex + 1) % 2;
-            var mapImage = (MapImage)Children[currentImageIndex];
+            var topImage = (MapImage)Children[currentImageIndex];
 
-            mapImage.SetBoundingBox(west, east, south, north);
-            mapImage.Source = bitmap;
-
-            ImageUpdated(bitmap);
+            topImage.SetBoundingBox(boundingBox.West, boundingBox.East, boundingBox.South, boundingBox.North);
+            topImage.Source = bitmap;
         }
 
         private void SwapImages()
@@ -198,7 +283,11 @@ namespace MapControl
                     FillBehavior = FillBehavior.Stop
                 };
 
-                fadeAnimation.Completed += (s, e) => bottomImage.Opacity = 0d;
+                fadeAnimation.Completed += (s, e) =>
+                {
+                    bottomImage.Opacity = 0d;
+                    bottomImage.Source = null;
+                };
 
                 topImage.BeginAnimation(UIElement.OpacityProperty, fadeAnimation);
                 topImage.Opacity = 1d;
@@ -207,6 +296,7 @@ namespace MapControl
             {
                 topImage.Opacity = 0d;
                 bottomImage.Opacity = 0d;
+                bottomImage.Source = null;
             }
 
             updateInProgress = false;

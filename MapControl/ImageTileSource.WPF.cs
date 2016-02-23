@@ -1,9 +1,7 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2015 Clemens Fischer
+// © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System.IO;
-using System.Net;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -30,20 +28,11 @@ namespace MapControl
             {
                 if (IsAsync)
                 {
-                    var request = HttpWebRequest.CreateHttp(uri);
-
-                    using (var response = (HttpWebResponse)request.GetResponse())
-                    using (var responseStream = response.GetResponseStream())
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        responseStream.CopyTo(memoryStream);
-                        memoryStream.Position = 0;
-                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                    }
+                    image = ImageLoader.FromUri(uri);
                 }
                 else
                 {
-                    image = BitmapFrame.Create(uri);
+                    image = new BitmapImage(uri);
                 }
             }
 

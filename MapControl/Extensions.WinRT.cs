@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2015 Clemens Fischer
+// © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -13,9 +13,9 @@ namespace MapControl
 {
     internal static class Extensions
     {
-        public static void BeginInvoke(this CoreDispatcher dispatcher, Action action)
+        public static IAsyncAction BeginInvoke(this CoreDispatcher dispatcher, Action action)
         {
-            var asyncAction = dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(action));
+            return dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(action));
         }
 
         public static Point Transform(this GeneralTransform transform, Point point)

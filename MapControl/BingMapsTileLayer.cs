@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2015 Clemens Fischer
+// © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -56,7 +56,7 @@ namespace MapControl
             }
 
             var uri = string.Format("http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{0}?output=xml&key={1}", Mode, ApiKey);
-            var request = HttpWebRequest.CreateHttp(uri);
+            var request = WebRequest.CreateHttp(uri);
 
             request.BeginGetResponse(HandleImageryMetadataResponse, request);
         }
@@ -122,7 +122,7 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(imageUrl) && imageUrlSubdomains != null && imageUrlSubdomains.Length > 0)
             {
-                Dispatcher.BeginInvoke(new Action(() =>
+                var _ = Dispatcher.BeginInvoke(new Action(() =>
                 {
                     if (string.IsNullOrEmpty(Culture))
                     {

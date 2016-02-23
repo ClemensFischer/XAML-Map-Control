@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2015 Clemens Fischer
+// © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -14,7 +14,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace MapControl
@@ -122,7 +121,7 @@ namespace MapControl
 
             foreach (var tile in tiles)
             {
-                BitmapSource cachedImage = null;
+                ImageSource cachedImage = null;
 
                 if (useCache && GetCachedImage(CacheKey(sourceName, tile), out cachedImage))
                 {
@@ -219,7 +218,7 @@ namespace MapControl
                 {
                     using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        image = BitmapFrame.Create(fileStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        image = ImageLoader.FromStream(fileStream);
                     }
                 }
                 catch (Exception ex)
@@ -233,11 +232,11 @@ namespace MapControl
 
         private static ImageSource DownloadImage(Uri uri, string cacheKey)
         {
-            BitmapSource image = null;
+            ImageSource image = null;
 
             try
             {
-                var request = HttpWebRequest.CreateHttp(uri);
+                var request = WebRequest.CreateHttp(uri);
 
                 if (HttpUserAgent != null)
                 {
@@ -251,8 +250,7 @@ namespace MapControl
                     {
                         responseStream.CopyTo(memoryStream);
                         memoryStream.Seek(0, SeekOrigin.Begin);
-
-                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        image = ImageLoader.FromStream(memoryStream);
 
                         if (cacheKey != null)
                         {
@@ -283,7 +281,7 @@ namespace MapControl
             return string.IsNullOrEmpty(sourceName) ? null : string.Format("{0}/{1}/{2}/{3}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y);
         }
 
-        private static bool GetCachedImage(string cacheKey, out BitmapSource image)
+        private static bool GetCachedImage(string cacheKey, out ImageSource image)
         {
             image = null;
 
@@ -295,7 +293,7 @@ namespace MapControl
                 {
                     using (var memoryStream = new MemoryStream(buffer))
                     {
-                        image = BitmapFrame.Create(memoryStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        image = ImageLoader.FromStream(memoryStream);
                     }
 
                     DateTime expiration = DateTime.MinValue;

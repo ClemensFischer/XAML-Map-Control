@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2015 Clemens Fischer
+// © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -53,6 +53,11 @@ namespace MapControl
                 typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
         }
 
+        partial void RemoveAnimation(DependencyProperty property)
+        {
+            BeginAnimation(property, null);
+        }
+
         /// <summary>
         /// Changes the Center property according to the specified translation in viewport coordinates.
         /// </summary>
@@ -69,11 +74,6 @@ namespace MapControl
         public void TransformMap(Point origin, Vector translation, double rotation, double scale)
         {
             TransformMap(origin, (Point)translation, rotation, scale);
-        }
-
-        partial void RemoveAnimation(DependencyProperty property)
-        {
-            BeginAnimation(property, null);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
