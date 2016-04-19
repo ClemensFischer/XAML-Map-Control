@@ -21,7 +21,7 @@ namespace MapControl
 
         public MapPolyline()
         {
-            Data = new PathGeometry();
+            Data = new PathGeometry { Transform = ViewportTransform };
         }
 
         protected override void UpdateData()
@@ -49,11 +49,6 @@ namespace MapControl
 
                 figure.Segments.Add(segment);
                 geometry.Figures.Add(figure);
-                geometry.Transform = ParentMap.ViewportTransform;
-            }
-            else
-            {
-                geometry.ClearValue(Geometry.TransformProperty);
             }
         }
     }

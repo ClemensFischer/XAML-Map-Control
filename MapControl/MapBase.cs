@@ -618,8 +618,9 @@ namespace MapControl
                     // animate private CenterPoint property by PointAnimation
                     centerAnimation = new PointAnimation
                     {
-                        From = mapTransform.Transform(Center),
-                        To = mapTransform.Transform(targetCenter, Center.Longitude),
+                        To = mapTransform.Transform(new Location(
+                            targetCenter.Latitude,
+                            Location.NearestLongitude(targetCenter.Longitude, Center.Longitude))),
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction
                     };

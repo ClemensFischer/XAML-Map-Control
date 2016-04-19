@@ -8,4 +8,9 @@ namespace MapControl
     {
         MapBase ParentMap { get; set; }
     }
+
+    public interface IMapShape : IMapElement
+    {
+        void LocationChanged(Location oldValue, Location newValue);
+    }
 }

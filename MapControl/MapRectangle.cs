@@ -94,7 +94,7 @@ namespace MapControl
                 {
                     var rect = new Rect(ParentMap.MapTransform.Transform(new Location(South, West)),
                                         ParentMap.MapTransform.Transform(new Location(North, East)));
-                    Transform transform = ParentMap.ViewportTransform;
+                    Transform transform = ViewportTransform;
 
                     ScaleRect(ref rect, ref transform);
 

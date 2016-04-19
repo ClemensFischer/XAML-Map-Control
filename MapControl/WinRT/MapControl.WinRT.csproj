@@ -162,6 +162,12 @@
     <Compile Include="..\TileSource.cs">
       <Link>TileSource.cs</Link>
     </Compile>
+    <Compile Include="..\WmsImageLayer.cs">
+      <Link>WmsImageLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\WmsImageLayer.WinRT.cs">
+      <Link>WmsImageLayer.WinRT.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -98,6 +98,8 @@
     <Compile Include="TileLayerCollection.cs" />
     <Compile Include="TileSource.cs" />
     <Compile Include="TileSourceConverter.cs" />
+    <Compile Include="WmsImageLayer.cs" />
+    <Compile Include="WmsImageLayer.WPF.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Themes\Generic.xaml">

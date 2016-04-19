@@ -238,14 +238,14 @@ namespace MapControl
             {
                 if (parentMap != null)
                 {
-                    parentMap.ViewportChanged -= ViewportChanged;
+                    parentMap.ViewportChanged -= OnViewportChanged;
                 }
 
                 parentMap = value;
 
                 if (parentMap != null)
                 {
-                    parentMap.ViewportChanged += ViewportChanged;
+                    parentMap.ViewportChanged += OnViewportChanged;
                     mapOriginX = parentMap.MapOrigin.X;
                 }
 
@@ -253,7 +253,7 @@ namespace MapControl
             }
         }
 
-        private void ViewportChanged(object sender, EventArgs e)
+        private void OnViewportChanged(object sender, EventArgs e)
         {
             if (TileGrid == null || Math.Abs(parentMap.MapOrigin.X - mapOriginX) > 180d)
             {

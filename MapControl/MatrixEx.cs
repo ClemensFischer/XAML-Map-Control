@@ -21,6 +21,11 @@ namespace MapControl
             return matrix;
         }
 
+        public static Matrix TranslatePrepend(this Matrix matrix, double offsetX, double offsetY)
+        {
+            return new Matrix(1d, 0d, 0d, 1d, offsetX, offsetY).Multiply(matrix);
+        }
+
         public static Matrix Scale(this Matrix matrix, double scaleX, double scaleY)
         {
             return Multiply(matrix, new Matrix(scaleX, 0d, 0d, scaleY, 0d, 0d));

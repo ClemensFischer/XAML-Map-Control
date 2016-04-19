@@ -46,9 +46,9 @@ namespace MapControl
         {
             foreach (UIElement element in Children)
             {
-                var location = GetLocation(element);
+                Location location;
 
-                if (location != null)
+                if (!(element is IMapShape) && (location = GetLocation(element)) != null)
                 {
                     ArrangeElementWithLocation(element);
                     SetViewportPosition(element, parentMap, location);
@@ -82,9 +82,9 @@ namespace MapControl
         {
             foreach (UIElement element in Children)
             {
-                var location = GetLocation(element);
+                Location location;
 
-                if (location != null)
+                if (!(element is IMapShape) && (location = GetLocation(element)) != null)
                 {
                     SetViewportPosition(element, parentMap, location);
                 }
@@ -108,22 +108,25 @@ namespace MapControl
 
         private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            var element = obj as UIElement;
+            var element = (UIElement)obj;
+            var mapShape = element as IMapShape;
 
-            if (element != null)
+            if (mapShape != null)
             {
-                var location = e.NewValue as Location;
-
-                if (location == null)
+                mapShape.LocationChanged((Location)e.OldValue, (Location)e.NewValue);
+            }
+            else
+            {
+                if (e.NewValue == null)
                 {
                     ArrangeElementWithoutLocation(element, Size.Empty);
                 }
                 else if (e.OldValue == null)
                 {
-                    ArrangeElementWithLocation(element); // arrange element when Location was null before
+                    ArrangeElementWithLocation(element);
                 }
 
-                SetViewportPosition(element, GetParentMap(element), location);
+                SetViewportPosition(element, GetParentMap(element), (Location)e.NewValue);
             }
         }
 
@@ -133,9 +136,9 @@ namespace MapControl
 
             if (parentMap != null && location != null)
             {
-                var mapPosition = parentMap.MapTransform.Transform(location, parentMap.Center.Longitude); // nearest to center longitude
-
-                viewportPosition = parentMap.ViewportTransform.Transform(mapPosition);
+                viewportPosition = parentMap.LocationToViewportPoint(new Location(
+                    location.Latitude,
+                    Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
 
                 if ((bool)element.GetValue(FrameworkElement.UseLayoutRoundingProperty))
                 {

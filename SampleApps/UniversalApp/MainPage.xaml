@@ -211,10 +211,12 @@
                 </map:MapPanel.Location>
             </map:Pushpin>
         </map:Map>
+
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#BFFFFFFF">
             <TextBlock Margin="2" FontSize="10" Foreground="Black"
                        map:HyperlinkText.InlinesSource="{Binding TileLayer.Description, ElementName=map}"/>
         </Border>
+
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

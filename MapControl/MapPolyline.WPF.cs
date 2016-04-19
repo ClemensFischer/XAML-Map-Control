@@ -16,7 +16,7 @@ namespace MapControl
 
         public MapPolyline()
         {
-            Data = new StreamGeometry();
+            Data = new StreamGeometry { Transform = ViewportTransform };
         }
 
         protected override void UpdateData()
@@ -32,13 +32,10 @@ namespace MapControl
                     context.BeginFigure(points.First(), IsClosed, IsClosed);
                     context.PolyLineTo(points.Skip(1).ToList(), true, false);
                 }
-
-                geometry.Transform = ParentMap.ViewportTransform;
             }
             else
             {
                 geometry.Clear();
-                geometry.ClearValue(Geometry.TransformProperty);
             }
         }
     }

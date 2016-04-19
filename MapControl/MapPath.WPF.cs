@@ -13,7 +13,7 @@ namespace MapControl
         public static readonly DependencyProperty DataProperty = DependencyProperty.Register(
             "Data", typeof(Geometry), typeof(MapPath), new FrameworkPropertyMetadata(
                 null, FrameworkPropertyMetadataOptions.AffectsRender,
-                (o, e) => ((MapPath)o).UpdateData(), CoerceDataProperty));
+                DataPropertyChanged, CoerceDataProperty));
 
         static MapPath()
         {
@@ -38,10 +38,18 @@ namespace MapControl
             return new Size(1, 1);
         }
 
+        private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            if (!object.ReferenceEquals(e.OldValue, e.NewValue))
+            {
+                ((MapPath)obj).UpdateData();
+            }
+        }
+
         private static object CoerceDataProperty(DependencyObject obj, object value)
         {
             var data = (Geometry)value;
-            return data != null && data.IsFrozen ? data.CloneCurrentValue() : data;
+            return (data != null && data.IsFrozen) ? data.CloneCurrentValue() : data;
         }
     }
 }

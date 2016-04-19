@@ -194,10 +194,8 @@
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
 
             <!-- experimental WMS map layers -->
-            <!--<map:MapImageLayer
-                UriFormat="http://129.206.228.72/cached/osm?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=osm_auto:all&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
-            <!--<map:MapImageLayer
-                UriFormat="http://ows.terrestris.de/osm/service?SERVICE=WMS&amp;VERSION=1.1.1&amp;REQUEST=GetMap&amp;LAYERS=OSM-WMS&amp;STYLES=&amp;SRS=EPSG:900913&amp;BBOX={W},{S},{E},{N}&amp;WIDTH={X}&amp;HEIGHT={Y}&amp;FORMAT=image/png"/>-->
+            <!--<map:WmsImageLayer ServerUri="http://129.206.228.72/cached/osm" Layers="osm_auto:all"/>-->
+            <!--<map:WmsImageLayer ServerUri="http://ows.terrestris.de/osm/service" Layers="OSM-WMS"/>-->
 
             <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
                           Source="10_535_330.jpg" Opacity="0.5"/>
