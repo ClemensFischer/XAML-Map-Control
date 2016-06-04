@@ -16,17 +16,6 @@ namespace WpfApplication
             //BingMapsTileLayer.ApiKey = "...";
 
             InitializeComponent();
-
-            for (double lon = -180; lon < 180; lon += 10)
-            {
-                var pushpin = new Pushpin { Content = lon };
-                MapPanel.SetLocation(pushpin, new Location(50, lon));
-                map.Children.Add(pushpin);
-
-                var path = new MapPath { Data = new EllipseGeometry(new Point(lon, 60), 10, 10), Stroke = Brushes.Blue, StrokeThickness = 2 };
-                MapPanel.SetLocation(path, new Location(50, lon));
-                map.Children.Add(path);
-            }
         }
 
         private void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
