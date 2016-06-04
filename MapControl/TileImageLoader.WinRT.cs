@@ -123,7 +123,7 @@ namespace MapControl
                         {
                             Interlocked.Increment(ref taskCount);
 
-                            Task.Run(async () => await LoadPendingTiles(tileSource, sourceName));
+                            Task.Run(() => LoadPendingTiles(tileSource, sourceName)); // Task.Run(Func<Task>)
                         }
                     }
                 }

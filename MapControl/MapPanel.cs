@@ -136,9 +136,15 @@ namespace MapControl
 
             if (parentMap != null && location != null)
             {
-                viewportPosition = parentMap.LocationToViewportPoint(new Location(
-                    location.Latitude,
-                    Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
+                viewportPosition = parentMap.LocationToViewportPoint(location);
+
+                if (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
+                    viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height)
+                {
+                    viewportPosition = parentMap.LocationToViewportPoint(new Location(
+                        location.Latitude,
+                        Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
+                }
 
                 if ((bool)element.GetValue(FrameworkElement.UseLayoutRoundingProperty))
                 {

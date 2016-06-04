@@ -89,10 +89,22 @@ namespace MapControl
 
         private void OnViewportChanged(object sender, EventArgs e)
         {
-            var longitude = Location.NormalizeLongitude(MapPanel.GetLocation(this).Longitude);
+            var location = MapPanel.GetLocation(this);
 
-            ((TranslateTransform)viewportTransform.Children[0]).X =
-                Location.NearestLongitude(longitude, parentMap.Center.Longitude) - longitude;
+            if (parentMap != null && location != null)
+            {
+                var viewportPosition = parentMap.LocationToViewportPoint(location);
+                var longitudeOffset = 0d;
+
+                if (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
+                    viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height)
+                {
+                    var longitude = Location.NormalizeLongitude(location.Longitude);
+                    longitudeOffset = Location.NearestLongitude(longitude, parentMap.Center.Longitude) - longitude;
+                }
+
+                ((TranslateTransform)viewportTransform.Children[0]).X = longitudeOffset;
+            }
         }
     }
 }

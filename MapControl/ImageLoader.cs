@@ -10,6 +10,9 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Creates frozen BitmapSources from Stream or Uri.
+    /// </summary>
     internal static class ImageLoader
     {
         public static BitmapSource FromStream(Stream stream)
