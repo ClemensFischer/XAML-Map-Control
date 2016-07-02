@@ -648,7 +648,6 @@ namespace MapControl
 
         private void CenterPointPropertyChanged(Point centerPoint)
         {
-            System.Diagnostics.Debug.WriteLine("CenterPoint: {0}", centerPoint);
             if (!internalPropertyChange)
             {
                 centerPoint.X = Location.NormalizeLongitude(centerPoint.X);
