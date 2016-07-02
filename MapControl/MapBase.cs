@@ -425,8 +425,8 @@ namespace MapControl
             {
                 var p1 = mapTransform.Transform(southWest);
                 var p2 = mapTransform.Transform(northEast);
-                var lonScale = RenderSize.Width / (p2.X - p1.X) * 360d / (double)TileSource.TileSize;
-                var latScale = RenderSize.Height / (p2.Y - p1.Y) * 360d / (double)TileSource.TileSize;
+                var lonScale = RenderSize.Width / (p2.X - p1.X) * 360d / TileSource.TileSize;
+                var latScale = RenderSize.Height / (p2.Y - p1.Y) * 360d / TileSource.TileSize;
                 var lonZoom = Math.Log(lonScale, 2d);
                 var latZoom = Math.Log(latScale, 2d);
 
