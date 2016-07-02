@@ -618,6 +618,7 @@ namespace MapControl
                     // animate private CenterPoint property by PointAnimation
                     centerAnimation = new PointAnimation
                     {
+                        From = mapTransform.Transform(Center),
                         To = mapTransform.Transform(new Location(
                             targetCenter.Latitude,
                             Location.NearestLongitude(targetCenter.Longitude, Center.Longitude))),
@@ -647,6 +648,7 @@ namespace MapControl
 
         private void CenterPointPropertyChanged(Point centerPoint)
         {
+            System.Diagnostics.Debug.WriteLine("CenterPoint: {0}", centerPoint);
             if (!internalPropertyChange)
             {
                 centerPoint.X = Location.NormalizeLongitude(centerPoint.X);
@@ -862,12 +864,7 @@ namespace MapControl
         {
             base.OnViewportChanged();
 
-            var viewportChanged = ViewportChanged;
-
-            if (viewportChanged != null)
-            {
-                viewportChanged(this, EventArgs.Empty);
-            }
+            ViewportChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

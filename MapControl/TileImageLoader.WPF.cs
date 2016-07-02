@@ -271,11 +271,6 @@ namespace MapControl
             return image;
         }
 
-        private static string TileKey(TileSource tileSource, Tile tile)
-        {
-            return string.Format("{0:X}/{1:X}/{2:X}/{3:X}", tileSource.GetHashCode(), tile.ZoomLevel, tile.XIndex, tile.Y);
-        }
-
         private static string CacheKey(string sourceName, Tile tile)
         {
             return string.IsNullOrEmpty(sourceName) ? null : string.Format("{0}/{1}/{2}/{3}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y);

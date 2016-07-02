@@ -70,7 +70,7 @@ namespace MapControl.Caching
 
         public override DefaultCacheCapabilities DefaultCacheCapabilities
         {
-            get { return DefaultCacheCapabilities.InMemoryProvider; }
+            get { return DefaultCacheCapabilities.None; }
         }
 
         public override object this[string key]
@@ -137,7 +137,7 @@ namespace MapControl.Caching
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("ImageFileCache: Reading {0}: {1}", path, ex.Message);
+                        Debug.WriteLine("ImageFileCache: Failed reading {0}: {1}", path, ex.Message);
                     }
                 }
             }
@@ -193,18 +193,18 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Writing {0}: {1}", path, ex.Message);
+                Debug.WriteLine("ImageFileCache: Failed writing {0}: {1}", path, ex.Message);
             }
-        }
-
-        public override void Set(CacheItem item, CacheItemPolicy policy)
-        {
-            Set(item.Key, item.Value, policy, item.RegionName);
         }
 
         public override void Set(string key, object value, DateTimeOffset absoluteExpiration, string regionName = null)
         {
             Set(key, value, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration }, regionName);
+        }
+
+        public override void Set(CacheItem item, CacheItemPolicy policy)
+        {
+            Set(item.Key, item.Value, policy, item.RegionName);
         }
 
         public override object AddOrGetExisting(string key, object value, CacheItemPolicy policy, string regionName = null)
@@ -216,6 +216,11 @@ namespace MapControl.Caching
             return oldValue;
         }
 
+        public override object AddOrGetExisting(string key, object value, DateTimeOffset absoluteExpiration, string regionName = null)
+        {
+            return AddOrGetExisting(key, value, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration }, regionName);
+        }
+
         public override CacheItem AddOrGetExisting(CacheItem item, CacheItemPolicy policy)
         {
             var oldItem = GetCacheItem(item.Key, item.RegionName);
@@ -223,11 +228,6 @@ namespace MapControl.Caching
             Set(item, policy);
 
             return oldItem;
-        }
-
-        public override object AddOrGetExisting(string key, object value, DateTimeOffset absoluteExpiration, string regionName = null)
-        {
-            return AddOrGetExisting(key, value, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration }, regionName);
         }
 
         public override object Remove(string key, string regionName = null)
@@ -254,7 +254,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("ImageFileCache: Removing {0}: {1}", path, ex.Message);
+                    Debug.WriteLine("ImageFileCache: Failed removing {0}: {1}", path, ex.Message);
                 }
             }
 
@@ -281,7 +281,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Finding {0}: {1}", path, ex.Message);
+                Debug.WriteLine("ImageFileCache: Failed finding {0}: {1}", path, ex.Message);
             }
 
             return null;

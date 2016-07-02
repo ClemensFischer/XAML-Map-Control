@@ -112,7 +112,7 @@ namespace MapControl.Caching
 
         public override DefaultCacheCapabilities DefaultCacheCapabilities
         {
-            get { return DefaultCacheCapabilities.InMemoryProvider | DefaultCacheCapabilities.AbsoluteExpirations | DefaultCacheCapabilities.SlidingExpirations; }
+            get { return DefaultCacheCapabilities.AbsoluteExpirations | DefaultCacheCapabilities.SlidingExpirations; }
         }
 
         public override object this[string key]
@@ -266,14 +266,14 @@ namespace MapControl.Caching
             }
         }
 
-        public override void Set(CacheItem item, CacheItemPolicy policy)
-        {
-            Set(item.Key, item.Value, policy, item.RegionName);
-        }
-
         public override void Set(string key, object value, DateTimeOffset absoluteExpiration, string regionName = null)
         {
             Set(key, value, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration }, regionName);
+        }
+
+        public override void Set(CacheItem item, CacheItemPolicy policy)
+        {
+            Set(item.Key, item.Value, policy, item.RegionName);
         }
 
         public override object AddOrGetExisting(string key, object value, CacheItemPolicy policy, string regionName = null)
@@ -285,6 +285,11 @@ namespace MapControl.Caching
             return oldValue;
         }
 
+        public override object AddOrGetExisting(string key, object value, DateTimeOffset absoluteExpiration, string regionName = null)
+        {
+            return AddOrGetExisting(key, value, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration }, regionName);
+        }
+
         public override CacheItem AddOrGetExisting(CacheItem item, CacheItemPolicy policy)
         {
             var oldItem = GetCacheItem(item.Key, item.RegionName);
@@ -292,11 +297,6 @@ namespace MapControl.Caching
             Set(item, policy);
 
             return oldItem;
-        }
-
-        public override object AddOrGetExisting(string key, object value, DateTimeOffset absoluteExpiration, string regionName = null)
-        {
-            return AddOrGetExisting(key, value, new CacheItemPolicy { AbsoluteExpiration = absoluteExpiration }, regionName);
         }
 
         public override object Remove(string key, string regionName = null)
@@ -395,7 +395,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache: Creating database {0}: {1}", path, ex.Message);
+                Debug.WriteLine("FileDbCache: Failed creating database {0}: {1}", path, ex.Message);
             }
 
             return false;
