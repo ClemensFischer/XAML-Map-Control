@@ -619,6 +619,7 @@ namespace MapControl
                     centerAnimation = new PointAnimation
                     {
                         From = mapTransform.Transform(Center),
+
                         To = mapTransform.Transform(new Location(
                             targetCenter.Latitude,
                             Location.NearestLongitude(targetCenter.Longitude, Center.Longitude))),
