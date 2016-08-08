@@ -2,6 +2,8 @@
 // © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 
@@ -14,6 +16,11 @@ namespace MapControl
     {
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
             "MouseWheelZoomDelta", typeof(double), typeof(Map), new PropertyMetadata(1d));
+
+        private bool transformPending;
+        private Point transformTranslation;
+        private double transformRotation;
+        private double transformScale = 1d;
 
         public Map()
         {
@@ -33,16 +40,36 @@ namespace MapControl
             set { SetValue(MouseWheelZoomDeltaProperty, value); }
         }
 
-        private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        protected virtual void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
-            var zoomChange = MouseWheelZoomDelta * (double)point.Properties.MouseWheelDelta / 120d;
+            var zoomChange = MouseWheelZoomDelta * point.Properties.MouseWheelDelta / 120d;
+
             ZoomMap(point.Position, TargetZoomLevel + zoomChange);
         }
 
-        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        protected virtual async void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+            transformTranslation.X += e.Delta.Translation.X;
+            transformTranslation.Y += e.Delta.Translation.Y;
+            transformRotation += e.Delta.Rotation;
+            transformScale *= e.Delta.Scale;
+
+            if (!transformPending)
+            {
+                transformPending = true;
+
+                await Dispatcher.RunIdleAsync(a =>
+                {
+                    TransformMap(e.Position, transformTranslation, transformRotation, transformScale);
+
+                    transformPending = false;
+                    transformTranslation.X = 0d;
+                    transformTranslation.Y = 0d;
+                    transformRotation = 0d;
+                    transformScale = 1d;
+                });
+            }
         }
     }
 }

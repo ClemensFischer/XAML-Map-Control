@@ -2,25 +2,24 @@
 // © 2016 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if !NETFX_CORE
-using System.Windows;
-using System.Windows.Data;
-using System.Windows.Media;
-#else
+#if NETFX_CORE
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
-
-namespace MapControl
-{
-    class FontStyles { public const FontStyle Normal = FontStyle.Normal; }
-    class FontStretches { public const FontStretch Normal = FontStretch.Normal; }
-}
+#else
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Media;
 #endif
 
 namespace MapControl
 {
+#if NETFX_CORE
+    class FontStyles { public const FontStyle Normal = FontStyle.Normal; }
+    class FontStretches { public const FontStretch Normal = FontStretch.Normal; }
+#endif
+
     public partial class MapOverlay
     {
         public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(
@@ -68,20 +67,15 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = DependencyProperty.Register(
             "StrokeMiterLimit", typeof(double), typeof(MapOverlay), new PropertyMetadata(1d));
 
-        private Binding foregroundBinding;
-        private Binding strokeBinding;
-
         protected override void SetParentMapOverride(MapBase parentMap)
         {
-            if (foregroundBinding != null)
+            if (GetBindingExpression(ForegroundProperty) != null)
             {
-                foregroundBinding = null;
                 ClearValue(ForegroundProperty);
             }
 
-            if (strokeBinding != null)
+            if (GetBindingExpression(StrokeProperty) != null)
             {
-                strokeBinding = null;
                 ClearValue(StrokeProperty);
             }
 
@@ -89,22 +83,20 @@ namespace MapControl
             {
                 if (Foreground == null)
                 {
-                    foregroundBinding = new Binding
+                    SetBinding(ForegroundProperty, new Binding
                     {
                         Source = parentMap,
                         Path = new PropertyPath("Foreground")
-                    };
-                    SetBinding(ForegroundProperty, foregroundBinding);
+                    });
                 }
 
                 if (Stroke == null)
                 {
-                    strokeBinding = new Binding
+                    SetBinding(StrokeProperty, new Binding
                     {
                         Source = parentMap,
                         Path = new PropertyPath("Foreground")
-                    };
-                    SetBinding(StrokeProperty, strokeBinding);
+                    });
                 }
             }
 

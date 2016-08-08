@@ -20,5 +20,11 @@ namespace MapControl
             DefaultStyleKey = typeof(Pushpin);
             MapPanel.AddParentMapHandlers(this);
         }
+
+        public Location Location
+        {
+            get { return (Location)GetValue(MapPanel.LocationProperty); }
+            set { SetValue(MapPanel.LocationProperty, value); }
+        }
     }
 }

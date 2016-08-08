@@ -12,7 +12,7 @@ namespace UniversalApp
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache();
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache();
 
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         private void ImageOpacitySliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)

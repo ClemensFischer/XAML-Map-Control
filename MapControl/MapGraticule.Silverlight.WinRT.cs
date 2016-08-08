@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Linq;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -23,7 +22,7 @@ namespace MapControl
 {
     public partial class MapGraticule
     {
-        private readonly Path path;
+        private Path path;
         private Location graticuleStart;
         private Location graticuleEnd;
 
@@ -31,29 +30,36 @@ namespace MapControl
         {
             IsHitTestVisible = false;
             StrokeThickness = 0.5;
-
-            path = new Path
-            {
-                Data = new PathGeometry()
-            };
-
-            path.SetBinding(Shape.StrokeProperty, new Binding
-            {
-                Source = this,
-                Path = new PropertyPath("Stroke")
-            });
-
-            path.SetBinding(Shape.StrokeThicknessProperty, new Binding
-            {
-                Source = this,
-                Path = new PropertyPath("StrokeThickness")
-            });
-
-            Children.Add(path);
         }
 
         protected override void OnViewportChanged()
         {
+            if (path == null)
+            {
+                path = new Path
+                {
+                    Data = new PathGeometry()
+                };
+
+                path.SetBinding(Shape.StrokeProperty,
+                    GetBindingExpression(StrokeProperty)?.ParentBinding ??
+                    new Binding
+                    {
+                        Source = this,
+                        Path = new PropertyPath("Stroke")
+                    });
+
+                path.SetBinding(Shape.StrokeThicknessProperty,
+                    GetBindingExpression(StrokeThicknessProperty)?.ParentBinding ??
+                    new Binding
+                    {
+                        Source = this,
+                        Path = new PropertyPath("StrokeThickness")
+                    });
+
+                Children.Add(path);
+            }
+
             var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(new Point(), ParentMap.RenderSize));
             var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
             var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
@@ -143,11 +149,13 @@ namespace MapControl
                                 RenderTransform = renderTransform
                             };
 
-                            label.SetBinding(TextBlock.ForegroundProperty, new Binding
-                            {
-                                Source = this,
-                                Path = new PropertyPath("Foreground")
-                            });
+                            label.SetBinding(TextBlock.ForegroundProperty,
+                                GetBindingExpression(ForegroundProperty)?.ParentBinding ??
+                                new Binding
+                                {
+                                    Source = this,
+                                    Path = new PropertyPath("Foreground")
+                                });
 
                             Children.Add(label);
                         }

@@ -46,9 +46,9 @@ namespace MapControl
         {
             foreach (UIElement element in Children)
             {
-                Location location;
+                var location = GetLocation(element);
 
-                if (!(element is IMapShape) && (location = GetLocation(element)) != null)
+                if (location != null)
                 {
                     ArrangeElementWithLocation(element);
                     SetViewportPosition(element, parentMap, location);
@@ -82,9 +82,9 @@ namespace MapControl
         {
             foreach (UIElement element in Children)
             {
-                Location location;
+                var location = GetLocation(element);
 
-                if (!(element is IMapShape) && (location = GetLocation(element)) != null)
+                if (location != null)
                 {
                     SetViewportPosition(element, parentMap, location);
                 }
@@ -109,25 +109,17 @@ namespace MapControl
         private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             var element = (UIElement)obj;
-            var mapShape = element as IMapShape;
 
-            if (mapShape != null)
+            if (e.NewValue == null)
             {
-                mapShape.LocationChanged((Location)e.OldValue, (Location)e.NewValue);
+                ArrangeElementWithoutLocation(element, Size.Empty);
             }
-            else
+            else if (e.OldValue == null)
             {
-                if (e.NewValue == null)
-                {
-                    ArrangeElementWithoutLocation(element, Size.Empty);
-                }
-                else if (e.OldValue == null)
-                {
-                    ArrangeElementWithLocation(element);
-                }
+                ArrangeElementWithLocation(element);
+            }
 
-                SetViewportPosition(element, GetParentMap(element), (Location)e.NewValue);
-            }
+            SetViewportPosition(element, GetParentMap(element), (Location)e.NewValue);
         }
 
         private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
@@ -146,13 +138,21 @@ namespace MapControl
                         Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
                 }
 
-                if ((bool)element.GetValue(FrameworkElement.UseLayoutRoundingProperty))
+                if ((bool)element.GetValue(UseLayoutRoundingProperty))
                 {
                     viewportPosition.X = Math.Round(viewportPosition.X);
                     viewportPosition.Y = Math.Round(viewportPosition.Y);
                 }
             }
 
+            var translateTransform = GetTranslateTransform(element);
+
+            translateTransform.X = viewportPosition.X;
+            translateTransform.Y = viewportPosition.Y;
+        }
+
+        private static TranslateTransform GetTranslateTransform(UIElement element)
+        {
             var translateTransform = element.RenderTransform as TranslateTransform;
 
             if (translateTransform == null)
@@ -179,8 +179,7 @@ namespace MapControl
                 }
             }
 
-            translateTransform.X = viewportPosition.X;
-            translateTransform.Y = viewportPosition.Y;
+            return translateTransform;
         }
 
         private static void ArrangeElementWithLocation(UIElement element)
@@ -232,7 +231,7 @@ namespace MapControl
                 if (parentSize.IsEmpty)
                 {
                     var parent = frameworkElement.Parent as UIElement;
-                    parentSize = parent != null ? parent.RenderSize : new Size();
+                    parentSize = parent?.RenderSize ?? new Size();
                 }
 
                 switch (frameworkElement.HorizontalAlignment)

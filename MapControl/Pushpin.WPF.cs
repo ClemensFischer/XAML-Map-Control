@@ -17,5 +17,14 @@ namespace MapControl
             DefaultStyleKeyProperty.OverrideMetadata(
                 typeof(Pushpin), new FrameworkPropertyMetadata(typeof(Pushpin)));
         }
+
+        public static readonly DependencyProperty LocationProperty =
+            MapPanel.LocationProperty.AddOwner(typeof(Pushpin));
+
+        public Location Location
+        {
+            get { return (Location)GetValue(LocationProperty); }
+            set { SetValue(LocationProperty, value); }
+        }
     }
 }

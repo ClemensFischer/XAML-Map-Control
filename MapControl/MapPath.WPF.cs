@@ -12,8 +12,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty DataProperty = DependencyProperty.Register(
             "Data", typeof(Geometry), typeof(MapPath), new FrameworkPropertyMetadata(
-                null, FrameworkPropertyMetadataOptions.AffectsRender,
-                DataPropertyChanged, CoerceDataProperty));
+                null, FrameworkPropertyMetadataOptions.AffectsRender, DataPropertyChanged, CoerceDataProperty));
 
         static MapPath()
         {
@@ -40,7 +39,7 @@ namespace MapControl
 
         private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (!object.ReferenceEquals(e.OldValue, e.NewValue))
+            if (!ReferenceEquals(e.OldValue, e.NewValue))
             {
                 ((MapPath)obj).UpdateData();
             }

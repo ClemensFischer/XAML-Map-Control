@@ -51,11 +51,7 @@ namespace PhoneApplication
 
         private void RaisePropertyChanged(string propertyName)
         {
-            var propertyChanged = PropertyChanged;
-            if (propertyChanged != null)
-            {
-                propertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async void GeoLocatorStatusChanged(Geolocator sender, StatusChangedEventArgs args)

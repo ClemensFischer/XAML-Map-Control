@@ -96,7 +96,7 @@
 
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
-            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Location" Value="{Binding Location}"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -151,7 +151,7 @@
 
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
-            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Location" Value="{Binding Location}"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Visibility">
@@ -233,7 +233,7 @@
                 </map:MapPath.Data>
             </map:MapPath>
 
-            <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
+            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
                 <map:Pushpin.Visibility>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
                         <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>

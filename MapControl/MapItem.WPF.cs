@@ -17,5 +17,14 @@ namespace MapControl
             DefaultStyleKeyProperty.OverrideMetadata(
                 typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
         }
+
+        public static readonly DependencyProperty LocationProperty =
+            MapPanel.LocationProperty.AddOwner(typeof(MapItem));
+
+        public Location Location
+        {
+            get { return (Location)GetValue(LocationProperty); }
+            set { SetValue(LocationProperty, value); }
+        }
     }
 }

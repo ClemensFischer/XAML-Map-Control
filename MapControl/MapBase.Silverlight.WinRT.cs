@@ -3,15 +3,14 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Linq;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 #endif
 
@@ -51,7 +50,7 @@ namespace MapControl
         {
             // set Background by Style to enable resetting by ClearValue in RemoveTileLayers
             var style = new Style(typeof(MapBase));
-            style.Setters.Add(new Setter(Panel.BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             Style = style;
 
             var clip = new RectangleGeometry();
@@ -59,9 +58,13 @@ namespace MapControl
 
             SizeChanged += (s, e) =>
             {
-                clip.Rect = new Rect(new Point(), e.NewSize);
-                ResetTransformOrigin();
-                UpdateTransform();
+                if (clip.Rect.Width != e.NewSize.Width || clip.Rect.Height != e.NewSize.Height)
+                {
+                    clip.Rect = new Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height);
+
+                    ResetTransformOrigin();
+                    UpdateTransform();
+                }
             };
         }
 

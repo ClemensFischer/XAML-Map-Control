@@ -22,14 +22,14 @@ namespace MapControl
     public partial class MapPolyline : MapPath
     {
 #if NETFX_CORE
-        // Binding fails on Windows Phone when property type is IEnumerable<Location>
+        // Binding fails on Windows Runtime when property type is IEnumerable<Location>
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(IEnumerable), typeof(MapPolyline),
-            new PropertyMetadata(null, LocationsPropertyChanged));
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
 #else
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, LocationsPropertyChanged));
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
 #endif
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
@@ -65,28 +65,24 @@ namespace MapControl
             set { SetValue(FillRuleProperty, value); }
         }
 
-        private void LocationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void LocationsChanged(INotifyCollectionChanged oldCollection, INotifyCollectionChanged newCollection)
         {
-            UpdateData();
-        }
-
-        private static void LocationsPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            var mapPolyline = (MapPolyline)obj;
-            var oldCollection = e.OldValue as INotifyCollectionChanged;
-            var newCollection = e.NewValue as INotifyCollectionChanged;
-
             if (oldCollection != null)
             {
-                oldCollection.CollectionChanged -= mapPolyline.LocationCollectionChanged;
+                oldCollection.CollectionChanged -= LocationCollectionChanged;
             }
 
             if (newCollection != null)
             {
-                newCollection.CollectionChanged += mapPolyline.LocationCollectionChanged;
+                newCollection.CollectionChanged += LocationCollectionChanged;
             }
 
-            mapPolyline.UpdateData();
+            UpdateData();
+        }
+
+        private void LocationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateData();
         }
     }
 }

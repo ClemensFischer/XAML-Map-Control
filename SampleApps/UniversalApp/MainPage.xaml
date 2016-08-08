@@ -88,37 +88,26 @@
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Normal"/>
                                     <VisualState x:Name="Disabled"/>
-                                    <VisualState x:Name="PointerOver">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="labelBackground" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="SelectionStates">
-                                    <VisualState x:Name="Unselected"/>
+                                    <VisualState x:Name="PointerOver"/>
+                                    <VisualState x:Name="Pressed"/>
                                     <VisualState x:Name="Selected">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
                                         </Storyboard>
                                     </VisualState>
-                                    <VisualState x:Name="SelectedUnfocus">
+                                    <VisualState x:Name="SelectedUnfocused">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
                                         </Storyboard>
                                     </VisualState>
-                                    <VisualState x:Name="SelectedDisable">
+                                    <VisualState x:Name="SelectedPointerOver">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="SelectedPointer">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
                                         </Storyboard>
                                     </VisualState>
                                     <VisualState x:Name="SelectedPressed">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
                                         </Storyboard>
                                     </VisualState>
                                 </VisualStateGroup>
