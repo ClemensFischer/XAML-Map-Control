@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using MapControl.Caching;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
@@ -61,13 +60,11 @@ namespace MapControl
         {
             public readonly Tile Tile;
             public readonly Uri Uri;
-            public readonly BitmapSource Image;
 
             public PendingTile(Tile tile, Uri uri)
             {
                 Tile = tile;
                 Uri = uri;
-                Image = new BitmapImage();
             }
         }
 
@@ -140,22 +137,18 @@ namespace MapControl
         private async Task LoadPendingTiles(TileSource tileSource, string sourceName)
         {
             PendingTile pendingTile;
-            var cache = Cache;
 
-            if (cache == null || sourceName == null)
+            while (pendingTiles.TryDequeue(out pendingTile))
             {
-                while (pendingTiles.TryDequeue(out pendingTile))
+                var tile = pendingTile.Tile;
+                var uri = pendingTile.Uri;
+
+                if (Cache == null || sourceName == null)
                 {
-                    await DownloadImage(pendingTile.Tile, pendingTile.Image, pendingTile.Uri, null);
+                    await DownloadImage(tile, uri, null);
                 }
-            }
-            else
-            {
-                while (pendingTiles.TryDequeue(out pendingTile))
+                else
                 {
-                    var tile = pendingTile.Tile;
-                    var image = pendingTile.Image;
-                    var uri = pendingTile.Uri;
                     var extension = Path.GetExtension(uri.LocalPath);
 
                     if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
@@ -164,12 +157,12 @@ namespace MapControl
                     }
 
                     var cacheKey = string.Format(@"{0}\{1}\{2}\{3}{4}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-                    var cacheItem = await cache.GetAsync(cacheKey);
+                    var cacheItem = await Cache.GetAsync(cacheKey);
                     var loaded = false;
 
                     if (cacheItem == null || cacheItem.Expiration <= DateTime.UtcNow)
                     {
-                        loaded = await DownloadImage(tile, image, uri, cacheKey);
+                        loaded = await DownloadImage(tile, uri, cacheKey);
                     }
 
                     if (!loaded && cacheItem != null && cacheItem.Buffer != null)
@@ -180,7 +173,7 @@ namespace MapControl
                             await stream.FlushAsync();
                             stream.Seek(0);
 
-                            await LoadImageFromStream(tile, image, stream);
+                            await LoadImageFromStream(tile, stream);
                         }
                     }
                 }
@@ -189,7 +182,7 @@ namespace MapControl
             Interlocked.Decrement(ref taskCount);
         }
 
-        private async Task<bool> DownloadImage(Tile tile, BitmapSource image, Uri uri, string cacheKey)
+        private async Task<bool> DownloadImage(Tile tile, Uri uri, string cacheKey)
         {
             try
             {
@@ -198,7 +191,7 @@ namespace MapControl
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        return await LoadImageFromHttpResponse(response, tile, image, cacheKey);
+                        return await LoadImageFromHttpResponse(response, tile, cacheKey);
                     }
 
                     Debug.WriteLine("{0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
@@ -212,8 +205,16 @@ namespace MapControl
             return false;
         }
 
-        private async Task<bool> LoadImageFromHttpResponse(HttpResponseMessage response, Tile tile, BitmapSource image, string cacheKey)
+        private async Task<bool> LoadImageFromHttpResponse(HttpResponseMessage response, Tile tile, string cacheKey)
         {
+            string tileInfo;
+
+            if (response.Headers.TryGetValue("X-VE-Tile-Info", out tileInfo) && tileInfo == "no-tile") // set by Bing Maps
+            {
+                tile.SetImage(null);
+                return true;
+            }
+
             using (var stream = new InMemoryRandomAccessStream())
             {
                 using (var content = response.Content)
@@ -224,10 +225,9 @@ namespace MapControl
                 await stream.FlushAsync();
                 stream.Seek(0);
 
-                var loaded = await LoadImageFromStream(tile, image, stream);
-                IImageCache cache;
+                var loaded = await LoadImageFromStream(tile, stream);
 
-                if (loaded && cacheKey != null && (cache = Cache) != null)
+                if (loaded && cacheKey != null)
                 {
                     var buffer = new Windows.Storage.Streams.Buffer((uint)stream.Size);
 
@@ -246,23 +246,24 @@ namespace MapControl
                         }
                     }
 
-                    await cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(expiration));
+                    await Cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(expiration));
                 }
 
                 return loaded;
             }
         }
 
-        private async Task<bool> LoadImageFromStream(Tile tile, BitmapSource image, IRandomAccessStream stream)
+        private async Task<bool> LoadImageFromStream(Tile tile, IRandomAccessStream stream)
         {
             var completion = new TaskCompletionSource<bool>();
 
-            var action = image.Dispatcher.RunAsync(
+            var action = tile.Image.Dispatcher.RunAsync(
                 CoreDispatcherPriority.Normal,
                 async () =>
                 {
                     try
                     {
+                        var image = new BitmapImage();
                         await image.SetSourceAsync(stream);
                         tile.SetImage(image, true, false);
                         completion.SetResult(true);

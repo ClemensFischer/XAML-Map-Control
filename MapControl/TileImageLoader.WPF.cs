@@ -179,14 +179,7 @@ namespace MapControl
                     }
                 }
 
-                if (image != null)
-                {
-                    dispatcher.BeginInvoke(new Action<Tile, ImageSource>((t, i) => t.SetImage(i)), tile, image);
-                }
-                else
-                {
-                    tile.SetImage(null);
-                }
+                dispatcher.BeginInvoke(new Action<Tile, ImageSource>((t, i) => t.SetImage(i)), tile, image);
             }
 
             Interlocked.Decrement(ref taskCount);
@@ -245,16 +238,19 @@ namespace MapControl
 
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
-                    using (var responseStream = response.GetResponseStream())
-                    using (var memoryStream = new MemoryStream())
+                    if (response.Headers["X-VE-Tile-Info"] != "no-tile") // set by Bing Maps
                     {
-                        responseStream.CopyTo(memoryStream);
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-                        image = ImageLoader.FromStream(memoryStream);
-
-                        if (cacheKey != null)
+                        using (var responseStream = response.GetResponseStream())
+                        using (var memoryStream = new MemoryStream())
                         {
-                            SetCachedImage(cacheKey, memoryStream, GetExpiration(response.Headers));
+                            responseStream.CopyTo(memoryStream);
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+                            image = ImageLoader.FromStream(memoryStream);
+
+                            if (cacheKey != null)
+                            {
+                                SetCachedImage(cacheKey, memoryStream, GetExpiration(response.Headers));
+                            }
                         }
                     }
                 }

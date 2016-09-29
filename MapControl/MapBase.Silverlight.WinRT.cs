@@ -80,5 +80,10 @@ namespace MapControl
 
             viewportTransform.Matrix = transform;
         }
+
+        private void SetTileLayer(TileLayer tileLayer)
+        {
+            TileLayer = tileLayer;
+        }
     }
 }

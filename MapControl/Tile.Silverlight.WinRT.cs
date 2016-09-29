@@ -38,7 +38,7 @@ namespace MapControl
                     }
                     else
                     {
-                        Image.BeginAnimation(Image.OpacityProperty,
+                        Image.BeginAnimation(UIElement.OpacityProperty,
                             new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration });
                     }
                 }
@@ -58,7 +58,7 @@ namespace MapControl
             bitmap.ImageOpened -= BitmapImageOpened;
             bitmap.ImageFailed -= BitmapImageFailed;
 
-            Image.BeginAnimation(Image.OpacityProperty,
+            Image.BeginAnimation(UIElement.OpacityProperty,
                 new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration });
         }
 

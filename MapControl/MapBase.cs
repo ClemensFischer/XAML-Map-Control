@@ -465,13 +465,13 @@ namespace MapControl
                     oldCollection.CollectionChanged -= TileLayerCollectionChanged;
                 }
 
-                TileLayer = null;
+                SetTileLayer(null);
                 ClearTileLayers();
             }
 
             if (newTileLayers != null)
             {
-                TileLayer = newTileLayers.FirstOrDefault();
+                SetTileLayer(newTileLayers.FirstOrDefault());
                 AddTileLayers(0, newTileLayers);
 
                 var newCollection = newTileLayers as INotifyCollectionChanged;
@@ -517,7 +517,7 @@ namespace MapControl
 
             if (TileLayer != tileLayer)
             {
-                TileLayer = tileLayer;
+                SetTileLayer(tileLayer);
             }
         }
 
