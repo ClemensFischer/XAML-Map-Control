@@ -92,7 +92,7 @@ namespace MapControl
         /// <summary>
         /// Raised when the current viewport has changed.
         /// </summary>
-        public event EventHandler ViewportChanged;
+        public event EventHandler<ViewportChangedEventArgs> ViewportChanged;
 
         /// <summary>
         /// Gets or sets the map foreground Brush.
@@ -278,17 +278,17 @@ namespace MapControl
         public double ViewportScale { get; private set; }
 
         /// <summary>
-        /// Gets the scaling factor from meters to viewport coordinate units at the Center location.
+        /// Gets the scaling factor from meters to viewport coordinate units at the Center location (px/m).
         /// </summary>
         public double CenterScale { get; private set; }
 
         /// <summary>
-        /// Gets the map scale at the specified location as viewport coordinate units per meter.
+        /// Gets the map scale at the specified location as viewport coordinate units per meter (px/m).
         /// </summary>
         public double GetMapScale(Location location)
         {
             return mapTransform.RelativeScale(location) *
-                Math.Pow(2d, ZoomLevel) * (double)TileSource.TileSize / (TileSource.MetersPerDegree * 360d);
+                Math.Pow(2d, ZoomLevel) * TileSource.TileSize / (TileSource.MetersPerDegree * 360d);
         }
 
         /// <summary>
@@ -821,6 +821,7 @@ namespace MapControl
 
         private void UpdateTransform(bool resetOrigin = false)
         {
+            var mapOriginX = MapOrigin.X;
             var center = transformOrigin ?? Center;
 
             SetViewportTransform(center);
@@ -856,14 +857,14 @@ namespace MapControl
             scaleTransform.ScaleY = CenterScale;
             rotateTransform.Angle = Heading;
 
-            OnViewportChanged();
+            OnViewportChanged(new ViewportChangedEventArgs(MapOrigin.X - mapOriginX));
         }
 
-        protected override void OnViewportChanged()
+        protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            base.OnViewportChanged();
+            base.OnViewportChanged(e);
 
-            ViewportChanged?.Invoke(this, EventArgs.Empty);
+            ViewportChanged?.Invoke(this, e);
         }
     }
 }

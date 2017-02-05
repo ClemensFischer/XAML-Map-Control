@@ -87,7 +87,6 @@ namespace MapControl
 
         private readonly DispatcherTimer updateTimer;
         private MapBase parentMap;
-        private double mapOriginX;
 
         public TileLayer()
             : this(new TileImageLoader())
@@ -246,18 +245,17 @@ namespace MapControl
                 if (parentMap != null)
                 {
                     parentMap.ViewportChanged += OnViewportChanged;
-                    mapOriginX = parentMap.MapOrigin.X;
                 }
 
                 UpdateTileGrid();
             }
         }
 
-        private void OnViewportChanged(object sender, EventArgs e)
+        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
-            if (TileGrid == null || Math.Abs(parentMap.MapOrigin.X - mapOriginX) > 180d)
+            if (TileGrid == null || Math.Abs(e.OriginOffset) > 180d)
             {
-                // immediately handle map origin leap when map center moves across 180° longitude
+                // immediate update when map center moves across 180° longitude
                 UpdateTileGrid();
             }
             else
@@ -274,8 +272,6 @@ namespace MapControl
                     updateTimer.Start();
                 }
             }
-
-            mapOriginX = parentMap.MapOrigin.X;
         }
 
         protected void UpdateTileGrid()

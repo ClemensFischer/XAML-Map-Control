@@ -32,7 +32,7 @@ namespace MapControl
             StrokeThickness = 0.5;
         }
 
-        protected override void OnViewportChanged()
+        protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
             if (path == null)
             {
@@ -199,7 +199,7 @@ namespace MapControl
                 viewportTransform.Y = viewportPosition.Y;
             }
 
-            base.OnViewportChanged();
+            base.OnViewportChanged(e);
         }
     }
 }

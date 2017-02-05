@@ -30,7 +30,7 @@ namespace MapControl
 
         private double GetLineDistance()
         {
-            var minDistance = MinLineDistance * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * (double)TileSource.TileSize);
+            var minDistance = MinLineDistance * 360d / (Math.Pow(2d, ParentMap.ZoomLevel) * TileSource.TileSize);
             var scale = 1d;
 
             if (minDistance < 1d)

@@ -98,6 +98,7 @@
     <Compile Include="TileLayerCollection.cs" />
     <Compile Include="TileSource.cs" />
     <Compile Include="TileSourceConverter.cs" />
+    <Compile Include="ViewportChangedEventArgs.cs" />
     <Compile Include="WmsImageLayer.cs" />
     <Compile Include="WmsImageLayer.WPF.cs" />
   </ItemGroup>

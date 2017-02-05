@@ -15,14 +15,14 @@ namespace MapControl
 {
     public partial class MapImageLayer
     {
-        protected virtual void UpdateImage(BoundingBox boundingBox, Uri uri)
+        protected virtual void UpdateImage(Uri uri)
         {
-            UpdateImage(boundingBox, new BitmapImage(uri));
+            UpdateImage(new BitmapImage(uri));
         }
 
-        protected void UpdateImage(BoundingBox boundingBox, BitmapSource bitmap)
+        protected void UpdateImage(BitmapSource bitmap)
         {
-            SetTopImage(boundingBox, bitmap);
+            SetTopImage(bitmap);
 
             var bitmapImage = bitmap as BitmapImage;
 

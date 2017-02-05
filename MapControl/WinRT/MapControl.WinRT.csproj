@@ -162,6 +162,9 @@
     <Compile Include="..\TileSource.cs">
       <Link>TileSource.cs</Link>
     </Compile>
+    <Compile Include="..\ViewportChangedEventArgs.cs">
+      <Link>ViewportChangedEventArgs.cs</Link>
+    </Compile>
     <Compile Include="..\WmsImageLayer.cs">
       <Link>WmsImageLayer.cs</Link>
     </Compile>

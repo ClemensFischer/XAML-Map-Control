@@ -4,6 +4,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -21,7 +22,7 @@ using System.Windows.Threading;
 namespace MapControl
 {
     /// <summary>
-    /// Map image overlay. Fills the entire viewport with map images provided by a web service,
+    /// Map image overlay. Fills the entire viewport with a map image provided by a web service,
     /// e.g. a Web Map Service (WMS). The image request Uri is specified by the UriFormat property.
     /// </summary>
     public partial class MapImageLayer : MapPanel
@@ -57,6 +58,9 @@ namespace MapControl
 
         public static readonly DependencyProperty MaxLatitudeProperty = DependencyProperty.Register(
             "MaxLatitude", typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
+
+        public static readonly DependencyProperty MaxBoundingBoxWidthProperty = DependencyProperty.Register(
+            "MaxBoundingBoxWidth", typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
 
         public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
             "RelativeImageSize", typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
@@ -127,7 +131,16 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Relative size of the map images in relation to the current viewport size.
+        /// Optional maximum width of the map image's bounding box. Default is NaN.
+        /// </summary>
+        public double MaxBoundingBoxWidth
+        {
+            get { return (double)GetValue(MaxBoundingBoxWidthProperty); }
+            set { SetValue(MaxBoundingBoxWidthProperty, value); }
+        }
+
+        /// <summary>
+        /// Relative size of the map image  in relation to the current viewport size.
         /// Setting a value greater than one will let MapImageLayer request images that
         /// are larger than the viewport, in order to support smooth panning.
         /// </summary>
@@ -146,19 +159,36 @@ namespace MapControl
             set { SetValue(UpdateIntervalProperty, value); }
         }
 
-        protected virtual BoundingBox ProjectBoundingBox(BoundingBox boundingBox)
-        {
-            var p1 = ParentMap.MapTransform.Transform(new Location(boundingBox.South, boundingBox.West));
-            var p2 = ParentMap.MapTransform.Transform(new Location(boundingBox.North, boundingBox.East));
+        protected BoundingBox ImageBoundingBox { get; private set; }
 
-            return new BoundingBox(
-                TileSource.MetersPerDegree * p1.X, TileSource.MetersPerDegree * p2.X,
-                TileSource.MetersPerDegree * p1.Y, TileSource.MetersPerDegree * p2.Y);
+        protected virtual BoundingBox ProjectedBoundingBox
+        {
+            get
+            {
+                var p1 = ParentMap.MapTransform.Transform(new Location(ImageBoundingBox.South, ImageBoundingBox.West));
+                var p2 = ParentMap.MapTransform.Transform(new Location(ImageBoundingBox.North, ImageBoundingBox.East));
+
+                return new BoundingBox(
+                    TileSource.MetersPerDegree * p1.X, TileSource.MetersPerDegree * p2.X,
+                    TileSource.MetersPerDegree * p1.Y, TileSource.MetersPerDegree * p2.Y);
+            }
         }
 
-        protected override void OnViewportChanged()
+        protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            base.OnViewportChanged();
+            base.OnViewportChanged(e);
+
+            if (Math.Abs(e.OriginOffset) > 180d)
+            {
+                var offset = 360d * Math.Sign(e.OriginOffset);
+
+                ImageBoundingBox = new BoundingBox(ImageBoundingBox.West + offset, ImageBoundingBox.East + offset, ImageBoundingBox.South, ImageBoundingBox.North);
+
+                foreach (var mapImage in Children.OfType<MapImage>().Where(i => i.BoundingBoxValid))
+                {
+                    mapImage.SetBoundingBox(mapImage.West + offset, mapImage.East + offset, mapImage.South, mapImage.North);
+                }
+            }
 
             updateTimer.Stop();
             updateTimer.Start();
@@ -212,16 +242,24 @@ namespace MapControl
                     north = MaxLatitude;
                 }
 
+                if (!double.IsNaN(MaxBoundingBoxWidth) && east - west > MaxBoundingBoxWidth)
+                {
+                    var d = (east - west - MaxBoundingBoxWidth) / 2d;
+                    west += d;
+                    east -= d;
+                }
+
+                ImageBoundingBox = new BoundingBox(west, east, south, north);
+
                 var p1 = ParentMap.MapTransform.Transform(new Location(south, west));
                 var p2 = ParentMap.MapTransform.Transform(new Location(north, east));
 
-                UpdateImage(new BoundingBox(west, east, south, north),
-                    (int)Math.Round((p2.X - p1.X) * ParentMap.ViewportScale),
-                    (int)Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale));
+                UpdateImage((int)Math.Round((p2.X - p1.X) * ParentMap.ViewportScale),
+                            (int)Math.Round((p2.Y - p1.Y) * ParentMap.ViewportScale));
             }
         }
 
-        protected virtual void UpdateImage(BoundingBox boundingBox, int width, int height)
+        protected virtual void UpdateImage(int width, int height)
         {
             if (UriFormat != null && width > 0 && height > 0)
             {
@@ -231,7 +269,7 @@ namespace MapControl
 
                 if (uri.Contains("{W}") && uri.Contains("{E}") && uri.Contains("{S}") && uri.Contains("{N}"))
                 {
-                    var projectedBoundingBox = ProjectBoundingBox(boundingBox);
+                    var projectedBoundingBox = ProjectedBoundingBox;
 
                     uri = uri
                         .Replace("{W}", projectedBoundingBox.West.ToString(CultureInfo.InvariantCulture))
@@ -242,26 +280,26 @@ namespace MapControl
                 else
                 {
                     uri = uri
-                        .Replace("{w}", boundingBox.West.ToString(CultureInfo.InvariantCulture))
-                        .Replace("{s}", boundingBox.South.ToString(CultureInfo.InvariantCulture))
-                        .Replace("{e}", boundingBox.East.ToString(CultureInfo.InvariantCulture))
-                        .Replace("{n}", boundingBox.North.ToString(CultureInfo.InvariantCulture));
+                        .Replace("{w}", ImageBoundingBox.West.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{s}", ImageBoundingBox.South.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{e}", ImageBoundingBox.East.ToString(CultureInfo.InvariantCulture))
+                        .Replace("{n}", ImageBoundingBox.North.ToString(CultureInfo.InvariantCulture));
                 }
 
-                UpdateImage(boundingBox, new Uri(uri));
+                UpdateImage(new Uri(uri));
             }
             else
             {
-                UpdateImage(boundingBox, (BitmapSource)null);
+                UpdateImage((BitmapSource)null);
             }
         }
 
-        private void SetTopImage(BoundingBox boundingBox, BitmapSource bitmap)
+        private void SetTopImage(BitmapSource bitmap)
         {
             currentImageIndex = (currentImageIndex + 1) % 2;
             var topImage = (MapImage)Children[currentImageIndex];
 
-            topImage.SetBoundingBox(boundingBox.West, boundingBox.East, boundingBox.South, boundingBox.North);
+            topImage.SetBoundingBox(ImageBoundingBox.West, ImageBoundingBox.East, ImageBoundingBox.South, ImageBoundingBox.North);
             topImage.Source = bitmap;
         }
 

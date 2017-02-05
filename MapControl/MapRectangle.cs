@@ -67,6 +67,16 @@ namespace MapControl
             set { SetValue(NorthProperty, value); }
         }
 
+        public bool BoundingBoxValid
+        {
+            get
+            {
+                return !double.IsNaN(South) && !double.IsNaN(North)
+                    && !double.IsNaN(West) && !double.IsNaN(East)
+                    && South < North && West < East;
+            }
+        }
+
         public void SetBoundingBox(double west, double east, double south, double north)
         {
             if (West != west || East != east || South != south || North != north)
@@ -87,10 +97,7 @@ namespace MapControl
             {
                 var geometry = (RectangleGeometry)Data;
 
-                if (ParentMap != null &&
-                    !double.IsNaN(South) && !double.IsNaN(North) &&
-                    !double.IsNaN(West) && !double.IsNaN(East) &&
-                    South < North && West < East)
+                if (ParentMap != null && BoundingBoxValid)
                 {
                     var rect = new Rect(ParentMap.MapTransform.Transform(new Location(South, West)),
                                         ParentMap.MapTransform.Transform(new Location(North, East)));

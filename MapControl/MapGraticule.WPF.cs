@@ -33,7 +33,7 @@ namespace MapControl
                 typeof(MapGraticule), new FrameworkPropertyMetadata(0.5));
         }
 
-        protected override void OnViewportChanged()
+        protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
             InvalidateVisual();
         }

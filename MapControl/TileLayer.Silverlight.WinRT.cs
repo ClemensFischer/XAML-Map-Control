@@ -24,7 +24,7 @@ namespace MapControl
 
         private Rect GetTileIndexBounds(int zoomLevel)
         {
-            var scale = (double)(1 << zoomLevel) / 360d;
+            var scale = (1 << zoomLevel) / 360d;
             var transform = new MatrixTransform
             {
                 Matrix = parentMap.ViewportTransform.Matrix

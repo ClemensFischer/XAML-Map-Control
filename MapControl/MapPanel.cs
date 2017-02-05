@@ -74,11 +74,11 @@ namespace MapControl
             if (parentMap != null && parentMap != this)
             {
                 parentMap.ViewportChanged += OnViewportChanged;
-                OnViewportChanged();
+                OnViewportChanged(new ViewportChangedEventArgs(0d));
             }
         }
 
-        protected virtual void OnViewportChanged()
+        protected virtual void OnViewportChanged(ViewportChangedEventArgs e)
         {
             foreach (UIElement element in Children)
             {
@@ -91,9 +91,9 @@ namespace MapControl
             }
         }
 
-        private void OnViewportChanged(object sender, EventArgs e)
+        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
-            OnViewportChanged();
+            OnViewportChanged(e);
         }
 
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)

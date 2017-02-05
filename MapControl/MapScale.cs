@@ -99,7 +99,7 @@ namespace MapControl
             }
         }
 
-        protected override void OnViewportChanged()
+        protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
             InvalidateMeasure();
         }

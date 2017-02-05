@@ -47,7 +47,7 @@ namespace MapControl
         {
             base.OnMouseWheel(e);
 
-            var zoomDelta = MouseWheelZoomDelta * (double)e.Delta / 120d;
+            var zoomDelta = MouseWheelZoomDelta * e.Delta / 120d;
             ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomDelta);
         }
 

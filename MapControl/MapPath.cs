@@ -93,7 +93,7 @@ namespace MapControl
         {
             viewportTransform.Children.Insert(0, new TranslateTransform());
             parentMap.ViewportChanged += OnViewportChanged;
-            OnViewportChanged(parentMap, EventArgs.Empty);
+            OnViewportChanged(parentMap, null);
         }
 
         private void DetachViewportChanged()
