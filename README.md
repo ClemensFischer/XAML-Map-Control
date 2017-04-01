@@ -1,4 +1,3 @@
-**Project Description**
 A set of controls for WPF, Silverlight and Windows Runtime for rendering digital maps from different providers and various types of map overlays.
 
 Map providers can easily be added by specifying an URL template for their map tile bitmaps. Map overlay layers allow to draw and interact with graphical objects and pushpins on the map. The Map Control API is very similar to that of the Microsoft Bing Maps Control for WPF, except that no API key is needed.
