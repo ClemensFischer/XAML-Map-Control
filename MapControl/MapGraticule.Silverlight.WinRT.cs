@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -34,169 +34,180 @@ namespace MapControl
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            if (path == null)
+            var projection = ParentMap.MapProjection;
+
+            if (!double.IsNaN(projection.LongitudeScale))
             {
-                path = new Path
+                if (path == null)
                 {
-                    Data = new PathGeometry()
-                };
-
-                path.SetBinding(Shape.StrokeProperty,
-                    GetBindingExpression(StrokeProperty)?.ParentBinding ??
-                    new Binding
+                    path = new Path
                     {
-                        Source = this,
-                        Path = new PropertyPath("Stroke")
-                    });
-
-                path.SetBinding(Shape.StrokeThicknessProperty,
-                    GetBindingExpression(StrokeThicknessProperty)?.ParentBinding ??
-                    new Binding
-                    {
-                        Source = this,
-                        Path = new PropertyPath("StrokeThickness")
-                    });
-
-                Children.Add(path);
-            }
-
-            var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(new Point(), ParentMap.RenderSize));
-            var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
-            var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
-            var lineDistance = GetLineDistance();
-
-            var labelStart = new Location(
-                Math.Ceiling(start.Latitude / lineDistance) * lineDistance,
-                Math.Ceiling(start.Longitude / lineDistance) * lineDistance);
-
-            var labelEnd = new Location(
-                Math.Floor(end.Latitude / lineDistance) * lineDistance,
-                Math.Floor(end.Longitude / lineDistance) * lineDistance);
-
-            var lineStart = new Location(
-                Math.Min(Math.Max(labelStart.Latitude - lineDistance, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
-                labelStart.Longitude - lineDistance);
-
-            var lineEnd = new Location(
-                Math.Min(Math.Max(labelEnd.Latitude + lineDistance, -ParentMap.MapTransform.MaxLatitude), ParentMap.MapTransform.MaxLatitude),
-                labelEnd.Longitude + lineDistance);
-
-            if (!lineStart.Equals(graticuleStart) || !lineEnd.Equals(graticuleEnd))
-            {
-                graticuleStart = lineStart;
-                graticuleEnd = lineEnd;
-
-                var geometry = (PathGeometry)path.Data;
-                geometry.Figures.Clear();
-                geometry.Transform = ParentMap.ViewportTransform;
-
-                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += lineDistance)
-                {
-                    var figure = new PathFigure
-                    {
-                        StartPoint = ParentMap.MapTransform.Transform(new Location(lat, lineStart.Longitude)),
-                        IsClosed = false,
-                        IsFilled = false
+                        Data = new PathGeometry()
                     };
 
-                    figure.Segments.Add(new LineSegment
-                    {
-                        Point = ParentMap.MapTransform.Transform(new Location(lat, lineEnd.Longitude)),
-                    });
+                    path.SetBinding(Shape.StrokeProperty,
+                        GetBindingExpression(StrokeProperty)?.ParentBinding ??
+                        new Binding
+                        {
+                            Source = this,
+                            Path = new PropertyPath("Stroke")
+                        });
 
-                    geometry.Figures.Add(figure);
+                    path.SetBinding(Shape.StrokeThicknessProperty,
+                        GetBindingExpression(StrokeThicknessProperty)?.ParentBinding ??
+                        new Binding
+                        {
+                            Source = this,
+                            Path = new PropertyPath("StrokeThickness")
+                        });
+
+                    Children.Add(path);
                 }
 
-                for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += lineDistance)
+                var bounds = projection.ViewportRectToBoundingBox(new Rect(0d, 0d, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height));
+                var lineDistance = GetLineDistance();
+
+                var labelStart = new Location(
+                    Math.Ceiling(bounds.South / lineDistance) * lineDistance,
+                    Math.Ceiling(bounds.West / lineDistance) * lineDistance);
+
+                var labelEnd = new Location(
+                    Math.Floor(bounds.North / lineDistance) * lineDistance,
+                    Math.Floor(bounds.East / lineDistance) * lineDistance);
+
+                var lineStart = new Location(
+                    Math.Min(Math.Max(labelStart.Latitude - lineDistance, -projection.MaxLatitude), projection.MaxLatitude),
+                    labelStart.Longitude - lineDistance);
+
+                var lineEnd = new Location(
+                    Math.Min(Math.Max(labelEnd.Latitude + lineDistance, -projection.MaxLatitude), projection.MaxLatitude),
+                    labelEnd.Longitude + lineDistance);
+
+                if (!lineStart.Equals(graticuleStart) || !lineEnd.Equals(graticuleEnd))
                 {
-                    var figure = new PathFigure
+                    graticuleStart = lineStart;
+                    graticuleEnd = lineEnd;
+
+                    var geometry = (PathGeometry)path.Data;
+                    geometry.Figures.Clear();
+                    geometry.Transform = projection.ViewportTransform;
+
+                    for (var lat = labelStart.Latitude; lat <= bounds.North; lat += lineDistance)
                     {
-                        StartPoint = ParentMap.MapTransform.Transform(new Location(lineStart.Latitude, lon)),
-                        IsClosed = false,
-                        IsFilled = false
-                    };
-
-                    figure.Segments.Add(new LineSegment
-                    {
-                        Point = ParentMap.MapTransform.Transform(new Location(lineEnd.Latitude, lon)),
-                    });
-
-                    geometry.Figures.Add(figure);
-                }
-
-                var labelFormat = GetLabelFormat(lineDistance);
-                var childIndex = 1; // 0 for Path
-
-                for (var lat = labelStart.Latitude; lat <= end.Latitude; lat += lineDistance)
-                {
-                    for (var lon = labelStart.Longitude; lon <= end.Longitude; lon += lineDistance)
-                    {
-                        TextBlock label;
-
-                        if (childIndex < Children.Count)
+                        var figure = new PathFigure
                         {
-                            label = (TextBlock)Children[childIndex];
-                        }
-                        else
-                        {
-                            var renderTransform = new TransformGroup();
-                            renderTransform.Children.Add(new TranslateTransform());
-                            renderTransform.Children.Add(ParentMap.RotateTransform);
-                            renderTransform.Children.Add(new TranslateTransform());
+                            StartPoint = projection.LocationToPoint(new Location(lat, lineStart.Longitude)),
+                            IsClosed = false,
+                            IsFilled = false
+                        };
 
-                            label = new TextBlock
+                        figure.Segments.Add(new LineSegment
+                        {
+                            Point = projection.LocationToPoint(new Location(lat, lineEnd.Longitude)),
+                        });
+
+                        geometry.Figures.Add(figure);
+                    }
+
+                    for (var lon = labelStart.Longitude; lon <= bounds.East; lon += lineDistance)
+                    {
+                        var figure = new PathFigure
+                        {
+                            StartPoint = projection.LocationToPoint(new Location(lineStart.Latitude, lon)),
+                            IsClosed = false,
+                            IsFilled = false
+                        };
+
+                        figure.Segments.Add(new LineSegment
+                        {
+                            Point = projection.LocationToPoint(new Location(lineEnd.Latitude, lon)),
+                        });
+
+                        geometry.Figures.Add(figure);
+                    }
+
+                    var labelFormat = GetLabelFormat(lineDistance);
+                    var childIndex = 1; // 0 for Path
+
+                    for (var lat = labelStart.Latitude; lat <= bounds.North; lat += lineDistance)
+                    {
+                        for (var lon = labelStart.Longitude; lon <= bounds.East; lon += lineDistance)
+                        {
+                            TextBlock label;
+
+                            if (childIndex < Children.Count)
                             {
-                                RenderTransform = renderTransform
-                            };
+                                label = (TextBlock)Children[childIndex];
+                            }
+                            else
+                            {
+                                var renderTransform = new TransformGroup();
+                                renderTransform.Children.Add(new TranslateTransform());
+                                renderTransform.Children.Add(ParentMap.RotateTransform);
+                                renderTransform.Children.Add(new TranslateTransform());
 
-                            label.SetBinding(TextBlock.ForegroundProperty,
-                                GetBindingExpression(ForegroundProperty)?.ParentBinding ??
-                                new Binding
+                                label = new TextBlock
                                 {
-                                    Source = this,
-                                    Path = new PropertyPath("Foreground")
-                                });
+                                    RenderTransform = renderTransform
+                                };
 
-                            Children.Add(label);
+                                label.SetBinding(TextBlock.ForegroundProperty,
+                                    GetBindingExpression(ForegroundProperty)?.ParentBinding ??
+                                    new Binding
+                                    {
+                                        Source = this,
+                                        Path = new PropertyPath("Foreground")
+                                    });
+
+                                Children.Add(label);
+                            }
+
+                            childIndex++;
+
+                            if (FontFamily != null)
+                            {
+                                label.FontFamily = FontFamily;
+                            }
+
+                            label.FontSize = FontSize;
+                            label.FontStyle = FontStyle;
+                            label.FontStretch = FontStretch;
+                            label.FontWeight = FontWeight;
+                            label.Text = GetLabelText(lat, labelFormat, "NS") + "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
+                            label.Tag = new Location(lat, lon);
+                            label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+                            var translateTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[0];
+                            translateTransform.X = StrokeThickness / 2d + 2d;
+                            translateTransform.Y = -label.DesiredSize.Height / 2d;
                         }
+                    }
 
-                        childIndex++;
-
-                        if (FontFamily != null)
-                        {
-                            label.FontFamily = FontFamily;
-                        }
-
-                        label.FontSize = FontSize;
-                        label.FontStyle = FontStyle;
-                        label.FontStretch = FontStretch;
-                        label.FontWeight = FontWeight;
-                        label.Text = GetLabelText(lat, labelFormat, "NS") + "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
-                        label.Tag = new Location(lat, lon);
-                        label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-                        var translateTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[0];
-                        translateTransform.X = StrokeThickness / 2d + 2d;
-                        translateTransform.Y = -label.DesiredSize.Height / 2d;
+                    while (Children.Count > childIndex)
+                    {
+                        Children.RemoveAt(Children.Count - 1);
                     }
                 }
 
-                while (Children.Count > childIndex)
+                // don't use MapPanel.Location because labels may be at more than 180° distance from map center
+
+                for (int i = 1; i < Children.Count; i++)
                 {
-                    Children.RemoveAt(Children.Count - 1);
+                    var label = (TextBlock)Children[i];
+                    var location = (Location)label.Tag;
+                    var viewportTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[2];
+                    var viewportPosition = projection.LocationToViewportPoint(location);
+                    viewportTransform.X = viewportPosition.X;
+                    viewportTransform.Y = viewportPosition.Y;
                 }
             }
-
-            // don't use MapPanel.Location because labels may be at more than 180° distance from map center
-
-            for (int i = 1; i < Children.Count; i++)
+            else if (path != null)
             {
-                var label = (TextBlock)Children[i];
-                var location = (Location)label.Tag;
-                var viewportTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[2];
-                var viewportPosition = ParentMap.LocationToViewportPoint(location);
-                viewportTransform.X = viewportPosition.X;
-                viewportTransform.Y = viewportPosition.Y;
+                path = null;
+                graticuleStart = null;
+                graticuleEnd = null;
+
+                Children.Clear();
             }
 
             base.OnViewportChanged(e);

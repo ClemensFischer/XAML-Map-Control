@@ -36,14 +36,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\AzimuthalEquidistantProjection.cs">
+      <Link>AzimuthalEquidistantProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\AzimuthalProjection.cs">
+      <Link>AzimuthalProjection.cs</Link>
+    </Compile>
     <Compile Include="..\BingMapsTileLayer.cs">
       <Link>BingMapsTileLayer.cs</Link>
     </Compile>
     <Compile Include="..\BingMapsTileSource.cs">
       <Link>BingMapsTileSource.cs</Link>
     </Compile>
+    <Compile Include="..\BoundingBox.cs">
+      <Link>BoundingBox.cs</Link>
+    </Compile>
+    <Compile Include="..\CenteredBoundingBox.cs">
+      <Link>CenteredBoundingBox.cs</Link>
+    </Compile>
+    <Compile Include="..\EquirectangularProjection.cs">
+      <Link>EquirectangularProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Extensions.WinRT.cs">
       <Link>Extensions.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\GnomonicProjection.cs">
+      <Link>GnomonicProjection.cs</Link>
     </Compile>
     <Compile Include="..\HyperlinkText.cs">
       <Link>HyperlinkText.cs</Link>
@@ -53,12 +71,6 @@
     </Compile>
     <Compile Include="..\ImageTileSource.Silverlight.WinRT.cs">
       <Link>ImageTileSource.Silverlight.WinRT.cs</Link>
-    </Compile>
-    <Compile Include="..\IMapElement.cs">
-      <Link>IMapElement.cs</Link>
-    </Compile>
-    <Compile Include="..\ITileImageLoader.cs">
-      <Link>ITileImageLoader.cs</Link>
     </Compile>
     <Compile Include="..\Location.cs">
       <Link>Location.cs</Link>
@@ -80,9 +92,6 @@
     </Compile>
     <Compile Include="..\MapGraticule.Silverlight.WinRT.cs">
       <Link>MapGraticule.Silverlight.WinRT.cs</Link>
-    </Compile>
-    <Compile Include="..\MapImage.cs">
-      <Link>MapImage.cs</Link>
     </Compile>
     <Compile Include="..\MapImageLayer.cs">
       <Link>MapImageLayer.cs</Link>
@@ -120,23 +129,26 @@
     <Compile Include="..\MapPolyline.Silverlight.WinRT.cs">
       <Link>MapPolyline.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\MapRectangle.cs">
-      <Link>MapRectangle.cs</Link>
+    <Compile Include="..\MapProjection.cs">
+      <Link>MapProjection.cs</Link>
     </Compile>
-    <Compile Include="..\MapTransform.cs">
-      <Link>MapTransform.cs</Link>
+    <Compile Include="..\MapTileLayer.cs">
+      <Link>MapTileLayer.cs</Link>
     </Compile>
-    <Compile Include="..\MatrixEx.cs">
-      <Link>MatrixEx.cs</Link>
+    <Compile Include="..\MapTileLayer.Silverlight.WinRT.cs">
+      <Link>MapTileLayer.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\MercatorTransform.cs">
-      <Link>MercatorTransform.cs</Link>
+    <Compile Include="..\MatrixEx.Silverlight.WinRT.cs">
+      <Link>MatrixEx.Silverlight.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\PanelBase.cs">
-      <Link>PanelBase.cs</Link>
+    <Compile Include="..\OrthographicProjection.cs">
+      <Link>OrthographicProjection.cs</Link>
     </Compile>
     <Compile Include="..\Pushpin.Silverlight.WinRT.cs">
       <Link>Pushpin.Silverlight.WinRT.cs</Link>
+    </Compile>
+    <Compile Include="..\StereographicProjection.cs">
+      <Link>StereographicProjection.cs</Link>
     </Compile>
     <Compile Include="..\Tile.cs">
       <Link>Tile.cs</Link>
@@ -150,26 +162,20 @@
     <Compile Include="..\TileImageLoader.WinRT.cs">
       <Link>TileImageLoader.WinRT.cs</Link>
     </Compile>
-    <Compile Include="..\TileLayer.cs">
-      <Link>TileLayer.cs</Link>
-    </Compile>
-    <Compile Include="..\TileLayer.Silverlight.WinRT.cs">
-      <Link>TileLayer.Silverlight.WinRT.cs</Link>
-    </Compile>
-    <Compile Include="..\TileLayerCollection.cs">
-      <Link>TileLayerCollection.cs</Link>
-    </Compile>
     <Compile Include="..\TileSource.cs">
       <Link>TileSource.cs</Link>
     </Compile>
     <Compile Include="..\ViewportChangedEventArgs.cs">
       <Link>ViewportChangedEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\WebMercatorProjection.cs">
+      <Link>WebMercatorProjection.cs</Link>
+    </Compile>
     <Compile Include="..\WmsImageLayer.cs">
       <Link>WmsImageLayer.cs</Link>
     </Compile>
-    <Compile Include="..\WmsImageLayer.WinRT.cs">
-      <Link>WmsImageLayer.WinRT.cs</Link>
+    <Compile Include="..\WmsLayers.WPF.WinRT.cs">
+      <Link>WmsLayers.WPF.WinRT.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

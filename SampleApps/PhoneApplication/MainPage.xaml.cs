@@ -1,5 +1,4 @@
 ﻿using System;
-using MapControl;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -14,8 +13,6 @@ namespace PhoneApplication
 
         public MainPage()
         {
-            //BingMapsTileLayer.ApiKey = "...";
-
             InitializeComponent();
 
             DataContext = new ViewModel(Dispatcher);
@@ -24,20 +21,17 @@ namespace PhoneApplication
 
         private void MapMenuItemClick(object sender, RoutedEventArgs e)
         {
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayer = tileLayers[(string)((FrameworkElement)sender).Tag];
+            ((ViewModel)DataContext).MapLayers.CurrentMapLayerName = ((MenuFlyoutItem)sender).Text;
         }
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayers.Add(tileLayers["Seamarks"]);
+            map.Children.Insert(map.Children.IndexOf(mapGraticule), ((ViewModel)DataContext).MapLayers.SeamarksLayer);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            var tileLayers = (TileLayerCollection)Resources["TileLayers"];
-            map.TileLayers.Remove(tileLayers["Seamarks"]);
+            map.Children.Remove(((ViewModel)DataContext).MapLayers.SeamarksLayer);
         }
 
         private void CenterButtonClick(object sender, RoutedEventArgs e)

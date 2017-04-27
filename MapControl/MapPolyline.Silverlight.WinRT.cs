@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Linq;
@@ -21,7 +21,7 @@ namespace MapControl
 
         public MapPolyline()
         {
-            Data = new PathGeometry { Transform = ViewportTransform };
+            Data = new PathGeometry();
         }
 
         protected override void UpdateData()
@@ -31,7 +31,7 @@ namespace MapControl
 
             if (ParentMap != null && Locations != null && Locations.Any())
             {
-                var points = Locations.Select(l => ParentMap.MapTransform.Transform(l));
+                var points = Locations.Select(l => ParentMap.MapProjection.LocationToPoint(l));
 
                 var figure = new PathFigure
                 {
@@ -49,6 +49,12 @@ namespace MapControl
 
                 figure.Segments.Add(segment);
                 geometry.Figures.Add(figure);
+
+                geometry.Transform = ViewportTransform;
+            }
+            else
+            {
+                geometry.Transform = null;
             }
         }
     }

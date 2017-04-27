@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -71,7 +71,7 @@ namespace MapControl
         private readonly ConcurrentQueue<PendingTile> pendingTiles = new ConcurrentQueue<PendingTile>();
         private int taskCount;
 
-        public void BeginLoadTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
+        public void BeginLoadTiles(MapTileLayer tileLayer, IEnumerable<Tile> tiles)
         {
             var tileSource = tileLayer.TileSource;
             var imageTileSource = tileSource as ImageTileSource;
@@ -127,7 +127,7 @@ namespace MapControl
             }
         }
 
-        public void CancelLoadTiles(TileLayer tileLayer)
+        public void CancelLoadTiles(MapTileLayer tileLayer)
         {
             PendingTile pendingTile;
 

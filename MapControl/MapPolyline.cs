@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
@@ -25,11 +25,11 @@ namespace MapControl
         // Binding fails on Windows Runtime when property type is IEnumerable<Location>
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(IEnumerable), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
 #else
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             "Locations", typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
 #endif
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
@@ -65,7 +65,7 @@ namespace MapControl
             set { SetValue(FillRuleProperty, value); }
         }
 
-        private void LocationsChanged(INotifyCollectionChanged oldCollection, INotifyCollectionChanged newCollection)
+        private void LocationsPropertyChanged(INotifyCollectionChanged oldCollection, INotifyCollectionChanged newCollection)
         {
             if (oldCollection != null)
             {

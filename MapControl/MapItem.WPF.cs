@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
@@ -14,12 +14,10 @@ namespace MapControl
     {
         static MapItem()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(
-                typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
         }
 
-        public static readonly DependencyProperty LocationProperty =
-            MapPanel.LocationProperty.AddOwner(typeof(MapItem));
+        public static readonly DependencyProperty LocationProperty = MapPanel.LocationProperty.AddOwner(typeof(MapItem));
 
         public Location Location
         {

@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -10,9 +10,9 @@ namespace MapControl
 {
     public partial class WmsImageLayer
     {
-        private static async Task<XmlDocument> LoadDocument(string requestUri)
+        private static async Task<XmlDocument> LoadDocument(Uri requestUri)
         {
-            return await XmlDocument.LoadFromUriAsync(new Uri(requestUri));
+            return await XmlDocument.LoadFromUriAsync(requestUri);
         }
     }
 }

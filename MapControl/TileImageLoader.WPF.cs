@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -78,7 +78,7 @@ namespace MapControl
         private readonly ConcurrentQueue<PendingTile> pendingTiles = new ConcurrentQueue<PendingTile>();
         private int taskCount;
 
-        public void BeginLoadTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
+        public void BeginLoadTiles(MapTileLayer tileLayer, IEnumerable<Tile> tiles)
         {
             if (tiles.Any())
             {
@@ -105,7 +105,7 @@ namespace MapControl
             }
         }
 
-        public void CancelLoadTiles(TileLayer tileLayer)
+        public void CancelLoadTiles(MapTileLayer tileLayer)
         {
             PendingTile pendingTile;
 
@@ -211,7 +211,7 @@ namespace MapControl
                 {
                     using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        image = ImageLoader.FromStream(fileStream);
+                        image = BitmapSourceHelper.FromStream(fileStream);
                     }
                 }
                 catch (Exception ex)
@@ -245,7 +245,7 @@ namespace MapControl
                         {
                             responseStream.CopyTo(memoryStream);
                             memoryStream.Seek(0, SeekOrigin.Begin);
-                            image = ImageLoader.FromStream(memoryStream);
+                            image = BitmapSourceHelper.FromStream(memoryStream);
 
                             if (cacheKey != null)
                             {
@@ -284,7 +284,7 @@ namespace MapControl
                 {
                     using (var memoryStream = new MemoryStream(buffer))
                     {
-                        image = ImageLoader.FromStream(memoryStream);
+                        image = BitmapSourceHelper.FromStream(memoryStream);
                     }
 
                     DateTime expiration = DateTime.MinValue;

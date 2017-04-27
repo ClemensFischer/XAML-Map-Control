@@ -6,66 +6,11 @@
     xmlns:local="using:PhoneApplication"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Page.Resources>
-        <map:TileLayerCollection x:Key="TileLayers">
-            <!--
-            TileLayers with OpenStreetMap data.
-            -->
-            <map:TileLayer SourceName="OpenStreetMap"
-                           Description="Maps © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           MaxZoomLevel="19">
-                <map:TileSource UriFormat="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-            <map:TileLayer SourceName="Thunderforest OpenCycleMap"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
-                <map:TileSource UriFormat="http://{c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-            <map:TileLayer SourceName="Thunderforest Landscape"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
-                <map:TileSource UriFormat="http://{c}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-            <map:TileLayer SourceName="Thunderforest Outdoors"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
-                <map:TileSource UriFormat="http://{c}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-            <map:TileLayer SourceName="Thunderforest Transport"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
-                <map:TileSource UriFormat="http://{c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-            <map:TileLayer SourceName="Thunderforest Transport Dark"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           Foreground="White" Background="Black">
-                <map:TileSource UriFormat="http://{c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-            <map:TileLayer SourceName="MapQuest OpenStreetMap"
-                           Description="Maps © [MapQuest](http://www.mapquest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)">
-                <map:TileSource UriFormat="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-            <map:TileLayer SourceName="Seamarks" Description="© OpenSeaMap Contributors"
-                           MinZoomLevel="10" MaxZoomLevel="18">
-                <map:TileSource UriFormat="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
-            </map:TileLayer>
-
-            <!--
-            Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
-            (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
-            A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
-            for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
-            -->
-            <map:BingMapsTileLayer SourceName="Bing Maps Road"
-                                   Description="Bing Maps - © Microsoft Corporation"
-                                   Mode="Road" MaxZoomLevel="19"/>
-            <map:BingMapsTileLayer SourceName="Bing Maps Aerial"
-                                   Description="Bing Maps - © Microsoft Corporation"
-                                   Mode="Aerial" MaxZoomLevel="19" Foreground="White" Background="Black"/>
-            <map:BingMapsTileLayer SourceName="Bing Maps Hybrid"
-                                   Description="Bing Maps - © Microsoft Corporation"
-                                   Mode="AerialWithLabels" MaxZoomLevel="19" Foreground="White" Background="Black"/>
-        </map:TileLayerCollection>
         <local:ObjectReferenceConverter x:Key="ObjectReferenceConverter"/>
     </Page.Resources>
     <Grid>
         <map:MapBase x:Name="map" ZoomLevel="11" MinZoomLevel="2"
-                     TileLayer="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}"
+                     MapLayer="{Binding MapLayers.CurrentMapLayer}"
                      ManipulationMode="Scale,TranslateX,TranslateY,TranslateInertia"
                      ManipulationStarted="MapManipulationStarted"
                      ManipulationDelta="MapManipulationDelta">
@@ -73,7 +18,7 @@
                 <map:Location Latitude="53.5" Longitude="8.2"/>
             </map:MapBase.Center>
 
-            <map:MapGraticule Opacity="0.6"/>
+            <map:MapGraticule x:Name="mapGraticule" Opacity="0.6"/>
 
             <Canvas map:MapPanel.Location="{Binding Location}"
                     Visibility="{Binding Location, Converter={StaticResource ObjectReferenceConverter}}">
@@ -118,16 +63,16 @@
                 </AppBarButton.Icon>
                 <AppBarButton.Flyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem Text="OpenStreetMap" Tag="OpenStreetMap" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="OpenCycleMap" Tag="Thunderforest OpenCycleMap" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="Landscape" Tag="Thunderforest Landscape" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="Outdoors" Tag="Thunderforest Outdoors" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="Transport" Tag="Thunderforest Transport" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="Transport Dark" Tag="Thunderforest Transport Dark" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="MapQuest Open" Tag="MapQuest OpenStreetMap" Click="MapMenuItemClick"/>
-                        <!--<MenuFlyoutItem Text="Bing Maps Road" Tag="Bing Maps Road" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="Bing Maps Aerial" Tag="Bing Maps Aerial" Click="MapMenuItemClick"/>
-                        <MenuFlyoutItem Text="Bing Maps Hybrid" Tag="Bing Maps Hybrid" Click="MapMenuItemClick"/>-->
+                        <MenuFlyoutItem Text="OpenStreetMap" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="OpenStreetMap German Style" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="Thunderforest OpenCycleMap" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="Thunderforest Landscape" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="Thunderforest Outdoors" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="Thunderforest Transport" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="Thunderforest Transport Dark" Click="MapMenuItemClick"/>
+                        <!--<MenuFlyoutItem Text="Bing Maps Road" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="Bing Maps Aerial" Click="MapMenuItemClick"/>
+                        <MenuFlyoutItem Text="Bing Maps Aerial with Labels" Click="MapMenuItemClick"/>-->
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>

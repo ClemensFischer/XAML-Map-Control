@@ -1,13 +1,15 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
 #if NETFX_CORE
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 #endif
 
@@ -15,7 +17,7 @@ namespace MapControl
 {
     public partial class MapImageLayer
     {
-        protected virtual void UpdateImage(Uri uri)
+        protected void UpdateImage(Uri uri)
         {
             UpdateImage(new BitmapImage(uri));
         }
@@ -52,9 +54,7 @@ namespace MapControl
             bitmap.ImageOpened -= BitmapImageOpened;
             bitmap.ImageFailed -= BitmapImageFailed;
 
-            var mapImage = (MapImage)Children[currentImageIndex];
-            mapImage.Source = null;
-
+            ((Image)Children[topImageIndex]).Source = null;
             SwapImages();
         }
     }

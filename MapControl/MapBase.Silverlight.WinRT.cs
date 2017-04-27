@@ -1,9 +1,7 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
-using System.Linq;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI;
@@ -48,7 +46,7 @@ namespace MapControl
 
         partial void Initialize()
         {
-            // set Background by Style to enable resetting by ClearValue in RemoveTileLayers
+            // set Background by Style to enable resetting by ClearValue in MapLayerPropertyChanged
             var style = new Style(typeof(MapBase));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             Style = style;
@@ -62,28 +60,10 @@ namespace MapControl
                 {
                     clip.Rect = new Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height);
 
-                    ResetTransformOrigin();
+                    ResetTransformCenter();
                     UpdateTransform();
                 }
             };
-        }
-
-        private void SetViewportTransform(Location origin)
-        {
-            MapOrigin = mapTransform.Transform(origin);
-            ViewportScale = Math.Pow(2d, ZoomLevel) * TileSource.TileSize / 360d;
-
-            var transform = new Matrix(1d, 0d, 0d, 1d, -MapOrigin.X, -MapOrigin.Y)
-                .Rotate(-Heading)
-                .Scale(ViewportScale, -ViewportScale)
-                .Translate(ViewportOrigin.X, ViewportOrigin.Y);
-
-            viewportTransform.Matrix = transform;
-        }
-
-        private void SetTileLayer(TileLayer tileLayer)
-        {
-            TileLayer = tileLayer;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
@@ -14,8 +14,7 @@ namespace MapControl
     {
         static Pushpin()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(
-                typeof(Pushpin), new FrameworkPropertyMetadata(typeof(Pushpin)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(Pushpin), new FrameworkPropertyMetadata(typeof(Pushpin)));
         }
 
         public static readonly DependencyProperty LocationProperty =

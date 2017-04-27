@@ -1,8 +1,7 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 #if NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -23,10 +22,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
             "Location", typeof(Location), typeof(MapPath),
-            new PropertyMetadata(null, (o, e) => ((MapPath)o).LocationChanged((Location)e.OldValue, (Location)e.NewValue)));
-
-        private readonly TransformGroup viewportTransform = new TransformGroup();
-        private MapBase parentMap;
+            new PropertyMetadata(null, (o, e) => ((MapPath)o).LocationPropertyChanged()));
 
         public Location Location
         {
@@ -34,86 +30,88 @@ namespace MapControl
             set { SetValue(LocationProperty, value); }
         }
 
-        public TransformGroup ViewportTransform
-        {
-            get { return viewportTransform; }
-        }
+        private MapBase parentMap;
 
         public MapBase ParentMap
         {
             get { return parentMap; }
             set
             {
-                if (parentMap != null && Location != null)
+                if (parentMap != null)
                 {
-                    DetachViewportChanged();
+                    parentMap.ViewportChanged -= OnViewportChanged;
                 }
 
-                viewportTransform.Children.Clear();
+                ViewportTransform.Children.Clear();
                 parentMap = value;
 
                 if (parentMap != null)
                 {
-                    viewportTransform.Children.Add(parentMap.ViewportTransform);
-
-                    if (Location != null)
-                    {
-                        AttachViewportChanged();
-                    }
+                    ViewportTransform.Children.Add(new TranslateTransform());
+                    ViewportTransform.Children.Add(parentMap.MapProjection.ViewportTransform);
+                    parentMap.ViewportChanged += OnViewportChanged;
                 }
 
                 UpdateData();
             }
         }
 
+        protected TransformGroup ViewportTransform { get; } = new TransformGroup();
+
         protected virtual void UpdateData()
         {
             if (Data != null)
             {
-                Data.Transform = viewportTransform;
+                Data.Transform = ViewportTransform;
             }
         }
 
-        private void LocationChanged(Location oldValue, Location newValue)
+        protected virtual void OnViewportChanged(ViewportChangedEventArgs e)
+        {
+            double longitudeScale = parentMap.MapProjection.LongitudeScale;
+
+            if (e.ProjectionChanged)
+            {
+                ViewportTransform.Children[1] = parentMap.MapProjection.ViewportTransform;
+            }
+
+            if (e.ProjectionChanged || double.IsNaN(longitudeScale))
+            {
+                UpdateData();
+            }
+
+            if (!double.IsNaN(longitudeScale)) // a normal cylindrical projection
+            {
+                var longitudeOffset = 0d;
+
+                if (Location != null)
+                {
+                    var viewportPosition = parentMap.MapProjection.LocationToViewportPoint(Location);
+
+                    if (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
+                        viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height)
+                    {
+                        var nearestLongitude = Location.NearestLongitude(Location.Longitude, parentMap.Center.Longitude);
+
+                        longitudeOffset = longitudeScale * (nearestLongitude - Location.Longitude);
+                    }
+                }
+
+                ((TranslateTransform)ViewportTransform.Children[0]).X = longitudeOffset;
+            }
+        }
+
+        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
+        {
+            OnViewportChanged(e);
+        }
+
+        private void LocationPropertyChanged()
         {
             if (parentMap != null)
             {
-                if (oldValue == null)
-                {
-                    AttachViewportChanged();
-                }
-                else if (newValue == null)
-                {
-                    DetachViewportChanged();
-                }
+                OnViewportChanged(new ViewportChangedEventArgs());
             }
-        }
-
-        private void AttachViewportChanged()
-        {
-            viewportTransform.Children.Insert(0, new TranslateTransform());
-            parentMap.ViewportChanged += OnViewportChanged;
-            OnViewportChanged(parentMap, null);
-        }
-
-        private void DetachViewportChanged()
-        {
-            parentMap.ViewportChanged -= OnViewportChanged;
-            viewportTransform.Children.RemoveAt(0);
-        }
-
-        private void OnViewportChanged(object sender, EventArgs e)
-        {
-            var viewportPosition = parentMap.LocationToViewportPoint(Location);
-            var longitudeOffset = 0d;
-
-            if (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
-                viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height)
-            {
-                longitudeOffset = Location.NearestLongitude(Location.Longitude, parentMap.Center.Longitude) - Location.Longitude;
-            }
-
-            ((TranslateTransform)viewportTransform.Children[0]).X = longitudeOffset;
         }
     }
 }

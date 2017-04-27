@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -13,12 +13,7 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public static TimeSpan FadeDuration { get; set; }
-
-        static Tile()
-        {
-            FadeDuration = TimeSpan.FromSeconds(0.2);
-        }
+        public static TimeSpan FadeDuration { get; set; } = TimeSpan.FromSeconds(0.2);
 
         public readonly int ZoomLevel;
         public readonly int X;

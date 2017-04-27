@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using MapControl;
+using ViewModel;
 
 namespace WpfApplication
 {
@@ -10,9 +11,8 @@ namespace WpfApplication
     {
         public MainWindow()
         {
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
+            TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheName, TileImageLoader.DefaultCacheFolder);
-            //BingMapsTileLayer.ApiKey = "...";
 
             InitializeComponent();
         }
@@ -21,8 +21,9 @@ namespace WpfApplication
         {
             if (e.ClickCount == 2)
             {
-                map.ZoomMap(e.GetPosition(map), Math.Floor(map.ZoomLevel + 1.5));
+                //map.ZoomMap(e.GetPosition(map), Math.Floor(map.ZoomLevel + 1.5));
                 //map.TargetCenter = map.ViewportPointToLocation(e.GetPosition(map));
+                map.ZoomToBounds(new BoundingBox(53, 7, 54, 9));
             }
         }
 
@@ -56,8 +57,8 @@ namespace WpfApplication
 
             mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
                 "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
-                latHemisphere, latitude / 60000, (double)(latitude % 60000) / 1000d,
-                lonHemisphere, longitude / 60000, (double)(longitude % 60000) / 1000d);
+                latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
+                lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
         }
 
         private void MapMouseLeave(object sender, MouseEventArgs e)
@@ -79,12 +80,12 @@ namespace WpfApplication
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add((TileLayer)Resources["Seamarks"]);
+            map.Children.Insert(map.Children.IndexOf(mapGraticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove((TileLayer)Resources["Seamarks"]);
+            map.Children.Remove(((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
     }
 }

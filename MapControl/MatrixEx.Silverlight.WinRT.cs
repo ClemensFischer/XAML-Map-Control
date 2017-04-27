@@ -1,11 +1,13 @@
 ﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
 #if NETFX_CORE
+using Windows.Foundation;
 using Windows.UI.Xaml.Media;
 #else
+using System.Windows;
 using System.Windows.Media;
 #endif
 
@@ -13,25 +15,43 @@ namespace MapControl
 {
     internal static class MatrixEx
     {
-        public static Matrix Translate(this Matrix matrix, double offsetX, double offsetY)
+        /// <summary>
+        /// Used in MapProjection.
+        /// </summary>
+        public static Matrix TranslateScaleRotateTranslate(
+            Point translation1, double scaleX, double scaleY, double rotationAngle, Point translation2)
+        {
+            return new Matrix(1d, 0d, 0d, 1d, -translation1.X, -translation1.Y)
+                .Scale(scaleX, scaleY)
+                .Rotate(rotationAngle)
+                .Translate(translation2.X, translation2.Y);
+        }
+
+        /// <summary>
+        /// Used in TileLayer.
+        /// </summary>
+        public static Matrix TranslateScaleRotateTranslate(
+            Point translation1, double scale, double rotationAngle, Point translation2)
+        {
+            return new Matrix(1d, 0d, 0d, 1d, -translation1.X, -translation1.Y)
+                .Scale(scale, scale)
+                .Rotate(rotationAngle)
+                .Translate(translation2.X, translation2.Y);
+        }
+
+        private static Matrix Translate(this Matrix matrix, double offsetX, double offsetY)
         {
             matrix.OffsetX += offsetX;
             matrix.OffsetY += offsetY;
-
             return matrix;
         }
 
-        public static Matrix TranslatePrepend(this Matrix matrix, double offsetX, double offsetY)
-        {
-            return new Matrix(1d, 0d, 0d, 1d, offsetX, offsetY).Multiply(matrix);
-        }
-
-        public static Matrix Scale(this Matrix matrix, double scaleX, double scaleY)
+        private static Matrix Scale(this Matrix matrix, double scaleX, double scaleY)
         {
             return Multiply(matrix, new Matrix(scaleX, 0d, 0d, scaleY, 0d, 0d));
         }
 
-        public static Matrix Rotate(this Matrix matrix, double angle)
+        private static Matrix Rotate(this Matrix matrix, double angle)
         {
             if (angle == 0d)
             {
@@ -45,23 +65,7 @@ namespace MapControl
             return Multiply(matrix, new Matrix(cos, sin, -sin, cos, 0d, 0d));
         }
 
-        public static Matrix RotateAt(this Matrix matrix, double angle, double centerX, double centerY)
-        {
-            if (angle == 0d)
-            {
-                return matrix;
-            }
-
-            angle = (angle % 360d) / 180d * Math.PI;
-            var cos = Math.Cos(angle);
-            var sin = Math.Sin(angle);
-            var offsetX = centerX * (1d - cos) + centerY * sin;
-            var offsetY = centerY * (1d - cos) - centerX * sin;
-
-            return Multiply(matrix, new Matrix(cos, sin, -sin, cos, offsetX, offsetY));
-        }
-
-        public static Matrix Invert(this Matrix matrix)
+        private static Matrix Invert(this Matrix matrix)
         {
             var determinant = matrix.M11 * matrix.M22 - matrix.M12 * matrix.M21;
 
@@ -74,7 +78,7 @@ namespace MapControl
                 (matrix.M12 * matrix.OffsetX - matrix.M11 * matrix.OffsetY) / determinant);
         }
 
-        public static Matrix Multiply(this Matrix matrix1, Matrix matrix2)
+        private static Matrix Multiply(this Matrix matrix1, Matrix matrix2)
         {
             return new Matrix(
                 matrix1.M11 * matrix2.M11 + matrix1.M12 * matrix2.M21,

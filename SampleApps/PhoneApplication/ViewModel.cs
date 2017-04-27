@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using MapControl;
+using ViewModel;
 using Windows.Devices.Geolocation;
 using Windows.UI.Core;
 
@@ -14,6 +15,8 @@ namespace PhoneApplication
         private Location location;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public MapLayers MapLayers { get; } = new MapLayers();
 
         public ViewModel(CoreDispatcher dispatcher)
         {
@@ -35,7 +38,7 @@ namespace PhoneApplication
             private set
             {
                 accuracy = value;
-                RaisePropertyChanged("Accuracy");
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Accuracy)));
             }
         }
 
@@ -45,13 +48,8 @@ namespace PhoneApplication
             private set
             {
                 location = value;
-                RaisePropertyChanged("Location");
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Location)));
             }
-        }
-
-        private void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async void GeoLocatorStatusChanged(Geolocator sender, StatusChangedEventArgs args)

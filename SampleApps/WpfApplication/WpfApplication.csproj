@@ -52,8 +52,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="..\Common\ViewModel.cs">
-      <Link>ViewModel.cs</Link>
+    <Compile Include="..\Common\MapLayers.cs">
+      <Link>MapLayers.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\MapViewModel.cs">
+      <Link>MapViewModel.cs</Link>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
