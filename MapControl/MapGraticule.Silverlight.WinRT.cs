@@ -1,4 +1,4 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
 // © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
