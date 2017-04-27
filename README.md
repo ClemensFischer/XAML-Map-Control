@@ -1,10 +1,13 @@
-A set of controls for WPF, Silverlight and Windows Runtime for rendering digital maps from different providers and various types of map overlays.
+**A set of controls for WPF, Silverlight and Windows Runtime for rendering digital maps from different providers and various types of map overlays.**
 
 Map providers can easily be added by specifying an URL template for their map tile bitmaps. 
 Map overlay layers allow to draw and interact with graphical objects and pushpins on the map.
  The Map Control API is very similar to that of the Microsoft Bing Maps Control for WPF, except that no API key is needed.
 
 The project includes sample applications for WPF, Silverlight and Windows Runtime, which demonstrate the features of XAML Map Control.
+
+**Version 3.0** now adds support for multiple map projections. However, the MapTileLayer class only works with WebMercatorProjection.
+For other projections, an appropriate WmsImageLayer could be used. 
 
 The WPF version allows to use a System.Runtime.Caching.ObjectCache instance for caching map tile bitmaps.
 The cache may be set to an instance of System.Runtime.Caching.MemoryCache (e.g. MemoryCache.Default),
