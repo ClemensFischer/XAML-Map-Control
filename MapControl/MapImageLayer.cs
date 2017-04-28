@@ -290,7 +290,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Creates an image request Uri or a BitmapSource from the specified image bounding box.
+        /// Creates an image request Uri or a BitmapSource for the specified image bounding box.
         /// Must either call UpdateImage(Uri) or UpdateImage(BitmapSource) or return false on failure.
         /// </summary>
         protected abstract bool UpdateImage(BoundingBox boundingBox);

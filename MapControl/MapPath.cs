@@ -30,6 +30,7 @@ namespace MapControl
             set { SetValue(LocationProperty, value); }
         }
 
+        private readonly TransformGroup viewportTransform = new TransformGroup();
         private MapBase parentMap;
 
         public MapBase ParentMap
@@ -42,13 +43,13 @@ namespace MapControl
                     parentMap.ViewportChanged -= OnViewportChanged;
                 }
 
-                ViewportTransform.Children.Clear();
+                viewportTransform.Children.Clear();
                 parentMap = value;
 
                 if (parentMap != null)
                 {
-                    ViewportTransform.Children.Add(new TranslateTransform());
-                    ViewportTransform.Children.Add(parentMap.MapProjection.ViewportTransform);
+                    viewportTransform.Children.Add(new TranslateTransform());
+                    viewportTransform.Children.Add(parentMap.MapProjection.ViewportTransform);
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
@@ -56,14 +57,8 @@ namespace MapControl
             }
         }
 
-        protected TransformGroup ViewportTransform { get; } = new TransformGroup();
-
         protected virtual void UpdateData()
         {
-            if (Data != null)
-            {
-                Data.Transform = ViewportTransform;
-            }
         }
 
         protected virtual void OnViewportChanged(ViewportChangedEventArgs e)
@@ -72,7 +67,7 @@ namespace MapControl
 
             if (e.ProjectionChanged)
             {
-                ViewportTransform.Children[1] = parentMap.MapProjection.ViewportTransform;
+                viewportTransform.Children[1] = parentMap.MapProjection.ViewportTransform;
             }
 
             if (e.ProjectionChanged || double.IsNaN(longitudeScale))
@@ -97,7 +92,7 @@ namespace MapControl
                     }
                 }
 
-                ((TranslateTransform)ViewportTransform.Children[0]).X = longitudeOffset;
+                ((TranslateTransform)viewportTransform.Children[0]).X = longitudeOffset;
             }
         }
 

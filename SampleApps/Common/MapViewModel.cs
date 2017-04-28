@@ -1,13 +1,6 @@
 ﻿using MapControl;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-#if NETFX_CORE
-using Windows.UI.Xaml;
-#else
-using System.Windows.Threading;
-#endif
 
 namespace ViewModel
 {
@@ -102,11 +95,6 @@ namespace ViewModel
                 Name = "Buhne 10",
                 Location = new Location(53.49350, 8.15563)
             });
-            Points.Add(new PointItem
-            {
-                Name = "Moving",
-                Location = new Location(53.5, 8.25)
-            });
 
             Pushpins.Add(new PointItem
             {
@@ -137,25 +125,6 @@ namespace ViewModel
             {
                 Locations = LocationCollection.Parse("53.5978,8.1212 53.6018,8.1494 53.5859,8.1554 53.5852,8.1531 53.5841,8.1539 53.5802,8.1392 53.5826,8.1309 53.5867,8.1317 53.5978,8.1212")
             });
-
-            var timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(0.1)
-            };
-
-            timer.Tick += (s, e) =>
-            {
-                var p = Points.Last();
-                p.Location = new Location(p.Location.Latitude + 0.001, p.Location.Longitude + 0.002);
-
-                if (p.Location.Latitude > 54d)
-                {
-                    p.Name = "Stopped";
-                    ((DispatcherTimer)s).Stop();
-                }
-            };
-
-            timer.Start();
         }
     }
 }

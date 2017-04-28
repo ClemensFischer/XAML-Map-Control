@@ -10,7 +10,7 @@ using System.Linq;
 namespace MapControl
 {
     /// <summary>
-    /// A collection of geographic locations.
+    /// An ObservableCollection of Location with support for parsing.
     /// </summary>
     public partial class LocationCollection : ObservableCollection<Location>
     {

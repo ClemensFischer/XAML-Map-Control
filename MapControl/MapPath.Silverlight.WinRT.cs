@@ -33,8 +33,17 @@ namespace MapControl
             // Workaround for missing PropertyChangedCallback for the Data property.
             if (data != Data)
             {
+                if (data != null)
+                {
+                    data.ClearValue(Geometry.TransformProperty);
+                }
+
                 data = Data;
-                UpdateData();
+
+                if (data != null)
+                {
+                    data.Transform = viewportTransform;
+                }
             }
 
             // Path.MeasureOverride in Windows Runtime sometimes returns an empty Size,

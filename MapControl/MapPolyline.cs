@@ -16,21 +16,22 @@ using System.Windows.Media;
 
 namespace MapControl
 {
+#if NETFX_CORE
+    // Binding MapPolyline.Locations fails on Windows Runtime when the property type is IEnumerable<Location>
+    using LocationsPropertyType = IEnumerable;
+#else
+    using LocationsPropertyType = IEnumerable<Location>;
+#endif
+
     /// <summary>
     /// A polyline or polygon created from a collection of Locations.
     /// </summary>
     public partial class MapPolyline : MapPath
     {
-#if NETFX_CORE
-        // Binding fails on Windows Runtime when property type is IEnumerable<Location>
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            "Locations", typeof(IEnumerable), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
-#else
-        public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            "Locations", typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
-#endif
+            "Locations", typeof(LocationsPropertyType), typeof(MapPolyline),
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e)));
+
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
             "IsClosed", typeof(bool), typeof(MapPolyline),
             new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateData()));
@@ -65,8 +66,11 @@ namespace MapControl
             set { SetValue(FillRuleProperty, value); }
         }
 
-        private void LocationsPropertyChanged(INotifyCollectionChanged oldCollection, INotifyCollectionChanged newCollection)
+        private void LocationsPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
+            var oldCollection = e.OldValue as INotifyCollectionChanged;
+            var newCollection = e.NewValue as INotifyCollectionChanged;
+
             if (oldCollection != null)
             {
                 oldCollection.CollectionChanged -= LocationCollectionChanged;

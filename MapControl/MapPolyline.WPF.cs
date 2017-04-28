@@ -32,13 +32,10 @@ namespace MapControl
                     context.BeginFigure(points.First(), IsClosed, IsClosed);
                     context.PolyLineTo(points.Skip(1).ToList(), true, false);
                 }
-
-                geometry.Transform = ViewportTransform;
             }
             else
             {
                 geometry.Clear();
-                geometry.Transform = null;
             }
         }
     }

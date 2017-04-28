@@ -49,12 +49,6 @@ namespace MapControl
 
                 figure.Segments.Add(segment);
                 geometry.Figures.Add(figure);
-
-                geometry.Transform = ViewportTransform;
-            }
-            else
-            {
-                geometry.Transform = null;
             }
         }
     }

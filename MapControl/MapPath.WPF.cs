@@ -41,13 +41,24 @@ namespace MapControl
         {
             if (!ReferenceEquals(e.OldValue, e.NewValue))
             {
-                ((MapPath)obj).UpdateData();
+                var mapPath = (MapPath)obj;
+
+                if (e.OldValue != null)
+                {
+                    ((Geometry)e.OldValue).ClearValue(Geometry.TransformProperty);
+                }
+
+                if (e.NewValue != null)
+                {
+                    ((Geometry)e.NewValue).Transform = mapPath.viewportTransform;
+                }
             }
         }
 
         private static object CoerceDataProperty(DependencyObject obj, object value)
         {
             var data = (Geometry)value;
+
             return (data != null && data.IsFrozen) ? data.CloneCurrentValue() : data;
         }
     }
