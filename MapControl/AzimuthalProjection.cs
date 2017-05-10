@@ -17,12 +17,13 @@ namespace MapControl
     /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
-        protected Location centerLocation = new Location();
-        protected double centerRadius = Wgs84EquatorialRadius;
+        protected Location projectionCenter = new Location();
 
-        public override bool IsAzimuthal { get; } = true;
-
-        public override double LongitudeScale { get; } = double.NaN;
+        public AzimuthalProjection()
+        {
+            IsAzimuthal = true;
+            LongitudeScale = double.NaN;
+        }
 
         public override double GetViewportScale(double zoomLevel)
         {
@@ -48,16 +49,16 @@ namespace MapControl
         {
             var cbbox = boundingBox as CenteredBoundingBox;
 
-            if (cbbox == null)
+            if (cbbox != null)
             {
-                return base.BoundingBoxToRect(boundingBox);
+                var center = LocationToPoint(cbbox.Center);
+
+                return new Rect(
+                     center.X - cbbox.Width / 2d, center.Y - cbbox.Height / 2d,
+                     cbbox.Width, cbbox.Height);
             }
 
-            var center = LocationToPoint(cbbox.Center);
-
-            return new Rect(
-                 center.X - cbbox.Width / 2d, center.Y - cbbox.Height / 2d,
-                 cbbox.Width, cbbox.Height);
+            return base.BoundingBoxToRect(boundingBox);
         }
 
         public override BoundingBox RectToBoundingBox(Rect rect)
@@ -67,18 +68,20 @@ namespace MapControl
             return new CenteredBoundingBox(center, rect.Width, rect.Height); // width and height in meters
         }
 
-        public override void SetViewportTransform(Location center, Point viewportCenter, double zoomLevel, double heading)
+        public override void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
         {
-            centerLocation = center;
-            centerRadius = GeocentricRadius(center);
-            ViewportScale = GetViewportScale(zoomLevel);
+            this.projectionCenter = projectionCenter;
 
-            ViewportTransform.Matrix = MatrixEx.TranslateScaleRotateTranslate(
-                new Point(), ViewportScale, -ViewportScale, heading, viewportCenter);
+            base.SetViewportTransform(projectionCenter, mapCenter, viewportCenter, zoomLevel, heading);
         }
 
         public override string WmsQueryParameters(BoundingBox boundingBox, string version)
         {
+            if (string.IsNullOrEmpty(CrsId))
+            {
+                return null;
+            }
+
             var rect = BoundingBoxToRect(boundingBox);
             var width = (int)Math.Round(ViewportScale * rect.Width);
             var height = (int)Math.Round(ViewportScale * rect.Height);
@@ -86,25 +89,8 @@ namespace MapControl
 
             return string.Format(CultureInfo.InvariantCulture,
                 "{0}={1},1,{2},{3}&BBOX={4},{5},{6},{7}&WIDTH={8}&HEIGHT={9}",
-                crs, CrsId, centerLocation.Longitude, centerLocation.Latitude,
+                crs, CrsId, projectionCenter.Longitude, projectionCenter.Latitude,
                 rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);
-        }
-
-        /// <summary>
-        /// Calculates the geocentric earth radius at the specified location,
-        /// based on the specified ellipsoid equatorial radius and flattening values.
-        /// </summary>
-        public static double GeocentricRadius(Location location,
-            double equatorialRadius = Wgs84EquatorialRadius, double flattening = Wgs84Flattening)
-        {
-            var a = equatorialRadius;
-            var b = a * (1d - flattening);
-            var aCosLat = a * Math.Cos(location.Latitude * Math.PI / 180);
-            var bSinLat = b * Math.Sin(location.Latitude * Math.PI / 180);
-            var aCosLat2 = aCosLat * aCosLat;
-            var bSinLat2 = bSinLat * bSinLat;
-
-            return Math.Sqrt((a * a * aCosLat2 + b * b * bSinLat2) / (aCosLat2 + bSinLat2));
         }
 
         /// <summary>

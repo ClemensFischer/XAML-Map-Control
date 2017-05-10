@@ -16,16 +16,29 @@ namespace MapControl
     /// </summary>
     public class GnomonicProjection : AzimuthalProjection
     {
-        public override string CrsId { get; set; } = "AUTO2:97001";
+        public GnomonicProjection()
+            : this("AUTO2:97001") // GeoServer non-standard CRS ID
+        {
+        }
+
+        public GnomonicProjection(string crsId)
+        {
+            CrsId = crsId;
+        }
 
         public override Point LocationToPoint(Location location)
         {
+            if (location.Equals(projectionCenter))
+            {
+                return new Point();
+            }
+
             double azimuth, distance;
 
-            GetAzimuthDistance(centerLocation, location, out azimuth, out distance);
+            GetAzimuthDistance(projectionCenter, location, out azimuth, out distance);
 
             var mapDistance = distance < Math.PI / 2d
-                ? centerRadius * Math.Tan(distance)
+                ? Wgs84EquatorialRadius * Math.Tan(distance)
                 : double.PositiveInfinity;
 
             return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
@@ -35,14 +48,14 @@ namespace MapControl
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return centerLocation;
+                return projectionCenter;
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);
             var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
-            var distance = Math.Atan(mapDistance / centerRadius);
+            var distance = Math.Atan(mapDistance / Wgs84EquatorialRadius);
 
-            return GetLocation(centerLocation, azimuth, distance);
+            return GetLocation(projectionCenter, azimuth, distance);
         }
     }
 }

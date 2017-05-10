@@ -109,7 +109,6 @@
 
         <map:WebMercatorProjection x:Key="WebMercatorProjection"/>
         <map:EquirectangularProjection x:Key="EquirectangularProjection"/>
-        <map:AzimuthalEquidistantProjection x:Key="AzimuthalEquidistantProjection"/>
         <map:OrthographicProjection x:Key="OrthographicProjection"/>
         <map:GnomonicProjection x:Key="GnomonicProjection"/>
         <map:StereographicProjection x:Key="StereographicProjection"/>
@@ -210,11 +209,10 @@
                 <ComboBox ToolTip="Map Layer" Width="200" Margin="5" VerticalAlignment="Bottom"
                           ItemsSource="{Binding MapLayers.MapLayerNames}"
                           SelectedItem="{Binding MapLayers.CurrentMapLayerName}"/>
-                <ComboBox x:Name="projectionComboBox" ToolTip="Map Projection" Width="150" Margin="5" VerticalAlignment="Bottom"
+                <ComboBox x:Name="projectionComboBox" ToolTip="Map Projection" Width="120" Margin="5" VerticalAlignment="Bottom"
                           SelectedValuePath="Tag" SelectedIndex="0">
                     <ComboBoxItem Content="Web Mercator" Tag="{StaticResource WebMercatorProjection}"/>
                     <ComboBoxItem Content="Equirectangular" Tag="{StaticResource EquirectangularProjection}"/>
-                    <ComboBoxItem Content="Azimuthal Equidistant" Tag="{StaticResource AzimuthalEquidistantProjection}"/>
                     <ComboBoxItem Content="Orthographic" Tag="{StaticResource OrthographicProjection}"/>
                     <ComboBoxItem Content="Gnomonic" Tag="{StaticResource GnomonicProjection}"/>
                     <ComboBoxItem Content="Stereographic" Tag="{StaticResource StereographicProjection}"/>

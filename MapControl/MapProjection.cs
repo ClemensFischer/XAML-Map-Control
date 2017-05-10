@@ -21,45 +21,43 @@ namespace MapControl
     public abstract partial class MapProjection
     {
         public const double Wgs84EquatorialRadius = 6378137d;
-        public const double Wgs84Flattening = 1d / 298.257223563;
-
         public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
         /// <summary>
         /// Gets or sets the WMS 1.3.0 CRS Identifier.
         /// </summary>
-        public abstract string CrsId { get; set; }
+        public string CrsId { get; set; }
 
         /// <summary>
         /// Indicates if this is a web mercator projection, i.e. compatible with map tile layers.
         /// </summary>
-        public virtual bool IsWebMercator { get; } = false;
+        public bool IsWebMercator { get; protected set; } = false;
 
         /// <summary>
         /// Indicates if this is an azimuthal projection.
         /// </summary>
-        public virtual bool IsAzimuthal { get; } = false;
+        public bool IsAzimuthal { get; protected set; } = false;
 
         /// <summary>
         /// Gets the scale factor from longitude to x values of a normal cylindrical projection.
         /// Returns NaN if this is not a normal cylindrical projection.
         /// </summary>
-        public virtual double LongitudeScale { get; } = 1d;
+        public double LongitudeScale { get; protected set; } = 1d;
 
         /// <summary>
         /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
         /// </summary>
-        public virtual double MaxLatitude { get; } = 90d;
-
-        /// <summary>
-        /// Gets the transformation from cartesian map coordinates to viewport coordinates (pixels).
-        /// </summary>
-        public MatrixTransform ViewportTransform { get; } = new MatrixTransform();
+        public double MaxLatitude { get; protected set; } = 90d;
 
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
         /// </summary>
         public double ViewportScale { get; protected set; }
+
+        /// <summary>
+        /// Gets the transformation from cartesian map coordinates to viewport coordinates (pixels).
+        /// </summary>
+        public MatrixTransform ViewportTransform { get; } = new MatrixTransform();
 
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to viewport coordinates for the specified zoom level.
@@ -135,14 +133,14 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets MapCenter, ViewportCenter, ViewportScale and ViewportTransform values.
+        /// Sets ViewportScale and ViewportTransform values.
         /// </summary>
-        public virtual void SetViewportTransform(Location center, Point viewportCenter, double zoomLevel, double heading)
+        public virtual void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
         {
             ViewportScale = GetViewportScale(zoomLevel);
 
             ViewportTransform.Matrix = MatrixEx.TranslateScaleRotateTranslate(
-                LocationToPoint(center), ViewportScale, -ViewportScale, heading, viewportCenter);
+                LocationToPoint(mapCenter), ViewportScale, -ViewportScale, heading, viewportCenter);
         }
 
         /// <summary>
@@ -151,6 +149,11 @@ namespace MapControl
         /// </summary>
         public virtual string WmsQueryParameters(BoundingBox boundingBox, string version = "1.3.0")
         {
+            if (string.IsNullOrEmpty(CrsId))
+            {
+                return null;
+            }
+
             var format = "CRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
 
             if (version.StartsWith("1.1."))

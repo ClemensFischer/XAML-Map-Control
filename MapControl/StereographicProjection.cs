@@ -16,15 +16,28 @@ namespace MapControl
     /// </summary>
     public class StereographicProjection : AzimuthalProjection
     {
-        public override string CrsId { get; set; } = "AUTO2:97002";
+        public StereographicProjection()
+            : this("AUTO2:97002") // GeoServer non-standard CRS ID
+        {
+        }
+
+        public StereographicProjection(string crsId)
+        {
+            CrsId = crsId;
+        }
 
         public override Point LocationToPoint(Location location)
         {
+            if (location.Equals(projectionCenter))
+            {
+                return new Point();
+            }
+
             double azimuth, distance;
 
-            GetAzimuthDistance(centerLocation, location, out azimuth, out distance);
+            GetAzimuthDistance(projectionCenter, location, out azimuth, out distance);
 
-            var mapDistance = 2d * centerRadius * Math.Tan(distance / 2d);
+            var mapDistance = 2d * Wgs84EquatorialRadius * Math.Tan(distance / 2d);
 
             return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
         }
@@ -33,14 +46,14 @@ namespace MapControl
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return centerLocation;
+                return projectionCenter;
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);
             var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
-            var distance = 2d * Math.Atan(mapDistance / (2d * centerRadius));
+            var distance = 2d * Math.Atan(mapDistance / (2d * Wgs84EquatorialRadius));
 
-            return GetLocation(centerLocation, azimuth, distance);
+            return GetLocation(projectionCenter, azimuth, distance);
         }
     }
 }
