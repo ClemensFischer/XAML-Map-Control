@@ -46,11 +46,13 @@ namespace MapControl
 
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             "MinZoomLevel", typeof(double), typeof(MapBase),
-            new PropertyMetadata(1d, (o, e) => ((MapBase)o).MinZoomLevelPropertyChanged((double)e.NewValue)));
+            new PropertyMetadata(1d, (o, e) => ((MapBase)o).MinZoomLevelPropertyChanged((double)e.NewValue),
+                (o, e) => ((MapBase)o).MinZoomLevelCoerceValue((double)e)));
 
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
             "MaxZoomLevel", typeof(double), typeof(MapBase),
-            new PropertyMetadata(19d, (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
+            new PropertyMetadata(19d, (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue),
+                (o, e) => ((MapBase)o).MaxZoomLevelCoerceValue((double)e)));
 
         public static readonly DependencyProperty AnimationDurationProperty = DependencyProperty.Register(
             "AnimationDuration", typeof(TimeSpan), typeof(MapBase),
@@ -541,30 +543,28 @@ namespace MapControl
 
         private void MinZoomLevelPropertyChanged(double minZoomLevel)
         {
-            if (minZoomLevel < 0d || minZoomLevel > MaxZoomLevel)
-            {
-                minZoomLevel = Math.Min(Math.Max(minZoomLevel, 0d), MaxZoomLevel);
-                InternalSetValue(MinZoomLevelProperty, minZoomLevel);
-            }
-
             if (ZoomLevel < minZoomLevel)
             {
                 ZoomLevel = minZoomLevel;
             }
+            CoerceValue(MaxZoomLevelProperty);
+        }
+        private object MinZoomLevelCoerceValue(double minZoomLevel)
+        {
+            return Math.Min(Math.Max(minZoomLevel, 0d), MaxZoomLevel);
         }
 
         private void MaxZoomLevelPropertyChanged(double maxZoomLevel)
         {
-            if (maxZoomLevel < MinZoomLevel || maxZoomLevel > MaximumZoomLevel)
-            {
-                maxZoomLevel = Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), MaximumZoomLevel);
-                InternalSetValue(MaxZoomLevelProperty, maxZoomLevel);
-            }
-
             if (ZoomLevel > maxZoomLevel)
             {
                 ZoomLevel = maxZoomLevel;
             }
+            CoerceValue(MinZoomLevelProperty);
+        }
+        private object MaxZoomLevelCoerceValue(double maxZoomLevel)
+        {
+            return Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), MaximumZoomLevel);
         }
 
         private void AdjustZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
