@@ -19,15 +19,18 @@ namespace MapControl
     /// </summary>
     public class WebMercatorProjection : MapProjection
     {
-        public static readonly double MaxLatitudeValue = YToLatitude(180d);
+        public WebMercatorProjection()
+            : this("EPSG:3857")
+        {
+        }
 
-        public override string CrsId { get; set; } = "EPSG:3857";
-
-        public override bool IsWebMercator { get; } = true;
-
-        public override double MaxLatitude { get; } = MaxLatitudeValue;
-
-        public override double LongitudeScale { get; } = MetersPerDegree;
+        public WebMercatorProjection(string crsId)
+        {
+            CrsId = crsId;
+            IsWebMercator = true;
+            LongitudeScale = MetersPerDegree;
+            MaxLatitude = YToLatitude(180d);
+        }
 
         public override double GetViewportScale(double zoomLevel)
         {

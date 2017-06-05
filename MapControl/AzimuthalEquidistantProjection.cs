@@ -16,15 +16,28 @@ namespace MapControl
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {
-        public override string CrsId { get; set; } = "AUTO2:99999";
+        public AzimuthalEquidistantProjection()
+        {
+            // No known standard or de-facto standard CRS ID
+        }
+
+        public AzimuthalEquidistantProjection(string crsId)
+        {
+            CrsId = crsId;
+        }
 
         public override Point LocationToPoint(Location location)
         {
+            if (location.Equals(projectionCenter))
+            {
+                return new Point();
+            }
+
             double azimuth, distance;
 
-            GetAzimuthDistance(centerLocation, location, out azimuth, out distance);
+            GetAzimuthDistance(projectionCenter, location, out azimuth, out distance);
 
-            distance *= centerRadius;
+            distance *= Wgs84EquatorialRadius;
 
             return new Point(distance * Math.Sin(azimuth), distance * Math.Cos(azimuth));
         }
@@ -33,13 +46,13 @@ namespace MapControl
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return centerLocation;
+                return projectionCenter;
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);
-            var distance = Math.Sqrt(point.X * point.X + point.Y * point.Y) / centerRadius;
+            var distance = Math.Sqrt(point.X * point.X + point.Y * point.Y) / Wgs84EquatorialRadius;
 
-            return GetLocation(centerLocation, azimuth, distance);
+            return GetLocation(projectionCenter, azimuth, distance);
         }
     }
 }

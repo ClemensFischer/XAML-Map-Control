@@ -16,28 +16,41 @@ namespace MapControl
     /// </summary>
     public class OrthographicProjection : AzimuthalProjection
     {
-        public override string CrsId { get; set; } = "AUTO2:42003";
+        public OrthographicProjection()
+            : this("AUTO2:42003")
+        {
+        }
+
+        public OrthographicProjection(string crsId)
+        {
+            CrsId = crsId;
+        }
 
         public override Point LocationToPoint(Location location)
         {
-            var lat0 = centerLocation.Latitude * Math.PI / 180d;
+            if (location.Equals(projectionCenter))
+            {
+                return new Point();
+            }
+
+            var lat0 = projectionCenter.Latitude * Math.PI / 180d;
             var lat = location.Latitude * Math.PI / 180d;
-            var dLon = (location.Longitude - centerLocation.Longitude) * Math.PI / 180d;
+            var dLon = (location.Longitude - projectionCenter.Longitude) * Math.PI / 180d;
 
             return new Point(
-                centerRadius * Math.Cos(lat) * Math.Sin(dLon),
-                centerRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
+                Wgs84EquatorialRadius * Math.Cos(lat) * Math.Sin(dLon),
+                Wgs84EquatorialRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
         }
 
         public override Location PointToLocation(Point point)
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return centerLocation;
+                return projectionCenter;
             }
 
-            var x = point.X / centerRadius;
-            var y = point.Y / centerRadius;
+            var x = point.X / Wgs84EquatorialRadius;
+            var y = point.Y / Wgs84EquatorialRadius;
             var r2 = x * x + y * y;
 
             if (r2 > 1d)
@@ -49,13 +62,13 @@ namespace MapControl
             var sinC = r;
             var cosC = Math.Sqrt(1 - r2);
 
-            var lat0 = centerLocation.Latitude * Math.PI / 180d;
+            var lat0 = projectionCenter.Latitude * Math.PI / 180d;
             var cosLat0 = Math.Cos(lat0);
             var sinLat0 = Math.Sin(lat0);
 
             return new Location(
                 180d / Math.PI * Math.Asin(cosC * sinLat0 + y * sinC * cosLat0 / r),
-                180d / Math.PI * Math.Atan2(x * sinC, r * cosC * cosLat0 - y * sinC * sinLat0) + centerLocation.Longitude);
+                180d / Math.PI * Math.Atan2(x * sinC, r * cosC * cosLat0 - y * sinC * sinLat0) + projectionCenter.Longitude);
         }
     }
 }

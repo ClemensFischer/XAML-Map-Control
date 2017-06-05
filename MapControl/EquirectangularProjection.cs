@@ -17,7 +17,15 @@ namespace MapControl
     /// </summary>
     public class EquirectangularProjection : MapProjection
     {
-        public override string CrsId { get; set; } = "EPSG:4326";
+        public EquirectangularProjection()
+            : this("EPSG:4326")
+        {
+        }
+
+        public EquirectangularProjection(string crsId)
+        {
+            CrsId = crsId;
+        }
 
         public override Point GetMapScale(Location location)
         {

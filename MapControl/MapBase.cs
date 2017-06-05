@@ -32,13 +32,17 @@ namespace MapControl
     {
         private const double MaximumZoomLevel = 22d;
 
-        public static readonly DependencyProperty MapProjectionProperty = DependencyProperty.Register(
-            "MapProjection", typeof(MapProjection), typeof(MapBase),
-            new PropertyMetadata(null, (o, e) => ((MapBase)o).ProjectionPropertyChanged()));
-
         public static readonly DependencyProperty MapLayerProperty = DependencyProperty.Register(
             "MapLayer", typeof(UIElement), typeof(MapBase),
             new PropertyMetadata(null, (o, e) => ((MapBase)o).MapLayerPropertyChanged((UIElement)e.OldValue, (UIElement)e.NewValue)));
+
+        public static readonly DependencyProperty MapProjectionProperty = DependencyProperty.Register(
+            "MapProjection", typeof(MapProjection), typeof(MapBase),
+            new PropertyMetadata(null, (o, e) => ((MapBase)o).MapProjectionPropertyChanged()));
+
+        public static readonly DependencyProperty ProjectionCenterProperty = DependencyProperty.Register(
+            "ProjectionCenter", typeof(Location), typeof(MapBase),
+            new PropertyMetadata(null, (o, e) => ((MapBase)o).ProjectionCenterPropertyChanged()));
 
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             "MinZoomLevel", typeof(double), typeof(MapBase),
@@ -101,6 +105,17 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets or sets the base map layer, which is added as first element to the Children collection.
+        /// If the layer implements IMapLayer (like MapTileLayer or MapImageLayer), its (non-null) MapBackground
+        /// and MapForeground property values are used for the MapBase Background and Foreground properties.
+        /// </summary>
+        public UIElement MapLayer
+        {
+            get { return (UIElement)GetValue(MapLayerProperty); }
+            set { SetValue(MapLayerProperty, value); }
+        }
+
+        /// <summary>
         /// Gets or sets the MapProjection used by the map control.
         /// </summary>
         public MapProjection MapProjection
@@ -110,14 +125,13 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the base map layer, which is added as first element to the Children collection.
-        /// If the layer implements IMapLayer (like MapTileLayer or MapImageLayer), its (non-null) MapBackground
-        /// and MapForeground property values are used for the MapBase Background and Foreground properties.
+        /// Gets or sets an optional center (reference point) for azimuthal projections.
+        /// If ProjectionCenter is null, the Center property value will be used instead.
         /// </summary>
-        public UIElement MapLayer
+        public Location ProjectionCenter
         {
-            get { return (UIElement)GetValue(MapLayerProperty); }
-            set { SetValue(MapLayerProperty, value); }
+            get { return (Location)GetValue(ProjectionCenterProperty); }
+            set { SetValue(ProjectionCenterProperty, value); }
         }
 
         /// <summary>
@@ -385,19 +399,6 @@ namespace MapControl
             }
         }
 
-        private void InternalSetValue(DependencyProperty property, object value)
-        {
-            internalPropertyChange = true;
-            SetValue(property, value);
-            internalPropertyChange = false;
-        }
-
-        private void ProjectionPropertyChanged()
-        {
-            ResetTransformCenter();
-            UpdateTransform(false, true);
-        }
-
         private void MapLayerPropertyChanged(UIElement oldLayer, UIElement newLayer)
         {
             if (oldLayer != null)
@@ -434,6 +435,21 @@ namespace MapControl
                         Foreground = mapLayer.MapForeground;
                     }
                 }
+            }
+        }
+
+        private void MapProjectionPropertyChanged()
+        {
+            ResetTransformCenter();
+            UpdateTransform(false, true);
+        }
+
+        private void ProjectionCenterPropertyChanged()
+        {
+            if (MapProjection.IsAzimuthal)
+            {
+                ResetTransformCenter();
+                UpdateTransform();
             }
         }
 
@@ -687,12 +703,19 @@ namespace MapControl
             }
         }
 
-        private void UpdateTransform(bool resetCenter = false, bool projectionChanged = false)
+        private void InternalSetValue(DependencyProperty property, object value)
+        {
+            internalPropertyChange = true;
+            SetValue(property, value);
+            internalPropertyChange = false;
+        }
+
+        private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
         {
             var projection = MapProjection;
             var center = transformCenter ?? Center;
 
-            projection.SetViewportTransform(center, viewportCenter, ZoomLevel, Heading);
+            projection.SetViewportTransform(ProjectionCenter ?? Center, center, viewportCenter, ZoomLevel, Heading);
 
             if (transformCenter != null)
             {
@@ -702,7 +725,7 @@ namespace MapControl
                 if (center.Latitude < -projection.MaxLatitude || center.Latitude > projection.MaxLatitude)
                 {
                     center.Latitude = Math.Min(Math.Max(center.Latitude, -projection.MaxLatitude), projection.MaxLatitude);
-                    resetCenter = true;
+                    resetTransformCenter = true;
                 }
 
                 InternalSetValue(CenterProperty, center);
@@ -713,10 +736,10 @@ namespace MapControl
                     InternalSetValue(CenterPointProperty, projection.LocationToPoint(center));
                 }
 
-                if (resetCenter)
+                if (resetTransformCenter)
                 {
                     ResetTransformCenter();
-                    projection.SetViewportTransform(center, viewportCenter, ZoomLevel, Heading);
+                    projection.SetViewportTransform(ProjectionCenter ?? center, center, viewportCenter, ZoomLevel, Heading);
                 }
             }
 
