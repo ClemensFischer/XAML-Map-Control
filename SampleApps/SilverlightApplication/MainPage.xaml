@@ -9,55 +9,6 @@
     xmlns:local="clr-namespace:SilverlightApplication"
     mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="400">
     <UserControl.Resources>
-        <map:TileLayerCollection x:Key="TileLayers">
-            <!--
-                TileLayers with OpenStreetMap data.
-            -->
-            <map:TileLayer SourceName="OpenStreetMap"
-                           Description="Maps © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                           MaxZoomLevel="19"/>
-            <map:TileLayer SourceName="Thunderforest OpenCycleMap"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://{c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="Thunderforest Landscape"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://{c}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="Thunderforest Outdoors"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://{c}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="Thunderforest Transport"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://{c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png"/>
-            <map:TileLayer SourceName="Thunderforest Transport Dark"
-                           Description="Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://{c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png"
-                           Foreground="White" Background="Black"/>
-            <map:TileLayer SourceName="MapQuest OpenStreetMap"
-                           Description="Maps © [MapQuest](http://www.mapquest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                           TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg"
-                           MaxZoomLevel="19"/>
-            <map:TileLayer SourceName="Seamarks"
-                           TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
-                           MinZoomLevel="10" MaxZoomLevel="18"/>
-
-            <!--
-                Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
-                (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
-                A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
-                for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
-            -->
-            <map:BingMapsTileLayer SourceName="Bing Maps Road"
-                                   Description="© [Microsoft Corporation](http://www.bing.com/maps/)"
-                                   Mode="Road" MaxZoomLevel="19"/>
-            <map:BingMapsTileLayer SourceName="Bing Maps Aerial"
-                                   Description="© [Microsoft Corporation](http://www.bing.com/maps/)"
-                                   Mode="Aerial" MaxZoomLevel="19" Foreground="White" Background="Black"/>
-            <map:BingMapsTileLayer SourceName="Bing Maps Hybrid"
-                                   Description="© [Microsoft Corporation](http://www.bing.com/maps/)"
-                                   Mode="AerialWithLabels" MaxZoomLevel="19" Foreground="White" Background="Black"/>
-        </map:TileLayerCollection>
-
         <DataTemplate x:Key="PolylineItemTemplate">
             <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
         </DataTemplate>
@@ -128,10 +79,16 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <map:WebMercatorProjection x:Key="WebMercatorProjection"/>
+        <map:EquirectangularProjection x:Key="EquirectangularProjection"/>
+        <map:OrthographicProjection x:Key="OrthographicProjection"/>
+        <map:GnomonicProjection x:Key="GnomonicProjection"/>
+        <map:StereographicProjection x:Key="StereographicProjection"/>
     </UserControl.Resources>
 
     <UserControl.DataContext>
-        <vm:ViewModel/>
+        <vm:MapViewModel/>
     </UserControl.DataContext>
 
     <Grid x:Name="LayoutRoot" Background="White">
@@ -139,14 +96,18 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" TileLayer="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}"
-                 Center="{Binding MapCenter}" MinZoomLevel="2" ZoomLevel="11"
+        <map:Map x:Name="map" MinZoomLevel="2" ZoomLevel="11"
+                 Center="{Binding MapCenter}"
+                 MapLayer="{Binding MapLayers.CurrentMapLayer}"
+                 MapProjection="{Binding SelectedValue, ElementName=projectionComboBox,
+                                         FallbackValue={StaticResource WebMercatorProjection},
+                                         TargetNullValue={StaticResource WebMercatorProjection}}"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave">
 
-            <map:MapImage x:Name="mapImage" South="53.54031" North="53.74871" West="8.08594" East="8.43750"
-                          Source="10_535_330.jpg" Opacity="0.5"/>
+            <Image x:Name="mapImage" Source="10_535_330.jpg" Opacity="0.5" Stretch="Fill"
+                   map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
 
-            <map:MapGraticule Opacity="0.6"/>
+            <map:MapGraticule x:Name="mapGraticule" Opacity="0.6"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"
@@ -163,24 +124,15 @@
 
             <Path map:MapPanel.Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
                 <Path.Data>
-                    <EllipseGeometry RadiusX="1852" RadiusY="1852" Transform="{Binding ScaleTransform, ElementName=map}"/>
+                    <EllipseGeometry RadiusX="1852" RadiusY="1852" Transform="{Binding ScaleRotateTransform, ElementName=map}"/>
                 </Path.Data>
             </Path>
-
-            <map:MapPath Stroke="Blue" Fill="Aqua" Opacity="0.5">
-                <map:MapPath.Data>
-                    <GeometryGroup FillRule="EvenOdd">
-                        <EllipseGeometry Center="8.2,63.5" RadiusX="0.025" RadiusY="0.025"/>
-                        <EllipseGeometry Center="8.2,63.51" RadiusX="0.015" RadiusY="0.015"/>
-                    </GeometryGroup>
-                </map:MapPath.Data>
-            </map:MapPath>
 
             <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'"/>
         </map:Map>
 
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF">
-            <RichTextBlock Margin="4,2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding TileLayer.Description, ElementName=map}"/>
+            <RichTextBlock Margin="4,2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding MapLayers.CurrentMapLayer.Description}"/>
         </Border>
 
         <Grid Grid.Row="1">
@@ -209,18 +161,17 @@
                 </StackPanel>
                 <CheckBox Margin="5" VerticalAlignment="Bottom" Content="Seamarks"
                           Checked="SeamarksChecked" Unchecked="SeamarksUnchecked"/>
-                <ComboBox Width="130" Margin="5" VerticalAlignment="Bottom"
-                          SelectedValuePath="Tag" SelectedValue="{Binding TileLayer, ElementName=map, Mode=TwoWay}">
-                    <ComboBoxItem Tag="{Binding [OpenStreetMap], Source={StaticResource TileLayers}}">OpenStreetMap</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [Thunderforest OpenCycleMap], Source={StaticResource TileLayers}}">OpenCycleMap</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [Thunderforest Landscape], Source={StaticResource TileLayers}}">Landscape</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [Thunderforest Outdoors], Source={StaticResource TileLayers}}">Outdoors</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [Thunderforest Transport], Source={StaticResource TileLayers}}">Transport</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [Thunderforest Transport Dark], Source={StaticResource TileLayers}}">Transport Dark</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [MapQuest OpenStreetMap], Source={StaticResource TileLayers}}">MapQuest Open</ComboBoxItem>
-                    <!--<ComboBoxItem Tag="{Binding [Bing Maps Road], Source={StaticResource TileLayers}}">Bing Maps Road</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [Bing Maps Aerial], Source={StaticResource TileLayers}}">Bing Maps Aerial</ComboBoxItem>
-                    <ComboBoxItem Tag="{Binding [Bing Maps Hybrid], Source={StaticResource TileLayers}}">Bing Maps Hybrid</ComboBoxItem>-->
+                <ComboBox Width="200" Margin="5" VerticalAlignment="Bottom"
+                          ItemsSource="{Binding MapLayers.MapLayerNames}"
+                          SelectedItem="{Binding MapLayers.CurrentMapLayerName, Mode=TwoWay}"/>
+                <ComboBox x:Name="projectionComboBox" Width="120" Margin="5" VerticalAlignment="Bottom"
+                          SelectedIndex="0" SelectedValuePath="Tag"
+                          SelectedValue="{Binding MapProjection, ElementName=map, Mode=TwoWay}">
+                    <ComboBoxItem Content="Web Mercator" Tag="{StaticResource WebMercatorProjection}"/>
+                    <ComboBoxItem Content="Equirectangular" Tag="{StaticResource EquirectangularProjection}"/>
+                    <ComboBoxItem Content="Orthographic" Tag="{StaticResource OrthographicProjection}"/>
+                    <ComboBoxItem Content="Gnomonic" Tag="{StaticResource GnomonicProjection}"/>
+                    <ComboBoxItem Content="Stereographic" Tag="{StaticResource StereographicProjection}"/>
                 </ComboBox>
             </StackPanel>
         </Grid>

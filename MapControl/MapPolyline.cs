@@ -1,11 +1,10 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
 #if NETFX_CORE
-using System.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -21,18 +20,12 @@ namespace MapControl
     /// </summary>
     public partial class MapPolyline : MapPath
     {
-#if NETFX_CORE
-        // Binding fails on Windows Runtime when property type is IEnumerable<Location>
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            "Locations", typeof(IEnumerable), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
-#else
-        public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            "Locations", typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsChanged(e.OldValue as INotifyCollectionChanged, e.NewValue as INotifyCollectionChanged)));
-#endif
+            nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e)));
+
         public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register(
-            "IsClosed", typeof(bool), typeof(MapPolyline),
+            nameof(IsClosed), typeof(bool), typeof(MapPolyline),
             new PropertyMetadata(false, (o, e) => ((MapPolyline)o).UpdateData()));
 
         /// <summary>
@@ -65,8 +58,11 @@ namespace MapControl
             set { SetValue(FillRuleProperty, value); }
         }
 
-        private void LocationsChanged(INotifyCollectionChanged oldCollection, INotifyCollectionChanged newCollection)
+        private void LocationsPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
+            var oldCollection = e.OldValue as INotifyCollectionChanged;
+            var newCollection = e.NewValue as INotifyCollectionChanged;
+
             if (oldCollection != null)
             {
                 oldCollection.CollectionChanged -= LocationCollectionChanged;

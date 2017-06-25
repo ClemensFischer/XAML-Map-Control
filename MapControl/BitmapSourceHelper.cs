@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -13,7 +13,7 @@ namespace MapControl
     /// <summary>
     /// Creates frozen BitmapSources from Stream or Uri.
     /// </summary>
-    internal static class ImageLoader
+    public static class BitmapSourceHelper
     {
         public static BitmapSource FromStream(Stream stream)
         {
@@ -30,19 +30,16 @@ namespace MapControl
 
         public static BitmapSource FromUri(Uri uri)
         {
-            BitmapSource bitmap = null;
-
             try
             {
-                var request = WebRequest.Create(uri);
-
-                using (var response = request.GetResponse())
+                using (var response = WebRequest.Create(uri).GetResponse())
                 using (var responseStream = response.GetResponseStream())
                 using (var memoryStream = new MemoryStream())
                 {
                     responseStream.CopyTo(memoryStream);
                     memoryStream.Seek(0, SeekOrigin.Begin);
-                    bitmap = FromStream(memoryStream);
+
+                    return FromStream(memoryStream);
                 }
             }
             catch (Exception ex)
@@ -50,7 +47,7 @@ namespace MapControl
                 Debug.WriteLine(ex.Message);
             }
 
-            return bitmap;
+            return null;
         }
     }
 }

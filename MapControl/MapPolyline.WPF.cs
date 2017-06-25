@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Linq;
@@ -16,7 +16,7 @@ namespace MapControl
 
         public MapPolyline()
         {
-            Data = new StreamGeometry { Transform = ViewportTransform };
+            Data = new StreamGeometry();
         }
 
         protected override void UpdateData()
@@ -27,7 +27,7 @@ namespace MapControl
             {
                 using (var context = geometry.Open())
                 {
-                    var points = Locations.Select(l => ParentMap.MapTransform.Transform(l));
+                    var points = Locations.Select(l => ParentMap.MapProjection.LocationToPoint(l));
 
                     context.BeginFigure(points.First(), IsClosed, IsClosed);
                     context.PolyLineTo(points.Skip(1).ToList(), true, false);

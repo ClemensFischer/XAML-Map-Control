@@ -1,8 +1,7 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -15,42 +14,39 @@ namespace MapControl
             Control.ForegroundProperty.AddOwner(typeof(MapBase));
 
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
-            "Center", typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(
+            nameof(Center), typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(
                 new Location(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).CenterPropertyChanged((Location)e.NewValue)));
 
         public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register(
-            "TargetCenter", typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(
+            nameof(TargetCenter), typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(
                 new Location(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).TargetCenterPropertyChanged((Location)e.NewValue)));
 
         public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
-            "ZoomLevel", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
+            nameof(ZoomLevel), typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
                 1d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).ZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty TargetZoomLevelProperty = DependencyProperty.Register(
-            "TargetZoomLevel", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
+            nameof(TargetZoomLevel), typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
                 1d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).TargetZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
-            "Heading", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
+            nameof(Heading), typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
                 0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).HeadingPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register(
-            "TargetHeading", typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
+            nameof(TargetHeading), typeof(double), typeof(MapBase), new FrameworkPropertyMetadata(
                 0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue)));
 
         static MapBase()
         {
-            ClipToBoundsProperty.OverrideMetadata(
-                typeof(MapBase), new FrameworkPropertyMetadata(true));
-
-            BackgroundProperty.OverrideMetadata(
-                typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
+            ClipToBoundsProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(true));
+            BackgroundProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
         }
 
         partial void RemoveAnimation(DependencyProperty property)
@@ -69,37 +65,19 @@ namespace MapControl
         /// <summary>
         /// Changes the Center, Heading and ZoomLevel properties according to the specified
         /// viewport coordinate translation, rotation and scale delta values. Rotation and scaling
-        /// is performed relative to the specified origin point in viewport coordinates.
+        /// is performed relative to the specified center point in viewport coordinates.
         /// </summary>
-        public void TransformMap(Point origin, Vector translation, double rotation, double scale)
+        public void TransformMap(Point center, Vector translation, double rotation, double scale)
         {
-            TransformMap(origin, (Point)translation, rotation, scale);
+            TransformMap(center, (Point)translation, rotation, scale);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
 
-            ResetTransformOrigin();
+            ResetTransformCenter();
             UpdateTransform();
-        }
-
-        private void SetViewportTransform(Location origin)
-        {
-            MapOrigin = mapTransform.Transform(origin);
-            ViewportScale = Math.Pow(2d, ZoomLevel) * TileSource.TileSize / 360d;
-
-            var transform = new Matrix(1d, 0d, 0d, 1d, -MapOrigin.X, -MapOrigin.Y);
-            transform.Rotate(-Heading);
-            transform.Scale(ViewportScale, -ViewportScale);
-            transform.Translate(ViewportOrigin.X, ViewportOrigin.Y);
-
-            viewportTransform.Matrix = transform;
-        }
-
-        private void SetTileLayer(TileLayer tileLayer)
-        {
-            SetCurrentValue(TileLayerProperty, tileLayer);
         }
     }
 }

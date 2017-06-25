@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CBA8C535-CCA3-4F60-8D3E-0E25791CBD21}</ProjectGuid>
+    <ProjectGuid>{85AACDB7-959D-406D-A8DF-2F1E013F8F40}</ProjectGuid>
     <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -31,8 +31,6 @@
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <LinkedServerProject>
     </LinkedServerProject>
-    <InBrowserSettingsFile>Properties\InBrowserSettings.xml</InBrowserSettingsFile>
-    <RequireInBrowserElevation>false</RequireInBrowserElevation>
   </PropertyGroup>
   <!-- This property group is only here to support building this project using the 
        MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
@@ -72,8 +70,11 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Common\ViewModel.cs">
-      <Link>ViewModel.cs</Link>
+    <Compile Include="..\Common\MapLayers.cs">
+      <Link>MapLayers.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\MapViewModel.cs">
+      <Link>MapViewModel.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -97,16 +98,13 @@
     <None Include="Properties\AppManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\OutOfBrowserSettings.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\InBrowserSettings.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\MapControl\MapControl.Silverlight.csproj">
       <Project>{eb133b78-deff-416a-8f0c-89e54d766576}</Project>
       <Name>MapControl.Silverlight</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\OutOfBrowserSettings.xml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="..\Common\10_535_330.jpg">

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MapControl;
+using ViewModel;
 
 namespace SilverlightApplication
 {
@@ -11,8 +12,6 @@ namespace SilverlightApplication
     {
         public MainPage()
         {
-            //BingMapsTileLayer.ApiKey = "...";
-
             InitializeComponent();
         }
 
@@ -49,12 +48,12 @@ namespace SilverlightApplication
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Add(((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+            map.Children.Insert(map.Children.IndexOf(mapGraticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.TileLayers.Remove(((TileLayerCollection)Resources["TileLayers"])["Seamarks"]);
+            map.Children.Remove(((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
     }
 }

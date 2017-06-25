@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,7 +7,7 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{177C4EF8-0B0A-426E-BDCC-168DC10AC1C1}</ProjectGuid>
+    <ProjectGuid>{7FB616E1-E0D4-48FA-8AFD-60E73FCF32E4}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -19,7 +19,9 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <SilverlightApplicationList>{CBA8C535-CCA3-4F60-8D3E-0E25791CBD21}|..\SilverlightApplication\SilverlightApplication.csproj|ClientBin|False</SilverlightApplicationList>
+    <UseGlobalApplicationHostFile />
+    <SilverlightApplicationList>{85AACDB7-959D-406D-A8DF-2F1E013F8F40}|..\SilverlightApplication\SilverlightApplication.csproj|ClientBin|False</SilverlightApplicationList>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,25 +40,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Web.DynamicData" />
-    <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.ApplicationServices" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Web.Services" />
-    <Reference Include="System.EnterpriseServices" />
-  </ItemGroup>
   <ItemGroup>
     <Content Include="ClientBin\SilverlightApplication.xap" />
     <Content Include="Silverlight.js" />
@@ -89,7 +72,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>51248</DevelopmentServerPort>
+          <DevelopmentServerPort>54149</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:51216/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

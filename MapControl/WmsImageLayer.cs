@@ -1,44 +1,58 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 #if NETFX_CORE
-using Windows.Data.Xml.Dom;
 using Windows.UI.Xaml;
 #else
 using System.Windows;
-using System.Xml;
 #endif
 
 namespace MapControl
 {
     public partial class WmsImageLayer : MapImageLayer
     {
-        public static readonly DependencyProperty BaseUriProperty = DependencyProperty.Register(
-            "ServerUri", typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateUriFormat(true)));
+        public static readonly DependencyProperty ServerUriProperty = DependencyProperty.Register(
+            nameof(ServerUri), typeof(Uri), typeof(WmsImageLayer),
+            new PropertyMetadata(null, (o, e) => ((WmsImageLayer)o).UpdateImage()));
+
+        public static readonly DependencyProperty VersionProperty = DependencyProperty.Register(
+            nameof(Version), typeof(string), typeof(WmsImageLayer),
+            new PropertyMetadata("1.3.0", (o, e) => ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
-            "Layers", typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateUriFormat()));
+            nameof(Layers), typeof(string), typeof(WmsImageLayer),
+            new PropertyMetadata(null, (o, e) => ((WmsImageLayer)o).UpdateImage()));
+
+        public static readonly DependencyProperty StylesProperty = DependencyProperty.Register(
+            nameof(Styles), typeof(string), typeof(WmsImageLayer),
+            new PropertyMetadata(null, (o, e) => ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty ParametersProperty = DependencyProperty.Register(
-            "Parameters", typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateUriFormat()));
+            nameof(Parameters), typeof(string), typeof(WmsImageLayer),
+            new PropertyMetadata(null, (o, e) => ((WmsImageLayer)o).UpdateImage()));
+
+        public static readonly DependencyProperty FormatProperty = DependencyProperty.Register(
+            nameof(Format), typeof(string), typeof(WmsImageLayer),
+            new PropertyMetadata("image/png", (o, e) => ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty TransparentProperty = DependencyProperty.Register(
-            "Transparent", typeof(bool), typeof(WmsImageLayer),
-            new PropertyMetadata(false, async (o, e) => await ((WmsImageLayer)o).UpdateUriFormat()));
+            nameof(Transparent), typeof(bool), typeof(WmsImageLayer),
+            new PropertyMetadata(false, (o, e) => ((WmsImageLayer)o).UpdateImage()));
 
-        public string ServerUri
+        private string layers = string.Empty;
+
+        public Uri ServerUri
         {
-            get { return (string)GetValue(BaseUriProperty); }
-            set { SetValue(BaseUriProperty, value); }
+            get { return (Uri)GetValue(ServerUriProperty); }
+            set { SetValue(ServerUriProperty, value); }
+        }
+
+        public string Version
+        {
+            get { return (string)GetValue(VersionProperty); }
+            set { SetValue(VersionProperty, value); }
         }
 
         public string Layers
@@ -47,10 +61,22 @@ namespace MapControl
             set { SetValue(LayersProperty, value); }
         }
 
+        public string Styles
+        {
+            get { return (string)GetValue(StylesProperty); }
+            set { SetValue(StylesProperty, value); }
+        }
+
         public string Parameters
         {
             get { return (string)GetValue(ParametersProperty); }
             set { SetValue(ParametersProperty, value); }
+        }
+
+        public string Format
+        {
+            get { return (string)GetValue(FormatProperty); }
+            set { SetValue(FormatProperty, value); }
         }
 
         public bool Transparent
@@ -59,94 +85,39 @@ namespace MapControl
             set { SetValue(TransparentProperty, value); }
         }
 
-        public async Task<List<string>> GetAllLayers()
+        protected override bool UpdateImage(BoundingBox boundingBox)
         {
-            var layers = new List<string>();
-
-            if (!string.IsNullOrEmpty(ServerUri))
+            if (ServerUri == null)
             {
-                try
-                {
-                    var document = await LoadDocument(ServerUri
-                        + "?SERVICE=WMS"
-                        + "&VERSION=1.3.0"
-                        + "&REQUEST=GetCapabilities");
-
-                    var capability = FirstChild(document.DocumentElement, "Capability");
-                    if (capability != null)
-                    {
-                        var rootLayer = FirstChild(capability, "Layer");
-                        if (rootLayer != null)
-                        {
-                            foreach (var layer in ChildElements(rootLayer, "Layer"))
-                            {
-                                var name = FirstChild(layer, "Name");
-                                if (name != null)
-                                {
-                                    layers.Add(name.InnerText);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e.Message);
-                }
+                return false;
             }
 
-            return layers;
-        }
+            var version = Version ?? "1.3.0";
+            var queryParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox, version);
 
-        private string allLayers;
-
-        private async Task UpdateUriFormat(bool baseUriChanged = false)
-        {
-            if (baseUriChanged)
+            if (string.IsNullOrEmpty(queryParameters))
             {
-                allLayers = null;
+                return false;
             }
 
-            string uriFormat = null;
-            var layers = Layers;
+            var query = "?SERVICE=WMS"
+                + "&VERSION=" + version
+                + "&REQUEST=GetMap"
+                + "&LAYERS=" + (Layers ?? string.Empty)
+                + "&STYLES=" + (Styles ?? string.Empty)
+                + "&" + queryParameters
+                + "&FORMAT=" + (Format ?? "image/png")
+                + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE");
 
-            if (!string.IsNullOrEmpty(ServerUri) && !string.IsNullOrEmpty(layers))
+            if (!string.IsNullOrEmpty(Parameters))
             {
-                if (layers == "*")
-                {
-                    layers = allLayers ?? (allLayers = string.Join(",", await GetAllLayers()));
-                }
-
-                uriFormat = ServerUri
-                    + "?SERVICE=WMS"
-                    + "&VERSION=1.3.0"
-                    + "&REQUEST=GetMap"
-                    + "&LAYERS=" + layers.Replace(" ", "%20")
-                    + "&STYLES="
-                    + "&CRS=EPSG:3857"
-                    + "&BBOX={W},{S},{E},{N}"
-                    + "&WIDTH={X}"
-                    + "&HEIGHT={Y}"
-                    + "&FORMAT=image/png"
-                    + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE");
-
-                if (!string.IsNullOrEmpty(Parameters))
-                {
-                    uriFormat += "&" + Parameters;
-                }
+                query += "&" + Parameters;
             }
 
-            UriFormat = uriFormat;
-        }
+            var uri = new Uri(ServerUri, query.Replace(" ", "%20"));
 
-        private static IEnumerable<XmlElement> ChildElements(XmlElement element, string name)
-        {
-            return element.ChildNodes.OfType<XmlElement>().Where(e => (string)e.LocalName == name);
-        }
-
-        private static XmlElement FirstChild(XmlElement element, string name)
-        {
-            return element.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => (string)e.LocalName == name);
+            UpdateImage(uri);
+            return true;
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -8,10 +8,12 @@ using System.Linq;
 #if NETFX_CORE
 using Windows.Foundation;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -19,6 +21,12 @@ using System.Windows.Threading;
 
 namespace MapControl
 {
+    public interface ITileImageLoader
+    {
+        void BeginLoadTiles(MapTileLayer tileLayer, IEnumerable<Tile> tiles);
+        void CancelLoadTiles(MapTileLayer tileLayer);
+    }
+
     /// <summary>
     /// Fills the map viewport with map tiles from a TileSource.
     /// </summary>
@@ -27,13 +35,16 @@ namespace MapControl
 #else
     [ContentProperty("TileSource")]
 #endif
-    public partial class TileLayer : PanelBase, IMapElement
+    public partial class MapTileLayer : Panel, IMapLayer
     {
-        public static TileLayer OpenStreetMapTileLayer
+        /// <summary>
+        /// A default TileLayer using OpenStreetMap data.
+        /// </summary>
+        public static MapTileLayer OpenStreetMapTileLayer
         {
             get
             {
-                return new TileLayer
+                return new MapTileLayer
                 {
                     SourceName = "OpenStreetMap",
                     Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
@@ -44,56 +55,53 @@ namespace MapControl
         }
 
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
-            "TileSource", typeof(TileSource), typeof(TileLayer),
-            new PropertyMetadata(null, (o, e) => ((TileLayer)o).UpdateTiles(true)));
+            nameof(TileSource), typeof(TileSource), typeof(MapTileLayer),
+            new PropertyMetadata(null, (o, e) => ((MapTileLayer)o).UpdateTiles(true)));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
-            "SourceName", typeof(string), typeof(TileLayer), new PropertyMetadata(null));
+            nameof(SourceName), typeof(string), typeof(MapTileLayer), new PropertyMetadata(null));
 
         public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
-            "Description", typeof(string), typeof(TileLayer), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty LogoImageProperty = DependencyProperty.Register(
-            "LogoImage", typeof(ImageSource), typeof(TileLayer), new PropertyMetadata(null));
+            nameof(Description), typeof(string), typeof(MapTileLayer), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ZoomLevelOffsetProperty = DependencyProperty.Register(
-            "ZoomLevelOffset", typeof(double), typeof(TileLayer),
-            new PropertyMetadata(0d, (o, e) => ((TileLayer)o).UpdateTileGrid()));
+            nameof(ZoomLevelOffset), typeof(double), typeof(MapTileLayer),
+            new PropertyMetadata(0d, (o, e) => ((MapTileLayer)o).UpdateTileGrid()));
 
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
-            "MinZoomLevel", typeof(int), typeof(TileLayer), new PropertyMetadata(0));
+            nameof(MinZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(0));
 
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
-            "MaxZoomLevel", typeof(int), typeof(TileLayer), new PropertyMetadata(18));
+            nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(18));
 
         public static readonly DependencyProperty MaxParallelDownloadsProperty = DependencyProperty.Register(
-            "MaxParallelDownloads", typeof(int), typeof(TileLayer), new PropertyMetadata(4));
+            nameof(MaxParallelDownloads), typeof(int), typeof(MapTileLayer), new PropertyMetadata(4));
 
         public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
-            "UpdateInterval", typeof(TimeSpan), typeof(TileLayer),
-            new PropertyMetadata(TimeSpan.FromSeconds(0.5), (o, e) => ((TileLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
+            nameof(UpdateInterval), typeof(TimeSpan), typeof(MapTileLayer),
+            new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapTileLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
-            "UpdateWhileViewportChanging", typeof(bool), typeof(TileLayer), new PropertyMetadata(true));
+            nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapTileLayer), new PropertyMetadata(true));
 
         public static readonly DependencyProperty LoadTilesDescendingProperty = DependencyProperty.Register(
-            "LoadTilesDescending", typeof(bool), typeof(TileLayer), new PropertyMetadata(false));
+            nameof(LoadTilesDescending), typeof(bool), typeof(MapTileLayer), new PropertyMetadata(false));
 
-        public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
-            "Foreground", typeof(Brush), typeof(TileLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty MapBackgroundProperty = DependencyProperty.Register(
+            nameof(MapBackground), typeof(Brush), typeof(MapTileLayer), new PropertyMetadata(null));
 
-        public static readonly new DependencyProperty BackgroundProperty = DependencyProperty.Register(
-            "Background", typeof(Brush), typeof(TileLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
+            nameof(MapForeground), typeof(Brush), typeof(MapTileLayer), new PropertyMetadata(null));
 
         private readonly DispatcherTimer updateTimer;
         private MapBase parentMap;
 
-        public TileLayer()
+        public MapTileLayer()
             : this(new TileImageLoader())
         {
         }
 
-        public TileLayer(ITileImageLoader tileImageLoader)
+        public MapTileLayer(ITileImageLoader tileImageLoader)
         {
             Initialize();
 
@@ -130,21 +138,13 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Description of the TileLayer. Used to display copyright information on top of the map.
+        /// Description of the TileLayer.
+        /// Used to display copyright information on top of the map.
         /// </summary>
         public string Description
         {
             get { return (string)GetValue(DescriptionProperty); }
             set { SetValue(DescriptionProperty, value); }
-        }
-
-        /// <summary>
-        /// Logo image. Used to display a provider brand logo on top of the map.
-        /// </summary>
-        public ImageSource LogoImage
-        {
-            get { return (ImageSource)GetValue(LogoImageProperty); }
-            set { SetValue(LogoImageProperty, value); }
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Controls if tiles are updates while the viewport is still changing.
+        /// Controls if tiles are updated while the viewport is still changing.
         /// </summary>
         public bool UpdateWhileViewportChanging
         {
@@ -212,22 +212,23 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Optional foreground brush. Sets MapBase.Foreground, if not null.
+        /// Optional background brush.
+        /// Sets MapBase.Background if not null and the TileLayer is the base map layer.
         /// </summary>
-        public Brush Foreground
+        public Brush MapBackground
         {
-            get { return (Brush)GetValue(ForegroundProperty); }
-            set { SetValue(ForegroundProperty, value); }
+            get { return (Brush)GetValue(MapBackgroundProperty); }
+            set { SetValue(MapBackgroundProperty, value); }
         }
 
         /// <summary>
-        /// Optional background brush. Sets MapBase.Background, if not null.
-        /// New property prevents filling of RenderTransformed TileLayer with Panel.Background.
+        /// Optional foreground brush.
+        /// Sets MapBase.Foreground if not null and the TileLayer is the base map layer.
         /// </summary>
-        public new Brush Background
+        public Brush MapForeground
         {
-            get { return (Brush)GetValue(BackgroundProperty); }
-            set { SetValue(BackgroundProperty, value); }
+            get { return (Brush)GetValue(MapForegroundProperty); }
+            set { SetValue(MapForegroundProperty, value); }
         }
 
         public MapBase ParentMap
@@ -251,11 +252,64 @@ namespace MapControl
             }
         }
 
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
+
+            foreach (UIElement element in Children)
+            {
+                element.Measure(availableSize);
+            }
+
+            return new Size();
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            if (TileGrid != null)
+            {
+                foreach (var tile in Tiles)
+                {
+                    var tileSize = TileSource.TileSize << (TileGrid.ZoomLevel - tile.ZoomLevel);
+                    var x = tileSize * tile.X - TileSource.TileSize * TileGrid.XMin;
+                    var y = tileSize * tile.Y - TileSource.TileSize * TileGrid.YMin;
+
+                    tile.Image.Width = tileSize;
+                    tile.Image.Height = tileSize;
+                    tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
+                }
+            }
+
+            return finalSize;
+        }
+
+        protected virtual void UpdateTileGrid()
+        {
+            updateTimer.Stop();
+
+            if (parentMap != null && parentMap.MapProjection.IsWebMercator)
+            {
+                var tileGrid = GetTileGrid();
+
+                if (!tileGrid.Equals(TileGrid))
+                {
+                    TileGrid = tileGrid;
+                    SetRenderTransform();
+                    UpdateTiles(false);
+                }
+            }
+            else
+            {
+                TileGrid = null;
+                UpdateTiles(true);
+            }
+        }
+
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
-            if (TileGrid == null || Math.Abs(e.OriginOffset) > 180d)
+            if (TileGrid == null || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
             {
-                // immediate update when map center moves across 180° longitude
+                // update immediately when map projection has changed or map center has moved across 180° longitude
                 UpdateTileGrid();
             }
             else
@@ -274,33 +328,47 @@ namespace MapControl
             }
         }
 
-        protected void UpdateTileGrid()
+        private Point GetTileCenter(double tileScale)
         {
-            updateTimer.Stop();
-
-            if (parentMap != null)
-            {
-                var zoomLevel = Math.Max(0, (int)Math.Round(parentMap.ZoomLevel + ZoomLevelOffset));
-                var bounds = GetTileIndexBounds(zoomLevel);
-                var tileGrid = new TileGrid(zoomLevel,
-                    (int)Math.Floor(bounds.X), (int)Math.Floor(bounds.Y),
-                    (int)Math.Floor(bounds.X + bounds.Width), (int)Math.Floor(bounds.Y + bounds.Height));
-
-                if (!tileGrid.Equals(TileGrid))
-                {
-                    TileGrid = tileGrid;
-                    SetRenderTransform();
-                    UpdateTiles(false);
-                }
-            }
-            else
-            {
-                TileGrid = null;
-                UpdateTiles(true);
-            }
+            // map center in tile index coordinates
+            return new Point(
+                tileScale * (0.5 + parentMap.Center.Longitude / 360d),
+                tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d));
         }
 
-        protected virtual void UpdateTiles(bool clearTiles)
+        private TileGrid GetTileGrid()
+        {
+            var tileZoomLevel = Math.Max(0, (int)Math.Round(parentMap.ZoomLevel + ZoomLevelOffset));
+            var tileScale = (1 << tileZoomLevel);
+            var scale = tileScale / (Math.Pow(2d, parentMap.ZoomLevel) * TileSource.TileSize);
+            var tileCenter = GetTileCenter(tileScale);
+            var viewCenter = new Point(parentMap.RenderSize.Width / 2d, parentMap.RenderSize.Height / 2d);
+
+            var transform = new MatrixTransform
+            {
+                Matrix = MatrixEx.TranslateScaleRotateTranslate(viewCenter, scale, -parentMap.Heading, tileCenter)
+            };
+
+            var bounds = transform.TransformBounds(new Rect(0d, 0d, parentMap.RenderSize.Width, parentMap.RenderSize.Height));
+
+            return new TileGrid(tileZoomLevel,
+                (int)Math.Floor(bounds.X), (int)Math.Floor(bounds.Y),
+                (int)Math.Floor(bounds.X + bounds.Width), (int)Math.Floor(bounds.Y + bounds.Height));
+        }
+
+        private void SetRenderTransform()
+        {
+            var tileScale = (1 << TileGrid.ZoomLevel);
+            var scale = Math.Pow(2d, parentMap.ZoomLevel) / tileScale;
+            var tileCenter = GetTileCenter(tileScale);
+            var tileOrigin = new Point(TileSource.TileSize * (tileCenter.X - TileGrid.XMin), TileSource.TileSize * (tileCenter.Y - TileGrid.YMin));
+            var viewCenter = new Point(parentMap.RenderSize.Width / 2d, parentMap.RenderSize.Height / 2d);
+
+            ((MatrixTransform)RenderTransform).Matrix =
+                MatrixEx.TranslateScaleRotateTranslate(tileOrigin, scale, parentMap.Heading, viewCenter);
+        }
+
+        private void UpdateTiles(bool clearTiles)
         {
             if (Tiles.Count > 0)
             {
@@ -334,16 +402,16 @@ namespace MapControl
             }
         }
 
-        protected void SelectTiles()
+        private void SelectTiles()
         {
             var newTiles = new List<Tile>();
 
-            if (TileGrid != null && parentMap != null && TileSource != null)
+            if (parentMap != null && TileGrid != null && TileSource != null)
             {
                 var maxZoomLevel = Math.Min(TileGrid.ZoomLevel, MaxZoomLevel);
                 var minZoomLevel = MinZoomLevel;
 
-                if (minZoomLevel < maxZoomLevel && this != parentMap.TileLayers.FirstOrDefault())
+                if (minZoomLevel < maxZoomLevel && this != parentMap.Children.Cast<UIElement>().FirstOrDefault())
                 {
                     // do not load background tiles if this is not the base layer
                     minZoomLevel = maxZoomLevel;
@@ -384,25 +452,6 @@ namespace MapControl
             }
 
             Tiles = newTiles;
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            if (TileGrid != null)
-            {
-                foreach (var tile in Tiles)
-                {
-                    var tileSize = TileSource.TileSize << (TileGrid.ZoomLevel - tile.ZoomLevel);
-                    var x = tileSize * tile.X - TileSource.TileSize * TileGrid.XMin;
-                    var y = tileSize * tile.Y - TileSource.TileSize * TileGrid.YMin;
-
-                    tile.Image.Width = tileSize;
-                    tile.Image.Height = tileSize;
-                    tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
-                }
-            }
-
-            return finalSize;
         }
     }
 }

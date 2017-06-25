@@ -68,13 +68,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzimuthalEquidistantProjection.cs" />
+    <Compile Include="AzimuthalProjection.cs" />
     <Compile Include="BingMapsTileLayer.cs" />
     <Compile Include="BingMapsTileSource.cs" />
+    <Compile Include="BoundingBox.cs" />
+    <Compile Include="BoundingBoxConverter.cs" />
+    <Compile Include="CenteredBoundingBox.cs" />
+    <Compile Include="EquirectangularProjection.cs" />
     <Compile Include="Extensions.Silverlight.cs" />
+    <Compile Include="GnomonicProjection.cs" />
     <Compile Include="HyperlinkText.cs" />
     <Compile Include="ImageTileSource.Silverlight.WinRT.cs" />
-    <Compile Include="IMapElement.cs" />
-    <Compile Include="ITileImageLoader.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationCollection.cs" />
     <Compile Include="LocationCollectionConverter.cs" />
@@ -82,11 +87,10 @@
     <Compile Include="Map.Silverlight.cs" />
     <Compile Include="MapBase.cs" />
     <Compile Include="MapBase.Silverlight.WinRT.cs" />
-    <Compile Include="MapGraticule.cs" />
-    <Compile Include="MapGraticule.Silverlight.WinRT.cs" />
-    <Compile Include="MapImage.cs" />
     <Compile Include="MapImageLayer.cs" />
     <Compile Include="MapImageLayer.Silverlight.WinRT.cs" />
+    <Compile Include="MapGraticule.cs" />
+    <Compile Include="MapGraticule.Silverlight.WinRT.cs" />
     <Compile Include="MapItem.Silverlight.WinRT.cs" />
     <Compile Include="MapItemsControl.Silverlight.WinRT.cs" />
     <Compile Include="MapOverlay.cs" />
@@ -97,23 +101,23 @@
     <Compile Include="MapPath.Silverlight.WinRT.cs" />
     <Compile Include="MapPolyline.cs" />
     <Compile Include="MapPolyline.Silverlight.WinRT.cs" />
-    <Compile Include="MapRectangle.cs" />
-    <Compile Include="MapTransform.cs" />
-    <Compile Include="MatrixEx.cs" />
-    <Compile Include="MercatorTransform.cs" />
-    <Compile Include="PanelBase.cs" />
+    <Compile Include="MapProjection.cs" />
+    <Compile Include="MapTileLayer.cs" />
+    <Compile Include="MatrixEx.Silverlight.WinRT.cs" />
+    <Compile Include="OrthographicProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pushpin.Silverlight.WinRT.cs" />
+    <Compile Include="StereographicProjection.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Tile.Silverlight.WinRT.cs" />
     <Compile Include="TileGrid.cs" />
     <Compile Include="TileImageLoader.Silverlight.cs" />
-    <Compile Include="TileLayer.cs" />
-    <Compile Include="TileLayer.Silverlight.WinRT.cs" />
-    <Compile Include="TileLayerCollection.cs" />
+    <Compile Include="MapTileLayer.Silverlight.WinRT.cs" />
     <Compile Include="TileSource.cs" />
     <Compile Include="TileSourceConverter.cs" />
     <Compile Include="ViewportChangedEventArgs.cs" />
+    <Compile Include="WebMercatorProjection.cs" />
+    <Compile Include="WmsImageLayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Themes\Generic.xaml">

@@ -1,9 +1,10 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -11,11 +12,11 @@ namespace MapControl
 {
     public partial class MapImageLayer
     {
-        protected virtual void UpdateImage(Uri uri)
+        protected void UpdateImage(Uri uri)
         {
             Task.Run(() =>
             {
-                var image = ImageLoader.FromUri(uri);
+                var image = BitmapSourceHelper.FromUri(uri);
                 Dispatcher.BeginInvoke(new Action(() => UpdateImage(image)));
             });
         }
@@ -50,9 +51,7 @@ namespace MapControl
             bitmap.DownloadCompleted -= BitmapDownloadCompleted;
             bitmap.DownloadFailed -= BitmapDownloadFailed;
 
-            var mapImage = (MapImage)Children[currentImageIndex];
-            mapImage.Source = null;
-
+            ((Image)Children[topImageIndex]).Source = null;
             SwapImages();
         }
     }

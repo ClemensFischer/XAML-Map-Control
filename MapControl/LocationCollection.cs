@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -10,7 +10,7 @@ using System.Linq;
 namespace MapControl
 {
     /// <summary>
-    /// A collection of geographic locations.
+    /// An ObservableCollection of Location with support for parsing.
     /// </summary>
     public partial class LocationCollection : ObservableCollection<Location>
     {

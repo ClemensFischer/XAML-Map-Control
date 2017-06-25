@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -15,7 +15,7 @@ namespace MapControl
     /// </summary>
     internal class TileImageLoader : ITileImageLoader
     {
-        public void BeginLoadTiles(TileLayer tileLayer, IEnumerable<Tile> tiles)
+        public void BeginLoadTiles(MapTileLayer tileLayer, IEnumerable<Tile> tiles)
         {
             var imageTileSource = tileLayer.TileSource as ImageTileSource;
 
@@ -48,7 +48,7 @@ namespace MapControl
             }
         }
 
-        public void CancelLoadTiles(TileLayer tileLayer)
+        public void CancelLoadTiles(MapTileLayer tileLayer)
         {
         }
     }

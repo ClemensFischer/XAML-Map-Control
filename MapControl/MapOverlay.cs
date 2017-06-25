@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
@@ -13,7 +13,7 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Base class for map overlays with font, background, foreground and stroke properties.
+    /// Base class for map overlays with background, foreground, stroke and font properties.
     /// </summary>
     public partial class MapOverlay : MapPanel
     {

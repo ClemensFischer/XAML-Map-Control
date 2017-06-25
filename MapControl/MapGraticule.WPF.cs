@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -26,11 +26,8 @@ namespace MapControl
 
         static MapGraticule()
         {
-            IsHitTestVisibleProperty.OverrideMetadata(
-                typeof(MapGraticule), new FrameworkPropertyMetadata(false));
-
-            StrokeThicknessProperty.OverrideMetadata(
-                typeof(MapGraticule), new FrameworkPropertyMetadata(0.5));
+            IsHitTestVisibleProperty.OverrideMetadata(typeof(MapGraticule), new FrameworkPropertyMetadata(false));
+            StrokeThicknessProperty.OverrideMetadata(typeof(MapGraticule), new FrameworkPropertyMetadata(0.5));
         }
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
@@ -40,45 +37,45 @@ namespace MapControl
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (ParentMap != null)
+            var projection = ParentMap?.MapProjection;
+
+            if (projection != null && !double.IsNaN(projection.LongitudeScale))
             {
-                var bounds = ParentMap.ViewportTransform.Inverse.TransformBounds(new Rect(ParentMap.RenderSize));
-                var start = ParentMap.MapTransform.Transform(new Point(bounds.X, bounds.Y));
-                var end = ParentMap.MapTransform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
+                var bounds = projection.ViewportRectToBoundingBox(new Rect(ParentMap.RenderSize));
                 var lineDistance = GetLineDistance();
                 var labelFormat = GetLabelFormat(lineDistance);
-                var latLabelStart = Math.Ceiling(start.Latitude / lineDistance) * lineDistance;
-                var lonLabelStart = Math.Ceiling(start.Longitude / lineDistance) * lineDistance;
-                var latLabels = new List<Label>((int)((end.Latitude - latLabelStart) / lineDistance) + 1);
-                var lonLabels = new List<Label>((int)((end.Longitude - lonLabelStart) / lineDistance) + 1);
+                var latLabelStart = Math.Ceiling(bounds.South / lineDistance) * lineDistance;
+                var lonLabelStart = Math.Ceiling(bounds.West / lineDistance) * lineDistance;
+                var latLabels = new List<Label>((int)((bounds.North - latLabelStart) / lineDistance) + 1);
+                var lonLabels = new List<Label>((int)((bounds.East - lonLabelStart) / lineDistance) + 1);
 
-                for (var lat = latLabelStart; lat <= end.Latitude; lat += lineDistance)
+                for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
                 {
                     latLabels.Add(new Label(lat, new FormattedText(
                         GetLabelText(lat, labelFormat, "NS"),
                         CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground)));
 
                     drawingContext.DrawLine(Pen,
-                        ParentMap.LocationToViewportPoint(new Location(lat, start.Longitude)),
-                        ParentMap.LocationToViewportPoint(new Location(lat, end.Longitude)));
+                        projection.LocationToViewportPoint(new Location(lat, bounds.West)),
+                        projection.LocationToViewportPoint(new Location(lat, bounds.East)));
                 }
 
-                for (var lon = lonLabelStart; lon <= end.Longitude; lon += lineDistance)
+                for (var lon = lonLabelStart; lon <= bounds.East; lon += lineDistance)
                 {
                     lonLabels.Add(new Label(lon, new FormattedText(
                         GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW"),
                         CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground)));
 
                     drawingContext.DrawLine(Pen,
-                        ParentMap.LocationToViewportPoint(new Location(start.Latitude, lon)),
-                        ParentMap.LocationToViewportPoint(new Location(end.Latitude, lon)));
+                        projection.LocationToViewportPoint(new Location(bounds.South, lon)),
+                        projection.LocationToViewportPoint(new Location(bounds.North, lon)));
                 }
 
                 foreach (var latLabel in latLabels)
                 {
                     foreach (var lonLabel in lonLabels)
                     {
-                        var position = ParentMap.LocationToViewportPoint(new Location(latLabel.Position, lonLabel.Position));
+                        var position = projection.LocationToViewportPoint(new Location(latLabel.Position, lonLabel.Position));
 
                         drawingContext.PushTransform(new RotateTransform(ParentMap.Heading, position.X, position.Y));
                         drawingContext.DrawText(latLabel.Text,

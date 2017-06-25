@@ -1,4 +1,4 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
 // © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
@@ -8,15 +8,22 @@ namespace MapControl
 {
     public class ViewportChangedEventArgs : EventArgs
     {
-        public ViewportChangedEventArgs(double originOffset)
+        public ViewportChangedEventArgs(bool projectionChanged = false, double longitudeOffset = 0d)
         {
-            OriginOffset = originOffset;
+            ProjectionChanged = projectionChanged;
+            LongitudeOffset = longitudeOffset;
         }
 
         /// <summary>
-        /// Offset of the X value of the map coordinate origin from the previous viewport.
+        /// Indicates if the map projection has changed, i.e. if a TileLayer or ImageLayer should be
+        /// immediately updated, or MapPath Data in cartesian map coordinates should be recalculated.
+        /// </summary>
+        public bool ProjectionChanged { get; }
+
+        /// <summary>
+        /// Offset of the map center longitude value from the previous viewport.
         /// Used to detect if the map center has moved across 180° longitude.
         /// </summary>
-        public double OriginOffset { get; }
+        public double LongitudeOffset { get; }
     }
 }

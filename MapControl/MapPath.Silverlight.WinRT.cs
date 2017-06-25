@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if NETFX_CORE
@@ -33,8 +33,17 @@ namespace MapControl
             // Workaround for missing PropertyChangedCallback for the Data property.
             if (data != Data)
             {
+                if (data != null)
+                {
+                    data.ClearValue(Geometry.TransformProperty);
+                }
+
                 data = Data;
-                UpdateData();
+
+                if (data != null)
+                {
+                    data.Transform = viewportTransform;
+                }
             }
 
             // Path.MeasureOverride in Windows Runtime sometimes returns an empty Size,

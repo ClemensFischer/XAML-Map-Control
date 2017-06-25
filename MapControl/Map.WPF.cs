@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
@@ -13,10 +13,10 @@ namespace MapControl
     public class Map : MapBase
     {
         public static readonly DependencyProperty ManipulationModeProperty = DependencyProperty.Register(
-            "ManipulationMode", typeof(ManipulationModes), typeof(Map), new PropertyMetadata(ManipulationModes.All));
+            nameof(ManipulationMode), typeof(ManipulationModes), typeof(Map), new PropertyMetadata(ManipulationModes.All));
 
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
-            "MouseWheelZoomDelta", typeof(double), typeof(Map), new PropertyMetadata(1d));
+            nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
 
         private Point? mousePosition;
 

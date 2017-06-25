@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -23,23 +23,12 @@ namespace MapControl
 
         static MapScale()
         {
-            IsHitTestVisibleProperty.OverrideMetadata(
-                typeof(MapScale), new FrameworkPropertyMetadata(false));
-
-            MinWidthProperty.OverrideMetadata(
-                typeof(MapScale), new FrameworkPropertyMetadata(100d));
-
-            HorizontalAlignmentProperty.OverrideMetadata(
-                typeof(MapScale), new FrameworkPropertyMetadata(HorizontalAlignment.Right));
-
-            VerticalAlignmentProperty.OverrideMetadata(
-                typeof(MapScale), new FrameworkPropertyMetadata(VerticalAlignment.Bottom));
-
-            StrokeStartLineCapProperty.OverrideMetadata(
-                typeof(MapScale), new FrameworkPropertyMetadata(PenLineCap.Round));
-
-            StrokeEndLineCapProperty.OverrideMetadata(
-                typeof(MapScale), new FrameworkPropertyMetadata(PenLineCap.Round));
+            IsHitTestVisibleProperty.OverrideMetadata(typeof(MapScale), new FrameworkPropertyMetadata(false));
+            MinWidthProperty.OverrideMetadata(typeof(MapScale), new FrameworkPropertyMetadata(100d));
+            HorizontalAlignmentProperty.OverrideMetadata(typeof(MapScale), new FrameworkPropertyMetadata(HorizontalAlignment.Right));
+            VerticalAlignmentProperty.OverrideMetadata(typeof(MapScale), new FrameworkPropertyMetadata(VerticalAlignment.Bottom));
+            StrokeStartLineCapProperty.OverrideMetadata(typeof(MapScale), new FrameworkPropertyMetadata(PenLineCap.Round));
+            StrokeEndLineCapProperty.OverrideMetadata(typeof(MapScale), new FrameworkPropertyMetadata(PenLineCap.Round));
         }
 
         public Thickness Padding
@@ -50,9 +39,9 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (ParentMap != null && ParentMap.CenterScale > 0d)
+            if (ParentMap != null && ParentMap.ScaleTransform.ScaleX > 0d)
             {
-                length = MinWidth / ParentMap.CenterScale;
+                length = MinWidth / ParentMap.ScaleTransform.ScaleX;
                 var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 
                 if (length / magnitude < 2d)
@@ -68,7 +57,7 @@ namespace MapControl
                     length = 10d * magnitude;
                 }
 
-                size.Width = length * ParentMap.CenterScale + StrokeThickness + Padding.Left + Padding.Right;
+                size.Width = length * ParentMap.ScaleTransform.ScaleX + StrokeThickness + Padding.Left + Padding.Right;
                 size.Height = FontSize * FontFamily.LineSpacing + StrokeThickness + Padding.Top + Padding.Bottom;
             }
             else

@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -13,7 +13,6 @@ namespace MapControl
     public partial class TileSource
     {
         public const int TileSize = 256;
-        public const double MetersPerDegree = 6378137d * Math.PI / 180d; // WGS 84 semi major axis
 
         private Func<int, int, int, Uri> getUri;
         private string uriFormat = string.Empty;
@@ -58,6 +57,10 @@ namespace MapControl
                         getUri = GetBasicUri;
                     }
                 }
+                else if (uriFormat.Contains("{x}") && uriFormat.Contains("{v}") && uriFormat.Contains("{z}"))
+                {
+                    getUri = GetTmsUri;
+                }
                 else if (uriFormat.Contains("{q}")) // {i} is optional
                 {
                     getUri = GetQuadKeyUri;
@@ -69,10 +72,6 @@ namespace MapControl
                 else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
                 {
                     getUri = GetLatLonBoundingBoxUri;
-                }
-                else if (uriFormat.Contains("{x}") && uriFormat.Contains("{v}") && uriFormat.Contains("{z}"))
-                {
-                    getUri = GetTmsUri;
                 }
             }
         }
@@ -161,10 +160,10 @@ namespace MapControl
         private Uri GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
             var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
-            var west = MetersPerDegree * (x * tileSize - 180d);
-            var east = MetersPerDegree * ((x + 1) * tileSize - 180d);
-            var south = MetersPerDegree * (180d - (y + 1) * tileSize);
-            var north = MetersPerDegree * (180d - y * tileSize);
+            var west = MapProjection.MetersPerDegree * (x * tileSize - 180d);
+            var east = MapProjection.MetersPerDegree * ((x + 1) * tileSize - 180d);
+            var south = MapProjection.MetersPerDegree * (180d - (y + 1) * tileSize);
+            var north = MapProjection.MetersPerDegree * (180d - y * tileSize);
 
             return new Uri(uriFormat
                 .Replace("{W}", west.ToString(CultureInfo.InvariantCulture))
@@ -180,8 +179,8 @@ namespace MapControl
             var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
             var west = x * tileSize - 180d;
             var east = (x + 1) * tileSize - 180d;
-            var south = MercatorTransform.YToLatitude(180d - (y + 1) * tileSize);
-            var north = MercatorTransform.YToLatitude(180d - y * tileSize);
+            var south = WebMercatorProjection.YToLatitude(180d - (y + 1) * tileSize);
+            var north = WebMercatorProjection.YToLatitude(180d - y * tileSize);
 
             return new Uri(uriFormat
                 .Replace("{w}", west.ToString(CultureInfo.InvariantCulture))

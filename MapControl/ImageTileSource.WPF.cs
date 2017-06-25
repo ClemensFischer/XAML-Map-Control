@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows.Media;
@@ -28,7 +28,7 @@ namespace MapControl
             {
                 if (IsAsync)
                 {
-                    image = ImageLoader.FromUri(uri);
+                    image = BitmapSourceHelper.FromUri(uri);
                 }
                 else
                 {

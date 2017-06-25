@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -17,7 +17,7 @@ namespace MapControl
     public partial class MapGraticule : MapOverlay
     {
         public static readonly DependencyProperty MinLineDistanceProperty = DependencyProperty.Register(
-            "MinLineDistance", typeof(double), typeof(MapGraticule), new PropertyMetadata(150d));
+            nameof(MinLineDistance), typeof(double), typeof(MapGraticule), new PropertyMetadata(150d));
 
         /// <summary>
         /// Minimum graticule line distance in pixels. The default value is 150.

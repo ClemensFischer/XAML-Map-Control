@@ -1,5 +1,5 @@
-﻿// XAML Map Control - http://xamlmapcontrol.codeplex.com/
-// © 2016 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -10,9 +10,11 @@ using System.Net;
 using System.Xml;
 #if NETFX_CORE
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 #endif
 
@@ -20,8 +22,10 @@ namespace MapControl
 {
     /// <summary>
     /// Displays Bing Maps tiles. The static ApiKey property must be set to a Bing Maps API Key.
+    /// Tile image URLs and min/max zoom levels are retrieved from the Imagery Metadata Service
+    /// (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
     /// </summary>
-    public class BingMapsTileLayer : TileLayer
+    public class BingMapsTileLayer : MapTileLayer
     {
         public enum MapMode
         {
@@ -45,6 +49,7 @@ namespace MapControl
 
         public MapMode Mode { get; set; }
         public string Culture { get; set; }
+        public ImageSource LogoImage { get; set; }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -52,13 +57,15 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(ApiKey))
             {
-                throw new InvalidOperationException("BingMapsTileLayer requires a Bing Maps API Key.");
+                Debug.WriteLine("BingMapsTileLayer requires a Bing Maps API Key");
             }
+            else
+            {
+                var uri = string.Format("http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{0}?output=xml&key={1}", Mode, ApiKey);
+                var request = WebRequest.CreateHttp(uri);
 
-            var uri = string.Format("http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{0}?output=xml&key={1}", Mode, ApiKey);
-            var request = WebRequest.CreateHttp(uri);
-
-            request.BeginGetResponse(HandleImageryMetadataResponse, request);
+                request.BeginGetResponse(HandleImageryMetadataResponse, request);
+            }
         }
 
         private void HandleImageryMetadataResponse(IAsyncResult asyncResult)
@@ -122,7 +129,7 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(imageUrl) && imageUrlSubdomains != null && imageUrlSubdomains.Length > 0)
             {
-                var _ = Dispatcher.BeginInvoke(new Action(() =>
+                var op = Dispatcher.BeginInvoke(new Action(() =>
                 {
                     if (string.IsNullOrEmpty(Culture))
                     {
