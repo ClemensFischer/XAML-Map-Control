@@ -13,7 +13,7 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public static TimeSpan FadeDuration { get; set; } = TimeSpan.FromSeconds(0.2);
+        public static TimeSpan FadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
 
         public readonly int ZoomLevel;
         public readonly int X;
@@ -25,10 +25,9 @@ namespace MapControl
             ZoomLevel = zoomLevel;
             X = x;
             Y = y;
-            Pending = true;
         }
 
-        public bool Pending { get; private set; }
+        public bool Pending { get; set; } = true;
 
         public int XIndex
         {

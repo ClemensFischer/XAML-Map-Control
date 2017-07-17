@@ -23,8 +23,7 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        void BeginLoadTiles(MapTileLayer tileLayer, IEnumerable<Tile> tiles);
-        void CancelLoadTiles(MapTileLayer tileLayer);
+        void LoadTiles(MapTileLayer tileLayer);
     }
 
     /// <summary>
@@ -38,7 +37,7 @@ namespace MapControl
     public partial class MapTileLayer : Panel, IMapLayer
     {
         /// <summary>
-        /// A default TileLayer using OpenStreetMap data.
+        /// A default MapTileLayer using OpenStreetMap data.
         /// </summary>
         public static MapTileLayer OpenStreetMapTileLayer
         {
@@ -56,7 +55,7 @@ namespace MapControl
 
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
             nameof(TileSource), typeof(TileSource), typeof(MapTileLayer),
-            new PropertyMetadata(null, (o, e) => ((MapTileLayer)o).UpdateTiles(true)));
+            new PropertyMetadata(null, (o, e) => ((MapTileLayer)o).ResetTiles()));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
             nameof(SourceName), typeof(string), typeof(MapTileLayer), new PropertyMetadata(null));
@@ -83,9 +82,6 @@ namespace MapControl
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
             nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapTileLayer), new PropertyMetadata(true));
-
-        public static readonly DependencyProperty LoadTilesDescendingProperty = DependencyProperty.Register(
-            nameof(LoadTilesDescending), typeof(bool), typeof(MapTileLayer), new PropertyMetadata(false));
 
         public static readonly DependencyProperty MapBackgroundProperty = DependencyProperty.Register(
             nameof(MapBackground), typeof(Brush), typeof(MapTileLayer), new PropertyMetadata(null));
@@ -138,7 +134,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Description of the TileLayer.
+        /// Description of the MapTileLayer.
         /// Used to display copyright information on top of the map.
         /// </summary>
         public string Description
@@ -148,7 +144,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Adds an offset to the Map's ZoomLevel for a relative scale between the Map and the TileLayer.
+        /// Adds an offset to the Map's ZoomLevel for a relative scale between the Map and the MapTileLayer.
         /// </summary>
         public double ZoomLevelOffset
         {
@@ -157,7 +153,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Minimum zoom level supported by the TileLayer.
+        /// Minimum zoom level supported by the MapTileLayer.
         /// </summary>
         public int MinZoomLevel
         {
@@ -166,7 +162,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Maximum zoom level supported by the TileLayer.
+        /// Maximum zoom level supported by the MapTileLayer.
         /// </summary>
         public int MaxZoomLevel
         {
@@ -175,7 +171,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Maximum number of parallel downloads that may be performed by the TileLayer's ITileImageLoader.
+        /// Maximum number of parallel downloads that may be performed by the MapTileLayer's ITileImageLoader.
         /// </summary>
         public int MaxParallelDownloads
         {
@@ -202,18 +198,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Controls the order of zoom levels in which map tiles are loaded.
-        /// The default is value is false, i.e. tiles are loaded in ascending order.
-        /// </summary>
-        public bool LoadTilesDescending
-        {
-            get { return (bool)GetValue(LoadTilesDescendingProperty); }
-            set { SetValue(LoadTilesDescendingProperty, value); }
-        }
-
-        /// <summary>
         /// Optional background brush.
-        /// Sets MapBase.Background if not null and the TileLayer is the base map layer.
+        /// Sets MapBase.Background if not null and the MapTileLayer is the base map layer.
         /// </summary>
         public Brush MapBackground
         {
@@ -223,7 +209,7 @@ namespace MapControl
 
         /// <summary>
         /// Optional foreground brush.
-        /// Sets MapBase.Foreground if not null and the TileLayer is the base map layer.
+        /// Sets MapBase.Foreground if not null and the MapTileLayer is the base map layer.
         /// </summary>
         public Brush MapForeground
         {
@@ -295,13 +281,13 @@ namespace MapControl
                 {
                     TileGrid = tileGrid;
                     SetRenderTransform();
-                    UpdateTiles(false);
+                    UpdateTiles();
                 }
             }
             else
             {
                 TileGrid = null;
-                UpdateTiles(true);
+                ResetTiles();
             }
         }
 
@@ -368,38 +354,24 @@ namespace MapControl
                 MatrixEx.TranslateScaleRotateTranslate(tileOrigin, scale, parentMap.Heading, viewCenter);
         }
 
-        private void UpdateTiles(bool clearTiles)
+        private void ResetTiles()
         {
-            if (Tiles.Count > 0)
-            {
-                TileImageLoader.CancelLoadTiles(this);
-            }
+            Tiles.Clear();
+            UpdateTiles();
+        }
 
-            if (clearTiles)
-            {
-                Tiles.Clear();
-            }
-
+        private void UpdateTiles()
+        {
             SelectTiles();
 
             Children.Clear();
 
-            if (Tiles.Count > 0)
+            foreach (var tile in Tiles)
             {
-                foreach (var tile in Tiles)
-                {
-                    Children.Add(tile.Image);
-                }
-
-                var pendingTiles = Tiles.Where(t => t.Pending);
-
-                if (LoadTilesDescending)
-                {
-                    pendingTiles = pendingTiles.OrderByDescending(t => t.ZoomLevel); // higher zoom levels first
-                }
-
-                TileImageLoader.BeginLoadTiles(this, pendingTiles);
+                Children.Add(tile.Image);
             }
+
+            TileImageLoader.LoadTiles(this);
         }
 
         private void SelectTiles()
@@ -409,13 +381,7 @@ namespace MapControl
             if (parentMap != null && TileGrid != null && TileSource != null)
             {
                 var maxZoomLevel = Math.Min(TileGrid.ZoomLevel, MaxZoomLevel);
-                var minZoomLevel = MinZoomLevel;
-
-                if (minZoomLevel < maxZoomLevel && this != parentMap.Children.Cast<UIElement>().FirstOrDefault())
-                {
-                    // do not load background tiles if this is not the base layer
-                    minZoomLevel = maxZoomLevel;
-                }
+                var minZoomLevel = parentMap.MapLayer == this ? MinZoomLevel : maxZoomLevel; // load background tiles only if this is the base layer
 
                 for (var z = minZoomLevel; z <= maxZoomLevel; z++)
                 {

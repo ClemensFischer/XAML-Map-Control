@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,7 +17,17 @@ namespace MapControl
         {
             Task.Run(() =>
             {
-                var image = BitmapSourceHelper.FromUri(uri);
+                BitmapSource image = null;
+
+                try
+                {
+                    image = BitmapSourceHelper.FromUri(uri);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("{0}: {1}", uri, ex.Message);
+                }
+
                 Dispatcher.BeginInvoke(new Action(() => UpdateImage(image)));
             });
         }

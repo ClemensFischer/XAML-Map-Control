@@ -29,7 +29,8 @@ namespace ViewModel
                 {
                     SourceName = "OpenStreetMap German",
                     Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png" }
+                    TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png" },
+                    MaxZoomLevel = 19
                 }
             },
             {

@@ -17,30 +17,39 @@ namespace MapControl
         {
             Pending = false;
 
-            if (image != null)
+            if (Image.Dispatcher.CheckAccess())
             {
-                if (fadeIn && FadeDuration > TimeSpan.Zero)
-                {
-                    var bitmap = image as BitmapSource;
+                SetImageSource(image, fadeIn);
+            }
+            else
+            {
+                Image.Dispatcher.BeginInvoke(new Action(() => SetImageSource(image, fadeIn)));
+            }
+        }
 
-                    if (bitmap != null && !bitmap.IsFrozen && bitmap.IsDownloading)
-                    {
-                        bitmap.DownloadCompleted += BitmapDownloadCompleted;
-                        bitmap.DownloadFailed += BitmapDownloadFailed;
-                    }
-                    else
-                    {
-                        Image.BeginAnimation(UIElement.OpacityProperty,
-                            new DoubleAnimation(0d, 1d, FadeDuration));
-                    }
+        private void SetImageSource(ImageSource image, bool fadeIn)
+        {
+            if (fadeIn && FadeDuration > TimeSpan.Zero)
+            {
+                var bitmap = image as BitmapSource;
+
+                if (bitmap != null && !bitmap.IsFrozen && bitmap.IsDownloading)
+                {
+                    bitmap.DownloadCompleted += BitmapDownloadCompleted;
+                    bitmap.DownloadFailed += BitmapDownloadFailed;
                 }
                 else
                 {
-                    Image.Opacity = 1d;
+                    Image.BeginAnimation(UIElement.OpacityProperty,
+                        new DoubleAnimation(0d, 1d, FadeDuration));
                 }
-
-                Image.Source = image;
             }
+            else
+            {
+                Image.Opacity = 1d;
+            }
+
+            Image.Source = image;
         }
 
         private void BitmapDownloadCompleted(object sender, EventArgs e)

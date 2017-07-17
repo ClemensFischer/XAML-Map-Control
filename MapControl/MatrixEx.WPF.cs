@@ -23,7 +23,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Used in TileLayer.
+        /// Used in MapTileLayer.
         /// </summary>
         public static Matrix TranslateScaleRotateTranslate(
             Point translation1, double scale, double rotationAngle, Point translation2)

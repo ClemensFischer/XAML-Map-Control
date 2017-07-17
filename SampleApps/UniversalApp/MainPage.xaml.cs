@@ -11,8 +11,8 @@ namespace UniversalApp
 
         public MainPage()
         {
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache();
-            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache();
+            //MapControl.TileImageLoader.Cache = new MapControl.Caching.ImageFileCache();
+            //MapControl.TileImageLoader.Cache = new MapControl.Caching.FileDbCache();
 
             InitializeComponent();
             DataContext = ViewModel;

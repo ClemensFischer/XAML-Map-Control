@@ -25,30 +25,27 @@ namespace MapControl
         {
             Pending = false;
 
-            if (image != null)
+            if (fadeIn && FadeDuration > TimeSpan.Zero)
             {
-                if (fadeIn && FadeDuration > TimeSpan.Zero)
-                {
-                    BitmapImage bitmap;
+                BitmapImage bitmap;
 
-                    if (isDownloading && (bitmap = image as BitmapImage) != null)
-                    {
-                        bitmap.ImageOpened += BitmapImageOpened;
-                        bitmap.ImageFailed += BitmapImageFailed;
-                    }
-                    else
-                    {
-                        Image.BeginAnimation(UIElement.OpacityProperty,
-                            new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration });
-                    }
+                if (isDownloading && (bitmap = image as BitmapImage) != null)
+                {
+                    bitmap.ImageOpened += BitmapImageOpened;
+                    bitmap.ImageFailed += BitmapImageFailed;
                 }
                 else
                 {
-                    Image.Opacity = 1d;
+                    Image.BeginAnimation(UIElement.OpacityProperty,
+                        new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration });
                 }
-
-                Image.Source = image;
             }
+            else
+            {
+                Image.Opacity = 1d;
+            }
+
+            Image.Source = image;
         }
 
         private void BitmapImageOpened(object sender, RoutedEventArgs e)

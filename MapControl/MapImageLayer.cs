@@ -123,7 +123,7 @@ namespace MapControl
 
         /// <summary>
         /// Relative size of the map image in relation to the current viewport size.
-        /// Setting a value greater than one will let ImageLayer request images that
+        /// Setting a value greater than one will let MapImageLayer request images that
         /// are larger than the viewport, in order to support smooth panning.
         /// </summary>
         public double RelativeImageSize
@@ -151,7 +151,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Description of the ImageLayer.
+        /// Description of the MapImageLayer.
         /// Used to display copyright information on top of the map.
         /// </summary>
         public string Description
@@ -162,7 +162,7 @@ namespace MapControl
 
         /// <summary>
         /// Optional foreground brush.
-        /// Sets MapBase.Foreground if not null and the ImageLayer is the base map layer.
+        /// Sets MapBase.Foreground if not null and the MapImageLayer is the base map layer.
         /// </summary>
         public Brush MapForeground
         {
@@ -172,7 +172,7 @@ namespace MapControl
 
         /// <summary>
         /// Optional background brush.
-        /// Sets MapBase.Background if not null and the ImageLayer is the base map layer.
+        /// Sets MapBase.Background if not null and the MapImageLayer is the base map layer.
         /// </summary>
         public Brush MapBackground
         {

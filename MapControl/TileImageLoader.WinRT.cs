@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -56,130 +57,124 @@ namespace MapControl
             MinimumCacheExpiration = TimeSpan.FromHours(1);
         }
 
-        private class PendingTile
-        {
-            public readonly Tile Tile;
-            public readonly Uri Uri;
-
-            public PendingTile(Tile tile, Uri uri)
-            {
-                Tile = tile;
-                Uri = uri;
-            }
-        }
-
-        private readonly ConcurrentQueue<PendingTile> pendingTiles = new ConcurrentQueue<PendingTile>();
+        private readonly ConcurrentStack<Tile> pendingTiles = new ConcurrentStack<Tile>();
         private int taskCount;
 
-        public void BeginLoadTiles(MapTileLayer tileLayer, IEnumerable<Tile> tiles)
+        public void LoadTiles(MapTileLayer tileLayer)
         {
+            pendingTiles.Clear();
+
             var tileSource = tileLayer.TileSource;
             var imageTileSource = tileSource as ImageTileSource;
+            var tiles = tileLayer.Tiles.Where(t => t.Pending);
 
             if (imageTileSource != null)
             {
-                foreach (var tile in tiles)
-                {
-                    try
-                    {
-                        tile.SetImage(imageTileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel));
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.Message);
-                    }
-                }
+                LoadTiles(imageTileSource, tiles);
             }
             else
             {
-                foreach (var tile in tiles)
+                var tileStack = tiles.Reverse().ToArray();
+
+                if (tileStack.Length > 0)
                 {
-                    Uri uri = null;
+                    pendingTiles.PushRange(tileStack);
 
-                    try
-                    {
-                        uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.Message);
-                    }
+                    var sourceName = tileLayer.SourceName;
+                    var maxDownloads = tileLayer.MaxParallelDownloads;
 
-                    if (uri == null)
+                    while (taskCount < Math.Min(pendingTiles.Count, maxDownloads))
                     {
-                        tile.SetImage(null);
-                    }
-                    else
-                    {
-                        pendingTiles.Enqueue(new PendingTile(tile, uri));
+                        Interlocked.Increment(ref taskCount);
 
-                        var newTaskCount = Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads) - taskCount;
-                        var sourceName = tileLayer.SourceName;
-
-                        while (newTaskCount-- > 0)
+                        Task.Run(async () =>
                         {
-                            Interlocked.Increment(ref taskCount);
+                            await LoadPendingTiles(tileSource, sourceName);
 
-                            Task.Run(() => LoadPendingTiles(tileSource, sourceName)); // Task.Run(Func<Task>)
-                        }
+                            Interlocked.Decrement(ref taskCount);
+                        });
                     }
                 }
             }
         }
 
-        public void CancelLoadTiles(MapTileLayer tileLayer)
+        private void LoadTiles(ImageTileSource tileSource, IEnumerable<Tile> tiles)
         {
-            PendingTile pendingTile;
+            foreach (var tile in tiles)
+            {
+                tile.Pending = false;
 
-            while (pendingTiles.TryDequeue(out pendingTile)) ; // no Clear method
+                try
+                {
+                    var image = tileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel);
+
+                    if (image != null)
+                    {
+                        tile.SetImage(image);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("{0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
+                }
+            }
         }
 
         private async Task LoadPendingTiles(TileSource tileSource, string sourceName)
         {
-            PendingTile pendingTile;
+            Tile tile;
 
-            while (pendingTiles.TryDequeue(out pendingTile))
+            while (pendingTiles.TryPop(out tile))
             {
-                var tile = pendingTile.Tile;
-                var uri = pendingTile.Uri;
+                tile.Pending = false;
 
-                if (Cache == null || sourceName == null)
+                try
                 {
-                    await DownloadImage(tile, uri, null);
-                }
-                else
-                {
-                    var extension = Path.GetExtension(uri.LocalPath);
+                    var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-                    if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                    if (uri != null)
                     {
-                        extension = ".jpg";
-                    }
-
-                    var cacheKey = string.Format(@"{0}\{1}\{2}\{3}{4}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-                    var cacheItem = await Cache.GetAsync(cacheKey);
-                    var loaded = false;
-
-                    if (cacheItem == null || cacheItem.Expiration <= DateTime.UtcNow)
-                    {
-                        loaded = await DownloadImage(tile, uri, cacheKey);
-                    }
-
-                    if (!loaded && cacheItem != null && cacheItem.Buffer != null)
-                    {
-                        using (var stream = new InMemoryRandomAccessStream())
+                        if (Cache == null || sourceName == null)
                         {
-                            await stream.WriteAsync(cacheItem.Buffer);
-                            await stream.FlushAsync();
-                            stream.Seek(0);
+                            await DownloadImage(tile, uri, null);
+                        }
+                        else
+                        {
+                            var extension = Path.GetExtension(uri.LocalPath);
 
-                            await LoadImageFromStream(tile, stream);
+                            if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                            {
+                                extension = ".jpg";
+                            }
+
+                            var cacheKey = string.Format(@"{0}\{1}\{2}\{3}{4}", sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+                            var cacheItem = await Cache.GetAsync(cacheKey);
+                            var loaded = false;
+
+                            if (cacheItem == null || cacheItem.Expiration <= DateTime.UtcNow)
+                            {
+                                loaded = await DownloadImage(tile, uri, cacheKey);
+                            }
+
+                            if (!loaded && cacheItem != null && cacheItem.Buffer != null)
+                            {
+                                using (var stream = new InMemoryRandomAccessStream())
+                                {
+                                    await stream.WriteAsync(cacheItem.Buffer);
+                                    await stream.FlushAsync();
+                                    stream.Seek(0);
+
+                                    await LoadImageFromStream(tile, stream);
+                                }
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("{0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
+                }
             }
-
-            Interlocked.Decrement(ref taskCount);
         }
 
         private async Task<bool> DownloadImage(Tile tile, Uri uri, string cacheKey)
@@ -211,7 +206,6 @@ namespace MapControl
 
             if (response.Headers.TryGetValue("X-VE-Tile-Info", out tileInfo) && tileInfo == "no-tile") // set by Bing Maps
             {
-                tile.SetImage(null);
                 return true;
             }
 
@@ -255,28 +249,25 @@ namespace MapControl
 
         private async Task<bool> LoadImageFromStream(Tile tile, IRandomAccessStream stream)
         {
-            var completion = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<bool>();
 
-            var action = tile.Image.Dispatcher.RunAsync(
-                CoreDispatcherPriority.Normal,
-                async () =>
+            await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            {
+                try
                 {
-                    try
-                    {
-                        var image = new BitmapImage();
-                        await image.SetSourceAsync(stream);
-                        tile.SetImage(image, true, false);
-                        completion.SetResult(true);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.Message);
-                        tile.SetImage(null);
-                        completion.SetResult(false);
-                    }
-                });
+                    var image = new BitmapImage();
+                    await image.SetSourceAsync(stream);
+                    tile.SetImage(image, true, false);
+                    tcs.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("{0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
+                    tcs.SetResult(false);
+                }
+            });
 
-            return await completion.Task;
+            return await tcs.Task;
         }
     }
 }

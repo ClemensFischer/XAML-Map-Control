@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Windows.Media.Imaging;
@@ -11,43 +10,49 @@ using System.Windows.Media.Imaging;
 namespace MapControl
 {
     /// <summary>
-    /// Creates frozen BitmapSources from Stream or Uri.
+    /// Creates frozen BitmapSources from Stream, file or Uri.
     /// </summary>
     public static class BitmapSourceHelper
     {
         public static BitmapSource FromStream(Stream stream)
         {
-            var bitmap = new BitmapImage();
+            return BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+        }
 
-            bitmap.BeginInit();
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.StreamSource = stream;
-            bitmap.EndInit();
-            bitmap.Freeze();
+        public static BitmapSource FromFile(string path)
+        {
+            if (!File.Exists(path))
+            {
+                return null;
+            }
 
-            return bitmap;
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                return FromStream(fileStream);
+            }
         }
 
         public static BitmapSource FromUri(Uri uri)
         {
-            try
+            if (!uri.IsAbsoluteUri)
             {
-                using (var response = WebRequest.Create(uri).GetResponse())
-                using (var responseStream = response.GetResponseStream())
-                using (var memoryStream = new MemoryStream())
-                {
-                    responseStream.CopyTo(memoryStream);
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-
-                    return FromStream(memoryStream);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
+                return FromFile(uri.OriginalString);
             }
 
-            return null;
+            if (uri.Scheme == "file")
+            {
+                return FromFile(uri.LocalPath);
+            }
+
+            using (var response = WebRequest.Create(uri).GetResponse())
+            using (var responseStream = response.GetResponseStream())
+            using (var memoryStream = new MemoryStream())
+            {
+                responseStream.CopyTo(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                return FromStream(memoryStream);
+            }
         }
     }
 }
