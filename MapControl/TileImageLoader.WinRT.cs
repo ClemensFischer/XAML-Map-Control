@@ -64,21 +64,20 @@ namespace MapControl
         {
             pendingTiles.Clear();
 
-            var tileSource = tileLayer.TileSource;
-            var imageTileSource = tileSource as ImageTileSource;
             var tiles = tileLayer.Tiles.Where(t => t.Pending);
 
-            if (imageTileSource != null)
+            if (tiles.Any())
             {
-                LoadTiles(imageTileSource, tiles);
-            }
-            else
-            {
-                var tileStack = tiles.Reverse().ToArray();
+                var tileSource = tileLayer.TileSource;
+                var imageTileSource = tileSource as ImageTileSource;
 
-                if (tileStack.Length > 0)
+                if (imageTileSource != null)
                 {
-                    pendingTiles.PushRange(tileStack);
+                    LoadTiles(tiles, imageTileSource);
+                }
+                else
+                {
+                    pendingTiles.PushRange(tiles.Reverse().ToArray());
 
                     var sourceName = tileLayer.SourceName;
                     var maxDownloads = tileLayer.MaxParallelDownloads;
@@ -98,7 +97,7 @@ namespace MapControl
             }
         }
 
-        private void LoadTiles(ImageTileSource tileSource, IEnumerable<Tile> tiles)
+        private void LoadTiles(IEnumerable<Tile> tiles, ImageTileSource tileSource)
         {
             foreach (var tile in tiles)
             {
@@ -134,7 +133,15 @@ namespace MapControl
 
                     if (uri != null)
                     {
-                        if (Cache == null || sourceName == null)
+                        if (!uri.IsAbsoluteUri)
+                        {
+                            await LoadImageFromFile(tile, uri.OriginalString);
+                        }
+                        else if (uri.Scheme == "file")
+                        {
+                            await LoadImageFromFile(tile, uri.LocalPath);
+                        }
+                        else if (Cache == null || sourceName == null)
                         {
                             await DownloadImage(tile, uri, null);
                         }
@@ -186,7 +193,14 @@ namespace MapControl
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        return await LoadImageFromHttpResponse(response, tile, cacheKey);
+                        string tileInfo;
+
+                        if (!response.Headers.TryGetValue("X-VE-Tile-Info", out tileInfo) || tileInfo != "no-tile") // set by Bing Maps
+                        {
+                            await LoadImageFromHttpResponse(response, tile, cacheKey);
+                        }
+
+                        return true;
                     }
 
                     Debug.WriteLine("{0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
@@ -200,15 +214,8 @@ namespace MapControl
             return false;
         }
 
-        private async Task<bool> LoadImageFromHttpResponse(HttpResponseMessage response, Tile tile, string cacheKey)
+        private async Task LoadImageFromHttpResponse(HttpResponseMessage response, Tile tile, string cacheKey)
         {
-            string tileInfo;
-
-            if (response.Headers.TryGetValue("X-VE-Tile-Info", out tileInfo) && tileInfo == "no-tile") // set by Bing Maps
-            {
-                return true;
-            }
-
             using (var stream = new InMemoryRandomAccessStream())
             {
                 using (var content = response.Content)
@@ -219,9 +226,9 @@ namespace MapControl
                 await stream.FlushAsync();
                 stream.Seek(0);
 
-                var loaded = await LoadImageFromStream(tile, stream);
+                await LoadImageFromStream(tile, stream);
 
-                if (loaded && cacheKey != null)
+                if (cacheKey != null)
                 {
                     var buffer = new Windows.Storage.Streams.Buffer((uint)stream.Size);
 
@@ -242,14 +249,29 @@ namespace MapControl
 
                     await Cache.SetAsync(cacheKey, buffer, DateTime.UtcNow.Add(expiration));
                 }
-
-                return loaded;
             }
         }
 
-        private async Task<bool> LoadImageFromStream(Tile tile, IRandomAccessStream stream)
+        private async Task LoadImageFromFile(Tile tile, string path)
         {
-            var tcs = new TaskCompletionSource<bool>();
+            try
+            {
+                var file = await StorageFile.GetFileFromPathAsync(path);
+
+                using (var stream = await file.OpenReadAsync())
+                {
+                    await LoadImageFromStream(tile, stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("{0}: {1}", path, ex.Message);
+            }
+        }
+
+        private async Task LoadImageFromStream(Tile tile, IRandomAccessStream stream)
+        {
+            var tcs = new TaskCompletionSource<object>();
 
             await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
@@ -258,16 +280,16 @@ namespace MapControl
                     var image = new BitmapImage();
                     await image.SetSourceAsync(stream);
                     tile.SetImage(image, true, false);
-                    tcs.SetResult(true);
+
+                    tcs.SetResult(null);
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("{0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
-                    tcs.SetResult(false);
+                    tcs.SetException(ex);
                 }
             });
 
-            return await tcs.Task;
+            await tcs.Task;
         }
     }
 }

@@ -55,7 +55,7 @@ namespace MapControl
 
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
             nameof(TileSource), typeof(TileSource), typeof(MapTileLayer),
-            new PropertyMetadata(null, (o, e) => ((MapTileLayer)o).ResetTiles()));
+            new PropertyMetadata(null, (o, e) => ((MapTileLayer)o).TileSourcePropertyChanged()));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
             nameof(SourceName), typeof(string), typeof(MapTileLayer), new PropertyMetadata(null));
@@ -125,7 +125,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Name of the TileSource. Used as key in a TileLayerCollection and as component of a tile cache key.
+        /// Name of the TileSource. Used as component of a tile cache key.
         /// </summary>
         public string SourceName
         {
@@ -134,8 +134,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Description of the MapTileLayer.
-        /// Used to display copyright information on top of the map.
+        /// Description of the MapTileLayer. Used to display copyright information on top of the map.
         /// </summary>
         public string Description
         {
@@ -198,8 +197,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Optional background brush.
-        /// Sets MapBase.Background if not null and the MapTileLayer is the base map layer.
+        /// Optional background brush. Sets MapBase.Background if not null and the MapTileLayer is the base map layer.
         /// </summary>
         public Brush MapBackground
         {
@@ -208,8 +206,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Optional foreground brush.
-        /// Sets MapBase.Foreground if not null and the MapTileLayer is the base map layer.
+        /// Optional foreground brush. Sets MapBase.Foreground if not null and the MapTileLayer is the base map layer.
         /// </summary>
         public Brush MapForeground
         {
@@ -287,7 +284,16 @@ namespace MapControl
             else
             {
                 TileGrid = null;
-                ResetTiles();
+                UpdateTiles();
+            }
+        }
+
+        private void TileSourcePropertyChanged()
+        {
+            if (TileGrid != null)
+            {
+                Tiles.Clear();
+                UpdateTiles();
             }
         }
 
@@ -295,8 +301,7 @@ namespace MapControl
         {
             if (TileGrid == null || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
             {
-                // update immediately when map projection has changed or map center has moved across 180° longitude
-                UpdateTileGrid();
+                UpdateTileGrid(); // update immediately when projection has changed or center has moved across 180° longitude
             }
             else
             {
@@ -314,9 +319,8 @@ namespace MapControl
             }
         }
 
-        private Point GetTileCenter(double tileScale)
+        private Point GetTileCenter(double tileScale) // map center in tile index coordinates
         {
-            // map center in tile index coordinates
             return new Point(
                 tileScale * (0.5 + parentMap.Center.Longitude / 360d),
                 tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d));
@@ -354,27 +358,7 @@ namespace MapControl
                 MatrixEx.TranslateScaleRotateTranslate(tileOrigin, scale, parentMap.Heading, viewCenter);
         }
 
-        private void ResetTiles()
-        {
-            Tiles.Clear();
-            UpdateTiles();
-        }
-
         private void UpdateTiles()
-        {
-            SelectTiles();
-
-            Children.Clear();
-
-            foreach (var tile in Tiles)
-            {
-                Children.Add(tile.Image);
-            }
-
-            TileImageLoader.LoadTiles(this);
-        }
-
-        private void SelectTiles()
         {
             var newTiles = new List<Tile>();
 
@@ -406,8 +390,7 @@ namespace MapControl
 
                                 if (equivalentTile != null)
                                 {
-                                    // do not animate to avoid flicker when crossing 180°
-                                    tile.SetImage(equivalentTile.Image.Source, false);
+                                    tile.SetImage(equivalentTile.Image.Source, false); // do not animate to avoid flicker when crossing 180° longitude
                                 }
                             }
 
@@ -418,6 +401,15 @@ namespace MapControl
             }
 
             Tiles = newTiles;
+
+            Children.Clear();
+
+            foreach (var tile in Tiles)
+            {
+                Children.Add(tile.Image);
+            }
+
+            TileImageLoader.LoadTiles(this);
         }
     }
 }

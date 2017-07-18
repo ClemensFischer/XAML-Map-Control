@@ -13,7 +13,7 @@ namespace MapControl
     /// <summary>
     /// Loads map tile images.
     /// </summary>
-    internal class TileImageLoader : ITileImageLoader
+    public class TileImageLoader : ITileImageLoader
     {
         public void LoadTiles(MapTileLayer tileLayer)
         {

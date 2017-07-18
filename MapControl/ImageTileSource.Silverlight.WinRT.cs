@@ -13,9 +13,9 @@ using System.Windows.Media.Imaging;
 namespace MapControl
 {
     /// <summary>
-    /// Provides the image of a map tile. ImageTileSource bypasses image
-    /// downloading  in TileImageLoader. By overriding the LoadImage method,
-    /// an application can provide tile images from an arbitrary source.
+    /// Provides the image of a map tile.
+    /// ImageTileSource bypasses image downloading and optional caching in TileImageLoader.
+    /// By overriding the LoadImage method, an application can provide tile images from an arbitrary source.
     /// </summary>
     public class ImageTileSource : TileSource
     {

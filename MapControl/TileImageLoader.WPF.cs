@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -69,11 +68,11 @@ namespace MapControl
         {
             pendingTiles.Clear();
 
-            var tileStack = tileLayer.Tiles.Where(t => t.Pending).Reverse().ToArray();
+            var tiles = tileLayer.Tiles.Where(t => t.Pending);
 
-            if (tileStack.Length > 0)
+            if (tiles.Any())
             {
-                pendingTiles.PushRange(tileStack);
+                pendingTiles.PushRange(tiles.Reverse().ToArray());
 
                 var tileSource = tileLayer.TileSource;
                 var sourceName = tileLayer.SourceName;
