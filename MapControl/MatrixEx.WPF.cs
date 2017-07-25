@@ -2,7 +2,6 @@
 // © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System.Windows;
 using System.Windows.Media;
 
 namespace MapControl
@@ -13,25 +12,14 @@ namespace MapControl
         /// Used in MapProjection.
         /// </summary>
         public static Matrix TranslateScaleRotateTranslate(
-            Point translation1, double scaleX, double scaleY, double rotationAngle, Point translation2)
+            double translation1X, double translation1Y,
+            double scaleX, double scaleY, double rotationAngle,
+            double translation2X, double translation2Y)
         {
-            var matrix = new Matrix(1d, 0d, 0d, 1d, -translation1.X, -translation1.Y);
+            var matrix = new Matrix(1d, 0d, 0d, 1d, -translation1X, -translation1Y);
             matrix.Scale(scaleX, scaleY);
             matrix.Rotate(rotationAngle);
-            matrix.Translate(translation2.X, translation2.Y);
-            return matrix;
-        }
-
-        /// <summary>
-        /// Used in MapTileLayer.
-        /// </summary>
-        public static Matrix TranslateScaleRotateTranslate(
-            Point translation1, double scale, double rotationAngle, Point translation2)
-        {
-            var matrix = new Matrix(1d, 0d, 0d, 1d, -translation1.X, -translation1.Y);
-            matrix.Scale(scale, scale);
-            matrix.Rotate(rotationAngle);
-            matrix.Translate(translation2.X, translation2.Y);
+            matrix.Translate(translation2X, translation2Y);
             return matrix;
         }
     }

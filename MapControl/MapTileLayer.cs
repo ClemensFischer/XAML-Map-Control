@@ -319,24 +319,19 @@ namespace MapControl
             }
         }
 
-        private Point GetTileCenter(double tileScale) // map center in tile index coordinates
-        {
-            return new Point(
-                tileScale * (0.5 + parentMap.Center.Longitude / 360d),
-                tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d));
-        }
-
         private TileGrid GetTileGrid()
         {
             var tileZoomLevel = Math.Max(0, (int)Math.Round(parentMap.ZoomLevel + ZoomLevelOffset));
             var tileScale = (1 << tileZoomLevel);
             var scale = tileScale / (Math.Pow(2d, parentMap.ZoomLevel) * TileSource.TileSize);
-            var tileCenter = GetTileCenter(tileScale);
-            var viewCenter = new Point(parentMap.RenderSize.Width / 2d, parentMap.RenderSize.Height / 2d);
+            var tileCenterX = tileScale * (0.5 + parentMap.Center.Longitude / 360d);
+            var tileCenterY = tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d);
+            var viewCenterX = parentMap.RenderSize.Width / 2d;
+            var viewCenterY = parentMap.RenderSize.Height / 2d;
 
             var transform = new MatrixTransform
             {
-                Matrix = MatrixEx.TranslateScaleRotateTranslate(viewCenter, scale, -parentMap.Heading, tileCenter)
+                Matrix = MatrixEx.TranslateScaleRotateTranslate(viewCenterX, viewCenterY, scale, scale, -parentMap.Heading, tileCenterX, tileCenterY)
             };
 
             var bounds = transform.TransformBounds(new Rect(0d, 0d, parentMap.RenderSize.Width, parentMap.RenderSize.Height));
@@ -350,12 +345,15 @@ namespace MapControl
         {
             var tileScale = (1 << TileGrid.ZoomLevel);
             var scale = Math.Pow(2d, parentMap.ZoomLevel) / tileScale;
-            var tileCenter = GetTileCenter(tileScale);
-            var tileOrigin = new Point(TileSource.TileSize * (tileCenter.X - TileGrid.XMin), TileSource.TileSize * (tileCenter.Y - TileGrid.YMin));
-            var viewCenter = new Point(parentMap.RenderSize.Width / 2d, parentMap.RenderSize.Height / 2d);
+            var tileCenterX = tileScale * (0.5 + parentMap.Center.Longitude / 360d);
+            var tileCenterY = tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d);
+            var tileOriginX = TileSource.TileSize * (tileCenterX - TileGrid.XMin);
+            var tileOriginY = TileSource.TileSize * (tileCenterY - TileGrid.YMin);
+            var viewCenterX = parentMap.RenderSize.Width / 2d;
+            var viewCenterY = parentMap.RenderSize.Height / 2d;
 
-            ((MatrixTransform)RenderTransform).Matrix =
-                MatrixEx.TranslateScaleRotateTranslate(tileOrigin, scale, parentMap.Heading, viewCenter);
+            ((MatrixTransform)RenderTransform).Matrix = MatrixEx.TranslateScaleRotateTranslate(
+                tileOriginX, tileOriginY, scale, scale, parentMap.Heading, viewCenterX, viewCenterY);
         }
 
         private void UpdateTiles()

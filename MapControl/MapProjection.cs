@@ -139,8 +139,10 @@ namespace MapControl
         {
             ViewportScale = GetViewportScale(zoomLevel);
 
+            var center = LocationToPoint(mapCenter);
+
             ViewportTransform.Matrix = MatrixEx.TranslateScaleRotateTranslate(
-                LocationToPoint(mapCenter), ViewportScale, -ViewportScale, heading, viewportCenter);
+                center.X, center.Y, ViewportScale, -ViewportScale, heading, viewportCenter.X, viewportCenter.Y);
         }
 
         /// <summary>
