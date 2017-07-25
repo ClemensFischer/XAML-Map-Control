@@ -9,7 +9,7 @@ namespace MapControl
     internal static class MatrixEx
     {
         /// <summary>
-        /// Used in MapProjection.
+        /// Used in MapProjection and MapTileLayer.
         /// </summary>
         public static Matrix TranslateScaleRotateTranslate(
             double translation1X, double translation1Y,
