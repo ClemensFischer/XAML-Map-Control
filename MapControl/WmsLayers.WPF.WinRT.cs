@@ -25,7 +25,14 @@ namespace MapControl
             {
                 try
                 {
-                    var document = await LoadDocument(new Uri(serverUri, "?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"));
+                    var uri = serverUri.ToString();
+
+                    if (!uri.EndsWith("?") && !uri.EndsWith("&"))
+                    {
+                        uri += "?";
+                    }
+
+                    var document = await LoadDocument(new Uri(uri + "SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"));
 
                     var capability = FirstChild(document.DocumentElement, "Capability");
                     if (capability != null)

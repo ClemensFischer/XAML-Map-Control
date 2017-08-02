@@ -100,7 +100,14 @@ namespace MapControl
                 return false;
             }
 
-            var query = "?SERVICE=WMS"
+            var uri = ServerUri.ToString();
+
+            if (!uri.EndsWith("?") && !uri.EndsWith("&"))
+            {
+                uri += "?";
+            }
+
+            uri += "SERVICE=WMS"
                 + "&VERSION=" + version
                 + "&REQUEST=GetMap"
                 + "&LAYERS=" + (Layers ?? string.Empty)
@@ -111,12 +118,10 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(Parameters))
             {
-                query += "&" + Parameters;
+                uri += "&" + Parameters;
             }
 
-            var uri = new Uri(ServerUri, query.Replace(" ", "%20"));
-
-            UpdateImage(uri);
+            UpdateImage(new Uri(uri.Replace(" ", "%20")));
             return true;
         }
     }
