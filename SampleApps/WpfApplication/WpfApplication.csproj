@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9949326E-9261-4F95-89B1-151F60498951}</ProjectGuid>
+    <ProjectGuid>{F92DA93D-75DB-4308-A5F9-6B4C3908A675}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WpfApplication</RootNamespace>
@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -24,21 +25,18 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -52,16 +50,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="..\Common\MapLayers.cs">
-      <Link>MapLayers.cs</Link>
-    </Compile>
-    <Compile Include="..\Common\MapViewModel.cs">
-      <Link>MapViewModel.cs</Link>
-    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="..\Shared\MapLayers.cs">
+      <Link>MapLayers.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapViewModel.cs">
+      <Link>MapViewModel.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -84,20 +82,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Caching\FileDbCache.WPF\FileDbCache.WPF.csproj">
-      <Project>{ef44f661-b98a-4676-927f-85d138f82300}</Project>
+      <Project>{ad1cb53e-7aa4-4ec0-b901-b4e0e2665133}</Project>
       <Name>FileDbCache.WPF</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Caching\ImageFileCache.WPF\ImageFileCache.WPF.csproj">
-      <Project>{86470440-fee2-4120-af5a-3762fb9c536f}</Project>
-      <Name>ImageFileCache.WPF</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\MapControl\MapControl.WPF.csproj">
-      <Project>{226f3575-b683-446d-a2f0-181291dc8787}</Project>
+    <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj">
+      <Project>{a204a102-c745-4d65-aec8-7b96faedef2d}</Project>
       <Name>MapControl.WPF</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="..\Common\10_535_330.jpg">
+    <Resource Include="..\Shared\10_535_330.jpg">
       <Link>10_535_330.jpg</Link>
     </Resource>
   </ItemGroup>

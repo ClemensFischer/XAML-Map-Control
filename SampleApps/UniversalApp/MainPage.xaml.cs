@@ -1,4 +1,6 @@
-﻿using ViewModel;
+﻿using MapControl;
+using MapControl.Caching;
+using ViewModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -11,8 +13,8 @@ namespace UniversalApp
 
         public MainPage()
         {
-            //MapControl.TileImageLoader.Cache = new MapControl.Caching.ImageFileCache();
-            //MapControl.TileImageLoader.Cache = new MapControl.Caching.FileDbCache();
+            TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
 
             InitializeComponent();
             DataContext = ViewModel;

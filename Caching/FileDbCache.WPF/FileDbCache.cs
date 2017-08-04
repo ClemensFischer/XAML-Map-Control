@@ -2,14 +2,13 @@
 // © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using FileDbNs;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
-using FileDbNs;
 
 namespace MapControl.Caching
 {
@@ -17,71 +16,37 @@ namespace MapControl.Caching
     /// ObjectCache implementation based on FileDb, a free and simple No-SQL database by EzTools Software.
     /// See http://www.eztools-software.com/tools/filedb/.
     /// </summary>
-    public class FileDbCache : ObjectCache, IDisposable
+    public sealed class FileDbCache : ObjectCache, IDisposable
     {
         private const string keyField = "Key";
         private const string valueField = "Value";
         private const string expiresField = "Expires";
 
-        private readonly FileDb fileDb = new FileDb { AutoFlush = true, AutoCleanThreshold = -1 };
-        private readonly string name;
-        private readonly string path;
+        private readonly FileDb fileDb = new FileDb();
+        private readonly string dbPath;
 
-        public FileDbCache(string name, NameValueCollection config)
-            : this(name, config["folder"])
+        public FileDbCache(string path, bool autoFlush = true, int autoCleanThreshold = -1)
         {
-            var autoFlush = config["autoFlush"];
-            var autoCleanThreshold = config["autoCleanThreshold"];
-
-            if (autoFlush != null)
+            if (string.IsNullOrEmpty(path))
             {
-                try
-                {
-                    fileDb.AutoFlush = bool.Parse(autoFlush);
-                }
-                catch (Exception ex)
-                {
-                    throw new ArgumentException("The configuration parameter autoFlush must be a boolean value.", ex);
-                }
+                throw new ArgumentException("The parameter path must not be null or empty.");
             }
-
-            if (autoCleanThreshold != null)
-            {
-                try
-                {
-                    fileDb.AutoCleanThreshold = int.Parse(autoCleanThreshold);
-                }
-                catch (Exception ex)
-                {
-                    throw new ArgumentException("The configuration parameter autoCleanThreshold must be an integer value.", ex);
-                }
-            }
-        }
-
-        public FileDbCache(string name, string folder)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentException("The parameter name must not be null or empty.");
-            }
-
-            if (string.IsNullOrEmpty(folder))
-            {
-                throw new ArgumentException("The parameter folder must not be null or empty.");
-            }
-
-            this.name = name;
-            path = Path.Combine(folder, name);
 
             if (string.IsNullOrEmpty(Path.GetExtension(path)))
             {
-                path += ".fdb";
+                path = Path.Combine(path, "TileCache.fdb");
             }
+
+            dbPath = path;
+
+            fileDb.AutoFlush = autoFlush;
+            fileDb.AutoCleanThreshold = autoCleanThreshold;
 
             try
             {
-                fileDb.Open(path, false);
-                Debug.WriteLine("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, path);
+                fileDb.Open(dbPath, false);
+
+                Debug.WriteLine("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, dbPath);
 
                 Clean();
             }
@@ -93,21 +58,9 @@ namespace MapControl.Caching
             AppDomain.CurrentDomain.ProcessExit += (s, e) => Close();
         }
 
-        public bool AutoFlush
-        {
-            get { return fileDb.AutoFlush; }
-            set { fileDb.AutoFlush = value; }
-        }
-
-        public int AutoCleanThreshold
-        {
-            get { return fileDb.AutoCleanThreshold; }
-            set { fileDb.AutoCleanThreshold = value; }
-        }
-
         public override string Name
         {
-            get { return name; }
+            get { return string.Empty; }
         }
 
         public override DefaultCacheCapabilities DefaultCacheCapabilities
@@ -357,23 +310,23 @@ namespace MapControl.Caching
         {
             Close();
 
-            if (File.Exists(path))
+            if (File.Exists(dbPath))
             {
-                File.Delete(path);
+                File.Delete(dbPath);
             }
             else
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                Directory.CreateDirectory(Path.GetDirectoryName(dbPath));
             }
 
-            fileDb.Create(path, new Field[]
+            fileDb.Create(dbPath, new Field[]
             {
                 new Field(keyField, DataTypeEnum.String) { IsPrimaryKey = true },
                 new Field(valueField, DataTypeEnum.Byte) { IsArray = true },
                 new Field(expiresField, DataTypeEnum.DateTime)
             });
 
-            Debug.WriteLine("FileDbCache: Created database " + path);
+            Debug.WriteLine("FileDbCache: Created database " + dbPath);
         }
 
         private bool RepairDatabase()
@@ -395,7 +348,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache: Failed creating database {0}: {1}", path, ex.Message);
+                Debug.WriteLine("FileDbCache: Failed creating database {0}: {1}", dbPath, ex.Message);
             }
 
             return false;

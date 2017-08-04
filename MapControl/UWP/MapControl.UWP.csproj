@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{951BC5D2-D653-42D9-9A91-21DC50DE0182}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MapControl</RootNamespace>
+    <AssemblyName>MapControl.UWP</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include="..\..\MapControl.snk">
+      <Link>MapControl.snk</Link>
+    </None>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\AzimuthalEquidistantProjection.cs">
+      <Link>AzimuthalEquidistantProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\AzimuthalProjection.cs">
+      <Link>AzimuthalProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\BingMapsTileLayer.cs">
+      <Link>BingMapsTileLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\BingMapsTileSource.cs">
+      <Link>BingMapsTileSource.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\BoundingBox.cs">
+      <Link>BoundingBox.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\CenteredBoundingBox.cs">
+      <Link>CenteredBoundingBox.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\EquirectangularProjection.cs">
+      <Link>EquirectangularProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\GnomonicProjection.cs">
+      <Link>GnomonicProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\HyperlinkText.cs">
+      <Link>HyperlinkText.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Location.cs">
+      <Link>Location.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\LocationCollection.cs">
+      <Link>LocationCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapBase.cs">
+      <Link>MapBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapGraticule.cs">
+      <Link>MapGraticule.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapImageLayer.cs">
+      <Link>MapImageLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapOverlay.cs">
+      <Link>MapOverlay.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapPanel.cs">
+      <Link>MapPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapPath.cs">
+      <Link>MapPath.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapPolyline.cs">
+      <Link>MapPolyline.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapProjection.cs">
+      <Link>MapProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapTileLayer.cs">
+      <Link>MapTileLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\OrthographicProjection.cs">
+      <Link>OrthographicProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StereographicProjection.cs">
+      <Link>StereographicProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tile.cs">
+      <Link>Tile.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\TileGrid.cs">
+      <Link>TileGrid.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\TileImageLoader.cs">
+      <Link>TileImageLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\TileSource.cs">
+      <Link>TileSource.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\ViewportChangedEventArgs.cs">
+      <Link>ViewportChangedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\WebMercatorProjection.cs">
+      <Link>WebMercatorProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\WmsImageLayer.cs">
+      <Link>WmsImageLayer.cs</Link>
+    </Compile>
+    <Compile Include="Extensions.UWP.cs" />
+    <Compile Include="ImageCache.UWP.cs" />
+    <Compile Include="ImageFileCache.UWP.cs" />
+    <Compile Include="Map.UWP.cs" />
+    <Compile Include="MapBase.UWP.cs" />
+    <Compile Include="MapGraticule.UWP.cs" />
+    <Compile Include="MapImageLayer.UWP.cs" />
+    <Compile Include="MapItem.UWP.cs" />
+    <Compile Include="MapItemsControl.UWP.cs" />
+    <Compile Include="MapOverlay.UWP.cs" />
+    <Compile Include="MapPanel.UWP.cs" />
+    <Compile Include="MapPath.UWP.cs" />
+    <Compile Include="MapPolyline.UWP.cs" />
+    <Compile Include="MapTileLayer.UWP.cs" />
+    <Compile Include="MatrixEx.UWP.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Pushpin.UWP.cs" />
+    <Compile Include="Tile.UWP.cs" />
+    <Compile Include="TileImageLoader.UWP.cs" />
+    <EmbeddedResource Include="Properties\MapControl.UWP.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

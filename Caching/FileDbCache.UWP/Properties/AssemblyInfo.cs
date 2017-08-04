@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("WPF Sample Application")]
-[assembly: AssemblyDescription("XAML Map Control WPF Sample Application")]
+[assembly: AssemblyTitle("XAML Map Control FileDbCache for UWP")]
+[assembly: AssemblyDescription("IImageCache implementation based on EzTools FileDb")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyCopyright("© 2017 Clemens Fischer")]
