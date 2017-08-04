@@ -47,8 +47,7 @@ files and to a FileDb file. The cache functionality is defined by the interface 
 and implemented by the classes ImageFileCache and FileDbCache in libraries ImageFileCache.WinRT and FileDbCache.WinRT.
 Local image files are written to the  ApplicationData.Current.TemporaryFolder by default.
 
-XAML Map Control is also available on NuGet, with Package Id XAML.MapControl. The NuGet package contains MapControl libraries
-for WPF, Silverlight and Windows Runtime.
+XAML Map Control is also available on NuGet, with Package Id XAML.MapControl.
 
 ---
 
