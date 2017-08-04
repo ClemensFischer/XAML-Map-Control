@@ -13,7 +13,7 @@ namespace UniversalApp
 
         public MainPage()
         {
-            TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
 
             InitializeComponent();
