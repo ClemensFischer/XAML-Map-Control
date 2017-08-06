@@ -49,7 +49,7 @@ are written to the  ApplicationData.Current.TemporaryFolder by default.
 
 ---
 
-XAML Map Control is available on NuGet, with Package Id XAML.MapControl.
+XAML Map Control is available on NuGet, with Package Id [XAML.MapControl](https://www.nuget.org/packages/XAML.MapControl/).
 
 ---
 
