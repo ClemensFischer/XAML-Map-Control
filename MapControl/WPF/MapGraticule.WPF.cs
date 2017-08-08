@@ -48,14 +48,16 @@ namespace MapControl
                 var lonLabelStart = Math.Ceiling(bounds.West / lineDistance) * lineDistance;
                 var latLabels = new List<Label>((int)((bounds.North - latLabelStart) / lineDistance) + 1);
                 var lonLabels = new List<Label>((int)((bounds.East - lonLabelStart) / lineDistance) + 1);
+                var typeface = CreateTypeface();
+                var pen = CreatePen();
 
                 for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
                 {
                     latLabels.Add(new Label(lat, new FormattedText(
                         GetLabelText(lat, labelFormat, "NS"),
-                        CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground)));
+                        CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground)));
 
-                    drawingContext.DrawLine(Pen,
+                    drawingContext.DrawLine(pen,
                         projection.LocationToViewportPoint(new Location(lat, bounds.West)),
                         projection.LocationToViewportPoint(new Location(lat, bounds.East)));
                 }
@@ -64,9 +66,9 @@ namespace MapControl
                 {
                     lonLabels.Add(new Label(lon, new FormattedText(
                         GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW"),
-                        CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground)));
+                        CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground)));
 
-                    drawingContext.DrawLine(Pen,
+                    drawingContext.DrawLine(pen,
                         projection.LocationToViewportPoint(new Location(bounds.South, lon)),
                         projection.LocationToViewportPoint(new Location(bounds.North, lon)));
                 }

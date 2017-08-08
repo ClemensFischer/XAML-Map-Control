@@ -28,8 +28,7 @@ namespace MapControl
                 }
                 else
                 {
-                    Image.BeginAnimation(UIElement.OpacityProperty,
-                        new DoubleAnimation(0d, 1d, FadeDuration));
+                    Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1d, FadeDuration));
                 }
             }
             else
@@ -47,8 +46,7 @@ namespace MapControl
             bitmapSource.DownloadCompleted -= BitmapDownloadCompleted;
             bitmapSource.DownloadFailed -= BitmapDownloadFailed;
 
-            Image.BeginAnimation(UIElement.OpacityProperty,
-                new DoubleAnimation(0d, 1d, FadeDuration));
+            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1d, FadeDuration));
         }
 
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)

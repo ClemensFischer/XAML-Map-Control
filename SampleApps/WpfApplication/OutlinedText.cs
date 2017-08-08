@@ -10,28 +10,28 @@ namespace WpfApplication
         private Geometry outline;
 
         public static readonly DependencyProperty TextProperty = TextBlock.TextProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty FontSizeProperty = TextBlock.FontSizeProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty FontFamilyProperty = TextBlock.FontFamilyProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty FontStyleProperty = TextBlock.FontStyleProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty FontWeightProperty = TextBlock.FontWeightProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty FontStretchProperty = TextBlock.FontStretchProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty ForegroundProperty = TextBlock.ForegroundProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata((o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty BackgroundProperty = TextBlock.BackgroundProperty.AddOwner(
-            typeof(OutlinedText), new FrameworkPropertyMetadata(Brushes.White, (o, e) => ((OutlinedText)o).glyphRun = null));
+            typeof(OutlinedText), new FrameworkPropertyMetadata(Brushes.White, (o, e) => ((OutlinedText)o).glyphRun = null) { AffectsMeasure = true });
 
         public static readonly DependencyProperty OutlineThicknessProperty = DependencyProperty.Register(
             "OutlineThickness", typeof(double), typeof(OutlinedText),

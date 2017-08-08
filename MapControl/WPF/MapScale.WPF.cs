@@ -15,8 +15,7 @@ namespace MapControl
     /// </summary>
     public class MapScale : MapOverlay
     {
-        public static readonly DependencyProperty PaddingProperty = Control.PaddingProperty.AddOwner(
-            typeof(MapScale), new FrameworkPropertyMetadata(new Thickness(2d)));
+        public static readonly DependencyProperty PaddingProperty = Control.PaddingProperty.AddOwner(typeof(MapScale));
 
         private double length;
         private Size size;
@@ -78,12 +77,13 @@ namespace MapControl
                 var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
                 var text = new FormattedText(
                     length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length),
-                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, FontSize, Foreground);
+                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, CreateTypeface(), FontSize, Foreground);
+                var pen = CreatePen();
 
                 drawingContext.DrawRectangle(Background ?? ParentMap.Background, null, new Rect(size));
-                drawingContext.DrawLine(Pen, new Point(x1, y1), new Point(x1, y2));
-                drawingContext.DrawLine(Pen, new Point(x2, y1), new Point(x2, y2));
-                drawingContext.DrawLine(Pen, new Point(x1, y2), new Point(x2, y2));
+                drawingContext.DrawLine(pen, new Point(x1, y1), new Point(x1, y2));
+                drawingContext.DrawLine(pen, new Point(x2, y1), new Point(x2, y2));
+                drawingContext.DrawLine(pen, new Point(x1, y2), new Point(x2, y2));
                 drawingContext.DrawText(text, new Point((size.Width - text.Width) / 2d, 0d));
             }
         }
