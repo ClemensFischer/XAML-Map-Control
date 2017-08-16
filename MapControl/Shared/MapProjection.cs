@@ -37,7 +37,7 @@ namespace MapControl
         public string CrsId { get; set; }
 
         /// <summary>
-        /// Indicates if this is a web mercator projection, i.e. compatible with map tile layers.
+        /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
         /// </summary>
         public bool IsWebMercator { get; protected set; } = false;
 

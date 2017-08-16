@@ -18,9 +18,11 @@ namespace MapControl
                 : null);
         }
 
-        protected void UpdateImage(BitmapSource bitmapSource)
+        protected void UpdateImage(ImageSource imageSource)
         {
-            SetTopImage(bitmapSource);
+            SetTopImage(imageSource);
+
+            var bitmapSource = imageSource as BitmapSource;
 
             if (bitmapSource != null && !bitmapSource.IsFrozen && bitmapSource.IsDownloading)
             {

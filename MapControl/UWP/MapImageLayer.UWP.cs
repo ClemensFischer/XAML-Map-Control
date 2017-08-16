@@ -5,6 +5,7 @@
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MapControl
@@ -16,11 +17,11 @@ namespace MapControl
             UpdateImage(uri != null ? new BitmapImage(uri) : null);
         }
 
-        protected void UpdateImage(BitmapSource bitmapSource)
+        protected void UpdateImage(ImageSource imageSource)
         {
-            SetTopImage(bitmapSource);
+            SetTopImage(imageSource);
 
-            var bitmapImage = bitmapSource as BitmapImage;
+            var bitmapImage = imageSource as BitmapImage;
 
             if (bitmapImage != null)
             {

@@ -295,12 +295,12 @@ namespace MapControl
         /// </summary>
         protected abstract bool UpdateImage(BoundingBox boundingBox);
 
-        private void SetTopImage(BitmapSource bitmapSource)
+        private void SetTopImage(ImageSource imageSource)
         {
             topImageIndex = (topImageIndex + 1) % 2;
             var topImage = (Image)Children[topImageIndex];
 
-            topImage.Source = bitmapSource;
+            topImage.Source = imageSource;
             SetBoundingBox(topImage, boundingBox?.Clone());
         }
 

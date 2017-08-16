@@ -28,14 +28,14 @@ namespace MapControl
 
         public override Point LocationToPoint(Location location)
         {
-            if (location.Equals(projectionCenter))
+            if (location.Equals(ProjectionCenter))
             {
                 return new Point();
             }
 
-            var lat0 = projectionCenter.Latitude * Math.PI / 180d;
+            var lat0 = ProjectionCenter.Latitude * Math.PI / 180d;
             var lat = location.Latitude * Math.PI / 180d;
-            var dLon = (location.Longitude - projectionCenter.Longitude) * Math.PI / 180d;
+            var dLon = (location.Longitude - ProjectionCenter.Longitude) * Math.PI / 180d;
 
             return new Point(
                 Wgs84EquatorialRadius * Math.Cos(lat) * Math.Sin(dLon),
@@ -46,7 +46,7 @@ namespace MapControl
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return projectionCenter;
+                return ProjectionCenter;
             }
 
             var x = point.X / Wgs84EquatorialRadius;
@@ -62,13 +62,13 @@ namespace MapControl
             var sinC = r;
             var cosC = Math.Sqrt(1 - r2);
 
-            var lat0 = projectionCenter.Latitude * Math.PI / 180d;
+            var lat0 = ProjectionCenter.Latitude * Math.PI / 180d;
             var cosLat0 = Math.Cos(lat0);
             var sinLat0 = Math.Sin(lat0);
 
             return new Location(
                 180d / Math.PI * Math.Asin(cosC * sinLat0 + y * sinC * cosLat0 / r),
-                180d / Math.PI * Math.Atan2(x * sinC, r * cosC * cosLat0 - y * sinC * sinLat0) + projectionCenter.Longitude);
+                180d / Math.PI * Math.Atan2(x * sinC, r * cosC * cosLat0 - y * sinC * sinLat0) + ProjectionCenter.Longitude);
         }
     }
 }

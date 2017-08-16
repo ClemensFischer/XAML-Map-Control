@@ -28,14 +28,14 @@ namespace MapControl
 
         public override Point LocationToPoint(Location location)
         {
-            if (location.Equals(projectionCenter))
+            if (location.Equals(ProjectionCenter))
             {
                 return new Point();
             }
 
             double azimuth, distance;
 
-            GetAzimuthDistance(projectionCenter, location, out azimuth, out distance);
+            GetAzimuthDistance(ProjectionCenter, location, out azimuth, out distance);
 
             var mapDistance = distance < Math.PI / 2d
                 ? Wgs84EquatorialRadius * Math.Tan(distance)
@@ -48,14 +48,14 @@ namespace MapControl
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return projectionCenter;
+                return ProjectionCenter;
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);
             var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
             var distance = Math.Atan(mapDistance / Wgs84EquatorialRadius);
 
-            return GetLocation(projectionCenter, azimuth, distance);
+            return GetLocation(ProjectionCenter, azimuth, distance);
         }
     }
 }

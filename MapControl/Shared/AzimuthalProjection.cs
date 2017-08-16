@@ -17,7 +17,7 @@ namespace MapControl
     /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
-        protected Location projectionCenter = new Location();
+        public Location ProjectionCenter { get; private set; } = new Location();
 
         public AzimuthalProjection()
         {
@@ -70,7 +70,7 @@ namespace MapControl
 
         public override void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
         {
-            this.projectionCenter = projectionCenter;
+            ProjectionCenter = projectionCenter;
 
             base.SetViewportTransform(projectionCenter, mapCenter, viewportCenter, zoomLevel, heading);
         }
@@ -89,7 +89,7 @@ namespace MapControl
 
             return string.Format(CultureInfo.InvariantCulture,
                 "{0}={1},1,{2},{3}&BBOX={4},{5},{6},{7}&WIDTH={8}&HEIGHT={9}",
-                crs, CrsId, projectionCenter.Longitude, projectionCenter.Latitude,
+                crs, CrsId, ProjectionCenter.Longitude, ProjectionCenter.Latitude,
                 rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);
         }
 
