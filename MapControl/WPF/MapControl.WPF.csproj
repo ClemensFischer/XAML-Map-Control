@@ -114,6 +114,9 @@
     <Compile Include="..\Shared\MapProjection.cs">
       <Link>MapProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapScale.cs">
+      <Link>MapScale.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapTileLayer.cs">
       <Link>MapTileLayer.cs</Link>
     </Compile>
@@ -155,7 +158,6 @@
     <Compile Include="MapPanel.WPF.cs" />
     <Compile Include="MapPath.WPF.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
-    <Compile Include="MapScale.WPF.cs" />
     <Compile Include="MapTileLayer.WPF.cs" />
     <Compile Include="Pushpin.WPF.cs" />
     <Compile Include="TileImageLoader.WPF.cs" />

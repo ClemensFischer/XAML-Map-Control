@@ -48,8 +48,14 @@ namespace MapControl
                 var lonLabelStart = Math.Ceiling(bounds.West / lineDistance) * lineDistance;
                 var latLabels = new List<Label>((int)((bounds.North - latLabelStart) / lineDistance) + 1);
                 var lonLabels = new List<Label>((int)((bounds.East - lonLabelStart) / lineDistance) + 1);
-                var typeface = CreateTypeface();
-                var pen = CreatePen();
+                var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+                var pen = new Pen
+                {
+                    Brush = Stroke,
+                    Thickness = StrokeThickness,
+                    DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset),
+                    DashCap = StrokeDashCap
+                };
 
                 for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
                 {

@@ -4,6 +4,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -50,24 +51,23 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
             typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
 
-        protected Typeface CreateTypeface()
+        protected override void SetParentMapOverride(MapBase parentMap)
         {
-            return new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
-        }
-
-        protected Pen CreatePen()
-        {
-            return new Pen
+            if (GetBindingExpression(StrokeProperty) != null)
             {
-                Brush = Stroke ?? Foreground,
-                Thickness = StrokeThickness,
-                DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset),
-                DashCap = StrokeDashCap,
-                StartLineCap = StrokeStartLineCap,
-                EndLineCap = StrokeEndLineCap,
-                LineJoin = StrokeLineJoin,
-                MiterLimit = StrokeMiterLimit
-            };
+                ClearValue(StrokeProperty);
+            }
+
+            if (parentMap != null && Stroke == null)
+            {
+                SetBinding(StrokeProperty, new Binding
+                {
+                    Source = parentMap,
+                    Path = new PropertyPath("Foreground")
+                });
+            }
+
+            base.SetParentMapOverride(parentMap);
         }
     }
 }

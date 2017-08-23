@@ -12,7 +12,7 @@ namespace MapControl
     public partial class MapOverlay
     {
         public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(
-            nameof(FontSize), typeof(double), typeof(MapOverlay), new PropertyMetadata(10d));
+            nameof(FontSize), typeof(double), typeof(MapOverlay), new PropertyMetadata(12d));
 
         public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(
             nameof(FontFamily), typeof(FontFamily), typeof(MapOverlay), new PropertyMetadata(null));

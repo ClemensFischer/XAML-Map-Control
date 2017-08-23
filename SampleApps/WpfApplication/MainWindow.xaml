@@ -138,7 +138,7 @@
                    map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
 
             <map:MapGraticule x:Name="mapGraticule" Opacity="0.6"/>
-            <map:MapScale Margin="4" Opacity="0.8" HorizontalAlignment="Left" Background="Transparent"/>
+            <map:MapScale/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"

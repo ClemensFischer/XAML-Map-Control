@@ -114,6 +114,7 @@
             </Image>
 
             <map:MapGraticule x:Name="mapGraticule" Opacity="0.6"/>
+            <map:MapScale/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"

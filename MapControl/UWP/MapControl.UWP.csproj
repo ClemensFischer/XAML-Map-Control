@@ -103,6 +103,9 @@
     <Compile Include="..\Shared\MapProjection.cs">
       <Link>MapProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapScale.cs">
+      <Link>MapScale.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapTileLayer.cs">
       <Link>MapTileLayer.cs</Link>
     </Compile>
