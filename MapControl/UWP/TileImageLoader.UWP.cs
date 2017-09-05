@@ -17,12 +17,17 @@ namespace MapControl
         /// <summary>
         /// Default StorageFolder where an IImageCache instance may save cached data.
         /// </summary>
-        public static readonly StorageFolder DefaultCacheFolder = ApplicationData.Current.TemporaryFolder;
+        public static StorageFolder DefaultCacheFolder { get; } = ApplicationData.Current.TemporaryFolder;
 
         /// <summary>
         /// The IImageCache implementation used to cache tile images. The default is null.
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum number of concurrent connections.
+        /// </summary>
+        public static int DefaultConnectionLimit { get; set; } = 2;
 
         private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {

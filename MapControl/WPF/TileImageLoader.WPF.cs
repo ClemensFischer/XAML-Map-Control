@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,13 +18,18 @@ namespace MapControl
         /// <summary>
         /// Default folder path where an ObjectCache instance may save cached data.
         /// </summary>
-        public static readonly string DefaultCacheFolder =
+        public static string DefaultCacheFolder { get; } =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
 
         /// <summary>
         /// The ObjectCache used to cache tile images. The default is MemoryCache.Default.
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
+
+        private static int DefaultConnectionLimit
+        {
+            get { return ServicePointManager.DefaultConnectionLimit; }
+        }
 
         private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {

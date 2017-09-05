@@ -7,7 +7,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
@@ -73,7 +72,7 @@ namespace MapControl
                 {
                     pendingTiles.PushRange(tiles.Reverse().ToArray());
 
-                    while (taskCount < Math.Min(pendingTiles.Count, ServicePointManager.DefaultConnectionLimit))
+                    while (taskCount < Math.Min(pendingTiles.Count, DefaultConnectionLimit))
                     {
                         Interlocked.Increment(ref taskCount);
 
