@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-#if NETFX_CORE
+#if WINDOWS_UWP
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
