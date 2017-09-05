@@ -76,18 +76,6 @@ namespace MapControl
         private double centerLongitude;
         private bool internalPropertyChange;
 
-        public MapBase()
-        {
-            Initialize();
-
-            MapProjection = new WebMercatorProjection();
-            ScaleRotateTransform.Children.Add(ScaleTransform);
-            ScaleRotateTransform.Children.Add(RotateTransform);
-        }
-
-        partial void Initialize(); // Windows Runtime and Silverlight only
-        partial void RemoveAnimation(DependencyProperty property); // WPF only
-
         /// <summary>
         /// Raised when the current viewport has changed.
         /// </summary>
@@ -504,7 +492,8 @@ namespace MapControl
                             targetCenter.Latitude,
                             Location.NearestLongitude(targetCenter.Longitude, Center.Longitude))),
                         Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction
+                        EasingFunction = AnimationEasingFunction,
+                        FillBehavior = AnimationFillBehavior
                     };
 
                     centerAnimation.Completed += CenterAnimationCompleted;
@@ -522,7 +511,6 @@ namespace MapControl
 
                 InternalSetValue(CenterProperty, TargetCenter);
                 InternalSetValue(CenterPointProperty, MapProjection.LocationToPoint(TargetCenter));
-                RemoveAnimation(CenterPointProperty); // remove holding animation in WPF
                 UpdateTransform();
             }
         }
@@ -607,7 +595,8 @@ namespace MapControl
                     {
                         To = targetZoomLevel,
                         Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction
+                        EasingFunction = AnimationEasingFunction,
+                        FillBehavior = AnimationFillBehavior
                     };
 
                     zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
@@ -624,8 +613,6 @@ namespace MapControl
                 zoomLevelAnimation = null;
 
                 InternalSetValue(ZoomLevelProperty, TargetZoomLevel);
-                RemoveAnimation(ZoomLevelProperty); // remove holding animation in WPF
-
                 UpdateTransform(true);
             }
         }
@@ -681,7 +668,8 @@ namespace MapControl
                     {
                         By = delta,
                         Duration = AnimationDuration,
-                        EasingFunction = AnimationEasingFunction
+                        EasingFunction = AnimationEasingFunction,
+                        FillBehavior = AnimationFillBehavior
                     };
 
                     headingAnimation.Completed += HeadingAnimationCompleted;
@@ -698,7 +686,6 @@ namespace MapControl
                 headingAnimation = null;
 
                 InternalSetValue(HeadingProperty, TargetHeading);
-                RemoveAnimation(HeadingProperty); // remove holding animation in WPF
                 UpdateTransform();
             }
         }

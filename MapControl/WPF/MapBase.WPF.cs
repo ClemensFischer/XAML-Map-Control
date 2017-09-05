@@ -5,11 +5,14 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace MapControl
 {
     public partial class MapBase
     {
+        private const FillBehavior AnimationFillBehavior = FillBehavior.Stop;
+
         public static readonly DependencyProperty ForegroundProperty =
             Control.ForegroundProperty.AddOwner(typeof(MapBase));
 
@@ -49,9 +52,11 @@ namespace MapControl
             BackgroundProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
         }
 
-        partial void RemoveAnimation(DependencyProperty property)
+        public MapBase()
         {
-            BeginAnimation(property, null);
+            MapProjection = new WebMercatorProjection();
+            ScaleRotateTransform.Children.Add(ScaleTransform);
+            ScaleRotateTransform.Children.Add(RotateTransform);
         }
 
         /// <summary>

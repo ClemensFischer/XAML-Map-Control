@@ -51,7 +51,7 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
             typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
 
-        protected override void SetParentMapOverride(MapBase parentMap)
+        protected override void SetParentMap(MapBase parentMap)
         {
             if (GetBindingExpression(StrokeProperty) != null)
             {
@@ -67,7 +67,7 @@ namespace MapControl
                 });
             }
 
-            base.SetParentMapOverride(parentMap);
+            base.SetParentMap(parentMap);
         }
     }
 }

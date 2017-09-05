@@ -12,11 +12,6 @@ namespace MapControl
     {
         private Geometry data;
 
-        public MapPath()
-        {
-            MapPanel.AddParentMapHandlers(this);
-        }
-
         protected override Size MeasureOverride(Size availableSize)
         {
             if (Stretch != Stretch.None)

@@ -12,27 +12,20 @@ namespace MapControl
         public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
             "ParentMap", typeof(MapBase), typeof(MapPanel), new PropertyMetadata(null, ParentMapPropertyChanged));
 
-        public MapPanel()
+        public static void InitMapElement(FrameworkElement element)
         {
-            if (this is MapBase)
+            if (element is MapBase)
             {
-                SetValue(ParentMapProperty, this);
+                element.SetValue(ParentMapProperty, element);
             }
             else
             {
-                AddParentMapHandlers(this);
-            }
-        }
+                // Workaround for missing property value inheritance in Windows Runtime.
+                // Loaded and Unloaded handlers set and clear the ParentMap property value.
 
-        /// <summary>
-        /// Helper method to work around missing property value inheritance in Silverlight and Windows Runtime.
-        /// Adds Loaded and Unloaded event handlers to the specified FrameworkElement, which set and clear the
-        /// value of the MapPanel.ParentMap attached property.
-        /// </summary>
-        public static void AddParentMapHandlers(FrameworkElement element)
-        {
-            element.Loaded += (s, e) => GetParentMap(element);
-            element.Unloaded += (s, e) => element.ClearValue(ParentMapProperty);
+                element.Loaded += (s, e) => GetParentMap(element);
+                element.Unloaded += (s, e) => element.ClearValue(ParentMapProperty);
+            }
         }
 
         public static MapBase GetParentMap(UIElement element)
@@ -49,20 +42,12 @@ namespace MapControl
 
         private static MapBase FindParentMap(UIElement element)
         {
-            MapBase parentMap = null;
-            var parentElement = VisualTreeHelper.GetParent(element) as UIElement;
+            var parent = VisualTreeHelper.GetParent(element) as UIElement;
 
-            if (parentElement != null)
-            {
-                parentMap = parentElement as MapBase;
-
-                if (parentMap == null)
-                {
-                    parentMap = GetParentMap(parentElement);
-                }
-            }
-
-            return parentMap;
+            return parent == null ? null
+                : ((parent as MapBase)
+                ?? (MapBase)element.GetValue(ParentMapProperty)
+                ?? FindParentMap(parent));
         }
     }
 }

@@ -9,7 +9,6 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.Web.Http;
 
 namespace MapControl
 {
@@ -31,11 +30,6 @@ namespace MapControl
             var buffer = cacheItem?.Buffer;
             var loaded = false;
 
-            //if (buffer != null)
-            //{
-            //    Debug.WriteLine("TileImageLoader: {0}: expire{1} {2}", cacheKey, cacheItem.Expiration < DateTime.UtcNow ? "d" : "s", cacheItem.Expiration);
-            //}
-
             if (buffer == null || cacheItem.Expiration < DateTime.UtcNow)
             {
                 loaded = await DownloadTileImageAsync(tile, uri, cacheKey);
@@ -49,28 +43,26 @@ namespace MapControl
 
         private async Task<bool> DownloadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
+            var success = false;
+
             try
             {
-                using (var response = await HttpClient.GetAsync(uri))
+                using (var response = await TileSource.HttpClient.GetAsync(uri))
                 {
-                    if (response.IsSuccessStatusCode)
+                    success = response.IsSuccessStatusCode;
+
+                    if (!success)
                     {
-                        string tileInfo;
-
-                        if (!response.Headers.TryGetValue(bingMapsTileInfo, out tileInfo) ||
-                            tileInfo != bingMapsNoTile)
-                        {
-                            var buffer = await response.Content.ReadAsBufferAsync();
-
-                            await SetTileImageAsync(tile, buffer); // create BitmapImage in UI thread before caching
-
-                            await Cache.SetAsync(cacheKey, buffer, GetExpiration(response));
-                        }
-
-                        return true;
+                        Debug.WriteLine("TileImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
                     }
+                    else if (TileSource.TileAvailable(response.Headers))
+                    {
+                        var buffer = await response.Content.ReadAsBufferAsync();
 
-                    Debug.WriteLine("TileImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                        await SetTileImageAsync(tile, buffer); // create BitmapImage before caching
+
+                        await Cache.SetAsync(cacheKey, buffer, GetExpiration(response));
+                    }
                 }
             }
             catch (Exception ex)
@@ -78,7 +70,7 @@ namespace MapControl
                 Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
             }
 
-            return false;
+            return success;
         }
 
         private async Task SetTileImageAsync(Tile tile, IBuffer buffer)

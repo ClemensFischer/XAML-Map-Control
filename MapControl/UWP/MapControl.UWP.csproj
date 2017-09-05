@@ -27,6 +27,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
+    <NoWarn>CS1998</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -88,6 +89,9 @@
     <Compile Include="..\Shared\MapImageLayer.cs">
       <Link>MapImageLayer.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapItemsControl.cs">
+      <Link>MapItemsControl.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapOverlay.cs">
       <Link>MapOverlay.cs</Link>
     </Compile>
@@ -111,6 +115,9 @@
     </Compile>
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Pushpin.cs">
+      <Link>Pushpin.cs</Link>
     </Compile>
     <Compile Include="..\Shared\StereographicProjection.cs">
       <Link>StereographicProjection.cs</Link>
@@ -143,18 +150,15 @@
     <Compile Include="MapBase.UWP.cs" />
     <Compile Include="MapGraticule.UWP.cs" />
     <Compile Include="MapImageLayer.UWP.cs" />
-    <Compile Include="MapItem.UWP.cs" />
-    <Compile Include="MapItemsControl.UWP.cs" />
     <Compile Include="MapOverlay.UWP.cs" />
     <Compile Include="MapPanel.UWP.cs" />
     <Compile Include="MapPath.UWP.cs" />
     <Compile Include="MapPolyline.UWP.cs" />
-    <Compile Include="MapTileLayer.UWP.cs" />
     <Compile Include="MatrixEx.UWP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Pushpin.UWP.cs" />
     <Compile Include="Tile.UWP.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />
+    <Compile Include="TileSource.UWP.cs" />
     <EmbeddedResource Include="Properties\MapControl.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>

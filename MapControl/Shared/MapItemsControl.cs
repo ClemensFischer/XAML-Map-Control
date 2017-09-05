@@ -2,19 +2,39 @@
 // © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+#if WINDOWS_UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+#else
 using System.Windows;
 using System.Windows.Controls;
+#endif
 
 namespace MapControl
 {
     /// <summary>
-    /// Manages a collection of selectable items on a Map. Uses MapItem as item container class.
+    /// Container class for an item in a MapItemsControl.
+    /// </summary>
+    public class MapItem : ListBoxItem
+    {
+        public MapItem()
+        {
+            DefaultStyleKey = typeof(MapItem);
+
+            MapPanel.InitMapElement(this);
+        }
+    }
+
+    /// <summary>
+    /// Manages a collection of selectable items on a Map.
     /// </summary>
     public class MapItemsControl : ListBox
     {
-        static MapItemsControl()
+        public MapItemsControl()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItemsControl), new FrameworkPropertyMetadata(typeof(MapItemsControl)));
+            DefaultStyleKey = typeof(MapItemsControl);
+
+            MapPanel.InitMapElement(this);
         }
 
         protected override DependencyObject GetContainerForItemOverride()

@@ -3,11 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,11 +31,6 @@ namespace MapControl
             var buffer = GetCachedImage(cacheKey, out expiration);
             var loaded = false;
 
-            //if (buffer != null)
-            //{
-            //    Debug.WriteLine("TileImageLoader: {0}: expire{1} {2}", cacheKey, expiration < DateTime.UtcNow ? "d" : "s", expiration);
-            //}
-
             if (buffer == null || expiration < DateTime.UtcNow)
             {
                 loaded = await DownloadTileImageAsync(tile, uri, cacheKey);
@@ -55,32 +47,31 @@ namespace MapControl
 
         private async Task<bool> DownloadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
+            var success = false;
+
             try
             {
-                using (var response = await HttpClient.GetAsync(uri))
+                using (var response = await TileSource.HttpClient.GetAsync(uri))
                 {
-                    if (response.IsSuccessStatusCode)
+                    success = response.IsSuccessStatusCode;
+
+                    if (!success)
                     {
-                        IEnumerable<string> tileInfo;
-
-                        if (!response.Headers.TryGetValues(bingMapsTileInfo, out tileInfo) ||
-                            !tileInfo.Contains(bingMapsNoTile))
+                        Debug.WriteLine("TileImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    }
+                    else if (TileSource.TileAvailable(response.Headers))
+                    {
+                        using (var stream = new MemoryStream())
                         {
-                            using (var stream = new MemoryStream())
-                            {
-                                await response.Content.CopyToAsync(stream);
-                                stream.Seek(0, SeekOrigin.Begin);
+                            await response.Content.CopyToAsync(stream);
+                            stream.Seek(0, SeekOrigin.Begin);
 
-                                await SetTileImageAsync(tile, stream); // create BitmapFrame in UI thread before caching
+                            await SetTileImageAsync(tile, stream); // create BitmapFrame before caching
 
-                                SetCachedImage(cacheKey, stream, GetExpiration(response));
-                            }
+                            SetCachedImage(cacheKey, stream, GetExpiration(response));
                         }
-
-                        return true;
                     }
 
-                    Debug.WriteLine("TileImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
                 }
             }
             catch (Exception ex)
@@ -88,7 +79,7 @@ namespace MapControl
                 Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
             }
 
-            return false;
+            return success;
         }
 
         private async Task SetTileImageAsync(Tile tile, MemoryStream stream)

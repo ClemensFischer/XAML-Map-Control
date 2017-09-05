@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
@@ -22,11 +23,6 @@ namespace MapControl
     /// </summary>
     public partial class TileImageLoader : ITileImageLoader
     {
-        /// <summary>
-        /// The HttpClient instance used when image data is downloaded from a web resource.
-        /// </summary>
-        public static HttpClient HttpClient { get; set; } = new HttpClient();
-
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
         /// was transmitted on download. The default value is one day.
@@ -50,13 +46,10 @@ namespace MapControl
         /// </summary>
         public static string CacheKeyFormat { get; set; } = "{0};{1};{2};{3}{4}";
 
-        private const string bingMapsTileInfo = "X-VE-Tile-Info";
-        private const string bingMapsNoTile = "no-tile";
-
         private readonly ConcurrentStack<Tile> pendingTiles = new ConcurrentStack<Tile>();
         private int taskCount;
 
-        public void LoadTiles(MapTileLayer tileLayer)
+        public async Task LoadTilesAsync(MapTileLayer tileLayer)
         {
             pendingTiles.Clear();
 
@@ -69,18 +62,18 @@ namespace MapControl
                 if (Cache == null || string.IsNullOrEmpty(sourceName) ||
                     tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
                 {
-                    // no caching, load tile images in UI thread
+                    // no caching, load tile images directly
 
                     foreach (var tile in tiles)
                     {
-                        LoadTileImage(tileSource, tile);
+                        await LoadTileImageAsync(tileSource, tile);
                     }
                 }
                 else
                 {
                     pendingTiles.PushRange(tiles.Reverse().ToArray());
 
-                    while (taskCount < Math.Min(pendingTiles.Count, tileLayer.MaxParallelDownloads))
+                    while (taskCount < Math.Min(pendingTiles.Count, ServicePointManager.DefaultConnectionLimit))
                     {
                         Interlocked.Increment(ref taskCount);
 
@@ -95,13 +88,13 @@ namespace MapControl
             }
         }
 
-        private void LoadTileImage(TileSource tileSource, Tile tile)
+        private async Task LoadTileImageAsync(TileSource tileSource, Tile tile)
         {
             tile.Pending = false;
 
             try
             {
-                var imageSource = tileSource.LoadImage(tile.XIndex, tile.Y, tile.ZoomLevel);
+                var imageSource = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel);
 
                 if (imageSource != null)
                 {

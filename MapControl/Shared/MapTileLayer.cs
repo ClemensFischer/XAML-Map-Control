@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -21,13 +22,13 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        void LoadTiles(MapTileLayer tileLayer);
+        Task LoadTilesAsync(MapTileLayer tileLayer);
     }
 
     /// <summary>
     /// Fills the map viewport with map tiles from a TileSource.
     /// </summary>
-    public partial class MapTileLayer : Panel, IMapLayer
+    public class MapTileLayer : Panel, IMapLayer
     {
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.
@@ -66,9 +67,6 @@ namespace MapControl
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
             nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(18));
 
-        public static readonly DependencyProperty MaxParallelDownloadsProperty = DependencyProperty.Register(
-            nameof(MaxParallelDownloads), typeof(int), typeof(MapTileLayer), new PropertyMetadata(4));
-
         public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
             nameof(UpdateInterval), typeof(TimeSpan), typeof(MapTileLayer),
             new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapTileLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
@@ -92,17 +90,16 @@ namespace MapControl
 
         public MapTileLayer(ITileImageLoader tileImageLoader)
         {
-            Initialize();
-
+            IsHitTestVisible = false;
             RenderTransform = new MatrixTransform();
             TileImageLoader = tileImageLoader;
             Tiles = new List<Tile>();
 
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => UpdateTileGrid();
-        }
 
-        partial void Initialize(); // Windows Runtime and Silverlight only
+            MapPanel.InitMapElement(this);
+        }
 
         public ITileImageLoader TileImageLoader { get; private set; }
         public ICollection<Tile> Tiles { get; private set; }
@@ -160,15 +157,6 @@ namespace MapControl
         {
             get { return (int)GetValue(MaxZoomLevelProperty); }
             set { SetValue(MaxZoomLevelProperty, value); }
-        }
-
-        /// <summary>
-        /// Maximum number of parallel downloads that may be performed by the MapTileLayer's ITileImageLoader.
-        /// </summary>
-        public int MaxParallelDownloads
-        {
-            get { return (int)GetValue(MaxParallelDownloadsProperty); }
-            set { SetValue(MaxParallelDownloadsProperty, value); }
         }
 
         /// <summary>
@@ -400,7 +388,7 @@ namespace MapControl
                 Children.Add(tile.Image);
             }
 
-            TileImageLoader.LoadTiles(this);
+            var task = TileImageLoader.LoadTilesAsync(this);
         }
     }
 }

@@ -23,6 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -99,6 +101,9 @@
     <Compile Include="..\Shared\MapImageLayer.cs">
       <Link>MapImageLayer.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapItemsControl.cs">
+      <Link>MapItemsControl.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapOverlay.cs">
       <Link>MapOverlay.cs</Link>
     </Compile>
@@ -122,6 +127,9 @@
     </Compile>
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Pushpin.cs">
+      <Link>Pushpin.cs</Link>
     </Compile>
     <Compile Include="..\Shared\StereographicProjection.cs">
       <Link>StereographicProjection.cs</Link>
@@ -152,15 +160,12 @@
     <Compile Include="MapBase.WPF.cs" />
     <Compile Include="MapGraticule.WPF.cs" />
     <Compile Include="MapImageLayer.WPF.cs" />
-    <Compile Include="MapItem.WPF.cs" />
-    <Compile Include="MapItemsControl.WPF.cs" />
     <Compile Include="MapOverlay.WPF.cs" />
     <Compile Include="MapPanel.WPF.cs" />
     <Compile Include="MapPath.WPF.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
-    <Compile Include="MapTileLayer.WPF.cs" />
-    <Compile Include="Pushpin.WPF.cs" />
     <Compile Include="TileImageLoader.WPF.cs" />
+    <Compile Include="TileSource.WPF.cs" />
     <Compile Include="TypeConverters.WPF.cs" />
     <Compile Include="MatrixEx.WPF.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

@@ -6,11 +6,14 @@ using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace MapControl
 {
     public partial class MapBase
     {
+        private const FillBehavior AnimationFillBehavior = FillBehavior.HoldEnd;
+
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
             nameof(Foreground), typeof(Brush), typeof(MapBase),
             new PropertyMetadata(new SolidColorBrush(Colors.Black)));
@@ -39,25 +42,24 @@ namespace MapControl
             nameof(TargetHeading), typeof(double), typeof(MapBase),
             new PropertyMetadata(0d, (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue)));
 
-        partial void Initialize()
+        public MapBase()
         {
+            MapProjection = new WebMercatorProjection();
+            ScaleRotateTransform.Children.Add(ScaleTransform);
+            ScaleRotateTransform.Children.Add(RotateTransform);
+
             // set Background by Style to enable resetting by ClearValue in MapLayerPropertyChanged
             var style = new Style(typeof(MapBase));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             Style = style;
 
-            var clip = new RectangleGeometry();
-            Clip = clip;
+            Clip = new RectangleGeometry();
 
             SizeChanged += (s, e) =>
             {
-                if (clip.Rect.Width != e.NewSize.Width || clip.Rect.Height != e.NewSize.Height)
-                {
-                    clip.Rect = new Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height);
-
-                    ResetTransformCenter();
-                    UpdateTransform();
-                }
+                Clip.Rect = new Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height);
+                ResetTransformCenter();
+                UpdateTransform();
             };
         }
     }

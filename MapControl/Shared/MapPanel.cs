@@ -16,6 +16,10 @@ using System.Windows.Media;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Optional interface to hold the value of the MapPanel.ParentMap attached property.
+    /// May be used to get notified when the property value changes.
+    /// </summary>
     public interface IMapElement
     {
         MapBase ParentMap { get; set; }
@@ -34,6 +38,13 @@ namespace MapControl
 
         public static readonly DependencyProperty BoundingBoxProperty = DependencyProperty.RegisterAttached(
             "BoundingBox", typeof(BoundingBox), typeof(MapPanel), new PropertyMetadata(null, BoundingBoxPropertyChanged));
+
+        private MapBase parentMap;
+
+        public MapPanel()
+        {
+            InitMapElement(this);
+        }
 
         public static Location GetLocation(UIElement element)
         {
@@ -55,12 +66,10 @@ namespace MapControl
             element.SetValue(BoundingBoxProperty, value);
         }
 
-        private MapBase parentMap;
-
         public MapBase ParentMap
         {
             get { return parentMap; }
-            set { SetParentMapOverride(value); }
+            set { SetParentMap(value); }
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -101,7 +110,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected virtual void SetParentMapOverride(MapBase map)
+        protected virtual void SetParentMap(MapBase map)
         {
             if (parentMap != null && parentMap != this)
             {

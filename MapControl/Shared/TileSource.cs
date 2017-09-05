@@ -4,13 +4,6 @@
 
 using System;
 using System.Globalization;
-#if WINDOWS_UWP
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
-#else
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-#endif
 
 namespace MapControl
 {
@@ -90,17 +83,6 @@ namespace MapControl
         public virtual Uri GetUri(int x, int y, int zoomLevel)
         {
             return getUri?.Invoke(x, y, zoomLevel);
-        }
-
-        /// <summary>
-        /// Gets the map tile ImageSource without caching in TileImageLoader.Cache.
-        /// By overriding LoadImage an application can provide arbitrary tile images.
-        /// </summary>
-        public virtual ImageSource LoadImage(int x, int y, int zoomLevel)
-        {
-            var uri = GetUri(x, y, zoomLevel);
-
-            return uri != null ? new BitmapImage(uri) : null;
         }
 
         private Uri GetBasicUri(int x, int y, int zoomLevel)

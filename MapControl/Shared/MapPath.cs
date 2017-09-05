@@ -24,6 +24,11 @@ namespace MapControl
             nameof(Location), typeof(Location), typeof(MapPath),
             new PropertyMetadata(null, (o, e) => ((MapPath)o).LocationPropertyChanged()));
 
+        public MapPath()
+        {
+            MapPanel.InitMapElement(this);
+        }
+
         public Location Location
         {
             get { return (Location)GetValue(LocationProperty); }
