@@ -16,10 +16,13 @@ namespace MapControl
     public partial class TileImageLoader : ITileImageLoader
     {
         /// <summary>
-        /// Default folder path where an ObjectCache instance may save cached data.
+        /// Default folder path where an ObjectCache instance may save cached data,
+        /// i.e. C:\ProgramData\MapControl\TileCache
         /// </summary>
-        public static string DefaultCacheFolder { get; } =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
+        public static string DefaultCacheFolder
+        {
+            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache"); }
+        }
 
         /// <summary>
         /// The ObjectCache used to cache tile images. The default is MemoryCache.Default.

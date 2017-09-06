@@ -15,9 +15,13 @@ namespace MapControl
     public partial class TileImageLoader : ITileImageLoader
     {
         /// <summary>
-        /// Default StorageFolder where an IImageCache instance may save cached data.
+        /// Default StorageFolder where an IImageCache instance may save cached data,
+        /// i.e. ApplicationData.Current.TemporaryFolder.
         /// </summary>
-        public static StorageFolder DefaultCacheFolder { get; } = ApplicationData.Current.TemporaryFolder;
+        public static StorageFolder DefaultCacheFolder
+        {
+            get { return ApplicationData.Current.TemporaryFolder; }
+        }
 
         /// <summary>
         /// The IImageCache implementation used to cache tile images. The default is null.
@@ -25,7 +29,7 @@ namespace MapControl
         public static Caching.IImageCache Cache { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum number of concurrent connections.
+        /// Gets or sets the maximum number of concurrent connections. The default value is 2.
         /// </summary>
         public static int DefaultConnectionLimit { get; set; } = 2;
 
