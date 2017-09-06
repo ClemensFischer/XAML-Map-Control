@@ -4,7 +4,7 @@ A set of controls for WPF and UWP for rendering digital maps from different prov
 
 Map providers can easily be added by specifying an URL template for their map tile bitmaps. 
 Map overlay layers allow to draw and interact with graphical objects and pushpins on the map.
-The Map Control API is similar to that of the Microsoft Bing Maps Control for WPF, except that no API key is needed.
+The Map Control API is similar to the Microsoft Bing Maps Control for WPF, except that no API key is needed.
 
 The project includes sample applications for both platforms, which demonstrate the features of XAML Map Control.
 
