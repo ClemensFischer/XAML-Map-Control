@@ -2,8 +2,8 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 
-[assembly: AssemblyTitle("XAML Map Control for WPF")]
-[assembly: AssemblyDescription("XAML Map Control Library for WPF")]
+[assembly: AssemblyTitle("XAML Map Control (WPF)")]
+[assembly: AssemblyDescription("XAML Map Control Library")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyCopyright("© 2017 Clemens Fischer")]

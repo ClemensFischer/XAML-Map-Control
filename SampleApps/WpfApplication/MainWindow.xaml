@@ -26,7 +26,7 @@
 
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
-            <Setter Property="Location" Value="{Binding Location}"/>
+            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -81,7 +81,7 @@
 
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
-            <Setter Property="Location" Value="{Binding Location}"/>
+            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Visibility">
@@ -155,10 +155,10 @@
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"
                                  IsSynchronizedWithCurrentItem="True"/>
 
-            <map:Pushpin Location="65,-18" Content="Iceland"/>
-            <map:Pushpin Location="71,25" Content="Norway"/>
-            <map:Pushpin Location="35,33" Content="Cyprus"/>
-            <map:Pushpin Location="28.25,-16.5" Content="Tenerife"/>
+            <map:Pushpin map:MapPanel.Location="65,-18" Content="Iceland"/>
+            <map:Pushpin map:MapPanel.Location="71,25" Content="Norway"/>
+            <map:Pushpin map:MapPanel.Location="35,33" Content="Cyprus"/>
+            <map:Pushpin map:MapPanel.Location="28.25,-16.5" Content="Tenerife"/>
 
             <Path map:MapPanel.Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
                 <Path.Data>
@@ -166,7 +166,7 @@
                 </Path.Data>
             </Path>
 
-            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53°30' E 8°12'">
+            <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53°30' E 8°12'">
                 <map:Pushpin.Visibility>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
                         <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
@@ -177,7 +177,7 @@
         </map:Map>
 
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF">
-            <TextBlock Margin="2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding MapLayers.CurrentMapLayer.Description}"/>
+            <TextBlock Margin="2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
         </Border>
 
         <Grid Grid.Row="1">

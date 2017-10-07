@@ -24,60 +24,33 @@ namespace ViewModel
                 MapTileLayer.OpenStreetMapTileLayer
             },
             {
-                "OpenStreetMap German Style",
+                "OpenStreetMap German",
                 new MapTileLayer
                 {
                     SourceName = "OpenStreetMap German",
-                    Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
+                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
                     TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 19
                 }
             },
             {
-                "Thunderforest OpenCycleMap",
+                "Stamen Terrain",
                 new MapTileLayer
                 {
-                    SourceName = "Thunderforest OpenCycleMap",
-                    Description = "Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png" }
+                    SourceName = "Stamen Terrain",
+                    Description = "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0). Data by OpenStreetMap, under [ODbL](http://www.openstreetmap.org/copyright)",
+                    TileSource = new TileSource { UriFormat = "http://tile.stamen.com/terrain/{z}/{x}/{y}.png" },
+                    MaxZoomLevel = 17
                 }
             },
             {
-                "Thunderforest Landscape",
+                "Stamen Toner Light",
                 new MapTileLayer
                 {
-                    SourceName = "Thunderforest Landscape",
-                    Description = "Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png" }
-                }
-            },
-            {
-                "Thunderforest Outdoors",
-                new MapTileLayer
-                {
-                    SourceName = "Thunderforest Outdoors",
-                    Description = "Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png" }
-                }
-            },
-            {
-                "Thunderforest Transport",
-                new MapTileLayer
-                {
-                    SourceName = "Thunderforest Transport",
-                    Description = "Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png" }
-                }
-            },
-            {
-                "Thunderforest Transport Dark",
-                new MapTileLayer
-                {
-                    SourceName = "Thunderforest Transport Dark",
-                    Description = "Maps © [Thunderforest](http://www.thunderforest.com/), Data © [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png" },
-                    MapForeground = new SolidColorBrush(Colors.White),
-                    MapBackground = new SolidColorBrush(Colors.Black)
+                    SourceName = "Stamen Toner Light",
+                    Description = "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0). Data by OpenStreetMap, under [ODbL](http://www.openstreetmap.org/copyright)",
+                    TileSource = new TileSource { UriFormat = "http://tile.stamen.com/toner-lite/{z}/{x}/{y}.png" },
+                    MaxZoomLevel = 18
                 }
             },
             {
@@ -172,12 +145,9 @@ namespace ViewModel
         public List<string> MapLayerNames { get; } = new List<string>
         {
             "OpenStreetMap",
-            "OpenStreetMap German Style",
-            "Thunderforest OpenCycleMap",
-            //"Thunderforest Landscape",
-            //"Thunderforest Outdoors",
-            //"Thunderforest Transport",
-            //"Thunderforest Transport Dark",
+            "OpenStreetMap German",
+            "Stamen Terrain",
+            "Stamen Toner Light",
             "OpenStreetMap WMS",
             "OpenStreetMap TOPO WMS"
         };

@@ -53,17 +53,16 @@ namespace MapControl
                             }
                             else if (TileAvailable(response.Headers))
                             {
-                                var bitmapImage = new BitmapImage();
-
                                 using (var stream = new InMemoryRandomAccessStream())
                                 {
                                     await response.Content.WriteToStreamAsync(stream);
                                     stream.Seek(0);
 
+                                    var bitmapImage = new BitmapImage();
                                     await bitmapImage.SetSourceAsync(stream);
-                                }
 
-                                imageSource = bitmapImage;
+                                    imageSource = bitmapImage;
+                                }
                             }
                         }
                     }

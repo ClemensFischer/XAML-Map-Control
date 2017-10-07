@@ -21,9 +21,9 @@ namespace WpfApplication
         {
             if (e.ClickCount == 2)
             {
-                map.TargetCenter = map.ViewportPointToLocation(e.GetPosition(map));
                 //map.ZoomMap(e.GetPosition(map), Math.Floor(map.ZoomLevel + 1.5));
                 //map.ZoomToBounds(new BoundingBox(53, 7, 54, 9));
+                map.TargetCenter = map.ViewportPointToLocation(e.GetPosition(map));
             }
         }
 
@@ -31,7 +31,7 @@ namespace WpfApplication
         {
             if (e.ClickCount == 2)
             {
-                map.ZoomMap(e.GetPosition(map), Math.Ceiling(map.ZoomLevel - 1.5));
+                //map.ZoomMap(e.GetPosition(map), Math.Ceiling(map.ZoomLevel - 1.5));
             }
         }
 
@@ -80,12 +80,12 @@ namespace WpfApplication
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.Children.Insert(map.Children.IndexOf(mapGraticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
+            map.Children.Insert(map.Children.IndexOf(mapGraticule), (UIElement)Application.Current.Resources["Seamarks"]);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.Children.Remove(((MapViewModel)DataContext).MapLayers.SeamarksLayer);
+            map.Children.Remove((UIElement)Application.Current.Resources["Seamarks"]);
         }
     }
 }

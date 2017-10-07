@@ -53,11 +53,13 @@ namespace MapControl
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
             Style = style;
 
-            Clip = new RectangleGeometry();
-
             SizeChanged += (s, e) =>
             {
-                Clip.Rect = new Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height);
+                Clip = new RectangleGeometry
+                {
+                    Rect = new Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height)
+                };
+
                 ResetTransformCenter();
                 UpdateTransform();
             };

@@ -45,7 +45,7 @@ namespace MapControl
 
         public MapMode Mode { get; set; }
         public string Culture { get; set; }
-        public Uri LogoImageUri { get; set; }
+        public Uri LogoImageUri { get; private set; }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {

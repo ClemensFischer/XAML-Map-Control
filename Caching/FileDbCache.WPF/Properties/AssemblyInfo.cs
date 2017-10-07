@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("XAML Map Control FileDbCache for WPF")]
+[assembly: AssemblyTitle("XAML Map Control FileDbCache (WPF)")]
 [assembly: AssemblyDescription("ObjectCache implementation based on EzTools FileDb")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]

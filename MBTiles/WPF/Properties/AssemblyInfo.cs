@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("XAML Map Control (UWP)")]
-[assembly: AssemblyDescription("XAML Map Control Library")]
+[assembly: AssemblyTitle("XAML Map Control MBTiles Support (WPF)")]
+[assembly: AssemblyDescription("MBTiles Support Library for XAML Map Control")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyCopyright("© 2017 Clemens Fischer")]
