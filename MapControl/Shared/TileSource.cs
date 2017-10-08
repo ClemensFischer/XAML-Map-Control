@@ -3,7 +3,16 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.Threading.Tasks;
+#if WINDOWS_UWP
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
+#else
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+#endif
 
 namespace MapControl
 {
@@ -83,6 +92,41 @@ namespace MapControl
         public virtual Uri GetUri(int x, int y, int zoomLevel)
         {
             return getUri?.Invoke(x, y, zoomLevel);
+        }
+
+        /// <summary>
+        /// Load a tile ImageSource asynchronously from GetUri(x, y, zoomLevel)
+        /// </summary>
+        public virtual async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
+        {
+            ImageSource imageSource = null;
+
+            var uri = GetUri(x, y, zoomLevel);
+
+            if (uri != null)
+            {
+                try
+                {
+                    if (!uri.IsAbsoluteUri || uri.Scheme == "file")
+                    {
+                        imageSource = await LoadLocalImageAsync(uri);
+                    }
+                    else if (uri.Scheme == "http")
+                    {
+                        imageSource = await LoadHttpImageAsync(uri);
+                    }
+                    else
+                    {
+                        imageSource = new BitmapImage(uri);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("TileSource: {0}: {1}", uri, ex.Message);
+                }
+            }
+
+            return imageSource;
         }
 
         private Uri GetBasicUri(int x, int y, int zoomLevel)

@@ -10,9 +10,13 @@ using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.Data.Xml.Dom;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 #else
-using System.Windows;
 using System.Xml;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 #endif
 
 namespace MapControl
@@ -81,25 +85,25 @@ namespace MapControl
             set { SetValue(TransparentProperty, value); }
         }
 
-        protected override bool UpdateImage(BoundingBox boundingBox)
+        protected override ImageSource GetImage(BoundingBox boundingBox)
         {
             if (ServerUri == null)
             {
-                return false;
+                return null;
             }
 
             var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox, Version);
 
             if (string.IsNullOrEmpty(projectionParameters))
             {
-                return false;
+                return null;
             }
 
-            UpdateImage(GetRequestUri("GetMap"
+            var uri = GetRequestUri("GetMap"
                 + "&LAYERS=" + Layers + "&STYLES=" + Styles + "&FORMAT=" + Format
-                + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE") + "&" + projectionParameters));
+                + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE") + "&" + projectionParameters);
 
-            return true;
+            return new BitmapImage(uri);
         }
 
         public async Task<IList<string>> GetLayerNamesAsync()

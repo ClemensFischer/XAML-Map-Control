@@ -61,7 +61,8 @@ namespace MapControl
 
             try
             {
-                var document = await XmlDocument.LoadFromUriAsync(new Uri(imageryMetadataUrl + "?output=xml&key=" + ApiKey));
+                var uri = new Uri(imageryMetadataUrl + "?output=xml&key=" + ApiKey);
+                var document = await XmlDocument.LoadFromUriAsync(uri);
                 var imageryMetadata = document.DocumentElement.GetElementsByTagName("ImageryMetadata").OfType<XmlElement>().FirstOrDefault();
 
                 if (imageryMetadata != null)

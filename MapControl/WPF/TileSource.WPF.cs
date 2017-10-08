@@ -23,7 +23,7 @@ namespace MapControl
         public static HttpClient HttpClient { get; set; } = new HttpClient();
 
         /// <summary>
-        /// Check HTTP response headers for tile unavailability, e.g. X-VE-Tile-Info=no-tile
+        /// Check HTTP response headers for tile availability, e.g. X-VE-Tile-Info=no-tile
         /// </summary>
         public static bool TileAvailable(HttpResponseHeaders responseHeaders)
         {
@@ -32,51 +32,45 @@ namespace MapControl
             return !responseHeaders.TryGetValues("X-VE-Tile-Info", out tileInfo) || !tileInfo.Contains("no-tile");
         }
 
-        /// <summary>
-        /// Load a tile ImageSource asynchronously from GetUri(x, y, zoomLevel)
-        /// </summary>
-        public virtual async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
+        protected Task<ImageSource> LoadLocalImageAsync(Uri uri)
         {
-            ImageSource imageSource = null;
-
-            var uri = GetUri(x, y, zoomLevel);
-
-            if (uri != null)
+            return Task.Run(() =>
             {
-                try
-                {
-                    if (uri.Scheme == "http")
-                    {
-                        using (var response = await HttpClient.GetAsync(uri))
-                        {
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                Debug.WriteLine("TileSource: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                            }
-                            else if (TileAvailable(response.Headers))
-                            {
-                                using (var stream = new MemoryStream())
-                                {
-                                    await response.Content.CopyToAsync(stream);
-                                    stream.Seek(0, SeekOrigin.Begin);
+                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
-                                    imageSource = await Task.Run(() => BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad));
-                                }
-                            }
-                        }
-                    }
-                    else
+                if (File.Exists(path))
+                {
+                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                     {
-                        imageSource = BitmapFrame.Create(uri, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        return (ImageSource)BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     }
                 }
-                catch (Exception ex)
+
+                return null;
+            });
+        }
+
+        protected async Task<ImageSource> LoadHttpImageAsync(Uri uri)
+        {
+            using (var response = await HttpClient.GetAsync(uri))
+            {
+                if (!response.IsSuccessStatusCode)
                 {
-                    Debug.WriteLine("TileSource: {0}: {1}", uri, ex.Message);
+                    Debug.WriteLine("TileSource: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                }
+                else if (TileAvailable(response.Headers))
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        await response.Content.CopyToAsync(stream);
+                        stream.Seek(0, SeekOrigin.Begin);
+
+                        return await Task.Run(() => BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad));
+                    }
                 }
             }
 
-            return imageSource;
+            return null;
         }
     }
 }

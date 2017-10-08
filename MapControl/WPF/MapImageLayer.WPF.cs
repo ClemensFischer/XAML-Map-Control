@@ -11,13 +11,6 @@ namespace MapControl
 {
     public partial class MapImageLayer
     {
-        protected void UpdateImage(Uri uri)
-        {
-            UpdateImage(uri != null
-                ? BitmapFrame.Create(uri, BitmapCreateOptions.IgnoreImageCache, BitmapCacheOption.OnDemand)
-                : null);
-        }
-
         protected void UpdateImage(ImageSource imageSource)
         {
             SetTopImage(imageSource);

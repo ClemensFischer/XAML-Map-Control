@@ -38,7 +38,7 @@ namespace ViewModel
                 new MapTileLayer
                 {
                     SourceName = "Stamen Terrain",
-                    Description = "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0). Data by OpenStreetMap, under [ODbL](http://www.openstreetmap.org/copyright)",
+                    Description = "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0)\nData by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright)",
                     TileSource = new TileSource { UriFormat = "http://tile.stamen.com/terrain/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 17
                 }
@@ -48,7 +48,7 @@ namespace ViewModel
                 new MapTileLayer
                 {
                     SourceName = "Stamen Toner Light",
-                    Description = "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0). Data by OpenStreetMap, under [ODbL](http://www.openstreetmap.org/copyright)",
+                    Description = "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0)\nData by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright)",
                     TileSource = new TileSource { UriFormat = "http://tile.stamen.com/toner-lite/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 18
                 }
@@ -68,9 +68,8 @@ namespace ViewModel
                 new BingMapsTileLayer
                 {
                     SourceName = "Bing Maps Road",
-                    Description = "© [Microsoft Corporation](http://www.bing.com/maps/)",
-                    Mode = BingMapsTileLayer.MapMode.Road,
-                    MaxZoomLevel = 19
+                    Description = "© [Microsoft](http://www.bing.com/maps/)",
+                    Mode = BingMapsTileLayer.MapMode.Road
                 }
             },
             {
@@ -78,9 +77,8 @@ namespace ViewModel
                 new BingMapsTileLayer
                 {
                     SourceName = "Bing Maps Aerial",
-                    Description = "© [Microsoft Corporation](http://www.bing.com/maps/)",
+                    Description = "© [Microsoft](http://www.bing.com/maps/)",
                     Mode = BingMapsTileLayer.MapMode.Aerial,
-                    MaxZoomLevel = 19,
                     MapForeground = new SolidColorBrush(Colors.White),
                     MapBackground = new SolidColorBrush(Colors.Black)
                 }
@@ -90,9 +88,8 @@ namespace ViewModel
                 new BingMapsTileLayer
                 {
                     SourceName = "Bing Maps Hybrid",
-                    Description = "© [Microsoft Corporation](http://www.bing.com/maps/)",
+                    Description = "© [Microsoft](http://www.bing.com/maps/)",
                     Mode = BingMapsTileLayer.MapMode.AerialWithLabels,
-                    MaxZoomLevel = 19,
                     MapForeground = new SolidColorBrush(Colors.White),
                     MapBackground = new SolidColorBrush(Colors.Black)
                 }
@@ -101,20 +98,28 @@ namespace ViewModel
                 "OpenStreetMap WMS",
                 new WmsImageLayer
                 {
-                    Description = "OpenStreetMap WMS",
+                    Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/)\nData © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
                     ServerUri = new Uri("http://ows.terrestris.de/osm/service"),
-                    Layers = "OSM-WMS",
-                    MapBackground = new SolidColorBrush(Colors.LightGray)
+                    Layers = "OSM-WMS"
                 }
             },
             {
                 "OpenStreetMap TOPO WMS",
                 new WmsImageLayer
                 {
-                    Description = "OpenStreetMap TOPO WMS",
+                    Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/)\nData © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
                     ServerUri = new Uri("http://ows.terrestris.de/osm/service"),
-                    Layers = "TOPO-OSM-WMS",
-                    MapBackground = new SolidColorBrush(Colors.LightGray)
+                    Layers = "TOPO-OSM-WMS"
+                }
+            },
+            {
+                "SevenCs ChartServer",
+                new WmsImageLayer
+                {
+                    Description = "© [SevenCs GmbH](http://www.sevencs.com)",
+                    ServerUri = new Uri("http://chartserver4.sevencs.com:8080"),
+                    Layers = "ENC",
+                    MaxBoundingBoxWidth = 360
                 }
             }
         };
@@ -149,7 +154,8 @@ namespace ViewModel
             "Stamen Terrain",
             "Stamen Toner Light",
             "OpenStreetMap WMS",
-            "OpenStreetMap TOPO WMS"
+            "OpenStreetMap TOPO WMS",
+            "SevenCs ChartServer"
         };
 
         public MapLayers()
@@ -161,9 +167,12 @@ namespace ViewModel
             // A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
             // for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
 
-            //MapLayerNames.Add("Bing Maps Road");
-            //MapLayerNames.Add("Bing Maps Aerial");
-            //MapLayerNames.Add("Bing Maps Aerial with Labels");
+            if (!string.IsNullOrEmpty(BingMapsTileLayer.ApiKey))
+            {
+                MapLayerNames.Add("Bing Maps Road");
+                MapLayerNames.Add("Bing Maps Aerial");
+                MapLayerNames.Add("Bing Maps Aerial with Labels");
+            }
         }
     }
 }

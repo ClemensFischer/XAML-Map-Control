@@ -2,7 +2,6 @@
 // © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -12,11 +11,6 @@ namespace MapControl
 {
     public partial class MapImageLayer
     {
-        protected void UpdateImage(Uri uri)
-        {
-            UpdateImage(uri != null ? new BitmapImage(uri) : null);
-        }
-
         protected void UpdateImage(ImageSource imageSource)
         {
             SetTopImage(imageSource);

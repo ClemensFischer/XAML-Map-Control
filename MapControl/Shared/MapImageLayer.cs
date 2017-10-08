@@ -271,29 +271,25 @@ namespace MapControl
                     }
                 }
 
-                var imageUpdated = false;
+                ImageSource imageSource = null;
 
                 try
                 {
-                    imageUpdated = UpdateImage(boundingBox);
+                    imageSource = GetImage(boundingBox);
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("MapImageLayer: " + ex.Message);
                 }
 
-                if (!imageUpdated)
-                {
-                    UpdateImage((BitmapSource)null);
-                }
+                UpdateImage(imageSource);
             }
         }
 
         /// <summary>
-        /// Creates an image request Uri or a BitmapSource for the specified image bounding box.
-        /// Must either call UpdateImage(Uri) or UpdateImage(BitmapSource) or return false on failure.
+        /// Returns an ImageSource for the specified bounding box.
         /// </summary>
-        protected abstract bool UpdateImage(BoundingBox boundingBox);
+        protected abstract ImageSource GetImage(BoundingBox boundingBox);
 
         private void SetTopImage(ImageSource imageSource)
         {
