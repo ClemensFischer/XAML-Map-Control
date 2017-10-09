@@ -80,12 +80,12 @@ namespace WpfApplication
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.Children.Insert(map.Children.IndexOf(mapGraticule), (UIElement)Application.Current.Resources["Seamarks"]);
+            map.Children.Insert(map.Children.IndexOf(mapGraticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.Children.Remove((UIElement)Application.Current.Resources["Seamarks"]);
+            map.Children.Remove(((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
     }
 }
