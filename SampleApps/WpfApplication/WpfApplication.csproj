@@ -81,7 +81,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Caching\FileDbCache.WPF\FileDbCache.WPF.csproj">
+    <ProjectReference Include="..\..\FileDbCache\WPF\FileDbCache.WPF.csproj">
       <Project>{ad1cb53e-7aa4-4ec0-b901-b4e0e2665133}</Project>
       <Name>FileDbCache.WPF</Name>
     </ProjectReference>
