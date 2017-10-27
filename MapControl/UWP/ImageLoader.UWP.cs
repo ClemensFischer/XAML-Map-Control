@@ -15,24 +15,29 @@ using Windows.Web.Http.Headers;
 
 namespace MapControl
 {
-    public partial class TileSource
+    public static class ImageLoader
     {
         /// <summary>
         /// The HttpClient instance used when image data is downloaded from a web resource.
         /// </summary>
         public static HttpClient HttpClient { get; set; } = new HttpClient();
 
-        /// <summary>
-        /// Check HTTP response headers for tile availability, e.g. X-VE-Tile-Info=no-tile
-        /// </summary>
-        public static bool IsTileAvailable(HttpResponseHeaderCollection responseHeaders)
+        public static async Task<ImageSource> LoadImageAsync(Uri uri, bool isTileImage)
         {
-            string tileInfo;
+            if (!uri.IsAbsoluteUri || uri.Scheme == "file")
+            {
+                return await LoadLocalImageAsync(uri);
+            }
 
-            return !responseHeaders.TryGetValue("X-VE-Tile-Info", out tileInfo) || tileInfo != "no-tile";
+            if (uri.Scheme == "http")
+            {
+                return await LoadHttpImageAsync(uri, isTileImage);
+            }
+
+            return new BitmapImage(uri);
         }
 
-        protected static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        public static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
         {
             var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
@@ -52,15 +57,15 @@ namespace MapControl
             }
         }
 
-        protected static async Task<ImageSource> LoadHttpImageAsync(Uri uri)
+        public static async Task<ImageSource> LoadHttpImageAsync(Uri uri, bool isTileImage)
         {
             using (var response = await HttpClient.GetAsync(uri))
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    Debug.WriteLine("TileSource: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
                 }
-                else if (IsTileAvailable(response.Headers))
+                else if (!isTileImage || IsTileAvailable(response.Headers))
                 {
                     using (var stream = new InMemoryRandomAccessStream())
                     {
@@ -73,9 +78,33 @@ namespace MapControl
                         return bitmapImage;
                     }
                 }
-            }
 
-            return null;
+                return null;
+            }
+        }
+
+        public static async Task<bool> LoadHttpTileImageAsync(Uri uri, Func<IBuffer, TimeSpan?, Task> tileCallback)
+        {
+            using (var response = await HttpClient.GetAsync(uri))
+            {
+                if (!response.IsSuccessStatusCode)
+                {
+                    Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                }
+                else if (IsTileAvailable(response.Headers))
+                {
+                    var buffer = await response.Content.ReadAsBufferAsync();
+
+                    await tileCallback(buffer, response.Headers.CacheControl?.MaxAge);
+                }
+
+                return response.IsSuccessStatusCode;
+            }
+        }
+
+        private static bool IsTileAvailable(HttpResponseHeaderCollection responseHeaders)
+        {
+            return !responseHeaders.TryGetValue("X-VE-Tile-Info", out string tileInfo) || tileInfo != "no-tile";
         }
     }
 }

@@ -11,12 +11,10 @@ using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Xml;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 #endif
 
 namespace MapControl
@@ -25,27 +23,27 @@ namespace MapControl
     {
         public static readonly DependencyProperty ServerUriProperty = DependencyProperty.Register(
             nameof(ServerUri), typeof(Uri), typeof(WmsImageLayer),
-            new PropertyMetadata(null, (o, e) => ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty VersionProperty = DependencyProperty.Register(
             nameof(Version), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata("1.3.0", (o, e) => ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata("1.3.0", async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
             nameof(Layers), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(string.Empty, (o, e) => ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty StylesProperty = DependencyProperty.Register(
             nameof(Styles), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(string.Empty, (o, e) => ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty FormatProperty = DependencyProperty.Register(
             nameof(Format), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata("image/png", (o, e) => ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
 
         public static readonly DependencyProperty TransparentProperty = DependencyProperty.Register(
             nameof(Transparent), typeof(bool), typeof(WmsImageLayer),
-            new PropertyMetadata(false, (o, e) => ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(false, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
 
         private string layers = string.Empty;
 
@@ -85,25 +83,32 @@ namespace MapControl
             set { SetValue(TransparentProperty, value); }
         }
 
-        protected override ImageSource GetImage(BoundingBox boundingBox)
+        protected override async Task<ImageSource> GetImage(BoundingBox boundingBox)
         {
-            if (ServerUri == null)
+            ImageSource imageSource = null;
+
+            if (ServerUri != null)
             {
-                return null;
+                var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox, Version);
+
+                if (!string.IsNullOrEmpty(projectionParameters))
+                {
+                    var uri = GetRequestUri("GetMap"
+                        + "&LAYERS=" + Layers + "&STYLES=" + Styles + "&FORMAT=" + Format
+                        + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE") + "&" + projectionParameters);
+
+                    try
+                    {
+                        imageSource = await ImageLoader.LoadImageAsync(uri, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                    }
+                }
             }
 
-            var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox, Version);
-
-            if (string.IsNullOrEmpty(projectionParameters))
-            {
-                return null;
-            }
-
-            var uri = GetRequestUri("GetMap"
-                + "&LAYERS=" + Layers + "&STYLES=" + Styles + "&FORMAT=" + Format
-                + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE") + "&" + projectionParameters);
-
-            return new BitmapImage(uri);
+            return imageSource;
         }
 
         public async Task<IList<string>> GetLayerNamesAsync()

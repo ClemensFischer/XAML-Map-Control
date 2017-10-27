@@ -4,19 +4,18 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 #endif
 
@@ -26,7 +25,7 @@ namespace MapControl
     /// Map image layer. Fills the entire viewport with a map image, e.g. provided by a Web Map Service (WMS).
     /// The image must be provided by the abstract UpdateImage(BoundingBox) method.
     /// </summary>
-    public abstract partial class MapImageLayer : MapPanel, IMapLayer
+    public abstract class MapImageLayer : MapPanel, IMapLayer
     {
         public static readonly DependencyProperty MinLatitudeProperty = DependencyProperty.Register(
             nameof(MinLatitude), typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
@@ -64,7 +63,6 @@ namespace MapControl
 
         private readonly DispatcherTimer updateTimer;
         private BoundingBox boundingBox;
-        private int topImageIndex;
         private bool updateInProgress;
 
         public MapImageLayer()
@@ -73,7 +71,7 @@ namespace MapControl
             Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
 
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
-            updateTimer.Tick += (s, e) => UpdateImage();
+            updateTimer.Tick += async (s, e) => await UpdateImage();
         }
 
         /// <summary>
@@ -180,34 +178,26 @@ namespace MapControl
             set { SetValue(MapBackgroundProperty, value); }
         }
 
+        /// <summary>
+        /// Returns an ImageSource for the specified bounding box.
+        /// </summary>
+        protected abstract Task<ImageSource> GetImage(BoundingBox boundingBox);
+
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            base.OnViewportChanged(e);
-
             if (e.ProjectionChanged)
             {
-                UpdateImage((BitmapSource)null);
-                UpdateImage();
+                ClearImages();
+
+                base.OnViewportChanged(e);
+
+                var task = UpdateImage();
             }
             else
             {
-                if (Math.Abs(e.LongitudeOffset) > 180d && boundingBox != null && boundingBox.HasValidBounds)
-                {
-                    var offset = 360d * Math.Sign(e.LongitudeOffset);
+                AdjustBoundingBox(e.LongitudeOffset);
 
-                    boundingBox.West += offset;
-                    boundingBox.East += offset;
-
-                    foreach (UIElement element in Children)
-                    {
-                        var bbox = GetBoundingBox(element);
-
-                        if (bbox != null && bbox.HasValidBounds)
-                        {
-                            SetBoundingBox(element, new BoundingBox(bbox.South, bbox.West + offset, bbox.North, bbox.East + offset));
-                        }
-                    }
-                }
+                base.OnViewportChanged(e);
 
                 if (updateTimer.IsEnabled && !UpdateWhileViewportChanging)
                 {
@@ -221,7 +211,7 @@ namespace MapControl
             }
         }
 
-        protected virtual void UpdateImage()
+        protected virtual async Task UpdateImage()
         {
             updateTimer.Stop();
 
@@ -233,104 +223,124 @@ namespace MapControl
             {
                 updateInProgress = true;
 
-                var width = ParentMap.RenderSize.Width * RelativeImageSize;
-                var height = ParentMap.RenderSize.Height * RelativeImageSize;
-                var x = (ParentMap.RenderSize.Width - width) / 2d;
-                var y = (ParentMap.RenderSize.Height - height) / 2d;
-                var rect = new Rect(x, y, width, height);
-
-                boundingBox = ParentMap.MapProjection.ViewportRectToBoundingBox(rect);
-
-                if (boundingBox != null && boundingBox.HasValidBounds)
-                {
-                    if (!double.IsNaN(MinLatitude) && boundingBox.South < MinLatitude)
-                    {
-                        boundingBox.South = MinLatitude;
-                    }
-
-                    if (!double.IsNaN(MinLongitude) && boundingBox.West < MinLongitude)
-                    {
-                        boundingBox.West = MinLongitude;
-                    }
-
-                    if (!double.IsNaN(MaxLatitude) && boundingBox.North > MaxLatitude)
-                    {
-                        boundingBox.North = MaxLatitude;
-                    }
-
-                    if (!double.IsNaN(MaxLongitude) && boundingBox.East > MaxLongitude)
-                    {
-                        boundingBox.East = MaxLongitude;
-                    }
-
-                    if (!double.IsNaN(MaxBoundingBoxWidth) && boundingBox.Width > MaxBoundingBoxWidth)
-                    {
-                        var d = (boundingBox.Width - MaxBoundingBoxWidth) / 2d;
-                        boundingBox.West += d;
-                        boundingBox.East -= d;
-                    }
-                }
-
                 ImageSource imageSource = null;
 
-                try
+                if (UpdateBoundingBox())
                 {
-                    imageSource = GetImage(boundingBox);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("MapImageLayer: " + ex.Message);
+                    try
+                    {
+                        imageSource = await GetImage(boundingBox);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("MapImageLayer: " + ex.Message);
+                    }
                 }
 
-                UpdateImage(imageSource);
+                SwapImages(imageSource);
+
+                updateInProgress = false;
             }
         }
 
-        /// <summary>
-        /// Returns an ImageSource for the specified bounding box.
-        /// </summary>
-        protected abstract ImageSource GetImage(BoundingBox boundingBox);
-
-        private void SetTopImage(ImageSource imageSource)
+        private bool UpdateBoundingBox()
         {
-            topImageIndex = (topImageIndex + 1) % 2;
-            var topImage = (Image)Children[topImageIndex];
+            var width = ParentMap.RenderSize.Width * RelativeImageSize;
+            var height = ParentMap.RenderSize.Height * RelativeImageSize;
+            var x = (ParentMap.RenderSize.Width - width) / 2d;
+            var y = (ParentMap.RenderSize.Height - height) / 2d;
+            var rect = new Rect(x, y, width, height);
+
+            boundingBox = ParentMap.MapProjection.ViewportRectToBoundingBox(rect);
+
+            if (boundingBox == null || !boundingBox.HasValidBounds)
+            {
+                return false;
+            }
+
+            if (!double.IsNaN(MinLatitude) && boundingBox.South < MinLatitude)
+            {
+                boundingBox.South = MinLatitude;
+            }
+
+            if (!double.IsNaN(MinLongitude) && boundingBox.West < MinLongitude)
+            {
+                boundingBox.West = MinLongitude;
+            }
+
+            if (!double.IsNaN(MaxLatitude) && boundingBox.North > MaxLatitude)
+            {
+                boundingBox.North = MaxLatitude;
+            }
+
+            if (!double.IsNaN(MaxLongitude) && boundingBox.East > MaxLongitude)
+            {
+                boundingBox.East = MaxLongitude;
+            }
+
+            if (!double.IsNaN(MaxBoundingBoxWidth) && boundingBox.Width > MaxBoundingBoxWidth)
+            {
+                var d = (boundingBox.Width - MaxBoundingBoxWidth) / 2d;
+                boundingBox.West += d;
+                boundingBox.East -= d;
+            }
+
+            return true;
+        }
+
+        private void AdjustBoundingBox(double longitudeOffset)
+        {
+            if (Math.Abs(longitudeOffset) > 180d && boundingBox != null && boundingBox.HasValidBounds)
+            {
+                var offset = 360d * Math.Sign(longitudeOffset);
+
+                boundingBox.West += offset;
+                boundingBox.East += offset;
+
+                foreach (UIElement element in Children)
+                {
+                    var bbox = GetBoundingBox(element);
+
+                    if (bbox != null && bbox.HasValidBounds)
+                    {
+                        SetBoundingBox(element, new BoundingBox(bbox.South, bbox.West + offset, bbox.North, bbox.East + offset));
+                    }
+                }
+            }
+        }
+
+        private void ClearImages()
+        {
+            foreach (UIElement element in Children)
+            {
+                element.ClearValue(BoundingBoxProperty);
+                element.ClearValue(Image.SourceProperty);
+            }
+        }
+
+        private void SwapImages(ImageSource imageSource)
+        {
+            var topImage = (Image)Children[0];
+            var bottomImage = (Image)Children[1];
+
+            Children.RemoveAt(0);
+            Children.Insert(1, topImage);
 
             topImage.Source = imageSource;
             SetBoundingBox(topImage, boundingBox?.Clone());
-        }
 
-        private void SwapImages()
-        {
-            var topImage = (Image)Children[topImageIndex];
-            var bottomImage = (Image)Children[(topImageIndex + 1) % 2];
-
-            Canvas.SetZIndex(topImage, 1);
-            Canvas.SetZIndex(bottomImage, 0);
-
-            if (topImage.Source != null)
+            topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
-                topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
-                {
-                    To = 1d,
-                    Duration = Tile.FadeDuration
-                });
+                To = 1d,
+                Duration = Tile.FadeDuration
+            });
 
-                bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
-                {
-                    To = 0d,
-                    BeginTime = Tile.FadeDuration,
-                    Duration = TimeSpan.Zero
-                });
-            }
-            else
+            bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
-                topImage.Opacity = 0d;
-                bottomImage.Opacity = 0d;
-                bottomImage.Source = null;
-            }
-
-            updateInProgress = false;
+                To = 0d,
+                BeginTime = Tile.FadeDuration,
+                Duration = TimeSpan.Zero
+            });
         }
     }
 }

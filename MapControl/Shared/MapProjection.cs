@@ -19,9 +19,13 @@ namespace MapControl
     /// </summary>
     public abstract class MapProjection
     {
-        public const int TileSize = 256;
         public const double Wgs84EquatorialRadius = 6378137d;
+        public const double Wgs84Flattening = 1d / 298.257223563;
+        public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
+
         public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
+
+        public const int TileSize = 256;
 
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates in degrees to viewport coordinates for the specified zoom level.

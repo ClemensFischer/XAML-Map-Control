@@ -42,7 +42,19 @@ namespace MapControl
 
             if (buffer == null || expiration < DateTime.UtcNow)
             {
-                loaded = await DownloadTileImageAsync(tile, uri, cacheKey);
+                try
+                {
+                    loaded = await ImageLoader.LoadHttpTileImageAsync(uri, async (stream, maxAge) =>
+                    {
+                        await SetTileImageAsync(tile, stream); // create BitmapFrame before caching
+
+                        SetCachedImage(cacheKey, stream, GetExpiration(maxAge));
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
+                }
             }
 
             if (!loaded && buffer != null) // keep expired image if download failed
@@ -52,43 +64,6 @@ namespace MapControl
                     await SetTileImageAsync(tile, stream);
                 }
             }
-        }
-
-        private async Task<bool> DownloadTileImageAsync(Tile tile, Uri uri, string cacheKey)
-        {
-            var success = false;
-
-            try
-            {
-                using (var response = await TileSource.HttpClient.GetAsync(uri))
-                {
-                    success = response.IsSuccessStatusCode;
-
-                    if (!success)
-                    {
-                        Debug.WriteLine("TileImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                    }
-                    else if (TileSource.TileAvailable(response.Headers))
-                    {
-                        using (var stream = new MemoryStream())
-                        {
-                            await response.Content.CopyToAsync(stream);
-                            stream.Seek(0, SeekOrigin.Begin);
-
-                            await SetTileImageAsync(tile, stream); // create BitmapFrame before caching
-
-                            SetCachedImage(cacheKey, stream, GetExpiration(response));
-                        }
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
-            }
-
-            return success;
         }
 
         private async Task SetTileImageAsync(Tile tile, MemoryStream stream)

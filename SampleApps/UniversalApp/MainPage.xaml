@@ -89,6 +89,7 @@
         </Style>
 
         <map:WebMercatorProjection x:Key="WebMercatorProjection"/>
+        <map:WorldMercatorProjection x:Key="WorldMercatorProjection"/>
         <map:EquirectangularProjection x:Key="EquirectangularProjection"/>
         <map:OrthographicProjection x:Key="OrthographicProjection"/>
         <map:GnomonicProjection x:Key="GnomonicProjection"/>
@@ -181,6 +182,7 @@
                           SelectedIndex="0" SelectedValuePath="Tag"
                           SelectedValue="{Binding MapProjection, ElementName=map, Mode=TwoWay}">
                     <ComboBoxItem Content="Web Mercator" Tag="{StaticResource WebMercatorProjection}"/>
+                    <ComboBoxItem Content="World Mercator" Tag="{StaticResource WorldMercatorProjection}"/>
                     <ComboBoxItem Content="Equirectangular" Tag="{StaticResource EquirectangularProjection}"/>
                     <ComboBoxItem Content="Orthographic" Tag="{StaticResource OrthographicProjection}"/>
                     <ComboBoxItem Content="Gnomonic" Tag="{StaticResource GnomonicProjection}"/>

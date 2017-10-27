@@ -12,7 +12,7 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Transforms map coordinates according to the Web Mercator Projection.
+    /// Transforms map coordinates according to the Web (or Pseudo) Mercator Projection, EPSG:3857.
     /// Longitude values are transformed linearly to X values in meters, by multiplying with MetersPerDegree.
     /// Latitude values in the interval [-MaxLatitude .. MaxLatitude] are transformed to Y values in meters
     /// in the interval [-R*pi .. R*pi], R=Wgs84EquatorialRadius.
@@ -70,8 +70,6 @@ namespace MapControl
 
         public static double LatitudeToY(double latitude)
         {
-            var lat = latitude * Math.PI / 180d;
-
             return latitude <= -90d ? double.NegativeInfinity
                 : latitude >= 90d ? double.PositiveInfinity
                 : Math.Log(Math.Tan((latitude + 90d) * Math.PI / 360d)) / Math.PI * 180d;
@@ -79,7 +77,7 @@ namespace MapControl
 
         public static double YToLatitude(double y)
         {
-            return Math.Atan(Math.Exp(y * Math.PI / 180d)) / Math.PI * 360d - 90d;
+            return 90d - Math.Atan(Math.Exp(-y * Math.PI / 180d)) / Math.PI * 360d;
         }
     }
 }

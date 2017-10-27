@@ -81,10 +81,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FileDbCache\WPF\FileDbCache.WPF.csproj">
-      <Project>{ad1cb53e-7aa4-4ec0-b901-b4e0e2665133}</Project>
-      <Name>FileDbCache.WPF</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj">
       <Project>{a204a102-c745-4d65-aec8-7b96faedef2d}</Project>
       <Name>MapControl.WPF</Name>

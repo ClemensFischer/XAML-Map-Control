@@ -9,11 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#if WINDOWS_UWP
-using Windows.Web.Http;
-#else
-using System.Net.Http;
-#endif
 
 namespace MapControl
 {
@@ -139,14 +134,13 @@ namespace MapControl
             }
         }
 
-        private static DateTime GetExpiration(HttpResponseMessage response)
+        private static DateTime GetExpiration(TimeSpan? maxAge)
         {
             var expiration = DefaultCacheExpiration;
-            var headers = response.Headers;
 
-            if (headers.CacheControl != null && headers.CacheControl.MaxAge.HasValue)
+            if (maxAge.HasValue)
             {
-                expiration = headers.CacheControl.MaxAge.Value;
+                expiration = maxAge.Value;
 
                 if (expiration < MinimumCacheExpiration)
                 {

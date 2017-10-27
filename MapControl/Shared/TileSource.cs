@@ -8,10 +8,8 @@ using System.Globalization;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 #endif
 
 namespace MapControl
@@ -117,18 +115,7 @@ namespace MapControl
             {
                 try
                 {
-                    if (!uri.IsAbsoluteUri || uri.Scheme == "file")
-                    {
-                        imageSource = await LoadLocalImageAsync(uri);
-                    }
-                    else if (uri.Scheme == "http")
-                    {
-                        imageSource = await LoadHttpImageAsync(uri);
-                    }
-                    else
-                    {
-                        imageSource = new BitmapImage(uri);
-                    }
+                    imageSource = await ImageLoader.LoadImageAsync(uri, true);
                 }
                 catch (Exception ex)
                 {

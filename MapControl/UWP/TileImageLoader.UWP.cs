@@ -36,50 +36,30 @@ namespace MapControl
         private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey);
-            var buffer = cacheItem?.Buffer;
+            var cacheBuffer = cacheItem?.Buffer;
             var loaded = false;
 
-            if (buffer == null || cacheItem.Expiration < DateTime.UtcNow)
+            if (cacheBuffer == null || cacheItem.Expiration < DateTime.UtcNow)
             {
-                loaded = await DownloadTileImageAsync(tile, uri, cacheKey);
-            }
-
-            if (!loaded && buffer != null) // keep expired image if download failed
-            {
-                await SetTileImageAsync(tile, buffer);
-            }
-        }
-
-        private async Task<bool> DownloadTileImageAsync(Tile tile, Uri uri, string cacheKey)
-        {
-            var success = false;
-
-            try
-            {
-                using (var response = await TileSource.HttpClient.GetAsync(uri))
+                try
                 {
-                    success = response.IsSuccessStatusCode;
-
-                    if (!success)
+                    loaded = await ImageLoader.LoadHttpTileImageAsync(uri, async (buffer, maxAge) =>
                     {
-                        Debug.WriteLine("TileImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                    }
-                    else if (TileSource.TileAvailable(response.Headers))
-                    {
-                        var buffer = await response.Content.ReadAsBufferAsync();
-
                         await SetTileImageAsync(tile, buffer); // create BitmapImage before caching
 
-                        await Cache.SetAsync(cacheKey, buffer, GetExpiration(response));
-                    }
+                        await Cache.SetAsync(cacheKey, buffer, GetExpiration(maxAge));
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
-            }
 
-            return success;
+            if (!loaded && cacheBuffer != null) // keep expired image if download failed
+            {
+                await SetTileImageAsync(tile, cacheBuffer);
+            }
         }
 
         private async Task SetTileImageAsync(Tile tile, IBuffer buffer)
