@@ -223,9 +223,11 @@ namespace MapControl
             {
                 updateInProgress = true;
 
+                UpdateBoundingBox();
+
                 ImageSource imageSource = null;
 
-                if (UpdateBoundingBox())
+                if (boundingBox != null)
                 {
                     try
                     {
@@ -243,7 +245,7 @@ namespace MapControl
             }
         }
 
-        private bool UpdateBoundingBox()
+        private void UpdateBoundingBox()
         {
             var width = ParentMap.RenderSize.Width * RelativeImageSize;
             var height = ParentMap.RenderSize.Height * RelativeImageSize;
@@ -253,39 +255,35 @@ namespace MapControl
 
             boundingBox = ParentMap.MapProjection.ViewportRectToBoundingBox(rect);
 
-            if (boundingBox == null || !boundingBox.HasValidBounds)
+            if (boundingBox != null && boundingBox.HasValidBounds)
             {
-                return false;
-            }
+                if (!double.IsNaN(MinLatitude) && boundingBox.South < MinLatitude)
+                {
+                    boundingBox.South = MinLatitude;
+                }
 
-            if (!double.IsNaN(MinLatitude) && boundingBox.South < MinLatitude)
-            {
-                boundingBox.South = MinLatitude;
-            }
+                if (!double.IsNaN(MinLongitude) && boundingBox.West < MinLongitude)
+                {
+                    boundingBox.West = MinLongitude;
+                }
 
-            if (!double.IsNaN(MinLongitude) && boundingBox.West < MinLongitude)
-            {
-                boundingBox.West = MinLongitude;
-            }
+                if (!double.IsNaN(MaxLatitude) && boundingBox.North > MaxLatitude)
+                {
+                    boundingBox.North = MaxLatitude;
+                }
 
-            if (!double.IsNaN(MaxLatitude) && boundingBox.North > MaxLatitude)
-            {
-                boundingBox.North = MaxLatitude;
-            }
+                if (!double.IsNaN(MaxLongitude) && boundingBox.East > MaxLongitude)
+                {
+                    boundingBox.East = MaxLongitude;
+                }
 
-            if (!double.IsNaN(MaxLongitude) && boundingBox.East > MaxLongitude)
-            {
-                boundingBox.East = MaxLongitude;
+                if (!double.IsNaN(MaxBoundingBoxWidth) && boundingBox.Width > MaxBoundingBoxWidth)
+                {
+                    var d = (boundingBox.Width - MaxBoundingBoxWidth) / 2d;
+                    boundingBox.West += d;
+                    boundingBox.East -= d;
+                }
             }
-
-            if (!double.IsNaN(MaxBoundingBoxWidth) && boundingBox.Width > MaxBoundingBoxWidth)
-            {
-                var d = (boundingBox.Width - MaxBoundingBoxWidth) / 2d;
-                boundingBox.West += d;
-                boundingBox.East -= d;
-            }
-
-            return true;
         }
 
         private void AdjustBoundingBox(double longitudeOffset)

@@ -163,7 +163,7 @@ namespace MapControl
         /// </summary>
         public virtual string WmsQueryParameters(BoundingBox boundingBox, string version = "1.3.0")
         {
-            if (string.IsNullOrEmpty(CrsId))
+            if (string.IsNullOrEmpty(CrsId) || !boundingBox.HasValidBounds)
             {
                 return null;
             }
