@@ -5,14 +5,11 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 
 namespace MapControl
 {
     public partial class MapBase
     {
-        private const FillBehavior AnimationFillBehavior = FillBehavior.Stop;
-
         public static readonly DependencyProperty ForegroundProperty =
             Control.ForegroundProperty.AddOwner(typeof(MapBase));
 

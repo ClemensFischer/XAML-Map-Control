@@ -2,7 +2,6 @@
 // © 2017 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System.Collections.Generic;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -17,37 +16,41 @@ namespace MapControl
             return transform.TransformPoint(point);
         }
 
-        public static void BeginAnimation(this DependencyObject obj, DependencyProperty property, DoubleAnimation animation)
+        public static void BeginAnimation(this DependencyObject obj, DependencyProperty property, Timeline animation)
         {
-            animation.EnableDependentAnimation = true;
-            BeginAnimation(obj, property, (Timeline)animation);
-        }
-
-        public static void BeginAnimation(this DependencyObject obj, DependencyProperty property, PointAnimation animation)
-        {
-            animation.EnableDependentAnimation = true;
-            BeginAnimation(obj, property, (Timeline)animation);
-        }
-
-        private static Dictionary<DependencyProperty, string> properties = new Dictionary<DependencyProperty, string>()
-        {
-            { UIElement.OpacityProperty, "Opacity" },
-            { MapBase.ZoomLevelProperty, "ZoomLevel" },
-            { MapBase.HeadingProperty, "Heading" },
-            { MapBase.CenterPointProperty, "CenterPoint" }
-        };
-
-        private static void BeginAnimation(DependencyObject obj, DependencyProperty property, Timeline animation)
-        {
-            string propertyName;
-
-            if (properties.TryGetValue(property, out propertyName))
+            if (animation != null)
             {
-                Storyboard.SetTargetProperty(animation, propertyName);
-                Storyboard.SetTarget(animation, obj);
-                var storyboard = new Storyboard();
-                storyboard.Children.Add(animation);
-                storyboard.Begin();
+                string propertyName = null;
+
+                if (property == MapBase.CenterPointProperty)
+                {
+                    propertyName = "CenterPoint";
+                    ((PointAnimation)animation).EnableDependentAnimation = true;
+                }
+                else if (property == MapBase.ZoomLevelProperty)
+                {
+                    propertyName = "ZoomLevel";
+                    ((DoubleAnimation)animation).EnableDependentAnimation = true;
+                }
+                else if (property == MapBase.HeadingProperty)
+                {
+                    propertyName = "Heading";
+                    ((DoubleAnimation)animation).EnableDependentAnimation = true;
+                }
+                else if (property == UIElement.OpacityProperty)
+                {
+                    propertyName = "Opacity";
+                }
+
+                if (propertyName != null)
+                {
+                    Storyboard.SetTargetProperty(animation, propertyName);
+                    Storyboard.SetTarget(animation, obj);
+
+                    var storyboard = new Storyboard();
+                    storyboard.Children.Add(animation);
+                    storyboard.Begin();
+                }
             }
         }
     }

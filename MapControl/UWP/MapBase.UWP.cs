@@ -6,14 +6,11 @@ using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 
 namespace MapControl
 {
     public partial class MapBase
     {
-        private const FillBehavior AnimationFillBehavior = FillBehavior.HoldEnd;
-
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
             nameof(Foreground), typeof(Brush), typeof(MapBase),
             new PropertyMetadata(new SolidColorBrush(Colors.Black)));
