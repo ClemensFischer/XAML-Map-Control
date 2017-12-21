@@ -41,7 +41,7 @@ namespace MapControl
         {
             var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
-            if (!await Task.Run(() => File.Exists(path)))
+            if (!File.Exists(path))
             {
                 return null;
             }
