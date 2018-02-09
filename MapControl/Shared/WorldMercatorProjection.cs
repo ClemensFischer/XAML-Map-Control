@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -13,12 +13,15 @@ namespace MapControl
 {
     /// <summary>
     /// Transforms map coordinates according to the "World Mercator" Projection, EPSG:3395.
-    /// Longitude values are transformed linearly to X values in meters, by multiplying with MetersPerDegree.
+    /// Longitude values are transformed linearly to X values in meters, by multiplying with TrueScale.
     /// Latitude values are transformed according to the elliptical versions of the Mercator equations,
     /// as shown in "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.44.
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
+        public const double Wgs84Flattening = 1d / 298.257223563;
+        public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
+
         public static double MinLatitudeDelta = 1d / Wgs84EquatorialRadius; // corresponds to 1 meter
         public static int MaxIterations = 10;
 
@@ -30,13 +33,7 @@ namespace MapControl
         public WorldMercatorProjection(string crsId)
         {
             CrsId = crsId;
-            LongitudeScale = MetersPerDegree;
             MaxLatitude = YToLatitude(180d);
-        }
-
-        public override double GetViewportScale(double zoomLevel)
-        {
-            return DegreesToViewportScale(zoomLevel) / MetersPerDegree;
         }
 
         public override Point GetMapScale(Location location)
@@ -51,20 +48,20 @@ namespace MapControl
         public override Point LocationToPoint(Location location)
         {
             return new Point(
-                MetersPerDegree * location.Longitude,
-                MetersPerDegree * LatitudeToY(location.Latitude));
+                TrueScale * location.Longitude,
+                TrueScale * LatitudeToY(location.Latitude));
         }
 
         public override Location PointToLocation(Point point)
         {
             return new Location(
-                YToLatitude(point.Y / MetersPerDegree),
-                point.X / MetersPerDegree);
+                YToLatitude(point.Y / TrueScale),
+                point.X / TrueScale);
         }
 
         public override Location TranslateLocation(Location location, Point translation)
         {
-            var scaleX = MetersPerDegree * ViewportScale;
+            var scaleX = TrueScale * ViewportScale;
             var scaleY = scaleX / Math.Cos(location.Latitude * Math.PI / 180d);
 
             return new Location(

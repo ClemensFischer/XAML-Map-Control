@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
@@ -9,8 +9,8 @@ namespace MapControl
     public partial class MapPanel
     {
         private static readonly DependencyPropertyKey ParentMapPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ParentMap", typeof(MapBase), typeof(MapPanel),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
+            "ParentMap", typeof(MapBase), typeof(MapPanel), new FrameworkPropertyMetadata(
+                null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
 
         public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
 

@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -23,7 +23,7 @@ namespace MapControl
 {
     /// <summary>
     /// Map image layer. Fills the entire viewport with a map image, e.g. provided by a Web Map Service (WMS).
-    /// The image must be provided by the abstract UpdateImage(BoundingBox) method.
+    /// The image must be provided by the abstract GetImageAsync method.
     /// </summary>
     public abstract class MapImageLayer : MapPanel, IMapLayer
     {
@@ -71,7 +71,7 @@ namespace MapControl
             Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
 
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
-            updateTimer.Tick += async (s, e) => await UpdateImage();
+            updateTimer.Tick += async (s, e) => await UpdateImageAsync();
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace MapControl
         /// <summary>
         /// Returns an ImageSource for the specified bounding box.
         /// </summary>
-        protected abstract Task<ImageSource> GetImage(BoundingBox boundingBox);
+        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox);
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
@@ -191,7 +191,7 @@ namespace MapControl
 
                 base.OnViewportChanged(e);
 
-                var task = UpdateImage();
+                var task = UpdateImageAsync();
             }
             else
             {
@@ -211,7 +211,7 @@ namespace MapControl
             }
         }
 
-        protected virtual async Task UpdateImage()
+        protected virtual async Task UpdateImageAsync()
         {
             updateTimer.Stop();
 
@@ -231,7 +231,7 @@ namespace MapControl
                 {
                     try
                     {
-                        imageSource = await GetImage(boundingBox);
+                        imageSource = await GetImageAsync(boundingBox);
                     }
                     catch (Exception ex)
                     {

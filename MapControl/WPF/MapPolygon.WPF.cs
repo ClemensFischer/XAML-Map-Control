@@ -11,16 +11,16 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// A polyline defined by a collection of Locations.
+    /// A polygon defined by a collection of Locations.
     /// </summary>
-    public class MapPolyline : MapShape
+    public class MapPolygon : MapShape
     {
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).DataCollectionPropertyChanged(e)));
+            nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolygon),
+            new PropertyMetadata(null, (o, e) => ((MapPolygon)o).DataCollectionPropertyChanged(e)));
 
         /// <summary>
-        /// Gets or sets the Locations that define the polyline points.
+        /// Gets or sets the Locations that define the polygon points.
         /// </summary>
         [TypeConverter(typeof(LocationCollectionConverter))]
         public IEnumerable<Location> Locations
@@ -38,7 +38,7 @@ namespace MapControl
                 var points = Locations.Select(loc => LocationToPoint(loc));
                 var polyline = new PolyLineSegment(points.Skip(1), true);
 
-                Data.Figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, false));
+                Data.Figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, true));
             }
         }
     }

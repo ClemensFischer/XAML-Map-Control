@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if WINDOWS_UWP
@@ -20,6 +20,12 @@ namespace MapControl
             DefaultStyleKey = typeof(Pushpin);
 
             MapPanel.InitMapElement(this);
+        }
+
+        public Location Location
+        {
+            get { return MapPanel.GetLocation(this); }
+            set { MapPanel.SetLocation(this, value); }
         }
     }
 }

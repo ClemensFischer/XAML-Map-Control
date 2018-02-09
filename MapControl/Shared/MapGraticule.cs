@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -30,7 +30,8 @@ namespace MapControl
 
         private double GetLineDistance()
         {
-            var minDistance = MinLineDistance / MapProjection.DegreesToViewportScale(ParentMap.ZoomLevel);
+            var pixelPerDegree = ParentMap.MapProjection.ViewportScale * ParentMap.MapProjection.TrueScale;
+            var minDistance = MinLineDistance / pixelPerDegree;
             var scale = 1d;
 
             if (minDistance < 1d)

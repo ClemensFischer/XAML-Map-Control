@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -19,21 +19,11 @@ namespace MapControl
     /// </summary>
     public abstract class MapProjection
     {
-        public const double Wgs84EquatorialRadius = 6378137d;
-        public const double Wgs84Flattening = 1d / 298.257223563;
-        public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
-
-        public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
-
         public const int TileSize = 256;
+        public const double PixelPerDegree = TileSize / 360d;
 
-        /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates in degrees to viewport coordinates for the specified zoom level.
-        /// </summary>
-        public static double DegreesToViewportScale(double zoomLevel)
-        {
-            return Math.Pow(2d, zoomLevel) * TileSize / 360d;
-        }
+        public const double Wgs84EquatorialRadius = 6378137d;
+        public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
         /// <summary>
         /// Gets or sets the WMS 1.3.0 CRS Identifier.
@@ -41,9 +31,9 @@ namespace MapControl
         public string CrsId { get; set; }
 
         /// <summary>
-        /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
+        /// Indicates if the map can be moved infinitely in longitudinal direction.
         /// </summary>
-        public bool IsWebMercator { get; protected set; } = false;
+        public bool IsContinuous { get; protected set; } = true;
 
         /// <summary>
         /// Indicates if this is an azimuthal projection.
@@ -51,10 +41,15 @@ namespace MapControl
         public bool IsAzimuthal { get; protected set; } = false;
 
         /// <summary>
-        /// Gets the scale factor from longitude to x values of a normal cylindrical projection.
-        /// Returns NaN if this is not a normal cylindrical projection.
+        /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
         /// </summary>
-        public double LongitudeScale { get; protected set; } = 1d;
+        public bool IsWebMercator { get; protected set; } = false;
+
+        /// <summary>
+        /// Gets the scale factor from geographic to cartesian coordinates, on the line of true scale
+        /// of a cylindrical projection, or at the projection center of an azimuthal projection.
+        /// </summary>
+        public double TrueScale { get; protected set; } = MetersPerDegree;
 
         /// <summary>
         /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
@@ -62,22 +57,14 @@ namespace MapControl
         public double MaxLatitude { get; protected set; } = 90d;
 
         /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
-        /// </summary>
-        public double ViewportScale { get; protected set; }
-
-        /// <summary>
         /// Gets the transformation from cartesian map coordinates to viewport coordinates (pixels).
         /// </summary>
         public MatrixTransform ViewportTransform { get; } = new MatrixTransform();
 
         /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates for the specified zoom level.
+        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
         /// </summary>
-        public virtual double GetViewportScale(double zoomLevel)
-        {
-            return DegreesToViewportScale(zoomLevel);
-        }
+        public double ViewportScale { get; protected set; }
 
         /// <summary>
         /// Gets the map scale at the specified Location as viewport coordinate units per meter (px/m).
@@ -149,7 +136,7 @@ namespace MapControl
         /// </summary>
         public virtual void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
         {
-            ViewportScale = GetViewportScale(zoomLevel);
+            ViewportScale = Math.Pow(2d, zoomLevel) * PixelPerDegree / TrueScale;
 
             var center = LocationToPoint(mapCenter);
 

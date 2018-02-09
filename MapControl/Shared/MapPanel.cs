@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -203,8 +203,9 @@ namespace MapControl
             {
                 viewportPosition = parentMap.MapProjection.LocationToViewportPoint(location);
 
-                if (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
-                    viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height)
+                if (parentMap.MapProjection.IsContinuous &&
+                    (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
+                     viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height))
                 {
                     viewportPosition = parentMap.MapProjection.LocationToViewportPoint(new Location(
                         location.Latitude,
@@ -262,8 +263,9 @@ namespace MapControl
                 rotation = parentMap.Heading;
                 viewportPosition = projection.ViewportTransform.Transform(center);
 
-                if (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
-                    viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height)
+                if (parentMap.MapProjection.IsContinuous &&
+                    (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
+                     viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height))
                 {
                     var location = projection.PointToLocation(center);
                     location.Longitude = Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude);

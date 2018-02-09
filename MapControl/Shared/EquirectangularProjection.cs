@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -20,6 +20,7 @@ namespace MapControl
         public EquirectangularProjection()
             : this("EPSG:4326")
         {
+            TrueScale = 1;
         }
 
         public EquirectangularProjection(string crsId)

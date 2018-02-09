@@ -1,18 +1,17 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace MapControl
 {
     /// <summary>
-    /// An ObservableCollection of Location with support for parsing.
+    /// A collection of Locations with support for parsing.
     /// </summary>
-    public partial class LocationCollection : ObservableCollection<Location>
+    public partial class LocationCollection : List<Location>
     {
         public LocationCollection()
         {
@@ -23,7 +22,7 @@ namespace MapControl
         {
         }
 
-        public LocationCollection(List<Location> locations)
+        public LocationCollection(params Location[] locations)
             : base(locations)
         {
         }

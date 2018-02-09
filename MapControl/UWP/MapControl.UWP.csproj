@@ -91,17 +91,14 @@
     <Compile Include="..\Shared\MapPanel.cs">
       <Link>MapPanel.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MapPath.cs">
-      <Link>MapPath.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\MapPolyline.cs">
-      <Link>MapPolyline.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\MapProjection.cs">
       <Link>MapProjection.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapScale.cs">
       <Link>MapScale.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapShape.cs">
+      <Link>MapShape.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapTileLayer.cs">
       <Link>MapTileLayer.cs</Link>
@@ -147,8 +144,8 @@
     <Compile Include="MapGraticule.UWP.cs" />
     <Compile Include="MapOverlay.UWP.cs" />
     <Compile Include="MapPanel.UWP.cs" />
-    <Compile Include="MapPath.UWP.cs" />
     <Compile Include="MapPolyline.UWP.cs" />
+    <Compile Include="MapShape.UWP.cs" />
     <Compile Include="MatrixEx.UWP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tile.UWP.cs" />

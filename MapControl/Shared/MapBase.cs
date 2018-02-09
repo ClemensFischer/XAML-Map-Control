@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -291,8 +291,8 @@ namespace MapControl
             {
                 if (Heading != 0d)
                 {
-                    var cos = Math.Cos(Heading / 180d * Math.PI);
-                    var sin = Math.Sin(Heading / 180d * Math.PI);
+                    var cos = Math.Cos(Heading * Math.PI / 180d);
+                    var sin = Math.Sin(Heading * Math.PI / 180d);
 
                     translation = new Point(
                         translation.X * cos + translation.Y * sin,
@@ -352,7 +352,7 @@ namespace MapControl
             {
                 SetTransformCenter(center);
 
-                if (double.IsNaN(MapProjection.LongitudeScale))
+                if (MapProjection.IsAzimuthal)
                 {
                     ZoomLevel = zoomLevel;
                     ResetTransformCenter();
@@ -374,13 +374,10 @@ namespace MapControl
             {
                 var rect = MapProjection.BoundingBoxToRect(boundingBox);
                 var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-                var scale0 = 1d / MapProjection.GetViewportScale(0d);
-                var lonScale = scale0 * RenderSize.Width / rect.Width;
-                var latScale = scale0 * RenderSize.Height / rect.Height;
-                var lonZoom = Math.Log(lonScale, 2d);
-                var latZoom = Math.Log(latScale, 2d);
+                var scale = Math.Min(RenderSize.Width / rect.Width, RenderSize.Height / rect.Height)
+                     * MapProjection.TrueScale / MapProjection.PixelPerDegree;
 
-                TargetZoomLevel = Math.Min(lonZoom, latZoom);
+                TargetZoomLevel = Math.Log(scale, 2d);
                 TargetCenter = MapProjection.PointToLocation(center);
                 TargetHeading = 0d;
             }
@@ -479,6 +476,10 @@ namespace MapControl
 
                 if (!targetCenter.Equals(Center))
                 {
+                    var targetCenterLongitude = MapProjection.IsContinuous
+                        ? Location.NearestLongitude(targetCenter.Longitude, Center.Longitude)
+                        : targetCenter.Longitude;
+
                     if (centerAnimation != null)
                     {
                         centerAnimation.Completed -= CenterAnimationCompleted;
@@ -487,7 +488,7 @@ namespace MapControl
                     centerAnimation = new PointAnimation
                     {
                         From = new Point(Center.Longitude, Center.Latitude),
-                        To = new Point(Location.NearestLongitude(targetCenter.Longitude, Center.Longitude), targetCenter.Latitude),
+                        To = new Point(targetCenterLongitude, targetCenter.Latitude),
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction
                     };

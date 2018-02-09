@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -39,7 +39,7 @@ namespace MapControl
         {
             var projection = ParentMap?.MapProjection;
 
-            if (projection != null && !double.IsNaN(projection.LongitudeScale))
+            if (projection != null && !projection.IsAzimuthal)
             {
                 var bounds = projection.ViewportRectToBoundingBox(new Rect(ParentMap.RenderSize));
 

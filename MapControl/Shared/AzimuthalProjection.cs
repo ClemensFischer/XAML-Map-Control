@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -21,13 +21,8 @@ namespace MapControl
 
         public AzimuthalProjection()
         {
+            IsContinuous = false;
             IsAzimuthal = true;
-            LongitudeScale = double.NaN;
-        }
-
-        public override double GetViewportScale(double zoomLevel)
-        {
-            return DegreesToViewportScale(zoomLevel) / MetersPerDegree;
         }
 
         public override Point GetMapScale(Location location)
@@ -37,7 +32,7 @@ namespace MapControl
 
         public override Location TranslateLocation(Location location, Point translation)
         {
-            var scaleY = ViewportScale * MetersPerDegree;
+            var scaleY = ViewportScale * TrueScale;
             var scaleX = scaleY * Math.Cos(location.Latitude * Math.PI / 180d);
 
             return new Location(
@@ -112,7 +107,7 @@ namespace MapControl
             var cosDistance = sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12;
 
             azimuth = Math.Atan2(sinLon12, cosLat1 * sinLat2 / cosLat2 - sinLat1 * cosLon12);
-            distance = Math.Acos(Math.Max(Math.Min(cosDistance, 1d), -1d));
+            distance = Math.Acos(Math.Min(Math.Max(cosDistance, -1d), 1d));
         }
 
         /// <summary>
@@ -128,10 +123,10 @@ namespace MapControl
             var cosLat1 = Math.Cos(lat1);
             var sinLat1 = Math.Sin(lat1);
             var sinLat2 = sinLat1 * cosDistance + cosLat1 * sinDistance * cosAzimuth;
-            var lat2 = Math.Asin(Math.Max(Math.Min(sinLat2, 1d), -1d));
+            var lat2 = Math.Asin(Math.Min(Math.Max(sinLat2, -1d), 1d));
             var dLon = Math.Atan2(sinDistance * sinAzimuth, cosLat1 * cosDistance - sinLat1 * sinDistance * cosAzimuth);
 
-            return new Location(180d / Math.PI * lat2, location.Longitude + 180d / Math.PI * dLon);
+            return new Location(lat2 * 180d / Math.PI, location.Longitude + dLon * 180d / Math.PI);
         }
     }
 }

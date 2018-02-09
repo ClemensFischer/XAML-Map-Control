@@ -110,23 +110,23 @@
     <Compile Include="..\Shared\MapPanel.cs">
       <Link>MapPanel.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MapPath.cs">
-      <Link>MapPath.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\MapPolyline.cs">
-      <Link>MapPolyline.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\MapProjection.cs">
       <Link>MapProjection.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapScale.cs">
       <Link>MapScale.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapShape.cs">
+      <Link>MapShape.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapTileLayer.cs">
       <Link>MapTileLayer.cs</Link>
     </Compile>
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PolygonCollection.cs">
+      <Link>PolygonCollection.cs</Link>
     </Compile>
     <Compile Include="..\Shared\Pushpin.cs">
       <Link>Pushpin.cs</Link>
@@ -162,10 +162,12 @@
     <Compile Include="Map.WPF.cs" />
     <Compile Include="MapBase.WPF.cs" />
     <Compile Include="MapGraticule.WPF.cs" />
+    <Compile Include="MapMultiPolygon.WPF.cs" />
     <Compile Include="MapOverlay.WPF.cs" />
     <Compile Include="MapPanel.WPF.cs" />
-    <Compile Include="MapPath.WPF.cs" />
+    <Compile Include="MapPolygon.WPF.cs" />
     <Compile Include="MapPolyline.WPF.cs" />
+    <Compile Include="MapShape.WPF.cs" />
     <Compile Include="TileImageLoader.WPF.cs" />
     <Compile Include="ImageLoader.WPF.cs" />
     <Compile Include="TypeConverters.WPF.cs" />

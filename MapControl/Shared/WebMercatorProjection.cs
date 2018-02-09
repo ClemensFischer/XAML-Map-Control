@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -13,7 +13,7 @@ namespace MapControl
 {
     /// <summary>
     /// Transforms map coordinates according to the Web (or Pseudo) Mercator Projection, EPSG:3857.
-    /// Longitude values are transformed linearly to X values in meters, by multiplying with MetersPerDegree.
+    /// Longitude values are transformed linearly to X values in meters, by multiplying with TrueScale.
     /// Latitude values in the interval [-MaxLatitude .. MaxLatitude] are transformed to Y values in meters
     /// in the interval [-R*pi .. R*pi], R=Wgs84EquatorialRadius.
     /// </summary>
@@ -28,13 +28,7 @@ namespace MapControl
         {
             CrsId = crsId;
             IsWebMercator = true;
-            LongitudeScale = MetersPerDegree;
             MaxLatitude = YToLatitude(180d);
-        }
-
-        public override double GetViewportScale(double zoomLevel)
-        {
-            return DegreesToViewportScale(zoomLevel) / MetersPerDegree;
         }
 
         public override Point GetMapScale(Location location)
@@ -47,20 +41,20 @@ namespace MapControl
         public override Point LocationToPoint(Location location)
         {
             return new Point(
-                MetersPerDegree * location.Longitude,
-                MetersPerDegree * LatitudeToY(location.Latitude));
+                TrueScale * location.Longitude,
+                TrueScale * LatitudeToY(location.Latitude));
         }
 
         public override Location PointToLocation(Point point)
         {
             return new Location(
-                YToLatitude(point.Y / MetersPerDegree),
-                point.X / MetersPerDegree);
+                YToLatitude(point.Y / TrueScale),
+                point.X / TrueScale);
         }
 
         public override Location TranslateLocation(Location location, Point translation)
         {
-            var scaleX = MetersPerDegree * ViewportScale;
+            var scaleX = TrueScale * ViewportScale;
             var scaleY = scaleX / Math.Cos(location.Latitude * Math.PI / 180d);
 
             return new Location(
@@ -70,9 +64,17 @@ namespace MapControl
 
         public static double LatitudeToY(double latitude)
         {
-            return latitude <= -90d ? double.NegativeInfinity
-                : latitude >= 90d ? double.PositiveInfinity
-                : Math.Log(Math.Tan((latitude + 90d) * Math.PI / 360d)) / Math.PI * 180d;
+            if (latitude <= -90d)
+            {
+                return double.NegativeInfinity;
+            }
+
+            if (latitude >= 90d)
+            {
+                return double.PositiveInfinity;
+            }
+
+            return Math.Log(Math.Tan((latitude + 90d) * Math.PI / 360d)) / Math.PI * 180d;
         }
 
         public static double YToLatitude(double y)

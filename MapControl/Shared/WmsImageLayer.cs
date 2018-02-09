@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2017 Clemens Fischer
+// © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -23,27 +23,27 @@ namespace MapControl
     {
         public static readonly DependencyProperty ServerUriProperty = DependencyProperty.Register(
             nameof(ServerUri), typeof(Uri), typeof(WmsImageLayer),
-            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty VersionProperty = DependencyProperty.Register(
             nameof(Version), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata("1.3.0", async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata("1.3.0", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
             nameof(Layers), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty StylesProperty = DependencyProperty.Register(
             nameof(Styles), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty FormatProperty = DependencyProperty.Register(
             nameof(Format), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty TransparentProperty = DependencyProperty.Register(
             nameof(Transparent), typeof(bool), typeof(WmsImageLayer),
-            new PropertyMetadata(false, async (o, e) => await ((WmsImageLayer)o).UpdateImage()));
+            new PropertyMetadata(false, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         private string layers = string.Empty;
 
@@ -83,7 +83,7 @@ namespace MapControl
             set { SetValue(TransparentProperty, value); }
         }
 
-        protected override async Task<ImageSource> GetImage(BoundingBox boundingBox)
+        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox)
         {
             ImageSource imageSource = null;
 
@@ -94,8 +94,11 @@ namespace MapControl
                 if (!string.IsNullOrEmpty(projectionParameters))
                 {
                     var uri = GetRequestUri("GetMap"
-                        + "&LAYERS=" + Layers + "&STYLES=" + Styles + "&FORMAT=" + Format
-                        + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE") + "&" + projectionParameters);
+                        + "&LAYERS=" + Layers
+                        + "&STYLES=" + Styles
+                        + "&FORMAT=" + Format
+                        + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE")
+                        + "&" + projectionParameters);
 
                     try
                     {

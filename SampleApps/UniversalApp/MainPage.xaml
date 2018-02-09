@@ -130,15 +130,6 @@
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-            <Path Stroke="Blue" StrokeThickness="3">
-                <map:MapPanel.Location>
-                    <map:Location Latitude="53.5" Longitude="8.2"/>
-                </map:MapPanel.Location>
-                <Path.Data>
-                    <EllipseGeometry RadiusX="1852" RadiusY="1852" Transform="{Binding ScaleRotateTransform, ElementName=map}"/>
-                </Path.Data>
-            </Path>
-
             <map:Pushpin Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
                 <map:MapPanel.Location>
                     <map:Location Latitude="53.5" Longitude="8.2"/>
