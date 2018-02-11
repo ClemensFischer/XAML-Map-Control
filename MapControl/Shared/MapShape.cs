@@ -32,6 +32,14 @@ namespace MapControl
             set { SetValue(LocationProperty, value); }
         }
 
+        private void LocationPropertyChanged()
+        {
+            if (parentMap != null)
+            {
+                OnViewportChanged(parentMap, new ViewportChangedEventArgs());
+            }
+        }
+
         private MapBase parentMap;
 
         public MapBase ParentMap
@@ -98,14 +106,6 @@ namespace MapControl
             }
 
             return longitudeOffset;
-        }
-
-        private void LocationPropertyChanged()
-        {
-            if (parentMap != null)
-            {
-                OnViewportChanged(parentMap, new ViewportChangedEventArgs());
-            }
         }
     }
 }

@@ -86,11 +86,17 @@
     <Compile Include="..\Shared\HyperlinkText.cs">
       <Link>HyperlinkText.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Intersections.cs">
+      <Link>Intersections.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Location.cs">
       <Link>Location.cs</Link>
     </Compile>
     <Compile Include="..\Shared\LocationCollection.cs">
       <Link>LocationCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\LocationEx.cs">
+      <Link>LocationEx.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapBase.cs">
       <Link>MapBase.cs</Link>

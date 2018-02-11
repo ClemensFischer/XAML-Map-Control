@@ -10,13 +10,13 @@ using Windows.UI.Xaml.Media;
 namespace MapControl
 {
     /// <summary>
-    /// A polyline defined by a collection of Locations.
+    /// A polygon defined by a collection of Locations.
     /// </summary>
-    public class MapPolyline : MapShape
+    public class MapPolygon : MapShape
     {
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e)));
+            nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolygon),
+            new PropertyMetadata(null, (o, e) => ((MapPolygon)o).LocationsPropertyChanged(e)));
 
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.
@@ -29,7 +29,8 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            ((PathGeometry)Data).Figures.Clear();
+            var figures = ((PathGeometry)Data).Figures;
+            figures.Clear();
 
             if (ParentMap != null && Locations != null)
             {
@@ -45,6 +46,7 @@ namespace MapControl
 
                 if (points.Count >= 2)
                 {
+                    points.Add(points[0]);
                     CreatePolylineFigures(points);
                 }
             }
