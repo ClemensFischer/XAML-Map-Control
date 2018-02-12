@@ -38,7 +38,7 @@ namespace MapControl
 
             if (ParentMap != null && Polygons != null)
             {
-                foreach (var polygon in Polygons.Where(p => p.Any()))
+                foreach (var polygon in Polygons.Where(p => p.Count() >= 2))
                 {
                     var points = polygon.Select(loc => LocationToPoint(loc));
                     var polyline = new PolyLineSegment(points.Skip(1), true);

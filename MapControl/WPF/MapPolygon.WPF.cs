@@ -33,7 +33,7 @@ namespace MapControl
         {
             Data.Figures.Clear();
 
-            if (ParentMap != null && Locations != null && Locations.Any())
+            if (ParentMap != null && Locations != null && Locations.Count() >= 2)
             {
                 var points = Locations.Select(loc => LocationToPoint(loc));
                 var polyline = new PolyLineSegment(points.Skip(1), true);

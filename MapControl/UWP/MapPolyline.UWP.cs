@@ -31,7 +31,7 @@ namespace MapControl
         {
             ((PathGeometry)Data).Figures.Clear();
 
-            if (ParentMap != null && Locations != null)
+            if (ParentMap != null && Locations != null && Locations.Count() >= 2)
             {
                 var locations = Locations;
                 var offset = GetLongitudeOffset();
@@ -43,10 +43,7 @@ namespace MapControl
 
                 var points = locations.Select(loc => ParentMap.MapProjection.LocationToViewportPoint(loc)).ToList();
 
-                if (points.Count >= 2)
-                {
-                    CreatePolylineFigures(points);
-                }
+                CreatePolylineFigures(points);
             }
         }
     }
