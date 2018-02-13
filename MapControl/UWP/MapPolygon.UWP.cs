@@ -18,6 +18,11 @@ namespace MapControl
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolygon),
             new PropertyMetadata(null, (o, e) => ((MapPolygon)o).LocationsPropertyChanged(e)));
 
+        public MapPolygon()
+            : base(new PathGeometry())
+        {
+        }
+
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.
         /// </summary>
@@ -29,8 +34,7 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            var figures = ((PathGeometry)Data).Figures;
-            figures.Clear();
+            ((PathGeometry)Data).Figures.Clear();
 
             if (ParentMap != null && Locations != null && Locations.Count() >= 2)
             {
@@ -42,7 +46,7 @@ namespace MapControl
                     locations = locations.Select(loc => new Location(loc.Latitude, loc.Longitude + offset));
                 }
 
-                var points = locations.Select(loc => ParentMap.MapProjection.LocationToViewportPoint(loc)).ToList();
+                var points = locations.Select(loc => LocationToViewportPoint(loc)).ToList();
                 points.Add(points[0]);
 
                 CreatePolylineFigures(points);

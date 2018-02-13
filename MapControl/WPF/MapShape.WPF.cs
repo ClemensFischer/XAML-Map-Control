@@ -12,21 +12,7 @@ namespace MapControl
 {
     public abstract partial class MapShape : Shape, IWeakEventListener
     {
-        public static readonly DependencyProperty FillRuleProperty = DependencyProperty.Register(
-            nameof(FillRule), typeof(FillRule), typeof(MapShape),
-            new FrameworkPropertyMetadata(FillRule.EvenOdd, FrameworkPropertyMetadataOptions.AffectsRender,
-                (o, e) => ((MapShape)o).Data.FillRule = (FillRule)e.NewValue));
-
-        /// <summary>
-        /// Gets or sets the FillRule of the StreamGeometry that represents the polyline.
-        /// </summary>
-        public FillRule FillRule
-        {
-            get { return (FillRule)GetValue(FillRuleProperty); }
-            set { SetValue(FillRuleProperty, value); }
-        }
-
-        protected PathGeometry Data { get; }
+        protected Geometry Data { get; }
 
         protected override Geometry DefiningGeometry
         {
@@ -38,7 +24,9 @@ namespace MapControl
             if (parentMap != null)
             {
                 var transform = new TransformGroup();
-                transform.Children.Add(new TranslateTransform(GetLongitudeOffset() * parentMap.MapProjection.TrueScale, 0d));
+                var offsetX = GetLongitudeOffset() * parentMap.MapProjection.TrueScale;
+
+                transform.Children.Add(new TranslateTransform(offsetX, 0d));
                 transform.Children.Add(parentMap.MapProjection.ViewportTransform);
 
                 Data.Transform = transform;

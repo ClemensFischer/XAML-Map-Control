@@ -19,6 +19,11 @@ namespace MapControl
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
             new PropertyMetadata(null, (o, e) => ((MapPolyline)o).DataCollectionPropertyChanged(e)));
 
+        public MapPolyline()
+            : base(new PathGeometry())
+        {
+        }
+
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.
         /// </summary>
@@ -31,14 +36,15 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            Data.Figures.Clear();
+            var figures = ((PathGeometry)Data).Figures;
+            figures.Clear();
 
             if (ParentMap != null && Locations != null && Locations.Count() >= 2)
             {
                 var points = Locations.Select(loc => LocationToPoint(loc));
                 var polyline = new PolyLineSegment(points.Skip(1), true);
 
-                Data.Figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, false));
+                figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, false));
             }
         }
     }

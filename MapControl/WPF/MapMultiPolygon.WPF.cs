@@ -17,11 +17,16 @@ namespace MapControl
     /// for the Polygons property if collection changes of the property itself and its
     /// elements are both supposed to trigger a UI update.
     /// </summary>
-    public class MapMultiPolygon : MapShape, IWeakEventListener
+    public class MapMultiPolygon : MapShape
     {
         public static readonly DependencyProperty PolygonsProperty = DependencyProperty.Register(
             nameof(Polygons), typeof(IEnumerable<IEnumerable<Location>>), typeof(MapMultiPolygon),
             new PropertyMetadata(null, (o, e) => ((MapMultiPolygon)o).DataCollectionPropertyChanged(e)));
+
+        public MapMultiPolygon()
+            : base(new PathGeometry())
+        {
+        }
 
         /// <summary>
         /// Gets or sets the Locations that define the multi-polygon points.
@@ -34,7 +39,8 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            Data.Figures.Clear();
+            var figures = ((PathGeometry)Data).Figures;
+            figures.Clear();
 
             if (ParentMap != null && Polygons != null)
             {
@@ -43,7 +49,7 @@ namespace MapControl
                     var points = polygon.Select(loc => LocationToPoint(loc));
                     var polyline = new PolyLineSegment(points.Skip(1), true);
 
-                    Data.Figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, true));
+                    figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, true));
                 }
             }
         }

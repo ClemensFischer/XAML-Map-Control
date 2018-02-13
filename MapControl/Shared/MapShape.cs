@@ -63,9 +63,9 @@ namespace MapControl
             }
         }
 
-        protected MapShape()
+        protected MapShape(Geometry data)
         {
-            Data = new PathGeometry();
+            Data = data;
 
             MapPanel.InitMapElement(this);
         }
@@ -88,13 +88,18 @@ namespace MapControl
             return point;
         }
 
+        protected Point LocationToViewportPoint(Location location)
+        {
+            return parentMap.MapProjection.ViewportTransform.Transform(LocationToPoint(location));
+        }
+
         protected double GetLongitudeOffset()
         {
             var longitudeOffset = 0d;
 
             if (parentMap.MapProjection.IsContinuous && Location != null)
             {
-                var viewportPosition = parentMap.MapProjection.LocationToViewportPoint(Location);
+                var viewportPosition = LocationToViewportPoint(Location);
 
                 if (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
                     viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height)
