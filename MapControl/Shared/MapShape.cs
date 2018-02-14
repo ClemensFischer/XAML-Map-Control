@@ -59,8 +59,14 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                ParentMapChanged();
+                SetDataTransform();
+                UpdateData();
             }
+        }
+
+        protected MapShape()
+            : this(new PathGeometry())
+        {
         }
 
         protected MapShape(Geometry data)
@@ -69,6 +75,8 @@ namespace MapControl
 
             MapPanel.InitMapElement(this);
         }
+
+        partial void SetDataTransform(); // WPF only
 
         protected abstract void UpdateData();
 

@@ -3,7 +3,9 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -19,7 +21,7 @@ namespace MapControl
             get { return Data; }
         }
 
-        private void ParentMapChanged()
+        partial void SetDataTransform()
         {
             if (parentMap != null)
             {
@@ -35,8 +37,6 @@ namespace MapControl
             {
                 Data.Transform = Transform.Identity;
             }
-
-            UpdateData();
         }
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
@@ -61,28 +61,45 @@ namespace MapControl
             }
         }
 
-        protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
-        {
-            INotifyCollectionChanged locations;
-
-            if ((locations = e.OldValue as INotifyCollectionChanged) != null)
-            {
-                CollectionChangedEventManager.RemoveListener(locations, this);
-            }
-
-            if ((locations = e.NewValue as INotifyCollectionChanged) != null)
-            {
-                CollectionChangedEventManager.AddListener(locations, this);
-            }
-
-            UpdateData();
-        }
-
         bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             UpdateData();
 
             return true;
+        }
+
+        protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
+            INotifyCollectionChanged collection;
+
+            if ((collection = e.OldValue as INotifyCollectionChanged) != null)
+            {
+                CollectionChangedEventManager.RemoveListener(collection, this);
+            }
+
+            if ((collection = e.NewValue as INotifyCollectionChanged) != null)
+            {
+                CollectionChangedEventManager.AddListener(collection, this);
+            }
+
+            UpdateData();
+        }
+
+        protected void AddPolylineFigure(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
+        {
+            if (locations != null && locations.Count() >= 2)
+            {
+                var points = locations.Select(loc => LocationToPoint(loc));
+                var figure = new PathFigure
+                {
+                    StartPoint = points.First(),
+                    IsClosed = closed,
+                    IsFilled = closed
+                };
+
+                figure.Segments.Add(new PolyLineSegment(points.Skip(1), true));
+                figures.Add(figure);
+            }
         }
     }
 }

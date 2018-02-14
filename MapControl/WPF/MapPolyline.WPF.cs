@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -18,11 +17,6 @@ namespace MapControl
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
             new PropertyMetadata(null, (o, e) => ((MapPolyline)o).DataCollectionPropertyChanged(e)));
-
-        public MapPolyline()
-            : base(new PathGeometry())
-        {
-        }
 
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.
@@ -39,12 +33,9 @@ namespace MapControl
             var figures = ((PathGeometry)Data).Figures;
             figures.Clear();
 
-            if (ParentMap != null && Locations != null && Locations.Count() >= 2)
+            if (ParentMap != null)
             {
-                var points = Locations.Select(loc => LocationToPoint(loc));
-                var polyline = new PolyLineSegment(points.Skip(1), true);
-
-                figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, false));
+                AddPolylineFigure(figures, Locations, false);
             }
         }
     }

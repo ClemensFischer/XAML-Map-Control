@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -13,11 +14,6 @@ namespace MapControl
 {
     public abstract partial class MapShape : Path
     {
-        private void ParentMapChanged()
-        {
-            UpdateData();
-        }
-
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             UpdateData();
@@ -25,17 +21,16 @@ namespace MapControl
 
         protected void LocationsPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
-            var oldCollection = e.OldValue as INotifyCollectionChanged;
-            var newCollection = e.NewValue as INotifyCollectionChanged;
+            INotifyCollectionChanged collection;
 
-            if (oldCollection != null)
+            if ((collection = e.OldValue as INotifyCollectionChanged) != null)
             {
-                oldCollection.CollectionChanged -= LocationCollectionChanged;
+                collection.CollectionChanged -= LocationCollectionChanged;
             }
 
-            if (newCollection != null)
+            if ((collection = e.NewValue as INotifyCollectionChanged) != null)
             {
-                newCollection.CollectionChanged += LocationCollectionChanged;
+                collection.CollectionChanged += LocationCollectionChanged;
             }
 
             UpdateData();
@@ -46,36 +41,56 @@ namespace MapControl
             UpdateData();
         }
 
-        protected void CreatePolylineFigures(IList<Point> points)
+        protected void AddPolylineFigures(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
         {
-            var viewport = new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height);
-            var figures = ((PathGeometry)Data).Figures;
-
-            PathFigure figure = null;
-            PolyLineSegment segment = null;
-
-            for (int i = 1; i < points.Count; i++)
+            if (locations != null && locations.Count() >= 2)
             {
-                var p1 = points[i - 1];
-                var p2 = points[i];
-                var inside = Intersections.GetIntersections(ref p1, ref p2, viewport);
+                var viewport = new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height);
+                var offset = GetLongitudeOffset();
 
-                if (inside)
+                if (offset != 0d)
                 {
-                    if (figure == null)
-                    {
-                        figure = new PathFigure { StartPoint = p1, IsClosed = false, IsFilled = false };
-                        segment = new PolyLineSegment();
-                        figure.Segments.Add(segment);
-                        figures.Add(figure);
-                    }
-
-                    segment.Points.Add(p2);
+                    locations = locations.Select(loc => new Location(loc.Latitude, loc.Longitude + offset));
                 }
 
-                if (!inside || p2 != points[i])
+                var points = locations.Select(loc => LocationToViewportPoint(loc)).ToList();
+                if (closed)
                 {
-                    figure = null;
+                    points.Add(points[0]);
+                }
+
+                PathFigure figure = null;
+                PolyLineSegment segment = null;
+
+                for (int i = 1; i < points.Count; i++)
+                {
+                    var p1 = points[i - 1];
+                    var p2 = points[i];
+                    var inside = Intersections.GetIntersections(ref p1, ref p2, viewport);
+
+                    if (inside)
+                    {
+                        if (figure == null)
+                        {
+                            figure = new PathFigure
+                            {
+                                StartPoint = p1,
+                                IsClosed = false,
+                                IsFilled = false
+                            };
+
+                            segment = new PolyLineSegment();
+                            figure.Segments.Add(segment);
+                            figures.Add(figure);
+                        }
+
+                        segment.Points.Add(p2);
+                    }
+
+                    if (!inside || p2 != points[i])
+                    {
+                        figure = null;
+                    }
                 }
             }
         }

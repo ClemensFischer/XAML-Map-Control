@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -23,11 +22,6 @@ namespace MapControl
             nameof(Polygons), typeof(IEnumerable<IEnumerable<Location>>), typeof(MapMultiPolygon),
             new PropertyMetadata(null, (o, e) => ((MapMultiPolygon)o).DataCollectionPropertyChanged(e)));
 
-        public MapMultiPolygon()
-            : base(new PathGeometry())
-        {
-        }
-
         /// <summary>
         /// Gets or sets the Locations that define the multi-polygon points.
         /// </summary>
@@ -44,12 +38,9 @@ namespace MapControl
 
             if (ParentMap != null && Polygons != null)
             {
-                foreach (var polygon in Polygons.Where(p => p.Count() >= 2))
+                foreach (var polygon in Polygons)
                 {
-                    var points = polygon.Select(loc => LocationToPoint(loc));
-                    var polyline = new PolyLineSegment(points.Skip(1), true);
-
-                    figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, true));
+                    AddPolylineFigure(figures, polygon, true);
                 }
             }
         }

@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -19,16 +18,6 @@ namespace MapControl
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolygon),
             new PropertyMetadata(null, (o, e) => ((MapPolygon)o).DataCollectionPropertyChanged(e)));
 
-        public static readonly DependencyProperty FillRuleProperty = DependencyProperty.Register(
-            nameof(FillRule), typeof(FillRule), typeof(MapPolygon),
-            new FrameworkPropertyMetadata(FillRule.EvenOdd, FrameworkPropertyMetadataOptions.AffectsRender,
-                (o, e) => ((PathGeometry)((MapPolygon)o).Data).FillRule = (FillRule)e.NewValue));
-
-        public MapPolygon()
-            : base(new PathGeometry())
-        {
-        }
-
         /// <summary>
         /// Gets or sets the Locations that define the polygon points.
         /// </summary>
@@ -39,26 +28,14 @@ namespace MapControl
             set { SetValue(LocationsProperty, value); }
         }
 
-        /// <summary>
-        /// Gets or sets the FillRule of the PathGeometry that represents the polyline.
-        /// </summary>
-        public FillRule FillRule
-        {
-            get { return (FillRule)GetValue(FillRuleProperty); }
-            set { SetValue(FillRuleProperty, value); }
-        }
-
         protected override void UpdateData()
         {
             var figures = ((PathGeometry)Data).Figures;
             figures.Clear();
 
-            if (ParentMap != null && Locations != null && Locations.Count() >= 2)
+            if (ParentMap != null)
             {
-                var points = Locations.Select(loc => LocationToPoint(loc));
-                var polyline = new PolyLineSegment(points.Skip(1), true);
-
-                figures.Add(new PathFigure(points.First(), new PathSegment[] { polyline }, true));
+                AddPolylineFigure(figures, Locations, true);
             }
         }
     }
