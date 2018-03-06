@@ -71,7 +71,7 @@ namespace MapControl
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
         /// </summary>
-        public double ViewportScale { get; protected set; }
+        public double ViewportScale { get; private set; }
 
         /// <summary>
         /// Gets the map scale at the specified Location as viewport coordinate units per meter (px/m).
