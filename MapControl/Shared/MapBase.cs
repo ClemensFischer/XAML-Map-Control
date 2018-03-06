@@ -288,20 +288,8 @@ namespace MapControl
 
             if (translation.X != 0d || translation.Y != 0d)
             {
-                if (Heading != 0d)
-                {
-                    var cos = Math.Cos(Heading * Math.PI / 180d);
-                    var sin = Math.Sin(Heading * Math.PI / 180d);
-
-                    translation = new Point(
-                        translation.X * cos + translation.Y * sin,
-                        translation.Y * cos - translation.X * sin);
-                }
-
-                translation.X = -translation.X;
-                translation.Y = -translation.Y;
-
-                Center = MapProjection.TranslateLocation(Center, translation);
+                Center = MapProjection.ViewportPointToLocation(
+                    new Point(viewportCenter.X - translation.X, viewportCenter.Y - translation.Y));
             }
         }
 

@@ -89,11 +89,6 @@ namespace MapControl
         public abstract Location PointToLocation(Point point);
 
         /// <summary>
-        /// Translates a Location in geographic coordinates by the specified small amount in viewport coordinates.
-        /// </summary>
-        public abstract Location TranslateLocation(Location location, Point translation);
-
-        /// <summary>
         /// Transforms a BoundingBox in geographic coordinates to a Rect in cartesian map coordinates.
         /// </summary>
         public virtual Rect BoundingBoxToRect(BoundingBox boundingBox)

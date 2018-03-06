@@ -30,16 +30,6 @@ namespace MapControl
             return new Point(ViewportScale, ViewportScale);
         }
 
-        public override Location TranslateLocation(Location location, Point translation)
-        {
-            var scaleY = ViewportScale * TrueScale;
-            var scaleX = scaleY * Math.Cos(location.Latitude * Math.PI / 180d);
-
-            return new Location(
-                location.Latitude - translation.Y / scaleY,
-                location.Longitude + translation.X / scaleX);
-        }
-
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
             var cbbox = boundingBox as CenteredBoundingBox;

@@ -57,16 +57,6 @@ namespace MapControl
                 point.X / TrueScale);
         }
 
-        public override Location TranslateLocation(Location location, Point translation)
-        {
-            var scaleX = TrueScale * ViewportScale;
-            var scaleY = scaleX / Math.Cos(location.Latitude * Math.PI / 180d);
-
-            return new Location(
-                location.Latitude - translation.Y / scaleY,
-                location.Longitude + translation.X / scaleX);
-        }
-
         public static double LatitudeToY(double latitude)
         {
             if (latitude <= -90d)

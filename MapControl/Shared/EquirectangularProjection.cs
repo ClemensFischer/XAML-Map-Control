@@ -42,12 +42,5 @@ namespace MapControl
         {
             return new Location(point.Y, point.X);
         }
-
-        public override Location TranslateLocation(Location location, Point translation)
-        {
-            return new Location(
-                location.Latitude - translation.Y / ViewportScale,
-                location.Longitude + translation.X / ViewportScale);
-        }
     }
 }
