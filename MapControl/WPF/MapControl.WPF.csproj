@@ -177,7 +177,6 @@
     <Compile Include="TileImageLoader.WPF.cs" />
     <Compile Include="ImageLoader.WPF.cs" />
     <Compile Include="TypeConverters.WPF.cs" />
-    <Compile Include="MatrixEx.WPF.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

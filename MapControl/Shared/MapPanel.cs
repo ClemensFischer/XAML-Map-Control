@@ -261,7 +261,7 @@ namespace MapControl
                 var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
 
                 rotation = parentMap.Heading;
-                viewportPosition = projection.ViewportTransform.Transform(center);
+                viewportPosition = projection.ViewportTransformMatrix.Transform(center);
 
                 if (parentMap.MapProjection.IsContinuous &&
                     (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||

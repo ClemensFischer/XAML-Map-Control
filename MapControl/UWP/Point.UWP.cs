@@ -1,0 +1,48 @@
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2018 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+namespace MapControl
+{
+    public struct Point
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+
+        public Point(double x, double y)
+        {
+            X = x;
+            Y = y;
+        }
+
+        public static implicit operator Point(Windows.Foundation.Point p)
+        {
+            return new Point(p.X, p.Y);
+        }
+
+        public static implicit operator Windows.Foundation.Point(Point p)
+        {
+            return new Windows.Foundation.Point(p.X, p.Y);
+        }
+
+        public static bool operator ==(Point p1, Point p2)
+        {
+            return p1.X == p2.X && p1.Y == p2.Y;
+        }
+
+        public static bool operator !=(Point p1, Point p2)
+        {
+            return !(p1 == p2);
+        }
+
+        public override bool Equals(object o)
+        {
+            return o is Point && this == (Point)o;
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode();
+        }
+    }
+}

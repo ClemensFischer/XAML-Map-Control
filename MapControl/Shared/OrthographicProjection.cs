@@ -3,9 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINDOWS_UWP
-using Windows.Foundation;
-#else
+#if !WINDOWS_UWP
 using System.Windows;
 #endif
 

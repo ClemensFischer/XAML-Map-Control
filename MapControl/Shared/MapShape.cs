@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 #if WINDOWS_UWP
-using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -98,7 +97,7 @@ namespace MapControl
 
         protected Point LocationToViewportPoint(Location location)
         {
-            return parentMap.MapProjection.ViewportTransform.Transform(LocationToPoint(location));
+            return parentMap.MapProjection.ViewportTransformMatrix.Transform(LocationToPoint(location));
         }
 
         protected double GetLongitudeOffset()

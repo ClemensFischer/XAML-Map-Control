@@ -2,20 +2,13 @@
 // © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Windows.Foundation;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MapControl
 {
     internal static class Extensions
     {
-        public static Point Transform(this GeneralTransform transform, Point point)
-        {
-            return transform.TransformPoint(point);
-        }
-
         public static void BeginAnimation(this DependencyObject obj, DependencyProperty property, Timeline animation)
         {
             if (animation != null)

@@ -25,6 +25,8 @@ namespace MapControl
         public const double Wgs84EquatorialRadius = 6378137d;
         public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
+        private Matrix inverseViewportTransformMatrix;
+
         /// <summary>
         /// Gets or sets the WMS 1.3.0 CRS Identifier.
         /// </summary>
@@ -55,6 +57,11 @@ namespace MapControl
         /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
         /// </summary>
         public double MaxLatitude { get; protected set; } = 90d;
+
+        /// <summary>
+        /// Gets the transformation matrix from cartesian map coordinates to viewport coordinates (pixels).
+        /// </summary>
+        public Matrix ViewportTransformMatrix { get; private set; }
 
         /// <summary>
         /// Gets the transformation from cartesian map coordinates to viewport coordinates (pixels).
@@ -112,7 +119,7 @@ namespace MapControl
         /// </summary>
         public Point LocationToViewportPoint(Location location)
         {
-            return ViewportTransform.Transform(LocationToPoint(location));
+            return ViewportTransformMatrix.Transform(LocationToPoint(location));
         }
 
         /// <summary>
@@ -120,7 +127,7 @@ namespace MapControl
         /// </summary>
         public Location ViewportPointToLocation(Point point)
         {
-            return PointToLocation(ViewportTransform.Inverse.Transform(point));
+            return PointToLocation(inverseViewportTransformMatrix.Transform(point));
         }
 
         /// <summary>
@@ -128,7 +135,9 @@ namespace MapControl
         /// </summary>
         public BoundingBox ViewportRectToBoundingBox(Rect rect)
         {
-            return RectToBoundingBox(ViewportTransform.Inverse.TransformBounds(rect));
+            var transform = new MatrixTransform { Matrix = inverseViewportTransformMatrix };
+
+            return RectToBoundingBox(transform.TransformBounds(rect));
         }
 
         /// <summary>
@@ -139,9 +148,14 @@ namespace MapControl
             ViewportScale = Math.Pow(2d, zoomLevel) * PixelPerDegree / TrueScale;
 
             var center = LocationToPoint(mapCenter);
-
-            ViewportTransform.Matrix = MatrixEx.TranslateScaleRotateTranslate(
+            var transformMatrix = CreateTransformMatrix(
                 -center.X, -center.Y, ViewportScale, -ViewportScale, heading, viewportCenter.X, viewportCenter.Y);
+
+            ViewportTransformMatrix = transformMatrix;
+            ViewportTransform.Matrix = transformMatrix;
+
+            transformMatrix.Invert();
+            inverseViewportTransformMatrix = transformMatrix;
         }
 
         /// <summary>
@@ -172,6 +186,18 @@ namespace MapControl
 
             return string.Format(CultureInfo.InvariantCulture, format, CrsId,
                 rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);
+        }
+
+        public static Matrix CreateTransformMatrix(
+            double translation1X, double translation1Y,
+            double scaleX, double scaleY, double rotationAngle,
+            double translation2X, double translation2Y)
+        {
+            var matrix = new Matrix(1d, 0d, 0d, 1d, translation1X, translation1Y);
+            matrix.Scale(scaleX, scaleY);
+            matrix.Rotate(rotationAngle);
+            matrix.Translate(translation2X, translation2Y);
+            return matrix;
         }
     }
 }

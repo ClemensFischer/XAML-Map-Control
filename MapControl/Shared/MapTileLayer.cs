@@ -312,7 +312,7 @@ namespace MapControl
 
             var transform = new MatrixTransform
             {
-                Matrix = MatrixEx.TranslateScaleRotateTranslate(-viewCenterX, -viewCenterY, scale, scale, -parentMap.Heading, tileCenterX, tileCenterY)
+                Matrix = MapProjection.CreateTransformMatrix(-viewCenterX, -viewCenterY, scale, scale, -parentMap.Heading, tileCenterX, tileCenterY)
             };
 
             var bounds = transform.TransformBounds(new Rect(0d, 0d, parentMap.RenderSize.Width, parentMap.RenderSize.Height));
@@ -333,7 +333,7 @@ namespace MapControl
             var viewCenterX = parentMap.RenderSize.Width / 2d;
             var viewCenterY = parentMap.RenderSize.Height / 2d;
 
-            ((MatrixTransform)RenderTransform).Matrix = MatrixEx.TranslateScaleRotateTranslate(
+            ((MatrixTransform)RenderTransform).Matrix = MapProjection.CreateTransformMatrix(
                 -tileOriginX, -tileOriginY, scale, scale, parentMap.Heading, viewCenterX, viewCenterY);
         }
 

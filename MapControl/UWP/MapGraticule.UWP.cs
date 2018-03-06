@@ -15,8 +15,6 @@ namespace MapControl
     public partial class MapGraticule
     {
         private Path path;
-        private Location graticuleStart;
-        private Location graticuleEnd;
 
         public MapGraticule()
         {
@@ -75,104 +73,97 @@ namespace MapControl
                     Math.Min(Math.Max(labelEnd.Latitude + lineDistance, -projection.MaxLatitude), projection.MaxLatitude),
                     labelEnd.Longitude + lineDistance);
 
-                if (!lineStart.Equals(graticuleStart) || !lineEnd.Equals(graticuleEnd))
+                var geometry = (PathGeometry)path.Data;
+                geometry.Figures.Clear();
+
+                for (var lat = labelStart.Latitude; lat <= bounds.North; lat += lineDistance)
                 {
-                    graticuleStart = lineStart;
-                    graticuleEnd = lineEnd;
-
-                    var geometry = (PathGeometry)path.Data;
-                    geometry.Figures.Clear();
-                    geometry.Transform = projection.ViewportTransform;
-
-                    for (var lat = labelStart.Latitude; lat <= bounds.North; lat += lineDistance)
+                    var figure = new PathFigure
                     {
-                        var figure = new PathFigure
-                        {
-                            StartPoint = projection.LocationToPoint(new Location(lat, lineStart.Longitude)),
-                            IsClosed = false,
-                            IsFilled = false
-                        };
+                        StartPoint = projection.LocationToViewportPoint(new Location(lat, lineStart.Longitude)),
+                        IsClosed = false,
+                        IsFilled = false
+                    };
 
-                        figure.Segments.Add(new LineSegment
-                        {
-                            Point = projection.LocationToPoint(new Location(lat, lineEnd.Longitude)),
-                        });
+                    figure.Segments.Add(new LineSegment
+                    {
+                        Point = projection.LocationToViewportPoint(new Location(lat, lineEnd.Longitude))
+                    });
 
-                        geometry.Figures.Add(figure);
-                    }
+                    geometry.Figures.Add(figure);
+                }
 
+                for (var lon = labelStart.Longitude; lon <= bounds.East; lon += lineDistance)
+                {
+                    var figure = new PathFigure
+                    {
+                        StartPoint = projection.LocationToViewportPoint(new Location(lineStart.Latitude, lon)),
+                        IsClosed = false,
+                        IsFilled = false
+                    };
+
+                    figure.Segments.Add(new LineSegment
+                    {
+                        Point = projection.LocationToViewportPoint(new Location(lineEnd.Latitude, lon))
+                    });
+
+                    geometry.Figures.Add(figure);
+                }
+
+                var labelFormat = GetLabelFormat(lineDistance);
+                var childIndex = 1; // 0 for Path
+
+                for (var lat = labelStart.Latitude; lat <= bounds.North; lat += lineDistance)
+                {
                     for (var lon = labelStart.Longitude; lon <= bounds.East; lon += lineDistance)
                     {
-                        var figure = new PathFigure
+                        TextBlock label;
+
+                        if (childIndex < Children.Count)
                         {
-                            StartPoint = projection.LocationToPoint(new Location(lineStart.Latitude, lon)),
-                            IsClosed = false,
-                            IsFilled = false
-                        };
-
-                        figure.Segments.Add(new LineSegment
-                        {
-                            Point = projection.LocationToPoint(new Location(lineEnd.Latitude, lon)),
-                        });
-
-                        geometry.Figures.Add(figure);
-                    }
-
-                    var labelFormat = GetLabelFormat(lineDistance);
-                    var childIndex = 1; // 0 for Path
-
-                    for (var lat = labelStart.Latitude; lat <= bounds.North; lat += lineDistance)
-                    {
-                        for (var lon = labelStart.Longitude; lon <= bounds.East; lon += lineDistance)
-                        {
-                            TextBlock label;
-
-                            if (childIndex < Children.Count)
-                            {
-                                label = (TextBlock)Children[childIndex];
-                            }
-                            else
-                            {
-                                var renderTransform = new TransformGroup();
-                                renderTransform.Children.Add(new TranslateTransform());
-                                renderTransform.Children.Add(ParentMap.RotateTransform);
-                                renderTransform.Children.Add(new TranslateTransform());
-
-                                label = new TextBlock
-                                {
-                                    RenderTransform = renderTransform
-                                };
-
-                                label.SetBinding(TextBlock.ForegroundProperty,
-                                    GetBindingExpression(ForegroundProperty)?.ParentBinding ??
-                                    new Binding
-                                    {
-                                        Source = this,
-                                        Path = new PropertyPath("Foreground")
-                                    });
-
-                                Children.Add(label);
-                            }
-
-                            childIndex++;
-
-                            if (FontFamily != null)
-                            {
-                                label.FontFamily = FontFamily;
-                            }
-
-                            label.FontSize = FontSize;
-                            label.FontStyle = FontStyle;
-                            label.FontStretch = FontStretch;
-                            label.FontWeight = FontWeight;
-                            label.Text = GetLabelText(lat, labelFormat, "NS") + "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
-                            label.Tag = new Location(lat, lon);
-                            label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-                            var translateTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[0];
-                            translateTransform.X = StrokeThickness / 2d + 2d;
-                            translateTransform.Y = -label.DesiredSize.Height / 2d;
+                            label = (TextBlock)Children[childIndex];
                         }
+                        else
+                        {
+                            var renderTransform = new TransformGroup();
+                            renderTransform.Children.Add(new TranslateTransform());
+                            renderTransform.Children.Add(ParentMap.RotateTransform);
+                            renderTransform.Children.Add(new TranslateTransform());
+
+                            label = new TextBlock
+                            {
+                                RenderTransform = renderTransform
+                            };
+
+                            label.SetBinding(TextBlock.ForegroundProperty,
+                                GetBindingExpression(ForegroundProperty)?.ParentBinding ??
+                                new Binding
+                                {
+                                    Source = this,
+                                    Path = new PropertyPath("Foreground")
+                                });
+
+                            Children.Add(label);
+                        }
+
+                        childIndex++;
+
+                        if (FontFamily != null)
+                        {
+                            label.FontFamily = FontFamily;
+                        }
+
+                        label.FontSize = FontSize;
+                        label.FontStyle = FontStyle;
+                        label.FontStretch = FontStretch;
+                        label.FontWeight = FontWeight;
+                        label.Text = GetLabelText(lat, labelFormat, "NS") + "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
+                        label.Tag = new Location(lat, lon);
+                        label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+                        var translateTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[0];
+                        translateTransform.X = StrokeThickness / 2d + 2d;
+                        translateTransform.Y = -label.DesiredSize.Height / 2d;
                     }
 
                     while (Children.Count > childIndex)
@@ -196,9 +187,6 @@ namespace MapControl
             else if (path != null)
             {
                 path = null;
-                graticuleStart = null;
-                graticuleEnd = null;
-
                 Children.Clear();
             }
 
