@@ -76,7 +76,7 @@ namespace MapControl
         /// <summary>
         /// Gets the map scale at the specified Location as viewport coordinate units per meter (px/m).
         /// </summary>
-        public abstract Point GetMapScale(Location location);
+        public abstract Vector GetMapScale(Location location);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in cartesian map coordinates.
@@ -143,14 +143,13 @@ namespace MapControl
             ViewportScale = Math.Pow(2d, zoomLevel) * PixelPerDegree / TrueScale;
 
             var center = LocationToPoint(mapCenter);
-            var transformMatrix = CreateTransformMatrix(
-                -center.X, -center.Y, ViewportScale, -ViewportScale, heading, viewportCenter.X, viewportCenter.Y);
+            var matrix = CreateTransformMatrix(center, ViewportScale, -ViewportScale, heading, viewportCenter);
 
-            ViewportTransformMatrix = transformMatrix;
-            ViewportTransform.Matrix = transformMatrix;
+            ViewportTransformMatrix = matrix;
+            ViewportTransform.Matrix = matrix;
 
-            transformMatrix.Invert();
-            inverseViewportTransformMatrix = transformMatrix;
+            matrix.Invert();
+            inverseViewportTransformMatrix = matrix;
         }
 
         /// <summary>
@@ -183,15 +182,12 @@ namespace MapControl
                 rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);
         }
 
-        public static Matrix CreateTransformMatrix(
-            double translation1X, double translation1Y,
-            double scaleX, double scaleY, double rotationAngle,
-            double translation2X, double translation2Y)
+        internal static Matrix CreateTransformMatrix(
+            Point translation1, double scaleX, double scaleY, double rotation, Point translation2)
         {
-            var matrix = new Matrix(1d, 0d, 0d, 1d, translation1X, translation1Y);
-            matrix.Scale(scaleX, scaleY);
-            matrix.Rotate(rotationAngle);
-            matrix.Translate(translation2X, translation2Y);
+            var matrix = new Matrix(scaleX, 0d, 0d, scaleY, -translation1.X * scaleX, -translation1.Y * scaleY);
+            matrix.Rotate(rotation);
+            matrix.Translate(translation2.X, translation2.Y);
             return matrix;
         }
     }

@@ -276,9 +276,9 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Changes the Center property according to the specified map translation in viewport coordinates.
+        /// Changes the Center property according to the specified translation in viewport coordinates.
         /// </summary>
-        public void TranslateMap(Point translation)
+        public void TranslateMap(Vector translation)
         {
             if (transformCenter != null)
             {
@@ -288,8 +288,7 @@ namespace MapControl
 
             if (translation.X != 0d || translation.Y != 0d)
             {
-                Center = MapProjection.ViewportPointToLocation(
-                    new Point(viewportCenter.X - translation.X, viewportCenter.Y - translation.Y));
+                Center = MapProjection.ViewportPointToLocation(viewportCenter - translation);
             }
         }
 
@@ -298,12 +297,12 @@ namespace MapControl
         /// viewport coordinate translation, rotation and scale delta values. Rotation and scaling
         /// is performed relative to the specified center point in viewport coordinates.
         /// </summary>
-        public void TransformMap(Point center, Point translation, double rotation, double scale)
+        public void TransformMap(Point center, Vector translation, double rotation, double scale)
         {
             if (rotation != 0d || scale != 1d)
             {
                 transformCenter = MapProjection.ViewportPointToLocation(center);
-                viewportCenter = new Point(center.X + translation.X, center.Y + translation.Y);
+                viewportCenter = center + translation;
 
                 if (rotation != 0d)
                 {

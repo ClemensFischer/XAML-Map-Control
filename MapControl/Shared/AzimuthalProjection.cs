@@ -25,9 +25,9 @@ namespace MapControl
             IsAzimuthal = true;
         }
 
-        public override Point GetMapScale(Location location)
+        public override Vector GetMapScale(Location location)
         {
-            return new Point(ViewportScale, ViewportScale);
+            return new Vector(ViewportScale, ViewportScale);
         }
 
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)

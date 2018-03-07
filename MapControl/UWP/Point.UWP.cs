@@ -15,14 +15,39 @@ namespace MapControl
             Y = y;
         }
 
+        public static implicit operator Windows.Foundation.Point(Point p)
+        {
+            return new Windows.Foundation.Point(p.X, p.Y);
+        }
+
         public static implicit operator Point(Windows.Foundation.Point p)
         {
             return new Point(p.X, p.Y);
         }
 
-        public static implicit operator Windows.Foundation.Point(Point p)
+        public static explicit operator Point(Vector v)
         {
-            return new Windows.Foundation.Point(p.X, p.Y);
+            return new Point(v.X, v.Y);
+        }
+
+        public static Point operator -(Point p)
+        {
+            return new Point(-p.X, -p.Y);
+        }
+
+        public static Point operator +(Point p, Vector v)
+        {
+            return new Point(p.X + v.X, p.Y + v.Y);
+        }
+
+        public static Point operator -(Point p, Vector v)
+        {
+            return new Point(p.X - v.X, p.Y - v.Y);
+        }
+
+        public static Vector operator -(Point p1, Point p2)
+        {
+            return new Vector(p1.X - p2.X, p1.Y - p2.Y);
         }
 
         public static bool operator ==(Point p1, Point p2)

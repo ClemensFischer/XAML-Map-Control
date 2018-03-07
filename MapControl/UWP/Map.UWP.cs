@@ -17,7 +17,7 @@ namespace MapControl
             nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
 
         private bool transformPending;
-        private Point transformTranslation;
+        private Vector transformTranslation;
         private double transformRotation;
         private double transformScale = 1d;
 

@@ -305,14 +305,13 @@ namespace MapControl
             var tileZoomLevel = Math.Max(0, (int)Math.Round(parentMap.ZoomLevel + ZoomLevelOffset));
             var tileScale = (double)(1 << tileZoomLevel);
             var scale = tileScale / (Math.Pow(2d, parentMap.ZoomLevel) * MapProjection.TileSize);
-            var tileCenterX = tileScale * (0.5 + parentMap.Center.Longitude / 360d);
-            var tileCenterY = tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d);
-            var viewCenterX = parentMap.RenderSize.Width / 2d;
-            var viewCenterY = parentMap.RenderSize.Height / 2d;
+            var tileCenter = new Point(tileScale * (0.5 + parentMap.Center.Longitude / 360d),
+                                       tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d));
+            var viewCenter = new Point(parentMap.RenderSize.Width / 2d, parentMap.RenderSize.Height / 2d);
 
             var transform = new MatrixTransform
             {
-                Matrix = MapProjection.CreateTransformMatrix(-viewCenterX, -viewCenterY, scale, scale, -parentMap.Heading, tileCenterX, tileCenterY)
+                Matrix = MapProjection.CreateTransformMatrix(viewCenter, scale, scale, -parentMap.Heading, tileCenter)
             };
 
             var bounds = transform.TransformBounds(new Rect(0d, 0d, parentMap.RenderSize.Width, parentMap.RenderSize.Height));
@@ -326,15 +325,14 @@ namespace MapControl
         {
             var tileScale = (double)(1 << TileGrid.ZoomLevel);
             var scale = Math.Pow(2d, parentMap.ZoomLevel) / tileScale;
-            var tileCenterX = tileScale * (0.5 + parentMap.Center.Longitude / 360d);
-            var tileCenterY = tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d);
-            var tileOriginX = MapProjection.TileSize * (tileCenterX - TileGrid.XMin);
-            var tileOriginY = MapProjection.TileSize * (tileCenterY - TileGrid.YMin);
-            var viewCenterX = parentMap.RenderSize.Width / 2d;
-            var viewCenterY = parentMap.RenderSize.Height / 2d;
+            var tileCenter = new Point(tileScale * (0.5 + parentMap.Center.Longitude / 360d),
+                                       tileScale * (0.5 - WebMercatorProjection.LatitudeToY(parentMap.Center.Latitude) / 360d));
+            var tileOrigin = new Point(MapProjection.TileSize * (tileCenter.X - TileGrid.XMin),
+                                       MapProjection.TileSize * (tileCenter.Y - TileGrid.YMin));
+            var viewCenter = new Point(parentMap.RenderSize.Width / 2d, parentMap.RenderSize.Height / 2d);
 
-            ((MatrixTransform)RenderTransform).Matrix = MapProjection.CreateTransformMatrix(
-                -tileOriginX, -tileOriginY, scale, scale, parentMap.Heading, viewCenterX, viewCenterY);
+            ((MatrixTransform)RenderTransform).Matrix = 
+                MapProjection.CreateTransformMatrix(tileOrigin, scale, scale, parentMap.Heading, viewCenter);
         }
 
         private void UpdateTiles()

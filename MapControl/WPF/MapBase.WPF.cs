@@ -56,24 +56,6 @@ namespace MapControl
             ScaleRotateTransform.Children.Add(RotateTransform);
         }
 
-        /// <summary>
-        /// Changes the Center property according to the specified translation in viewport coordinates.
-        /// </summary>
-        public void TranslateMap(Vector translation)
-        {
-            TranslateMap((Point)translation);
-        }
-
-        /// <summary>
-        /// Changes the Center, Heading and ZoomLevel properties according to the specified
-        /// viewport coordinate translation, rotation and scale delta values. Rotation and scaling
-        /// is performed relative to the specified center point in viewport coordinates.
-        /// </summary>
-        public void TransformMap(Point center, Vector translation, double rotation, double scale)
-        {
-            TransformMap(center, (Point)translation, rotation, scale);
-        }
-
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);

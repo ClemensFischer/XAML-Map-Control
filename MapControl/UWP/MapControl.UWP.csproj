@@ -159,6 +159,7 @@
     <Compile Include="Tile.UWP.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />
     <Compile Include="ImageLoader.UWP.cs" />
+    <Compile Include="Vector.UWP.cs" />
     <EmbeddedResource Include="Properties\MapControl.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>

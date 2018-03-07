@@ -29,11 +29,11 @@ namespace MapControl
             MaxLatitude = YToLatitude(180d);
         }
 
-        public override Point GetMapScale(Location location)
+        public override Vector GetMapScale(Location location)
         {
             var scale = ViewportScale / Math.Cos(location.Latitude * Math.PI / 180d);
 
-            return new Point(scale, scale);
+            return new Vector(scale, scale);
         }
 
         public override Point LocationToPoint(Location location)

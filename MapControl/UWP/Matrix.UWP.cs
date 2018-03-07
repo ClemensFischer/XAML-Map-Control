@@ -41,16 +41,6 @@ namespace MapControl
             OffsetY += y;
         }
 
-        public void Scale(double scaleX, double scaleY)
-        {
-            if (M12 != 0d || M21 != 0d)
-            {
-                throw new NotSupportedException("Scale not supported for rotated Matrix");
-            }
-
-            SetMatrix(scaleX * M11, 0d, 0d, scaleY * M22, scaleX * OffsetX, scaleY * OffsetY);
-        }
-
         public void Rotate(double angle)
         {
             angle = (angle % 360d) / 180d * Math.PI;
@@ -80,10 +70,7 @@ namespace MapControl
             }
 
             SetMatrix(
-                invDet * M22,
-                invDet * -M12,
-                invDet * -M21,
-                invDet * M11,
+                invDet * M22, invDet * -M12, invDet * -M21, invDet * M11,
                 invDet * (M21 * OffsetY - M22 * OffsetX),
                 invDet * (M12 * OffsetX - M11 * OffsetY));
         }

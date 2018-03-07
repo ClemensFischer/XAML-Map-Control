@@ -34,13 +34,13 @@ namespace MapControl
             MaxLatitude = YToLatitude(180d);
         }
 
-        public override Point GetMapScale(Location location)
+        public override Vector GetMapScale(Location location)
         {
             var lat = location.Latitude * Math.PI / 180d;
             var eSinLat = Wgs84Eccentricity * Math.Sin(lat);
             var scale = ViewportScale * Math.Sqrt(1d - eSinLat * eSinLat) / Math.Cos(lat);
 
-            return new Point(scale, scale);
+            return new Vector(scale, scale);
         }
 
         public override Point LocationToPoint(Location location)

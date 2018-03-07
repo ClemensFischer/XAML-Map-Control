@@ -26,9 +26,9 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Point GetMapScale(Location location)
+        public override Vector GetMapScale(Location location)
         {
-            return new Point(
+            return new Vector(
                 ViewportScale / (MetersPerDegree * Math.Cos(location.Latitude * Math.PI / 180d)),
                 ViewportScale / MetersPerDegree);
         }
