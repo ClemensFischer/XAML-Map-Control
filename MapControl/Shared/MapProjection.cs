@@ -183,6 +183,12 @@ namespace MapControl
         }
 
         internal static Matrix CreateTransformMatrix(
+            Point translation1, double scale, double rotation, Point translation2)
+        {
+            return CreateTransformMatrix(translation1, scale, scale, rotation, translation2);
+        }
+
+        internal static Matrix CreateTransformMatrix(
             Point translation1, double scaleX, double scaleY, double rotation, Point translation2)
         {
             var matrix = new Matrix(scaleX, 0d, 0d, scaleY, -translation1.X * scaleX, -translation1.Y * scaleY);

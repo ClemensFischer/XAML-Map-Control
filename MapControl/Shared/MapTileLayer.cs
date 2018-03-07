@@ -311,7 +311,7 @@ namespace MapControl
 
             var transform = new MatrixTransform
             {
-                Matrix = MapProjection.CreateTransformMatrix(viewCenter, scale, scale, -parentMap.Heading, tileCenter)
+                Matrix = MapProjection.CreateTransformMatrix(viewCenter, scale, -parentMap.Heading, tileCenter)
             };
 
             var bounds = transform.TransformBounds(new Rect(0d, 0d, parentMap.RenderSize.Width, parentMap.RenderSize.Height));
@@ -332,7 +332,7 @@ namespace MapControl
             var viewCenter = new Point(parentMap.RenderSize.Width / 2d, parentMap.RenderSize.Height / 2d);
 
             ((MatrixTransform)RenderTransform).Matrix = 
-                MapProjection.CreateTransformMatrix(tileOrigin, scale, scale, parentMap.Heading, viewCenter);
+                MapProjection.CreateTransformMatrix(tileOrigin, scale, parentMap.Heading, viewCenter);
         }
 
         private void UpdateTiles()
