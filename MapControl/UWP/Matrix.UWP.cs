@@ -15,11 +15,6 @@ namespace MapControl
         public double OffsetX { get; set; }
         public double OffsetY { get; set; }
 
-        public static implicit operator Windows.UI.Xaml.Media.Matrix(Matrix m)
-        {
-            return new Windows.UI.Xaml.Media.Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
-        }
-
         public Matrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)
         {
             M11 = m11;
@@ -28,6 +23,11 @@ namespace MapControl
             M22 = m22;
             OffsetX = offsetX;
             OffsetY = offsetY;
+        }
+
+        public static implicit operator Windows.UI.Xaml.Media.Matrix(Matrix m)
+        {
+            return new Windows.UI.Xaml.Media.Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
         }
 
         public Point Transform(Point p)
