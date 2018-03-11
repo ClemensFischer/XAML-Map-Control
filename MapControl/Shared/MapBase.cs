@@ -63,10 +63,6 @@ namespace MapControl
             nameof(TileFadeDuration), typeof(TimeSpan), typeof(MapBase),
             new PropertyMetadata(Tile.FadeDuration, (o, e) => Tile.FadeDuration = (TimeSpan)e.NewValue));
 
-        internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
-            "CenterPoint", typeof(Point), typeof(MapBase),
-            new PropertyMetadata(new Point(), (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
-
         private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
@@ -497,11 +493,11 @@ namespace MapControl
             }
         }
 
-        private void CenterPointPropertyChanged(Point centerPoint)
+        private void CenterPointPropertyChanged(Location center)
         {
             if (centerAnimation != null)
             {
-                SetValueInternal(CenterProperty, new Location(centerPoint.Y, centerPoint.X));
+                SetValueInternal(CenterProperty, center);
                 UpdateTransform();
             }
         }

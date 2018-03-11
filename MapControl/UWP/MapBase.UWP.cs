@@ -39,6 +39,10 @@ namespace MapControl
             nameof(TargetHeading), typeof(double), typeof(MapBase),
             new PropertyMetadata(0d, (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue)));
 
+        internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
+            "CenterPoint", typeof(Windows.Foundation.Point), typeof(MapBase),
+            new PropertyMetadata(new Windows.Foundation.Point(), (o, e) => ((MapBase)o).CenterPointPropertyChanged((Windows.Foundation.Point)e.NewValue)));
+
         public MapBase()
         {
             MapProjection = new WebMercatorProjection();
@@ -60,6 +64,11 @@ namespace MapControl
                 ResetTransformCenter();
                 UpdateTransform();
             };
+        }
+
+        private void CenterPointPropertyChanged(Windows.Foundation.Point center)
+        {
+            CenterPointPropertyChanged(new Location(center.Y, center.X));
         }
     }
 }

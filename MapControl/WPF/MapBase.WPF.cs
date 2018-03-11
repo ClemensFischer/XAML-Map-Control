@@ -43,6 +43,10 @@ namespace MapControl
                 0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue)));
 
+        private static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
+            "CenterPoint", typeof(Point), typeof(MapBase),
+            new PropertyMetadata(new Point(), (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
+
         static MapBase()
         {
             ClipToBoundsProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(true));
@@ -62,6 +66,11 @@ namespace MapControl
 
             ResetTransformCenter();
             UpdateTransform();
+        }
+
+        private void CenterPointPropertyChanged(Point center)
+        {
+            CenterPointPropertyChanged(new Location(center.Y, center.X));
         }
     }
 }
