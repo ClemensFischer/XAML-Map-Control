@@ -35,21 +35,17 @@ namespace MapControl
                         Data = new PathGeometry()
                     };
 
-                    path.SetBinding(Shape.StrokeProperty,
-                        GetBindingExpression(StrokeProperty)?.ParentBinding ??
-                        new Binding
-                        {
-                            Source = this,
-                            Path = new PropertyPath("Stroke")
-                        });
+                    path.SetBinding(Shape.StrokeProperty, new Binding
+                    {
+                        Source = this,
+                        Path = new PropertyPath("Stroke")
+                    });
 
-                    path.SetBinding(Shape.StrokeThicknessProperty,
-                        GetBindingExpression(StrokeThicknessProperty)?.ParentBinding ??
-                        new Binding
-                        {
-                            Source = this,
-                            Path = new PropertyPath("StrokeThickness")
-                        });
+                    path.SetBinding(Shape.StrokeThicknessProperty, new Binding
+                    {
+                        Source = this,
+                        Path = new PropertyPath("StrokeThickness")
+                    });
 
                     Children.Add(path);
                 }
@@ -135,13 +131,11 @@ namespace MapControl
                                 RenderTransform = renderTransform
                             };
 
-                            label.SetBinding(TextBlock.ForegroundProperty,
-                                GetBindingExpression(ForegroundProperty)?.ParentBinding ??
-                                new Binding
-                                {
-                                    Source = this,
-                                    Path = new PropertyPath("Foreground")
-                                });
+                            label.SetBinding(TextBlock.ForegroundProperty, new Binding
+                            {
+                                Source = this,
+                                Path = new PropertyPath("Foreground")
+                            });
 
                             Children.Add(label);
                         }

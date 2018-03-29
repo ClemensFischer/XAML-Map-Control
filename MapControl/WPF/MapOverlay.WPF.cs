@@ -4,8 +4,6 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace MapControl
@@ -50,24 +48,5 @@ namespace MapControl
 
         public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
             typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
-
-        protected override void SetParentMap(MapBase parentMap)
-        {
-            if (GetBindingExpression(StrokeProperty) != null)
-            {
-                ClearValue(StrokeProperty);
-            }
-
-            if (parentMap != null && Stroke == null)
-            {
-                SetBinding(StrokeProperty, new Binding
-                {
-                    Source = parentMap,
-                    Path = new PropertyPath("Foreground")
-                });
-            }
-
-            base.SetParentMap(parentMap);
-        }
     }
 }

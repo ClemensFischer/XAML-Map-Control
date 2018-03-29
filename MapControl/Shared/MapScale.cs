@@ -43,29 +43,27 @@ namespace MapControl
             label.VerticalAlignment = VerticalAlignment.Top;
             label.TextAlignment = TextAlignment.Center;
 
-            label.SetBinding(TextBlock.ForegroundProperty,
-                GetBindingExpression(ForegroundProperty)?.ParentBinding ??
-                new Binding
-                {
-                    Source = this,
-                    Path = new PropertyPath("Foreground")
-                });
+            label.SetBinding(TextBlock.ForegroundProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("Foreground")
+            });
 
-            line.SetBinding(Shape.StrokeProperty,
-                GetBindingExpression(StrokeProperty)?.ParentBinding ??
-                new Binding
-                {
-                    Source = this,
-                    Path = new PropertyPath("Stroke")
-                });
 
-            line.SetBinding(Shape.StrokeThicknessProperty,
-                GetBindingExpression(StrokeThicknessProperty)?.ParentBinding ??
-                new Binding
-                {
-                    Source = this,
-                    Path = new PropertyPath("StrokeThickness")
-                });
+
+            line.SetBinding(Shape.StrokeProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("Stroke")
+            });
+
+
+
+            line.SetBinding(Shape.StrokeThicknessProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeThickness")
+            });
 
             Children.Add(line);
             Children.Add(label);
@@ -106,13 +104,15 @@ namespace MapControl
                 var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
                 var y1 = size.Height / 2d;
                 var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
-                var points = new PointCollection();
-                points.Add(new Point(x1, y1));
-                points.Add(new Point(x1, y2));
-                points.Add(new Point(x2, y2));
-                points.Add(new Point(x2, y1));
 
-                line.Points = points;
+                line.Points = new PointCollection
+                {
+                    new Point(x1, y1),
+                    new Point(x1, y2),
+                    new Point(x2, y2),
+                    new Point(x2, y1)
+                };
+
                 line.Measure(size);
 
                 if (FontFamily != null)

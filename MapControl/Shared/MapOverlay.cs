@@ -4,9 +4,12 @@
 
 #if WINDOWS_UWP
 using Windows.UI.Text;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 #endif
 
@@ -17,6 +20,21 @@ namespace MapControl
     /// </summary>
     public partial class MapOverlay : MapPanel
     {
+        public MapOverlay()
+        {
+            Loaded += (s, e) =>
+            {
+                if (Stroke == null)
+                {
+                    SetBinding(StrokeProperty, new Binding
+                    {
+                        Source = this,
+                        Path = new PropertyPath("Foreground")
+                    });
+                }
+            };
+        }
+
         public double FontSize
         {
             get { return (double)GetValue(FontSizeProperty); }

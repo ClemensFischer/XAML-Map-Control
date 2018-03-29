@@ -70,8 +70,12 @@ namespace MapControl
                 {
                     Brush = Stroke,
                     Thickness = StrokeThickness,
-                    DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset),
-                    DashCap = StrokeDashCap
+                    LineJoin = StrokeLineJoin,
+                    MiterLimit = StrokeMiterLimit,
+                    StartLineCap = StrokeStartLineCap,
+                    EndLineCap = StrokeEndLineCap,
+                    DashCap = StrokeDashCap,
+                    DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset)
                 };
 
                 for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
