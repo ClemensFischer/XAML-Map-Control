@@ -116,6 +116,12 @@
     <Compile Include="..\Shared\MapPanel.cs">
       <Link>MapPanel.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapPolygon.cs">
+      <Link>MapPolygon.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapPolyline.cs">
+      <Link>MapPolyline.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapProjection.cs">
       <Link>MapProjection.cs</Link>
     </Compile>
@@ -171,8 +177,6 @@
     <Compile Include="MapMultiPolygon.WPF.cs" />
     <Compile Include="MapOverlay.WPF.cs" />
     <Compile Include="MapPanel.WPF.cs" />
-    <Compile Include="MapPolygon.WPF.cs" />
-    <Compile Include="MapPolyline.WPF.cs" />
     <Compile Include="MapShape.WPF.cs" />
     <Compile Include="TileImageLoader.WPF.cs" />
     <Compile Include="ImageLoader.WPF.cs" />

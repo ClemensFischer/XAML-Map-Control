@@ -14,30 +14,25 @@ namespace MapControl
 {
     public abstract partial class MapShape : Path
     {
-        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
+        protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateData();
         }
 
-        protected void LocationsPropertyChanged(DependencyPropertyChangedEventArgs e)
+        protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
             INotifyCollectionChanged collection;
 
             if ((collection = e.OldValue as INotifyCollectionChanged) != null)
             {
-                collection.CollectionChanged -= LocationCollectionChanged;
+                collection.CollectionChanged -= DataCollectionChanged;
             }
 
             if ((collection = e.NewValue as INotifyCollectionChanged) != null)
             {
-                collection.CollectionChanged += LocationCollectionChanged;
+                collection.CollectionChanged += DataCollectionChanged;
             }
 
-            UpdateData();
-        }
-
-        protected void LocationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
             UpdateData();
         }
 
@@ -45,9 +40,7 @@ namespace MapControl
         {
             if (locations != null && locations.Count() >= 2)
             {
-                var viewport = new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height);
                 var offset = GetLongitudeOffset();
-
                 if (offset != 0d)
                 {
                     locations = locations.Select(loc => new Location(loc.Latitude, loc.Longitude + offset));
@@ -59,6 +52,7 @@ namespace MapControl
                     points.Add(points[0]);
                 }
 
+                var viewport = new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height);
                 PathFigure figure = null;
                 PolyLineSegment segment = null;
 

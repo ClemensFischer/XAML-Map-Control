@@ -59,14 +59,9 @@ namespace MapControl
         public double MaxLatitude { get; protected set; } = 90d;
 
         /// <summary>
-        /// Gets the transformation matrix from cartesian map coordinates to viewport coordinates (pixels).
+        /// Gets the transform matrix from cartesian map coordinates to viewport coordinates (pixels).
         /// </summary>
-        public Matrix ViewportTransformMatrix { get; private set; }
-
-        /// <summary>
-        /// Gets the transformation from cartesian map coordinates to viewport coordinates (pixels).
-        /// </summary>
-        public MatrixTransform ViewportTransform { get; } = new MatrixTransform();
+        public Matrix ViewportTransform { get; private set; }
 
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
@@ -114,7 +109,7 @@ namespace MapControl
         /// </summary>
         public Point LocationToViewportPoint(Location location)
         {
-            return ViewportTransformMatrix.Transform(LocationToPoint(location));
+            return ViewportTransform.Transform(LocationToPoint(location));
         }
 
         /// <summary>
@@ -145,8 +140,7 @@ namespace MapControl
             var center = LocationToPoint(mapCenter);
             var matrix = CreateTransformMatrix(center, ViewportScale, -ViewportScale, heading, viewportCenter);
 
-            ViewportTransformMatrix = matrix;
-            ViewportTransform.Matrix = matrix;
+            ViewportTransform = matrix;
 
             matrix.Invert();
             inverseViewportTransformMatrix = matrix;

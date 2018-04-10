@@ -3,8 +3,14 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
+#if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
+#else
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Media;
+#endif
 
 namespace MapControl
 {
@@ -15,11 +21,14 @@ namespace MapControl
     {
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).LocationsPropertyChanged(e)));
+            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).DataCollectionPropertyChanged(e)));
 
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.
         /// </summary>
+#if !WINDOWS_UWP
+        [TypeConverter(typeof(LocationCollectionConverter))]
+#endif
         public IEnumerable<Location> Locations
         {
             get { return (IEnumerable<Location>)GetValue(LocationsProperty); }

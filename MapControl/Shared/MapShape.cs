@@ -35,7 +35,7 @@ namespace MapControl
         {
             if (parentMap != null)
             {
-                OnViewportChanged(parentMap, new ViewportChangedEventArgs());
+                UpdateData();
             }
         }
 
@@ -58,10 +58,16 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                SetDataTransform();
                 UpdateData();
             }
         }
+
+        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
+        {
+            UpdateData();
+        }
+
+        protected abstract void UpdateData();
 
         protected MapShape()
             : this(new PathGeometry())
@@ -74,10 +80,6 @@ namespace MapControl
 
             MapPanel.InitMapElement(this);
         }
-
-        partial void SetDataTransform(); // WPF only
-
-        protected abstract void UpdateData();
 
         protected Point LocationToPoint(Location location)
         {
@@ -97,7 +99,7 @@ namespace MapControl
 
         protected Point LocationToViewportPoint(Location location)
         {
-            return parentMap.MapProjection.ViewportTransformMatrix.Transform(LocationToPoint(location));
+            return parentMap.MapProjection.ViewportTransform.Transform(LocationToPoint(location));
         }
 
         protected double GetLongitudeOffset()

@@ -222,7 +222,12 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the scaling transformation from meters to viewport coordinate units at the Center location.
+        /// Gets the transformation from cartesian map coordinates to viewport coordinates (pixels).
+        /// </summary>
+        public MatrixTransform ViewportTransform { get; } = new MatrixTransform();
+
+        /// <summary>
+        /// Gets the scaling transformation from meters to viewport coordinates at the Center location.
         /// </summary>
         public ScaleTransform ScaleTransform { get; } = new ScaleTransform();
 
@@ -708,9 +713,12 @@ namespace MapControl
                 }
             }
 
+            ViewportTransform.Matrix = projection.ViewportTransform;
+
             var scale = projection.GetMapScale(center);
             ScaleTransform.ScaleX = scale.X;
             ScaleTransform.ScaleY = scale.Y;
+
             RotateTransform.Angle = Heading;
 
             OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, Center.Longitude - centerLongitude));

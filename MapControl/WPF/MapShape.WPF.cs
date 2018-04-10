@@ -21,50 +21,9 @@ namespace MapControl
             get { return Data; }
         }
 
-        partial void SetDataTransform()
-        {
-            if (parentMap != null)
-            {
-                var transform = new TransformGroup();
-                var offsetX = GetLongitudeOffset() * parentMap.MapProjection.TrueScale;
-
-                transform.Children.Add(new TranslateTransform(offsetX, 0d));
-                transform.Children.Add(parentMap.MapProjection.ViewportTransform);
-
-                Data.Transform = transform;
-            }
-            else
-            {
-                Data.Transform = Transform.Identity;
-            }
-        }
-
-        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
-        {
-            var transform = (TransformGroup)Data.Transform;
-            var offset = (TranslateTransform)transform.Children[0];
-
-            offset.X = GetLongitudeOffset() * parentMap.MapProjection.TrueScale;
-
-            if (e.ProjectionChanged)
-            {
-                transform.Children[1] = parentMap.MapProjection.ViewportTransform;
-            }
-
-            if (e.ProjectionChanged || parentMap.MapProjection.IsAzimuthal)
-            {
-                UpdateData();
-            }
-            else if (Fill != null)
-            {
-                InvalidateVisual(); // Fill brush may be rendered only partially or not at all
-            }
-        }
-
         bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             UpdateData();
-
             return true;
         }
 
@@ -85,11 +44,17 @@ namespace MapControl
             UpdateData();
         }
 
-        protected void AddPolylineFigure(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
+        protected void AddPolylineFigures(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
         {
             if (locations != null && locations.Count() >= 2)
             {
-                var points = locations.Select(loc => LocationToPoint(loc));
+                var offset = GetLongitudeOffset();
+                if (offset != 0d)
+                {
+                    locations = locations.Select(loc => new Location(loc.Latitude, loc.Longitude + offset));
+                }
+
+                var points = locations.Select(loc => LocationToViewportPoint(loc));
                 var figure = new PathFigure
                 {
                     StartPoint = points.First(),
