@@ -36,7 +36,7 @@ namespace MapControl
             UpdateData();
         }
 
-        protected void AddPolylineFigures(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
+        protected void AddPolylineLocations(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
         {
             if (locations != null && locations.Count() >= 2)
             {

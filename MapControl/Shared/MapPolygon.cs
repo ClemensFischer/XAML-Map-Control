@@ -42,7 +42,7 @@ namespace MapControl
 
             if (ParentMap != null)
             {
-                AddPolylineFigures(figures, Locations, true);
+                AddPolylineLocations(figures, Locations, true);
             }
         }
     }

@@ -40,7 +40,7 @@ namespace MapControl
             {
                 foreach (var polygon in Polygons)
                 {
-                    AddPolylineFigures(figures, polygon, true);
+                    AddPolylineLocations(figures, polygon, true);
                 }
             }
         }
