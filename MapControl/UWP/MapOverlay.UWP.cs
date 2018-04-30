@@ -6,6 +6,7 @@ using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
 
 namespace MapControl
 {
@@ -56,18 +57,61 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = DependencyProperty.Register(
             nameof(StrokeMiterLimit), typeof(double), typeof(MapOverlay), new PropertyMetadata(1d));
 
-        protected override void SetParentMap(MapBase parentMap)
+        public void SetStrokeBindings(Shape shape)
         {
-            if (parentMap != null && Foreground == null)
+            shape.SetBinding(Shape.StrokeProperty, new Binding
             {
-                SetBinding(ForegroundProperty, new Binding
-                {
-                    Source = parentMap,
-                    Path = new PropertyPath("Foreground")
-                });
-            }
+                Source = this,
+                Path = new PropertyPath("Stroke")
+            });
 
-            base.SetParentMap(parentMap);
+            shape.SetBinding(Shape.StrokeThicknessProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeThickness")
+            });
+
+            shape.SetBinding(Shape.StrokeDashArrayProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeDashArray")
+            });
+
+            shape.SetBinding(Shape.StrokeDashOffsetProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeDashOffset")
+            });
+
+            shape.SetBinding(Shape.StrokeDashCapProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeDashCap")
+            });
+
+            shape.SetBinding(Shape.StrokeStartLineCapProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeStartLineCap")
+            });
+
+            shape.SetBinding(Shape.StrokeEndLineCapProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeEndLineCap")
+            });
+
+            shape.SetBinding(Shape.StrokeLineJoinProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeLineJoin")
+            });
+
+            shape.SetBinding(Shape.StrokeMiterLimitProperty, new Binding
+            {
+                Source = this,
+                Path = new PropertyPath("StrokeMiterLimit")
+            });
         }
     }
 }

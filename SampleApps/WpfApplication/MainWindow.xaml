@@ -88,7 +88,7 @@
                 <Setter.Value>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
                         <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
-                        <Binding Path="RenderTransform" RelativeSource="{RelativeSource Self}"/>
+                        <Binding Path="(map:MapPanel.ViewportPosition)" RelativeSource="{RelativeSource Self}"/>
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
@@ -139,7 +139,7 @@
                    map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
 
             <map:MapGraticule x:Name="mapGraticule" Opacity="0.6"/>
-            <map:MapScale/>
+            <map:MapScale HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"
@@ -171,7 +171,7 @@
                 <map:Pushpin.Visibility>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
                         <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
-                        <Binding Path="RenderTransform" RelativeSource="{RelativeSource Self}"/>
+                        <Binding Path="(map:MapPanel.ViewportPosition)" RelativeSource="{RelativeSource Self}"/>
                     </MultiBinding>
                 </map:Pushpin.Visibility>
             </map:Pushpin>

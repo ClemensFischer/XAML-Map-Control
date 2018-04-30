@@ -14,7 +14,7 @@ namespace MapControl
 {
     public abstract partial class MapShape : Shape, IWeakEventListener
     {
-        protected Geometry Data { get; }
+        public Geometry Data { get; }
 
         protected override Geometry DefiningGeometry
         {

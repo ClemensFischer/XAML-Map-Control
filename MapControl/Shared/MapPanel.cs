@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Linq;
 #if WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -18,7 +19,6 @@ namespace MapControl
 {
     /// <summary>
     /// Optional interface to hold the value of the MapPanel.ParentMap attached property.
-    /// May be used to get notified when the property value changes.
     /// </summary>
     public interface IMapElement
     {
@@ -28,8 +28,6 @@ namespace MapControl
     /// <summary>
     /// Arranges child elements on a Map at positions specified by the attached property Location,
     /// or in rectangles specified by the attached property BoundingBox.
-    /// An element's viewport position is assigned as TranslateTransform to its RenderTransform property,
-    /// either directly or as last child of a TransformGroup.
     /// </summary>
     public partial class MapPanel : Panel, IMapElement
     {
@@ -46,37 +44,57 @@ namespace MapControl
             InitMapElement(this);
         }
 
-        public static Location GetLocation(UIElement element)
+        public static Location GetLocation(FrameworkElement element)
         {
             return (Location)element.GetValue(LocationProperty);
         }
 
-        public static void SetLocation(UIElement element, Location value)
+        public static void SetLocation(FrameworkElement element, Location value)
         {
             element.SetValue(LocationProperty, value);
         }
 
-        public static BoundingBox GetBoundingBox(UIElement element)
+        public static BoundingBox GetBoundingBox(FrameworkElement element)
         {
             return (BoundingBox)element.GetValue(BoundingBoxProperty);
         }
 
-        public static void SetBoundingBox(UIElement element, BoundingBox value)
+        public static void SetBoundingBox(FrameworkElement element, BoundingBox value)
         {
             element.SetValue(BoundingBoxProperty, value);
+        }
+
+        public static Point? GetViewportPosition(FrameworkElement element)
+        {
+            return (Point?)element.GetValue(ViewportPositionProperty);
         }
 
         public MapBase ParentMap
         {
             get { return parentMap; }
-            set { SetParentMap(value); }
+            set
+            {
+                if (parentMap != null && parentMap != this)
+                {
+                    parentMap.ViewportChanged -= OnViewportChanged;
+                }
+
+                parentMap = value;
+
+                if (parentMap != null && parentMap != this)
+                {
+                    parentMap.ViewportChanged += OnViewportChanged;
+
+                    OnViewportChanged(new ViewportChangedEventArgs());
+                }
+            }
         }
 
         protected override Size MeasureOverride(Size availableSize)
         {
             availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-            foreach (UIElement element in Children)
+            foreach (var element in Children.OfType<FrameworkElement>())
             {
                 element.Measure(availableSize);
             }
@@ -86,62 +104,34 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (UIElement element in Children)
+            foreach (var element in Children.OfType<FrameworkElement>())
             {
-                BoundingBox boundingBox;
                 Location location;
+                BoundingBox boundingBox;
+                Point? viewportPosition = null;
 
-                if ((boundingBox = GetBoundingBox(element)) != null)
+                if ((location = GetLocation(element)) != null)
                 {
-                    ArrangeElementWithBoundingBox(element);
-                    SetBoundingBoxRect(element, parentMap, boundingBox);
+                    viewportPosition = ArrangeElementWithLocation(element, parentMap, location);
                 }
-                else if ((location = GetLocation(element)) != null)
+                else if ((boundingBox = GetBoundingBox(element)) != null)
                 {
-                    ArrangeElementWithLocation(element);
-                    SetViewportPosition(element, parentMap, location);
+                    ArrangeElementWithBoundingBox(element, parentMap, boundingBox);
                 }
                 else
                 {
                     ArrangeElement(element, finalSize);
                 }
+
+                SetViewportPosition(element, viewportPosition);
             }
 
             return finalSize;
         }
 
-        protected virtual void SetParentMap(MapBase map)
-        {
-            if (parentMap != null && parentMap != this)
-            {
-                parentMap.ViewportChanged -= OnViewportChanged;
-            }
-
-            parentMap = map;
-
-            if (parentMap != null && parentMap != this)
-            {
-                parentMap.ViewportChanged += OnViewportChanged;
-                OnViewportChanged(new ViewportChangedEventArgs());
-            }
-        }
-
         protected virtual void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            foreach (UIElement element in Children)
-            {
-                BoundingBox boundingBox;
-                Location location;
-
-                if ((boundingBox = GetBoundingBox(element)) != null)
-                {
-                    SetBoundingBoxRect(element, parentMap, boundingBox);
-                }
-                else if ((location = GetLocation(element)) != null)
-                {
-                    SetViewportPosition(element, parentMap, location);
-                }
-            }
+            InvalidateArrange();
         }
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
@@ -161,245 +151,201 @@ namespace MapControl
 
         private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            var element = (UIElement)obj;
-            var map = GetParentMap(element);
+            var element = (FrameworkElement)obj;
+            var parentMap = GetParentMap(element);
             var location = (Location)e.NewValue;
+            Point? viewportPosition = null;
 
-            if (location == null)
+            if (location != null)
             {
-                ArrangeElement(element, map?.RenderSize ?? new Size());
+                viewportPosition = ArrangeElementWithLocation(element, parentMap, location);
             }
-            else if (e.OldValue == null)
+            else
             {
-                ArrangeElementWithLocation(element); // arrange once when Location was null before
+                ArrangeElement(element, parentMap?.RenderSize ?? new Size());
             }
 
-            SetViewportPosition(element, map, location);
+            SetViewportPosition(element, viewportPosition);
         }
 
         private static void BoundingBoxPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             var element = (FrameworkElement)obj;
-            var map = GetParentMap(element);
+            var parentMap = GetParentMap(element);
             var boundingBox = (BoundingBox)e.NewValue;
 
-            if (boundingBox == null)
+            if (boundingBox != null)
             {
-                ArrangeElement(element, map?.RenderSize ?? new Size());
+                ArrangeElementWithBoundingBox(element, parentMap, boundingBox);
             }
-            else if (e.OldValue == null)
+            else
             {
-                ArrangeElementWithBoundingBox(element); // arrange once when BoundingBox was null before
+                ArrangeElement(element, parentMap?.RenderSize ?? new Size());
             }
 
-            SetBoundingBoxRect(element, map, boundingBox);
+            SetViewportPosition(element, null);
         }
 
-        private static void SetViewportPosition(UIElement element, MapBase parentMap, Location location)
+        private static void ArrangeElement(FrameworkElement element, Size parentSize)
         {
-            var viewportPosition = new Point();
+            var rect = new Rect(new Point(), element.DesiredSize);
 
-            if (parentMap != null && location != null)
+            switch (element.HorizontalAlignment)
             {
-                viewportPosition = parentMap.MapProjection.LocationToViewportPoint(location);
+                case HorizontalAlignment.Center:
+                    rect.X = (parentSize.Width - rect.Width) / 2d;
+                    break;
+
+                case HorizontalAlignment.Right:
+                    rect.X = parentSize.Width - rect.Width;
+                    break;
+
+                case HorizontalAlignment.Stretch:
+                    rect.Width = parentSize.Width;
+                    break;
+
+                default:
+                    break;
+            }
+
+            switch (element.VerticalAlignment)
+            {
+                case VerticalAlignment.Center:
+                    rect.Y = (parentSize.Height - rect.Height) / 2d;
+                    break;
+
+                case VerticalAlignment.Bottom:
+                    rect.Y = parentSize.Height - rect.Height;
+                    break;
+
+                case VerticalAlignment.Stretch:
+                    rect.Height = parentSize.Height;
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (element.UseLayoutRounding)
+            {
+                rect.X = Math.Round(rect.X);
+                rect.Y = Math.Round(rect.Y);
+            }
+
+            element.Arrange(rect);
+        }
+
+        private static Point ArrangeElementWithLocation(FrameworkElement element, MapBase parentMap, Location location)
+        {
+            var pos = new Point();
+            var rect = new Rect(pos, element.DesiredSize);
+
+            if (parentMap != null)
+            {
+                pos = parentMap.MapProjection.LocationToViewportPoint(location);
 
                 if (parentMap.MapProjection.IsContinuous &&
-                    (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
-                     viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height))
+                    (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
+                     pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
                 {
-                    viewportPosition = parentMap.MapProjection.LocationToViewportPoint(new Location(
+                    pos = parentMap.MapProjection.LocationToViewportPoint(new Location(
                         location.Latitude,
                         Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
                 }
 
-                if ((bool)element.GetValue(UseLayoutRoundingProperty))
-                {
-                    viewportPosition.X = Math.Round(viewportPosition.X);
-                    viewportPosition.Y = Math.Round(viewportPosition.Y);
-                }
+                rect.X = pos.X;
+                rect.Y = pos.Y;
             }
 
-            var translateTransform = element.RenderTransform as TranslateTransform;
-
-            if (translateTransform == null)
+            switch (element.HorizontalAlignment)
             {
-                var transformGroup = element.RenderTransform as TransformGroup;
+                case HorizontalAlignment.Center:
+                    rect.X -= rect.Width / 2d;
+                    break;
 
-                if (transformGroup == null)
-                {
-                    translateTransform = new TranslateTransform();
-                    element.RenderTransform = translateTransform;
-                }
-                else
-                {
-                    if (transformGroup.Children.Count > 0)
-                    {
-                        translateTransform = transformGroup.Children[transformGroup.Children.Count - 1] as TranslateTransform;
-                    }
+                case HorizontalAlignment.Right:
+                    rect.X -= rect.Width;
+                    break;
 
-                    if (translateTransform == null)
-                    {
-                        translateTransform = new TranslateTransform();
-                        transformGroup.Children.Add(translateTransform);
-                    }
-                }
+                default:
+                    break;
             }
 
-            translateTransform.X = viewportPosition.X;
-            translateTransform.Y = viewportPosition.Y;
+            switch (element.VerticalAlignment)
+            {
+                case VerticalAlignment.Center:
+                    rect.Y -= rect.Height / 2d;
+                    break;
+
+                case VerticalAlignment.Bottom:
+                    rect.Y -= rect.Height;
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (element.UseLayoutRounding)
+            {
+                rect.X = Math.Round(rect.X);
+                rect.Y = Math.Round(rect.Y);
+            }
+
+            element.Arrange(rect);
+            return pos;
         }
 
-        private static void SetBoundingBoxRect(UIElement element, MapBase parentMap, BoundingBox boundingBox)
+        private static void ArrangeElementWithBoundingBox(FrameworkElement element, MapBase parentMap, BoundingBox boundingBox)
         {
+            var rect = new Rect();
             var rotation = 0d;
-            var viewportPosition = new Point();
 
-            if (parentMap != null && boundingBox != null)
+            if (parentMap != null)
             {
                 var projection = parentMap.MapProjection;
-                var rect = projection.BoundingBoxToRect(boundingBox);
-                var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+                rect = projection.BoundingBoxToRect(boundingBox);
 
-                rotation = parentMap.Heading;
-                viewportPosition = projection.ViewportTransform.Transform(center);
+                var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+                var pos = projection.ViewportTransform.Transform(center);
 
                 if (parentMap.MapProjection.IsContinuous &&
-                    (viewportPosition.X < 0d || viewportPosition.X > parentMap.RenderSize.Width ||
-                     viewportPosition.Y < 0d || viewportPosition.Y > parentMap.RenderSize.Height))
+                    (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
+                     pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
                 {
                     var location = projection.PointToLocation(center);
                     location.Longitude = Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude);
 
-                    viewportPosition = projection.LocationToViewportPoint(location);
+                    pos = projection.LocationToViewportPoint(location);
                 }
 
-                var width = rect.Width * projection.ViewportScale;
-                var height = rect.Height * projection.ViewportScale;
+                rect.Width *= projection.ViewportScale;
+                rect.Height *= projection.ViewportScale;
+                rect.X = pos.X - rect.Width / 2d;
+                rect.Y = pos.Y - rect.Height / 2d;
 
-                if (element is FrameworkElement)
+                if (element.UseLayoutRounding)
                 {
-                    ((FrameworkElement)element).Width = width;
-                    ((FrameworkElement)element).Height = height;
+                    rect.X = Math.Round(rect.X);
+                    rect.Y = Math.Round(rect.Y);
                 }
-                else
-                {
-                    element.Arrange(new Rect(-width / 2d, -height / 2d, width, height)); // ???
-                }
+
+                rotation = parentMap.Heading;
             }
 
-            var transformGroup = element.RenderTransform as TransformGroup;
-            RotateTransform rotateTransform;
-            TranslateTransform translateTransform;
+            element.Width = rect.Width;
+            element.Height = rect.Height;
+            element.Arrange(rect);
 
-            if (transformGroup == null ||
-                transformGroup.Children.Count != 2 ||
-                (rotateTransform = transformGroup.Children[0] as RotateTransform) == null ||
-                (translateTransform = transformGroup.Children[1] as TranslateTransform) == null)
+            var rotateTransform = element.RenderTransform as RotateTransform;
+
+            if (rotateTransform == null)
             {
-                transformGroup = new TransformGroup();
                 rotateTransform = new RotateTransform();
-                translateTransform = new TranslateTransform();
-                transformGroup.Children.Add(rotateTransform);
-                transformGroup.Children.Add(translateTransform);
-
-                element.RenderTransform = transformGroup;
+                element.RenderTransform = rotateTransform;
                 element.RenderTransformOrigin = new Point(0.5, 0.5);
             }
 
             rotateTransform.Angle = rotation;
-            translateTransform.X = viewportPosition.X;
-            translateTransform.Y = viewportPosition.Y;
-        }
-
-        private static void ArrangeElementWithBoundingBox(UIElement element)
-        {
-            var size = element.DesiredSize;
-
-            element.Arrange(new Rect(-size.Width / 2d, -size.Height / 2d, size.Width, size.Height));
-        }
-
-        private static void ArrangeElementWithLocation(UIElement element)
-        {
-            var rect = new Rect(new Point(), element.DesiredSize);
-
-            if (element is FrameworkElement)
-            {
-                switch (((FrameworkElement)element).HorizontalAlignment)
-                {
-                    case HorizontalAlignment.Center:
-                        rect.X = -rect.Width / 2d;
-                        break;
-
-                    case HorizontalAlignment.Right:
-                        rect.X = -rect.Width;
-                        break;
-
-                    default:
-                        break;
-                }
-
-                switch (((FrameworkElement)element).VerticalAlignment)
-                {
-                    case VerticalAlignment.Center:
-                        rect.Y = -rect.Height / 2d;
-                        break;
-
-                    case VerticalAlignment.Bottom:
-                        rect.Y = -rect.Height;
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-
-            element.Arrange(rect);
-        }
-
-        private static void ArrangeElement(UIElement element, Size parentSize)
-        {
-            var rect = new Rect(new Point(), element.DesiredSize);
-
-            if (element is FrameworkElement)
-            {
-                switch (((FrameworkElement)element).HorizontalAlignment)
-                {
-                    case HorizontalAlignment.Center:
-                        rect.X = (parentSize.Width - rect.Width) / 2d;
-                        break;
-
-                    case HorizontalAlignment.Right:
-                        rect.X = parentSize.Width - rect.Width;
-                        break;
-
-                    case HorizontalAlignment.Stretch:
-                        rect.Width = parentSize.Width;
-                        break;
-
-                    default:
-                        break;
-                }
-
-                switch (((FrameworkElement)element).VerticalAlignment)
-                {
-                    case VerticalAlignment.Center:
-                        rect.Y = (parentSize.Height - rect.Height) / 2d;
-                        break;
-
-                    case VerticalAlignment.Bottom:
-                        rect.Y = parentSize.Height - rect.Height;
-                        break;
-
-                    case VerticalAlignment.Stretch:
-                        rect.Height = parentSize.Height;
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-
-            element.Arrange(rect);
         }
     }
 }

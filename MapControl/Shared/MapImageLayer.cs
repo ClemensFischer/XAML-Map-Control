@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.Foundation;
@@ -295,7 +296,7 @@ namespace MapControl
                 boundingBox.West += offset;
                 boundingBox.East += offset;
 
-                foreach (UIElement element in Children)
+                foreach (var element in Children.OfType<FrameworkElement>())
                 {
                     var bbox = GetBoundingBox(element);
 
@@ -309,7 +310,7 @@ namespace MapControl
 
         private void ClearImages()
         {
-            foreach (UIElement element in Children)
+            foreach (var element in Children.OfType<FrameworkElement>())
             {
                 element.ClearValue(BoundingBoxProperty);
                 element.ClearValue(Image.SourceProperty);

@@ -26,7 +26,7 @@ namespace MapControl
     public class MapScale : MapOverlay
     {
         public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register(
-            nameof(Padding), typeof(Thickness), typeof(MapScale), null);
+            nameof(Padding), typeof(Thickness), typeof(MapScale), new PropertyMetadata(new Thickness(4)));
 
         private TextBlock label = new TextBlock();
         private Polyline line = new Polyline();
@@ -34,11 +34,11 @@ namespace MapControl
         public MapScale()
         {
             IsHitTestVisible = false;
+#if WINDOWS_UWP
             MinWidth = 100d;
-            Padding = new Thickness(4d);
-            HorizontalAlignment = HorizontalAlignment.Left;
-            VerticalAlignment = VerticalAlignment.Bottom;
-
+#else
+            SetCurrentValue(MinWidthProperty, 100d);
+#endif
             label.HorizontalAlignment = HorizontalAlignment.Left;
             label.VerticalAlignment = VerticalAlignment.Top;
             label.TextAlignment = TextAlignment.Center;
@@ -49,15 +49,11 @@ namespace MapControl
                 Path = new PropertyPath("Foreground")
             });
 
-
-
             line.SetBinding(Shape.StrokeProperty, new Binding
             {
                 Source = this,
                 Path = new PropertyPath("Stroke")
             });
-
-
 
             line.SetBinding(Shape.StrokeThicknessProperty, new Binding
             {

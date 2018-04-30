@@ -62,12 +62,12 @@ namespace MapControl
         public static readonly DependencyProperty InlinesSourceProperty = DependencyProperty.RegisterAttached(
             "InlinesSource", typeof(string), typeof(HyperlinkText), new PropertyMetadata(null, InlinesSourcePropertyChanged));
 
-        public static string GetInlinesSource(UIElement element)
+        public static string GetInlinesSource(DependencyObject element)
         {
             return (string)element.GetValue(InlinesSourceProperty);
         }
 
-        public static void SetInlinesSource(UIElement element, string value)
+        public static void SetInlinesSource(DependencyObject element, string value)
         {
             element.SetValue(InlinesSourceProperty, value);
         }

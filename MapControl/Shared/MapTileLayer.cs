@@ -220,9 +220,9 @@ namespace MapControl
         {
             availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-            foreach (UIElement element in Children)
+            foreach (var tile in Tiles)
             {
-                element.Measure(availableSize);
+                tile.Image.Measure(availableSize);
             }
 
             return new Size();

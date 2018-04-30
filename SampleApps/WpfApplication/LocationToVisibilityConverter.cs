@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Media;
 using MapControl;
 
 namespace WpfApplication
@@ -13,13 +12,14 @@ namespace WpfApplication
         {
             var visibility = Visibility.Hidden;
 
-            if (values.Length == 2 && values[0] is Map && values[1] is Transform)
+            if (values.Length == 2 && values[0] is MapBase && values[1] is Point?)
             {
-                var parentMap = (Map)values[0];
-                var transform = ((Transform)values[1]).Value;
+                var parentMap = (MapBase)values[0];
+                var position = (Point?)values[1];
 
-                if (transform.OffsetX >= 0d && transform.OffsetX <= parentMap.ActualWidth &&
-                    transform.OffsetY >= 0d && transform.OffsetY <= parentMap.ActualHeight)
+                if (position.HasValue &&
+                    position.Value.X >= 0d && position.Value.X <= parentMap.ActualWidth &&
+                    position.Value.Y >= 0d && position.Value.Y <= parentMap.ActualHeight)
                 {
                     visibility = Visibility.Visible;
                 }

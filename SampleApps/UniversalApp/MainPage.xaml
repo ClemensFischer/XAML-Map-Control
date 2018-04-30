@@ -115,7 +115,7 @@
             </Image>
 
             <map:MapGraticule x:Name="mapGraticule" Opacity="0.6"/>
-            <map:MapScale/>
+            <map:MapScale HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"

@@ -12,6 +12,9 @@ namespace MapControl
         public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
             "ParentMap", typeof(MapBase), typeof(MapPanel), new PropertyMetadata(null, ParentMapPropertyChanged));
 
+        private static readonly DependencyProperty ViewportPositionProperty = DependencyProperty.RegisterAttached(
+            "ViewportPosition", typeof(Point?), typeof(MapPanel), new PropertyMetadata(null));
+
         public static void InitMapElement(FrameworkElement element)
         {
             if (element is MapBase)
@@ -28,7 +31,7 @@ namespace MapControl
             }
         }
 
-        public static MapBase GetParentMap(UIElement element)
+        public static MapBase GetParentMap(FrameworkElement element)
         {
             var parentMap = (MapBase)element.GetValue(ParentMapProperty);
 
@@ -40,14 +43,19 @@ namespace MapControl
             return parentMap;
         }
 
-        private static MapBase FindParentMap(UIElement element)
+        private static MapBase FindParentMap(FrameworkElement element)
         {
-            var parent = VisualTreeHelper.GetParent(element) as UIElement;
+            var parent = VisualTreeHelper.GetParent(element) as FrameworkElement;
 
             return parent == null ? null
                 : ((parent as MapBase)
                 ?? (MapBase)element.GetValue(ParentMapProperty)
                 ?? FindParentMap(parent));
+        }
+
+        private static void SetViewportPosition(FrameworkElement element, Point? viewportPosition)
+        {
+            element.SetValue(ViewportPositionProperty, viewportPosition);
         }
     }
 }

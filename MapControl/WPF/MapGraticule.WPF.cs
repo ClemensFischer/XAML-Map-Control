@@ -66,17 +66,7 @@ namespace MapControl
                 var latLabels = new List<Label>((int)((boundingBox.North - latLabelStart) / lineDistance) + 1);
                 var lonLabels = new List<Label>((int)((boundingBox.East - lonLabelStart) / lineDistance) + 1);
                 var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
-                var pen = new Pen
-                {
-                    Brush = Stroke,
-                    Thickness = StrokeThickness,
-                    LineJoin = StrokeLineJoin,
-                    MiterLimit = StrokeMiterLimit,
-                    StartLineCap = StrokeStartLineCap,
-                    EndLineCap = StrokeEndLineCap,
-                    DashCap = StrokeDashCap,
-                    DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset)
-                };
+                var pen = CreatePen();
 
                 for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
                 {

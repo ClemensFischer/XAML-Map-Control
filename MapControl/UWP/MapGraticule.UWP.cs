@@ -35,18 +35,7 @@ namespace MapControl
                         Data = new PathGeometry()
                     };
 
-                    path.SetBinding(Shape.StrokeProperty, new Binding
-                    {
-                        Source = this,
-                        Path = new PropertyPath("Stroke")
-                    });
-
-                    path.SetBinding(Shape.StrokeThicknessProperty, new Binding
-                    {
-                        Source = this,
-                        Path = new PropertyPath("StrokeThickness")
-                    });
-
+                    SetStrokeBindings(path);
                     Children.Add(path);
                 }
 

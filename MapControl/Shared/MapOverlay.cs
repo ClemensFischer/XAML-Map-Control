@@ -24,6 +24,16 @@ namespace MapControl
         {
             Loaded += (s, e) =>
             {
+#if WINDOWS_UWP
+                if (Foreground == null)
+                {
+                    SetBinding(ForegroundProperty, new Binding
+                    {
+                        Source = this,
+                        Path = new PropertyPath("ParentMap.Foreground")
+                    });
+                }
+#endif
                 if (Stroke == null)
                 {
                     SetBinding(StrokeProperty, new Binding
