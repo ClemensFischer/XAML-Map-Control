@@ -92,6 +92,16 @@ namespace MapControl
             }
         }
 
+        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
+        {
+            OnViewportChanged(e);
+        }
+
+        protected virtual void OnViewportChanged(ViewportChangedEventArgs e)
+        {
+            InvalidateArrange();
+        }
+
         protected override Size MeasureOverride(Size availableSize)
         {
             availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
@@ -129,16 +139,6 @@ namespace MapControl
             }
 
             return finalSize;
-        }
-
-        protected virtual void OnViewportChanged(ViewportChangedEventArgs e)
-        {
-            InvalidateArrange();
-        }
-
-        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
-        {
-            OnViewportChanged(e);
         }
 
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)

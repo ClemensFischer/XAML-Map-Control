@@ -10,7 +10,9 @@ using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Shapes;
 #endif
 
 namespace MapControl
@@ -20,16 +22,27 @@ namespace MapControl
     /// </summary>
     public partial class MapOverlay : MapPanel
     {
-        public double FontSize
+        public MapOverlay()
         {
-            get { return (double)GetValue(FontSizeProperty); }
-            set { SetValue(FontSizeProperty, value); }
+            Loaded += (s, e) =>
+            {
+                if (Stroke == null)
+                {
+                    SetBinding(StrokeProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
+                }
+            };
         }
 
         public FontFamily FontFamily
         {
             get { return (FontFamily)GetValue(FontFamilyProperty); }
             set { SetValue(FontFamilyProperty, value); }
+        }
+
+        public double FontSize
+        {
+            get { return (double)GetValue(FontSizeProperty); }
+            set { SetValue(FontSizeProperty, value); }
         }
 
         public FontStyle FontStyle
@@ -110,103 +123,7 @@ namespace MapControl
             set { SetValue(StrokeMiterLimitProperty, value); }
         }
 
-        public Binding FontSizeBinding
-        {
-            get { return GetBinding(FontSizeProperty, nameof(FontSize)); }
-        }
-
-        public Binding FontFamilyBinding
-        {
-            get { return GetBinding(FontFamilyProperty, nameof(FontFamily)); }
-        }
-
-        public Binding FontStyleBinding
-        {
-            get { return GetBinding(FontStyleProperty, nameof(FontStyle)); }
-        }
-
-        public Binding FontStretchBinding
-        {
-            get { return GetBinding(FontStretchProperty, nameof(FontStretch)); }
-        }
-
-        public Binding FontWeightBinding
-        {
-            get { return GetBinding(FontWeightProperty, nameof(FontWeight)); }
-        }
-
-        public Binding ForegroundBinding
-        {
-            get { return GetBinding(ForegroundProperty, nameof(Foreground)); }
-        }
-
-        public Binding StrokeBinding
-        {
-            get { return GetBinding(StrokeProperty, nameof(Stroke)); }
-        }
-
-        public Binding StrokeThicknessBinding
-        {
-            get { return GetBinding(StrokeThicknessProperty, nameof(StrokeThickness)); }
-        }
-
-        public Binding StrokeDashArrayBinding
-        {
-            get { return GetBinding(StrokeDashArrayProperty, nameof(StrokeDashArray)); }
-        }
-
-        public Binding StrokeDashOffsetBinding
-        {
-            get { return GetBinding(StrokeDashOffsetProperty, nameof(StrokeDashOffset)); }
-        }
-
-        public Binding StrokeDashCapBinding
-        {
-            get { return GetBinding(StrokeDashCapProperty, nameof(StrokeDashCap)); }
-        }
-
-        public Binding StrokeStartLineCapBinding
-        {
-            get { return GetBinding(StrokeStartLineCapProperty, nameof(StrokeStartLineCap)); }
-        }
-
-        public Binding StrokeEndLineCapBinding
-        {
-            get { return GetBinding(StrokeEndLineCapProperty, nameof(StrokeEndLineCap)); }
-        }
-
-        public Binding StrokeLineJoinBinding
-        {
-            get { return GetBinding(StrokeLineJoinProperty, nameof(StrokeLineJoin)); }
-        }
-
-        public Binding StrokeMiterLimitBinding
-        {
-            get { return GetBinding(StrokeMiterLimitProperty, nameof(StrokeMiterLimit)); }
-        }
-
-        protected override void SetParentMap(MapBase map)
-        {
-            if (map != null)
-            {
-#if WINDOWS_UWP
-                if (Foreground == null)
-                {
-                    SetBinding(ForegroundProperty,
-                        map.GetBindingExpression(MapBase.ForegroundProperty)?.ParentBinding ??
-                        new Binding { Source = map, Path = new PropertyPath("Foreground") });
-                }
-#endif
-                if (Stroke == null)
-                {
-                    SetBinding(StrokeProperty, ForegroundBinding);
-                }
-            }
-
-            base.SetParentMap(map);
-        }
-
-        private Binding GetBinding(DependencyProperty property, string propertyName)
+        protected Binding GetBinding(DependencyProperty property, string propertyName)
         {
             return GetBindingExpression(property)?.ParentBinding ??
                 new Binding { Source = this, Path = new PropertyPath(propertyName) };

@@ -4,17 +4,18 @@
 
 using Windows.UI.Text;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
 namespace MapControl
 {
     public partial class MapOverlay
     {
-        public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(
-            nameof(FontSize), typeof(double), typeof(MapOverlay), new PropertyMetadata(12d));
-
         public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(
             nameof(FontFamily), typeof(FontFamily), typeof(MapOverlay), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(
+            nameof(FontSize), typeof(double), typeof(MapOverlay), new PropertyMetadata(12d));
 
         public static readonly DependencyProperty FontStyleProperty = DependencyProperty.Register(
             nameof(FontStyle), typeof(FontStyle), typeof(MapOverlay), new PropertyMetadata(FontStyle.Normal));
@@ -54,5 +55,17 @@ namespace MapControl
 
         public static readonly DependencyProperty StrokeMiterLimitProperty = DependencyProperty.Register(
             nameof(StrokeMiterLimit), typeof(double), typeof(MapOverlay), new PropertyMetadata(1d));
+
+        protected override void SetParentMap(MapBase map)
+        {
+            if (Foreground == null && map != null)
+            {
+                SetBinding(ForegroundProperty,
+                    map.GetBindingExpression(MapBase.ForegroundProperty)?.ParentBinding ??
+                    new Binding { Source = map, Path = new PropertyPath("Foreground") });
+            }
+
+            base.SetParentMap(map);
+        }
     }
 }

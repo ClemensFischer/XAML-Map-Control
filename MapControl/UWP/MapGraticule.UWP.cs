@@ -31,11 +31,11 @@ namespace MapControl
                 if (path == null)
                 {
                     path = new Path { Data = new PathGeometry() };
-                    path.SetBinding(Shape.StrokeProperty, StrokeBinding);
-                    path.SetBinding(Shape.StrokeThicknessProperty, StrokeThicknessBinding);
-                    path.SetBinding(Shape.StrokeDashArrayProperty, StrokeDashArrayBinding);
-                    path.SetBinding(Shape.StrokeDashOffsetProperty, StrokeDashOffsetBinding);
-                    path.SetBinding(Shape.StrokeDashCapProperty, StrokeDashCapBinding);
+                    path.SetBinding(Shape.StrokeProperty, GetBinding(StrokeProperty, nameof(Stroke)));
+                    path.SetBinding(Shape.StrokeThicknessProperty, GetBinding(StrokeThicknessProperty, nameof(StrokeThickness)));
+                    path.SetBinding(Shape.StrokeDashArrayProperty, GetBinding(StrokeDashArrayProperty, nameof(StrokeDashArray)));
+                    path.SetBinding(Shape.StrokeDashOffsetProperty, GetBinding(StrokeDashOffsetProperty, nameof(StrokeDashOffset)));
+                    path.SetBinding(Shape.StrokeDashCapProperty, GetBinding(StrokeDashCapProperty, nameof(StrokeDashCap)));
                     Children.Add(path);
                 }
 
@@ -118,13 +118,13 @@ namespace MapControl
                             label = new TextBlock { RenderTransform = renderTransform };
                             if (FontFamily != null)
                             {
-                                label.SetBinding(TextBlock.FontFamilyProperty, FontFamilyBinding);
+                                label.SetBinding(TextBlock.FontFamilyProperty, GetBinding(FontFamilyProperty, nameof(FontFamily)));
                             }
-                            label.SetBinding(TextBlock.FontSizeProperty, FontSizeBinding);
-                            label.SetBinding(TextBlock.FontStyleProperty, FontStyleBinding);
-                            label.SetBinding(TextBlock.FontStretchProperty, FontStretchBinding);
-                            label.SetBinding(TextBlock.FontWeightProperty, FontWeightBinding);
-                            label.SetBinding(TextBlock.ForegroundProperty, ForegroundBinding);
+                            label.SetBinding(TextBlock.FontSizeProperty, GetBinding(FontSizeProperty, nameof(FontSize)));
+                            label.SetBinding(TextBlock.FontStyleProperty, GetBinding(FontStyleProperty, nameof(FontStyle)));
+                            label.SetBinding(TextBlock.FontStretchProperty, GetBinding(FontStretchProperty, nameof(FontStretch)));
+                            label.SetBinding(TextBlock.FontWeightProperty, GetBinding(FontWeightProperty, nameof(FontWeight)));
+                            label.SetBinding(TextBlock.ForegroundProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
 
                             Children.Add(label);
                         }

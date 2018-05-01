@@ -28,21 +28,22 @@ namespace MapControl
         public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register(
             nameof(Padding), typeof(Thickness), typeof(MapScale), new PropertyMetadata(new Thickness(4)));
 
-        private TextBlock label = new TextBlock();
-        private Polyline line = new Polyline();
+        private readonly Polyline line = new Polyline();
+
+        private readonly TextBlock label = new TextBlock
+        {
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            TextAlignment = TextAlignment.Center
+        };
 
         public MapScale()
         {
             IsHitTestVisible = false;
             MinWidth = 100d;
 
-            label.HorizontalAlignment = HorizontalAlignment.Left;
-            label.VerticalAlignment = VerticalAlignment.Top;
-            label.TextAlignment = TextAlignment.Center;
-            label.SetBinding(TextBlock.ForegroundProperty, ForegroundBinding);
-
-            line.SetBinding(Shape.StrokeProperty, StrokeBinding);
-            line.SetBinding(Shape.StrokeThicknessProperty, StrokeThicknessBinding);
+            line.SetBinding(Shape.StrokeProperty, GetBinding(StrokeProperty, nameof(Stroke)));
+            line.SetBinding(Shape.StrokeThicknessProperty, GetBinding(StrokeThicknessProperty, nameof(StrokeThickness)));
 
             Children.Add(line);
             Children.Add(label);
@@ -91,18 +92,8 @@ namespace MapControl
                     new Point(x2, y2),
                     new Point(x2, y1)
                 };
-
                 line.Measure(size);
 
-                if (FontFamily != null)
-                {
-                    label.FontFamily = FontFamily;
-                }
-
-                label.FontSize = FontSize;
-                label.FontStyle = FontStyle;
-                label.FontStretch = FontStretch;
-                label.FontWeight = FontWeight;
                 label.Text = length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length);
                 label.Width = size.Width;
                 label.Height = size.Height;
