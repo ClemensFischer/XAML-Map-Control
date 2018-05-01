@@ -58,16 +58,19 @@ namespace MapControl
 
         protected override void SetParentMap(MapBase map)
         {
-            if (Foreground == null && map != null)
+            if (map != null)
             {
-                SetBinding(ForegroundProperty,
-                    map.GetBindingExpression(MapBase.ForegroundProperty)?.ParentBinding ??
-                    new Binding { Source = map, Path = new PropertyPath("Foreground") });
-            }
+                if (Foreground == null)
+                {
+                    SetBinding(ForegroundProperty,
+                        map.GetBindingExpression(MapBase.ForegroundProperty)?.ParentBinding ??
+                        new Binding { Source = map, Path = new PropertyPath("Foreground") });
+                }
 
-            if (Stroke == null)
-            {
-                SetBinding(StrokeProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
+                if (Stroke == null)
+                {
+                    SetBinding(StrokeProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
+                }
             }
 
             base.SetParentMap(map);
