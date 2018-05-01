@@ -30,12 +30,12 @@ namespace MapControl
             {
                 if (path == null)
                 {
-                    path = new Path
-                    {
-                        Data = new PathGeometry()
-                    };
-
-                    SetStrokeBindings(path);
+                    path = new Path { Data = new PathGeometry() };
+                    path.SetBinding(Shape.StrokeProperty, StrokeBinding);
+                    path.SetBinding(Shape.StrokeThicknessProperty, StrokeThicknessBinding);
+                    path.SetBinding(Shape.StrokeDashArrayProperty, StrokeDashArrayBinding);
+                    path.SetBinding(Shape.StrokeDashOffsetProperty, StrokeDashOffsetBinding);
+                    path.SetBinding(Shape.StrokeDashCapProperty, StrokeDashCapBinding);
                     Children.Add(path);
                 }
 
@@ -115,31 +115,14 @@ namespace MapControl
                             renderTransform.Children.Add(ParentMap.RotateTransform);
                             renderTransform.Children.Add(new TranslateTransform());
 
-                            label = new TextBlock
-                            {
-                                RenderTransform = renderTransform
-                            };
-
-                            label.SetBinding(TextBlock.ForegroundProperty, new Binding
-                            {
-                                Source = this,
-                                Path = new PropertyPath("Foreground")
-                            });
+                            label = new TextBlock { RenderTransform = renderTransform };
+                            label.SetBinding(TextBlock.ForegroundProperty, ForegroundBinding);
 
                             Children.Add(label);
                         }
 
                         childIndex++;
 
-                        if (FontFamily != null)
-                        {
-                            label.FontFamily = FontFamily;
-                        }
-
-                        label.FontSize = FontSize;
-                        label.FontStyle = FontStyle;
-                        label.FontStretch = FontStretch;
-                        label.FontWeight = FontWeight;
                         label.Text = GetLabelText(lat, labelFormat, "NS") + "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
                         label.Tag = new Location(lat, lon);
                         label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));

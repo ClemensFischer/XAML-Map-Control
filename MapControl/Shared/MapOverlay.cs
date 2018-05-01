@@ -20,31 +20,6 @@ namespace MapControl
     /// </summary>
     public partial class MapOverlay : MapPanel
     {
-        public MapOverlay()
-        {
-            Loaded += (s, e) =>
-            {
-#if WINDOWS_UWP
-                if (Foreground == null)
-                {
-                    SetBinding(ForegroundProperty, new Binding
-                    {
-                        Source = this,
-                        Path = new PropertyPath("ParentMap.Foreground")
-                    });
-                }
-#endif
-                if (Stroke == null)
-                {
-                    SetBinding(StrokeProperty, new Binding
-                    {
-                        Source = this,
-                        Path = new PropertyPath("Foreground")
-                    });
-                }
-            };
-        }
-
         public double FontSize
         {
             get { return (double)GetValue(FontSizeProperty); }
@@ -133,6 +108,83 @@ namespace MapControl
         {
             get { return (double)GetValue(StrokeMiterLimitProperty); }
             set { SetValue(StrokeMiterLimitProperty, value); }
+        }
+
+        public Binding ForegroundBinding
+        {
+            get { return GetBinding(ForegroundProperty, nameof(Foreground)); }
+        }
+
+        public Binding StrokeBinding
+        {
+            get { return GetBinding(StrokeProperty, nameof(Stroke)); }
+        }
+
+        public Binding StrokeThicknessBinding
+        {
+            get { return GetBinding(StrokeThicknessProperty, nameof(StrokeThickness)); }
+        }
+
+        public Binding StrokeDashArrayBinding
+        {
+            get { return GetBinding(StrokeDashArrayProperty, nameof(StrokeDashArray)); }
+        }
+
+        public Binding StrokeDashOffsetBinding
+        {
+            get { return GetBinding(StrokeDashOffsetProperty, nameof(StrokeDashOffset)); }
+        }
+
+        public Binding StrokeDashCapBinding
+        {
+            get { return GetBinding(StrokeDashCapProperty, nameof(StrokeDashCap)); }
+        }
+
+        public Binding StrokeStartLineCapBinding
+        {
+            get { return GetBinding(StrokeStartLineCapProperty, nameof(StrokeStartLineCap)); }
+        }
+
+        public Binding StrokeEndLineCapBinding
+        {
+            get { return GetBinding(StrokeEndLineCapProperty, nameof(StrokeEndLineCap)); }
+        }
+
+        public Binding StrokeLineJoinBinding
+        {
+            get { return GetBinding(StrokeLineJoinProperty, nameof(StrokeLineJoin)); }
+        }
+
+        public Binding StrokeMiterLimitBinding
+        {
+            get { return GetBinding(StrokeMiterLimitProperty, nameof(StrokeMiterLimit)); }
+        }
+
+        protected override void SetParentMap(MapBase map)
+        {
+            if (map != null)
+            {
+#if WINDOWS_UWP
+                if (Foreground == null)
+                {
+                    SetBinding(ForegroundProperty,
+                        map.GetBindingExpression(MapBase.ForegroundProperty)?.ParentBinding ??
+                        new Binding { Source = map, Path = new PropertyPath("Foreground") });
+                }
+#endif
+                if (Stroke == null)
+                {
+                    SetBinding(StrokeProperty, ForegroundBinding);
+                }
+            }
+
+            base.SetParentMap(map);
+        }
+
+        private Binding GetBinding(DependencyProperty property, string propertyName)
+        {
+            return GetBindingExpression(property)?.ParentBinding ??
+                new Binding { Source = this, Path = new PropertyPath(propertyName) };
         }
     }
 }

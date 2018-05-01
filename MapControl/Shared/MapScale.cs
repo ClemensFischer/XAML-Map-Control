@@ -34,32 +34,15 @@ namespace MapControl
         public MapScale()
         {
             IsHitTestVisible = false;
-#if WINDOWS_UWP
             MinWidth = 100d;
-#else
-            SetCurrentValue(MinWidthProperty, 100d);
-#endif
+
             label.HorizontalAlignment = HorizontalAlignment.Left;
             label.VerticalAlignment = VerticalAlignment.Top;
             label.TextAlignment = TextAlignment.Center;
+            label.SetBinding(TextBlock.ForegroundProperty, ForegroundBinding);
 
-            label.SetBinding(TextBlock.ForegroundProperty, new Binding
-            {
-                Source = this,
-                Path = new PropertyPath("Foreground")
-            });
-
-            line.SetBinding(Shape.StrokeProperty, new Binding
-            {
-                Source = this,
-                Path = new PropertyPath("Stroke")
-            });
-
-            line.SetBinding(Shape.StrokeThicknessProperty, new Binding
-            {
-                Source = this,
-                Path = new PropertyPath("StrokeThickness")
-            });
+            line.SetBinding(Shape.StrokeProperty, StrokeBinding);
+            line.SetBinding(Shape.StrokeThicknessProperty, StrokeThicknessBinding);
 
             Children.Add(line);
             Children.Add(label);

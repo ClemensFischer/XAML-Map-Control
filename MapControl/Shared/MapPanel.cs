@@ -72,21 +72,23 @@ namespace MapControl
         public MapBase ParentMap
         {
             get { return parentMap; }
-            set
+            set { SetParentMap(value); }
+        }
+
+        protected virtual void SetParentMap(MapBase map)
+        {
+            if (parentMap != null && parentMap != this)
             {
-                if (parentMap != null && parentMap != this)
-                {
-                    parentMap.ViewportChanged -= OnViewportChanged;
-                }
+                parentMap.ViewportChanged -= OnViewportChanged;
+            }
 
-                parentMap = value;
+            parentMap = map;
 
-                if (parentMap != null && parentMap != this)
-                {
-                    parentMap.ViewportChanged += OnViewportChanged;
+            if (parentMap != null && parentMap != this)
+            {
+                parentMap.ViewportChanged += OnViewportChanged;
 
-                    OnViewportChanged(new ViewportChangedEventArgs());
-                }
+                OnViewportChanged(new ViewportChangedEventArgs());
             }
         }
 
