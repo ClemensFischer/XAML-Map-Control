@@ -110,6 +110,31 @@ namespace MapControl
             set { SetValue(StrokeMiterLimitProperty, value); }
         }
 
+        public Binding FontSizeBinding
+        {
+            get { return GetBinding(FontSizeProperty, nameof(FontSize)); }
+        }
+
+        public Binding FontFamilyBinding
+        {
+            get { return GetBinding(FontFamilyProperty, nameof(FontFamily)); }
+        }
+
+        public Binding FontStyleBinding
+        {
+            get { return GetBinding(FontStyleProperty, nameof(FontStyle)); }
+        }
+
+        public Binding FontStretchBinding
+        {
+            get { return GetBinding(FontStretchProperty, nameof(FontStretch)); }
+        }
+
+        public Binding FontWeightBinding
+        {
+            get { return GetBinding(FontWeightProperty, nameof(FontWeight)); }
+        }
+
         public Binding ForegroundBinding
         {
             get { return GetBinding(ForegroundProperty, nameof(Foreground)); }

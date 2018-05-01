@@ -116,6 +116,14 @@ namespace MapControl
                             renderTransform.Children.Add(new TranslateTransform());
 
                             label = new TextBlock { RenderTransform = renderTransform };
+                            if (FontFamily != null)
+                            {
+                                label.SetBinding(TextBlock.FontFamilyProperty, FontFamilyBinding);
+                            }
+                            label.SetBinding(TextBlock.FontSizeProperty, FontSizeBinding);
+                            label.SetBinding(TextBlock.FontStyleProperty, FontStyleBinding);
+                            label.SetBinding(TextBlock.FontStretchProperty, FontStretchBinding);
+                            label.SetBinding(TextBlock.FontWeightProperty, FontWeightBinding);
                             label.SetBinding(TextBlock.ForegroundProperty, ForegroundBinding);
 
                             Children.Add(label);
