@@ -56,6 +56,17 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
             typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
 
+        public MapOverlay()
+        {
+            Loaded += (s, e) =>
+            {
+                if (Stroke == null)
+                {
+                    SetBinding(StrokeProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
+                }
+            };
+        }
+
         public Pen CreatePen()
         {
             return new Pen

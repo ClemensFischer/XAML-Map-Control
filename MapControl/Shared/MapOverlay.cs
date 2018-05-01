@@ -10,9 +10,7 @@ using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Media;
-using System.Windows.Shapes;
 #endif
 
 namespace MapControl
@@ -22,17 +20,6 @@ namespace MapControl
     /// </summary>
     public partial class MapOverlay : MapPanel
     {
-        public MapOverlay()
-        {
-            Loaded += (s, e) =>
-            {
-                if (Stroke == null)
-                {
-                    SetBinding(StrokeProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
-                }
-            };
-        }
-
         public FontFamily FontFamily
         {
             get { return (FontFamily)GetValue(FontFamilyProperty); }
