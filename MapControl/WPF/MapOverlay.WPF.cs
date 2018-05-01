@@ -12,25 +12,25 @@ namespace MapControl
     public partial class MapOverlay
     {
         public static readonly DependencyProperty FontFamilyProperty = TextElement.FontFamilyProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata { Inherits = true, AffectsRender = true });
+            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true, Inherits = true });
 
         public static readonly DependencyProperty FontSizeProperty = TextElement.FontSizeProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata { Inherits = true, AffectsRender = true });
+            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true, Inherits = true });
 
         public static readonly DependencyProperty FontStyleProperty = TextElement.FontStyleProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata { Inherits = true, AffectsRender = true });
+            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true, Inherits = true });
 
         public static readonly DependencyProperty FontStretchProperty = TextElement.FontStretchProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata { Inherits = true, AffectsRender = true });
+            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true, Inherits = true });
 
         public static readonly DependencyProperty FontWeightProperty = TextElement.FontWeightProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata { Inherits = true, AffectsRender = true });
+            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true, Inherits = true });
 
         public static readonly DependencyProperty ForegroundProperty = TextElement.ForegroundProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata { Inherits = true, AffectsRender = true, DefaultValue = null });
+            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true, Inherits = true });
 
         public static readonly DependencyProperty StrokeProperty = Shape.StrokeProperty.AddOwner(
-            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true, DefaultValue = null });
+            typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
 
         public static readonly DependencyProperty StrokeThicknessProperty = Shape.StrokeThicknessProperty.AddOwner(
             typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
@@ -58,6 +58,9 @@ namespace MapControl
 
         public MapOverlay()
         {
+            // Set Stroke Binding in a Loaded handler to allow Stroke value from a Style Setter.
+            // SetParentMap is called too early.
+
             Loaded += (s, e) =>
             {
                 if (Stroke == null)
