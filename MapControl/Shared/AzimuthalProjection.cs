@@ -60,7 +60,7 @@ namespace MapControl
             base.SetViewportTransform(projectionCenter, mapCenter, viewportCenter, zoomLevel, heading);
         }
 
-        public override string WmsQueryParameters(BoundingBox boundingBox, string version)
+        public override string WmsQueryParameters(BoundingBox boundingBox, bool useSrs)
         {
             if (string.IsNullOrEmpty(CrsId))
             {
@@ -70,11 +70,11 @@ namespace MapControl
             var rect = BoundingBoxToRect(boundingBox);
             var width = (int)Math.Round(ViewportScale * rect.Width);
             var height = (int)Math.Round(ViewportScale * rect.Height);
-            var crs = version.StartsWith("1.1.") ? "SRS" : "CRS";
 
             return string.Format(CultureInfo.InvariantCulture,
                 "{0}={1},1,{2},{3}&BBOX={4},{5},{6},{7}&WIDTH={8}&HEIGHT={9}",
-                crs, CrsId, ProjectionCenter.Longitude, ProjectionCenter.Latitude,
+                (useSrs ? "SRS" : "CRS"), CrsId,
+                ProjectionCenter.Longitude, ProjectionCenter.Latitude,
                 rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);
         }
 

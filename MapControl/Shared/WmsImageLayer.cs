@@ -21,13 +21,15 @@ namespace MapControl
 {
     public partial class WmsImageLayer : MapImageLayer
     {
-        public static readonly DependencyProperty ServerUriProperty = DependencyProperty.Register(
-            nameof(ServerUri), typeof(Uri), typeof(WmsImageLayer),
+        private const string DefaultVersion = "1.3.0";
+
+        public static readonly DependencyProperty ServiceUriProperty = DependencyProperty.Register(
+            nameof(ServiceUri), typeof(Uri), typeof(WmsImageLayer),
             new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty VersionProperty = DependencyProperty.Register(
             nameof(Version), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata("1.3.0", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
+            new PropertyMetadata(DefaultVersion, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
             nameof(Layers), typeof(string), typeof(WmsImageLayer),
@@ -41,16 +43,12 @@ namespace MapControl
             nameof(Format), typeof(string), typeof(WmsImageLayer),
             new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
-        public static readonly DependencyProperty TransparentProperty = DependencyProperty.Register(
-            nameof(Transparent), typeof(bool), typeof(WmsImageLayer),
-            new PropertyMetadata(false, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
-
         private string layers = string.Empty;
 
-        public Uri ServerUri
+        public Uri ServiceUri
         {
-            get { return (Uri)GetValue(ServerUriProperty); }
-            set { SetValue(ServerUriProperty, value); }
+            get { return (Uri)GetValue(ServiceUriProperty); }
+            set { SetValue(ServiceUriProperty, value); }
         }
 
         public string Version
@@ -77,32 +75,38 @@ namespace MapControl
             set { SetValue(FormatProperty, value); }
         }
 
-        public bool Transparent
-        {
-            get { return (bool)GetValue(TransparentProperty); }
-            set { SetValue(TransparentProperty, value); }
-        }
-
         protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox)
         {
             ImageSource imageSource = null;
 
-            if (ServerUri != null)
+            if (ServiceUri != null)
             {
-                var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox, Version);
+                var version = Version;
+                var uri = GetRequestUri(ref version) + "REQUEST=GetMap&";
+                var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox, version.StartsWith("1.1."));
 
                 if (!string.IsNullOrEmpty(projectionParameters))
                 {
-                    var uri = GetRequestUri("GetMap"
-                        + "&LAYERS=" + Layers
-                        + "&STYLES=" + Styles
-                        + "&FORMAT=" + Format
-                        + "&TRANSPARENT=" + (Transparent ? "TRUE" : "FALSE")
-                        + "&" + projectionParameters);
+                    if (uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        uri += "LAYERS=" + (Layers ?? "") + "&";
+                    }
+
+                    if (uri.IndexOf("STYLES=", StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        uri += "STYLES=" + (Styles ?? "") + "&";
+                    }
+
+                    if (uri.IndexOf("FORMAT=", StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        uri += "FORMAT=" + (Format ?? "") + "&";
+                    }
+
+                    uri += projectionParameters;
 
                     try
                     {
-                        imageSource = await ImageLoader.LoadImageAsync(uri, false);
+                        imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")), false);
                     }
                     catch (Exception ex)
                     {
@@ -116,54 +120,76 @@ namespace MapControl
 
         public async Task<IList<string>> GetLayerNamesAsync()
         {
-            if (ServerUri == null)
+            IList<string> layerNames = null;
+
+            if (ServiceUri != null)
             {
-                return null;
-            }
+                var version = Version;
+                var uri = GetRequestUri(ref version) + "REQUEST=GetCapabilities";
 
-            var layerNames = new List<string>();
-
-            try
-            {
-                var document = await XmlDocument.LoadFromUriAsync(GetRequestUri("GetCapabilities"));
-
-                var capability = ChildElements(document.DocumentElement, "Capability").FirstOrDefault();
-                if (capability != null)
+                try
                 {
-                    var rootLayer = ChildElements(capability, "Layer").FirstOrDefault();
-                    if (rootLayer != null)
+                    var document = await XmlDocument.LoadFromUriAsync(new Uri(uri.Replace(" ", "%20")));
+                    layerNames = new List<string>();
+
+                    var capability = ChildElements(document.DocumentElement, "Capability").FirstOrDefault();
+                    if (capability != null)
                     {
-                        foreach (var layer in ChildElements(rootLayer, "Layer"))
+                        var rootLayer = ChildElements(capability, "Layer").FirstOrDefault();
+                        if (rootLayer != null)
                         {
-                            var name = ChildElements(layer, "Name").FirstOrDefault();
-                            if (name != null)
+                            foreach (var layer in ChildElements(rootLayer, "Layer"))
                             {
-                                layerNames.Add(name.InnerText);
+                                var name = ChildElements(layer, "Name").FirstOrDefault();
+                                if (name != null)
+                                {
+                                    layerNames.Add(name.InnerText);
+                                }
                             }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("WmsImageLayer: {0}: {1}", ServerUri, ex.Message);
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                }
             }
 
             return layerNames;
         }
 
-        private Uri GetRequestUri(string query)
+        private string GetRequestUri(ref string version)
         {
-            var uri = ServerUri.ToString();
+            if (version == null)
+            {
+                version = DefaultVersion;
+            }
+
+            var uri = ServiceUri.ToString();
 
             if (!uri.EndsWith("?") && !uri.EndsWith("&"))
             {
-                uri += "?";
+                uri += !uri.Contains("?") ? "?" : "&";
             }
 
-            uri += "SERVICE=WMS&VERSION=" + Version + "&REQUEST=" + query;
+            if (uri.IndexOf("SERVICE=", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                uri += "SERVICE=WMS&";
+            }
 
-            return new Uri(uri.Replace(" ", "%20"));
+            int versionStart = uri.IndexOf("VERSION=", StringComparison.OrdinalIgnoreCase);
+            int versionEnd;
+
+            if (versionStart < 0)
+            {
+                uri += "VERSION=" + version + "&";
+            }
+            else if ((versionEnd = uri.IndexOf("&", versionStart + 8)) >= versionStart + 8)
+            {
+                version = uri.Substring(versionStart, versionEnd - versionStart);
+            }
+
+            return uri;
         }
 
         private static IEnumerable<XmlElement> ChildElements(XmlElement element, string name)

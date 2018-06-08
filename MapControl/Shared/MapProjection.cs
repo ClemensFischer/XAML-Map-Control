@@ -147,25 +147,28 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets a WMS 1.3.0 query parameter string from the specified bounding box,
-        /// e.g. "CRS=...&BBOX=...&WIDTH=...&HEIGHT=..."
+        /// Gets a WMS query parameter string from the specified bounding box, e.g. "CRS=...&BBOX=...&WIDTH=...&HEIGHT=..."
         /// </summary>
-        public virtual string WmsQueryParameters(BoundingBox boundingBox, string version = "1.3.0")
+        public virtual string WmsQueryParameters(BoundingBox boundingBox, bool useSrs = false)
         {
             if (string.IsNullOrEmpty(CrsId) || !boundingBox.HasValidBounds)
             {
                 return null;
             }
 
-            var format = "CRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
+            string format;
 
-            if (version.StartsWith("1.1."))
+            if (useSrs)
             {
                 format = "SRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
             }
             else if (CrsId == "EPSG:4326")
             {
                 format = "CRS={0}&BBOX={2},{1},{4},{3}&WIDTH={5}&HEIGHT={6}";
+            }
+            else
+            {
+                format = "CRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
             }
 
             var rect = BoundingBoxToRect(boundingBox);
