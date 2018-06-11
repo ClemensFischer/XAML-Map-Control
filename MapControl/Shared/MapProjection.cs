@@ -149,31 +149,19 @@ namespace MapControl
         /// <summary>
         /// Gets a WMS query parameter string from the specified bounding box, e.g. "CRS=...&BBOX=...&WIDTH=...&HEIGHT=..."
         /// </summary>
-        public virtual string WmsQueryParameters(BoundingBox boundingBox, bool useSrs = false)
+        public virtual string WmsQueryParameters(BoundingBox boundingBox)
         {
             if (string.IsNullOrEmpty(CrsId) || !boundingBox.HasValidBounds)
             {
                 return null;
             }
 
-            string format;
-
-            if (useSrs)
-            {
-                format = "SRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
-            }
-            else if (CrsId == "EPSG:4326")
-            {
-                format = "CRS={0}&BBOX={2},{1},{4},{3}&WIDTH={5}&HEIGHT={6}";
-            }
-            else
-            {
-                format = "CRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
-            }
-
             var rect = BoundingBoxToRect(boundingBox);
             var width = (int)Math.Round(ViewportScale * rect.Width);
             var height = (int)Math.Round(ViewportScale * rect.Height);
+            var format = CrsId == "EPSG:4326"
+                ? "CRS={0}&BBOX={2},{1},{4},{3}&WIDTH={5}&HEIGHT={6}"
+                : "CRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
 
             return string.Format(CultureInfo.InvariantCulture, format, CrsId,
                 rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);

@@ -21,15 +21,9 @@ namespace MapControl
 {
     public partial class WmsImageLayer : MapImageLayer
     {
-        private const string DefaultVersion = "1.3.0";
-
         public static readonly DependencyProperty ServiceUriProperty = DependencyProperty.Register(
             nameof(ServiceUri), typeof(Uri), typeof(WmsImageLayer),
             new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
-
-        public static readonly DependencyProperty VersionProperty = DependencyProperty.Register(
-            nameof(Version), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(DefaultVersion, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
             nameof(Layers), typeof(string), typeof(WmsImageLayer),
@@ -43,18 +37,10 @@ namespace MapControl
             nameof(Format), typeof(string), typeof(WmsImageLayer),
             new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
-        private string layers = string.Empty;
-
         public Uri ServiceUri
         {
             get { return (Uri)GetValue(ServiceUriProperty); }
             set { SetValue(ServiceUriProperty, value); }
-        }
-
-        public string Version
-        {
-            get { return (string)GetValue(VersionProperty); }
-            set { SetValue(VersionProperty, value); }
         }
 
         public string Layers
@@ -75,57 +61,13 @@ namespace MapControl
             set { SetValue(FormatProperty, value); }
         }
 
-        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox)
-        {
-            ImageSource imageSource = null;
-
-            if (ServiceUri != null)
-            {
-                var version = Version;
-                var uri = GetRequestUri(ref version) + "REQUEST=GetMap&";
-                var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox, version.StartsWith("1.1."));
-
-                if (!string.IsNullOrEmpty(projectionParameters))
-                {
-                    if (uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
-                    {
-                        uri += "LAYERS=" + (Layers ?? "") + "&";
-                    }
-
-                    if (uri.IndexOf("STYLES=", StringComparison.OrdinalIgnoreCase) < 0)
-                    {
-                        uri += "STYLES=" + (Styles ?? "") + "&";
-                    }
-
-                    if (uri.IndexOf("FORMAT=", StringComparison.OrdinalIgnoreCase) < 0)
-                    {
-                        uri += "FORMAT=" + (Format ?? "") + "&";
-                    }
-
-                    uri += projectionParameters;
-
-                    try
-                    {
-                        imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")), false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
-                    }
-                }
-            }
-
-            return imageSource;
-        }
-
         public async Task<IList<string>> GetLayerNamesAsync()
         {
             IList<string> layerNames = null;
 
             if (ServiceUri != null)
             {
-                var version = Version;
-                var uri = GetRequestUri(ref version) + "REQUEST=GetCapabilities";
+                var uri = GetRequestUri("GetCapabilities");
 
                 try
                 {
@@ -158,13 +100,45 @@ namespace MapControl
             return layerNames;
         }
 
-        private string GetRequestUri(ref string version)
+        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox)
         {
-            if (version == null)
+            ImageSource imageSource = null;
+            var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox);
+
+            if (ServiceUri != null && !string.IsNullOrEmpty(projectionParameters))
             {
-                version = DefaultVersion;
+                var uri = GetRequestUri("GetMap&" + projectionParameters);
+
+                if (uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0 && Layers != null)
+                {
+                    uri += "&LAYERS=" + Layers;
+                }
+
+                if (uri.IndexOf("STYLES=", StringComparison.OrdinalIgnoreCase) < 0 && Styles != null)
+                {
+                    uri += "&STYLES=" + Styles;
+                }
+
+                if (uri.IndexOf("FORMAT=", StringComparison.OrdinalIgnoreCase) < 0 && Format != null)
+                {
+                    uri += "&FORMAT=" + Format;
+                }
+
+                try
+                {
+                    imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")), false);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                }
             }
 
+            return imageSource;
+        }
+
+        private string GetRequestUri(string request)
+        {
             var uri = ServiceUri.ToString();
 
             if (!uri.EndsWith("?") && !uri.EndsWith("&"))
@@ -177,19 +151,12 @@ namespace MapControl
                 uri += "SERVICE=WMS&";
             }
 
-            int versionStart = uri.IndexOf("VERSION=", StringComparison.OrdinalIgnoreCase);
-            int versionEnd;
-
-            if (versionStart < 0)
+            if (uri.IndexOf("VERSION=", StringComparison.OrdinalIgnoreCase) < 0)
             {
-                uri += "VERSION=" + version + "&";
-            }
-            else if ((versionEnd = uri.IndexOf("&", versionStart + 8)) >= versionStart + 8)
-            {
-                version = uri.Substring(versionStart, versionEnd - versionStart);
+                uri += "VERSION=1.3.0&";
             }
 
-            return uri;
+            return uri + "REQUEST=" + request;
         }
 
         private static IEnumerable<XmlElement> ChildElements(XmlElement element, string name)

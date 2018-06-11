@@ -99,7 +99,8 @@ namespace ViewModel
                 new WmsImageLayer
                 {
                     Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/)\nData © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service?SERVICE=WMS&VERSION=1.3.0&LAYERS=OSM-WMS&STYLES=&FORMAT=image/png")
+                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service"),
+                    Layers = "OSM-WMS"
                 }
             },
             {
@@ -107,7 +108,8 @@ namespace ViewModel
                 new WmsImageLayer
                 {
                     Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/)\nData © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service?SERVICE=WMS&VERSION=1.3.0&LAYERS=TOPO-OSM-WMS&STYLES=&FORMAT=image/png")
+                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service"),
+                    Layers = "TOPO-OSM-WMS"
                 }
             },
             {
@@ -115,7 +117,8 @@ namespace ViewModel
                 new WmsImageLayer
                 {
                     Description = "© [SevenCs GmbH](http://www.sevencs.com)",
-                    ServiceUri = new Uri("http://chartserver4.sevencs.com:8080?SERVICE=WMS&VERSION=1.3.0&LAYERS=ENC&STYLES=&FORMAT=image/png"),
+                    ServiceUri = new Uri("http://chartserver4.sevencs.com:8080"),
+                    Layers = "ENC",
                     MaxBoundingBoxWidth = 360
                 }
             }
