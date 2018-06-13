@@ -10,7 +10,7 @@ namespace MapControl
 {
     /// <summary>
     /// A multi-polygon defined by a collection of collections of Locations.
-    /// With a FillRule of EvenOdd, this allows to draw polygons with holes.
+    /// Allows to draw polygons with holes.
     /// 
     /// A PolygonCollection (with ObservableCollection of Location elements) may be used
     /// for the Polygons property if collection changes of the property itself and its
