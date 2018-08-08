@@ -21,12 +21,6 @@ namespace MapControl
         }
     }
 
-    [TypeConverter(typeof(LocationConverter))]
-    [Serializable]
-    public partial class Location
-    {
-    }
-
     public class LocationCollectionConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
@@ -38,11 +32,6 @@ namespace MapControl
         {
             return LocationCollection.Parse((string)value);
         }
-    }
-
-    [TypeConverter(typeof(LocationCollectionConverter))]
-    public partial class LocationCollection
-    {
     }
 
     public class BoundingBoxConverter : TypeConverter
@@ -58,12 +47,6 @@ namespace MapControl
         }
     }
 
-    [TypeConverter(typeof(BoundingBoxConverter))]
-    [Serializable]
-    public partial class BoundingBox
-    {
-    }
-
     public class TileSourceConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
@@ -75,10 +58,5 @@ namespace MapControl
         {
             return new TileSource { UriFormat = value as string };
         }
-    }
-
-    [TypeConverter(typeof(TileSourceConverter))]
-    public partial class TileSource
-    {
     }
 }

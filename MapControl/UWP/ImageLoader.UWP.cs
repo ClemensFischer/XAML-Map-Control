@@ -15,72 +15,24 @@ using Windows.Web.Http.Headers;
 
 namespace MapControl
 {
-    public static class ImageLoader
+    public static partial class ImageLoader
     {
-        /// <summary>
-        /// The HttpClient instance used when image data is downloaded from a web resource.
-        /// </summary>
-        public static HttpClient HttpClient { get; set; } = new HttpClient();
-
-        public static async Task<ImageSource> LoadImageAsync(Uri uri, bool isTileImage)
-        {
-            if (!uri.IsAbsoluteUri || uri.Scheme == "file")
-            {
-                return await LoadLocalImageAsync(uri);
-            }
-
-            if (uri.Scheme == "http")
-            {
-                return await LoadHttpImageAsync(uri, isTileImage);
-            }
-
-            return new BitmapImage(uri);
-        }
-
         public static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
         {
+            ImageSource imageSource = null;
             var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
-            if (!File.Exists(path))
+            if (File.Exists(path))
             {
-                return null;
-            }
+                var file = await StorageFile.GetFileFromPathAsync(path);
 
-            var file = await StorageFile.GetFileFromPathAsync(path);
-
-            using (var stream = await file.OpenReadAsync())
-            {
-                var bitmapImage = new BitmapImage();
-                await bitmapImage.SetSourceAsync(stream);
-
-                return bitmapImage;
-            }
-        }
-
-        public static async Task<ImageSource> LoadHttpImageAsync(Uri uri, bool isTileImage)
-        {
-            using (var response = await HttpClient.GetAsync(uri))
-            {
-                if (!response.IsSuccessStatusCode)
+                using (var stream = await file.OpenReadAsync())
                 {
-                    Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    imageSource = await CreateImageSourceAsync(stream);
                 }
-                else if (!isTileImage || IsTileAvailable(response.Headers))
-                {
-                    using (var stream = new InMemoryRandomAccessStream())
-                    {
-                        await response.Content.WriteToStreamAsync(stream);
-                        stream.Seek(0);
-
-                        var bitmapImage = new BitmapImage();
-                        await bitmapImage.SetSourceAsync(stream);
-
-                        return bitmapImage;
-                    }
-                }
-
-                return null;
             }
+
+            return imageSource;
         }
 
         public static async Task<bool> LoadHttpTileImageAsync(Uri uri, Func<IBuffer, TimeSpan?, Task> tileCallback)
@@ -100,6 +52,21 @@ namespace MapControl
 
                 return response.IsSuccessStatusCode;
             }
+        }
+
+        public static async Task<ImageSource> CreateImageSourceAsync(IRandomAccessStream stream)
+        {
+            var bitmapImage = new BitmapImage();
+            await bitmapImage.SetSourceAsync(stream);
+            return bitmapImage;
+        }
+
+        private static async Task<InMemoryRandomAccessStream> GetResponseStreamAsync(IHttpContent content)
+        {
+            var stream = new InMemoryRandomAccessStream();
+            await content.WriteToStreamAsync(stream);
+            stream.Seek(0);
+            return stream;
         }
 
         private static bool IsTileAvailable(HttpResponseHeaderCollection responseHeaders)

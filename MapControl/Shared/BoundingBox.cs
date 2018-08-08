@@ -10,7 +10,10 @@ namespace MapControl
     /// <summary>
     /// A geographic bounding box with south and north latitude and west and east longitude values in degrees.
     /// </summary>
-    public partial class BoundingBox
+#if !WINDOWS_UWP
+    [System.ComponentModel.TypeConverter(typeof(BoundingBoxConverter))]
+#endif
+    public class BoundingBox
     {
         private double south;
         private double west;

@@ -344,9 +344,11 @@ namespace MapControl
                 var maxZoomLevel = Math.Min(TileGrid.ZoomLevel, MaxZoomLevel);
                 var minZoomLevel = MinZoomLevel;
 
-                if (minZoomLevel < maxZoomLevel && parentMap.MapLayer != this) // load lower tiles only in a base layer
+                if (minZoomLevel < maxZoomLevel &&
+                    parentMap.MapLayer != this &&
+                    parentMap.Children.Cast<UIElement>().FirstOrDefault() != this)
                 {
-                    minZoomLevel = maxZoomLevel;
+                    minZoomLevel = maxZoomLevel; // do not load lower level tiles if this is note a "base" layer
                 }
 
                 for (var z = minZoomLevel; z <= maxZoomLevel; z++)

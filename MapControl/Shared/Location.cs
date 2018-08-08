@@ -10,7 +10,10 @@ namespace MapControl
     /// <summary>
     /// A geographic location with latitude and longitude values in degrees.
     /// </summary>
-    public partial class Location : IEquatable<Location>
+#if !WINDOWS_UWP
+    [System.ComponentModel.TypeConverter(typeof(LocationConverter))]
+#endif
+    public class Location : IEquatable<Location>
     {
         private double latitude;
         private double longitude;

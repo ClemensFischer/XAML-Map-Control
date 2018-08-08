@@ -9,11 +9,10 @@ using System.Net;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
-    public partial class TileImageLoader : ITileImageLoader
+    public partial class TileImageLoader
     {
         /// <summary>
         /// Default folder path where an ObjectCache instance may save cached data,
@@ -44,12 +43,12 @@ namespace MapControl
             {
                 try
                 {
-                    loaded = await ImageLoader.LoadHttpTileImageAsync(uri, async (stream, maxAge) =>
-                    {
-                        await SetTileImageAsync(tile, stream); // create BitmapFrame before caching
-
-                        SetCachedImage(cacheKey, stream, GetExpiration(maxAge));
-                    });
+                    loaded = await ImageLoader.LoadHttpTileImageAsync(uri,
+                        async (stream, maxAge) =>
+                        {
+                            await SetTileImageAsync(tile, stream); // create BitmapImage before caching
+                            SetCachedImage(cacheKey, stream, GetExpiration(maxAge));
+                        });
                 }
                 catch (Exception ex)
                 {
@@ -68,7 +67,7 @@ namespace MapControl
 
         private async Task SetTileImageAsync(Tile tile, MemoryStream stream)
         {
-            var imageSource = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+            var imageSource = ImageLoader.CreateImageSource(stream);
 
             await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(imageSource));
         }

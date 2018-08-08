@@ -11,7 +11,10 @@ namespace MapControl
     /// <summary>
     /// A collection of Locations with support for parsing.
     /// </summary>
-    public partial class LocationCollection : List<Location>
+#if !WINDOWS_UWP
+    [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
+#endif
+    public class LocationCollection : List<Location>
     {
         public LocationCollection()
         {

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2018 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -6,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace MapControl
 {
@@ -53,10 +56,7 @@ namespace MapControl
                             await stream.WriteAsync(buffer.AsBuffer());
                             stream.Seek(0);
 
-                            var bitmapImage = new BitmapImage();
-                            await bitmapImage.SetSourceAsync(stream);
-
-                            imageSource = bitmapImage;
+                            imageSource = await ImageLoader.CreateImageSourceAsync(stream);
                         }
                     }
                 }

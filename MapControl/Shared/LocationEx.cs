@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Provides helper methods for geodetic calculations on a sphere.
+    /// </summary>
     public static class LocationEx
     {
         /// <summary>
@@ -18,9 +21,48 @@ namespace MapControl
             var lon1 = location1.Longitude * Math.PI / 180d;
             var lat2 = location2.Latitude * Math.PI / 180d;
             var lon2 = location2.Longitude * Math.PI / 180d;
-            var cosS12 = Math.Sin(lat1) * Math.Sin(lat2) + Math.Cos(lat1) * Math.Cos(lat2) * Math.Cos(lon2 - lon1);
+            var sinLat1 = Math.Sin(lat1);
+            var cosLat1 = Math.Cos(lat1);
+            var sinLat2 = Math.Sin(lat2);
+            var cosLat2 = Math.Cos(lat2);
+            var cosLon12 = Math.Cos(lon2 - lon1);
+            var cosS12 = sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12;
+            var s12 = 0d;
 
-            return earthRadius * Math.Acos(Math.Min(Math.Max(cosS12, -1d), 1d));
+            if (Math.Abs(cosS12) < 0.99999999)
+            {
+                s12 = Math.Acos(Math.Min(Math.Max(cosS12, -1d), 1d));
+            }
+            else
+            {
+                var sinLon12 = Math.Sin(lon2 - lon1);
+                var a = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
+                var b = cosLat2 * sinLon12;
+                s12 = Math.Atan2(Math.Sqrt(a * a + b * b), cosS12);
+            }
+
+            return earthRadius * s12;
+        }
+
+        /// <summary>
+        /// see https://en.wikipedia.org/wiki/Great-circle_navigation
+        /// </summary>
+        public static Location GreatCircleLocation(this Location location, double azimuth, double distance, double earthRadius = MapProjection.Wgs84EquatorialRadius)
+        {
+            var s12 = distance / earthRadius;
+            var az1 = azimuth * Math.PI / 180d;
+            var lat1 = location.Latitude * Math.PI / 180d;
+            var lon1 = location.Longitude * Math.PI / 180d;
+            var sinS12 = Math.Sin(s12);
+            var cosS12 = Math.Cos(s12);
+            var sinAz1 = Math.Sin(az1);
+            var cosAz1 = Math.Cos(az1);
+            var sinLat1 = Math.Sin(lat1);
+            var cosLat1 = Math.Cos(lat1);
+            var lat2 = Math.Asin(sinLat1 * cosS12 + cosLat1 * sinS12 * cosAz1);
+            var lon2 = lon1 + Math.Atan2(sinS12 * sinAz1, (cosLat1 * cosS12 - sinLat1 * sinS12 * cosAz1));
+
+            return new Location(lat2 / Math.PI * 180d, lon2 / Math.PI * 180d);
         }
 
         public static LocationCollection CalculateMeridianLocations(this Location location, double latitude2, double resolution = 1d)
