@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
@@ -112,19 +111,11 @@ namespace MapControl
         public virtual async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
         {
             ImageSource imageSource = null;
-
             var uri = GetUri(x, y, zoomLevel);
 
             if (uri != null)
             {
-                try
-                {
-                    imageSource = await ImageLoader.LoadImageAsync(uri);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("TileSource: {0}: {1}", uri, ex.Message);
-                }
+                imageSource = await ImageLoader.LoadImageAsync(uri);
             }
 
             return imageSource;

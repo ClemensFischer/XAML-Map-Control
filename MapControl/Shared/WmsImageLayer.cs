@@ -124,14 +124,7 @@ namespace MapControl
                     uri += "&FORMAT=" + Format;
                 }
 
-                try
-                {
-                    imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
-                }
+                imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")));
             }
 
             return imageSource;

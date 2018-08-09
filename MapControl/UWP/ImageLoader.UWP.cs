@@ -20,16 +20,24 @@ namespace MapControl
         public static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
         {
             ImageSource imageSource = null;
-            var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
-            if (File.Exists(path))
+            try
             {
-                var file = await StorageFile.GetFileFromPathAsync(path);
+                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
-                using (var stream = await file.OpenReadAsync())
+                if (File.Exists(path))
                 {
-                    imageSource = await CreateImageSourceAsync(stream);
+                    var file = await StorageFile.GetFileFromPathAsync(path);
+
+                    using (var stream = await file.OpenReadAsync())
+                    {
+                        imageSource = await CreateImageSourceAsync(stream);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
             }
 
             return imageSource;

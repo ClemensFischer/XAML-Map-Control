@@ -17,11 +17,12 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        public static ImageSource LoadLocalImage(Uri uri)
         {
-            return Task.Run(() =>
+            ImageSource imageSource = null;
+
+            try
             {
-                ImageSource imageSource = null;
                 var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
                 if (File.Exists(path))
@@ -31,9 +32,18 @@ namespace MapControl
                         imageSource = CreateImageSource(stream);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+            }
 
-                return imageSource;
-            });
+            return imageSource;
+        }
+
+        public static Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        {
+            return Task.Run(() => LoadLocalImage(uri));
         }
 
         public static async Task<Tuple<MemoryStream, TimeSpan?>> LoadHttpStreamAsync(Uri uri)

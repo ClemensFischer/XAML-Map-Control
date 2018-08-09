@@ -28,17 +28,24 @@ namespace MapControl
         {
             ImageSource imageSource = null;
 
-            if (!uri.IsAbsoluteUri || uri.Scheme == "file")
+            try
             {
-                imageSource = await LoadLocalImageAsync(uri);
+                if (!uri.IsAbsoluteUri || uri.Scheme == "file")
+                {
+                    imageSource = await LoadLocalImageAsync(uri);
+                }
+                else if (uri.Scheme == "http")
+                {
+                    imageSource = await LoadHttpImageAsync(uri);
+                }
+                else
+                {
+                    imageSource = new BitmapImage(uri);
+                }
             }
-            else if (uri.Scheme == "http")
+            catch (Exception ex)
             {
-                imageSource = await LoadHttpImageAsync(uri);
-            }
-            else
-            {
-                imageSource = new BitmapImage(uri);
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
             }
 
             return imageSource;
@@ -48,19 +55,26 @@ namespace MapControl
         {
             ImageSource imageSource = null;
 
-            using (var response = await HttpClient.GetAsync(uri))
+            try
             {
-                if (!response.IsSuccessStatusCode)
+                using (var response = await HttpClient.GetAsync(uri))
                 {
-                    Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    }
+                    else if (IsTileAvailable(response.Headers))
+                    {
+                        imageSource = await CreateImageSourceAsync(response.Content);
+                    }
                 }
-                else if (IsTileAvailable(response.Headers))
-                {
-                    imageSource = await CreateImageSourceAsync(response.Content);
-                }
-
-                return imageSource;
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+            }
+
+            return imageSource;
         }
     }
 }
