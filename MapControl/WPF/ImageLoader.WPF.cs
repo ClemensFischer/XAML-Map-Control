@@ -17,35 +17,6 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static ImageSource LoadLocalImage(Uri uri)
-        {
-            ImageSource imageSource = null;
-
-            try
-            {
-                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
-
-                if (File.Exists(path))
-                {
-                    using (var stream = File.OpenRead(path))
-                    {
-                        imageSource = CreateImageSource(stream);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
-            }
-
-            return imageSource;
-        }
-
-        public static Task<ImageSource> LoadLocalImageAsync(Uri uri)
-        {
-            return Task.Run(() => LoadLocalImage(uri));
-        }
-
         public static async Task<Tuple<MemoryStream, TimeSpan?>> LoadHttpStreamAsync(Uri uri)
         {
             Tuple<MemoryStream, TimeSpan?> result = null;
@@ -81,6 +52,35 @@ namespace MapControl
             }
 
             return result;
+        }
+
+        public static ImageSource LoadLocalImage(Uri uri)
+        {
+            ImageSource imageSource = null;
+
+            try
+            {
+                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
+
+                if (File.Exists(path))
+                {
+                    using (var stream = File.OpenRead(path))
+                    {
+                        imageSource = CreateImageSource(stream);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+            }
+
+            return imageSource;
+        }
+
+        public static Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        {
+            return Task.Run(() => LoadLocalImage(uri));
         }
 
         public static ImageSource CreateImageSource(Stream stream)

@@ -17,32 +17,6 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
-        {
-            ImageSource imageSource = null;
-
-            try
-            {
-                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
-
-                if (File.Exists(path))
-                {
-                    var file = await StorageFile.GetFileFromPathAsync(path);
-
-                    using (var stream = await file.OpenReadAsync())
-                    {
-                        imageSource = await CreateImageSourceAsync(stream);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
-            }
-
-            return imageSource;
-        }
-
         public static async Task<Tuple<IBuffer, TimeSpan?>> LoadHttpBufferAsync(Uri uri)
         {
             Tuple<IBuffer, TimeSpan?> result = null;
@@ -76,6 +50,32 @@ namespace MapControl
             }
 
             return result;
+        }
+
+        public static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        {
+            ImageSource imageSource = null;
+
+            try
+            {
+                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
+
+                if (File.Exists(path))
+                {
+                    var file = await StorageFile.GetFileFromPathAsync(path);
+
+                    using (var stream = await file.OpenReadAsync())
+                    {
+                        imageSource = await CreateImageSourceAsync(stream);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+            }
+
+            return imageSource;
         }
 
         public static async Task<ImageSource> CreateImageSourceAsync(IRandomAccessStream stream)
