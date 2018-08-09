@@ -35,23 +35,39 @@ namespace MapControl
             return imageSource;
         }
 
-        public static async Task<bool> LoadHttpTileImageAsync(Uri uri, Func<IBuffer, TimeSpan?, Task> tileCallback)
+        public static async Task<Tuple<IBuffer, TimeSpan?>> LoadHttpBufferAsync(Uri uri)
         {
-            using (var response = await HttpClient.GetAsync(uri))
+            Tuple<IBuffer, TimeSpan?> result = null;
+
+            try
             {
-                if (!response.IsSuccessStatusCode)
+                using (var response = await HttpClient.GetAsync(uri))
                 {
-                    Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                }
-                else if (IsTileAvailable(response.Headers))
-                {
-                    var buffer = await response.Content.ReadAsBufferAsync();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    }
+                    else
+                    {
+                        IBuffer buffer = null;
+                        TimeSpan? maxAge = null;
 
-                    await tileCallback(buffer, response.Headers.CacheControl?.MaxAge);
-                }
+                        if (IsTileAvailable(response.Headers))
+                        {
+                            buffer = await response.Content.ReadAsBufferAsync();
+                            maxAge = response.Headers.CacheControl?.MaxAge;
+                        }
 
-                return response.IsSuccessStatusCode;
+                        result = new Tuple<IBuffer, TimeSpan?>(buffer, maxAge);
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+            }
+
+            return result;
         }
 
         public static async Task<ImageSource> CreateImageSourceAsync(IRandomAccessStream stream)
@@ -61,12 +77,14 @@ namespace MapControl
             return bitmapImage;
         }
 
-        private static async Task<InMemoryRandomAccessStream> GetResponseStreamAsync(IHttpContent content)
+        private static async Task<ImageSource> CreateImageSourceAsync(IHttpContent content)
         {
-            var stream = new InMemoryRandomAccessStream();
-            await content.WriteToStreamAsync(stream);
-            stream.Seek(0);
-            return stream;
+            using (var stream = new InMemoryRandomAccessStream())
+            {
+                await content.WriteToStreamAsync(stream);
+                stream.Seek(0);
+                return await CreateImageSourceAsync(stream);
+            }
         }
 
         private static bool IsTileAvailable(HttpResponseHeaderCollection responseHeaders)

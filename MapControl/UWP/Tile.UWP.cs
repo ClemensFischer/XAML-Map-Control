@@ -21,7 +21,7 @@ namespace MapControl
             {
                 var bitmapImage = imageSource as BitmapImage;
 
-                if (bitmapImage != null && bitmapImage.UriSource != null)
+                if (bitmapImage?.UriSource != null)
                 {
                     bitmapImage.ImageOpened += BitmapImageOpened;
                     bitmapImage.ImageFailed += BitmapImageFailed;

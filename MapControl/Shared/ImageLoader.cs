@@ -24,7 +24,7 @@ namespace MapControl
         /// </summary>
         public static HttpClient HttpClient { get; set; } = new HttpClient();
 
-        public static async Task<ImageSource> LoadImageAsync(Uri uri, bool isTileImage)
+        public static async Task<ImageSource> LoadImageAsync(Uri uri)
         {
             ImageSource imageSource = null;
 
@@ -34,7 +34,7 @@ namespace MapControl
             }
             else if (uri.Scheme == "http")
             {
-                imageSource = await LoadHttpImageAsync(uri, isTileImage);
+                imageSource = await LoadHttpImageAsync(uri);
             }
             else
             {
@@ -44,7 +44,7 @@ namespace MapControl
             return imageSource;
         }
 
-        public static async Task<ImageSource> LoadHttpImageAsync(Uri uri, bool isTileImage)
+        public static async Task<ImageSource> LoadHttpImageAsync(Uri uri)
         {
             ImageSource imageSource = null;
 
@@ -54,12 +54,9 @@ namespace MapControl
                 {
                     Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
                 }
-                else if (!isTileImage || IsTileAvailable(response.Headers))
+                else if (IsTileAvailable(response.Headers))
                 {
-                    using (var stream = await GetResponseStreamAsync(response.Content))
-                    {
-                        imageSource = await CreateImageSourceAsync(stream);
-                    }
+                    imageSource = await CreateImageSourceAsync(response.Content);
                 }
 
                 return imageSource;

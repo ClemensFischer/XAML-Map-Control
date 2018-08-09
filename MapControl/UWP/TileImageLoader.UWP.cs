@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -36,26 +35,24 @@ namespace MapControl
         {
             var cacheItem = await Cache.GetAsync(cacheKey);
             var cacheBuffer = cacheItem?.Buffer;
-            var loaded = false;
 
             if (cacheBuffer == null || cacheItem.Expiration < DateTime.UtcNow)
             {
-                try
+                var result = await ImageLoader.LoadHttpBufferAsync(uri);
+
+                if (result != null) // download succeeded
                 {
-                    loaded = await ImageLoader.LoadHttpTileImageAsync(uri,
-                        async (buffer, maxAge) =>
-                        {
-                            await SetTileImageAsync(tile, buffer); // create BitmapImage before caching
-                            await Cache.SetAsync(cacheKey, buffer, GetExpiration(maxAge));
-                        });
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
+                    cacheBuffer = null; // discard cached image
+
+                    if (result.Item1 != null) // tile image available
+                    {
+                        await SetTileImageAsync(tile, result.Item1); // show before caching
+                        await Cache.SetAsync(cacheKey, result.Item1, GetExpiration(result.Item2));
+                    }
                 }
             }
 
-            if (!loaded && cacheBuffer != null) // keep expired image if download failed
+            if (cacheBuffer != null)
             {
                 await SetTileImageAsync(tile, cacheBuffer);
             }

@@ -119,7 +119,7 @@ namespace MapControl
             {
                 try
                 {
-                    imageSource = await ImageLoader.LoadImageAsync(uri, true);
+                    imageSource = await ImageLoader.LoadImageAsync(uri);
                 }
                 catch (Exception ex)
                 {

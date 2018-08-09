@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Runtime.Caching;
@@ -36,40 +35,41 @@ namespace MapControl
         private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             DateTime expiration;
-            var buffer = GetCachedImage(cacheKey, out expiration);
-            var loaded = false;
+            var cacheBuffer = GetCachedImage(cacheKey, out expiration);
 
-            if (buffer == null || expiration < DateTime.UtcNow)
+            if (cacheBuffer == null || expiration < DateTime.UtcNow)
             {
-                try
+                var result = await ImageLoader.LoadHttpStreamAsync(uri);
+
+                if (result != null) // download succeeded
                 {
-                    loaded = await ImageLoader.LoadHttpTileImageAsync(uri,
-                        async (stream, maxAge) =>
+                    cacheBuffer = null; // discard cached image
+
+                    if (result.Item1 != null) // tile image available
+                    {
+                        using (var stream = result.Item1)
                         {
-                            await SetTileImageAsync(tile, stream); // create BitmapImage before caching
-                            SetCachedImage(cacheKey, stream, GetExpiration(maxAge));
-                        });
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("TileImageLoader: {0}: {1}", uri, ex.Message);
+                            SetTileImage(tile, stream); // show before caching
+                            SetCachedImage(cacheKey, stream, GetExpiration(result.Item2));
+                        }
+                    }
                 }
             }
 
-            if (!loaded && buffer != null) // keep expired image if download failed
+            if (cacheBuffer != null)
             {
-                using (var stream = new MemoryStream(buffer))
+                using (var stream = new MemoryStream(cacheBuffer))
                 {
-                    await SetTileImageAsync(tile, stream);
+                    SetTileImage(tile, stream);
                 }
             }
         }
 
-        private async Task SetTileImageAsync(Tile tile, MemoryStream stream)
+        private void SetTileImage(Tile tile, Stream stream)
         {
             var imageSource = ImageLoader.CreateImageSource(stream);
 
-            await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(imageSource));
+            tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(imageSource));
         }
 
         private static byte[] GetCachedImage(string cacheKey, out DateTime expiration)

@@ -36,27 +36,41 @@ namespace MapControl
             });
         }
 
-        public static async Task<bool> LoadHttpTileImageAsync(Uri uri, Func<MemoryStream, TimeSpan?, Task> tileCallback)
+        public static async Task<Tuple<MemoryStream, TimeSpan?>> LoadHttpStreamAsync(Uri uri)
         {
-            using (var response = await HttpClient.GetAsync(uri))
-            {
-                if (!response.IsSuccessStatusCode)
-                {
-                    Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                }
-                else if (IsTileAvailable(response.Headers))
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        await response.Content.CopyToAsync(stream);
-                        stream.Seek(0, SeekOrigin.Begin);
+            Tuple<MemoryStream, TimeSpan?> result = null;
 
-                        await tileCallback(stream, response.Headers.CacheControl?.MaxAge);
+            try
+            {
+                using (var response = await HttpClient.GetAsync(uri))
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                    }
+                    else
+                    {
+                        MemoryStream stream = null;
+                        TimeSpan? maxAge = null;
+
+                        if (IsTileAvailable(response.Headers))
+                        {
+                            stream = new MemoryStream();
+                            await response.Content.CopyToAsync(stream);
+                            stream.Seek(0, SeekOrigin.Begin);
+                            maxAge = response.Headers.CacheControl?.MaxAge;
+                        }
+
+                        result = new Tuple<MemoryStream, TimeSpan?>(stream, maxAge);
                     }
                 }
-
-                return response.IsSuccessStatusCode;
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+            }
+
+            return result;
         }
 
         public static ImageSource CreateImageSource(Stream stream)
@@ -75,12 +89,14 @@ namespace MapControl
             return Task.Run(() => CreateImageSource(stream));
         }
 
-        private static async Task<Stream> GetResponseStreamAsync(HttpContent content)
+        private static async Task<ImageSource> CreateImageSourceAsync(HttpContent content)
         {
-            var stream = new MemoryStream();
-            await content.CopyToAsync(stream);
-            stream.Seek(0, SeekOrigin.Begin);
-            return stream;
+            using (var stream = new MemoryStream())
+            {
+                await content.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return await CreateImageSourceAsync(stream);
+            }
         }
 
         private static bool IsTileAvailable(HttpResponseHeaders responseHeaders)

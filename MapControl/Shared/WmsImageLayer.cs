@@ -126,7 +126,7 @@ namespace MapControl
 
                 try
                 {
-                    imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")), false);
+                    imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")));
                 }
                 catch (Exception ex)
                 {
