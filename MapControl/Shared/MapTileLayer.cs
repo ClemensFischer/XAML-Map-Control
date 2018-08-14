@@ -41,7 +41,7 @@ namespace MapControl
                 {
                     SourceName = "OpenStreetMap",
                     Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 19
                 };
             }
@@ -374,7 +374,7 @@ namespace MapControl
 
                                 if (equivalentTile != null)
                                 {
-                                    tile.SetImage(equivalentTile.Image.Source, false); // do not animate to avoid flicker when crossing 180° longitude
+                                    tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
                                 }
                             }
 

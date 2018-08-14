@@ -34,7 +34,7 @@ namespace MapControl
                 {
                     imageSource = await LoadLocalImageAsync(uri);
                 }
-                else if (uri.Scheme == "http")
+                else if (uri.Scheme == "http" || uri.Scheme == "https")
                 {
                     imageSource = await LoadHttpImageAsync(uri);
                 }
