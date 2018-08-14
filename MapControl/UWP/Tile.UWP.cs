@@ -28,7 +28,8 @@ namespace MapControl
                 }
                 else
                 {
-                    Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { To = 1d, Duration = FadeDuration });
+                    Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration, FillBehavior = FillBehavior.Stop });
+                    Image.Opacity = 1d;
                 }
             }
             else
@@ -46,7 +47,8 @@ namespace MapControl
             bitmapImage.ImageOpened -= BitmapImageOpened;
             bitmapImage.ImageFailed -= BitmapImageFailed;
 
-            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { To = 1d, Duration = FadeDuration });
+            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration, FillBehavior = FillBehavior.Stop });
+            Image.Opacity = 1d;
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)

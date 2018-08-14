@@ -24,20 +24,6 @@ namespace ViewModel
                 MapTileLayer.OpenStreetMapTileLayer
             },
             {
-                "OpenStreetMap Files",
-                new MapTileLayer
-                {
-                    SourceName = "OpenStreetMap Files",
-                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-#if WINDOWS_UWP
-                    TileSource = new TileSource { UriFormat = @"C:\Users\Clemens\AppData\Local\Packages\XamlMapControl.UniversalApp_2kan67jdewwkc\TempState\OpenStreetMap\{z}\{x}\{y}.png" },
-#else
-                    TileSource = new TileSource { UriFormat = @"C:\ProgramData\MapControl\TileCache\OpenStreetMap\{z}\{x}\{y}.png" },
-#endif
-                    MaxZoomLevel = 19
-                }
-            },
-            {
                 "OpenStreetMap German",
                 new MapTileLayer
                 {
@@ -132,54 +118,10 @@ namespace ViewModel
                 {
                     Description = "© [SevenCs GmbH](http://www.sevencs.com)",
                     ServiceUri = new Uri("http://chartserver4.sevencs.com:8080"),
-                    Layers = "ENC"
+                    Layers = "ENC",
+                    MaxBoundingBoxWidth = 360
                 }
-            },
-            {
-                "ECDIS DAY_BRIGHT",
-                new WmsImageLayer
-                {
-                    Description = "ECDIS WMS DAY_BRIGHT",
-                    ServiceUri = new Uri("http://as113121:8080/ECDIS?LAYERS=ENC&LIGHTS=TRUE&COLOR=0&DETAILS=2")
-                }
-            },
-            {
-                "ECDIS DAY_WHITEBACK",
-                new WmsImageLayer
-                {
-                    Description = "ECDIS WMS DAY_WHITEBACK",
-                    ServiceUri = new Uri("http://as113121:8080/ECDIS?LAYERS=ENC&LIGHTS=TRUE&COLOR=1&DETAILS=2")
-                }
-            },
-            {
-                "ECDIS DAY_BLACKBACK",
-                new WmsImageLayer
-                {
-                    Description = "ECDIS WMS DAY_BLACKBACK",
-                    ServiceUri = new Uri("http://as113121:8080/ECDIS?LAYERS=ENC&LIGHTS=TRUE&COLOR=2&DETAILS=2"),
-                    MapForeground = new SolidColorBrush(Colors.White)
-                }
-            },
-            {
-                "ECDIS DUSK",
-                new WmsImageLayer
-                {
-                    Description = "ECDIS WMS DUSK",
-                    ServiceUri = new Uri("http://as113121:8080/ECDIS?LAYERS=ENC&LIGHTS=TRUE&COLOR=3&DETAILS=2"),
-                    MapForeground = new SolidColorBrush(Colors.Gray),
-                    MapBackground = new SolidColorBrush(Colors.Black)
-                }
-            },
-            {
-                "ECDIS NIGHT",
-                new WmsImageLayer
-                {
-                    Description = "ECDIS WMS NIGHT",
-                    ServiceUri = new Uri("http://as113121:8080/ECDIS?LAYERS=ENC&LIGHTS=TRUE&COLOR=4&DETAILS=2"),
-                    MapForeground = new SolidColorBrush(Colors.Gray),
-                    MapBackground = new SolidColorBrush(Colors.Black)
-                }
-            },
+            }
         };
 
         private string currentMapLayerName = "OpenStreetMap";
@@ -208,23 +150,17 @@ namespace ViewModel
         public List<string> MapLayerNames { get; } = new List<string>
         {
             "OpenStreetMap",
-            "OpenStreetMap Files",
             "OpenStreetMap German",
             "Stamen Terrain",
             "Stamen Toner Light",
             "OpenStreetMap WMS",
             "OpenStreetMap TOPO WMS",
-            "SevenCs ChartServer",
-            "ECDIS DAY_BRIGHT",
-            "ECDIS DAY_WHITEBACK",
-            "ECDIS DAY_BLACKBACK",
-            "ECDIS DUSK",
-            "ECDIS NIGHT",
+            "SevenCs ChartServer"
         };
 
         public MapLayers()
         {
-            BingMapsTileLayer.ApiKey = "";
+            //BingMapsTileLayer.ApiKey = "...";
 
             // Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
             // (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
@@ -237,15 +173,6 @@ namespace ViewModel
                 MapLayerNames.Add("Bing Maps Aerial");
                 MapLayerNames.Add("Bing Maps Aerial with Labels");
             }
-
-            //var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            //t.Tick += async (s, e) =>
-            //{
-            //    var layers = await ((WmsImageLayer)mapLayers["OpenStreetMap WMS"]).GetLayerNamesAsync();
-            //    System.Diagnostics.Debug.WriteLine(string.Join(", ", layers));
-            //    t.Stop();
-            //};
-            //t.Start();
         }
     }
 }
