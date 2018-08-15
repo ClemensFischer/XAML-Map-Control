@@ -4,9 +4,13 @@
 
 using System;
 #if WINDOWS_UWP
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 #else
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 #endif
 
 namespace MapControl
@@ -36,6 +40,12 @@ namespace MapControl
                 var numTiles = 1 << ZoomLevel;
                 return ((X % numTiles) + numTiles) % numTiles;
             }
+        }
+
+        private void FadeIn()
+        {
+            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration, FillBehavior = FillBehavior.Stop });
+            Image.Opacity = 1d;
         }
     }
 }

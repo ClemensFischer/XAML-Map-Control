@@ -2,6 +2,7 @@
 // © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.UI.Xaml;
 #else
@@ -14,7 +15,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty FileProperty = DependencyProperty.Register(
             nameof(File), typeof(string), typeof(MBTileLayer),
-            new PropertyMetadata(null, (o, e) => ((MBTileLayer)o).FilePropertyChanged((string)e.NewValue)));
+            new PropertyMetadata(null, async (o, e) => await ((MBTileLayer)o).FilePropertyChanged((string)e.NewValue)));
 
         public MBTileLayer()
             : this(new TileImageLoader())
@@ -32,67 +33,67 @@ namespace MapControl
             set { SetValue(FileProperty, value); }
         }
 
-        private void FilePropertyChanged(string file)
+        private async Task FilePropertyChanged(string file)
         {
-            MBTileSource ts;
+            var mbTileSource = TileSource as MBTileSource;
+
+            if (mbTileSource != null)
+            {
+                if (file == null)
+                {
+                    ClearValue(TileSourceProperty);
+
+                    if (mbTileSource.Name != null)
+                    {
+                        ClearValue(SourceNameProperty);
+                    }
+
+                    if (mbTileSource.Description != null)
+                    {
+                        ClearValue(DescriptionProperty);
+                    }
+
+                    if (mbTileSource.MinZoom.HasValue)
+                    {
+                        ClearValue(MinZoomLevelProperty);
+                    }
+
+                    if (mbTileSource.MaxZoom.HasValue)
+                    {
+                        ClearValue(MaxZoomLevelProperty);
+                    }
+                }
+
+                mbTileSource.Dispose();
+            }
 
             if (file != null)
             {
-                ts = new MBTileSource(file);
+                mbTileSource = new MBTileSource(file);
 
-                if (ts.Metadata.ContainsKey("name"))
+                await mbTileSource.Initialize();
+
+                if (mbTileSource.Name != null)
                 {
-                    SourceName = ts.Metadata["name"];
+                    SourceName = mbTileSource.Name;
                 }
 
-                if (ts.Metadata.ContainsKey("description"))
+                if (mbTileSource.Description != null)
                 {
-                    Description = ts.Metadata["description"];
+                    Description = mbTileSource.Description;
                 }
 
-                if (ts.Metadata.ContainsKey("minzoom"))
+                if (mbTileSource.MinZoom.HasValue)
                 {
-                    int minZoom;
-                    if (int.TryParse(ts.Metadata["minzoom"], out minZoom))
-                    {
-                        MinZoomLevel = minZoom;
-                    }
+                    MinZoomLevel = mbTileSource.MinZoom.Value;
                 }
 
-                if (ts.Metadata.ContainsKey("maxzoom"))
+                if (mbTileSource.MaxZoom.HasValue)
                 {
-                    int maxZoom;
-                    if (int.TryParse(ts.Metadata["maxzoom"], out maxZoom))
-                    {
-                        MaxZoomLevel = maxZoom;
-                    }
+                    MaxZoomLevel = mbTileSource.MaxZoom.Value;
                 }
 
-                TileSource = ts;
-            }
-            else if ((ts = TileSource as MBTileSource) != null)
-            {
-                ClearValue(TileSourceProperty);
-
-                if (ts.Metadata.ContainsKey("name"))
-                {
-                    ClearValue(SourceNameProperty);
-                }
-
-                if (ts.Metadata.ContainsKey("description"))
-                {
-                    ClearValue(DescriptionProperty);
-                }
-
-                if (ts.Metadata.ContainsKey("minzoom"))
-                {
-                    ClearValue(MinZoomLevelProperty);
-                }
-
-                if (ts.Metadata.ContainsKey("maxzoom"))
-                {
-                    ClearValue(MaxZoomLevelProperty);
-                }
+                TileSource = mbTileSource;
             }
         }
     }

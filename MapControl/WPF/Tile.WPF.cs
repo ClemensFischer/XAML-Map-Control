@@ -3,10 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace MapControl
@@ -28,8 +26,7 @@ namespace MapControl
                 }
                 else
                 {
-                    Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0d, 1d, FadeDuration, FillBehavior.Stop));
-                    Image.Opacity = 1d;
+                    FadeIn();
                 }
             }
             else
@@ -47,8 +44,7 @@ namespace MapControl
             bitmapSource.DownloadCompleted -= BitmapDownloadCompleted;
             bitmapSource.DownloadFailed -= BitmapDownloadFailed;
 
-            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0d, 1d, FadeDuration, FillBehavior.Stop));
-            Image.Opacity = 1d;
+            FadeIn();
         }
 
         private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)

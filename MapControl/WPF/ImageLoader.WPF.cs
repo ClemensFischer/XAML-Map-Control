@@ -17,7 +17,67 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static async Task<Tuple<MemoryStream, TimeSpan?>> LoadHttpStreamAsync(Uri uri)
+        public static ImageSource CreateImageSource(Stream stream)
+        {
+            var bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.StreamSource = stream;
+            bitmapImage.EndInit();
+            bitmapImage.Freeze();
+            return bitmapImage;
+        }
+
+        public static Task<ImageSource> CreateImageSourceAsync(Stream stream)
+        {
+            return Task.Run(() => CreateImageSource(stream));
+        }
+
+        public static ImageSource CreateImageSource(byte[] buffer)
+        {
+            using (var stream = new MemoryStream(buffer))
+            {
+                return CreateImageSource(stream);
+            }
+        }
+
+        public static Task<ImageSource> CreateImageSourceAsync(byte[] buffer)
+        {
+            return Task.Run(() => CreateImageSource(buffer));
+        }
+
+        private static async Task<ImageSource> CreateImageSourceAsync(HttpContent content)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await content.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return await CreateImageSourceAsync(stream);
+            }
+        }
+
+        private static ImageSource LoadLocalImage(Uri uri)
+        {
+            ImageSource imageSource = null;
+            var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
+
+            if (File.Exists(path))
+            {
+                using (var stream = File.OpenRead(path))
+                {
+                    imageSource = CreateImageSource(stream);
+                }
+            }
+
+            return imageSource;
+        }
+
+        private static Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        {
+            return Task.Run(() => LoadLocalImage(uri));
+        }
+
+        internal static async Task<Tuple<MemoryStream, TimeSpan?>> LoadHttpStreamAsync(Uri uri)
         {
             Tuple<MemoryStream, TimeSpan?> result = null;
 
@@ -52,61 +112,6 @@ namespace MapControl
             }
 
             return result;
-        }
-
-        public static ImageSource LoadLocalImage(Uri uri)
-        {
-            ImageSource imageSource = null;
-
-            try
-            {
-                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
-
-                if (File.Exists(path))
-                {
-                    using (var stream = File.OpenRead(path))
-                    {
-                        imageSource = CreateImageSource(stream);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
-            }
-
-            return imageSource;
-        }
-
-        public static Task<ImageSource> LoadLocalImageAsync(Uri uri)
-        {
-            return Task.Run(() => LoadLocalImage(uri));
-        }
-
-        public static ImageSource CreateImageSource(Stream stream)
-        {
-            var bitmapImage = new BitmapImage();
-            bitmapImage.BeginInit();
-            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapImage.StreamSource = stream;
-            bitmapImage.EndInit();
-            bitmapImage.Freeze();
-            return bitmapImage;
-        }
-
-        public static Task<ImageSource> CreateImageSourceAsync(Stream stream)
-        {
-            return Task.Run(() => CreateImageSource(stream));
-        }
-
-        private static async Task<ImageSource> CreateImageSourceAsync(HttpContent content)
-        {
-            using (var stream = new MemoryStream())
-            {
-                await content.CopyToAsync(stream);
-                stream.Seek(0, SeekOrigin.Begin);
-                return await CreateImageSourceAsync(stream);
-            }
         }
 
         private static bool IsTileAvailable(HttpResponseHeaders responseHeaders)

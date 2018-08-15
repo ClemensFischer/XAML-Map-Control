@@ -40,10 +40,15 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\MBTileData.cs">
+      <Link>MBTileData.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MBTileLayer.cs">
       <Link>MBTileLayer.cs</Link>
     </Compile>
-    <Compile Include="MBTileSource.UWP.cs" />
+    <Compile Include="..\Shared\MBTileSource.cs">
+      <Link>MBTileSource.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MBTiles.UWP.rd.xml" />
   </ItemGroup>

@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -17,7 +18,52 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static async Task<Tuple<IBuffer, TimeSpan?>> LoadHttpBufferAsync(Uri uri)
+        public static async Task<ImageSource> CreateImageSourceAsync(IRandomAccessStream stream)
+        {
+            var bitmapImage = new BitmapImage();
+            await bitmapImage.SetSourceAsync(stream);
+            return bitmapImage;
+        }
+
+        public static async Task<ImageSource> CreateImageSourceAsync(byte[] buffer)
+        {
+            using (var stream = new InMemoryRandomAccessStream())
+            {
+                await stream.WriteAsync(buffer.AsBuffer());
+                stream.Seek(0);
+                return await CreateImageSourceAsync(stream);
+            }
+        }
+
+        private static async Task<ImageSource> CreateImageSourceAsync(IHttpContent content)
+        {
+            using (var stream = new InMemoryRandomAccessStream())
+            {
+                await content.WriteToStreamAsync(stream);
+                stream.Seek(0);
+                return await CreateImageSourceAsync(stream);
+            }
+        }
+
+        private static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        {
+            ImageSource imageSource = null;
+            var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
+
+            if (File.Exists(path))
+            {
+                var file = await StorageFile.GetFileFromPathAsync(path);
+
+                using (var stream = await file.OpenReadAsync())
+                {
+                    imageSource = await CreateImageSourceAsync(stream);
+                }
+            }
+
+            return imageSource;
+        }
+
+        internal static async Task<Tuple<IBuffer, TimeSpan?>> LoadHttpBufferAsync(Uri uri)
         {
             Tuple<IBuffer, TimeSpan?> result = null;
 
@@ -50,49 +96,6 @@ namespace MapControl
             }
 
             return result;
-        }
-
-        public static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
-        {
-            ImageSource imageSource = null;
-
-            try
-            {
-                var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
-
-                if (File.Exists(path))
-                {
-                    var file = await StorageFile.GetFileFromPathAsync(path);
-
-                    using (var stream = await file.OpenReadAsync())
-                    {
-                        imageSource = await CreateImageSourceAsync(stream);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
-            }
-
-            return imageSource;
-        }
-
-        public static async Task<ImageSource> CreateImageSourceAsync(IRandomAccessStream stream)
-        {
-            var bitmapImage = new BitmapImage();
-            await bitmapImage.SetSourceAsync(stream);
-            return bitmapImage;
-        }
-
-        private static async Task<ImageSource> CreateImageSourceAsync(IHttpContent content)
-        {
-            using (var stream = new InMemoryRandomAccessStream())
-            {
-                await content.WriteToStreamAsync(stream);
-                stream.Seek(0);
-                return await CreateImageSourceAsync(stream);
-            }
         }
 
         private static bool IsTileAvailable(HttpResponseHeaderCollection responseHeaders)

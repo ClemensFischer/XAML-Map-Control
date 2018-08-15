@@ -6,7 +6,6 @@ using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MapControl
@@ -28,8 +27,7 @@ namespace MapControl
                 }
                 else
                 {
-                    Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration, FillBehavior = FillBehavior.Stop });
-                    Image.Opacity = 1d;
+                    FadeIn();
                 }
             }
             else
@@ -47,8 +45,7 @@ namespace MapControl
             bitmapImage.ImageOpened -= BitmapImageOpened;
             bitmapImage.ImageFailed -= BitmapImageFailed;
 
-            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration, FillBehavior = FillBehavior.Stop });
-            Image.Opacity = 1d;
+            FadeIn();
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)

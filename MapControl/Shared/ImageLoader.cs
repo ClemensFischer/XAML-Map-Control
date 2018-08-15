@@ -51,27 +51,20 @@ namespace MapControl
             return imageSource;
         }
 
-        public static async Task<ImageSource> LoadHttpImageAsync(Uri uri)
+        private static async Task<ImageSource> LoadHttpImageAsync(Uri uri)
         {
             ImageSource imageSource = null;
 
-            try
+            using (var response = await HttpClient.GetAsync(uri))
             {
-                using (var response = await HttpClient.GetAsync(uri))
+                if (!response.IsSuccessStatusCode)
                 {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                    }
-                    else if (IsTileAvailable(response.Headers))
-                    {
-                        imageSource = await CreateImageSourceAsync(response.Content);
-                    }
+                    Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+                else if (IsTileAvailable(response.Headers))
+                {
+                    imageSource = await CreateImageSourceAsync(response.Content);
+                }
             }
 
             return imageSource;
