@@ -67,7 +67,7 @@ namespace MapControl
 
         private void SetTileImage(Tile tile, Stream stream)
         {
-            var imageSource = ImageLoader.CreateImageSource(stream);
+            var imageSource = ImageLoader.LoadImage(stream);
 
             tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(imageSource));
         }

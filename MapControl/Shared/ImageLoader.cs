@@ -63,7 +63,7 @@ namespace MapControl
                 }
                 else if (IsTileAvailable(response.Headers))
                 {
-                    imageSource = await CreateImageSourceAsync(response.Content);
+                    imageSource = await LoadImageAsync(response.Content);
                 }
             }
 

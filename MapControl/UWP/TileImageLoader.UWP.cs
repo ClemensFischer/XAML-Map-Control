@@ -72,7 +72,7 @@ namespace MapControl
                 {
                     try
                     {
-                        tile.SetImage(await ImageLoader.CreateImageSourceAsync(stream));
+                        tile.SetImage(await ImageLoader.LoadImageAsync(stream));
                         tcs.SetResult(null);
                     }
                     catch (Exception ex)

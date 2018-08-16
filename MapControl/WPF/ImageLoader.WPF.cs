@@ -17,7 +17,7 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static ImageSource CreateImageSource(Stream stream)
+        public static ImageSource LoadImage(Stream stream)
         {
             var bitmapImage = new BitmapImage();
             bitmapImage.BeginInit();
@@ -28,31 +28,31 @@ namespace MapControl
             return bitmapImage;
         }
 
-        public static Task<ImageSource> CreateImageSourceAsync(Stream stream)
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            return Task.Run(() => CreateImageSource(stream));
+            return Task.Run(() => LoadImage(stream));
         }
 
-        public static ImageSource CreateImageSource(byte[] buffer)
+        public static ImageSource LoadImage(byte[] buffer)
         {
             using (var stream = new MemoryStream(buffer))
             {
-                return CreateImageSource(stream);
+                return LoadImage(stream);
             }
         }
 
-        public static Task<ImageSource> CreateImageSourceAsync(byte[] buffer)
+        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
-            return Task.Run(() => CreateImageSource(buffer));
+            return Task.Run(() => LoadImage(buffer));
         }
 
-        private static async Task<ImageSource> CreateImageSourceAsync(HttpContent content)
+        private static async Task<ImageSource> LoadImageAsync(HttpContent content)
         {
             using (var stream = new MemoryStream())
             {
                 await content.CopyToAsync(stream);
                 stream.Seek(0, SeekOrigin.Begin);
-                return await CreateImageSourceAsync(stream);
+                return await LoadImageAsync(stream);
             }
         }
 
@@ -65,7 +65,7 @@ namespace MapControl
             {
                 using (var stream = File.OpenRead(path))
                 {
-                    imageSource = CreateImageSource(stream);
+                    imageSource = LoadImage(stream);
                 }
             }
 
