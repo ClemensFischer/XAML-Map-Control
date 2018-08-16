@@ -69,7 +69,7 @@ namespace MapControl
         {
             var buffer = await tileData.ReadImageBufferAsync(x, y, zoomLevel);
 
-            return buffer != null ? await ImageLoader.CreateImageSourceAsync(buffer) : null;
+            return buffer != null ? await ImageLoader.LoadImageAsync(buffer) : null;
         }
     }
 }
