@@ -63,7 +63,7 @@ namespace MapControl
             return metadata;
         }
 
-        public async Task WriteMetadataAsync(IDictionary<string, object> metadata)
+        public async Task WriteMetadataAsync(IDictionary<string, string> metadata)
         {
             try
             {
@@ -72,12 +72,12 @@ namespace MapControl
                     await command.ExecuteNonQueryAsync();
                 }
 
-                foreach (var keyValue in metadata)
+                using (var command = new SQLiteCommand("insert or replace into metadata (name, value) values (@n, @v)", connection))
                 {
-                    using (var command = new SQLiteCommand("insert or replace into metadata (name, value) values (@n, @v)", connection))
+                    foreach (var keyValue in metadata)
                     {
                         command.Parameters.AddWithValue("@n", keyValue.Key);
-                        command.Parameters.AddWithValue("@v", keyValue.Value.ToString());
+                        command.Parameters.AddWithValue("@v", keyValue.Value);
 
                         await command.ExecuteNonQueryAsync();
                     }
