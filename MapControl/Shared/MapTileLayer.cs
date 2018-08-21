@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -22,7 +21,7 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        Task LoadTilesAsync(MapTileLayer tileLayer);
+        void LoadTilesAsync(MapTileLayer tileLayer);
     }
 
     /// <summary>
@@ -93,7 +92,6 @@ namespace MapControl
             IsHitTestVisible = false;
             RenderTransform = new MatrixTransform();
             TileImageLoader = tileImageLoader;
-            Tiles = new List<Tile>();
 
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => UpdateTileGrid();
@@ -102,8 +100,10 @@ namespace MapControl
         }
 
         public ITileImageLoader TileImageLoader { get; private set; }
-        public ICollection<Tile> Tiles { get; private set; }
+
         public TileGrid TileGrid { get; private set; }
+
+        public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
 
         /// <summary>
         /// Provides map tile URIs or images.
@@ -273,7 +273,7 @@ namespace MapControl
         {
             if (TileGrid != null)
             {
-                Tiles.Clear();
+                Tiles = new List<Tile>();
                 UpdateTiles();
             }
         }
@@ -344,9 +344,7 @@ namespace MapControl
                 var maxZoomLevel = Math.Min(TileGrid.ZoomLevel, MaxZoomLevel);
                 var minZoomLevel = MinZoomLevel;
 
-                if (minZoomLevel < maxZoomLevel &&
-                    parentMap.MapLayer != this &&
-                    parentMap.Children.Cast<UIElement>().FirstOrDefault() != this)
+                if (minZoomLevel < maxZoomLevel && parentMap.MapLayer != this)
                 {
                     minZoomLevel = maxZoomLevel; // do not load lower level tiles if this is note a "base" layer
                 }
@@ -393,7 +391,7 @@ namespace MapControl
                 Children.Add(tile.Image);
             }
 
-            var task = TileImageLoader.LoadTilesAsync(this);
+            TileImageLoader.LoadTilesAsync(this);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace MapControl
             get { return Data; }
         }
 
-        bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             UpdateData();
             return true;

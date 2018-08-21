@@ -26,12 +26,7 @@ namespace MapControl
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
 
-        /// <summary>
-        /// Gets or sets the maximum number of concurrent connections. The default value is 2.
-        /// </summary>
-        public static int DefaultConnectionLimit { get; set; } = 2;
-
-        private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey);
             var cacheBuffer = cacheItem?.Buffer;
@@ -46,7 +41,7 @@ namespace MapControl
 
                     if (result.Item1 != null) // tile image available
                     {
-                        await SetTileImageAsync(tile, result.Item1); // show before caching
+                        await LoadTileImageAsync(tile, result.Item1);
                         await Cache.SetAsync(cacheKey, result.Item1, GetExpiration(result.Item2));
                     }
                 }
@@ -54,21 +49,20 @@ namespace MapControl
 
             if (cacheBuffer != null)
             {
-                await SetTileImageAsync(tile, cacheBuffer);
+                await LoadTileImageAsync(tile, cacheBuffer);
             }
         }
 
-        private async Task SetTileImageAsync(Tile tile, IBuffer buffer)
+        private async Task LoadTileImageAsync(Tile tile, IBuffer buffer)
         {
             var tcs = new TaskCompletionSource<object>();
 
             using (var stream = new InMemoryRandomAccessStream())
             {
                 await stream.WriteAsync(buffer);
-                await stream.FlushAsync(); // necessary?
                 stream.Seek(0);
 
-                await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                 {
                     try
                     {
@@ -81,6 +75,26 @@ namespace MapControl
                     }
                 });
             }
+
+            await tcs.Task;
+        }
+
+        private async Task LoadTileImageAsync(Tile tile, TileSource tileSource)
+        {
+            var tcs = new TaskCompletionSource<object>();
+
+            await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            {
+                try
+                {
+                    tile.SetImage(await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
+                    tcs.SetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
 
             await tcs.Task;
         }

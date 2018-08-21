@@ -4,10 +4,11 @@
 
 using System;
 using System.IO;
-using System.Net;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace MapControl
 {
@@ -27,12 +28,7 @@ namespace MapControl
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
 
-        private static int DefaultConnectionLimit
-        {
-            get { return ServicePointManager.DefaultConnectionLimit; }
-        }
-
-        private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             DateTime expiration;
             var cacheBuffer = GetCachedImage(cacheKey, out expiration);
@@ -49,7 +45,7 @@ namespace MapControl
                     {
                         using (var stream = result.Item1)
                         {
-                            SetTileImage(tile, stream); // show before caching
+                            LoadTileImage(tile, stream);
                             SetCachedImage(cacheKey, stream, GetExpiration(result.Item2));
                         }
                     }
@@ -60,15 +56,23 @@ namespace MapControl
             {
                 using (var stream = new MemoryStream(cacheBuffer))
                 {
-                    SetTileImage(tile, stream);
+                    LoadTileImage(tile, stream);
                 }
             }
         }
 
-        private void SetTileImage(Tile tile, Stream stream)
+        private async Task LoadTileImageAsync(Tile tile, TileSource tileSource)
         {
-            var imageSource = ImageLoader.LoadImage(stream);
+            SetTileImage(tile, await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
+        }
 
+        private void LoadTileImage(Tile tile, Stream stream)
+        {
+            SetTileImage(tile, ImageLoader.LoadImage(stream));
+        }
+
+        private void SetTileImage(Tile tile, ImageSource imageSource)
+        {
             tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(imageSource));
         }
 

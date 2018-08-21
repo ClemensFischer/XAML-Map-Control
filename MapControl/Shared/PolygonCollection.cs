@@ -18,6 +18,12 @@ namespace MapControl
     /// </summary>
     public class PolygonCollection : ObservableCollection<IEnumerable<Location>>, IWeakEventListener
     {
+        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        {
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, sender, sender));
+            return true;
+        }
+
         protected override void InsertItem(int index, IEnumerable<Location> polygon)
         {
             var observablePolygon = polygon as INotifyCollectionChanged;
@@ -62,13 +68,6 @@ namespace MapControl
             }
 
             base.ClearItems();
-        }
-
-        bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
-        {
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, sender, sender));
-
-            return true;
         }
     }
 }
