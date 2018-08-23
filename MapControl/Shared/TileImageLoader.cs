@@ -77,9 +77,9 @@ namespace MapControl
                     loadFunc = tile => LoadTileImageAsync(tile, tileSource);
                 }
 
-                var maxTasks = Math.Min(pendingTiles.Count, MaxLoadTasks);
+                var newTasks = Math.Min(pendingTiles.Count, MaxLoadTasks) - taskCount;
 
-                while (taskCount < maxTasks)
+                while (--newTasks >= 0)
                 {
                     Interlocked.Increment(ref taskCount);
 
