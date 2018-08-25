@@ -31,6 +31,7 @@ namespace MapControl
         public WorldMercatorProjection(string crsId)
         {
             CrsId = crsId;
+            IsCylindrical = true;
             MaxLatitude = YToLatitude(180d);
         }
 

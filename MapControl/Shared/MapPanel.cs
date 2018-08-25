@@ -246,7 +246,7 @@ namespace MapControl
             {
                 pos = parentMap.MapProjection.LocationToViewportPoint(location);
 
-                if (parentMap.MapProjection.IsContinuous &&
+                if (parentMap.MapProjection.IsCylindrical &&
                     (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                      pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
                 {
@@ -310,7 +310,7 @@ namespace MapControl
                 var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
                 var pos = projection.ViewportTransform.Transform(center);
 
-                if (parentMap.MapProjection.IsContinuous &&
+                if (parentMap.MapProjection.IsCylindrical &&
                     (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                      pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
                 {

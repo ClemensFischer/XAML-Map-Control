@@ -25,6 +25,7 @@ namespace MapControl
         public WebMercatorProjection(string crsId)
         {
             CrsId = crsId;
+            IsCylindrical = true;
             IsWebMercator = true;
             MaxLatitude = YToLatitude(180d);
         }

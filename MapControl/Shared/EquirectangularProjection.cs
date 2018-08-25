@@ -18,12 +18,13 @@ namespace MapControl
         public EquirectangularProjection()
             : this("EPSG:4326")
         {
-            TrueScale = 1;
         }
 
         public EquirectangularProjection(string crsId)
         {
             CrsId = crsId;
+            IsCylindrical = true;
+            TrueScale = 1;
         }
 
         public override Vector GetMapScale(Location location)

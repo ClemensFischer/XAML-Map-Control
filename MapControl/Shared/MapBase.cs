@@ -338,16 +338,7 @@ namespace MapControl
             if (TargetZoomLevel != zoomLevel)
             {
                 SetTransformCenter(center);
-
-                if (MapProjection.IsAzimuthal)
-                {
-                    ZoomLevel = zoomLevel;
-                    ResetTransformCenter();
-                }
-                else
-                {
-                    TargetZoomLevel = zoomLevel;
-                }
+                TargetZoomLevel = zoomLevel;
             }
         }
 
@@ -417,11 +408,8 @@ namespace MapControl
 
         private void ProjectionCenterPropertyChanged()
         {
-            if (MapProjection.IsAzimuthal)
-            {
-                ResetTransformCenter();
-                UpdateTransform();
-            }
+            ResetTransformCenter();
+            UpdateTransform();
         }
 
         private void AdjustCenterProperty(DependencyProperty property, ref Location center)
@@ -463,7 +451,7 @@ namespace MapControl
 
                 if (!targetCenter.Equals(Center))
                 {
-                    var targetCenterLongitude = MapProjection.IsContinuous
+                    var targetCenterLongitude = MapProjection.IsCylindrical
                         ? Location.NearestLongitude(targetCenter.Longitude, Center.Longitude)
                         : targetCenter.Longitude;
 

@@ -19,12 +19,6 @@ namespace MapControl
     {
         public Location ProjectionCenter { get; private set; } = new Location();
 
-        public AzimuthalProjection()
-        {
-            IsContinuous = false;
-            IsAzimuthal = true;
-        }
-
         public override Vector GetMapScale(Location location)
         {
             return new Vector(ViewportScale, ViewportScale);

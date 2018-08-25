@@ -44,13 +44,13 @@ namespace MapControl
                 var lineDistance = GetLineDistance();
                 var labelFormat = GetLabelFormat(lineDistance);
 
-                if (projection.IsAzimuthal)
+                if (projection.IsCylindrical)
                 {
-
+                    DrawCylindricalGraticule(drawingContext, projection, lineDistance, labelFormat);
                 }
                 else
                 {
-                    DrawCylindricalGraticule(drawingContext, projection, lineDistance, labelFormat);
+                    // todo
                 }
             }
         }

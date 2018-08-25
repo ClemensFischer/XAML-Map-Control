@@ -28,19 +28,14 @@ namespace MapControl
         private Matrix inverseViewportTransformMatrix;
 
         /// <summary>
-        /// Gets or sets the WMS 1.3.0 CRS Identifier.
+        /// Gets the WMS 1.3.0 CRS Identifier.
         /// </summary>
-        public string CrsId { get; set; }
+        public string CrsId { get; protected set; }
 
         /// <summary>
-        /// Indicates if the map can be moved infinitely in longitudinal direction.
+        /// Indicates if this is a normal cylindrical projection.
         /// </summary>
-        public bool IsContinuous { get; protected set; } = true;
-
-        /// <summary>
-        /// Indicates if this is an azimuthal projection.
-        /// </summary>
-        public bool IsAzimuthal { get; protected set; } = false;
+        public bool IsCylindrical { get; protected set; } = false;
 
         /// <summary>
         /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
@@ -48,8 +43,8 @@ namespace MapControl
         public bool IsWebMercator { get; protected set; } = false;
 
         /// <summary>
-        /// Gets the scale factor from geographic to cartesian coordinates, on the line of true scale
-        /// of a cylindrical projection, or at the projection center of an azimuthal projection.
+        /// Gets the scale factor from geographic to cartesian coordinates, on the line of true scale of a
+        /// cylindrical projection (usually the equator), or at the projection center of an azimuthal projection.
         /// </summary>
         public double TrueScale { get; protected set; } = MetersPerDegree;
 

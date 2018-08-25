@@ -26,7 +26,7 @@ namespace MapControl
         {
             var projection = ParentMap.MapProjection;
 
-            if (!projection.IsAzimuthal)
+            if (projection.IsCylindrical)
             {
                 if (path == null)
                 {

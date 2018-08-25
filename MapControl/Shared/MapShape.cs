@@ -106,7 +106,7 @@ namespace MapControl
         {
             var longitudeOffset = 0d;
 
-            if (parentMap.MapProjection.IsContinuous && Location != null)
+            if (parentMap.MapProjection.IsCylindrical && Location != null)
             {
                 var viewportPosition = LocationToViewportPoint(Location);
 
