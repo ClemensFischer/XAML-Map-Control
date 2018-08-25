@@ -68,7 +68,7 @@ namespace MapControl
 
             if (values.Length != 2)
             {
-                throw new FormatException("Location string must be a comma-separated pair of double values");
+                throw new FormatException("Location string must be a comma-separated pair of double values.");
             }
 
             return new Location(

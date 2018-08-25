@@ -66,7 +66,7 @@ namespace MapControl
 
             if (double.IsInfinity(invDet))
             {
-                throw new InvalidOperationException("Matrix is not invertible");
+                throw new InvalidOperationException("Matrix is not invertible.");
             }
 
             SetMatrix(

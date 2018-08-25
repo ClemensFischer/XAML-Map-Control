@@ -69,7 +69,7 @@ namespace MapControl
         {
             if (resolution <= 0d)
             {
-                throw new ArgumentOutOfRangeException("resolution");
+                throw new ArgumentOutOfRangeException("The parameter resolution must be greater than zero.");
             }
 
             var locations = new LocationCollection();
@@ -91,7 +91,7 @@ namespace MapControl
         {
             if (resolution <= 0d)
             {
-                throw new ArgumentOutOfRangeException("resolution");
+                throw new ArgumentOutOfRangeException("The parameter resolution must be greater than zero.");
             }
 
             if (location1.Longitude == location2.Longitude ||
@@ -154,21 +154,21 @@ namespace MapControl
         {
             if (resolution <= 0d)
             {
-                throw new ArgumentOutOfRangeException("resolution");
+                throw new ArgumentOutOfRangeException("The parameter resolution must be greater than zero.");
             }
 
             var y1 = WebMercatorProjection.LatitudeToY(location1.Latitude);
 
             if (double.IsInfinity(y1))
             {
-                throw new ArgumentOutOfRangeException("location1");
+                throw new ArgumentOutOfRangeException("The parameter location1 must have an absolute latitude value of less than 90 degrees.");
             }
 
             var y2 = WebMercatorProjection.LatitudeToY(location2.Latitude);
 
             if (double.IsInfinity(y2))
             {
-                throw new ArgumentOutOfRangeException("location2");
+                throw new ArgumentOutOfRangeException("The parameter location2 must have an absolute latitude value of less than 90 degrees.");
             }
 
             var x1 = location1.Longitude;
