@@ -28,9 +28,9 @@ namespace MapControl
         private Matrix inverseViewportTransformMatrix;
 
         /// <summary>
-        /// Gets the WMS 1.3.0 CRS Identifier.
+        /// Gets or sets the WMS 1.3.0 CRS Identifier.
         /// </summary>
-        public string CrsId { get; protected set; }
+        public string CrsId { get; set; }
 
         /// <summary>
         /// Indicates if this is a normal cylindrical projection.
