@@ -53,10 +53,7 @@ namespace MapControl.Projections
         /// </summary>
         public string WKT
         {
-            get
-            {
-                return coordinateTransform?.TargetCS?.WKT;
-            }
+            get { return coordinateTransform?.TargetCS?.WKT; }
             set
             {
                 var sourceCs = GeographicCoordinateSystem.WGS84;
