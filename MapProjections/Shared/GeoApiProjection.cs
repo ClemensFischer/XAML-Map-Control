@@ -33,7 +33,7 @@ namespace MapControl.Projections
             get { return coordinateTransform; }
             set
             {
-                coordinateTransform = value;
+                coordinateTransform = value ?? throw new ArgumentNullException("The property value must not be null.");
                 mathTransform = coordinateTransform.MathTransform;
                 inverseTransform = mathTransform.Inverse();
 
@@ -67,7 +67,7 @@ namespace MapControl.Projections
         {
             if (mathTransform == null)
             {
-                throw new InvalidOperationException("The Wkt property is not set or not valid.");
+                throw new InvalidOperationException("The CoordinateTransformation property is not set.");
             }
 
             var xy = mathTransform.Transform(new double[] { location.Longitude, location.Latitude });
@@ -79,7 +79,7 @@ namespace MapControl.Projections
         {
             if (inverseTransform == null)
             {
-                throw new InvalidOperationException("The Wkt property is not set or not valid.");
+                throw new InvalidOperationException("The CoordinateTransformation property is not set.");
             }
 
             var lonLat = inverseTransform.Transform(new double[] { point.X, point.Y });
