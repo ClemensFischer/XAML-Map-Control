@@ -66,7 +66,10 @@ namespace MapControl
         /// <summary>
         /// Gets the map scale at the specified Location as viewport coordinate units per meter (px/m).
         /// </summary>
-        public abstract Vector GetMapScale(Location location);
+        public virtual Vector GetMapScale(Location location)
+        {
+            return new Vector(ViewportScale, ViewportScale);
+        }
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in cartesian map coordinates.

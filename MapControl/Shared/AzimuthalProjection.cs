@@ -19,11 +19,6 @@ namespace MapControl
     {
         public Location ProjectionCenter { get; private set; } = new Location();
 
-        public override Vector GetMapScale(Location location)
-        {
-            return new Vector(ViewportScale, ViewportScale);
-        }
-
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
             var cbbox = boundingBox as CenteredBoundingBox;
