@@ -23,7 +23,6 @@ namespace MapControl.Projections
         private ICoordinateTransformation coordinateTransform;
         private IMathTransform mathTransform;
         private IMathTransform inverseTransform;
-        private string wkt;
 
         /// <summary>
         /// Gets or sets the underlying ICoordinateTransformation instance.
@@ -52,16 +51,18 @@ namespace MapControl.Projections
         /// e.g. a PROJCS[...] string as used by https://epsg.io or http://spatialreference.org.
         /// Setting this property updates the CoordinateTransform property.
         /// </summary>
-        public string Wkt
+        public string WKT
         {
-            get { return wkt; }
+            get
+            {
+                return coordinateTransform?.TargetCS?.WKT;
+            }
             set
             {
                 var sourceCs = GeographicCoordinateSystem.WGS84;
                 var targetCs = (ICoordinateSystem)CoordinateSystemWktReader.Parse(value, Encoding.UTF8);
 
                 CoordinateTransform = new CoordinateTransformationFactory().CreateFromCoordinateSystems(sourceCs, targetCs);
-                wkt = value;
             }
         }
 

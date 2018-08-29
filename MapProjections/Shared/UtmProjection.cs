@@ -46,9 +46,12 @@ namespace MapControl.Projections
 
                 zoneName = value;
                 epsgCode += zoneNumber;
+                var centralMeridian = 6 * zoneNumber - 183;
 
-                Wkt = string.Format(wktFormat, zoneName, 6 * zoneNumber - 183, falseNorthing, epsgCode);
+                WKT = string.Format(wktFormat, zoneName, centralMeridian, falseNorthing, epsgCode);
                 TrueScale = 0.9996 * MetersPerDegree;
+
+                System.Diagnostics.Debug.WriteLine(WKT);
             }
         }
     }
