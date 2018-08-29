@@ -47,8 +47,8 @@ namespace MapControl.Projections
         }
 
         /// <summary>
-        /// Get or sets an OGC Well-known text representation of a projected coordinate system,
-        /// e.g. a PROJCS[...] string as used by https://epsg.io or http://spatialreference.org.
+        /// Gets or sets an OGC Well-known text representation of a projected coordinate system,
+        /// i.e. a PROJCS[...] string as used by https://epsg.io or http://spatialreference.org.
         /// Setting this property updates the CoordinateTransform property.
         /// </summary>
         public string WKT
