@@ -9,6 +9,7 @@ using System.Windows;
 #endif
 using GeoAPI.CoordinateSystems;
 using GeoAPI.CoordinateSystems.Transformations;
+using GeoAPI.Geometries;
 using ProjNet.Converters.WellKnownText;
 using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
@@ -70,9 +71,9 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateTransformation property is not set.");
             }
 
-            var xy = mathTransform.Transform(new double[] { location.Longitude, location.Latitude });
+            var coordinate = mathTransform.Transform(new Coordinate(location.Longitude, location.Latitude));
 
-            return new Point(xy[0], xy[1]);
+            return new Point(coordinate.X, coordinate.Y);
         }
 
         public override Location PointToLocation(Point point)
@@ -82,9 +83,9 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateTransformation property is not set.");
             }
 
-            var lonLat = inverseTransform.Transform(new double[] { point.X, point.Y });
+            var coordinate = inverseTransform.Transform(new Coordinate(point.X, point.Y));
 
-            return new Location(lonLat[1], lonLat[0]);
+            return new Location(coordinate.Y, coordinate.X);
         }
     }
 }
