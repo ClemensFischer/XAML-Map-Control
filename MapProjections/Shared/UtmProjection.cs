@@ -50,8 +50,6 @@ namespace MapControl.Projections
 
                 WKT = string.Format(wktFormat, zoneName, centralMeridian, falseNorthing, epsgCode);
                 TrueScale = 0.9996 * MetersPerDegree;
-
-                System.Diagnostics.Debug.WriteLine(WKT);
             }
         }
     }
