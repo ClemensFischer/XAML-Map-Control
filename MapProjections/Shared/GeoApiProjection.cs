@@ -34,7 +34,12 @@ namespace MapControl.Projections
             get { return coordinateTransform; }
             set
             {
-                coordinateTransform = value ?? throw new ArgumentNullException("The property value must not be null.");
+                if (value == null)
+                {
+                    throw new ArgumentNullException("The property value must not be null.");
+                }
+
+                coordinateTransform = value;
                 mathTransform = coordinateTransform.MathTransform;
                 inverseTransform = mathTransform.Inverse();
 
