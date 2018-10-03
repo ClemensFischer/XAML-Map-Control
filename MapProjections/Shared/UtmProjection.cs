@@ -3,6 +3,9 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+#if !WINDOWS_UWP
+using System.Windows;
+#endif
 
 namespace MapControl.Projections
 {
@@ -10,47 +13,64 @@ namespace MapControl.Projections
     {
         private static readonly string wktFormat = "PROJCS[\"WGS 84 / UTM zone {0}\", GEOGCS[\"WGS 84\", DATUM[\"WGS_1984\", SPHEROID[\"WGS 84\", 6378137, 298.257223563, AUTHORITY[\"EPSG\", \"7030\"]], AUTHORITY[\"EPSG\", \"6326\"]], PRIMEM[\"Greenwich\", 0, AUTHORITY[\"EPSG\", \"8901\"]], UNIT[\"degree\", 0.01745329251994328, AUTHORITY[\"EPSG\", \"9122\"]], AUTHORITY[\"EPSG\", \"4326\"]], UNIT[\"metre\", 1, AUTHORITY[\"EPSG\", \"9001\"]], PROJECTION[\"Transverse_Mercator\"], PARAMETER[\"latitude_of_origin\", 0], PARAMETER[\"central_meridian\", {1}], PARAMETER[\"scale_factor\", 0.9996], PARAMETER[\"false_easting\", 500000], PARAMETER[\"false_northing\", {2}], AUTHORITY[\"EPSG\", \"{3}\"], AXIS[\"Easting\", EAST], AXIS[\"Northing\", NORTH]]";
 
-        private string zoneName;
-
-        public string ZoneName
+        public UtmProjection()
         {
-            get { return zoneName; }
+            TrueScale = 0.9996 * MetersPerDegree;
+        }
+
+        private string zone;
+
+        public string Zone
+        {
+            get { return zone; }
             set
             {
-                var zoneNumber = 0;
-                var falseNorthing = 0;
-                var epsgCode = 0;
-
-                if (!string.IsNullOrEmpty(value))
+                if (zone != value)
                 {
-                    if (value.EndsWith("N"))
+                    if (string.IsNullOrEmpty(value))
                     {
-                        epsgCode = 32600;
-                    }
-                    else if (value.EndsWith("S"))
-                    {
-                        falseNorthing = 10000000;
-                        epsgCode = 32700;
+                        throw new ArgumentException("Invalid UTM zone.");
                     }
 
-                    if (epsgCode > 0)
+                    var hemisphere = value[value.Length - 1];
+                    int zoneNumber;
+
+                    if ((hemisphere != 'N' && hemisphere != 'S') ||
+                        !int.TryParse(value.Substring(0, value.Length - 1), out zoneNumber))
                     {
-                        int.TryParse(value.Substring(0, value.Length - 1), out zoneNumber);
+                        throw new ArgumentException("Invalid UTM zone.");
                     }
+
+                    SetZone(zoneNumber, hemisphere == 'N');
                 }
-
-                if (zoneNumber < 1 || zoneNumber > 60)
-                {
-                    throw new ArgumentException("Invalid UTM zone name.");
-                }
-
-                zoneName = value;
-                epsgCode += zoneNumber;
-                var centralMeridian = 6 * zoneNumber - 183;
-
-                WKT = string.Format(wktFormat, zoneName, centralMeridian, falseNorthing, epsgCode);
-                TrueScale = 0.9996 * MetersPerDegree;
             }
+        }
+
+        public void SetZone(int zoneNumber, bool north)
+        {
+            if (zoneNumber < 1 || zoneNumber > 60)
+            {
+                throw new ArgumentException("Invalid UTM zone number.");
+            }
+
+            var zoneName = zoneNumber.ToString() + (north ? "N" : "S");
+
+            if (zone != zoneName)
+            {
+                var centralMeridian = zoneNumber * 6 - 183;
+                var falseNorthing = north ? 0 : 10000000;
+                var authorityCode = (north ? 32600 : 32700) + zoneNumber;
+
+                zone = zoneName;
+                WKT = string.Format(wktFormat, zone, centralMeridian, falseNorthing, authorityCode);
+            }
+        }
+
+        public void SetZone(Location location)
+        {
+            var zoneNumber = Math.Min((int)(Location.NormalizeLongitude(location.Longitude) + 180d) / 6 + 1, 60);
+
+            SetZone(zoneNumber, location.Latitude >= 0);
         }
     }
 }
