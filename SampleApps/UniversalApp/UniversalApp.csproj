@@ -145,10 +145,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FileDbCache\UWP\FileDbCache.UWP.csproj">
-      <Project>{beeb142a-5fa3-468d-810a-32a4a5bd6d5d}</Project>
-      <Name>FileDbCache.UWP</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\MapControl\UWP\MapControl.UWP.csproj">
       <Project>{951bc5d2-d653-42d9-9a91-21dc50de0182}</Project>
       <Name>MapControl.UWP</Name>
