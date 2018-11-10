@@ -5,9 +5,11 @@
 #if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using KeyEventArgs = Windows.UI.Xaml.Input.KeyRoutedEventArgs;
 #else
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 #endif
 
 namespace MapControl
@@ -45,6 +47,11 @@ namespace MapControl
         protected override bool IsItemItsOwnContainerOverride(object item)
         {
             return item is MapItem;
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            e.Handled = true;
         }
     }
 }

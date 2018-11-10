@@ -18,6 +18,7 @@
         </Setter>
     </Style>
     <Style TargetType="map:MapItem">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
