@@ -51,7 +51,6 @@ namespace MapControl
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            e.Handled = true;
         }
     }
 }
