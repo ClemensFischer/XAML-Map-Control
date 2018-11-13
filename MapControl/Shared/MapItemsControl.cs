@@ -2,35 +2,23 @@
 // © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 #if WINDOWS_UWP
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using KeyEventArgs = Windows.UI.Xaml.Input.KeyRoutedEventArgs;
 #else
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 #endif
 
 namespace MapControl
 {
-    /// <summary>
-    /// Container class for an item in a MapItemsControl.
-    /// </summary>
-    public class MapItem : ListBoxItem
-    {
-        public MapItem()
-        {
-            DefaultStyleKey = typeof(MapItem);
-
-            MapPanel.InitMapElement(this);
-        }
-    }
 
     /// <summary>
     /// Manages a collection of selectable items on a Map.
     /// </summary>
-    public class MapItemsControl : ListBox
+    public partial class MapItemsControl : ListBox
     {
         public MapItemsControl()
         {
@@ -49,8 +37,102 @@ namespace MapControl
             return item is MapItem;
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
+        public void SelectItems(Func<object, bool> predicate)
         {
+            if (SelectionMode == SelectionMode.Single)
+            {
+                throw new InvalidOperationException("SelectionMode must not be Single");
+            }
+
+            foreach (var item in Items)
+            {
+                var selected = predicate(item);
+
+                if (selected != SelectedItems.Contains(item))
+                {
+                    if (selected)
+                    {
+                        SelectedItems.Add(item);
+                    }
+                    else
+                    {
+                        SelectedItems.Remove(item);
+                    }
+                }
+            }
+        }
+
+        public void SelectItemsByLocation(Func<Location, bool> predicate)
+        {
+            SelectItems(item =>
+            {
+                var loc = MapPanel.GetLocation(MapItemFromItem(item));
+                return loc != null && predicate(loc);
+            });
+        }
+
+        public void SelectItemsByPosition(Func<Point, bool> predicate)
+        {
+            SelectItems(item =>
+            {
+                var pos = MapPanel.GetViewportPosition(MapItemFromItem(item));
+                return pos.HasValue && predicate(pos.Value);
+            });
+        }
+
+        public void SelectItemsInRect(Rect rect)
+        {
+            SelectItemsByPosition(p => rect.Contains(p));
+        }
+
+        internal void MapItemClicked(MapItem mapItem, bool controlKey, bool shiftKey)
+        {
+            var item = ItemFromMapItem(mapItem);
+
+            if (SelectionMode == SelectionMode.Single)
+            {
+                // Single -> set only SelectedItem
+
+                if (SelectedItem != item)
+                {
+                    SelectedItem = item;
+                }
+                else if (controlKey)
+                {
+                    SelectedItem = null;
+                }
+            }
+            else if (SelectionMode == SelectionMode.Multiple || controlKey)
+            {
+                // Multiple or Extended with Ctrl -> toggle item in SelectedItems
+
+                if (SelectedItems.Contains(item))
+                {
+                    SelectedItems.Remove(item);
+                }
+                else
+                {
+                    SelectedItems.Add(item);
+                }
+            }
+            else if (shiftKey && SelectedItem != null)
+            {
+                // Extended with Shift -> select items in viewport rectangle
+
+                var p1 = MapPanel.GetViewportPosition(MapItemFromItem(SelectedItem));
+                var p2 = MapPanel.GetViewportPosition(mapItem);
+
+                if (p1.HasValue && p2.HasValue)
+                {
+                    SelectItemsInRect(new Rect(p1.Value, p2.Value));
+                }
+            }
+            else if (SelectedItem != item)
+            {
+                // Extended without Control or Shift -> set selected item
+
+                SelectedItem = item;
+            }
         }
     }
 }

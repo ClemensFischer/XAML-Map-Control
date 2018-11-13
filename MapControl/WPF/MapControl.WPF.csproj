@@ -180,6 +180,7 @@
     <Compile Include="Map.WPF.cs" />
     <Compile Include="MapBase.WPF.cs" />
     <Compile Include="MapGraticule.WPF.cs" />
+    <Compile Include="MapItemsControl.WPF.cs" />
     <Compile Include="MapMultiPolygon.WPF.cs" />
     <Compile Include="MapOverlay.WPF.cs" />
     <Compile Include="MapPanel.WPF.cs" />

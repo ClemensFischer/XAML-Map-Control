@@ -157,6 +157,7 @@
     <Compile Include="Map.UWP.cs" />
     <Compile Include="MapBase.UWP.cs" />
     <Compile Include="MapGraticule.UWP.cs" />
+    <Compile Include="MapItemsControl.UWP.cs" />
     <Compile Include="MapOverlay.UWP.cs" />
     <Compile Include="MapPanel.UWP.cs" />
     <Compile Include="MapShape.UWP.cs" />
