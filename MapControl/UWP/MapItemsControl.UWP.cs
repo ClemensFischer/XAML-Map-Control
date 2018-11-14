@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using Windows.System;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
@@ -24,21 +25,16 @@ namespace MapControl
         {
             e.Handled = true;
 
-            (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.MapItemClicked(
+            (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.OnItemClicked(
                 this, e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control), e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift));
         }
     }
 
     public partial class MapItemsControl
     {
-        public MapItem MapItemFromItem(object item)
+        public new FrameworkElement ContainerFromItem(object item)
         {
-            return (MapItem)ContainerFromItem(item);
-        }
-
-        public object ItemFromMapItem(MapItem mapItem)
-        {
-            return ItemFromContainer(mapItem);
+            return (FrameworkElement)base.ContainerFromItem(item);
         }
     }
 }

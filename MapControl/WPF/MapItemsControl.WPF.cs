@@ -2,6 +2,7 @@
 // © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -24,21 +25,21 @@ namespace MapControl
         {
             e.Handled = true;
 
-            (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.MapItemClicked(
+            (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.OnItemClicked(
                 this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control), Keyboard.Modifiers.HasFlag(ModifierKeys.Shift));
         }
     }
 
     public partial class MapItemsControl
     {
-        public MapItem MapItemFromItem(object item)
+        public FrameworkElement ContainerFromItem(object item)
         {
-            return (MapItem)ItemContainerGenerator.ContainerFromItem(item);
+            return (FrameworkElement)ItemContainerGenerator.ContainerFromItem(item);
         }
 
-        public object ItemFromMapItem(MapItem mapItem)
+        public object ItemFromContainer(FrameworkElement container)
         {
-            return ItemContainerGenerator.ItemFromContainer(mapItem);
+            return ItemContainerGenerator.ItemFromContainer(container);
         }
 
         public void SelectItemsInGeometry(Geometry geometry)

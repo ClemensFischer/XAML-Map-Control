@@ -14,7 +14,6 @@ using System.Windows.Controls;
 
 namespace MapControl
 {
-
     /// <summary>
     /// Manages a collection of selectable items on a Map.
     /// </summary>
@@ -66,7 +65,7 @@ namespace MapControl
         {
             SelectItems(item =>
             {
-                var loc = MapPanel.GetLocation(MapItemFromItem(item));
+                var loc = MapPanel.GetLocation(ContainerFromItem(item));
                 return loc != null && predicate(loc);
             });
         }
@@ -75,7 +74,7 @@ namespace MapControl
         {
             SelectItems(item =>
             {
-                var pos = MapPanel.GetViewportPosition(MapItemFromItem(item));
+                var pos = MapPanel.GetViewportPosition(ContainerFromItem(item));
                 return pos.HasValue && predicate(pos.Value);
             });
         }
@@ -85,9 +84,9 @@ namespace MapControl
             SelectItemsByPosition(p => rect.Contains(p));
         }
 
-        internal void MapItemClicked(MapItem mapItem, bool controlKey, bool shiftKey)
+        protected internal void OnItemClicked(FrameworkElement mapItem, bool controlKey, bool shiftKey)
         {
-            var item = ItemFromMapItem(mapItem);
+            var item = ItemFromContainer(mapItem);
 
             if (SelectionMode == SelectionMode.Single)
             {
@@ -119,7 +118,7 @@ namespace MapControl
             {
                 // Extended with Shift -> select items in viewport rectangle
 
-                var p1 = MapPanel.GetViewportPosition(MapItemFromItem(SelectedItem));
+                var p1 = MapPanel.GetViewportPosition(ContainerFromItem(SelectedItem));
                 var p2 = MapPanel.GetViewportPosition(mapItem);
 
                 if (p1.HasValue && p2.HasValue)
