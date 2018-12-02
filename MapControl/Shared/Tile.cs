@@ -6,10 +6,12 @@ using System;
 #if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 #else
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 #endif
 
@@ -22,7 +24,7 @@ namespace MapControl
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;
-        public readonly Image Image = new Image { Opacity = 0d };
+        public readonly Image Image = new Image { Opacity = 0d, Stretch = Stretch.Fill };
 
         public Tile(int zoomLevel, int x, int y)
         {

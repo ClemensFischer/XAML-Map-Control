@@ -341,14 +341,16 @@ namespace MapControl
 
             var rotateTransform = element.RenderTransform as RotateTransform;
 
-            if (rotateTransform == null)
+            if (rotateTransform != null)
             {
-                rotateTransform = new RotateTransform();
+                rotateTransform.Angle = rotation;
+            }
+            else if (rotation != 0d)
+            {
+                rotateTransform = new RotateTransform { Angle = rotation };
                 element.RenderTransform = rotateTransform;
                 element.RenderTransformOrigin = new Point(0.5, 0.5);
             }
-
-            rotateTransform.Angle = rotation;
         }
     }
 }
