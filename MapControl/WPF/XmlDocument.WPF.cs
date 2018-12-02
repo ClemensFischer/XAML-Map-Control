@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
-    public class XmlDocument : System.Xml.XmlDocument
+    internal class XmlDocument : System.Xml.XmlDocument
     {
         public static XmlDocument LoadFromUri(Uri uri)
         {

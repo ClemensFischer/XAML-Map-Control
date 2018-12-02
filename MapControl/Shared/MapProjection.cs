@@ -25,8 +25,6 @@ namespace MapControl
         public const double Wgs84EquatorialRadius = 6378137d;
         public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
-        private Matrix inverseViewportTransformMatrix;
-
         /// <summary>
         /// Gets or sets the WMS 1.3.0 CRS Identifier.
         /// </summary>
@@ -57,6 +55,11 @@ namespace MapControl
         /// Gets the transform matrix from cartesian map coordinates to viewport coordinates (pixels).
         /// </summary>
         public Matrix ViewportTransform { get; private set; }
+
+        /// <summary>
+        /// Gets the transform matrix from viewport coordinates to cartesian map coordinates (pixels).
+        /// </summary>
+        public Matrix InverseViewportTransform { get; private set; }
 
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
@@ -115,7 +118,7 @@ namespace MapControl
         /// </summary>
         public Location ViewportPointToLocation(Point point)
         {
-            return PointToLocation(inverseViewportTransformMatrix.Transform(point));
+            return PointToLocation(InverseViewportTransform.Transform(point));
         }
 
         /// <summary>
@@ -123,7 +126,7 @@ namespace MapControl
         /// </summary>
         public BoundingBox ViewportRectToBoundingBox(Rect rect)
         {
-            var transform = new MatrixTransform { Matrix = inverseViewportTransformMatrix };
+            var transform = new MatrixTransform { Matrix = InverseViewportTransform };
 
             return RectToBoundingBox(transform.TransformBounds(rect));
         }
@@ -139,9 +142,8 @@ namespace MapControl
             var matrix = CreateTransformMatrix(center, ViewportScale, -ViewportScale, heading, viewportCenter);
 
             ViewportTransform = matrix;
-
             matrix.Invert();
-            inverseViewportTransformMatrix = matrix;
+            InverseViewportTransform = matrix;
         }
 
         /// <summary>

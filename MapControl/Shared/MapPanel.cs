@@ -244,13 +244,14 @@ namespace MapControl
 
             if (parentMap != null)
             {
-                pos = parentMap.MapProjection.LocationToViewportPoint(location);
+                var projection = parentMap.MapProjection;
+                pos = projection.LocationToViewportPoint(location);
 
-                if (parentMap.MapProjection.IsCylindrical &&
+                if (projection.IsCylindrical &&
                     (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                      pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
                 {
-                    pos = parentMap.MapProjection.LocationToViewportPoint(new Location(
+                    pos = projection.LocationToViewportPoint(new Location(
                         location.Latitude,
                         Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
                 }
@@ -310,7 +311,7 @@ namespace MapControl
                 var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
                 var pos = projection.ViewportTransform.Transform(center);
 
-                if (parentMap.MapProjection.IsCylindrical &&
+                if (projection.IsCylindrical &&
                     (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                      pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
                 {
