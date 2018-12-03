@@ -6,21 +6,17 @@ namespace MapControl
 {
     public class CenteredBoundingBox : BoundingBox
     {
-        private readonly Location center;
         private readonly double width;
         private readonly double height;
 
         public CenteredBoundingBox(Location center, double width, double height)
         {
-            this.center = center;
+            Center = center;
             this.width = width;
             this.height = height;
         }
 
-        public Location Center
-        {
-            get { return center; }
-        }
+        public Location Center { get; private set; }
 
         public override double Width
         {
@@ -34,7 +30,7 @@ namespace MapControl
 
         public override BoundingBox Clone()
         {
-            return new CenteredBoundingBox(center, width, height);
+            return new CenteredBoundingBox(Center, Width, Height);
         }
     }
 }
