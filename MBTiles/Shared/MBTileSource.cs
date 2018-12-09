@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Media;
 using System.Windows.Media;
 #endif
 
-namespace MapControl
+namespace MapControl.MBTiles
 {
     public class MBTileSource : TileSource, IDisposable
     {

@@ -7,7 +7,7 @@
     <ProjectGuid>{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MapControl</RootNamespace>
+    <RootNamespace>MapControl.MBTiles</RootNamespace>
     <AssemblyName>MBTiles.WPF</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -31,6 +31,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -63,6 +69,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\MapControl.snk">
+      <Link>MapControl.snk</Link>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

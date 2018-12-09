@@ -9,7 +9,6 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -18,14 +17,14 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
+        public static async Task<BitmapSource> LoadImageAsync(IRandomAccessStream stream)
         {
-            var bitmapImage = new BitmapImage();
-            await bitmapImage.SetSourceAsync(stream);
-            return bitmapImage;
+            var image = new BitmapImage();
+            await image.SetSourceAsync(stream);
+            return image;
         }
 
-        public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
+        public static async Task<BitmapSource> LoadImageAsync(byte[] buffer)
         {
             using (var stream = new InMemoryRandomAccessStream())
             {
@@ -35,7 +34,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<ImageSource> LoadImageAsync(IHttpContent content)
+        private static async Task<BitmapSource> LoadImageAsync(IHttpContent content)
         {
             using (var stream = new InMemoryRandomAccessStream())
             {
@@ -45,9 +44,9 @@ namespace MapControl
             }
         }
 
-        private static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        private static async Task<BitmapSource> LoadLocalImageAsync(Uri uri)
         {
-            ImageSource imageSource = null;
+            BitmapSource image = null;
             var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
             if (File.Exists(path))
@@ -56,11 +55,11 @@ namespace MapControl
 
                 using (var stream = await file.OpenReadAsync())
                 {
-                    imageSource = await LoadImageAsync(stream);
+                    image = await LoadImageAsync(stream);
                 }
             }
 
-            return imageSource;
+            return image;
         }
 
         internal static async Task<Tuple<IBuffer, TimeSpan?>> LoadHttpBufferAsync(Uri uri)

@@ -13,7 +13,7 @@ using SQLiteConnection = Microsoft.Data.Sqlite.SqliteConnection;
 using System.Data.SQLite;
 #endif
 
-namespace MapControl
+namespace MapControl.MBTiles
 {
     public class MBTileData : IDisposable
     {

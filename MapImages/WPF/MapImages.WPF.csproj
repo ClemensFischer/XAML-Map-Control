@@ -1,19 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{426C21C0-5F14-491F-BCD1-6D2993510420}</ProjectGuid>
-    <OutputType>library</OutputType>
+    <ProjectGuid>{52042F63-563A-45BB-9A08-A8635AAAB84C}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MapControl.Projections</RootNamespace>
-    <AssemblyName>MapProjections.WPF</AssemblyName>
+    <RootNamespace>MapControl.Images</RootNamespace>
+    <AssemblyName>MapImages.WPF</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkProfile />
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -39,49 +37,45 @@
     <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GeoAPI, Version=1.7.5.0, Culture=neutral, PublicKeyToken=a1a0da7def465678, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\GeoAPI.Core.1.7.5\lib\net45\GeoAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="GeoAPI.CoordinateSystems, Version=1.7.5.0, Culture=neutral, PublicKeyToken=a1a0da7def465678, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="ProjNET, Version=1.4.0.0, Culture=neutral, PublicKeyToken=a1f5bdcd9c6f5740, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ProjNET4GeoAPI.1.4.1\lib\net45\ProjNET.dll</HintPath>
-    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\GeoApiProjection.cs">
-      <Link>GeoApiProjection.cs</Link>
+    <Compile Include="..\Shared\GroundOverlayPanel.cs">
+      <Link>GroundOverlayPanel.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\UtmProjection.cs">
-      <Link>UtmProjection.cs</Link>
+    <Compile Include="..\Shared\WorldFile.cs">
+      <Link>WorldFile.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
+    <Compile Include="..\Shared\WorldFileParameters.cs">
+      <Link>WorldFileParameters.cs</Link>
     </Compile>
-    <AppDesigner Include="Properties\" />
+    <Compile Include="..\Shared\ZoomLevelToOpacityConverter.cs">
+      <Link>ZoomLevelToOpacityConverter.cs</Link>
+    </Compile>
+    <Compile Include="GroundOverlayPanel.WPF.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj">
       <Project>{a204a102-c745-4d65-aec8-7b96faedef2d}</Project>
       <Name>MapControl.WPF</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\MapProjections\WPF\MapProjections.WPF.csproj">
+      <Project>{426c21c0-5f14-491f-bcd1-6d2993510420}</Project>
+      <Name>MapProjections.WPF</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\MapControl.snk">
       <Link>MapControl.snk</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

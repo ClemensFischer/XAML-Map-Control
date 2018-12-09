@@ -10,14 +10,13 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static ImageSource LoadImage(Stream stream)
+        public static BitmapSource LoadImage(Stream stream)
         {
             var bitmapImage = new BitmapImage();
             bitmapImage.BeginInit();
@@ -28,12 +27,12 @@ namespace MapControl
             return bitmapImage;
         }
 
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
+        public static Task<BitmapSource> LoadImageAsync(Stream stream)
         {
             return Task.Run(() => LoadImage(stream));
         }
 
-        public static ImageSource LoadImage(byte[] buffer)
+        public static BitmapSource LoadImage(byte[] buffer)
         {
             using (var stream = new MemoryStream(buffer))
             {
@@ -41,12 +40,12 @@ namespace MapControl
             }
         }
 
-        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        public static Task<BitmapSource> LoadImageAsync(byte[] buffer)
         {
             return Task.Run(() => LoadImage(buffer));
         }
 
-        private static async Task<ImageSource> LoadImageAsync(HttpContent content)
+        private static async Task<BitmapSource> LoadImageAsync(HttpContent content)
         {
             using (var stream = new MemoryStream())
             {
@@ -56,23 +55,23 @@ namespace MapControl
             }
         }
 
-        private static ImageSource LoadLocalImage(Uri uri)
+        private static BitmapSource LoadLocalImage(Uri uri)
         {
-            ImageSource imageSource = null;
+            BitmapSource image = null;
             var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
             if (File.Exists(path))
             {
                 using (var stream = File.OpenRead(path))
                 {
-                    imageSource = LoadImage(stream);
+                    image = LoadImage(stream);
                 }
             }
 
-            return imageSource;
+            return image;
         }
 
-        private static Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        private static Task<BitmapSource> LoadLocalImageAsync(Uri uri)
         {
             return Task.Run(() => LoadLocalImage(uri));
         }

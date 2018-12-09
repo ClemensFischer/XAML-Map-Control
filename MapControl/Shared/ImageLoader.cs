@@ -7,11 +7,9 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.Web.Http;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Net.Http;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 #endif
 
@@ -24,23 +22,23 @@ namespace MapControl
         /// </summary>
         public static HttpClient HttpClient { get; set; } = new HttpClient();
 
-        public static async Task<ImageSource> LoadImageAsync(Uri uri)
+        public static async Task<BitmapSource> LoadImageAsync(Uri uri)
         {
-            ImageSource imageSource = null;
+            BitmapSource image = null;
 
             try
             {
                 if (!uri.IsAbsoluteUri || uri.Scheme == "file")
                 {
-                    imageSource = await LoadLocalImageAsync(uri);
+                    image = await LoadLocalImageAsync(uri);
                 }
                 else if (uri.Scheme == "http" || uri.Scheme == "https")
                 {
-                    imageSource = await LoadHttpImageAsync(uri);
+                    image = await LoadHttpImageAsync(uri);
                 }
                 else
                 {
-                    imageSource = new BitmapImage(uri);
+                    image = new BitmapImage(uri);
                 }
             }
             catch (Exception ex)
@@ -48,12 +46,12 @@ namespace MapControl
                 Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
             }
 
-            return imageSource;
+            return image;
         }
 
-        private static async Task<ImageSource> LoadHttpImageAsync(Uri uri)
+        private static async Task<BitmapSource> LoadHttpImageAsync(Uri uri)
         {
-            ImageSource imageSource = null;
+            BitmapSource image = null;
 
             using (var response = await HttpClient.GetAsync(uri))
             {
@@ -63,11 +61,11 @@ namespace MapControl
                 }
                 else if (IsTileAvailable(response.Headers))
                 {
-                    imageSource = await LoadImageAsync(response.Content);
+                    image = await LoadImageAsync(response.Content);
                 }
             }
 
-            return imageSource;
+            return image;
         }
     }
 }

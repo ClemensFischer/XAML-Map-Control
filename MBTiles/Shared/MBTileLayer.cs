@@ -9,7 +9,7 @@ using Windows.UI.Xaml;
 using System.Windows;
 #endif
 
-namespace MapControl
+namespace MapControl.MBTiles
 {
     public class MBTileLayer : MapTileLayer
     {
