@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -15,6 +16,11 @@ namespace MapControl.Images
 {
     public partial class GroundOverlayPanel
     {
+        public GroundOverlayPanel()
+        {
+            UseLayoutRounding = false;
+        }
+
         private async Task<List<ImageOverlay>> ReadGroundOverlaysFromFile(string docFile)
         {
             if (!Path.IsPathRooted(docFile))
