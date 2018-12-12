@@ -77,57 +77,5 @@ namespace MapControl.Images
 
             SetWorldImage(image, bitmap, parameters, projection);
         }
-
-        public static FrameworkElement CreateWorldImage(BitmapSource bitmap, WorldFileParameters parameters)
-        {
-            if (parameters.XScale == 0d || parameters.YScale == 0d)
-            {
-                throw new ArgumentException("Invalid WorldFileParameters, XScale and YScale must be non-zero.");
-            }
-
-            var pixelWidth = parameters.XScale;
-            var pixelHeight = parameters.YScale;
-            var rotation = 0d;
-
-            if (parameters.YSkew != 0 || parameters.XSkew != 0)
-            {
-                pixelWidth = Math.Sqrt(parameters.XScale * parameters.XScale + parameters.YSkew * parameters.YSkew);
-                pixelHeight = Math.Sqrt(parameters.YScale * parameters.YScale + parameters.XSkew * parameters.XSkew);
-
-                var xAxisRotation = Math.Atan2(parameters.YSkew, parameters.XScale) / Math.PI * 180d;
-                var yAxisRotation = Math.Atan2(parameters.XSkew, -parameters.YScale) / Math.PI * 180d;
-                rotation = 0.5 * (xAxisRotation + yAxisRotation);
-            }
-
-            var x1 = parameters.XOrigin;
-            var x2 = parameters.XOrigin + pixelWidth * bitmap.PixelWidth;
-            var y1 = parameters.YOrigin;
-            var y2 = parameters.YOrigin + pixelHeight * bitmap.PixelHeight;
-
-            var bbox = new BoundingBox
-            {
-                West = Math.Min(x1, x2),
-                East = Math.Max(x1, x2),
-                South = Math.Min(y1, y2),
-                North = Math.Max(y1, y2)
-            };
-
-            FrameworkElement image = new Image
-            {
-                Source = bitmap,
-                Stretch = Stretch.Fill
-            };
-
-            if (rotation != 0d)
-            {
-                image.RenderTransform = new RotateTransform { Angle = rotation };
-                var panel = new Grid();
-                panel.Children.Add(image);
-                image = panel;
-            }
-
-            MapPanel.SetBoundingBox(image, bbox);
-            return image;
-        }
     }
 }

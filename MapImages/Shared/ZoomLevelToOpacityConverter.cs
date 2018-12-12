@@ -19,6 +19,7 @@ namespace MapControl.Images
         public double MinZoomLevel { get; set; } = 0d;
         public double MaxZoomLevel { get; set; } = 22d;
         public double FadeZoomRange { get; set; } = 1d;
+        public double MaxOpacity { get; set; } = 1d;
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -32,7 +33,7 @@ namespace MapControl.Images
 
             if (zoomLevel > MinZoomLevel && zoomLevel < MaxZoomLevel)
             {
-                opacity = 1d;
+                opacity = MaxOpacity;
 
                 if (FadeZoomRange > 0d)
                 {

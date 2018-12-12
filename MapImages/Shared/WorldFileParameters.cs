@@ -54,12 +54,12 @@ namespace MapControl.Images
             YOrigin = yorigin;
         }
 
-        public double XScale { get; set; }
-        public double YSkew { get; set; }
-        public double XSkew { get; set; }
-        public double YScale { get; set; }
-        public double XOrigin { get; set; }
-        public double YOrigin { get; set; }
+        public double XScale { get; set; } // A
+        public double YSkew { get; set; } // D
+        public double XSkew { get; set; } // B
+        public double YScale { get; set; } // E
+        public double XOrigin { get; set; } // C
+        public double YOrigin { get; set; } // F
 
         public BoundingBox GetBoundingBox(double imageWidth, double imageHeight, MapProjection projection = null)
         {
