@@ -46,9 +46,6 @@
     <Compile Include="..\Shared\WorldFile.cs">
       <Link>WorldFile.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\WorldFileParameters.cs">
-      <Link>WorldFileParameters.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\ZoomLevelToOpacityConverter.cs">
       <Link>ZoomLevelToOpacityConverter.cs</Link>
     </Compile>
