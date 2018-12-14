@@ -29,16 +29,6 @@ namespace MapControl.Images
             "Path", typeof(string), typeof(WorldFileImage),
             new PropertyMetadata(null, async (o, e) => (await ReadWorldFileImage((string)e.NewValue)).SetImage((Image)o)));
 
-        public static string GetPath(Image image)
-        {
-            return (string)image.GetValue(PathProperty);
-        }
-
-        public static void SetPath(Image image, string path)
-        {
-            image.SetValue(PathProperty, path);
-        }
-
         public BitmapSource Bitmap { get; }
         public Matrix Transform { get; }
         public MapProjection Projection { get; }
@@ -75,6 +65,16 @@ namespace MapControl.Images
                     South = rect.Y,
                     North = rect.Y + rect.Height
                 };
+        }
+
+        public static string GetPath(Image image)
+        {
+            return (string)image.GetValue(PathProperty);
+        }
+
+        public static void SetPath(Image image, string path)
+        {
+            image.SetValue(PathProperty, path);
         }
 
         public static async Task<WorldFileImage> ReadWorldFileImage(string imagePath, string worldFilePath, string projFilePath = null)
@@ -181,9 +181,6 @@ namespace MapControl.Images
             return image;
         }
 
-        /// <summary>
-        /// Experimental
-        /// </summary>
         public static async Task<FrameworkElement> CreateImage(string imagePath)
         {
             return (await ReadWorldFileImage(imagePath)).CreateImage();
