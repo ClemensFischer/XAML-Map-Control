@@ -155,6 +155,11 @@ namespace MapControl.Images
 
         public void SetImage(Image image)
         {
+            if (Rotation != 0d)
+            {
+                throw new InvalidOperationException("Rotation must be zero.");
+            }
+
             image.Source = Bitmap;
             image.Stretch = Stretch.Fill;
 
