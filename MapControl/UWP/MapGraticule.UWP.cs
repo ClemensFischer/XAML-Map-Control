@@ -26,7 +26,7 @@ namespace MapControl
         {
             var projection = ParentMap.MapProjection;
 
-            if (projection.IsCylindrical)
+            if (projection.IsNormalCylindrical)
             {
                 if (path == null)
                 {

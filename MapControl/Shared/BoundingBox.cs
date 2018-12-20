@@ -56,11 +56,6 @@ namespace MapControl
             get { return North - South; }
         }
 
-        public bool HasValidBounds
-        {
-            get { return South < North && West < East; }
-        }
-
         public virtual BoundingBox Clone()
         {
             return new BoundingBox(South, West, North, East);

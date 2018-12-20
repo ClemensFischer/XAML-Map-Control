@@ -10,10 +10,8 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Transforms map coordinates according to the Web (or Pseudo) Mercator Projection, EPSG:3857.
-    /// Longitude values are transformed linearly to X values in meters, by multiplying with TrueScale.
-    /// Latitude values in the interval [-MaxLatitude .. MaxLatitude] are transformed to Y values in meters
-    /// in the interval [-R*pi .. R*pi], R=Wgs84EquatorialRadius.
+    /// Spherical Mercator Projection, EPSG:3857.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.41-44.
     /// </summary>
     public class WebMercatorProjection : MapProjection
     {
@@ -25,16 +23,16 @@ namespace MapControl
         public WebMercatorProjection(string crsId)
         {
             CrsId = crsId;
-            IsCylindrical = true;
+            IsNormalCylindrical = true;
             IsWebMercator = true;
             MaxLatitude = YToLatitude(180d);
         }
 
         public override Vector GetMapScale(Location location)
         {
-            var scale = ViewportScale / Math.Cos(location.Latitude * Math.PI / 180d);
+            var k = 1d / Math.Cos(location.Latitude * Math.PI / 180d); // p.44 (7-3)
 
-            return new Vector(scale, scale);
+            return new Vector(ViewportScale * k, ViewportScale * k);
         }
 
         public override Point LocationToPoint(Location location)
@@ -63,12 +61,12 @@ namespace MapControl
                 return double.PositiveInfinity;
             }
 
-            return Math.Log(Math.Tan((latitude + 90d) * Math.PI / 360d)) / Math.PI * 180d;
+            return Math.Log(Math.Tan((latitude + 90d) * Math.PI / 360d)) * 180d / Math.PI;
         }
 
         public static double YToLatitude(double y)
         {
-            return 90d - Math.Atan(Math.Exp(-y * Math.PI / 180d)) / Math.PI * 360d;
+            return 90d - Math.Atan(Math.Exp(-y * Math.PI / 180d)) * 360d / Math.PI;
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Transforms map coordinates according to the Azimuthal Equidistant Projection.
+    /// Spherical Azimuthal Equidistant Projection.
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {
@@ -35,7 +35,7 @@ namespace MapControl
 
             GetAzimuthDistance(ProjectionCenter, location, out azimuth, out distance);
 
-            distance *= Wgs84EquatorialRadius;
+            distance *= TrueScale * 180d / Math.PI;
 
             return new Point(distance * Math.Sin(azimuth), distance * Math.Cos(azimuth));
         }
@@ -48,7 +48,7 @@ namespace MapControl
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);
-            var distance = Math.Sqrt(point.X * point.X + point.Y * point.Y) / Wgs84EquatorialRadius;
+            var distance = Math.Sqrt(point.X * point.X + point.Y * point.Y) / (TrueScale * 180d / Math.PI);
 
             return GetLocation(ProjectionCenter, azimuth, distance);
         }

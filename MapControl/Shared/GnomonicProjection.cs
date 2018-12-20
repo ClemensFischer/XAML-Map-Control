@@ -10,7 +10,7 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Transforms map coordinates according to the Gnomonic Projection.
+    /// Spherical Gnomonic Projection.
     /// </summary>
     public class GnomonicProjection : AzimuthalProjection
     {
@@ -36,7 +36,7 @@ namespace MapControl
             GetAzimuthDistance(ProjectionCenter, location, out azimuth, out distance);
 
             var mapDistance = distance < Math.PI / 2d
-                ? Wgs84EquatorialRadius * Math.Tan(distance)
+                ? Math.Tan(distance) * TrueScale * 180d / Math.PI
                 : double.PositiveInfinity;
 
             return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
@@ -51,7 +51,7 @@ namespace MapControl
 
             var azimuth = Math.Atan2(point.X, point.Y);
             var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
-            var distance = Math.Atan(mapDistance / Wgs84EquatorialRadius);
+            var distance = Math.Atan(mapDistance / (TrueScale * 180d / Math.PI));
 
             return GetLocation(ProjectionCenter, azimuth, distance);
         }

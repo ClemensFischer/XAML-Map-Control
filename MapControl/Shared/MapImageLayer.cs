@@ -256,7 +256,7 @@ namespace MapControl
 
             boundingBox = ParentMap.MapProjection.ViewportRectToBoundingBox(rect);
 
-            if (boundingBox != null && boundingBox.HasValidBounds)
+            if (boundingBox != null)
             {
                 if (!double.IsNaN(MinLatitude) && boundingBox.South < MinLatitude)
                 {
@@ -289,7 +289,7 @@ namespace MapControl
 
         private void AdjustBoundingBox(double longitudeOffset)
         {
-            if (Math.Abs(longitudeOffset) > 180d && boundingBox != null && boundingBox.HasValidBounds)
+            if (Math.Abs(longitudeOffset) > 180d && boundingBox != null)
             {
                 var offset = 360d * Math.Sign(longitudeOffset);
 
@@ -300,7 +300,7 @@ namespace MapControl
                 {
                     var bbox = GetBoundingBox(element);
 
-                    if (bbox != null && bbox.HasValidBounds)
+                    if (bbox != null)
                     {
                         SetBoundingBox(element, new BoundingBox(bbox.South, bbox.West + offset, bbox.North, bbox.East + offset));
                     }

@@ -2,6 +2,8 @@
 // © 2018 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
+
 namespace MapControl
 {
     public class CenteredBoundingBox : BoundingBox
@@ -12,8 +14,8 @@ namespace MapControl
         public CenteredBoundingBox(Location center, double width, double height)
         {
             Center = center;
-            this.width = width;
-            this.height = height;
+            this.width = Math.Max(width, 0d);
+            this.height = Math.Max(height, 0d);
         }
 
         public Location Center { get; private set; }

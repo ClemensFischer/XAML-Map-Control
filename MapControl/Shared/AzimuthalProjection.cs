@@ -67,7 +67,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Calculates azimuth and distance in radians from location1 to location2.
+        /// Calculates azimuth and spherical distance in radians from location1 to location2.
         /// The returned distance has to be multiplied with an appropriate earth radius.
         /// </summary>
         public static void GetAzimuthDistance(Location location1, Location location2, out double azimuth, out double distance)
@@ -89,7 +89,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Calculates the Location of the point given by azimuth and distance in radians from location.
+        /// Calculates the Location of the point given by azimuth and spherical distance in radians from location.
         /// </summary>
         public static Location GetLocation(Location location, double azimuth, double distance)
         {

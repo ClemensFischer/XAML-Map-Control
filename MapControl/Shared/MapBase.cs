@@ -348,17 +348,14 @@ namespace MapControl
         /// </summary>
         public void ZoomToBounds(BoundingBox boundingBox)
         {
-            if (boundingBox != null && boundingBox.HasValidBounds)
-            {
-                var rect = MapProjection.BoundingBoxToRect(boundingBox);
-                var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-                var scale = Math.Min(RenderSize.Width / rect.Width, RenderSize.Height / rect.Height)
-                          * MapProjection.TrueScale / MapProjection.PixelPerDegree;
+            var rect = MapProjection.BoundingBoxToRect(boundingBox);
+            var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+            var scale = Math.Min(RenderSize.Width / rect.Width, RenderSize.Height / rect.Height)
+                      * MapProjection.TrueScale / MapProjection.PixelPerDegree;
 
-                TargetZoomLevel = Math.Log(scale, 2d);
-                TargetCenter = MapProjection.PointToLocation(center);
-                TargetHeading = 0d;
-            }
+            TargetZoomLevel = Math.Log(scale, 2d);
+            TargetCenter = MapProjection.PointToLocation(center);
+            TargetHeading = 0d;
         }
 
         private void MapLayerPropertyChanged(UIElement oldLayer, UIElement newLayer)
@@ -451,7 +448,7 @@ namespace MapControl
 
                 if (!targetCenter.Equals(Center))
                 {
-                    var targetCenterLongitude = MapProjection.IsCylindrical
+                    var targetCenterLongitude = MapProjection.IsNormalCylindrical
                         ? Location.NearestLongitude(targetCenter.Longitude, Center.Longitude)
                         : targetCenter.Longitude;
 

@@ -10,7 +10,7 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Transforms map coordinates according to the Equirectangular Projection.
+    /// Equirectangular Projection.
     /// Longitude and Latitude values are transformed identically to X and Y.
     /// </summary>
     public class EquirectangularProjection : MapProjection
@@ -23,8 +23,8 @@ namespace MapControl
         public EquirectangularProjection(string crsId)
         {
             CrsId = crsId;
-            IsCylindrical = true;
-            TrueScale = 1;
+            IsNormalCylindrical = true;
+            TrueScale = 1d;
         }
 
         public override Vector GetMapScale(Location location)

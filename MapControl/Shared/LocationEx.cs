@@ -62,7 +62,7 @@ namespace MapControl
             var lat2 = Math.Asin(sinLat1 * cosS12 + cosLat1 * sinS12 * cosAz1);
             var lon2 = lon1 + Math.Atan2(sinS12 * sinAz1, (cosLat1 * cosS12 - sinLat1 * sinS12 * cosAz1));
 
-            return new Location(lat2 / Math.PI * 180d, lon2 / Math.PI * 180d);
+            return new Location(lat2 * 180d / Math.PI, lon2 * 180d / Math.PI);
         }
 
         public static LocationCollection CalculateMeridianLocations(this Location location, double latitude2, double resolution = 1d)

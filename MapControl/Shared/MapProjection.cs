@@ -23,6 +23,9 @@ namespace MapControl
         public const double PixelPerDegree = TileSize / 360d;
 
         public const double Wgs84EquatorialRadius = 6378137d;
+        public const double Wgs84Flattening = 1d / 298.257223563;
+        public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
+
         public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace MapControl
         /// <summary>
         /// Indicates if this is a normal cylindrical projection.
         /// </summary>
-        public bool IsCylindrical { get; protected set; } = false;
+        public bool IsNormalCylindrical { get; protected set; } = false;
 
         /// <summary>
         /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
@@ -57,12 +60,13 @@ namespace MapControl
         public Matrix ViewportTransform { get; private set; }
 
         /// <summary>
-        /// Gets the transform matrix from viewport coordinates to cartesian map coordinates (pixels).
+        /// Gets the transform matrix from viewport coordinates (pixels) to cartesian map coordinates.
         /// </summary>
         public Matrix InverseViewportTransform { get; private set; }
 
         /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates.
+        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates (pixels)
+        /// at the projection's point of true scale.
         /// </summary>
         public double ViewportScale { get; private set; }
 
@@ -151,7 +155,7 @@ namespace MapControl
         /// </summary>
         public virtual string WmsQueryParameters(BoundingBox boundingBox)
         {
-            if (string.IsNullOrEmpty(CrsId) || !boundingBox.HasValidBounds)
+            if (string.IsNullOrEmpty(CrsId))
             {
                 return null;
             }
