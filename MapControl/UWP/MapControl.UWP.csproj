@@ -40,6 +40,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\AutoEquirectangularProjection.cs">
+      <Link>AutoEquirectangularProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\AzimuthalEquidistantProjection.cs">
       <Link>AzimuthalEquidistantProjection.cs</Link>
     </Compile>

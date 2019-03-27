@@ -1,5 +1,5 @@
 ﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// © 2018 Clemens Fischer
+// © 2019 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
@@ -25,21 +25,11 @@ namespace MapControl
             var cosLat1 = Math.Cos(lat1);
             var sinLat2 = Math.Sin(lat2);
             var cosLat2 = Math.Cos(lat2);
+            var sinLon12 = Math.Sin(lon2 - lon1);
             var cosLon12 = Math.Cos(lon2 - lon1);
-            var cosS12 = sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12;
-            var s12 = 0d;
-
-            if (Math.Abs(cosS12) < 0.99999999)
-            {
-                s12 = Math.Acos(Math.Min(Math.Max(cosS12, -1d), 1d));
-            }
-            else
-            {
-                var sinLon12 = Math.Sin(lon2 - lon1);
-                var a = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
-                var b = cosLat2 * sinLon12;
-                s12 = Math.Atan2(Math.Sqrt(a * a + b * b), cosS12);
-            }
+            var a = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
+            var b = cosLat2 * sinLon12;
+            var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12);
 
             return earthRadius * s12;
         }
