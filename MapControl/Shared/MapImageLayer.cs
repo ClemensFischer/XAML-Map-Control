@@ -23,7 +23,7 @@ using System.Windows.Threading;
 namespace MapControl
 {
     /// <summary>
-    /// Map image layer. Fills the entire viewport with a map image, e.g. provided by a Web Map Service (WMS).
+    /// Map image layer. Fills the entire viewport with a map image, e.g. provided by a Web Map Service.
     /// The image must be provided by the abstract GetImageAsync method.
     /// </summary>
     public abstract class MapImageLayer : MapPanel, IMapLayer

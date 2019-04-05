@@ -150,9 +150,10 @@ namespace MapControl
                     uri += "&FORMAT=" + Format;
                 }
 
+                var crs = GetCrsValue();
                 var rect = projection.BoundingBoxToRect(BoundingBox);
 
-                uri += "&" + GetBboxParameters(rect);
+                uri += "&" + GetBboxParameters(crs, rect);
                 uri += "&WIDTH=" + (int)Math.Round(projection.ViewportScale * rect.Width);
                 uri += "&HEIGHT=" + (int)Math.Round(projection.ViewportScale * rect.Height);
 
@@ -160,18 +161,6 @@ namespace MapControl
             }
 
             return imageUri;
-        }
-
-        /// <summary>
-        /// Gets a query substring for the projected bounding box, which contains the CRS and BBOX or equivalent parameters.
-        /// </summary>
-        protected virtual string GetBboxParameters(Rect bbox)
-        {
-            var crsId = GetCrsValue();
-
-            return string.Format(CultureInfo.InvariantCulture,
-                crsId == "EPSG:4326" ? "CRS={0}&BBOX={2},{1},{4},{3}" : "CRS={0}&BBOX={1},{2},{3},{4}",
-                crsId, bbox.X, bbox.Y, (bbox.X + bbox.Width), (bbox.Y + bbox.Height));
         }
 
         /// <summary>
@@ -195,6 +184,16 @@ namespace MapControl
             }
 
             return crsId;
+        }
+
+        /// <summary>
+        /// Gets a query substring for the projected bounding box, which contains the CRS and BBOX or equivalent parameters.
+        /// </summary>
+        protected virtual string GetBboxParameters(string crs, Rect bbox)
+        {
+            return string.Format(CultureInfo.InvariantCulture,
+                crs == "EPSG:4326" ? "CRS={0}&BBOX={2},{1},{4},{3}" : "CRS={0}&BBOX={1},{2},{3},{4}",
+                crs, bbox.X, bbox.Y, (bbox.X + bbox.Width), (bbox.Y + bbox.Height));
         }
 
         private string GetRequestUri(string request)
