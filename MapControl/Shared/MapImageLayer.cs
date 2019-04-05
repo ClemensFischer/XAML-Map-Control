@@ -63,7 +63,6 @@ namespace MapControl
             nameof(MapForeground), typeof(Brush), typeof(MapImageLayer), new PropertyMetadata(null));
 
         private readonly DispatcherTimer updateTimer;
-        private BoundingBox boundingBox;
         private bool updateInProgress;
 
         public MapImageLayer()
@@ -180,9 +179,14 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Returns an ImageSource for the specified bounding box.
+        /// The current BoundingBox
         /// </summary>
-        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox);
+        public BoundingBox BoundingBox { get; private set; }
+
+        /// <summary>
+        /// Returns an ImageSource for the current BoundingBox.
+        /// </summary>
+        protected abstract Task<ImageSource> GetImageAsync();
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
@@ -228,11 +232,11 @@ namespace MapControl
 
                 ImageSource imageSource = null;
 
-                if (boundingBox != null)
+                if (BoundingBox != null)
                 {
                     try
                     {
-                        imageSource = await GetImageAsync(boundingBox);
+                        imageSource = await GetImageAsync();
                     }
                     catch (Exception ex)
                     {
@@ -254,47 +258,47 @@ namespace MapControl
             var y = (ParentMap.RenderSize.Height - height) / 2d;
             var rect = new Rect(x, y, width, height);
 
-            boundingBox = ParentMap.MapProjection.ViewportRectToBoundingBox(rect);
+            BoundingBox = ParentMap.MapProjection.ViewportRectToBoundingBox(rect);
 
-            if (boundingBox != null)
+            if (BoundingBox != null)
             {
-                if (!double.IsNaN(MinLatitude) && boundingBox.South < MinLatitude)
+                if (!double.IsNaN(MinLatitude) && BoundingBox.South < MinLatitude)
                 {
-                    boundingBox.South = MinLatitude;
+                    BoundingBox.South = MinLatitude;
                 }
 
-                if (!double.IsNaN(MinLongitude) && boundingBox.West < MinLongitude)
+                if (!double.IsNaN(MinLongitude) && BoundingBox.West < MinLongitude)
                 {
-                    boundingBox.West = MinLongitude;
+                    BoundingBox.West = MinLongitude;
                 }
 
-                if (!double.IsNaN(MaxLatitude) && boundingBox.North > MaxLatitude)
+                if (!double.IsNaN(MaxLatitude) && BoundingBox.North > MaxLatitude)
                 {
-                    boundingBox.North = MaxLatitude;
+                    BoundingBox.North = MaxLatitude;
                 }
 
-                if (!double.IsNaN(MaxLongitude) && boundingBox.East > MaxLongitude)
+                if (!double.IsNaN(MaxLongitude) && BoundingBox.East > MaxLongitude)
                 {
-                    boundingBox.East = MaxLongitude;
+                    BoundingBox.East = MaxLongitude;
                 }
 
-                if (!double.IsNaN(MaxBoundingBoxWidth) && boundingBox.Width > MaxBoundingBoxWidth)
+                if (!double.IsNaN(MaxBoundingBoxWidth) && BoundingBox.Width > MaxBoundingBoxWidth)
                 {
-                    var d = (boundingBox.Width - MaxBoundingBoxWidth) / 2d;
-                    boundingBox.West += d;
-                    boundingBox.East -= d;
+                    var d = (BoundingBox.Width - MaxBoundingBoxWidth) / 2d;
+                    BoundingBox.West += d;
+                    BoundingBox.East -= d;
                 }
             }
         }
 
         private void AdjustBoundingBox(double longitudeOffset)
         {
-            if (Math.Abs(longitudeOffset) > 180d && boundingBox != null)
+            if (Math.Abs(longitudeOffset) > 180d && BoundingBox != null)
             {
                 var offset = 360d * Math.Sign(longitudeOffset);
 
-                boundingBox.West += offset;
-                boundingBox.East += offset;
+                BoundingBox.West += offset;
+                BoundingBox.East += offset;
 
                 foreach (var element in Children.OfType<FrameworkElement>())
                 {
@@ -326,7 +330,7 @@ namespace MapControl
             Children.Insert(1, topImage);
 
             topImage.Source = imageSource;
-            SetBoundingBox(topImage, boundingBox?.Clone());
+            SetBoundingBox(topImage, BoundingBox?.Clone());
 
             topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {

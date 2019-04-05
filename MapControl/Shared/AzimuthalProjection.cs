@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Globalization;
 #if WINDOWS_UWP
 using Windows.Foundation;
 #else
@@ -17,8 +16,6 @@ namespace MapControl
     /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
-        public Location ProjectionCenter { get; private set; } = new Location();
-
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
             var cbbox = boundingBox as CenteredBoundingBox;
@@ -40,30 +37,6 @@ namespace MapControl
             var center = PointToLocation(new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d));
 
             return new CenteredBoundingBox(center, rect.Width, rect.Height); // width and height in meters
-        }
-
-        public override void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
-        {
-            ProjectionCenter = projectionCenter;
-
-            base.SetViewportTransform(projectionCenter, mapCenter, viewportCenter, zoomLevel, heading);
-        }
-
-        public override string WmsQueryParameters(BoundingBox boundingBox)
-        {
-            if (string.IsNullOrEmpty(CrsId))
-            {
-                return null;
-            }
-
-            var rect = BoundingBoxToRect(boundingBox);
-            var width = (int)Math.Round(ViewportScale * rect.Width);
-            var height = (int)Math.Round(ViewportScale * rect.Height);
-
-            return string.Format(CultureInfo.InvariantCulture,
-                "CRS={0},1,{1},{2}&BBOX={3},{4},{5},{6}&WIDTH={7}&HEIGHT={8}",
-                CrsId, ProjectionCenter.Longitude, ProjectionCenter.Latitude,
-                rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);
         }
 
         /// <summary>

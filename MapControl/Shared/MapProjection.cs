@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Globalization;
 #if WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml.Media;
@@ -26,7 +25,7 @@ namespace MapControl
         public const double Wgs84Flattening = 1d / 298.257223563;
         public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
 
-        public const double MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
+        public const double Wgs84MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
         /// <summary>
         /// Gets or sets the WMS 1.3.0 CRS Identifier.
@@ -47,12 +46,17 @@ namespace MapControl
         /// Gets the scale factor from geographic to cartesian coordinates, on the line of true scale of a
         /// cylindrical projection (usually the equator), or at the projection center of an azimuthal projection.
         /// </summary>
-        public double TrueScale { get; protected set; } = MetersPerDegree;
+        public double TrueScale { get; protected set; } = Wgs84MetersPerDegree;
 
         /// <summary>
         /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
         /// </summary>
         public double MaxLatitude { get; protected set; } = 90d;
+
+        /// <summary>
+        /// Gets the projection center. Only relevant for azimuthal pprojections.
+        /// </summary>
+        public Location ProjectionCenter { get; private set; } = new Location();
 
         /// <summary>
         /// Gets the transform matrix from cartesian map coordinates to viewport coordinates (pixels).
@@ -136,10 +140,11 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets ViewportScale and ViewportTransform values.
+        /// Sets ProjectionCenter, ViewportScale, ViewportTransform and InverseViewportTransform.
         /// </summary>
-        public virtual void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
+        public void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
         {
+            ProjectionCenter = projectionCenter;
             ViewportScale = Math.Pow(2d, zoomLevel) * PixelPerDegree / TrueScale;
 
             var center = LocationToPoint(mapCenter);
@@ -148,27 +153,6 @@ namespace MapControl
             ViewportTransform = matrix;
             matrix.Invert();
             InverseViewportTransform = matrix;
-        }
-
-        /// <summary>
-        /// Gets a WMS query parameter string from the specified bounding box, e.g. "CRS=...&BBOX=...&WIDTH=...&HEIGHT=..."
-        /// </summary>
-        public virtual string WmsQueryParameters(BoundingBox boundingBox)
-        {
-            if (string.IsNullOrEmpty(CrsId))
-            {
-                return null;
-            }
-
-            var format = CrsId == "EPSG:4326"
-                ? "CRS={0}&BBOX={2},{1},{4},{3}&WIDTH={5}&HEIGHT={6}"
-                : "CRS={0}&BBOX={1},{2},{3},{4}&WIDTH={5}&HEIGHT={6}";
-            var rect = BoundingBoxToRect(boundingBox);
-            var width = (int)Math.Round(ViewportScale * rect.Width);
-            var height = (int)Math.Round(ViewportScale * rect.Height);
-
-            return string.Format(CultureInfo.InvariantCulture, format, CrsId,
-                rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height), width, height);
         }
 
         internal static Matrix CreateTransformMatrix(

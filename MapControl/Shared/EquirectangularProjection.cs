@@ -30,8 +30,8 @@ namespace MapControl
         public override Vector GetMapScale(Location location)
         {
             return new Vector(
-                ViewportScale / (MetersPerDegree * Math.Cos(location.Latitude * Math.PI / 180d)),
-                ViewportScale / MetersPerDegree);
+                ViewportScale / (Wgs84MetersPerDegree * Math.Cos(location.Latitude * Math.PI / 180d)),
+                ViewportScale / Wgs84MetersPerDegree);
         }
 
         public override Point LocationToPoint(Location location)

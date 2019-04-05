@@ -161,10 +161,10 @@ namespace MapControl
         private string GetBoundingBoxUri(int x, int y, int zoomLevel)
         {
             var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
-            var west = MapProjection.MetersPerDegree * (x * tileSize - 180d);
-            var east = MapProjection.MetersPerDegree * ((x + 1) * tileSize - 180d);
-            var south = MapProjection.MetersPerDegree * (180d - (y + 1) * tileSize);
-            var north = MapProjection.MetersPerDegree * (180d - y * tileSize);
+            var west = MapProjection.Wgs84MetersPerDegree * (x * tileSize - 180d);
+            var east = MapProjection.Wgs84MetersPerDegree * ((x + 1) * tileSize - 180d);
+            var south = MapProjection.Wgs84MetersPerDegree * (180d - (y + 1) * tileSize);
+            var north = MapProjection.Wgs84MetersPerDegree * (180d - y * tileSize);
 
             return uriFormat
                 .Replace("{W}", west.ToString(CultureInfo.InvariantCulture))

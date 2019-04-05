@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Globalization;
 #if WINDOWS_UWP
 using Windows.Data.Xml.Dom;
 using Windows.UI.Xaml;
@@ -37,6 +38,10 @@ namespace MapControl
             nameof(Format), typeof(string), typeof(WmsImageLayer),
             new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
+        public static readonly DependencyProperty CrsIdMapProperty = DependencyProperty.Register(
+            nameof(CrsIdMap), typeof(string), typeof(WmsImageLayer),
+            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).CrsIdMapPropertyChanged((string)e.NewValue)));
+
         public Uri ServiceUri
         {
             get { return (Uri)GetValue(ServiceUriProperty); }
@@ -61,6 +66,17 @@ namespace MapControl
             set { SetValue(FormatProperty, value); }
         }
 
+        public string CrsIdMap
+        {
+            get { return (string)GetValue(CrsIdMapProperty); }
+            set { SetValue(CrsIdMapProperty, value); }
+        }
+
+        private Dictionary<string, string> crsIdMap;
+
+        /// <summary>
+        /// Gets a list of all layer names returned by a GetCapabilities response.
+        /// </summary>
         public async Task<IList<string>> GetLayerNamesAsync()
         {
             IList<string> layerNames = null;
@@ -100,14 +116,24 @@ namespace MapControl
             return layerNames;
         }
 
-        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox)
+        protected override async Task<ImageSource> GetImageAsync()
         {
-            ImageSource imageSource = null;
-            var projectionParameters = ParentMap.MapProjection.WmsQueryParameters(boundingBox);
+            var imageUri = GetImageUri();
 
-            if (ServiceUri != null && !string.IsNullOrEmpty(projectionParameters))
+            return imageUri != null ? await ImageLoader.LoadImageAsync(imageUri) : null;
+        }
+
+        /// <summary>
+        /// Returns a GetMap request URL for the current BoundingBox.
+        /// </summary>
+        protected virtual Uri GetImageUri()
+        {
+            Uri imageUri = null;
+            var projection = ParentMap?.MapProjection;
+
+            if (ServiceUri != null && projection != null && !string.IsNullOrEmpty(projection.CrsId))
             {
-                var uri = GetRequestUri("GetMap&" + projectionParameters);
+                var uri = GetRequestUri("GetMap");
 
                 if (uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0 && Layers != null)
                 {
@@ -124,10 +150,51 @@ namespace MapControl
                     uri += "&FORMAT=" + Format;
                 }
 
-                imageSource = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")));
+                var rect = projection.BoundingBoxToRect(BoundingBox);
+
+                uri += "&" + GetBboxParameters(rect);
+                uri += "&WIDTH=" + (int)Math.Round(projection.ViewportScale * rect.Width);
+                uri += "&HEIGHT=" + (int)Math.Round(projection.ViewportScale * rect.Height);
+
+                imageUri = new Uri(uri.Replace(" ", "%20"));
             }
 
-            return imageSource;
+            return imageUri;
+        }
+
+        /// <summary>
+        /// Gets a query substring for the projected bounding box, which contains the CRS and BBOX or equivalent parameters.
+        /// </summary>
+        protected virtual string GetBboxParameters(Rect bbox)
+        {
+            var crsId = GetCrsValue();
+
+            return string.Format(CultureInfo.InvariantCulture,
+                crsId == "EPSG:4326" ? "CRS={0}&BBOX={2},{1},{4},{3}" : "CRS={0}&BBOX={1},{2},{3},{4}",
+                crsId, bbox.X, bbox.Y, (bbox.X + bbox.Width), (bbox.Y + bbox.Height));
+        }
+
+        /// <summary>
+        /// Gets the effective value of the CRS query parameter.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual string GetCrsValue()
+        {
+            var projection = ParentMap.MapProjection;
+            var crsId = projection.CrsId;
+
+            if (crsIdMap != null && !crsIdMap.TryGetValue(crsId, out crsId))
+            {
+                crsId = projection.CrsId;
+            }
+
+            if (crsId.StartsWith("AUTO2:") || crsId.StartsWith("AUTO:"))
+            {
+                crsId = string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}",
+                    crsId, projection.ProjectionCenter.Longitude, projection.ProjectionCenter.Latitude);
+            }
+
+            return crsId;
         }
 
         private string GetRequestUri(string request)
@@ -152,9 +219,31 @@ namespace MapControl
             return uri + "REQUEST=" + request;
         }
 
+        private Task CrsIdMapPropertyChanged(string crsIdMapString)
+        {
+            crsIdMap = null;
+
+            if (!string.IsNullOrEmpty(crsIdMapString))
+            {
+                var entries = crsIdMapString.Split(new char[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (entries.Length >= 2)
+                {
+                    crsIdMap = new Dictionary<string, string>();
+
+                    for (int i = 0; i < entries.Length - 1; i += 2)
+                    {
+                        crsIdMap[entries[i]] = entries[i + 1];
+                    }
+                }
+            }
+
+            return UpdateImageAsync();
+        }
+
         private static IEnumerable<XmlElement> ChildElements(XmlElement element, string name)
         {
-            return element.ChildNodes.OfType<XmlElement>().Where(e => (string)e.LocalName == name);
+            return element.ChildNodes.OfType<XmlElement>().Where(e => e.LocalName == name);
         }
     }
 }

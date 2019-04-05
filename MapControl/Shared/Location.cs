@@ -62,18 +62,25 @@ namespace MapControl
             return string.Format(CultureInfo.InvariantCulture, "{0:F5},{1:F5}", latitude, longitude);
         }
 
-        public static Location Parse(string s)
+        public static Location Parse(string locationString)
         {
-            var values = s.Split(new char[] { ',' });
+            Location location = null;
 
-            if (values.Length != 2)
+            if (!string.IsNullOrEmpty(locationString))
             {
-                throw new FormatException("Location string must be a comma-separated pair of double values.");
+                var values = locationString.Split(new char[] { ',' });
+
+                if (values.Length != 2)
+                {
+                    throw new FormatException("Location string must be a comma-separated pair of double values.");
+                }
+
+                location = new Location(
+                    double.Parse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture),
+                    double.Parse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture));
             }
 
-            return new Location(
-                double.Parse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture),
-                double.Parse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture));
+            return location;
         }
 
         /// <summary>

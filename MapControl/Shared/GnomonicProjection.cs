@@ -51,6 +51,7 @@ namespace MapControl
 
             var azimuth = Math.Atan2(point.X, point.Y);
             var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
+
             var distance = Math.Atan(mapDistance / (TrueScale * 180d / Math.PI));
 
             return GetLocation(ProjectionCenter, azimuth, distance);

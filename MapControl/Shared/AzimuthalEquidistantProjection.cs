@@ -35,9 +35,9 @@ namespace MapControl
 
             GetAzimuthDistance(ProjectionCenter, location, out azimuth, out distance);
 
-            distance *= TrueScale * 180d / Math.PI;
+            var mapDistance = distance * TrueScale * 180d / Math.PI;
 
-            return new Point(distance * Math.Sin(azimuth), distance * Math.Cos(azimuth));
+            return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
         }
 
         public override Location PointToLocation(Point point)
@@ -48,7 +48,9 @@ namespace MapControl
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);
-            var distance = Math.Sqrt(point.X * point.X + point.Y * point.Y) / (TrueScale * 180d / Math.PI);
+            var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
+
+            var distance = mapDistance / (TrueScale * 180d / Math.PI);
 
             return GetLocation(ProjectionCenter, azimuth, distance);
         }
