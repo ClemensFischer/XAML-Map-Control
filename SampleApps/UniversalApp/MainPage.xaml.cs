@@ -1,5 +1,4 @@
 ﻿using MapControl;
-using MapControl.Caching;
 using ViewModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -13,6 +12,7 @@ namespace UniversalApp
 
         public MainPage()
         {
+            ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
             //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
 

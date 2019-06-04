@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 #if WINDOWS_UWP
 using Windows.Data.Xml.Dom;
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -242,7 +243,7 @@ namespace MapControl
 
         private static IEnumerable<XmlElement> ChildElements(XmlElement element, string name)
         {
-            return element.ChildNodes.OfType<XmlElement>().Where(e => e.LocalName == name);
+            return element.ChildNodes.OfType<XmlElement>().Where(e => (string)e.LocalName == name);
         }
     }
 }

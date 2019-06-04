@@ -149,12 +149,10 @@
 
             <map:MapItemsControl ItemsSource="{Binding Points}"
                                  ItemContainerStyle="{StaticResource PointItemStyle}"
-                                 IsSynchronizedWithCurrentItem="True"
                                  SelectionMode="Extended"/>
 
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
-                                 ItemContainerStyle="{StaticResource PushpinItemStyle}"
-                                 IsSynchronizedWithCurrentItem="True"/>
+                                 ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
             <map:Pushpin map:MapPanel.Location="65,-18" Content="Iceland"/>
             <map:Pushpin map:MapPanel.Location="71,25" Content="Norway"/>
