@@ -110,15 +110,9 @@ namespace MapControl
         /// </summary>
         public virtual async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
         {
-            ImageSource imageSource = null;
             var uri = GetUri(x, y, zoomLevel);
 
-            if (uri != null)
-            {
-                imageSource = await ImageLoader.LoadImageAsync(uri);
-            }
-
-            return imageSource;
+            return uri != null ? await ImageLoader.LoadImageAsync(uri) : null;
         }
 
         private string GetDefaultUri(int x, int y, int zoomLevel)

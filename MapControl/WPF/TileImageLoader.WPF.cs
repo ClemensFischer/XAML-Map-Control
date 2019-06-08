@@ -28,7 +28,7 @@ namespace MapControl
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
 
-        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             DateTime expiration;
             var cacheBuffer = GetCachedImage(cacheKey, out expiration);
@@ -52,7 +52,7 @@ namespace MapControl
                 }
             }
 
-            if (cacheBuffer != null)
+            if (cacheBuffer != null) // cached image not expired or download failed
             {
                 using (var stream = new MemoryStream(cacheBuffer))
                 {

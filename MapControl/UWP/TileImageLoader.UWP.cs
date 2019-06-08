@@ -26,7 +26,7 @@ namespace MapControl
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
 
-        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey);
             var cacheBuffer = cacheItem?.Buffer;
@@ -47,7 +47,7 @@ namespace MapControl
                 }
             }
 
-            if (cacheBuffer != null)
+            if (cacheBuffer != null) // cached image not expired or download failed
             {
                 await LoadTileImageAsync(tile, cacheBuffer);
             }

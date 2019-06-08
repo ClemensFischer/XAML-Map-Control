@@ -63,19 +63,12 @@ namespace MapControl
 
             if (tileSource != null && tiles.Any())
             {
+                if (Cache == null || tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
+                {
+                    sourceName = null; // do not use cache
+                }
+
                 pendingTiles.PushRange(tiles.Reverse().ToArray());
-
-                Func<Tile, Task> loadFunc;
-
-                if (Cache != null && !string.IsNullOrEmpty(sourceName) &&
-                    tileSource.UriFormat != null && tileSource.UriFormat.StartsWith("http"))
-                {
-                    loadFunc = tile => LoadCachedTileImageAsync(tile, tileSource, sourceName);
-                }
-                else
-                {
-                    loadFunc = tile => LoadTileImageAsync(tile, tileSource);
-                }
 
                 var newTasks = Math.Min(pendingTiles.Count, MaxLoadTasks) - taskCount;
 
@@ -83,51 +76,53 @@ namespace MapControl
                 {
                     Interlocked.Increment(ref taskCount);
 
-                    var task = Task.Run(() => LoadTilesAsync(loadFunc)); // do not await
-                }
+                    Task.Run(async () => // do not await
+                    {
+                        Tile tile;
 
-                //Debug.WriteLine("{0}: {1} tasks", Environment.CurrentManagedThreadId, taskCount);
+                        while (pendingTiles.TryPop(out tile))
+                        {
+                            tile.Pending = false;
+
+                            try
+                            {
+                                await LoadTileImageAsync(tile, tileSource, sourceName);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
+                            }
+                        }
+
+                        Interlocked.Decrement(ref taskCount);
+                    });
+                }
             }
         }
 
-        private async Task LoadTilesAsync(Func<Tile, Task> loadTileImageFunc)
+        private async Task LoadTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
         {
-            Tile tile;
-
-            while (pendingTiles.TryPop(out tile))
+            if (string.IsNullOrEmpty(sourceName))
             {
-                tile.Pending = false;
-
-                try
-                {
-                    await loadTileImageFunc(tile);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
-                }
+                await LoadTileImageAsync(tile, tileSource);
             }
-
-            Interlocked.Decrement(ref taskCount);
-            //Debug.WriteLine("{0}: {1} tasks", Environment.CurrentManagedThreadId, taskCount);
-        }
-
-        private async Task LoadCachedTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
-        {
-            var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-
-            if (uri != null)
+            else
             {
-                var extension = Path.GetExtension(uri.LocalPath);
+                var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-                if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                if (uri != null)
                 {
-                    extension = ".jpg";
+                    var extension = Path.GetExtension(uri.LocalPath);
+
+                    if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                    {
+                        extension = ".jpg";
+                    }
+
+                    var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+
+                    await LoadTileImageAsync(tile, uri, cacheKey);
                 }
-
-                var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-
-                await LoadCachedTileImageAsync(tile, uri, cacheKey);
             }
         }
 
