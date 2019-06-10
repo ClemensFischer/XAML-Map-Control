@@ -3,11 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Concurrent;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl
@@ -45,84 +42,49 @@ namespace MapControl
         /// </summary>
         public static string CacheKeyFormat { get; set; } = "{0};{1};{2};{3}{4}";
 
-        private readonly ConcurrentStack<Tile> pendingTiles = new ConcurrentStack<Tile>();
-        private int taskCount;
+        private readonly TileQueue pendingTiles = new TileQueue();
 
         /// <summary>
-        /// Loads all pending tiles from the Tiles collection of a MapTileLayer by running up to MaxLoadTasks parallel Tasks.
-        /// If the TileSource's SourceName is non-empty and its UriFormat starts with "http", tile images are cached in the
-        /// TileImageLoader's Cache.
+        /// Loads all pending tiles from the tiles collection in up to MaxLoadTasks parallel Tasks.
+        /// If the UriFormat of the TileSource starts with "http" and the sourceName string is non-empty,
+        /// tile images are cached in the TileImageLoader's Cache.
         /// </summary>
-        public void LoadTilesAsync(MapTileLayer tileLayer)
+        public void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
         {
             pendingTiles.Clear();
 
-            var tileSource = tileLayer.TileSource;
-            var sourceName = tileLayer.SourceName;
-            var tiles = tileLayer.Tiles.Where(t => t.Pending);
-
-            if (tileSource != null && tiles.Any())
+            if (tileSource != null && pendingTiles.Enqueue(tiles))
             {
-                if (Cache == null || tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
+                if (Cache != null &&
+                    tileSource.UriFormat != null &&
+                    tileSource.UriFormat.StartsWith("http") &&
+                    !string.IsNullOrEmpty(sourceName))
                 {
-                    sourceName = null; // do not use cache
+                    pendingTiles.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource, sourceName));
                 }
-
-                pendingTiles.PushRange(tiles.Reverse().ToArray());
-
-                var newTasks = Math.Min(pendingTiles.Count, MaxLoadTasks) - taskCount;
-
-                while (--newTasks >= 0)
+                else
                 {
-                    Interlocked.Increment(ref taskCount);
-
-                    Task.Run(async () => // do not await
-                    {
-                        Tile tile;
-
-                        while (pendingTiles.TryPop(out tile))
-                        {
-                            tile.Pending = false;
-
-                            try
-                            {
-                                await LoadTileImageAsync(tile, tileSource, sourceName);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
-                            }
-                        }
-
-                        Interlocked.Decrement(ref taskCount);
-                    });
+                    pendingTiles.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource));
                 }
             }
         }
 
         private async Task LoadTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
         {
-            if (string.IsNullOrEmpty(sourceName))
-            {
-                await LoadTileImageAsync(tile, tileSource);
-            }
-            else
-            {
-                var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+            var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-                if (uri != null)
+            if (uri != null)
+            {
+                var extension = Path.GetExtension(uri.LocalPath);
+
+                if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
                 {
-                    var extension = Path.GetExtension(uri.LocalPath);
-
-                    if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
-                    {
-                        extension = ".jpg";
-                    }
-
-                    var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-
-                    await LoadTileImageAsync(tile, uri, cacheKey);
+                    extension = ".jpg";
                 }
+
+                var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+
+                await LoadTileImageAsync(tile, uri, cacheKey);
             }
         }
 

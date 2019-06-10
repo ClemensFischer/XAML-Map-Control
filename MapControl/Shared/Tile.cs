@@ -44,6 +44,11 @@ namespace MapControl
             }
         }
 
+        public override string ToString()
+        {
+            return string.Format("{0}/{1}/{2}", ZoomLevel, XIndex, Y);
+        }
+
         private void FadeIn()
         {
             Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration, FillBehavior = FillBehavior.Stop });

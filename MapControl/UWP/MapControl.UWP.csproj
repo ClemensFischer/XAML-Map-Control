@@ -139,6 +139,9 @@
     <Compile Include="..\Shared\TileImageLoader.cs">
       <Link>TileImageLoader.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\TileQueue.cs">
+      <Link>TileQueue.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\TileSource.cs">
       <Link>TileSource.cs</Link>
     </Compile>
