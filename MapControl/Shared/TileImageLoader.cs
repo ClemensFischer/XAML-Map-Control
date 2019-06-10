@@ -60,7 +60,7 @@ namespace MapControl
                     tileSource.UriFormat.StartsWith("http") &&
                     !string.IsNullOrEmpty(sourceName))
                 {
-                    tileQueue.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource, sourceName));
+                    tileQueue.RunDequeueTasks(MaxLoadTasks, tile => LoadCachedTileImageAsync(tile, tileSource, sourceName));
                 }
                 else
                 {
@@ -69,7 +69,7 @@ namespace MapControl
             }
         }
 
-        private async Task LoadTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
+        private async Task LoadCachedTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
         {
             var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
@@ -84,7 +84,7 @@ namespace MapControl
 
                 var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
 
-                await LoadTileImageAsync(tile, uri, cacheKey);
+                await LoadCachedTileImageAsync(tile, uri, cacheKey);
             }
         }
 

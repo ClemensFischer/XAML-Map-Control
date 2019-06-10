@@ -27,7 +27,7 @@ namespace MapControl
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
 
-        private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             DateTime expiration;
             var cacheBuffer = GetCachedImage(cacheKey, out expiration);

@@ -26,7 +26,7 @@ namespace MapControl
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
 
-        private async Task LoadTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey);
             var cacheBuffer = cacheItem?.Buffer;
