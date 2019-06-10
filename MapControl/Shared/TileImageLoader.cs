@@ -4,7 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl
@@ -43,30 +45,66 @@ namespace MapControl
         public static string CacheKeyFormat { get; set; } = "{0};{1};{2};{3}{4}";
 
         private readonly TileQueue tileQueue = new TileQueue();
+        private int taskCount;
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection in up to MaxLoadTasks parallel Tasks.
         /// If the UriFormat of the TileSource starts with "http" and the sourceName string is non-empty,
         /// tile images are cached in the TileImageLoader's Cache.
         /// </summary>
-        public void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
+        public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
         {
             tileQueue.Clear();
 
-            if (tileSource != null && tileQueue.Enqueue(tiles))
+            if (tileSource != null)
             {
-                if (Cache != null &&
-                    tileSource.UriFormat != null &&
-                    tileSource.UriFormat.StartsWith("http") &&
-                    !string.IsNullOrEmpty(sourceName))
+                tileQueue.Enqueue(tiles);
+
+                var newTasks = Math.Min(tileQueue.Count, MaxLoadTasks) - taskCount;
+
+                if (newTasks > 0)
                 {
-                    tileQueue.RunDequeueTasks(MaxLoadTasks, tile => LoadCachedTileImageAsync(tile, tileSource, sourceName));
-                }
-                else
-                {
-                    tileQueue.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource));
+                    Func<Tile, Task> loadTileFunc;
+
+                    if (Cache != null &&
+                        tileSource.UriFormat != null &&
+                        tileSource.UriFormat.StartsWith("http") &&
+                        !string.IsNullOrEmpty(sourceName))
+                    {
+                        loadTileFunc = tile => LoadCachedTileImageAsync(tile, tileSource, sourceName);
+                    }
+                    else
+                    {
+                        loadTileFunc = tile => LoadTileImageAsync(tile, tileSource);
+                    }
+
+                    Interlocked.Add(ref taskCount, newTasks);
+
+                    while (--newTasks >= 0)
+                    {
+                        Task.Run(() => LoadTilesAsync(loadTileFunc));
+                    }
                 }
             }
+        }
+
+        private async Task LoadTilesAsync(Func<Tile, Task> loadFunc)
+        {
+            Tile tile;
+
+            while (tileQueue.TryDequeue(out tile))
+            {
+                try
+                {
+                    await loadFunc(tile);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("TileImageLoader: {0}: {1}", tile, ex.Message);
+                }
+            }
+
+            Interlocked.Decrement(ref taskCount);
         }
 
         private async Task LoadCachedTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
