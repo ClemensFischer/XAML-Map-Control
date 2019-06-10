@@ -42,7 +42,7 @@ namespace MapControl
         /// </summary>
         public static string CacheKeyFormat { get; set; } = "{0};{1};{2};{3}{4}";
 
-        private readonly TileQueue pendingTiles = new TileQueue();
+        private readonly TileQueue tileQueue = new TileQueue();
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection in up to MaxLoadTasks parallel Tasks.
@@ -51,20 +51,20 @@ namespace MapControl
         /// </summary>
         public void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
         {
-            pendingTiles.Clear();
+            tileQueue.Clear();
 
-            if (tileSource != null && pendingTiles.Enqueue(tiles))
+            if (tileSource != null && tileQueue.Enqueue(tiles))
             {
                 if (Cache != null &&
                     tileSource.UriFormat != null &&
                     tileSource.UriFormat.StartsWith("http") &&
                     !string.IsNullOrEmpty(sourceName))
                 {
-                    pendingTiles.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource, sourceName));
+                    tileQueue.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource, sourceName));
                 }
                 else
                 {
-                    pendingTiles.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource));
+                    tileQueue.RunDequeueTasks(MaxLoadTasks, tile => LoadTileImageAsync(tile, tileSource));
                 }
             }
         }
