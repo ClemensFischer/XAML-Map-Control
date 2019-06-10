@@ -59,7 +59,7 @@ namespace MapControl.Projections
 
                 if (scaleFactor != null)
                 {
-                    TrueScale = scaleFactor.Value * MetersPerDegree;
+                    TrueScale = scaleFactor.Value * Wgs84MetersPerDegree;
                 }
 
                 if (!IsNormalCylindrical)
