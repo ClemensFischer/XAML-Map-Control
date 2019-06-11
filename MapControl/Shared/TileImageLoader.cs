@@ -52,7 +52,7 @@ namespace MapControl
         /// If the UriFormat of the TileSource starts with "http" and the sourceName string is non-empty,
         /// tile images are cached in the TileImageLoader's Cache.
         /// </summary>
-        public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
+        public void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
         {
             tileQueue.Clear();
 
@@ -82,13 +82,13 @@ namespace MapControl
 
                     while (--newTasks >= 0)
                     {
-                        Task.Run(() => LoadTilesAsync(loadTileFunc));
+                        Task.Run(() => LoadTilesFromQueueAsync(loadTileFunc));
                     }
                 }
             }
         }
 
-        private async Task LoadTilesAsync(Func<Tile, Task> loadFunc)
+        private async Task LoadTilesFromQueueAsync(Func<Tile, Task> loadTileFunc)
         {
             Tile tile;
 
@@ -96,11 +96,11 @@ namespace MapControl
             {
                 try
                 {
-                    await loadFunc(tile);
+                    await loadTileFunc(tile);
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("TileImageLoader: {0}: {1}", tile, ex.Message);
+                    Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
                 }
             }
 

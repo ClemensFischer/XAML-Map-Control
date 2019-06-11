@@ -21,7 +21,7 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName);
+        void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName);
     }
 
     /// <summary>
@@ -391,7 +391,7 @@ namespace MapControl
                 Children.Add(tile.Image);
             }
 
-            TileImageLoader.BeginLoadTiles(Tiles, TileSource, SourceName);
+            TileImageLoader.LoadTilesAsync(Tiles, TileSource, SourceName);
         }
     }
 }
