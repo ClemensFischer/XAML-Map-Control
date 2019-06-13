@@ -10,13 +10,14 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static BitmapSource LoadImage(Stream stream)
+        public static ImageSource LoadImage(Stream stream)
         {
             var bitmapImage = new BitmapImage();
             bitmapImage.BeginInit();
@@ -27,12 +28,12 @@ namespace MapControl
             return bitmapImage;
         }
 
-        public static Task<BitmapSource> LoadImageAsync(Stream stream)
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
             return Task.Run(() => LoadImage(stream));
         }
 
-        public static BitmapSource LoadImage(byte[] buffer)
+        public static ImageSource LoadImage(byte[] buffer)
         {
             using (var stream = new MemoryStream(buffer))
             {
@@ -40,24 +41,25 @@ namespace MapControl
             }
         }
 
-        public static Task<BitmapSource> LoadImageAsync(byte[] buffer)
+        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
             return Task.Run(() => LoadImage(buffer));
         }
 
-        private static async Task<BitmapSource> LoadImageAsync(HttpContent content)
+        private static async Task<ImageSource> LoadImageAsync(HttpContent content)
         {
             using (var stream = new MemoryStream())
             {
                 await content.CopyToAsync(stream);
                 stream.Seek(0, SeekOrigin.Begin);
+
                 return await LoadImageAsync(stream);
             }
         }
 
-        private static BitmapSource LoadLocalImage(Uri uri)
+        private static ImageSource LoadLocalImage(Uri uri)
         {
-            BitmapSource image = null;
+            ImageSource image = null;
             var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
             if (File.Exists(path))
@@ -71,37 +73,50 @@ namespace MapControl
             return image;
         }
 
-        private static Task<BitmapSource> LoadLocalImageAsync(Uri uri)
+        private static Task<ImageSource> LoadLocalImageAsync(Uri uri)
         {
             return Task.Run(() => LoadLocalImage(uri));
         }
 
-        internal static async Task<Tuple<MemoryStream, TimeSpan?>> LoadHttpStreamAsync(Uri uri)
+        internal class HttpStreamResponse
         {
-            Tuple<MemoryStream, TimeSpan?> result = null;
+            public readonly MemoryStream Stream;
+            public readonly TimeSpan? MaxAge;
+
+            public HttpStreamResponse(MemoryStream stream, TimeSpan? maxAge)
+            {
+                Stream = stream;
+                MaxAge = maxAge;
+            }
+        }
+
+        internal static async Task<HttpStreamResponse> LoadHttpStreamAsync(Uri uri)
+        {
+            HttpStreamResponse response = null;
 
             try
             {
-                using (var response = await HttpClient.GetAsync(uri))
+                using (var responseMessage = await HttpClient.GetAsync(uri))
                 {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                    }
-                    else
+                    if (responseMessage.IsSuccessStatusCode)
                     {
                         MemoryStream stream = null;
                         TimeSpan? maxAge = null;
 
-                        if (IsTileAvailable(response.Headers))
+                        if (ImageAvailable(responseMessage.Headers))
                         {
                             stream = new MemoryStream();
-                            await response.Content.CopyToAsync(stream);
+                            await responseMessage.Content.CopyToAsync(stream);
                             stream.Seek(0, SeekOrigin.Begin);
-                            maxAge = response.Headers.CacheControl?.MaxAge;
+
+                            maxAge = responseMessage.Headers.CacheControl?.MaxAge;
                         }
 
-                        result = new Tuple<MemoryStream, TimeSpan?>(stream, maxAge);
+                        response = new HttpStreamResponse(stream, maxAge);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)responseMessage.StatusCode, responseMessage.ReasonPhrase);
                     }
                 }
             }
@@ -110,10 +125,10 @@ namespace MapControl
                 Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
             }
 
-            return result;
+            return response;
         }
 
-        private static bool IsTileAvailable(HttpResponseHeaders responseHeaders)
+        private static bool ImageAvailable(HttpResponseHeaders responseHeaders)
         {
             IEnumerable<string> tileInfo;
             return !responseHeaders.TryGetValues("X-VE-Tile-Info", out tileInfo) || !tileInfo.Contains("no-tile");

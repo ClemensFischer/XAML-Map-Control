@@ -7,9 +7,11 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.Web.Http;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Net.Http;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 #endif
 
@@ -22,9 +24,9 @@ namespace MapControl
         /// </summary>
         public static HttpClient HttpClient { get; set; } = new HttpClient();
 
-        public static async Task<BitmapSource> LoadImageAsync(Uri uri)
+        public static async Task<ImageSource> LoadImageAsync(Uri uri)
         {
-            BitmapSource image = null;
+            ImageSource image = null;
 
             try
             {
@@ -49,9 +51,9 @@ namespace MapControl
             return image;
         }
 
-        private static async Task<BitmapSource> LoadHttpImageAsync(Uri uri)
+        private static async Task<ImageSource> LoadHttpImageAsync(Uri uri)
         {
-            BitmapSource image = null;
+            ImageSource image = null;
 
             using (var response = await HttpClient.GetAsync(uri))
             {
@@ -59,7 +61,7 @@ namespace MapControl
                 {
                     Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
                 }
-                else if (IsTileAvailable(response.Headers))
+                else if (ImageAvailable(response.Headers))
                 {
                     image = await LoadImageAsync(response.Content);
                 }

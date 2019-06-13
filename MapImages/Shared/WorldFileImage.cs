@@ -80,12 +80,13 @@ namespace MapControl.Images
         public static async Task<WorldFileImage> ReadWorldFileImage(string imagePath, string worldFilePath, string projFilePath = null)
         {
             BitmapSource bitmap;
+
             using (var stream = File.OpenRead(imagePath))
             {
 #if WINDOWS_UWP
-                bitmap = await ImageLoader.LoadImageAsync(stream.AsRandomAccessStream());
+                bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(stream.AsRandomAccessStream());
 #else
-                bitmap = await ImageLoader.LoadImageAsync(stream);
+                bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(stream);
 #endif
             }
 

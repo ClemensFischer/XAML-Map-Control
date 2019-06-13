@@ -34,18 +34,18 @@ namespace MapControl
 
             if (cacheBuffer == null || expiration < DateTime.UtcNow)
             {
-                var result = await ImageLoader.LoadHttpStreamAsync(uri);
+                var response = await ImageLoader.LoadHttpStreamAsync(uri).ConfigureAwait(false);
 
-                if (result != null) // download succeeded
+                if (response != null) // download succeeded
                 {
                     cacheBuffer = null; // discard cached image
 
-                    if (result.Item1 != null) // tile image available
+                    if (response.Stream != null) // tile image available
                     {
-                        using (var stream = result.Item1)
+                        using (var stream = response.Stream)
                         {
                             LoadTileImage(tile, stream);
-                            SetCachedImage(cacheKey, stream, GetExpiration(result.Item2));
+                            SetCachedImage(cacheKey, stream, GetExpiration(response.MaxAge));
                         }
                     }
                 }
@@ -62,7 +62,7 @@ namespace MapControl
 
         private async Task LoadTileImageAsync(Tile tile, TileSource tileSource)
         {
-            SetTileImage(tile, await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
+            SetTileImage(tile, await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false));
         }
 
         private void LoadTileImage(Tile tile, Stream stream)

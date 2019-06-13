@@ -21,7 +21,10 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName);
+        TileSource TileSource { get; set; }
+        string SourceName { get; set; }
+
+        void LoadTilesAsync(IEnumerable<Tile> tiles);
     }
 
     /// <summary>
@@ -51,7 +54,8 @@ namespace MapControl
             new PropertyMetadata(null, (o, e) => ((MapTileLayer)o).TileSourcePropertyChanged()));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
-            nameof(SourceName), typeof(string), typeof(MapTileLayer), new PropertyMetadata(null));
+            nameof(SourceName), typeof(string), typeof(MapTileLayer),
+            new PropertyMetadata(null, (o, e) => ((MapTileLayer)o).TileImageLoader.SourceName = (string)e.NewValue));
 
         public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
             nameof(Description), typeof(string), typeof(MapTileLayer), new PropertyMetadata(null));
@@ -71,7 +75,7 @@ namespace MapControl
             new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapTileLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
-            nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapTileLayer), new PropertyMetadata(true));
+            nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapTileLayer), new PropertyMetadata(false));
 
         public static readonly DependencyProperty MapBackgroundProperty = DependencyProperty.Register(
             nameof(MapBackground), typeof(Brush), typeof(MapTileLayer), new PropertyMetadata(null));
@@ -99,7 +103,7 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
-        public ITileImageLoader TileImageLoader { get; private set; }
+        public ITileImageLoader TileImageLoader { get; }
 
         public TileGrid TileGrid { get; private set; }
 
@@ -271,6 +275,8 @@ namespace MapControl
 
         private void TileSourcePropertyChanged()
         {
+            TileImageLoader.TileSource = TileSource;
+
             if (TileGrid != null)
             {
                 Tiles = new List<Tile>();
@@ -391,7 +397,7 @@ namespace MapControl
                 Children.Add(tile.Image);
             }
 
-            TileImageLoader.LoadTilesAsync(Tiles, TileSource, SourceName);
+            TileImageLoader.LoadTilesAsync(Tiles);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -17,14 +18,14 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static async Task<BitmapSource> LoadImageAsync(IRandomAccessStream stream)
+        public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
             var image = new BitmapImage();
             await image.SetSourceAsync(stream);
             return image;
         }
 
-        public static async Task<BitmapSource> LoadImageAsync(byte[] buffer)
+        public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
             using (var stream = new InMemoryRandomAccessStream())
             {
@@ -34,7 +35,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<BitmapSource> LoadImageAsync(IHttpContent content)
+        private static async Task<ImageSource> LoadImageAsync(IHttpContent content)
         {
             using (var stream = new InMemoryRandomAccessStream())
             {
@@ -44,9 +45,9 @@ namespace MapControl
             }
         }
 
-        private static async Task<BitmapSource> LoadLocalImageAsync(Uri uri)
+        private static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
         {
-            BitmapSource image = null;
+            ImageSource image = null;
             var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
             if (File.Exists(path))
@@ -62,30 +63,42 @@ namespace MapControl
             return image;
         }
 
-        internal static async Task<Tuple<IBuffer, TimeSpan?>> LoadHttpBufferAsync(Uri uri)
+        internal class HttpBufferResponse
         {
-            Tuple<IBuffer, TimeSpan?> result = null;
+            public readonly IBuffer Buffer;
+            public readonly TimeSpan? MaxAge;
+
+            public HttpBufferResponse(IBuffer buffer, TimeSpan? maxAge)
+            {
+                Buffer = buffer;
+                MaxAge = maxAge;
+            }
+        }
+
+        internal static async Task<HttpBufferResponse> LoadHttpBufferAsync(Uri uri)
+        {
+            HttpBufferResponse response = null;
 
             try
             {
-                using (var response = await HttpClient.GetAsync(uri))
+                using (var responseMessage = await HttpClient.GetAsync(uri))
                 {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
-                    }
-                    else
+                    if (responseMessage.IsSuccessStatusCode)
                     {
                         IBuffer buffer = null;
                         TimeSpan? maxAge = null;
 
-                        if (IsTileAvailable(response.Headers))
+                        if (ImageAvailable(responseMessage.Headers))
                         {
-                            buffer = await response.Content.ReadAsBufferAsync();
-                            maxAge = response.Headers.CacheControl?.MaxAge;
+                            buffer = await responseMessage.Content.ReadAsBufferAsync();
+                            maxAge = responseMessage.Headers.CacheControl?.MaxAge;
                         }
 
-                        result = new Tuple<IBuffer, TimeSpan?>(buffer, maxAge);
+                        response = new HttpBufferResponse(buffer, maxAge);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)responseMessage.StatusCode, responseMessage.ReasonPhrase);
                     }
                 }
             }
@@ -94,10 +107,10 @@ namespace MapControl
                 Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
             }
 
-            return result;
+            return response;
         }
 
-        private static bool IsTileAvailable(HttpResponseHeaderCollection responseHeaders)
+        private static bool ImageAvailable(HttpResponseHeaderCollection responseHeaders)
         {
             return !responseHeaders.TryGetValue("X-VE-Tile-Info", out string tileInfo) || tileInfo != "no-tile";
         }

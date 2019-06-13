@@ -261,7 +261,7 @@ namespace MapControl.Caching
         {
             try
             {
-                return Path.Combine(rootFolder, Path.Combine(key.Split('\\', '/', ':', ';')));
+                return Path.Combine(rootFolder, Path.Combine(key.Split('\\', '/', ',', ':', ';')));
             }
             catch (Exception ex)
             {

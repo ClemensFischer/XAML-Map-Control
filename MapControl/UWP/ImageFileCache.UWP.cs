@@ -69,7 +69,7 @@ namespace MapControl.Caching
 
         public virtual async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
         {
-            var paths = key.Split('\\', '/', ':', ';');
+            var paths = key.Split('\\', '/', ',', ':', ';');
 
             try
             {

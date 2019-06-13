@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Media;
 
 namespace MapControl
 {
@@ -28,58 +29,48 @@ namespace MapControl
 
         private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
-            var cacheItem = await Cache.GetAsync(cacheKey);
+            var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
             var cacheBuffer = cacheItem?.Buffer;
 
             if (cacheBuffer == null || cacheItem.Expiration < DateTime.UtcNow)
             {
-                var result = await ImageLoader.LoadHttpBufferAsync(uri);
+                var response = await ImageLoader.LoadHttpBufferAsync(uri).ConfigureAwait(false);
 
-                if (result != null) // download succeeded
+                if (response != null) // download succeeded
                 {
                     cacheBuffer = null; // discard cached image
 
-                    if (result.Item1 != null) // tile image available
+                    if (response.Buffer != null) // tile image available
                     {
-                        await LoadTileImageAsync(tile, result.Item1);
-                        await Cache.SetAsync(cacheKey, result.Item1, GetExpiration(result.Item2));
+                        await LoadTileImageAsync(tile, response.Buffer).ConfigureAwait(false);
+                        await Cache.SetAsync(cacheKey, response.Buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                     }
                 }
             }
 
             if (cacheBuffer != null) // cached image not expired or download failed
             {
-                await LoadTileImageAsync(tile, cacheBuffer);
+                await LoadTileImageAsync(tile, cacheBuffer).ConfigureAwait(false);
             }
         }
 
         private async Task LoadTileImageAsync(Tile tile, IBuffer buffer)
         {
-            var tcs = new TaskCompletionSource<object>();
-
             using (var stream = new InMemoryRandomAccessStream())
             {
                 await stream.WriteAsync(buffer);
                 stream.Seek(0);
 
-                await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-                {
-                    try
-                    {
-                        tile.SetImage(await ImageLoader.LoadImageAsync(stream));
-                        tcs.SetResult(null);
-                    }
-                    catch (Exception ex)
-                    {
-                        tcs.SetException(ex);
-                    }
-                });
+                await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(stream)).ConfigureAwait(false);
             }
-
-            await tcs.Task;
         }
 
-        private async Task LoadTileImageAsync(Tile tile, TileSource tileSource)
+        private Task LoadTileImageAsync(Tile tile, TileSource tileSource)
+        {
+            return SetTileImageAsync(tile, () => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
+        }
+
+        private async Task SetTileImageAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource<object>();
 
@@ -87,7 +78,7 @@ namespace MapControl
             {
                 try
                 {
-                    tile.SetImage(await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
+                    tile.SetImage(await loadImageFunc());
                     tcs.SetResult(null);
                 }
                 catch (Exception ex)
@@ -96,7 +87,7 @@ namespace MapControl
                 }
             });
 
-            await tcs.Task;
+            await tcs.Task.ConfigureAwait(false);
         }
     }
 }
