@@ -12,18 +12,18 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public void SetImage(ImageSource imageSource, bool fadeIn = true)
+        public void SetImage(ImageSource image, bool fadeIn = true)
         {
             Pending = false;
 
             if (fadeIn && FadeDuration > TimeSpan.Zero)
             {
-                var bitmapImage = imageSource as BitmapImage;
+                var bitmap = image as BitmapImage;
 
-                if (bitmapImage?.UriSource != null)
+                if (bitmap?.UriSource != null)
                 {
-                    bitmapImage.ImageOpened += BitmapImageOpened;
-                    bitmapImage.ImageFailed += BitmapImageFailed;
+                    bitmap.ImageOpened += BitmapImageOpened;
+                    bitmap.ImageFailed += BitmapImageFailed;
                 }
                 else
                 {
@@ -35,25 +35,25 @@ namespace MapControl
                 Image.Opacity = 1d;
             }
 
-            Image.Source = imageSource;
+            Image.Source = image;
         }
 
         private void BitmapImageOpened(object sender, RoutedEventArgs e)
         {
-            var bitmapImage = (BitmapImage)sender;
+            var bitmap = (BitmapImage)sender;
 
-            bitmapImage.ImageOpened -= BitmapImageOpened;
-            bitmapImage.ImageFailed -= BitmapImageFailed;
+            bitmap.ImageOpened -= BitmapImageOpened;
+            bitmap.ImageFailed -= BitmapImageFailed;
 
             FadeIn();
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
         {
-            var bitmapImage = (BitmapImage)sender;
+            var bitmap = (BitmapImage)sender;
 
-            bitmapImage.ImageOpened -= BitmapImageOpened;
-            bitmapImage.ImageFailed -= BitmapImageFailed;
+            bitmap.ImageOpened -= BitmapImageOpened;
+            bitmap.ImageFailed -= BitmapImageFailed;
 
             Image.Source = null;
         }

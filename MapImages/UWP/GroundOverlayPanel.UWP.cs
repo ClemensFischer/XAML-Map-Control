@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -21,27 +20,20 @@ namespace MapControl.Images
             UseLayoutRounding = false;
         }
 
-        private async Task<List<ImageOverlay>> ReadGroundOverlaysFromFile(string docFile)
+        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFile(string docFile)
         {
-            if (!Path.IsPathRooted(docFile))
+            docFile = Path.GetFullPath(docFile);
+
+            var file = await StorageFile.GetFileFromPathAsync(docFile);
+            var kmlDocument = new XmlDocument();
+
+            using (var stream = await file.OpenReadAsync())
             {
-                docFile = Path.Combine(Directory.GetCurrentDirectory(), docFile);
+                kmlDocument.Load(stream.AsStreamForRead());
             }
 
+            var imageOverlays = ReadGroundOverlays(kmlDocument).ToList();
             var docUri = new Uri(docFile);
-
-            var imageOverlays = await Task.Run(async () =>
-            {
-                var file = await StorageFile.GetFileFromPathAsync(docFile);
-                var kmlDocument = new XmlDocument();
-
-                using (var stream = await file.OpenReadAsync())
-                {
-                    kmlDocument.Load(stream.AsStreamForRead());
-                }
-
-                return ReadGroundOverlays(kmlDocument).ToList();
-            });
 
             foreach (var imageOverlay in imageOverlays)
             {
@@ -51,7 +43,7 @@ namespace MapControl.Images
             return imageOverlays;
         }
 
-        private async Task<List<ImageOverlay>> ReadGroundOverlaysFromArchive(string archiveFile)
+        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchive(string archiveFile)
         {
             using (var archive = ZipFile.OpenRead(archiveFile))
             {
@@ -63,17 +55,14 @@ namespace MapControl.Images
                     throw new ArgumentException("No KML entry found in " + archiveFile);
                 }
 
-                var imageOverlays = await Task.Run(() =>
+                var kmlDocument = new XmlDocument();
+
+                using (var docStream = docEntry.Open())
                 {
-                    var kmlDocument = new XmlDocument();
+                    kmlDocument.Load(docStream);
+                }
 
-                    using (var docStream = docEntry.Open())
-                    {
-                        kmlDocument.Load(docStream);
-                    }
-
-                    return ReadGroundOverlays(kmlDocument).ToList();
-                });
+                var imageOverlays = ReadGroundOverlays(kmlDocument).ToList();
 
                 foreach (var imageOverlay in imageOverlays)
                 {

@@ -2,6 +2,7 @@
 // © 2019 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using MapControl.Projections;
 using System;
 using System.Globalization;
 using System.IO;
@@ -19,7 +20,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 #endif
-using MapControl.Projections;
 
 namespace MapControl.Images
 {
@@ -79,24 +79,11 @@ namespace MapControl.Images
 
         public static async Task<WorldFileImage> ReadWorldFileImage(string imagePath, string worldFilePath, string projFilePath = null)
         {
-            BitmapSource bitmap;
-
-            using (var stream = File.OpenRead(imagePath))
-            {
-#if WINDOWS_UWP
-                bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(stream.AsRandomAccessStream());
-#else
-                bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(stream);
-#endif
-            }
-
+            var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(imagePath);
             var transform = ReadWorldFile(worldFilePath);
-            MapProjection projection = null;
-
-            if (projFilePath != null && File.Exists(projFilePath))
-            {
-                projection = new GeoApiProjection { WKT = File.ReadAllText(projFilePath) };
-            }
+            var projection = (projFilePath != null && File.Exists(projFilePath))
+                ? new GeoApiProjection { WKT = File.ReadAllText(projFilePath) }
+                : null;
 
             return new WorldFileImage(bitmap, transform, projection);
         }
@@ -124,16 +111,18 @@ namespace MapControl.Images
                 throw new ArgumentException("World file \"" + path + "\"not found.");
             }
 
-            var parameters = File.ReadLines(path).Take(6).Select((line, i) =>
-            {
-                double p;
-                if (!double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out p))
+            var parameters = File.ReadLines(path)
+                .Take(6)
+                .Select((line, i) =>
                 {
-                    throw new ArgumentException("Failed parsing line " + (i + 1) + " in world file \"" + path + "\".");
-                }
-                return p;
-            })
-            .ToList();
+                    double p;
+                    if (!double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out p))
+                    {
+                        throw new ArgumentException("Failed parsing line " + (i + 1) + " in world file \"" + path + "\".");
+                    }
+                    return p;
+                })
+                .ToList();
 
             if (parameters.Count != 6)
             {

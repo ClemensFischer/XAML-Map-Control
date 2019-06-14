@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using SQLiteCommand = Microsoft.Data.Sqlite.SqliteCommand;
@@ -21,7 +22,7 @@ namespace MapControl.MBTiles
 
         public MBTileData(string file)
         {
-            connection = new SQLiteConnection("Data Source=" + file);
+            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file));
         }
 
         public Task OpenAsync()

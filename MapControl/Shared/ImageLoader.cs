@@ -32,7 +32,7 @@ namespace MapControl
             {
                 if (!uri.IsAbsoluteUri || uri.Scheme == "file")
                 {
-                    image = await LoadLocalImageAsync(uri);
+                    image = await LoadImageAsync(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
                 }
                 else if (uri.Scheme == "http" || uri.Scheme == "https")
                 {

@@ -28,11 +28,6 @@ namespace MapControl
             return bitmapImage;
         }
 
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
-        {
-            return Task.Run(() => LoadImage(stream));
-        }
-
         public static ImageSource LoadImage(byte[] buffer)
         {
             using (var stream = new MemoryStream(buffer))
@@ -41,26 +36,9 @@ namespace MapControl
             }
         }
 
-        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            return Task.Run(() => LoadImage(buffer));
-        }
-
-        private static async Task<ImageSource> LoadImageAsync(HttpContent content)
-        {
-            using (var stream = new MemoryStream())
-            {
-                await content.CopyToAsync(stream);
-                stream.Seek(0, SeekOrigin.Begin);
-
-                return await LoadImageAsync(stream);
-            }
-        }
-
-        private static ImageSource LoadLocalImage(Uri uri)
+        public static ImageSource LoadImage(string path)
         {
             ImageSource image = null;
-            var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
             if (File.Exists(path))
             {
@@ -73,9 +51,30 @@ namespace MapControl
             return image;
         }
 
-        private static Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            return Task.Run(() => LoadLocalImage(uri));
+            return Task.Run(() => LoadImage(stream));
+        }
+
+        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        {
+            return Task.Run(() => LoadImage(buffer));
+        }
+
+        public static Task<ImageSource> LoadImageAsync(string path)
+        {
+            return Task.Run(() => LoadImage(path));
+        }
+
+        private static async Task<ImageSource> LoadImageAsync(HttpContent content)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await content.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+
+                return LoadImage(stream);
+            }
         }
 
         internal class HttpStreamResponse
@@ -96,7 +95,7 @@ namespace MapControl
 
             try
             {
-                using (var responseMessage = await HttpClient.GetAsync(uri))
+                using (var responseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
@@ -106,7 +105,7 @@ namespace MapControl
                         if (ImageAvailable(responseMessage.Headers))
                         {
                             stream = new MemoryStream();
-                            await responseMessage.Content.CopyToAsync(stream);
+                            await responseMessage.Content.CopyToAsync(stream).ConfigureAwait(false);
                             stream.Seek(0, SeekOrigin.Begin);
 
                             maxAge = responseMessage.Headers.CacheControl?.MaxAge;

@@ -119,9 +119,9 @@ namespace MapControl
 
         protected override async Task<ImageSource> GetImageAsync()
         {
-            var imageUri = GetImageUri();
+            var uri = GetImageUri();
 
-            return imageUri != null ? await ImageLoader.LoadImageAsync(imageUri) : null;
+            return uri != null ? await ImageLoader.LoadImageAsync(uri) : null;
         }
 
         /// <summary>

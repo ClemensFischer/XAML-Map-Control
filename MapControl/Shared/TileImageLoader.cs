@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,7 +56,7 @@ namespace MapControl
         /// If the UriFormat of TileSource starts with "http" and SourceName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache.
         /// </summary>
-        public async void LoadTilesAsync(IEnumerable<Tile> tiles)
+        public void LoadTilesAsync(IEnumerable<Tile> tiles)
         {
             tileQueue.Clear();
             tileQueue.Enqueue(tiles);
@@ -68,9 +67,10 @@ namespace MapControl
             {
                 Interlocked.Add(ref taskCount, newTasks);
 
-                await Task
-                    .WhenAll(Enumerable.Range(0, newTasks).Select(n => LoadTilesFromQueueAsync()))
-                    .ConfigureAwait(false);
+                while (--newTasks >= 0)
+                {
+                    Task.Run(() => LoadTilesFromQueueAsync());
+                }
             }
         }
 

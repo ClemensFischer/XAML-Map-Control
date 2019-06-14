@@ -27,8 +27,10 @@ namespace MapControl
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
 
+
         private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
+            ImageSource image = null;
             DateTime expiration;
             var cacheBuffer = GetCachedImage(cacheKey, out expiration);
 
@@ -44,7 +46,7 @@ namespace MapControl
                     {
                         using (var stream = response.Stream)
                         {
-                            LoadTileImage(tile, stream);
+                            image = ImageLoader.LoadImage(stream);
                             SetCachedImage(cacheKey, stream, GetExpiration(response.MaxAge));
                         }
                     }
@@ -53,26 +55,28 @@ namespace MapControl
 
             if (cacheBuffer != null) // cached image not expired or download failed
             {
-                using (var stream = new MemoryStream(cacheBuffer))
-                {
-                    LoadTileImage(tile, stream);
-                }
+                image = ImageLoader.LoadImage(cacheBuffer);
+            }
+
+            if (image != null)
+            {
+                SetTileImage(tile, image);
             }
         }
 
         private async Task LoadTileImageAsync(Tile tile, TileSource tileSource)
         {
-            SetTileImage(tile, await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false));
+            var image = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false);
+
+            if (image != null)
+            {
+                SetTileImage(tile, image);
+            }
         }
 
-        private void LoadTileImage(Tile tile, Stream stream)
+        private void SetTileImage(Tile tile, ImageSource image)
         {
-            SetTileImage(tile, ImageLoader.LoadImage(stream));
-        }
-
-        private void SetTileImage(Tile tile, ImageSource imageSource)
-        {
-            tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(imageSource));
+            tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
         }
 
         private static byte[] GetCachedImage(string cacheKey, out DateTime expiration)

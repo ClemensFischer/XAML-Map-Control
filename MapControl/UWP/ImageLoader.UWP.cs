@@ -31,28 +31,18 @@ namespace MapControl
             {
                 await stream.WriteAsync(buffer.AsBuffer());
                 stream.Seek(0);
+
                 return await LoadImageAsync(stream);
             }
         }
 
-        private static async Task<ImageSource> LoadImageAsync(IHttpContent content)
-        {
-            using (var stream = new InMemoryRandomAccessStream())
-            {
-                await content.WriteToStreamAsync(stream);
-                stream.Seek(0);
-                return await LoadImageAsync(stream);
-            }
-        }
-
-        private static async Task<ImageSource> LoadLocalImageAsync(Uri uri)
+        public static async Task<ImageSource> LoadImageAsync(string path)
         {
             ImageSource image = null;
-            var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
             if (File.Exists(path))
             {
-                var file = await StorageFile.GetFileFromPathAsync(path);
+                var file = await StorageFile.GetFileFromPathAsync(Path.GetFullPath(path));
 
                 using (var stream = await file.OpenReadAsync())
                 {
@@ -61,6 +51,17 @@ namespace MapControl
             }
 
             return image;
+        }
+
+        private static async Task<ImageSource> LoadImageAsync(IHttpContent content)
+        {
+            using (var stream = new InMemoryRandomAccessStream())
+            {
+                await content.WriteToStreamAsync(stream);
+                stream.Seek(0);
+
+                return await LoadImageAsync(stream);
+            }
         }
 
         internal class HttpBufferResponse

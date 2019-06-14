@@ -230,13 +230,13 @@ namespace MapControl
 
                 UpdateBoundingBox();
 
-                ImageSource imageSource = null;
+                ImageSource image = null;
 
                 if (BoundingBox != null)
                 {
                     try
                     {
-                        imageSource = await GetImageAsync();
+                        image = await GetImageAsync();
                     }
                     catch (Exception ex)
                     {
@@ -244,7 +244,7 @@ namespace MapControl
                     }
                 }
 
-                SwapImages(imageSource);
+                SwapImages(image);
 
                 updateInProgress = false;
             }
@@ -321,7 +321,7 @@ namespace MapControl
             }
         }
 
-        private void SwapImages(ImageSource imageSource)
+        private void SwapImages(ImageSource image)
         {
             var topImage = (Image)Children[0];
             var bottomImage = (Image)Children[1];
@@ -329,7 +329,7 @@ namespace MapControl
             Children.RemoveAt(0);
             Children.Insert(1, topImage);
 
-            topImage.Source = imageSource;
+            topImage.Source = image;
             SetBoundingBox(topImage, BoundingBox?.Clone());
 
             topImage.BeginAnimation(OpacityProperty, new DoubleAnimation

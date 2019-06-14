@@ -27,6 +27,7 @@ namespace MapControl
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
 
+
         private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
@@ -78,7 +79,13 @@ namespace MapControl
             {
                 try
                 {
-                    tile.SetImage(await loadImageFunc());
+                    var image = await loadImageFunc();
+
+                    if (image != null)
+                    {
+                        tile.SetImage(image);
+                    }
+
                     tcs.SetResult(null);
                 }
                 catch (Exception ex)
