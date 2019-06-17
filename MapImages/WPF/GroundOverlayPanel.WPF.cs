@@ -14,7 +14,17 @@ namespace MapControl.Images
 {
     public partial class GroundOverlayPanel
     {
-        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFile(string docFile)
+        private Task<List<ImageOverlay>> ReadGroundOverlaysFromFileAsync(string docFile)
+        {
+            return Task.Run(() => ReadGroundOverlaysFromFile(docFile));
+        }
+
+        private Task<List<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFile)
+        {
+            return Task.Run(() => ReadGroundOverlaysFromArchive(archiveFile));
+        }
+
+        private List<ImageOverlay> ReadGroundOverlaysFromFile(string docFile)
         {
             docFile = Path.GetFullPath(docFile);
 
@@ -22,17 +32,18 @@ namespace MapControl.Images
             kmlDocument.Load(docFile);
 
             var imageOverlays = ReadGroundOverlays(kmlDocument).ToList();
-            var docUri = new Uri(docFile);
+            var docDir = Path.GetDirectoryName(docFile);
 
             foreach (var imageOverlay in imageOverlays)
             {
-                imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
+                imageOverlay.ImageSource = ImageLoader.LoadImage(Path.Combine(docDir, imageOverlay.ImagePath));
             }
 
             return imageOverlays;
+
         }
 
-        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchive(string archiveFile)
+        private List<ImageOverlay> ReadGroundOverlaysFromArchive(string archiveFile)
         {
             using (var archive = ZipFile.OpenRead(archiveFile))
             {
@@ -62,9 +73,9 @@ namespace MapControl.Images
                         using (var zipStream = imageEntry.Open())
                         using (var memoryStream = new MemoryStream())
                         {
-                            await zipStream.CopyToAsync(memoryStream);
-                            memoryStream.Position = 0;
-                            imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(memoryStream);
+                            zipStream.CopyTo(memoryStream);
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+                            imageOverlay.ImageSource = ImageLoader.LoadImage(memoryStream);
                         }
                     }
                 }

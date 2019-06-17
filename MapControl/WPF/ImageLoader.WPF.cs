@@ -20,11 +20,13 @@ namespace MapControl
         public static ImageSource LoadImage(Stream stream)
         {
             var bitmapImage = new BitmapImage();
+
             bitmapImage.BeginInit();
             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
             bitmapImage.StreamSource = stream;
             bitmapImage.EndInit();
             bitmapImage.Freeze();
+
             return bitmapImage;
         }
 

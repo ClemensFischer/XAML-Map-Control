@@ -20,7 +20,7 @@ namespace MapControl.Images
             UseLayoutRounding = false;
         }
 
-        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFile(string docFile)
+        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFileAsync(string docFile)
         {
             docFile = Path.GetFullPath(docFile);
 
@@ -32,7 +32,7 @@ namespace MapControl.Images
                 kmlDocument.Load(stream.AsStreamForRead());
             }
 
-            var imageOverlays = ReadGroundOverlays(kmlDocument).ToList();
+            var imageOverlays = await Task.Run(() => ReadGroundOverlays(kmlDocument).ToList());
             var docUri = new Uri(docFile);
 
             foreach (var imageOverlay in imageOverlays)
@@ -43,7 +43,7 @@ namespace MapControl.Images
             return imageOverlays;
         }
 
-        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchive(string archiveFile)
+        private async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFile)
         {
             using (var archive = ZipFile.OpenRead(archiveFile))
             {
@@ -62,7 +62,7 @@ namespace MapControl.Images
                     kmlDocument.Load(docStream);
                 }
 
-                var imageOverlays = ReadGroundOverlays(kmlDocument).ToList();
+                var imageOverlays = await Task.Run(() => ReadGroundOverlays(kmlDocument).ToList());
 
                 foreach (var imageOverlay in imageOverlays)
                 {
@@ -74,7 +74,7 @@ namespace MapControl.Images
                         using (var memoryStream = new MemoryStream())
                         {
                             await zipStream.CopyToAsync(memoryStream);
-                            memoryStream.Position = 0;
+                            memoryStream.Seek(0, SeekOrigin.Begin);
                             imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(memoryStream.AsRandomAccessStream());
                         }
                     }

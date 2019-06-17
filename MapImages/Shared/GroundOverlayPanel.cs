@@ -71,11 +71,11 @@ namespace MapControl.Images
                     var ext = Path.GetExtension(path).ToLower();
                     if (ext == ".kmz")
                     {
-                        imageOverlays = await ReadGroundOverlaysFromArchive(path);
+                        imageOverlays = await ReadGroundOverlaysFromArchiveAsync(path);
                     }
                     else if (ext == ".kml")
                     {
-                        imageOverlays = await ReadGroundOverlaysFromFile(path);
+                        imageOverlays = await ReadGroundOverlaysFromFileAsync(path);
                     }
                 }
                 catch (Exception ex)

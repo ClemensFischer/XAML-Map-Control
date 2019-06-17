@@ -21,7 +21,9 @@ namespace MapControl
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
             var image = new BitmapImage();
+
             await image.SetSourceAsync(stream);
+
             return image;
         }
 
