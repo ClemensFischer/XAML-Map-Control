@@ -12,7 +12,7 @@ using System.Windows.Media;
 
 namespace MapControl.MBTiles
 {
-    public class MBTileSource : TileSource, IDisposable
+    public sealed class MBTileSource : TileSource, IDisposable
     {
         private readonly MBTileData tileData;
 

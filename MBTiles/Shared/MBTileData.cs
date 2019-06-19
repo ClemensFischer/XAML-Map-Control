@@ -16,7 +16,7 @@ using System.Data.SQLite;
 
 namespace MapControl.MBTiles
 {
-    public class MBTileData : IDisposable
+    public sealed class MBTileData : IDisposable
     {
         private readonly SQLiteConnection connection;
 
@@ -37,7 +37,7 @@ namespace MapControl.MBTiles
 
         public void Dispose()
         {
-            Close();
+            connection.Dispose();
         }
 
         public async Task<IDictionary<string, string>> ReadMetadataAsync()
