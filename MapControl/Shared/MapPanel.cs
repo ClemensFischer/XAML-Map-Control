@@ -31,12 +31,6 @@ namespace MapControl
     /// </summary>
     public partial class MapPanel : Panel, IMapElement
     {
-        public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
-            "Location", typeof(Location), typeof(MapPanel), new PropertyMetadata(null, LocationPropertyChanged));
-
-        public static readonly DependencyProperty BoundingBoxProperty = DependencyProperty.RegisterAttached(
-            "BoundingBox", typeof(BoundingBox), typeof(MapPanel), new PropertyMetadata(null, BoundingBoxPropertyChanged));
-
         private MapBase parentMap;
 
         public MapPanel()
@@ -116,79 +110,140 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (var element in Children.OfType<FrameworkElement>())
+            if (parentMap != null)
             {
-                Location location;
-                BoundingBox boundingBox;
-                Point? viewportPosition = null;
+                foreach (var element in Children.OfType<FrameworkElement>())
+                {
+                    var location = GetLocation(element);
 
-                if ((location = GetLocation(element)) != null)
-                {
-                    viewportPosition = ArrangeElementWithLocation(element, parentMap, location);
-                }
-                else if ((boundingBox = GetBoundingBox(element)) != null)
-                {
-                    ArrangeElementWithBoundingBox(element, parentMap, boundingBox);
-                }
-                else
-                {
-                    ArrangeElement(element, finalSize);
-                }
+                    if (location != null)
+                    {
+                        var viewportPosition = ArrangeElement(element, location);
 
-                SetViewportPosition(element, viewportPosition);
+                        SetViewportPosition(element, viewportPosition);
+                    }
+                    else
+                    {
+                        var boundingBox = GetBoundingBox(element);
+
+                        if (boundingBox != null)
+                        {
+                            ArrangeElement(element, boundingBox);
+                        }
+                        else
+                        {
+                            ArrangeElement(element, finalSize);
+                        }
+
+                        SetViewportPosition(element, null);
+                    }
+                }
             }
 
             return finalSize;
         }
 
-        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        private Point ArrangeElement(FrameworkElement element, Location location)
         {
-            var mapElement = obj as IMapElement;
+            var projection = parentMap.MapProjection;
+            var pos = projection.LocationToViewportPoint(location);
 
-            if (mapElement != null)
+            if (projection.IsNormalCylindrical &&
+                (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
+                 pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
             {
-                mapElement.ParentMap = e.NewValue as MapBase;
+                pos = projection.LocationToViewportPoint(new Location(
+                    location.Latitude,
+                    Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
+            }
+
+            var rect = new Rect(pos, element.DesiredSize);
+
+            switch (element.HorizontalAlignment)
+            {
+                case HorizontalAlignment.Center:
+                    rect.X -= rect.Width / 2d;
+                    break;
+
+                case HorizontalAlignment.Right:
+                    rect.X -= rect.Width;
+                    break;
+
+                default:
+                    break;
+            }
+
+            switch (element.VerticalAlignment)
+            {
+                case VerticalAlignment.Center:
+                    rect.Y -= rect.Height / 2d;
+                    break;
+
+                case VerticalAlignment.Bottom:
+                    rect.Y -= rect.Height;
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (element.UseLayoutRounding)
+            {
+                rect.X = Math.Round(rect.X);
+                rect.Y = Math.Round(rect.Y);
+            }
+
+            element.Arrange(rect);
+            return pos;
+        }
+
+        private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
+        {
+            var projection = parentMap.MapProjection;
+            var rect = projection.BoundingBoxToRect(boundingBox);
+            var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+            var pos = projection.ViewportTransform.Transform(center);
+
+            if (projection.IsNormalCylindrical &&
+                (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
+                 pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
+            {
+                var location = projection.PointToLocation(center);
+                location.Longitude = Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude);
+
+                pos = projection.LocationToViewportPoint(location);
+            }
+
+            rect.Width *= projection.ViewportScale;
+            rect.Height *= projection.ViewportScale;
+            rect.X = pos.X - rect.Width / 2d;
+            rect.Y = pos.Y - rect.Height / 2d;
+
+            if (element.UseLayoutRounding)
+            {
+                rect.X = Math.Round(rect.X);
+                rect.Y = Math.Round(rect.Y);
+            }
+
+            element.Width = rect.Width;
+            element.Height = rect.Height;
+            element.Arrange(rect);
+
+            var rotateTransform = element.RenderTransform as RotateTransform;
+
+            if (rotateTransform != null)
+            {
+                rotateTransform.Angle = parentMap.Heading;
+            }
+            else if (parentMap.Heading != 0d)
+            {
+                rotateTransform = new RotateTransform { Angle = parentMap.Heading };
+                element.RenderTransform = rotateTransform;
+                element.RenderTransformOrigin = new Point(0.5, 0.5);
             }
         }
 
-        private static void LocationPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            var element = (FrameworkElement)obj;
-            var parentMap = GetParentMap(element);
-            var location = (Location)e.NewValue;
-            Point? viewportPosition = null;
-
-            if (location != null)
-            {
-                viewportPosition = ArrangeElementWithLocation(element, parentMap, location);
-            }
-            else
-            {
-                ArrangeElement(element, parentMap?.RenderSize ?? new Size());
-            }
-
-            SetViewportPosition(element, viewportPosition);
-        }
-
-        private static void BoundingBoxPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            var element = (FrameworkElement)obj;
-            var parentMap = GetParentMap(element);
-            var boundingBox = (BoundingBox)e.NewValue;
-
-            if (boundingBox != null)
-            {
-                ArrangeElementWithBoundingBox(element, parentMap, boundingBox);
-            }
-            else
-            {
-                ArrangeElement(element, parentMap?.RenderSize ?? new Size());
-            }
-
-            SetViewportPosition(element, null);
-        }
-
-        private static void ArrangeElement(FrameworkElement element, Size parentSize)
+        private void ArrangeElement(FrameworkElement element, Size parentSize)
         {
             var rect = new Rect(new Point(), element.DesiredSize);
 
@@ -237,119 +292,13 @@ namespace MapControl
             element.Arrange(rect);
         }
 
-        private static Point ArrangeElementWithLocation(FrameworkElement element, MapBase parentMap, Location location)
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            var pos = new Point();
-            var rect = new Rect(pos, element.DesiredSize);
+            var mapElement = obj as IMapElement;
 
-            if (parentMap != null)
+            if (mapElement != null)
             {
-                var projection = parentMap.MapProjection;
-                pos = projection.LocationToViewportPoint(location);
-
-                if (projection.IsNormalCylindrical &&
-                    (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
-                     pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
-                {
-                    pos = projection.LocationToViewportPoint(new Location(
-                        location.Latitude,
-                        Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
-                }
-
-                rect.X = pos.X;
-                rect.Y = pos.Y;
-            }
-
-            switch (element.HorizontalAlignment)
-            {
-                case HorizontalAlignment.Center:
-                    rect.X -= rect.Width / 2d;
-                    break;
-
-                case HorizontalAlignment.Right:
-                    rect.X -= rect.Width;
-                    break;
-
-                default:
-                    break;
-            }
-
-            switch (element.VerticalAlignment)
-            {
-                case VerticalAlignment.Center:
-                    rect.Y -= rect.Height / 2d;
-                    break;
-
-                case VerticalAlignment.Bottom:
-                    rect.Y -= rect.Height;
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (element.UseLayoutRounding)
-            {
-                rect.X = Math.Round(rect.X);
-                rect.Y = Math.Round(rect.Y);
-            }
-
-            element.Arrange(rect);
-            return pos;
-        }
-
-        private static void ArrangeElementWithBoundingBox(FrameworkElement element, MapBase parentMap, BoundingBox boundingBox)
-        {
-            var rect = new Rect();
-            var rotation = 0d;
-
-            if (parentMap != null)
-            {
-                var projection = parentMap.MapProjection;
-                rect = projection.BoundingBoxToRect(boundingBox);
-
-                var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-                var pos = projection.ViewportTransform.Transform(center);
-
-                if (projection.IsNormalCylindrical &&
-                    (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
-                     pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
-                {
-                    var location = projection.PointToLocation(center);
-                    location.Longitude = Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude);
-
-                    pos = projection.LocationToViewportPoint(location);
-                }
-
-                rect.Width *= projection.ViewportScale;
-                rect.Height *= projection.ViewportScale;
-                rect.X = pos.X - rect.Width / 2d;
-                rect.Y = pos.Y - rect.Height / 2d;
-
-                if (element.UseLayoutRounding)
-                {
-                    rect.X = Math.Round(rect.X);
-                    rect.Y = Math.Round(rect.Y);
-                }
-
-                rotation = parentMap.Heading;
-            }
-
-            element.Width = rect.Width;
-            element.Height = rect.Height;
-            element.Arrange(rect);
-
-            var rotateTransform = element.RenderTransform as RotateTransform;
-
-            if (rotateTransform != null)
-            {
-                rotateTransform.Angle = rotation;
-            }
-            else if (rotation != 0d)
-            {
-                rotateTransform = new RotateTransform { Angle = rotation };
-                element.RenderTransform = rotateTransform;
-                element.RenderTransformOrigin = new Point(0.5, 0.5);
+                mapElement.ParentMap = e.NewValue as MapBase;
             }
         }
     }

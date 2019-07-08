@@ -8,9 +8,17 @@ namespace MapControl
 {
     public partial class MapPanel
     {
+        public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
+            "Location", typeof(Location), typeof(MapPanel),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsParentArrange));
+
+        public static readonly DependencyProperty BoundingBoxProperty = DependencyProperty.RegisterAttached(
+            "BoundingBox", typeof(BoundingBox), typeof(MapPanel),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsParentArrange));
+
         private static readonly DependencyPropertyKey ParentMapPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ParentMap", typeof(MapBase), typeof(MapPanel), new FrameworkPropertyMetadata(
-                null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
+            "ParentMap", typeof(MapBase), typeof(MapPanel),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
 
         private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
             "ViewportPosition", typeof(Point?), typeof(MapPanel), new PropertyMetadata());

@@ -9,6 +9,14 @@ namespace MapControl
 {
     public partial class MapPanel
     {
+        public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
+            "Location", typeof(Location), typeof(MapPanel),
+            new PropertyMetadata(null, (o, e) => (((FrameworkElement)o).Parent as MapPanel)?.InvalidateArrange()));
+
+        public static readonly DependencyProperty BoundingBoxProperty = DependencyProperty.RegisterAttached(
+            "BoundingBox", typeof(BoundingBox), typeof(MapPanel),
+            new PropertyMetadata(null, (o, e) => (((FrameworkElement)o).Parent as MapPanel)?.InvalidateArrange()));
+
         public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
             "ParentMap", typeof(MapBase), typeof(MapPanel), new PropertyMetadata(null, ParentMapPropertyChanged));
 
