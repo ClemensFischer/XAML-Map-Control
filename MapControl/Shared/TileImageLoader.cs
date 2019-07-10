@@ -48,33 +48,34 @@ namespace MapControl
         private readonly TileQueue tileQueue = new TileQueue();
         private int taskCount;
 
-        public TileSource TileSource { get; set; }
-        public string SourceName { get; set; }
-
         /// <summary>
         /// Loads all pending tiles from the tiles collection in up to MaxLoadTasks parallel Tasks.
-        /// If the UriFormat of TileSource starts with "http" and SourceName is a non-empty string,
+        /// If the UriFormat of the TileSource starts with "http" and sourceName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache.
         /// </summary>
-        public void LoadTilesAsync(IEnumerable<Tile> tiles)
+        public void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
         {
             tileQueue.Clear();
-            tileQueue.Enqueue(tiles);
 
-            var newTasks = Math.Min(tileQueue.Count, MaxLoadTasks) - taskCount;
-
-            if (newTasks > 0)
+            if (tileSource != null)
             {
-                Interlocked.Add(ref taskCount, newTasks);
+                tileQueue.Enqueue(tiles);
 
-                while (--newTasks >= 0)
+                var newTasks = Math.Min(tileQueue.Count, MaxLoadTasks) - taskCount;
+
+                if (newTasks > 0)
                 {
-                    Task.Run(() => LoadTilesFromQueueAsync());
+                    Interlocked.Add(ref taskCount, newTasks);
+
+                    while (--newTasks >= 0)
+                    {
+                        Task.Run(() => LoadTilesFromQueueAsync(tileSource, sourceName));
+                    }
                 }
             }
         }
 
-        private async Task LoadTilesFromQueueAsync()
+        private async Task LoadTilesFromQueueAsync(TileSource tileSource, string sourceName)
         {
             Tile tile;
 
@@ -82,7 +83,7 @@ namespace MapControl
             {
                 try
                 {
-                    await LoadTileImageAsync(tile, TileSource, SourceName).ConfigureAwait(false);
+                    await LoadTileImageAsync(tile, tileSource, sourceName).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -95,33 +96,30 @@ namespace MapControl
 
         private async Task LoadTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
         {
-            if (tileSource != null)
+            if (Cache != null &&
+                tileSource.UriFormat != null &&
+                tileSource.UriFormat.StartsWith("http") &&
+                !string.IsNullOrEmpty(sourceName))
             {
-                if (Cache != null &&
-                    tileSource.UriFormat != null &&
-                    tileSource.UriFormat.StartsWith("http") &&
-                    !string.IsNullOrEmpty(sourceName))
-                {
-                    var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+                var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-                    if (uri != null)
+                if (uri != null)
+                {
+                    var extension = Path.GetExtension(uri.LocalPath);
+
+                    if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
                     {
-                        var extension = Path.GetExtension(uri.LocalPath);
-
-                        if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
-                        {
-                            extension = ".jpg";
-                        }
-
-                        var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-
-                        await LoadCachedTileImageAsync(tile, uri, cacheKey).ConfigureAwait(false);
+                        extension = ".jpg";
                     }
+
+                    var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+
+                    await LoadCachedTileImageAsync(tile, uri, cacheKey).ConfigureAwait(false);
                 }
-                else
-                {
-                    await LoadTileImageAsync(tile, tileSource).ConfigureAwait(false);
-                }
+            }
+            else
+            {
+                await LoadTileImageAsync(tile, tileSource).ConfigureAwait(false);
             }
         }
 
