@@ -28,7 +28,7 @@ namespace MapControl
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
 
 
-        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private static async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             ImageSource image = null;
             DateTime expiration;
@@ -64,7 +64,7 @@ namespace MapControl
             }
         }
 
-        private async Task LoadTileImageAsync(Tile tile, TileSource tileSource)
+        private static async Task LoadTileImageAsync(Tile tile, TileSource tileSource)
         {
             var image = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false);
 
@@ -74,7 +74,7 @@ namespace MapControl
             }
         }
 
-        private void SetTileImage(Tile tile, ImageSource image)
+        private static void SetTileImage(Tile tile, ImageSource image)
         {
             tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
         }

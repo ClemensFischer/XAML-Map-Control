@@ -28,7 +28,7 @@ namespace MapControl
         public static Caching.IImageCache Cache { get; set; }
 
 
-        private async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
+        private static async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
             var cacheBuffer = cacheItem?.Buffer;
@@ -55,7 +55,7 @@ namespace MapControl
             }
         }
 
-        private async Task LoadTileImageAsync(Tile tile, IBuffer buffer)
+        private static async Task LoadTileImageAsync(Tile tile, IBuffer buffer)
         {
             using (var stream = new InMemoryRandomAccessStream())
             {
@@ -66,12 +66,12 @@ namespace MapControl
             }
         }
 
-        private Task LoadTileImageAsync(Tile tile, TileSource tileSource)
+        private static Task LoadTileImageAsync(Tile tile, TileSource tileSource)
         {
             return SetTileImageAsync(tile, () => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
         }
 
-        private async Task SetTileImageAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
+        private static async Task SetTileImageAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource<object>();
 

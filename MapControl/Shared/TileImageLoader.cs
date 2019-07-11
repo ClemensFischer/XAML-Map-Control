@@ -38,8 +38,8 @@ namespace MapControl
         public static TimeSpan DefaultCacheExpiration { get; set; } = TimeSpan.FromDays(1);
 
         /// <summary>
-        /// Format string for creating cache keys from the SourceName property and the
-        /// ZoomLevel, XIndex, and Y properties of a Tile and the image file extension.
+        /// Format string for creating cache keys from the sourceName argument passed to LoadTilesAsync,
+        /// the ZoomLevel, XIndex, and Y properties of a Tile, and the image file extension.
         /// The default value is "{0}/{1}/{2}/{3}{4}".
         /// </summary>
         public static string CacheKeyFormat { get; set; } = "{0}/{1}/{2}/{3}{4}";
@@ -50,7 +50,7 @@ namespace MapControl
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection in up to MaxLoadTasks parallel Tasks.
-        /// If the UriFormat of the TileSource starts with "http" and sourceName is a non-empty string,
+        /// If tileSource.UriFormat starts with "http" and sourceName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache.
         /// </summary>
         public void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
@@ -94,7 +94,7 @@ namespace MapControl
             Interlocked.Decrement(ref taskCount);
         }
 
-        private async Task LoadTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
+        private static async Task LoadTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
         {
             if (Cache != null &&
                 tileSource.UriFormat != null &&
