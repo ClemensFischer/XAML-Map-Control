@@ -32,22 +32,23 @@ namespace MapControl
         {
             ImageSource image = null;
             DateTime expiration;
-            var cacheBuffer = GetCachedImage(cacheKey, out expiration);
+            byte[] cacheBuffer;
+
+            GetCachedImage(cacheKey, out cacheBuffer, out expiration);
 
             if (cacheBuffer == null || expiration < DateTime.UtcNow)
             {
-                var response = await ImageLoader.LoadHttpStreamAsync(uri).ConfigureAwait(false);
-
-                if (response != null) // download succeeded
+                using (var stream = await ImageLoader.LoadImageStreamAsync(uri).ConfigureAwait(false))
                 {
-                    cacheBuffer = null; // discard cached image
-
-                    if (response.Stream != null) // tile image available
+                    if (stream != null) // download succeeded
                     {
-                        using (var stream = response.Stream)
+                        cacheBuffer = null; // discard cached image
+
+                        if (stream.Length > 0) // tile image available
                         {
                             image = ImageLoader.LoadImage(stream);
-                            SetCachedImage(cacheKey, stream, GetExpiration(response.MaxAge));
+
+                            SetCachedImage(cacheKey, stream, GetExpiration(stream.MaxAge));
                         }
                     }
                 }
@@ -79,9 +80,9 @@ namespace MapControl
             tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
         }
 
-        private static byte[] GetCachedImage(string cacheKey, out DateTime expiration)
+        private static void GetCachedImage(string cacheKey, out byte[] buffer, out DateTime expiration)
         {
-            var buffer = Cache.Get(cacheKey) as byte[];
+            buffer = Cache.Get(cacheKey) as byte[];
 
             if (buffer != null && buffer.Length >= 16 &&
                 Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == "EXPIRES:")
@@ -92,8 +93,6 @@ namespace MapControl
             {
                 expiration = DateTime.MinValue;
             }
-
-            return buffer;
         }
 
         private static void SetCachedImage(string cacheKey, MemoryStream stream, DateTime expiration)

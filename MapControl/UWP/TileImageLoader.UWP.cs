@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -35,34 +36,31 @@ namespace MapControl
 
             if (cacheBuffer == null || cacheItem.Expiration < DateTime.UtcNow)
             {
-                var response = await ImageLoader.LoadHttpBufferAsync(uri).ConfigureAwait(false);
-
-                if (response != null) // download succeeded
+                using (var stream = await ImageLoader.LoadImageStreamAsync(uri).ConfigureAwait(false))
                 {
-                    cacheBuffer = null; // discard cached image
-
-                    if (response.Buffer != null) // tile image available
+                    if (stream != null) // download succeeded
                     {
-                        await LoadTileImageAsync(tile, response.Buffer).ConfigureAwait(false);
-                        await Cache.SetAsync(cacheKey, response.Buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
+                        cacheBuffer = null; // discard cached image
+
+                        if (stream.Length > 0) // tile image available
+                        {
+                            await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(stream)).ConfigureAwait(false);
+
+                            await Cache.SetAsync(cacheKey, stream.ToArray().AsBuffer(), GetExpiration(stream.MaxAge)).ConfigureAwait(false);
+                        }
                     }
                 }
             }
 
             if (cacheBuffer != null) // cached image not expired or download failed
             {
-                await LoadTileImageAsync(tile, cacheBuffer).ConfigureAwait(false);
-            }
-        }
+                using (var stream = new InMemoryRandomAccessStream())
+                {
+                    await stream.WriteAsync(cacheBuffer);
+                    stream.Seek(0);
 
-        private static async Task LoadTileImageAsync(Tile tile, IBuffer buffer)
-        {
-            using (var stream = new InMemoryRandomAccessStream())
-            {
-                await stream.WriteAsync(buffer);
-                stream.Seek(0);
-
-                await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(stream)).ConfigureAwait(false);
+                    await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(stream)).ConfigureAwait(false);
+                }
             }
         }
 

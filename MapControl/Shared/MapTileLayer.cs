@@ -66,6 +66,9 @@ namespace MapControl
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
             nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(18));
 
+        public static readonly DependencyProperty MaxBackgroundZoomLevelsProperty = DependencyProperty.Register(
+            nameof(MaxBackgroundZoomLevels), typeof(int), typeof(MapTileLayer), new PropertyMetadata(8));
+
         public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
             nameof(UpdateInterval), typeof(TimeSpan), typeof(MapTileLayer),
             new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapTileLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
@@ -142,7 +145,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Minimum zoom level supported by the MapTileLayer.
+        /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
         /// </summary>
         public int MinZoomLevel
         {
@@ -151,12 +154,22 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Maximum zoom level supported by the MapTileLayer.
+        /// Maximum zoom level supported by the MapTileLayer. Default value is 18.
         /// </summary>
         public int MaxZoomLevel
         {
             get { return (int)GetValue(MaxZoomLevelProperty); }
             set { SetValue(MaxZoomLevelProperty, value); }
+        }
+
+        /// <summary>
+        /// Maximum number of background tile levels. Default value is 8.
+        /// Applies only to a MapTileLayer that is the MapLayer of its ParentMap.
+        /// </summary>
+        public int MaxBackgroundZoomLevels
+        {
+            get { return (int)GetValue(MaxBackgroundZoomLevelsProperty); }
+            set { SetValue(MaxBackgroundZoomLevelsProperty, value); }
         }
 
         /// <summary>
@@ -342,41 +355,45 @@ namespace MapControl
             if (parentMap != null && TileGrid != null && TileSource != null)
             {
                 var maxZoomLevel = Math.Min(TileGrid.ZoomLevel, MaxZoomLevel);
-                var minZoomLevel = MinZoomLevel;
 
-                if (minZoomLevel < maxZoomLevel && parentMap.MapLayer != this)
+                if (maxZoomLevel >= MinZoomLevel)
                 {
-                    minZoomLevel = maxZoomLevel; // do not load lower level tiles if this is note a "base" layer
-                }
+                    var minZoomLevel = maxZoomLevel;
 
-                for (var z = minZoomLevel; z <= maxZoomLevel; z++)
-                {
-                    var tileSize = 1 << (TileGrid.ZoomLevel - z);
-                    var x1 = (int)Math.Floor((double)TileGrid.XMin / tileSize); // may be negative
-                    var x2 = TileGrid.XMax / tileSize;
-                    var y1 = Math.Max(TileGrid.YMin / tileSize, 0);
-                    var y2 = Math.Min(TileGrid.YMax / tileSize, (1 << z) - 1);
-
-                    for (var y = y1; y <= y2; y++)
+                    if (this == parentMap.MapLayer) // load background tiles
                     {
-                        for (var x = x1; x <= x2; x++)
+                        minZoomLevel = Math.Max(TileGrid.ZoomLevel - MaxBackgroundZoomLevels, MinZoomLevel);
+                    }
+
+                    for (var z = minZoomLevel; z <= maxZoomLevel; z++)
+                    {
+                        var tileSize = 1 << (TileGrid.ZoomLevel - z);
+                        var x1 = (int)Math.Floor((double)TileGrid.XMin / tileSize); // may be negative
+                        var x2 = TileGrid.XMax / tileSize;
+                        var y1 = Math.Max(TileGrid.YMin / tileSize, 0);
+                        var y2 = Math.Min(TileGrid.YMax / tileSize, (1 << z) - 1);
+
+                        for (var y = y1; y <= y2; y++)
                         {
-                            var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
-
-                            if (tile == null)
+                            for (var x = x1; x <= x2; x++)
                             {
-                                tile = new Tile(z, x, y);
+                                var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
 
-                                var equivalentTile = Tiles.FirstOrDefault(
-                                    t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && t.Image.Source != null);
-
-                                if (equivalentTile != null)
+                                if (tile == null)
                                 {
-                                    tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
-                                }
-                            }
+                                    tile = new Tile(z, x, y);
 
-                            newTiles.Add(tile);
+                                    var equivalentTile = Tiles.FirstOrDefault(
+                                        t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && t.Image.Source != null);
+
+                                    if (equivalentTile != null)
+                                    {
+                                        tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
+                                    }
+                                }
+
+                                newTiles.Add(tile);
+                            }
                         }
                     }
                 }
