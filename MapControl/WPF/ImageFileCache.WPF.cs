@@ -107,6 +107,7 @@ namespace MapControl.Caching
                     try
                     {
                         //Debug.WriteLine("ImageFileCache: Reading " + path);
+
                         buffer = File.ReadAllBytes(path);
                         memoryCache.Set(key, buffer, new CacheItemPolicy());
                     }
@@ -160,6 +161,7 @@ namespace MapControl.Caching
                 try
                 {
                     //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", path, policy.AbsoluteExpiration.DateTime.ToLocalTime());
+
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
                     File.WriteAllBytes(path, buffer);
 

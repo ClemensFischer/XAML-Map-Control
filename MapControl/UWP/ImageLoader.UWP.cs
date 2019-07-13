@@ -15,11 +15,6 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
-        {
-            return LoadImageAsync(stream.AsRandomAccessStream());
-        }
-
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
             var image = new BitmapImage();
@@ -29,11 +24,11 @@ namespace MapControl
             return image;
         }
 
-        public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
+        public static async Task<ImageSource> LoadImageAsync(IBuffer buffer)
         {
             using (var stream = new InMemoryRandomAccessStream())
             {
-                await stream.WriteAsync(buffer.AsBuffer());
+                await stream.WriteAsync(buffer);
                 stream.Seek(0);
 
                 return await LoadImageAsync(stream);
@@ -55,6 +50,16 @@ namespace MapControl
             }
 
             return image;
+        }
+
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
+        {
+            return LoadImageAsync(stream.AsRandomAccessStream());
+        }
+
+        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        {
+            return LoadImageAsync(buffer.AsBuffer());
         }
     }
 }

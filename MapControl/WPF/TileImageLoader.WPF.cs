@@ -30,40 +30,27 @@ namespace MapControl
 
         private static async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
-            ImageSource image = null;
             DateTime expiration;
-            byte[] cacheBuffer;
+            var buffer = GetCachedImage(cacheKey, out expiration);
 
-            GetCachedImage(cacheKey, out cacheBuffer, out expiration);
-
-            if (cacheBuffer == null || expiration < DateTime.UtcNow)
+            if (buffer == null || expiration < DateTime.UtcNow)
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
 
                 if (response != null) // download succeeded
                 {
-                    cacheBuffer = null; // discard cached image
+                    buffer = response.Buffer;
 
-                    if (response.Stream != null) // tile image available
+                    if (buffer != null) // tile image available
                     {
-                        using (var stream = response.Stream)
-                        {
-                            image = ImageLoader.LoadImage(stream);
-
-                            SetCachedImage(cacheKey, stream, GetExpiration(response.MaxAge));
-                        }
+                        await SetCachedImage(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                     }
                 }
             }
 
-            if (cacheBuffer != null) // cached image not expired or download failed
+            if (buffer != null)
             {
-                image = ImageLoader.LoadImage(cacheBuffer);
-            }
-
-            if (image != null)
-            {
-                SetTileImage(tile, image);
+                SetTileImageAsync(tile, await ImageLoader.LoadImageAsync(buffer).ConfigureAwait(false));
             }
         }
 
@@ -73,18 +60,18 @@ namespace MapControl
 
             if (image != null)
             {
-                SetTileImage(tile, image);
+                SetTileImageAsync(tile, image);
             }
         }
 
-        private static void SetTileImage(Tile tile, ImageSource image)
+        private static void SetTileImageAsync(Tile tile, ImageSource image)
         {
             tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
         }
 
-        private static void GetCachedImage(string cacheKey, out byte[] buffer, out DateTime expiration)
+        private static byte[] GetCachedImage(string cacheKey, out DateTime expiration)
         {
-            buffer = Cache.Get(cacheKey) as byte[];
+            var buffer = Cache.Get(cacheKey) as byte[];
 
             if (buffer != null && buffer.Length >= 16 &&
                 Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == "EXPIRES:")
@@ -95,15 +82,20 @@ namespace MapControl
             {
                 expiration = DateTime.MinValue;
             }
+
+            return buffer;
         }
 
-        private static void SetCachedImage(string cacheKey, MemoryStream stream, DateTime expiration)
+        private static async Task SetCachedImage(string cacheKey, byte[] buffer, DateTime expiration)
         {
-            stream.Seek(0, SeekOrigin.End);
-            stream.Write(Encoding.ASCII.GetBytes("EXPIRES:"), 0, 8);
-            stream.Write(BitConverter.GetBytes(expiration.Ticks), 0, 8);
+            using (var stream = new MemoryStream(buffer.Length + 16))
+            {
+                await stream.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                await stream.WriteAsync(Encoding.ASCII.GetBytes("EXPIRES:"), 0, 8).ConfigureAwait(false);
+                await stream.WriteAsync(BitConverter.GetBytes(expiration.Ticks), 0, 8).ConfigureAwait(false);
 
-            Cache.Set(cacheKey, stream.ToArray(), new CacheItemPolicy { AbsoluteExpiration = expiration });
+                Cache.Set(cacheKey, stream.ToArray(), new CacheItemPolicy { AbsoluteExpiration = expiration });
+            }
         }
     }
 }

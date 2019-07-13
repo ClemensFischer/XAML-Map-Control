@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
@@ -22,7 +21,7 @@ namespace MapControl
     public static partial class ImageLoader
     {
         /// <summary>
-        /// The System.Net.Http.HttpClient instance used when image data is downloaded via a http or https Uri.
+        /// The System.Net.Http.HttpClient instance used to download images via a http or https Uri.
         /// </summary>
         public static HttpClient HttpClient { get; set; } = new HttpClient();
 
@@ -41,12 +40,9 @@ namespace MapControl
                 {
                     var response = await GetHttpResponseAsync(uri);
 
-                    if (response?.Stream != null)
+                    if (response != null && response.Buffer != null)
                     {
-                        using (var stream = response.Stream)
-                        {
-                            image = await LoadImageAsync(stream);
-                        }
+                        image = await LoadImageAsync(response.Buffer);
                     }
                 }
                 else
@@ -90,7 +86,7 @@ namespace MapControl
 
         internal class HttpResponse
         {
-            public MemoryStream Stream { get; private set; }
+            public byte[] Buffer { get; private set; }
             public TimeSpan? MaxAge { get; private set; }
 
             internal static async Task<HttpResponse> Create(HttpResponseMessage message, bool continueOnCapturedContext)
@@ -100,9 +96,7 @@ namespace MapControl
 
                 if (!message.Headers.TryGetValues("X-VE-Tile-Info", out tileInfo) || !tileInfo.Contains("no-tile"))
                 {
-                    response.Stream = new MemoryStream();
-                    await message.Content.CopyToAsync(response.Stream).ConfigureAwait(continueOnCapturedContext);
-                    response.Stream.Seek(0, SeekOrigin.Begin);
+                    response.Buffer = await message.Content.ReadAsByteArrayAsync().ConfigureAwait(continueOnCapturedContext);
                     response.MaxAge = message.Headers.CacheControl?.MaxAge;
                 }
 

@@ -6,7 +6,6 @@ using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
 
@@ -32,37 +31,26 @@ namespace MapControl
         private static async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
-            var cacheBuffer = cacheItem?.Buffer;
+            var buffer = cacheItem?.Buffer;
 
-            if (cacheBuffer == null || cacheItem.Expiration < DateTime.UtcNow)
+            if (buffer == null || cacheItem.Expiration < DateTime.UtcNow)
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
 
                 if (response != null) // download succeeded
                 {
-                    cacheBuffer = null; // discard cached image
+                    buffer = response.Buffer.AsBuffer();
 
-                    if (response.Stream != null) // tile image available
+                    if (buffer != null) // tile image available
                     {
-                        using (var stream = response.Stream)
-                        {
-                            await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(stream)).ConfigureAwait(false);
-
-                            await Cache.SetAsync(cacheKey, stream.ToArray().AsBuffer(), GetExpiration(response.MaxAge)).ConfigureAwait(false);
-                        }
+                        await Cache.SetAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                     }
                 }
             }
 
-            if (cacheBuffer != null) // cached image not expired or download failed
+            if (buffer != null)
             {
-                using (var stream = new InMemoryRandomAccessStream())
-                {
-                    await stream.WriteAsync(cacheBuffer);
-                    stream.Seek(0);
-
-                    await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(stream)).ConfigureAwait(false);
-                }
+                await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
             }
         }
 
