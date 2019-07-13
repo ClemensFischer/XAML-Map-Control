@@ -66,8 +66,8 @@ namespace MapControl
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
             nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(18));
 
-        public static readonly DependencyProperty MaxBackgroundZoomLevelsProperty = DependencyProperty.Register(
-            nameof(MaxBackgroundZoomLevels), typeof(int), typeof(MapTileLayer), new PropertyMetadata(8));
+        public static readonly DependencyProperty MaxBackgroundLevelsProperty = DependencyProperty.Register(
+            nameof(MaxBackgroundLevels), typeof(int), typeof(MapTileLayer), new PropertyMetadata(8));
 
         public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
             nameof(UpdateInterval), typeof(TimeSpan), typeof(MapTileLayer),
@@ -164,12 +164,12 @@ namespace MapControl
 
         /// <summary>
         /// Maximum number of background tile levels. Default value is 8.
-        /// Applies only to a MapTileLayer that is the MapLayer of its ParentMap.
+        /// Is only effective in a MapTileLayer that is the MapLayer of its ParentMap.
         /// </summary>
-        public int MaxBackgroundZoomLevels
+        public int MaxBackgroundLevels
         {
-            get { return (int)GetValue(MaxBackgroundZoomLevelsProperty); }
-            set { SetValue(MaxBackgroundZoomLevelsProperty, value); }
+            get { return (int)GetValue(MaxBackgroundLevelsProperty); }
+            set { SetValue(MaxBackgroundLevelsProperty, value); }
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace MapControl
 
                     if (this == parentMap.MapLayer) // load background tiles
                     {
-                        minZoomLevel = Math.Max(TileGrid.ZoomLevel - MaxBackgroundZoomLevels, MinZoomLevel);
+                        minZoomLevel = Math.Max(TileGrid.ZoomLevel - MaxBackgroundLevels, MinZoomLevel);
                     }
 
                     for (var z = minZoomLevel; z <= maxZoomLevel; z++)

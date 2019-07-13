@@ -107,8 +107,6 @@ namespace MapControl
 
                 try
                 {
-                    Debug.WriteLine("TileImageLoader: loading {0}/{1}/{2} in thread {3}", tile.ZoomLevel, tile.XIndex, tile.Y, Environment.CurrentManagedThreadId);
-
                     await loadTileImage(tile).ConfigureAwait(false);
                 }
                 catch (Exception ex)
