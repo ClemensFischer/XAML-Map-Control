@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.UI.Xaml.Media;
@@ -23,9 +22,10 @@ namespace MapControl
     public static partial class ImageLoader
     {
         /// <summary>
-        /// The HttpClient instance used when image data is downloaded from a web resource.
+        /// The System.Net.Http.HttpClient instance used when image data is downloaded via a http or https Uri.
         /// </summary>
         public static HttpClient HttpClient { get; set; } = new HttpClient();
+
 
         public static async Task<ImageSource> LoadImageAsync(Uri uri)
         {
@@ -39,24 +39,13 @@ namespace MapControl
                 }
                 else if (uri.Scheme == "http" || uri.Scheme == "https")
                 {
-                    using (var response = await HttpClient.GetAsync(uri))
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            if (ImageAvailable(response.Headers))
-                            {
-                                using (var stream = new MemoryStream())
-                                {
-                                    await response.Content.CopyToAsync(stream);
-                                    stream.Seek(0, SeekOrigin.Begin);
+                    var response = await GetHttpResponseAsync(uri);
 
-                                    image = await LoadImageAsync(stream);
-                                }
-                            }
-                        }
-                        else
+                    if (response?.Stream != null)
+                    {
+                        using (var stream = response.Stream)
                         {
-                            Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                            image = await LoadImageAsync(stream);
                         }
                     }
                 }
@@ -73,34 +62,21 @@ namespace MapControl
             return image;
         }
 
-        internal class ImageStream : MemoryStream
+        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, bool continueOnCapturedContext = true)
         {
-            public TimeSpan? MaxAge { get; set; }
-        }
-
-        internal static async Task<ImageStream> LoadImageStreamAsync(Uri uri)
-        {
-            ImageStream stream = null;
+            HttpResponse response = null;
 
             try
             {
-                using (var response = await HttpClient.GetAsync(uri).ConfigureAwait(false))
+                using (var responseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(continueOnCapturedContext))
                 {
-                    if (response.IsSuccessStatusCode)
+                    if (responseMessage.IsSuccessStatusCode)
                     {
-                        stream = new ImageStream();
-
-                        if (ImageAvailable(response.Headers))
-                        {
-                            await response.Content.CopyToAsync(stream).ConfigureAwait(false);
-                            stream.Seek(0, SeekOrigin.Begin);
-
-                            stream.MaxAge = response.Headers.CacheControl?.MaxAge;
-                        }
+                        response = await HttpResponse.Create(responseMessage, continueOnCapturedContext);
                     }
                     else
                     {
-                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)response.StatusCode, response.ReasonPhrase);
+                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)responseMessage.StatusCode, responseMessage.ReasonPhrase);
                     }
                 }
             }
@@ -109,14 +85,29 @@ namespace MapControl
                 Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
             }
 
-            return stream;
+            return response;
         }
 
-        private static bool ImageAvailable(HttpResponseHeaders responseHeaders)
+        internal class HttpResponse
         {
-            IEnumerable<string> tileInfo;
+            public MemoryStream Stream { get; private set; }
+            public TimeSpan? MaxAge { get; private set; }
 
-            return !responseHeaders.TryGetValues("X-VE-Tile-Info", out tileInfo) || !tileInfo.Contains("no-tile");
+            internal static async Task<HttpResponse> Create(HttpResponseMessage message, bool continueOnCapturedContext)
+            {
+                var response = new HttpResponse();
+                IEnumerable<string> tileInfo;
+
+                if (!message.Headers.TryGetValues("X-VE-Tile-Info", out tileInfo) || !tileInfo.Contains("no-tile"))
+                {
+                    response.Stream = new MemoryStream();
+                    await message.Content.CopyToAsync(response.Stream).ConfigureAwait(continueOnCapturedContext);
+                    response.Stream.Seek(0, SeekOrigin.Begin);
+                    response.MaxAge = message.Headers.CacheControl?.MaxAge;
+                }
+
+                return response;
+            }
         }
     }
 }

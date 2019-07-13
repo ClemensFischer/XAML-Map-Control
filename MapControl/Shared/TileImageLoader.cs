@@ -107,6 +107,8 @@ namespace MapControl
 
                 try
                 {
+                    Debug.WriteLine("TileImageLoader: loading {0}/{1}/{2} in thread {3}", tile.ZoomLevel, tile.XIndex, tile.Y, Environment.CurrentManagedThreadId);
+
                     await loadTileImage(tile).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -125,7 +127,7 @@ namespace MapControl
                 tileSource.UriFormat.StartsWith("http") &&
                 !string.IsNullOrEmpty(sourceName))
             {
-                loadTileImage = tile => LoadTileImageAsync(tile, tileSource, sourceName);
+                loadTileImage = tile => LoadCachedTileImageAsync(tile, tileSource, sourceName);
             }
             else
             {
@@ -133,7 +135,7 @@ namespace MapControl
             }
         }
 
-        private static async Task LoadTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
+        private static async Task LoadCachedTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
         {
             var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 

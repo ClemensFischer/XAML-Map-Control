@@ -38,17 +38,19 @@ namespace MapControl
 
             if (cacheBuffer == null || expiration < DateTime.UtcNow)
             {
-                using (var stream = await ImageLoader.LoadImageStreamAsync(uri).ConfigureAwait(false))
-                {
-                    if (stream != null) // download succeeded
-                    {
-                        cacheBuffer = null; // discard cached image
+                var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
 
-                        if (stream.Length > 0) // tile image available
+                if (response != null) // download succeeded
+                {
+                    cacheBuffer = null; // discard cached image
+
+                    if (response.Stream != null) // tile image available
+                    {
+                        using (var stream = response.Stream)
                         {
                             image = ImageLoader.LoadImage(stream);
 
-                            SetCachedImage(cacheKey, stream, GetExpiration(stream.MaxAge));
+                            SetCachedImage(cacheKey, stream, GetExpiration(response.MaxAge));
                         }
                     }
                 }
