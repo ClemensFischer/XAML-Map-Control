@@ -87,11 +87,9 @@ namespace MapControl
 
                     if (newTasks > 0)
                     {
-                        var loadTasks = Enumerable.Range(0, newTasks).Select(n => LoadTilesFromQueueAsync());
-
                         Interlocked.Add(ref taskCount, newTasks);
 
-                        Task.WhenAll(loadTasks); // not awaited
+                        Task.WhenAll(Enumerable.Range(0, newTasks).Select(n => LoadTilesFromQueueAsync())); // not awaited
                     }
                 }
             }
@@ -107,8 +105,6 @@ namespace MapControl
 
                 try
                 {
-                    //Debug.WriteLine("TileImageLoader: loading {0}/{1}/{2} in thread {3}", tile.ZoomLevel, tile.XIndex, tile.Y, Environment.CurrentManagedThreadId);
-
                     await loadTileImage(tile).ConfigureAwait(false);
                 }
                 catch (Exception ex)
