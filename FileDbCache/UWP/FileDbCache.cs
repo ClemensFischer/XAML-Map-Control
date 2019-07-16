@@ -2,6 +2,7 @@
 // © 2019 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using FileDbNs;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,7 +11,6 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
-using FileDbNs;
 
 namespace MapControl.Caching
 {

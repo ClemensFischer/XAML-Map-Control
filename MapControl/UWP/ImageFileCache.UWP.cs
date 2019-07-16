@@ -27,7 +27,7 @@ namespace MapControl.Caching
             Debug.WriteLine("Created ImageFileCache in " + rootFolder.Path);
         }
 
-        public virtual async Task<ImageCacheItem> GetAsync(string key)
+        public async Task<ImageCacheItem> GetAsync(string key)
         {
             string path = null;
 
@@ -67,7 +67,7 @@ namespace MapControl.Caching
             return null;
         }
 
-        public virtual async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
+        public async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
         {
             var paths = key.Split('\\', '/', ',', ':', ';');
 
