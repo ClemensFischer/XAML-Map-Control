@@ -45,6 +45,9 @@
     <EmbeddedResource Include="Properties\FileDbCache.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FileDb.Standard">
+      <Version>7.4.3</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.8</Version>
     </PackageReference>
@@ -59,12 +62,6 @@
       <Project>{9545f73c-9c35-4cf6-baae-19a0baebd344}</Project>
       <Name>MapControl.UWP</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="FileDbPcl, Version=6.1.0.0, Culture=neutral, PublicKeyToken=ba3f58a0e60cd01d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\FileDb\FileDbPcl.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

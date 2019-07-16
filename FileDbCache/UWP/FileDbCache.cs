@@ -25,8 +25,7 @@ namespace MapControl.Caching
         private const string expiresField = "Expires";
 
         private readonly FileDb fileDb = new FileDb();
-        private readonly StorageFolder folder;
-        private readonly string fileName;
+        private readonly string dbPath;
 
         public FileDbCache(StorageFolder folder, string fileName = "TileCache.fdb", bool autoFlush = true, int autoCleanThreshold = -1)
         {
@@ -40,16 +39,15 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter fileName must not be null.");
             }
 
-            this.folder = folder;
-            this.fileName = fileName;
+            dbPath = Path.Combine(folder.Path, "TileCache.fdb");
 
             fileDb.AutoFlush = autoFlush;
             fileDb.AutoCleanThreshold = autoCleanThreshold;
 
-            Application.Current.Resuming += async (s, e) => await Open();
+            Application.Current.Resuming += (s, e) => Open();
             Application.Current.Suspending += (s, e) => Close();
 
-            var task = Open();
+            Open();
         }
 
         public void Dispose()
@@ -78,12 +76,7 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            if (!fileDb.IsOpen)
-            {
-                return null;
-            }
-
-            return Task.Run(() => Get(key));
+            return fileDb.IsOpen ? Task.Run(() => Get(key)) : null;
         }
 
         public Task SetAsync(string key, IBuffer buffer, DateTime expiration)
@@ -98,14 +91,14 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter buffer must not be null.");
             }
 
-            return Task.Run(async () =>
+            return Task.Run(() =>
             {
                 if (fileDb.IsOpen)
                 {
                     var bytes = buffer.ToArray();
                     var ok = AddOrUpdateRecord(key, bytes, expiration);
 
-                    if (!ok && (await RepairDatabase()))
+                    if (!ok && RepairDatabase())
                     {
                         AddOrUpdateRecord(key, bytes, expiration);
                     }
@@ -113,23 +106,20 @@ namespace MapControl.Caching
             });
         }
 
-        private async Task Open()
+        private void Open()
         {
             if (!fileDb.IsOpen)
             {
                 try
                 {
-                    var file = await folder.GetFileAsync(fileName);
-                    var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
-
-                    fileDb.Open(stream.AsStream());
-                    Debug.WriteLine("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, file.Path);
+                    fileDb.Open(dbPath);
+                    Debug.WriteLine("FileDbCache: Opened database with {0} cached items in {1}", fileDb.NumRecords, dbPath);
 
                     Clean();
                 }
                 catch
                 {
-                    await CreateDatabase();
+                    CreateDatabase();
                 }
             }
         }
@@ -142,24 +132,21 @@ namespace MapControl.Caching
             }
         }
 
-        private async Task CreateDatabase()
+        private void CreateDatabase()
         {
             Close();
 
-            var file = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-            var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
-
-            fileDb.Create(stream.AsStream(), new Field[]
+            fileDb.Create(dbPath, new Field[]
             {
                 new Field(keyField, DataTypeEnum.String) { IsPrimaryKey = true },
                 new Field(valueField, DataTypeEnum.Byte) { IsArray = true },
                 new Field(expiresField, DataTypeEnum.DateTime)
             });
 
-            Debug.WriteLine("FileDbCache: Created database " + file.Path);
+            Debug.WriteLine("FileDbCache: Created database " + dbPath);
         }
 
-        private async Task<bool> RepairDatabase()
+        private bool RepairDatabase()
         {
             try
             {
@@ -173,12 +160,12 @@ namespace MapControl.Caching
 
             try
             {
-                await CreateDatabase();
+                CreateDatabase();
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache: Creating database {0}: {1}", Path.Combine(folder.Path, fileName), ex.Message);
+                Debug.WriteLine("FileDbCache: Creating database {0}: {1}", dbPath, ex.Message);
             }
 
             return false;

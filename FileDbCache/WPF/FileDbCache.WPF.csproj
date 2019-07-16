@@ -37,8 +37,8 @@
     <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FileDb">
-      <HintPath>..\FileDb\FileDb.dll</HintPath>
+    <Reference Include="FileDb.Net, Version=7.3.0.0, Culture=neutral, PublicKeyToken=ba3f58a0e60cd01d, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FileDb.Net.7.4.3\lib\net45\FileDb.Net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Runtime.Caching" />
@@ -51,6 +51,7 @@
     <None Include="..\..\MapControl.snk">
       <Link>MapControl.snk</Link>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

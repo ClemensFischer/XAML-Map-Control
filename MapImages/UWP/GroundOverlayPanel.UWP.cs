@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -40,6 +41,48 @@ namespace MapControl.Images
             }
 
             return imageOverlays;
+        }
+
+        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFile)
+        {
+            using (var archive = ZipFile.OpenRead(archiveFile))
+            {
+                var docEntry = archive.GetEntry("doc.kml")
+                    ?? archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml"));
+
+                if (docEntry == null)
+                {
+                    throw new ArgumentException("No KML entry found in " + archiveFile);
+                }
+
+                var kmlDocument = new XmlDocument();
+
+                using (var docStream = docEntry.Open())
+                {
+                    kmlDocument.Load(docStream);
+                }
+
+                var imageOverlays = await Task.Run(() => ReadGroundOverlays(kmlDocument).ToList());
+
+                foreach (var imageOverlay in imageOverlays)
+                {
+                    var imageEntry = archive.GetEntry(imageOverlay.ImagePath);
+
+                    if (imageEntry != null)
+                    {
+                        using (var zipStream = imageEntry.Open())
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await zipStream.CopyToAsync(memoryStream);
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+
+                            imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(memoryStream);
+                        }
+                    }
+                }
+
+                return imageOverlays;
+            }
         }
     }
 }
