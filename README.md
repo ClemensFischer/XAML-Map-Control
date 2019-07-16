@@ -36,7 +36,7 @@ Map Control comes with two such implementations:
 in the original file format delivered by the map provider (typically PNG or JPG). ImageFileCache is part of
 the MapControl.WPF library. It does not support expiration, which means that cached tile image files will
 not be deleted automatically. The cache may hence consume a considerable amount of disk space.
-* FileDbCache, an ObjectCache implementation based on EzTools FileDb, a simple, file based No-SQL database,
+* FileDbCache, an ObjectCache implementation based on [EzTools FileDb](https://github.com/eztools-software/FileDb), a simple, file based No-SQL database,
 in a separate library FileDbCache.WPF.
 
 If you want to try the sample application with persistent caching, uncomment the appropriate TileImageLoader.Cache
