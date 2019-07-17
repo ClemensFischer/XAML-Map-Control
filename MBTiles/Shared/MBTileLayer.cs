@@ -11,6 +11,9 @@ using System.Windows;
 
 namespace MapControl.MBTiles
 {
+    /// <summary>
+    /// MapTileLayer that uses an MBTiles SQLite Database. See https://wiki.openstreetmap.org/wiki/MBTiles.
+    /// </summary>
     public class MBTileLayer : MapTileLayer
     {
         public static readonly DependencyProperty FileProperty = DependencyProperty.Register(

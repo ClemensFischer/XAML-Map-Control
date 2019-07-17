@@ -57,7 +57,6 @@
     <Compile Include="..\Shared\ZoomLevelToOpacityConverter.cs">
       <Link>ZoomLevelToOpacityConverter.cs</Link>
     </Compile>
-    <Compile Include="GroundOverlayPanel.WPF.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

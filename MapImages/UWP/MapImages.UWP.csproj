@@ -49,7 +49,6 @@
     <Compile Include="..\Shared\ZoomLevelToOpacityConverter.cs">
       <Link>ZoomLevelToOpacityConverter.cs</Link>
     </Compile>
-    <Compile Include="GroundOverlayPanel.UWP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MapImages.UWP.rd.xml" />
   </ItemGroup>

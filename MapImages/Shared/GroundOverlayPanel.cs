@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -22,7 +23,7 @@ using System.Windows.Media;
 
 namespace MapControl.Images
 {
-    public partial class GroundOverlayPanel : MapPanel
+    public class GroundOverlayPanel : MapPanel
     {
         class LatLonBox : BoundingBox
         {
@@ -99,7 +100,8 @@ namespace MapControl.Images
                 FrameworkElement overlay = new Image
                 {
                     Source = imageOverlay.ImageSource,
-                    Stretch = Stretch.Fill
+                    Stretch = Stretch.Fill,
+                    UseLayoutRounding = false
                 };
 
                 if (imageOverlay.LatLonBox.Rotation != 0d)
@@ -108,7 +110,7 @@ namespace MapControl.Images
                     overlay.RenderTransformOrigin = new Point(0.5, 0.5);
 
                     // additional Panel for map rotation, see MapPanel.ArrangeElementWithBoundingBox
-                    var panel = new Grid { Background = null };
+                    var panel = new Grid { UseLayoutRounding = false };
                     panel.Children.Add(overlay);
                     overlay = panel;
                 }
@@ -117,6 +119,71 @@ namespace MapControl.Images
                 Canvas.SetZIndex(overlay, imageOverlay.ZIndex);
                 Children.Add(overlay);
             }
+        }
+
+        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFile)
+        {
+            using (var archive = await Task.Run(() => ZipFile.OpenRead(archiveFile)))
+            {
+                var docEntry = await Task.Run(() => archive.GetEntry("doc.kml") ?? archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")));
+
+                if (docEntry == null)
+                {
+                    throw new ArgumentException("No KML entry found in " + archiveFile);
+                }
+
+                var imageOverlays = await Task.Run(() =>
+                {
+                    var kmlDocument = new XmlDocument();
+
+                    using (var docStream = docEntry.Open())
+                    {
+                        kmlDocument.Load(docStream);
+                    }
+
+                    return ReadGroundOverlays(kmlDocument).ToList();
+                });
+
+                foreach (var imageOverlay in imageOverlays)
+                {
+                    var imageEntry = await Task.Run(() => archive.GetEntry(imageOverlay.ImagePath));
+
+                    if (imageEntry != null)
+                    {
+                        using (var zipStream = imageEntry.Open())
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await zipStream.CopyToAsync(memoryStream);
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+
+                            imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(memoryStream);
+                        }
+                    }
+                }
+
+                return imageOverlays;
+            }
+        }
+
+        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFileAsync(string docFile)
+        {
+            docFile = Path.GetFullPath(docFile);
+            var docUri = new Uri(docFile);
+
+            var imageOverlays = await Task.Run(() =>
+            {
+                var kmlDocument = new XmlDocument();
+                kmlDocument.Load(docFile);
+
+                return ReadGroundOverlays(kmlDocument).ToList();
+            });
+
+            foreach (var imageOverlay in imageOverlays)
+            {
+                imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
+            }
+
+            return imageOverlays;
         }
 
         private static IEnumerable<ImageOverlay> ReadGroundOverlays(XmlDocument kmlDocument)

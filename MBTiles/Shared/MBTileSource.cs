@@ -16,15 +16,15 @@ namespace MapControl.MBTiles
     {
         private readonly MBTileData tileData;
 
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-        public int? MinZoom { get; private set; }
-        public int? MaxZoom { get; private set; }
-
         public MBTileSource(string file)
         {
             tileData = new MBTileData(file);
         }
+
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+        public int? MinZoom { get; private set; }
+        public int? MaxZoom { get; private set; }
 
         public async Task Initialize()
         {
@@ -32,31 +32,30 @@ namespace MapControl.MBTiles
 
             var metadata = await tileData.ReadMetadataAsync();
 
-            string name;
-            string description;
-            string minzoom;
-            string maxzoom;
+            string s;
             int minZoom;
             int maxZoom;
 
-            if (metadata.TryGetValue("name", out name))
-            {
-                Name = name;
-            }
+            Name = (metadata.TryGetValue("name", out s)) ? s : null;
 
-            if (metadata.TryGetValue("description", out description))
-            {
-                Description = description;
-            }
+            Description = (metadata.TryGetValue("description", out s)) ? s : null;
 
-            if (metadata.TryGetValue("minzoom", out minzoom) && int.TryParse(minzoom, out minZoom))
+            if (metadata.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
             {
                 MinZoom = minZoom;
             }
+            else
+            {
+                MinZoom = null;
+            }
 
-            if (metadata.TryGetValue("maxzoom", out maxzoom) && int.TryParse(maxzoom, out maxZoom))
+            if (metadata.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
             {
                 MaxZoom = maxZoom;
+            }
+            else
+            {
+                MaxZoom = null;
             }
         }
 

@@ -25,9 +25,19 @@ namespace MapControl.MBTiles
             connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file));
         }
 
-        public Task OpenAsync()
+        public async Task OpenAsync()
         {
-            return connection.OpenAsync();
+            await connection.OpenAsync();
+
+            using (var command = new SQLiteCommand("create table if not exists metadata (name string, value string)", connection))
+            {
+                await command.ExecuteNonQueryAsync();
+            }
+
+            using (var command = new SQLiteCommand("create table if not exists tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)", connection))
+            {
+                await command.ExecuteNonQueryAsync();
+            }
         }
 
         public void Close()
@@ -68,11 +78,6 @@ namespace MapControl.MBTiles
         {
             try
             {
-                using (var command = new SQLiteCommand("create table if not exists metadata (name string, value string)", connection))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
-
                 using (var command = new SQLiteCommand("insert or replace into metadata (name, value) values (@n, @v)", connection))
                 {
                     foreach (var keyValue in metadata)
@@ -117,11 +122,6 @@ namespace MapControl.MBTiles
         {
             try
             {
-                using (var command = new SQLiteCommand("create table if not exists tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)", connection))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
-
                 using (var command = new SQLiteCommand("insert or replace into tiles (zoom_level, tile_column, tile_row, tile_data) values (@z, @x, @y, @b)", connection))
                 {
                     command.Parameters.AddWithValue("@z", zoomLevel);
