@@ -49,11 +49,6 @@ namespace MapControl.MBTiles
             return tileData;
         }
 
-        public void Close()
-        {
-            connection.Close();
-        }
-
         public void Dispose()
         {
             connection.Dispose();

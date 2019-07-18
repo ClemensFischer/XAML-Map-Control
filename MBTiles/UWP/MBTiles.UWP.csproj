@@ -53,7 +53,7 @@
     <EmbeddedResource Include="Properties\MBTiles.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SQLite">
+    <PackageReference Include="Microsoft.Data.Sqlite">
       <Version>2.2.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
