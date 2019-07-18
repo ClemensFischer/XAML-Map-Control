@@ -33,7 +33,7 @@ namespace MapControl.Caching
 
             try
             {
-                path = Path.Combine(key.Split('\\', '/', ':', ';'));
+                path = Path.Combine(GetPathElements(key));
             }
             catch (Exception ex)
             {
@@ -69,18 +69,18 @@ namespace MapControl.Caching
 
         public async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
         {
-            var paths = key.Split('\\', '/', ',', ':', ';');
+            var folders = GetPathElements(key);
 
             try
             {
                 var folder = rootFolder;
 
-                for (int i = 0; i < paths.Length - 1; i++)
+                for (int i = 0; i < folders.Length - 1; i++)
                 {
-                    folder = await folder.CreateFolderAsync(paths[i], CreationCollisionOption.OpenIfExists);
+                    folder = await folder.CreateFolderAsync(folders[i], CreationCollisionOption.OpenIfExists);
                 }
 
-                var file = await folder.CreateFileAsync(paths[paths.Length - 1], CreationCollisionOption.ReplaceExisting);
+                var file = await folder.CreateFileAsync(folders[folders.Length - 1], CreationCollisionOption.ReplaceExisting);
                 //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", file.Path, expiration.ToLocalTime());
 
                 await FileIO.WriteBufferAsync(file, buffer);
@@ -88,12 +88,18 @@ namespace MapControl.Caching
                 // Store expiration date in ImageProperties.DateTaken
                 var properties = await file.Properties.GetImagePropertiesAsync();
                 properties.DateTaken = expiration;
+
                 await properties.SavePropertiesAsync();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Writing {0}\\{1}: {2}", rootFolder.Path, string.Join("\\", paths), ex.Message);
+                Debug.WriteLine("ImageFileCache: Writing {0}: {1}", Path.Combine(rootFolder.Path, Path.Combine(folders)), ex.Message);
             }
+        }
+
+        private string[] GetPathElements(string key)
+        {
+            return key.Split('\\', '/', ',', ':', ';');
         }
     }
 }

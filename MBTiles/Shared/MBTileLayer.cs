@@ -72,9 +72,7 @@ namespace MapControl.MBTiles
 
             if (file != null)
             {
-                mbTileSource = new MBTileSource(file);
-
-                await mbTileSource.Initialize();
+                mbTileSource = await MBTileSource.CreateAsync(file);
 
                 if (mbTileSource.Name != null)
                 {

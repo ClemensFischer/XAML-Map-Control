@@ -10,12 +10,13 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Text;
 
 namespace MapControl.Caching
 {
     /// <summary>
     /// ObjectCache implementation based on local image files.
-    /// The only valid data type for cached values is byte[].
+    /// The only valid data type for cached values is MapControl.ImageCacheItem.
     /// </summary>
     public class ImageFileCache : ObjectCache
     {
@@ -96,9 +97,9 @@ namespace MapControl.Caching
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            var buffer = memoryCache.Get(key) as byte[];
+            var imageCacheItem = memoryCache.Get(key) as ImageCacheItem;
 
-            if (buffer == null)
+            if (imageCacheItem == null)
             {
                 var path = FindFile(key);
 
@@ -106,10 +107,24 @@ namespace MapControl.Caching
                 {
                     try
                     {
-                        //Debug.WriteLine("ImageFileCache: Reading " + path);
+                        var buffer = File.ReadAllBytes(path);
+                        var expiration = DateTime.MinValue;
 
-                        buffer = File.ReadAllBytes(path);
-                        memoryCache.Set(key, buffer, new CacheItemPolicy());
+                        if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == "EXPIRES:")
+                        {
+                            expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
+                            Array.Resize(ref buffer, buffer.Length - 16);
+                        }
+
+                        imageCacheItem = new ImageCacheItem
+                        {
+                            Buffer = buffer,
+                            Expiration = expiration
+                        };
+
+                        memoryCache.Set(key, imageCacheItem, new CacheItemPolicy { AbsoluteExpiration = expiration });
+
+                        //Debug.WriteLine("ImageFileCache: Reading {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
                     }
                     catch (Exception ex)
                     {
@@ -118,7 +133,7 @@ namespace MapControl.Caching
                 }
             }
 
-            return buffer;
+            return imageCacheItem;
         }
 
         public override CacheItem GetCacheItem(string key, string regionName = null)
@@ -145,14 +160,14 @@ namespace MapControl.Caching
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            var buffer = value as byte[];
+            var imageCacheItem = value as ImageCacheItem;
 
-            if (buffer == null || buffer.Length == 0)
+            if (imageCacheItem == null || imageCacheItem.Buffer == null || imageCacheItem.Buffer.Length == 0)
             {
-                throw new NotSupportedException("The parameter value must be a non-empty byte array.");
+                throw new NotSupportedException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
             }
 
-            memoryCache.Set(key, buffer, policy);
+            memoryCache.Set(key, imageCacheItem, policy);
 
             var path = GetPath(key);
 
@@ -160,10 +175,16 @@ namespace MapControl.Caching
             {
                 try
                 {
-                    //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", path, policy.AbsoluteExpiration.DateTime.ToLocalTime());
+                    //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
 
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
-                    File.WriteAllBytes(path, buffer);
+
+                    using (var stream = File.Create(path))
+                    {
+                        stream.Write(imageCacheItem.Buffer, 0, imageCacheItem.Buffer.Length);
+                        stream.Write(Encoding.ASCII.GetBytes("EXPIRES:"), 0, 8);
+                        stream.Write(BitConverter.GetBytes(imageCacheItem.Expiration.Ticks), 0, 8);
+                    }
 
                     var fileSecurity = File.GetAccessControl(path);
                     fileSecurity.AddAccessRule(fullControlRule);

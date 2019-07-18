@@ -5,17 +5,21 @@
 using System;
 using System.IO;
 using System.Runtime.Caching;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace MapControl
 {
+    public class ImageCacheItem
+    {
+        public byte[] Buffer { get; set; }
+        public DateTime Expiration { get; set; }
+    }
+
     public partial class TileImageLoader
     {
         /// <summary>
-        /// Default folder path where an ObjectCache instance may save cached data,
-        /// i.e. C:\ProgramData\MapControl\TileCache
+        /// Default folder path where an ObjectCache instance may save cached data, i.e. C:\ProgramData\MapControl\TileCache
         /// </summary>
         public static string DefaultCacheFolder
         {
@@ -23,17 +27,18 @@ namespace MapControl
         }
 
         /// <summary>
-        /// The ObjectCache used to cache tile images. The default is MemoryCache.Default.
+        /// An ObjectCache instance used to cache tile image data (i.e. ImageCacheItem objects).
+        /// The default ObjectCache value is MemoryCache.Default.
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
 
 
         private static async Task LoadCachedTileImageAsync(Tile tile, Uri uri, string cacheKey)
         {
-            DateTime expiration;
-            var buffer = GetCachedImage(cacheKey, out expiration);
+            var cacheItem = await GetCacheAsync(cacheKey).ConfigureAwait(false);
+            var buffer = cacheItem?.Buffer;
 
-            if (buffer == null || expiration < DateTime.UtcNow)
+            if (buffer == null || cacheItem.Expiration < DateTime.UtcNow)
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
 
@@ -43,7 +48,7 @@ namespace MapControl
 
                     if (buffer != null) // tile image available
                     {
-                        await SetCachedImage(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
+                        await SetCacheAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                     }
                 }
             }
@@ -69,33 +74,25 @@ namespace MapControl
             tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
         }
 
-        private static byte[] GetCachedImage(string cacheKey, out DateTime expiration)
+        private static Task<ImageCacheItem> GetCacheAsync(string cacheKey)
         {
-            var buffer = Cache.Get(cacheKey) as byte[];
-
-            if (buffer != null && buffer.Length >= 16 &&
-                Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == "EXPIRES:")
-            {
-                expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
-            }
-            else
-            {
-                expiration = DateTime.MinValue;
-            }
-
-            return buffer;
+            return Task.Run(() => Cache.Get(cacheKey) as ImageCacheItem);
         }
 
-        private static async Task SetCachedImage(string cacheKey, byte[] buffer, DateTime expiration)
+        private static Task SetCacheAsync(string cacheKey, byte[] buffer, DateTime expiration)
         {
-            using (var stream = new MemoryStream(buffer.Length + 16))
+            var imageCacheItem = new ImageCacheItem
             {
-                await stream.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("EXPIRES:"), 0, 8).ConfigureAwait(false);
-                await stream.WriteAsync(BitConverter.GetBytes(expiration.Ticks), 0, 8).ConfigureAwait(false);
+                Buffer = buffer,
+                Expiration = expiration
+            };
 
-                Cache.Set(cacheKey, stream.ToArray(), new CacheItemPolicy { AbsoluteExpiration = expiration });
-            }
+            var cacheItemPolicy = new CacheItemPolicy
+            {
+                AbsoluteExpiration = expiration
+            };
+
+            return Task.Run(() => Cache.Set(cacheKey, imageCacheItem, cacheItemPolicy));
         }
     }
 }

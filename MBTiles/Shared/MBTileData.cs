@@ -20,12 +20,12 @@ namespace MapControl.MBTiles
     {
         private readonly SQLiteConnection connection;
 
-        public MBTileData(string file)
+        private MBTileData(string file)
         {
             connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file));
         }
 
-        public async Task OpenAsync()
+        private async Task OpenAsync()
         {
             await connection.OpenAsync();
 
@@ -40,6 +40,15 @@ namespace MapControl.MBTiles
             }
         }
 
+        public static async Task<MBTileData> CreateAsync(string file)
+        {
+            var tileData = new MBTileData(file);
+
+            await tileData.OpenAsync();
+
+            return tileData;
+        }
+
         public void Close()
         {
             connection.Close();
@@ -50,9 +59,9 @@ namespace MapControl.MBTiles
             connection.Dispose();
         }
 
-        public async Task<IDictionary<string, string>> ReadMetadataAsync()
+        public async Task<IDictionary<string, string>> ReadMetaDataAsync()
         {
-            var metadata = new Dictionary<string, string>();
+            var metaData = new Dictionary<string, string>();
 
             try
             {
@@ -62,7 +71,7 @@ namespace MapControl.MBTiles
 
                     while (await reader.ReadAsync())
                     {
-                        metadata[(string)reader["name"]] = (string)reader["value"];
+                        metaData[(string)reader["name"]] = (string)reader["value"];
                     }
                 }
             }
@@ -71,16 +80,16 @@ namespace MapControl.MBTiles
                 Debug.WriteLine("MBTileData: " + ex.Message);
             }
 
-            return metadata;
+            return metaData;
         }
 
-        public async Task WriteMetadataAsync(IDictionary<string, string> metadata)
+        public async Task WriteMetaDataAsync(IDictionary<string, string> metaData)
         {
             try
             {
                 using (var command = new SQLiteCommand("insert or replace into metadata (name, value) values (@n, @v)", connection))
                 {
-                    foreach (var keyValue in metadata)
+                    foreach (var keyValue in metaData)
                     {
                         command.Parameters.AddWithValue("@n", keyValue.Key);
                         command.Parameters.AddWithValue("@v", keyValue.Value);

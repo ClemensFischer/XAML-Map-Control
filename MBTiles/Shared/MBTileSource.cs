@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.UI.Xaml.Media;
@@ -16,47 +17,45 @@ namespace MapControl.MBTiles
     {
         private readonly MBTileData tileData;
 
-        public MBTileSource(string file)
+        public string Name { get; }
+        public string Description { get; }
+        public int? MinZoom { get; }
+        public int? MaxZoom { get; }
+
+        private MBTileSource(MBTileData tileData, IDictionary<string, string> metaData)
         {
-            tileData = new MBTileData(file);
-        }
-
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-        public int? MinZoom { get; private set; }
-        public int? MaxZoom { get; private set; }
-
-        public async Task Initialize()
-        {
-            await tileData.OpenAsync();
-
-            var metadata = await tileData.ReadMetadataAsync();
+            this.tileData = tileData;
 
             string s;
             int minZoom;
             int maxZoom;
 
-            Name = (metadata.TryGetValue("name", out s)) ? s : null;
+            if (metaData.TryGetValue("name", out s))
+            {
+                Name = s;
+            }
 
-            Description = (metadata.TryGetValue("description", out s)) ? s : null;
+            if (metaData.TryGetValue("description", out s))
+            {
+                Description = s;
+            }
 
-            if (metadata.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
+            if (metaData.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
             {
                 MinZoom = minZoom;
             }
-            else
-            {
-                MinZoom = null;
-            }
 
-            if (metadata.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
+            if (metaData.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
             {
                 MaxZoom = maxZoom;
             }
-            else
-            {
-                MaxZoom = null;
-            }
+        }
+
+        public static async Task<MBTileSource> CreateAsync(string file)
+        {
+            var tileData = await MBTileData.CreateAsync(file);
+
+            return new MBTileSource(tileData, await tileData.ReadMetaDataAsync());
         }
 
         public void Dispose()

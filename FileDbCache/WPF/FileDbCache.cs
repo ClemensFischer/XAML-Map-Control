@@ -149,11 +149,15 @@ namespace MapControl.Caching
             {
                 try
                 {
-                    var record = fileDb.GetRecordByKey(key, new string[] { valueField }, false);
+                    var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
 
                     if (record != null)
                     {
-                        return record[0];
+                        return new ImageCacheItem
+                        {
+                            Buffer = (byte[])record[0],
+                            Expiration = (DateTime)record[1]
+                        };
                     }
                 }
                 catch (Exception ex)
@@ -184,38 +188,21 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            if (value == null)
-            {
-                throw new ArgumentNullException("The parameter value must not be null.");
-            }
-
-            if (policy == null)
-            {
-                throw new ArgumentNullException("The parameter policy must not be null.");
-            }
-
             if (regionName != null)
             {
                 throw new NotSupportedException("The parameter regionName must be null.");
             }
 
-            if (fileDb.IsOpen)
+            var imageCacheItem = value as ImageCacheItem;
+
+            if (imageCacheItem == null || imageCacheItem.Buffer == null || imageCacheItem.Buffer.Length == 0)
             {
-                var expiration = DateTime.MaxValue;
+                throw new NotSupportedException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
+            }
 
-                if (policy.AbsoluteExpiration != InfiniteAbsoluteExpiration)
-                {
-                    expiration = policy.AbsoluteExpiration.DateTime;
-                }
-                else if (policy.SlidingExpiration != NoSlidingExpiration)
-                {
-                    expiration = DateTime.UtcNow + policy.SlidingExpiration;
-                }
-
-                if (!AddOrUpdateRecord(key, value, expiration) && RepairDatabase())
-                {
-                    AddOrUpdateRecord(key, value, expiration);
-                }
+            if (fileDb.IsOpen && !AddOrUpdateRecord(key, imageCacheItem) && RepairDatabase())
+            {
+                AddOrUpdateRecord(key, imageCacheItem);
             }
         }
 
@@ -354,11 +341,11 @@ namespace MapControl.Caching
             return false;
         }
 
-        private bool AddOrUpdateRecord(string key, object value, DateTime expiration)
+        private bool AddOrUpdateRecord(string key, ImageCacheItem imageCacheItem)
         {
             var fieldValues = new FieldValues(3);
-            fieldValues.Add(valueField, value);
-            fieldValues.Add(expiresField, expiration);
+            fieldValues.Add(valueField, imageCacheItem.Buffer);
+            fieldValues.Add(expiresField, imageCacheItem.Expiration);
 
             bool recordExists;
 
@@ -398,7 +385,7 @@ namespace MapControl.Caching
                 }
             }
 
-            //Debug.WriteLine("FileDbCache: Writing \"{0}\", Expires {1}", key, expiration.ToLocalTime());
+            //Debug.WriteLine("FileDbCache: Writing \"{0}\", Expires {1}", key, imageCacheItem.Expiration.ToLocalTime());
             return true;
         }
     }
