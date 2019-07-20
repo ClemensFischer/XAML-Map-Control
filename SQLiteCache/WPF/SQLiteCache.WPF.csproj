@@ -49,11 +49,14 @@
     <Reference Include="System.Runtime.Caching" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\SQLiteCache.cs">
+      <Link>SQLiteCache.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
     <AppDesigner Include="Properties\" />
-    <Compile Include="SQLiteCache.cs" />
+    <Compile Include="SQLiteCache.WPF.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\MapControl.snk">

@@ -72,14 +72,14 @@ namespace MapControl.Caching
 
         public override bool Contains(string key, string regionName = null)
         {
+            if (regionName != null)
+            {
+                throw new NotSupportedException("ImageFileCache does not support named regions.");
+            }
+
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
             return memoryCache.Contains(key) || FindFile(key) != null;
@@ -87,14 +87,14 @@ namespace MapControl.Caching
 
         public override object Get(string key, string regionName = null)
         {
+            if (regionName != null)
+            {
+                throw new NotSupportedException("ImageFileCache does not support named regions.");
+            }
+
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
             var imageCacheItem = memoryCache.Get(key) as ImageCacheItem;
@@ -150,21 +150,21 @@ namespace MapControl.Caching
 
         public override void Set(string key, object value, CacheItemPolicy policy, string regionName = null)
         {
+            if (regionName != null)
+            {
+                throw new NotSupportedException("ImageFileCache does not support named regions.");
+            }
+
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
             var imageCacheItem = value as ImageCacheItem;
 
             if (imageCacheItem == null || imageCacheItem.Buffer == null || imageCacheItem.Buffer.Length == 0)
             {
-                throw new NotSupportedException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
+                throw new ArgumentException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
             }
 
             memoryCache.Set(key, imageCacheItem, policy);
@@ -232,14 +232,14 @@ namespace MapControl.Caching
 
         public override object Remove(string key, string regionName = null)
         {
+            if (regionName != null)
+            {
+                throw new NotSupportedException("ImageFileCache does not support named regions.");
+            }
+
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
             memoryCache.Remove(key);

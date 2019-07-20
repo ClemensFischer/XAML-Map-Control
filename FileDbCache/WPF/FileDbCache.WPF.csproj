@@ -44,7 +44,10 @@
     <Reference Include="System.Runtime.Caching" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileDbCache.cs" />
+    <Compile Include="..\Shared\FileDbCache.cs">
+      <Link>FileDbCache.cs</Link>
+    </Compile>
+    <Compile Include="FileDbCache.WPF.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

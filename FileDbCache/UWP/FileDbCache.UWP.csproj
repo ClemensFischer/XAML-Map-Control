@@ -40,7 +40,10 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FileDbCache.cs" />
+    <Compile Include="..\Shared\FileDbCache.cs">
+      <Link>FileDbCache.cs</Link>
+    </Compile>
+    <Compile Include="FileDbCache.UWP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\FileDbCache.UWP.rd.xml" />
   </ItemGroup>

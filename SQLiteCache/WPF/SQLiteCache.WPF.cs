@@ -15,10 +15,8 @@ namespace MapControl.Caching
     /// <summary>
     /// ObjectCache implementation based on SqLite.
     /// </summary>
-    public sealed class SQLiteCache : ObjectCache, IDisposable
+    public partial class SQLiteCache : ObjectCache
     {
-        private readonly SQLiteConnection connection;
-
         public SQLiteCache(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -31,14 +29,9 @@ namespace MapControl.Caching
                 path = Path.Combine(path, "TileCache.sqlite");
             }
 
-            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(path));
+            connection = Open(Path.GetFullPath(path));
 
-            connection.Open();
-
-            using (var command = new SQLiteCommand("create table if not exists items (key text, expiration integer, buffer blob)", connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            Clean();
         }
 
         public override string Name
@@ -59,19 +52,19 @@ namespace MapControl.Caching
 
         protected override IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            throw new NotSupportedException("SqLiteCache does not support the ability to enumerate items.");
+            throw new NotSupportedException("SQLiteCache does not support the ability to enumerate items.");
         }
 
         public override CacheEntryChangeMonitor CreateCacheEntryChangeMonitor(IEnumerable<string> keys, string regionName = null)
         {
-            throw new NotSupportedException("SqLiteCache does not support the ability to create change monitors.");
+            throw new NotSupportedException("SQLiteCache does not support the ability to create change monitors.");
         }
 
         public override long GetCount(string regionName = null)
         {
             if (regionName != null)
             {
-                throw new NotSupportedException("The parameter regionName must be null.");
+                throw new NotSupportedException("SQLiteCache does not support named regions.");
             }
 
             try
@@ -83,7 +76,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SqLiteCache: GetCount(): {0}", ex.Message);
+                Debug.WriteLine("SQLiteCache.GetCount(): {0}", ex.Message);
             }
 
             return 0;
@@ -91,28 +84,26 @@ namespace MapControl.Caching
 
         public override bool Contains(string key, string regionName = null)
         {
+            if (regionName != null)
+            {
+                throw new NotSupportedException("SQLiteCache does not support named regions.");
+            }
+
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
-            }
-
             try
             {
-                using (var command = new SQLiteCommand("select expiration, buffer from items where key=@key", connection))
+                using (var command = GetItemCommand(key))
                 {
-                    command.Parameters.AddWithValue("@key", key);
-
                     return command.ExecuteReader().Read();
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SqLiteCache: Get(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.Contains(\"{0}\"): {1}", key, ex.Message);
             }
 
             return false;
@@ -120,26 +111,27 @@ namespace MapControl.Caching
 
         public override object Get(string key, string regionName = null)
         {
+            if (regionName != null)
+            {
+                throw new NotSupportedException("SQLiteCache does not support named regions.");
+            }
+
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
-            }
+            ImageCacheItem imageCacheItem = null;
 
             try
             {
-                using (var command = new SQLiteCommand("select expiration, buffer from items where key=@key", connection))
+                using (var command = GetItemCommand(key))
                 {
-                    command.Parameters.AddWithValue("@key", key);
                     var reader = command.ExecuteReader();
 
                     if (reader.Read())
                     {
-                        return new ImageCacheItem
+                        imageCacheItem = new ImageCacheItem
                         {
                             Expiration = new DateTime((long)reader["expiration"]),
                             Buffer = (byte[])reader["buffer"]
@@ -149,10 +141,10 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SqLiteCache: Get(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.Get(\"{0}\"): {1}", key, ex.Message);
             }
 
-            return null;
+            return imageCacheItem;
         }
 
         public override CacheItem GetCacheItem(string key, string regionName = null)
@@ -169,36 +161,35 @@ namespace MapControl.Caching
 
         public override void Set(string key, object value, CacheItemPolicy policy, string regionName = null)
         {
+            if (regionName != null)
+            {
+                throw new NotSupportedException("SQLiteCache does not support named regions.");
+            }
+
             if (key == null)
             {
                 throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            if (regionName != null)
-            {
-                throw new NotSupportedException("The parameter regionName must be null.");
             }
 
             var imageCacheItem = value as ImageCacheItem;
 
             if (imageCacheItem == null || imageCacheItem.Buffer == null || imageCacheItem.Buffer.Length == 0)
             {
-                throw new NotSupportedException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
+                throw new ArgumentException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
             }
 
             try
             {
-                using (var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection))
+                using (var command = SetItemCommand(key, imageCacheItem.Expiration, imageCacheItem.Buffer))
                 {
-                    command.Parameters.AddWithValue("@key", key);
-                    command.Parameters.AddWithValue("@exp", imageCacheItem.Expiration.Ticks);
-                    command.Parameters.AddWithValue("@buf", imageCacheItem.Buffer);
                     command.ExecuteNonQuery();
                 }
+
+                //Debug.WriteLine("SQLiteCache.Set(\"{0}\"): expires {1}", key, expiration.ToLocalTime());
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SqLiteCache: Set(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.Set(\"{0}\"): {1}", key, ex.Message);
             }
         }
 
@@ -237,12 +228,24 @@ namespace MapControl.Caching
 
         public override object Remove(string key, string regionName = null)
         {
-            throw new NotImplementedException();
-        }
+            var oldValue = Get(key, regionName);
 
-        public void Dispose()
-        {
-            connection.Dispose();
+            if (oldValue != null)
+            {
+                try
+                {
+                    using (var command = RemoveItemCommand(key))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("SQLiteCache.Remove(\"{0}\"): {1}", key, ex.Message);
+                }
+            }
+
+            return oldValue;
         }
     }
 }

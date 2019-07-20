@@ -40,8 +40,11 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\SQLiteCache.cs">
+      <Link>SQLiteCache.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SQLiteCache.cs" />
+    <Compile Include="SQLiteCache.UWP.cs" />
     <EmbeddedResource Include="Properties\SQLiteCache.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
