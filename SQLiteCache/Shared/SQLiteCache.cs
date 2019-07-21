@@ -51,7 +51,7 @@ namespace MapControl.Caching
 
         private SQLiteCommand GetItemCommand(string key)
         {
-            var command = new SQLiteCommand("select expiration, buffer from items where key=@key", connection);
+            var command = new SQLiteCommand("select expiration, buffer from items where key = @key", connection);
             command.Parameters.AddWithValue("@key", key);
             return command;
         }
