@@ -23,7 +23,7 @@ namespace MapControl
         /// <summary>
         /// The System.Net.Http.HttpClient instance used to download images via a http or https Uri.
         /// </summary>
-        public static HttpClient HttpClient { get; set; } = new HttpClient();
+        public static HttpClient HttpClient { get; set; } = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
 
 
         public static async Task<ImageSource> LoadImageAsync(Uri uri)
@@ -64,11 +64,25 @@ namespace MapControl
 
             try
             {
-                using (var responseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(continueOnCapturedContext))
+                using (var responseMessage = await HttpClient
+                    .GetAsync(uri, HttpCompletionOption.ResponseHeadersRead)
+                    .ConfigureAwait(continueOnCapturedContext))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
-                        response = await HttpResponse.Create(responseMessage, continueOnCapturedContext);
+                        IEnumerable<string> tileInfo;
+
+                        if (responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out tileInfo) &&
+                            tileInfo.Contains("no-tile"))
+                        {
+                            response = new HttpResponse(null, null); // no tile image
+                        }
+                        else
+                        {
+                            response = new HttpResponse(
+                                await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(continueOnCapturedContext),
+                                responseMessage.Headers.CacheControl?.MaxAge);
+                        }
                     }
                     else
                     {
@@ -86,21 +100,13 @@ namespace MapControl
 
         internal class HttpResponse
         {
-            public byte[] Buffer { get; private set; }
-            public TimeSpan? MaxAge { get; private set; }
+            public byte[] Buffer { get; }
+            public TimeSpan? MaxAge { get; }
 
-            internal static async Task<HttpResponse> Create(HttpResponseMessage message, bool continueOnCapturedContext)
+            public HttpResponse(byte[] buffer, TimeSpan? maxAge)
             {
-                var response = new HttpResponse();
-                IEnumerable<string> tileInfo;
-
-                if (!message.Headers.TryGetValues("X-VE-Tile-Info", out tileInfo) || !tileInfo.Contains("no-tile"))
-                {
-                    response.Buffer = await message.Content.ReadAsByteArrayAsync().ConfigureAwait(continueOnCapturedContext);
-                    response.MaxAge = message.Headers.CacheControl?.MaxAge;
-                }
-
-                return response;
+                Buffer = buffer;
+                MaxAge = maxAge;
             }
         }
     }
