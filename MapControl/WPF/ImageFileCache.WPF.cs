@@ -25,18 +25,18 @@ namespace MapControl.Caching
             FileSystemRights.FullControl, AccessControlType.Allow);
 
         private readonly MemoryCache memoryCache = MemoryCache.Default;
-        private readonly string rootFolder;
+        private readonly string folder;
 
-        public ImageFileCache(string rootFolder)
+        public ImageFileCache(string folder)
         {
-            if (string.IsNullOrEmpty(rootFolder))
+            if (string.IsNullOrEmpty(folder))
             {
-                throw new ArgumentException("The parameter rootFolder must not be null or empty.");
+                throw new ArgumentException("The parameter folder must not be null or empty.");
             }
 
-            this.rootFolder = rootFolder;
+            this.folder = folder;
 
-            Debug.WriteLine("Created ImageFileCache in " + rootFolder);
+            Debug.WriteLine("Created ImageFileCache in " + folder);
         }
 
         public override string Name
@@ -162,16 +162,16 @@ namespace MapControl.Caching
 
             var imageCacheItem = value as ImageCacheItem;
 
-            if (imageCacheItem == null || imageCacheItem.Buffer == null || imageCacheItem.Buffer.Length == 0)
+            if (imageCacheItem == null)
             {
-                throw new ArgumentException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
+                throw new ArgumentException("The parameter value must be a MapControl.Caching.ImageCacheItem instance.");
             }
 
             memoryCache.Set(key, imageCacheItem, policy);
 
-            var path = GetPath(key);
+            string path;
 
-            if (path != null)
+            if (imageCacheItem.Buffer != null && imageCacheItem.Buffer.Length > 0 && (path = GetPath(key)) != null)
             {
                 try
                 {
@@ -284,11 +284,11 @@ namespace MapControl.Caching
         {
             try
             {
-                return Path.Combine(rootFolder, Path.Combine(key.Split('\\', '/', ',', ':', ';')));
+                return Path.Combine(folder, Path.Combine(key.Split('\\', '/', ',', ':', ';')));
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Invalid key {0}/{1}: {2}", rootFolder, key, ex.Message);
+                Debug.WriteLine("ImageFileCache: Invalid key {0}/{1}: {2}", folder, key, ex.Message);
             }
 
             return null;

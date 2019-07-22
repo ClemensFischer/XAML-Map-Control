@@ -13,23 +13,23 @@ namespace MapControl.Caching
 {
     public class ImageFileCache : IImageCache
     {
-        private StorageFolder rootFolder;
+        private readonly StorageFolder folder;
 
-        public ImageFileCache(StorageFolder rootFolder)
+        public ImageFileCache(StorageFolder folder)
         {
-            if (rootFolder == null)
+            if (folder == null)
             {
                 throw new ArgumentNullException("The parameter rootFolder must not be null.");
             }
 
-            this.rootFolder = rootFolder;
+            this.folder = folder;
 
-            Debug.WriteLine("Created ImageFileCache in " + rootFolder.Path);
+            Debug.WriteLine("Created ImageFileCache in " + folder.Path);
         }
 
         public async Task<ImageCacheItem> GetAsync(string key)
         {
-            string path = null;
+            string path;
 
             try
             {
@@ -38,29 +38,27 @@ namespace MapControl.Caching
             catch (Exception ex)
             {
                 Debug.WriteLine("ImageFileCache: Invalid key {0}: {1}", key, ex.Message);
+                return null;
             }
 
-            if (path != null)
+            var item = await folder.TryGetItemAsync(path);
+
+            if (item != null && item.IsOfType(StorageItemTypes.File))
             {
-                var item = await rootFolder.TryGetItemAsync(path);
+                var file = (StorageFile)item;
+                //Debug.WriteLine("ImageFileCache: Reading " + file.Path);
 
-                if (item != null && item.IsOfType(StorageItemTypes.File))
+                try
                 {
-                    var file = (StorageFile)item;
-                    //Debug.WriteLine("ImageFileCache: Reading " + file.Path);
-
-                    try
+                    return new ImageCacheItem
                     {
-                        return new ImageCacheItem
-                        {
-                            Buffer = await FileIO.ReadBufferAsync(file),
-                            Expiration = (await file.Properties.GetImagePropertiesAsync()).DateTaken.UtcDateTime
-                        };
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("ImageFileCache: Reading {0}: {1}", file.Path, ex.Message);
-                    }
+                        Buffer = await FileIO.ReadBufferAsync(file),
+                        Expiration = (await file.Properties.GetImagePropertiesAsync()).DateTaken.UtcDateTime
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ImageFileCache: Reading {0}: {1}", file.Path, ex.Message);
                 }
             }
 
@@ -69,31 +67,34 @@ namespace MapControl.Caching
 
         public async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
         {
-            var folders = GetPathElements(key);
-
-            try
+            if (buffer != null && buffer.Length > 0) // do not cache a no-tile entry
             {
-                var folder = rootFolder;
+                var folders = GetPathElements(key);
 
-                for (int i = 0; i < folders.Length - 1; i++)
+                try
                 {
-                    folder = await folder.CreateFolderAsync(folders[i], CreationCollisionOption.OpenIfExists);
+                    var folder = this.folder;
+
+                    for (int i = 0; i < folders.Length - 1; i++)
+                    {
+                        folder = await folder.CreateFolderAsync(folders[i], CreationCollisionOption.OpenIfExists);
+                    }
+
+                    var file = await folder.CreateFileAsync(folders[folders.Length - 1], CreationCollisionOption.ReplaceExisting);
+                    //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", file.Path, expiration.ToLocalTime());
+
+                    await FileIO.WriteBufferAsync(file, buffer);
+
+                    // Store expiration date in ImageProperties.DateTaken
+                    var properties = await file.Properties.GetImagePropertiesAsync();
+                    properties.DateTaken = expiration;
+
+                    await properties.SavePropertiesAsync();
                 }
-
-                var file = await folder.CreateFileAsync(folders[folders.Length - 1], CreationCollisionOption.ReplaceExisting);
-                //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", file.Path, expiration.ToLocalTime());
-
-                await FileIO.WriteBufferAsync(file, buffer);
-
-                // Store expiration date in ImageProperties.DateTaken
-                var properties = await file.Properties.GetImagePropertiesAsync();
-                properties.DateTaken = expiration;
-
-                await properties.SavePropertiesAsync();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageFileCache: Writing {0}: {1}", Path.Combine(rootFolder.Path, Path.Combine(folders)), ex.Message);
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ImageFileCache: Writing {0}: {1}", Path.Combine(folder.Path, Path.Combine(folders)), ex.Message);
+                }
             }
         }
 

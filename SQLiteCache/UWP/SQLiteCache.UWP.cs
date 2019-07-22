@@ -26,7 +26,7 @@ namespace MapControl.Caching
 
             if (string.IsNullOrEmpty(fileName))
             {
-                throw new ArgumentNullException("The parameter fileName must not be null.");
+                throw new ArgumentException("The parameter fileName must not be null or empty.");
             }
 
             connection = Open(Path.Combine(folder.Path, fileName));
@@ -36,13 +36,6 @@ namespace MapControl.Caching
 
         public async Task<ImageCacheItem> GetAsync(string key)
         {
-            if (key == null)
-            {
-                throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            ImageCacheItem imageCacheItem = null;
-
             try
             {
                 using (var command = GetItemCommand(key))
@@ -51,7 +44,7 @@ namespace MapControl.Caching
 
                     if (await reader.ReadAsync())
                     {
-                        imageCacheItem = new ImageCacheItem
+                        return new ImageCacheItem
                         {
                             Expiration = new DateTime((long)reader["expiration"]),
                             Buffer = ((byte[])reader["buffer"]).AsBuffer()
@@ -64,24 +57,14 @@ namespace MapControl.Caching
                 Debug.WriteLine("SQLiteCache.GetAsync(\"{0}\"): {1}", key, ex.Message);
             }
 
-            return imageCacheItem;
+            return null;
         }
 
         public async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
         {
-            if (key == null)
-            {
-                throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("The parameter buffer must not be null.");
-            }
-
             try
             {
-                using (var command = SetItemCommand(key, expiration, buffer.ToArray()))
+                using (var command = SetItemCommand(key, expiration, buffer?.ToArray()))
                 {
                     await command.ExecuteNonQueryAsync();
                 }

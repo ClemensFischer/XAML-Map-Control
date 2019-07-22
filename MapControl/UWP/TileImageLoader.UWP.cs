@@ -33,22 +33,19 @@ namespace MapControl
             var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
             var buffer = cacheItem?.Buffer;
 
-            if (buffer == null || cacheItem.Expiration < DateTime.UtcNow)
+            if (cacheItem == null || cacheItem.Expiration < DateTime.UtcNow)
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
 
                 if (response != null) // download succeeded
                 {
-                    buffer = response.Buffer.AsBuffer();
+                    buffer = response.Buffer?.AsBuffer(); // may be null or empty when no tile available, but still be cached
 
-                    if (buffer != null) // tile image available
-                    {
-                        await Cache.SetAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
-                    }
+                    await Cache.SetAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                 }
             }
 
-            if (buffer != null)
+            if (buffer != null && buffer.Length > 0)
             {
                 await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
             }

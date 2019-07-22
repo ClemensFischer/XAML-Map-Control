@@ -25,11 +25,7 @@ namespace MapControl.Caching
                 path = Path.Combine(path, "TileCache.fdb");
             }
 
-            dbPath = path;
-
-            Open();
-
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => Dispose();
+            Open(path);
         }
 
         public override string Name
@@ -153,9 +149,9 @@ namespace MapControl.Caching
 
             var imageCacheItem = value as ImageCacheItem;
 
-            if (imageCacheItem == null || imageCacheItem.Buffer == null || imageCacheItem.Buffer.Length == 0)
+            if (imageCacheItem == null)
             {
-                throw new ArgumentException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
+                throw new ArgumentException("The parameter value must be a MapControl.Caching.ImageCacheItem instance.");
             }
 
             AddOrUpdateRecord(key, imageCacheItem.Buffer, imageCacheItem.Expiration);

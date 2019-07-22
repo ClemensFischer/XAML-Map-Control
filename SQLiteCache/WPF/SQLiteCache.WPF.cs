@@ -121,8 +121,6 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            ImageCacheItem imageCacheItem = null;
-
             try
             {
                 using (var command = GetItemCommand(key))
@@ -131,7 +129,7 @@ namespace MapControl.Caching
 
                     if (reader.Read())
                     {
-                        imageCacheItem = new ImageCacheItem
+                        return new ImageCacheItem
                         {
                             Expiration = new DateTime((long)reader["expiration"]),
                             Buffer = (byte[])reader["buffer"]
@@ -144,7 +142,7 @@ namespace MapControl.Caching
                 Debug.WriteLine("SQLiteCache.Get(\"{0}\"): {1}", key, ex.Message);
             }
 
-            return imageCacheItem;
+            return null;
         }
 
         public override CacheItem GetCacheItem(string key, string regionName = null)
@@ -173,9 +171,9 @@ namespace MapControl.Caching
 
             var imageCacheItem = value as ImageCacheItem;
 
-            if (imageCacheItem == null || imageCacheItem.Buffer == null || imageCacheItem.Buffer.Length == 0)
+            if (imageCacheItem == null)
             {
-                throw new ArgumentException("The parameter value must be an ImageCacheItem with a non-empty Buffer.");
+                throw new ArgumentException("The parameter value must be a MapControl.Caching.ImageCacheItem instance.");
             }
 
             try

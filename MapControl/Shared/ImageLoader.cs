@@ -58,6 +58,18 @@ namespace MapControl
             return image;
         }
 
+        internal class HttpResponse
+        {
+            public byte[] Buffer { get; }
+            public TimeSpan? MaxAge { get; }
+
+            public HttpResponse(byte[] buffer, TimeSpan? maxAge)
+            {
+                Buffer = buffer;
+                MaxAge = maxAge;
+            }
+        }
+
         internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, bool continueOnCapturedContext = true)
         {
             HttpResponse response = null;
@@ -65,24 +77,20 @@ namespace MapControl
             try
             {
                 using (var responseMessage = await HttpClient
-                    .GetAsync(uri, HttpCompletionOption.ResponseHeadersRead)
-                    .ConfigureAwait(continueOnCapturedContext))
+                    .GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(continueOnCapturedContext))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
                         IEnumerable<string> tileInfo;
+                        byte[] buffer = null;
 
-                        if (responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out tileInfo) &&
-                            tileInfo.Contains("no-tile"))
+                        if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out tileInfo) ||
+                            !tileInfo.Contains("no-tile"))
                         {
-                            response = new HttpResponse(null, null); // no tile image
+                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(continueOnCapturedContext);
                         }
-                        else
-                        {
-                            response = new HttpResponse(
-                                await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(continueOnCapturedContext),
-                                responseMessage.Headers.CacheControl?.MaxAge);
-                        }
+
+                        response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
                     }
                     else
                     {
@@ -96,18 +104,6 @@ namespace MapControl
             }
 
             return response;
-        }
-
-        internal class HttpResponse
-        {
-            public byte[] Buffer { get; }
-            public TimeSpan? MaxAge { get; }
-
-            public HttpResponse(byte[] buffer, TimeSpan? maxAge)
-            {
-                Buffer = buffer;
-                MaxAge = maxAge;
-            }
         }
     }
 }

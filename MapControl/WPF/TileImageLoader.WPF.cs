@@ -7,13 +7,17 @@ using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using MapControl.Caching;
 
 namespace MapControl
 {
-    public class ImageCacheItem
+    namespace Caching
     {
-        public byte[] Buffer { get; set; }
-        public DateTime Expiration { get; set; }
+        public class ImageCacheItem
+        {
+            public byte[] Buffer { get; set; }
+            public DateTime Expiration { get; set; }
+        }
     }
 
     public partial class TileImageLoader
@@ -38,22 +42,19 @@ namespace MapControl
             var cacheItem = await GetCacheAsync(cacheKey).ConfigureAwait(false);
             var buffer = cacheItem?.Buffer;
 
-            if (buffer == null || cacheItem.Expiration < DateTime.UtcNow)
+            if (cacheItem == null || cacheItem.Expiration < DateTime.UtcNow)
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
 
                 if (response != null) // download succeeded
                 {
-                    buffer = response.Buffer;
+                    buffer = response.Buffer; // may be null or empty when no tile available, but still be cached
 
-                    if (buffer != null) // tile image available
-                    {
-                        await SetCacheAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
-                    }
+                    await SetCacheAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                 }
             }
 
-            if (buffer != null)
+            if (buffer != null && buffer.Length > 0)
             {
                 SetTileImageAsync(tile, await ImageLoader.LoadImageAsync(buffer).ConfigureAwait(false));
             }

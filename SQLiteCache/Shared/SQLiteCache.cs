@@ -47,6 +47,23 @@ namespace MapControl.Caching
                 command.Parameters.AddWithValue("@exp", DateTime.UtcNow.Ticks);
                 command.ExecuteNonQuery();
             }
+#if DEBUG
+            using (var command = new SQLiteCommand("select changes()", connection))
+            {
+                var deleted = (long)command.ExecuteScalar();
+                if (deleted > 0)
+                {
+                    Debug.WriteLine("SQLiteCache: Deleted {0} expired items.", deleted);
+                }
+            }
+#endif
+        }
+
+        private SQLiteCommand RemoveItemCommand(string key)
+        {
+            var command = new SQLiteCommand("delete from items where key = @key", connection);
+            command.Parameters.AddWithValue("@key", key);
+            return command;
         }
 
         private SQLiteCommand GetItemCommand(string key)
@@ -61,14 +78,7 @@ namespace MapControl.Caching
             var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
             command.Parameters.AddWithValue("@key", key);
             command.Parameters.AddWithValue("@exp", expiration.Ticks);
-            command.Parameters.AddWithValue("@buf", buffer);
-            return command;
-        }
-
-        private SQLiteCommand RemoveItemCommand(string key)
-        {
-            var command = new SQLiteCommand("delete from items where key = @key", connection);
-            command.Parameters.AddWithValue("@key", key);
+            command.Parameters.AddWithValue("@buf", buffer ?? new byte[0]);
             return command;
         }
     }

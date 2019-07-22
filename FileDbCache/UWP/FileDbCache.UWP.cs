@@ -8,7 +8,6 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using Windows.UI.Xaml;
 
 namespace MapControl.Caching
 {
@@ -23,24 +22,14 @@ namespace MapControl.Caching
 
             if (string.IsNullOrEmpty(fileName))
             {
-                throw new ArgumentNullException("The parameter fileName must not be null.");
+                throw new ArgumentException("The parameter fileName must not be null or empty.");
             }
 
-            dbPath = Path.Combine(folder.Path, "TileCache.fdb");
-
-            Open();
-
-            Application.Current.Resuming += (s, e) => Open();
-            Application.Current.Suspending += (s, e) => Close();
+            Open(Path.Combine(folder.Path, fileName));
         }
 
         public Task<ImageCacheItem> GetAsync(string key)
         {
-            if (key == null)
-            {
-                throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
             return Task.Run(() =>
             {
                 var record = GetRecordByKey(key);
@@ -60,17 +49,7 @@ namespace MapControl.Caching
 
         public Task SetAsync(string key, IBuffer buffer, DateTime expiration)
         {
-            if (key == null)
-            {
-                throw new ArgumentNullException("The parameter key must not be null.");
-            }
-
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("The parameter buffer must not be null.");
-            }
-
-            return Task.Run(() => AddOrUpdateRecord(key, buffer.ToArray(), expiration));
+            return Task.Run(() => AddOrUpdateRecord(key, buffer?.ToArray(), expiration));
         }
     }
 }
