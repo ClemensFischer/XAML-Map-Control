@@ -4,15 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-#if WINDOWS_UWP
-using SQLiteCommand = Microsoft.Data.Sqlite.SqliteCommand;
-using SQLiteConnection = Microsoft.Data.Sqlite.SqliteConnection;
-#else
-using System.Data.SQLite;
-#endif
 
 namespace MapControl.MBTiles
 {
