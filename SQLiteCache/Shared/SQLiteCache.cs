@@ -3,8 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.Data.SQLite;
+using System.Diagnostics;
 
 namespace MapControl.Caching
 {
