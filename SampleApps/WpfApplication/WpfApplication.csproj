@@ -88,10 +88,6 @@
       <Project>{a204a102-c745-4d65-aec8-7b96faedef2d}</Project>
       <Name>MapControl.WPF</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\SqLiteCache\WPF\SQLiteCache.WPF.csproj">
-      <Project>{0109c2f0-ba2c-420f-b2ca-db5b29b1a349}</Project>
-      <Name>SQLiteCache.WPF</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="..\Shared\10_535_330.jpg">
