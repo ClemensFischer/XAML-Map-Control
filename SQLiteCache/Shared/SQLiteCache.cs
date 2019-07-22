@@ -4,12 +4,7 @@
 
 using System;
 using System.Diagnostics;
-#if WINDOWS_UWP
-using SQLiteCommand = Microsoft.Data.Sqlite.SqliteCommand;
-using SQLiteConnection = Microsoft.Data.Sqlite.SqliteConnection;
-#else
 using System.Data.SQLite;
-#endif
 
 namespace MapControl.Caching
 {
