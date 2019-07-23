@@ -37,9 +37,6 @@
     <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FileDb.Net, Version=7.3.0.0, Culture=neutral, PublicKeyToken=ba3f58a0e60cd01d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\FileDb.Net.7.4.3\lib\net45\FileDb.Net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Runtime.Caching" />
   </ItemGroup>
@@ -54,7 +51,11 @@
     <None Include="..\..\MapControl.snk">
       <Link>MapControl.snk</Link>
     </None>
-    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FileDb.Net">
+      <Version>7.4.3</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj">
