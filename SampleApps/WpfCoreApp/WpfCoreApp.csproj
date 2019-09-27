@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>WpfCoreApp</RootNamespace>
+    <Version>4.14.0</Version>
+    <Authors>Clemens Fischer</Authors>
+    <Product>XAML Map Control</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\MapLayers.cs" Link="MapLayers.cs" />
+    <Compile Include="..\Shared\MapViewModel.cs" Link="MapViewModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MapControl\WPF.Core\MapControl.WPF.Core.csproj" />
+  </ItemGroup>
+
+</Project>

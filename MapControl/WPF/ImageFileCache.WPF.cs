@@ -186,9 +186,11 @@ namespace MapControl.Caching
                         stream.Write(BitConverter.GetBytes(imageCacheItem.Expiration.Ticks), 0, 8);
                     }
 
+#if !NET_CORE
                     var fileSecurity = File.GetAccessControl(path);
                     fileSecurity.AddAccessRule(fullControlRule);
                     File.SetAccessControl(path, fileSecurity);
+#endif
                 }
                 catch (Exception ex)
                 {
