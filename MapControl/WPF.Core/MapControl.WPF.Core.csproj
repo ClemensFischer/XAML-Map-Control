@@ -12,7 +12,7 @@
     <Version>4.14.0</Version>
     <Description>XAML Map Control Library</Description>
     <Copyright>Copyright © 2019 Clemens Fischer</Copyright>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>XAML.MapControl.Core</PackageId>
   </PropertyGroup>
 
