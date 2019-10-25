@@ -5,7 +5,6 @@
 using System;
 #if WINDOWS_UWP
 using Windows.Foundation;
-using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
 using System.Windows.Media;
@@ -134,9 +133,17 @@ namespace MapControl
         /// </summary>
         public BoundingBox ViewportRectToBoundingBox(Rect rect)
         {
-            var transform = new MatrixTransform { Matrix = InverseViewportTransform };
+            var p1 = InverseViewportTransform.Transform(new Point(rect.X, rect.Y));
+            var p2 = InverseViewportTransform.Transform(new Point(rect.X, rect.Y + rect.Height));
+            var p3 = InverseViewportTransform.Transform(new Point(rect.X + rect.Width, rect.Y));
+            var p4 = InverseViewportTransform.Transform(new Point(rect.X + rect.Width, rect.Y + rect.Height));
 
-            return RectToBoundingBox(transform.TransformBounds(rect));
+            rect.X = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
+            rect.Y = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
+            rect.Width = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X))) - rect.X;
+            rect.Height = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y))) - rect.Y;
+
+            return RectToBoundingBox(rect);
         }
 
         /// <summary>

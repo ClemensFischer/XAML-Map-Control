@@ -19,15 +19,15 @@ namespace MapControl.Projections
     /// </summary>
     public class GeoApiProjection : MapProjection
     {
-        private IProjectedCoordinateSystem coordinateSystem;
+        private ICoordinateSystem coordinateSystem;
 
-        public IMathTransform MathTransform { get; private set; }
-        public IMathTransform InverseTransform { get; private set; }
+        public IMathTransform LocationToPointTransform { get; private set; }
+        public IMathTransform PointToLocationTransform { get; private set; }
 
         /// <summary>
         /// Gets or sets the IProjectedCoordinateSystem of the MapProjection.
         /// </summary>
-        public IProjectedCoordinateSystem CoordinateSystem
+        public ICoordinateSystem CoordinateSystem
         {
             get { return coordinateSystem; }
             set
@@ -39,43 +39,45 @@ namespace MapControl.Projections
 
                 coordinateSystem = value;
 
-                var coordinateTransform = new CoordinateTransformationFactory()
-                    .CreateFromCoordinateSystems(GeographicCoordinateSystem.WGS84, coordinateSystem);
+                var transformFactory = new CoordinateTransformationFactory();
 
-                MathTransform = coordinateTransform.MathTransform;
-                InverseTransform = MathTransform.Inverse();
+                LocationToPointTransform = transformFactory
+                    .CreateFromCoordinateSystems(GeographicCoordinateSystem.WGS84, coordinateSystem)
+                    .MathTransform;
+
+                PointToLocationTransform = transformFactory
+                    .CreateFromCoordinateSystems(coordinateSystem, GeographicCoordinateSystem.WGS84)
+                    .MathTransform;
 
                 CrsId = (!string.IsNullOrEmpty(coordinateSystem.Authority) && coordinateSystem.AuthorityCode > 0)
                     ? string.Format("{0}:{1}", coordinateSystem.Authority, coordinateSystem.AuthorityCode)
                     : null;
 
-                if (!IsWebMercator)
-                {
-                    IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
-                }
+                IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
 
-                var projection = coordinateSystem.Projection;
-                var scaleFactor = projection.GetParameter("scale_factor");
+                var projectedCoordinateSystem = coordinateSystem as IProjectedCoordinateSystem;
 
-                if (scaleFactor != null)
+                if (projectedCoordinateSystem != null)
                 {
-                    TrueScale = scaleFactor.Value * Wgs84MetersPerDegree;
-                }
-
-                if (!IsNormalCylindrical)
-                {
+                    var projection = projectedCoordinateSystem.Projection;
                     var centralMeridian = projection.GetParameter("central_meridian") ?? projection.GetParameter("longitude_of_origin");
                     var centralParallel = projection.GetParameter("latitude_of_origin") ?? projection.GetParameter("central_parallel");
                     var falseEasting = projection.GetParameter("false_easting");
                     var falseNorthing = projection.GetParameter("false_northing");
+                    var scaleFactor = projection.GetParameter("scale_factor");
 
-                    if (centralMeridian != null && centralMeridian.Value == 0d &&
+                    IsNormalCylindrical =
+                        centralMeridian != null && centralMeridian.Value == 0d &&
                         centralParallel != null && centralParallel.Value == 0d &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
-                        (falseNorthing == null || falseNorthing.Value == 0d))
-                    {
-                        IsNormalCylindrical = true;
-                    }
+                        (falseNorthing == null || falseNorthing.Value == 0d);
+
+                    TrueScale = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
+                }
+                else
+                {
+                    IsNormalCylindrical = true;
+                    TrueScale = 1d;
                 }
             }
         }
@@ -88,29 +90,29 @@ namespace MapControl.Projections
         public string WKT
         {
             get { return CoordinateSystem?.WKT; }
-            set { CoordinateSystem = (IProjectedCoordinateSystem)new CoordinateSystemFactory().CreateFromWkt(value); }
+            set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }
         }
 
         public override Point LocationToPoint(Location location)
         {
-            if (MathTransform == null)
+            if (LocationToPointTransform == null)
             {
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = MathTransform.Transform(new Coordinate(location.Longitude, location.Latitude));
+            var coordinate = LocationToPointTransform.Transform(new Coordinate(location.Longitude, location.Latitude));
 
             return new Point(coordinate.X, coordinate.Y);
         }
 
         public override Location PointToLocation(Point point)
         {
-            if (InverseTransform == null)
+            if (PointToLocationTransform == null)
             {
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = InverseTransform.Transform(new Coordinate(point.X, point.Y));
+            var coordinate = PointToLocationTransform.Transform(new Coordinate(point.X, point.Y));
 
             return new Location(coordinate.Y, coordinate.X);
         }

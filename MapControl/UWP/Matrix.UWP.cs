@@ -6,6 +6,9 @@ using System;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Replaces Windows.UI.Xaml.Media.Matrix to achieve necessary floating point precision.
+    /// </summary>
     public struct Matrix
     {
         public double M11 { get; set; }

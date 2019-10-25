@@ -4,6 +4,9 @@
 
 namespace MapControl
 {
+    /// <summary>
+    /// Replaces Windows.Foundation.Point to achieve necessary floating point precision.
+    /// </summary>
     public struct Point
     {
         public double X { get; set; }

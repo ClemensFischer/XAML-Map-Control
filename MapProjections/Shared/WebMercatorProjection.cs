@@ -18,8 +18,6 @@ namespace MapControl.Projections
     {
         public WebMercatorProjection()
         {
-            IsWebMercator = true;
-            IsNormalCylindrical = true;
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;
         }
 
