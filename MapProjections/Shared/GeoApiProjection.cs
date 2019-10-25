@@ -71,7 +71,6 @@ namespace MapControl.Projections
                         centralParallel != null && centralParallel.Value == 0d &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
-
                     TrueScale = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
                 }
                 else
