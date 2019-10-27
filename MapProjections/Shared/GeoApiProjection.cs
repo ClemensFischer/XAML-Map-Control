@@ -25,7 +25,7 @@ namespace MapControl.Projections
         public IMathTransform PointToLocationTransform { get; private set; }
 
         /// <summary>
-        /// Gets or sets the IProjectedCoordinateSystem of the MapProjection.
+        /// Gets or sets the ICoordinateSystem of the MapProjection.
         /// </summary>
         public ICoordinateSystem CoordinateSystem
         {
@@ -55,11 +55,10 @@ namespace MapControl.Projections
 
                 IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
 
-                var projectedCoordinateSystem = coordinateSystem as IProjectedCoordinateSystem;
+                var projection = (coordinateSystem as IProjectedCoordinateSystem)?.Projection;
 
-                if (projectedCoordinateSystem != null)
+                if (projection != null)
                 {
-                    var projection = projectedCoordinateSystem.Projection;
                     var centralMeridian = projection.GetParameter("central_meridian") ?? projection.GetParameter("longitude_of_origin");
                     var centralParallel = projection.GetParameter("latitude_of_origin") ?? projection.GetParameter("central_parallel");
                     var falseEasting = projection.GetParameter("false_easting");
@@ -82,9 +81,9 @@ namespace MapControl.Projections
         }
 
         /// <summary>
-        /// Gets or sets an OGC Well-known text representation of a projected coordinate system,
-        /// i.e. a PROJCS[...] string as used by https://epsg.io or http://spatialreference.org.
-        /// Setting this property updates the CoordinateSystem property with an IProjectedCoordinateSystem created from the WKT string.
+        /// Gets or sets an OGC Well-known text representation of a coordinate system,
+        /// i.e. a PROJCS[...] or GEOGCS[...] string as used by https://epsg.io or http://spatialreference.org.
+        /// Setting this property updates the CoordinateSystem property with an ICoordinateSystem created from the WKT string.
         /// </summary>
         public string WKT
         {
