@@ -39,10 +39,6 @@ namespace MapControl
             nameof(Format), typeof(string), typeof(WmsImageLayer),
             new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
-        public static readonly DependencyProperty CrsIdMapProperty = DependencyProperty.Register(
-            nameof(CrsIdMap), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).CrsIdMapPropertyChanged((string)e.NewValue)));
-
         public Uri ServiceUri
         {
             get { return (Uri)GetValue(ServiceUriProperty); }
@@ -66,14 +62,6 @@ namespace MapControl
             get { return (string)GetValue(FormatProperty); }
             set { SetValue(FormatProperty, value); }
         }
-
-        public string CrsIdMap
-        {
-            get { return (string)GetValue(CrsIdMapProperty); }
-            set { SetValue(CrsIdMapProperty, value); }
-        }
-
-        private Dictionary<string, string> crsIdMap;
 
         /// <summary>
         /// Gets a list of all layer names returned by a GetCapabilities response.
@@ -151,10 +139,10 @@ namespace MapControl
                     uri += "&FORMAT=" + Format;
                 }
 
-                var crs = GetCrsValue();
                 var rect = projection.BoundingBoxToRect(BoundingBox);
 
-                uri += "&" + GetBboxParameters(crs, rect);
+                uri += "&" + GetCrsParam(projection);
+                uri += "&" + GetBboxParam(projection, rect);
                 uri += "&WIDTH=" + (int)Math.Round(projection.ViewportScale * rect.Width);
                 uri += "&HEIGHT=" + (int)Math.Round(projection.ViewportScale * rect.Height);
 
@@ -168,33 +156,27 @@ namespace MapControl
         /// Gets the effective value of the CRS query parameter.
         /// </summary>
         /// <returns></returns>
-        protected virtual string GetCrsValue()
+        protected virtual string GetCrsParam(MapProjection projection)
         {
-            var projection = ParentMap.MapProjection;
-            var crsId = projection.CrsId;
+            var crs = "CRS=" + projection.CrsId;
 
-            if (crsIdMap != null && !crsIdMap.TryGetValue(crsId, out crsId))
+            if (projection.CrsId.StartsWith("AUTO2:"))
             {
-                crsId = projection.CrsId;
+                crs += string.Format(CultureInfo.InvariantCulture, ",1,{0},{1}",
+                    projection.ProjectionCenter.Longitude, projection.ProjectionCenter.Latitude);
             }
 
-            if (crsId.StartsWith("AUTO2:") || crsId.StartsWith("AUTO:"))
-            {
-                crsId = string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}",
-                    crsId, projection.ProjectionCenter.Longitude, projection.ProjectionCenter.Latitude);
-            }
-
-            return crsId;
+            return crs;
         }
 
         /// <summary>
-        /// Gets a query substring for the projected bounding box, which contains the CRS and BBOX or equivalent parameters.
+        /// Gets the effective value of the BBOX (or some equivalent) query parameter.
         /// </summary>
-        protected virtual string GetBboxParameters(string crs, Rect bbox)
+        protected virtual string GetBboxParam(MapProjection projection, Rect bbox)
         {
             return string.Format(CultureInfo.InvariantCulture,
-                crs == "EPSG:4326" ? "CRS={0}&BBOX={2},{1},{4},{3}" : "CRS={0}&BBOX={1},{2},{3},{4}",
-                crs, bbox.X, bbox.Y, (bbox.X + bbox.Width), (bbox.Y + bbox.Height));
+                projection.HasLatLonBoundingBox ? "BBOX={1},{0},{3},{2}" : "BBOX={0},{1},{2},{3}",
+                bbox.X, bbox.Y, (bbox.X + bbox.Width), (bbox.Y + bbox.Height));
         }
 
         private string GetRequestUri(string request)
@@ -217,28 +199,6 @@ namespace MapControl
             }
 
             return uri + "REQUEST=" + request;
-        }
-
-        private Task CrsIdMapPropertyChanged(string crsIdMapString)
-        {
-            crsIdMap = null;
-
-            if (!string.IsNullOrEmpty(crsIdMapString))
-            {
-                var entries = crsIdMapString.Split(new char[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (entries.Length >= 2)
-                {
-                    crsIdMap = new Dictionary<string, string>();
-
-                    for (int i = 0; i < entries.Length - 1; i += 2)
-                    {
-                        crsIdMap[entries[i]] = entries[i + 1];
-                    }
-                }
-            }
-
-            return UpdateImageAsync();
         }
 
         private static IEnumerable<XmlElement> ChildElements(XmlElement element, string name)

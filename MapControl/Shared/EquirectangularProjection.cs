@@ -23,6 +23,7 @@ namespace MapControl
         public EquirectangularProjection(string crsId)
         {
             CrsId = crsId;
+            HasLatLonBoundingBox = CrsId != "CRS:84";
             IsNormalCylindrical = true;
             TrueScale = 1d;
         }

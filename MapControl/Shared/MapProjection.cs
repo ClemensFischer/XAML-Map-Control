@@ -27,19 +27,25 @@ namespace MapControl
         public const double Wgs84MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
         /// <summary>
-        /// Gets or sets the WMS 1.3.0 CRS Identifier.
+        /// Gets or sets the WMS 1.3.0 CRS identifier.
         /// </summary>
-        public string CrsId { get; set; }
+        public string CrsId { get; protected set; }
+
+        /// <summary>
+        /// Indicates if a lat/lon coordinate system is used for the WMS BBOX query parameter,
+        /// like e.g. in an EquirectangularProjection with CrsId="EPSG:4326" (but not CrsId="CRS:84").
+        /// </summary>
+        public bool HasLatLonBoundingBox { get; protected set; }
 
         /// <summary>
         /// Indicates if this is a normal cylindrical projection.
         /// </summary>
-        public bool IsNormalCylindrical { get; protected set; } = false;
+        public bool IsNormalCylindrical { get; protected set; }
 
         /// <summary>
         /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
         /// </summary>
-        public bool IsWebMercator { get; protected set; } = false;
+        public bool IsWebMercator { get; protected set; }
 
         /// <summary>
         /// Gets the scale factor from geographic to cartesian coordinates, on the line of true scale of a

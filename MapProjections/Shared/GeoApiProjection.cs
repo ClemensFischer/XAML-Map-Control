@@ -53,8 +53,6 @@ namespace MapControl.Projections
                     ? string.Format("{0}:{1}", coordinateSystem.Authority, coordinateSystem.AuthorityCode)
                     : null;
 
-                IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
-
                 var projection = (coordinateSystem as IProjectedCoordinateSystem)?.Projection;
 
                 if (projection != null)
@@ -65,16 +63,20 @@ namespace MapControl.Projections
                     var falseNorthing = projection.GetParameter("false_northing");
                     var scaleFactor = projection.GetParameter("scale_factor");
 
+                    HasLatLonBoundingBox = false;
                     IsNormalCylindrical =
                         centralMeridian != null && centralMeridian.Value == 0d &&
                         centralParallel != null && centralParallel.Value == 0d &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
+                    IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
                     TrueScale = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
                 }
                 else
                 {
+                    HasLatLonBoundingBox = true;
                     IsNormalCylindrical = true;
+                    IsWebMercator = false;
                     TrueScale = 1d;
                 }
             }
