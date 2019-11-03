@@ -79,6 +79,7 @@ namespace ViewModel
                     SourceName = "Bing Maps Aerial",
                     Description = "© [Microsoft](http://www.bing.com/maps/)",
                     Mode = BingMapsTileLayer.MapMode.Aerial,
+                    MaxZoomLevel = 21,
                     MapForeground = new SolidColorBrush(Colors.White),
                     MapBackground = new SolidColorBrush(Colors.Black)
                 }
@@ -114,13 +115,7 @@ namespace ViewModel
             },
             {
                 "SevenCs ChartServer",
-                new WmsImageLayer
-                {
-                    Description = "© [SevenCs GmbH](http://www.sevencs.com)",
-                    ServiceUri = new Uri("http://chartserver4.sevencs.com:8080"),
-                    Layers = "ENC",
-                    MaxBoundingBoxWidth = 360
-                }
+                new ChartServerLayer()
             }
         };
 
@@ -173,6 +168,24 @@ namespace ViewModel
                 MapLayerNames.Add("Bing Maps Aerial");
                 MapLayerNames.Add("Bing Maps Aerial with Labels");
             }
+        }
+    }
+
+    public class ChartServerLayer : WmsImageLayer
+    {
+        public ChartServerLayer()
+        {
+            Description = "© [SevenCs GmbH](http://www.sevencs.com)";
+            ServiceUri = new Uri("https://wms.sevencs.com:9090");
+            Layers = "ENC";
+            MaxBoundingBoxWidth = 360;
+        }
+
+        protected override string GetCrsParam(MapProjection projection)
+        {
+            return base.GetCrsParam(projection)
+                .Replace("AUTO2:97001", "AUTO2:7CS01")
+                .Replace("AUTO2:97002", "AUTO2:7CS02");
         }
     }
 }
