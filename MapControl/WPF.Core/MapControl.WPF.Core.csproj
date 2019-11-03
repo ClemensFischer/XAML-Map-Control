@@ -9,11 +9,12 @@
     <DelaySign>false</DelaySign>
     <Product>XAML Map Control</Product>
     <Authors>Clemens Fischer</Authors>
-    <Version>4.14.0</Version>
+    <Version>4.15.0</Version>
     <Description>XAML Map Control Library</Description>
     <Copyright>Copyright © 2019 Clemens Fischer</Copyright>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>XAML.MapControl.Core</PackageId>
+    <AssemblyName>MapControl.WPF</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
