@@ -9,7 +9,7 @@
     <DelaySign>false</DelaySign>
     <Product>XAML Map Control</Product>
     <Authors>Clemens Fischer</Authors>
-    <Version>4.15.0</Version>
+    <Version>4.15.1</Version>
     <Description>XAML Map Control Library</Description>
     <Copyright>Copyright © 2019 Clemens Fischer</Copyright>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>

@@ -98,20 +98,20 @@ namespace MapControl
             {
                 var zoomMin = imageryMetadata.Element(imageryMetadataNamespace + "ZoomMin")?.Value;
                 var zoomMax = imageryMetadata.Element(imageryMetadataNamespace + "ZoomMax")?.Value;
-                int z;
+                int zoomLevel;
 
                 if (!string.IsNullOrEmpty(zoomMin) &&
-                    int.TryParse(zoomMin, out z) &&
-                    MinZoomLevel < z)
+                    int.TryParse(zoomMin, out zoomLevel) &&
+                    MinZoomLevel < zoomLevel)
                 {
-                    MinZoomLevel = z;
+                    MinZoomLevel = zoomLevel;
                 }
 
                 if (!string.IsNullOrEmpty(zoomMax) &&
-                    int.TryParse(zoomMax, out z) &&
-                    MaxZoomLevel > z)
+                    int.TryParse(zoomMax, out zoomLevel) &&
+                    MaxZoomLevel > zoomLevel)
                 {
-                    MaxZoomLevel = z;
+                    MaxZoomLevel = zoomLevel;
                 }
 
                 if (string.IsNullOrEmpty(Culture))
