@@ -8,13 +8,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Xml.Linq;
 #if WINDOWS_UWP
-using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
-using System.Xml;
 using System.Windows;
 using System.Windows.Media;
 #endif
@@ -23,6 +22,8 @@ namespace MapControl
 {
     public partial class WmsImageLayer : MapImageLayer
     {
+        private static readonly XNamespace wmsNamespace = "http://www.opengis.net/wms";
+
         public static readonly DependencyProperty ServiceUriProperty = DependencyProperty.Register(
             nameof(ServiceUri), typeof(Uri), typeof(WmsImageLayer),
             new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
@@ -72,29 +73,17 @@ namespace MapControl
 
             if (ServiceUri != null)
             {
-                var uri = GetRequestUri("GetCapabilities");
+                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
 
                 try
                 {
-                    var document = await XmlDocument.LoadFromUriAsync(new Uri(uri.Replace(" ", "%20")));
-                    layerNames = new List<string>();
-
-                    var capability = ChildElements(document.DocumentElement, "Capability").FirstOrDefault();
-                    if (capability != null)
-                    {
-                        var rootLayer = ChildElements(capability, "Layer").FirstOrDefault();
-                        if (rootLayer != null)
-                        {
-                            foreach (var layer in ChildElements(rootLayer, "Layer"))
-                            {
-                                var name = ChildElements(layer, "Name").FirstOrDefault();
-                                if (name != null)
-                                {
-                                    layerNames.Add(name.InnerText);
-                                }
-                            }
-                        }
-                    }
+                    layerNames = await Task.Run(() =>
+                        XDocument.Load(uri)
+                        .Descendants(wmsNamespace + "Layer")
+                        .Where(e => e.Attribute("queryable")?.Value == "1")
+                        .Select(e => e.Element(wmsNamespace + "Name")?.Value)
+                        .Where(n => !string.IsNullOrEmpty(n))
+                        .ToList());
                 }
                 catch (Exception ex)
                 {
@@ -199,11 +188,6 @@ namespace MapControl
             }
 
             return uri + "REQUEST=" + request;
-        }
-
-        private static IEnumerable<XmlElement> ChildElements(XmlElement element, string name)
-        {
-            return element.ChildNodes.OfType<XmlElement>().Where(e => (string)e.LocalName == name);
         }
     }
 }

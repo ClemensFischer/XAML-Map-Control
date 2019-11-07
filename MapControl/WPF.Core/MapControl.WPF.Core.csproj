@@ -80,7 +80,6 @@
     <Compile Include="..\WPF\Tile.WPF.cs" Link="Tile.WPF.cs" />
     <Compile Include="..\WPF\TileImageLoader.WPF.cs" Link="TileImageLoader.WPF.cs" />
     <Compile Include="..\WPF\TypeConverters.WPF.cs" Link="TypeConverters.WPF.cs" />
-    <Compile Include="..\WPF\XmlDocument.WPF.cs" Link="XmlDocument.WPF.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,12 +6,12 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Xml.Linq;
+using System.Threading.Tasks;
 #if WINDOWS_UWP
-using Windows.Data.Xml.Dom;
 using Windows.UI.Xaml;
 #else
 using System.Windows;
-using System.Xml;
 #endif
 
 namespace MapControl
@@ -23,6 +23,8 @@ namespace MapControl
     /// </summary>
     public class BingMapsTileLayer : MapTileLayer
     {
+        private static readonly XNamespace imageryMetadataNamespace = "http://schemas.microsoft.com/search/local/ws/rest/v1";
+
         public enum MapMode
         {
             Road, Aerial, AerialWithLabels
@@ -47,7 +49,7 @@ namespace MapControl
         public string Culture { get; set; }
         public Uri LogoImageUri { get; private set; }
 
-        private async void OnLoaded(object sender, RoutedEventArgs e)
+        private async void OnLoaded(object sender, RoutedEventArgs args)
         {
             Loaded -= OnLoaded;
 
@@ -57,74 +59,59 @@ namespace MapControl
                 return;
             }
 
-            var imageryMetadataUrl = "http://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + Mode;
+            var uri = "http://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + Mode + "?output=xml&key=" + ApiKey;
 
             try
             {
-                var uri = new Uri(imageryMetadataUrl + "?output=xml&key=" + ApiKey);
-                var document = await XmlDocument.LoadFromUriAsync(uri);
-                var imageryMetadata = document.DocumentElement.GetElementsByTagName("ImageryMetadata").OfType<XmlElement>().FirstOrDefault();
+                var document = await Task.Run(() => XDocument.Load(uri));
+                var imageryMetadata = document.Descendants(imageryMetadataNamespace + "ImageryMetadata").FirstOrDefault();
+                var brandLogoUri = document.Descendants(imageryMetadataNamespace + "BrandLogoUri").FirstOrDefault();
 
                 if (imageryMetadata != null)
                 {
                     ReadImageryMetadata(imageryMetadata);
                 }
 
-                var brandLogoUri = document.DocumentElement.GetElementsByTagName("BrandLogoUri").OfType<XmlElement>().FirstOrDefault();
-
                 if (brandLogoUri != null)
                 {
-                    LogoImageUri = new Uri(brandLogoUri.InnerText);
+                    LogoImageUri = new Uri(brandLogoUri.Value);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("BingMapsTileLayer: {0}: {1}", imageryMetadataUrl, ex.Message);
+                Debug.WriteLine("BingMapsTileLayer: {0}: {1}", uri, ex.Message);
             }
         }
 
-        private void ReadImageryMetadata(XmlElement imageryMetadata)
+        private void ReadImageryMetadata(XElement imageryMetadata)
         {
-            string imageUrl = null;
-            string[] imageUrlSubdomains = null;
-            int? zoomMin = null;
-            int? zoomMax = null;
+            var imageUrl = imageryMetadata.Element(imageryMetadataNamespace + "ImageUrl")?.Value;
+            var imageUrlSubdomains = imageryMetadata.Element(imageryMetadataNamespace + "ImageUrlSubdomains")?
+                .Elements()
+                .Where(e => e.Name.LocalName == "string")
+                .Select(e => e.Value)
+                .ToArray();
 
-            foreach (var element in imageryMetadata.ChildNodes.OfType<XmlElement>())
+            if (!string.IsNullOrEmpty(imageUrl) &&
+                imageUrlSubdomains != null &&
+                imageUrlSubdomains.Length > 0)
             {
-                switch ((string)element.LocalName)
-                {
-                    case "ImageUrl":
-                        imageUrl = element.InnerText;
-                        break;
-                    case "ImageUrlSubdomains":
-                        imageUrlSubdomains = element.ChildNodes
-                            .OfType<XmlElement>()
-                            .Where(e => (string)e.LocalName == "string")
-                            .Select(e => e.InnerText)
-                            .ToArray();
-                        break;
-                    case "ZoomMin":
-                        zoomMin = int.Parse(element.InnerText);
-                        break;
-                    case "ZoomMax":
-                        zoomMax = int.Parse(element.InnerText);
-                        break;
-                    default:
-                        break;
-                }
-            }
+                var zoomMin = imageryMetadata.Element(imageryMetadataNamespace + "ZoomMin")?.Value;
+                var zoomMax = imageryMetadata.Element(imageryMetadataNamespace + "ZoomMax")?.Value;
+                int z;
 
-            if (!string.IsNullOrEmpty(imageUrl) && imageUrlSubdomains != null && imageUrlSubdomains.Length > 0)
-            {
-                if (zoomMin.HasValue && zoomMin.Value > MinZoomLevel)
+                if (!string.IsNullOrEmpty(zoomMin) &&
+                    int.TryParse(zoomMin, out z) &&
+                    MinZoomLevel < z)
                 {
-                    MinZoomLevel = zoomMin.Value;
+                    MinZoomLevel = z;
                 }
 
-                if (zoomMax.HasValue && zoomMax.Value < MaxZoomLevel)
+                if (!string.IsNullOrEmpty(zoomMax) &&
+                    int.TryParse(zoomMax, out z) &&
+                    MaxZoomLevel > z)
                 {
-                    MaxZoomLevel = zoomMax.Value;
+                    MaxZoomLevel = z;
                 }
 
                 if (string.IsNullOrEmpty(Culture))
