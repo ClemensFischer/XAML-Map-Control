@@ -22,8 +22,6 @@ namespace MapControl
 {
     public partial class WmsImageLayer : MapImageLayer
     {
-        private static readonly XNamespace wmsNamespace = "http://www.opengis.net/wms";
-
         public static readonly DependencyProperty ServiceUriProperty = DependencyProperty.Register(
             nameof(ServiceUri), typeof(Uri), typeof(WmsImageLayer),
             new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
@@ -73,21 +71,24 @@ namespace MapControl
 
             if (ServiceUri != null)
             {
-                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
+                var capabilitiesUri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
 
                 try
                 {
-                    layerNames = await Task.Run(() =>
-                        XDocument.Load(uri)
-                        .Descendants(wmsNamespace + "Layer")
+                    var stream = await ImageLoader.HttpClient.GetStreamAsync(capabilitiesUri);
+                    var capabilities = XDocument.Load(stream).Root;
+                    var ns = capabilities.Name.Namespace;
+
+                    layerNames = capabilities
+                        .Descendants(ns + "Layer")
                         .Where(e => e.Attribute("queryable")?.Value == "1")
-                        .Select(e => e.Element(wmsNamespace + "Name")?.Value)
+                        .Select(e => e.Element(ns + "Name")?.Value)
                         .Where(n => !string.IsNullOrEmpty(n))
-                        .ToList());
+                        .ToList();
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", capabilitiesUri, ex.Message);
                 }
             }
 

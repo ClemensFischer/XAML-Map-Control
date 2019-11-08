@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
-using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.UI.Xaml;
 #else
@@ -23,8 +22,6 @@ namespace MapControl
     /// </summary>
     public class BingMapsTileLayer : MapTileLayer
     {
-        private static readonly XNamespace imageryMetadataNamespace = "http://schemas.microsoft.com/search/local/ws/rest/v1";
-
         public enum MapMode
         {
             Road, Aerial, AerialWithLabels
@@ -59,67 +56,60 @@ namespace MapControl
                 return;
             }
 
-            var uri = "http://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + Mode + "?output=xml&key=" + ApiKey;
+            var metadataUri = $"http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{Mode}?output=xml&key={ApiKey}";
 
             try
             {
-                var document = await Task.Run(() => XDocument.Load(uri));
-                var imageryMetadata = document.Descendants(imageryMetadataNamespace + "ImageryMetadata").FirstOrDefault();
-                var brandLogoUri = document.Descendants(imageryMetadataNamespace + "BrandLogoUri").FirstOrDefault();
+                var stream = await ImageLoader.HttpClient.GetStreamAsync(metadataUri);
 
-                if (imageryMetadata != null)
-                {
-                    ReadImageryMetadata(imageryMetadata);
-                }
-
-                if (brandLogoUri != null)
-                {
-                    LogoImageUri = new Uri(brandLogoUri.Value);
-                }
+                ProcessImageryMetadata(XDocument.Load(stream).Root);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("BingMapsTileLayer: {0}: {1}", uri, ex.Message);
+                Debug.WriteLine("BingMapsTileLayer: {0}: {1}", metadataUri, ex.Message);
             }
         }
 
-        private void ReadImageryMetadata(XElement imageryMetadata)
+        private void ProcessImageryMetadata(XElement metadataResponse)
         {
-            var imageUrl = imageryMetadata.Element(imageryMetadataNamespace + "ImageUrl")?.Value;
-            var imageUrlSubdomains = imageryMetadata.Element(imageryMetadataNamespace + "ImageUrlSubdomains")?
-                .Elements()
-                .Where(e => e.Name.LocalName == "string")
-                .Select(e => e.Value)
-                .ToArray();
+            var ns = metadataResponse.Name.Namespace;
+            var metadata = metadataResponse.Descendants(ns + "ImageryMetadata").FirstOrDefault();
 
-            if (!string.IsNullOrEmpty(imageUrl) &&
-                imageUrlSubdomains != null &&
-                imageUrlSubdomains.Length > 0)
+            if (metadata != null)
             {
-                var zoomMin = imageryMetadata.Element(imageryMetadataNamespace + "ZoomMin")?.Value;
-                var zoomMax = imageryMetadata.Element(imageryMetadataNamespace + "ZoomMax")?.Value;
-                int zoomLevel;
+                var imageUrl = metadata.Element(ns + "ImageUrl")?.Value;
+                var subdomains = metadata.Element(ns + "ImageUrlSubdomains")?.Elements(ns + "string").Select(e => e.Value).ToArray();
 
-                if (!string.IsNullOrEmpty(zoomMin) &&
-                    int.TryParse(zoomMin, out zoomLevel) &&
-                    MinZoomLevel < zoomLevel)
+                if (!string.IsNullOrEmpty(imageUrl) && subdomains != null && subdomains.Length > 0)
                 {
-                    MinZoomLevel = zoomLevel;
-                }
+                    var zoomMin = metadata.Element(ns + "ZoomMin")?.Value;
+                    var zoomMax = metadata.Element(ns + "ZoomMax")?.Value;
+                    int zoomLevel;
 
-                if (!string.IsNullOrEmpty(zoomMax) &&
-                    int.TryParse(zoomMax, out zoomLevel) &&
-                    MaxZoomLevel > zoomLevel)
-                {
-                    MaxZoomLevel = zoomLevel;
-                }
+                    if (zoomMin != null && int.TryParse(zoomMin, out zoomLevel) && MinZoomLevel < zoomLevel)
+                    {
+                        MinZoomLevel = zoomLevel;
+                    }
 
-                if (string.IsNullOrEmpty(Culture))
-                {
-                    Culture = CultureInfo.CurrentUICulture.Name;
-                }
+                    if (zoomMax != null && int.TryParse(zoomMax, out zoomLevel) && MaxZoomLevel > zoomLevel)
+                    {
+                        MaxZoomLevel = zoomLevel;
+                    }
 
-                TileSource = new BingMapsTileSource(imageUrl.Replace("{culture}", Culture), imageUrlSubdomains);
+                    if (string.IsNullOrEmpty(Culture))
+                    {
+                        Culture = CultureInfo.CurrentUICulture.Name;
+                    }
+
+                    TileSource = new BingMapsTileSource(imageUrl.Replace("{culture}", Culture), subdomains);
+                }
+            }
+
+            var logoUri = metadataResponse.Element(ns + "BrandLogoUri");
+
+            if (logoUri != null)
+            {
+                LogoImageUri = new Uri(logoUri.Value);
             }
         }
     }
