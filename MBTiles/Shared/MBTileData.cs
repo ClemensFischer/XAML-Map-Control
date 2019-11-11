@@ -49,9 +49,9 @@ namespace MapControl.MBTiles
             connection.Dispose();
         }
 
-        public async Task<IDictionary<string, string>> ReadMetaDataAsync()
+        public async Task<IDictionary<string, string>> ReadMetadataAsync()
         {
-            var metaData = new Dictionary<string, string>();
+            var metadata = new Dictionary<string, string>();
 
             try
             {
@@ -61,7 +61,7 @@ namespace MapControl.MBTiles
 
                     while (await reader.ReadAsync())
                     {
-                        metaData[(string)reader["name"]] = (string)reader["value"];
+                        metadata[(string)reader["name"]] = (string)reader["value"];
                     }
                 }
             }
@@ -70,10 +70,10 @@ namespace MapControl.MBTiles
                 Debug.WriteLine("MBTileData: " + ex.Message);
             }
 
-            return metaData;
+            return metadata;
         }
 
-        public async Task WriteMetaDataAsync(IDictionary<string, string> metaData)
+        public async Task WriteMetadataAsync(IDictionary<string, string> metaData)
         {
             try
             {

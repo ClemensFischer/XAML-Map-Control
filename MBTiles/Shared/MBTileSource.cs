@@ -15,37 +15,42 @@ namespace MapControl.MBTiles
 {
     public sealed class MBTileSource : TileSource, IDisposable
     {
-        private readonly MBTileData tileData;
-
+        public MBTileData TileData { get; }
         public string Name { get; }
         public string Description { get; }
+        public string Format { get; }
         public int? MinZoom { get; }
         public int? MaxZoom { get; }
 
-        private MBTileSource(MBTileData tileData, IDictionary<string, string> metaData)
+        private MBTileSource(MBTileData tiledata, IDictionary<string, string> metadata)
         {
-            this.tileData = tileData;
+            TileData = tiledata;
 
             string s;
             int minZoom;
             int maxZoom;
 
-            if (metaData.TryGetValue("name", out s))
+            if (metadata.TryGetValue("name", out s))
             {
                 Name = s;
             }
 
-            if (metaData.TryGetValue("description", out s))
+            if (metadata.TryGetValue("description", out s))
             {
                 Description = s;
             }
 
-            if (metaData.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
+            if (metadata.TryGetValue("format", out s))
+            {
+                Format = s;
+            }
+
+            if (metadata.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
             {
                 MinZoom = minZoom;
             }
 
-            if (metaData.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
+            if (metadata.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
             {
                 MaxZoom = maxZoom;
             }
@@ -53,19 +58,20 @@ namespace MapControl.MBTiles
 
         public static async Task<MBTileSource> CreateAsync(string file)
         {
-            var tileData = await MBTileData.CreateAsync(file);
+            var tiledata = await MBTileData.CreateAsync(file);
+            var metadata = await tiledata.ReadMetadataAsync();
 
-            return new MBTileSource(tileData, await tileData.ReadMetaDataAsync());
+            return new MBTileSource(tiledata, metadata);
         }
 
         public void Dispose()
         {
-            tileData.Dispose();
+            TileData.Dispose();
         }
 
         public override async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
         {
-            var buffer = await tileData.ReadImageBufferAsync(x, y, zoomLevel);
+            var buffer = await TileData.ReadImageBufferAsync(x, y, zoomLevel);
 
             return buffer != null ? await ImageLoader.LoadImageAsync(buffer) : null;
         }
