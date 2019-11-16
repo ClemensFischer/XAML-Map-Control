@@ -12,7 +12,7 @@ using System.Windows.Media;
 
 namespace MapControl.MBTiles
 {
-    public sealed class MBTileSource : TileSource, IDisposable
+    public class MBTileSource : TileSource, IDisposable
     {
         public MBTileData TileData { get; }
 
@@ -23,7 +23,15 @@ namespace MapControl.MBTiles
 
         public void Dispose()
         {
-            TileData.Dispose();
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                TileData.Dispose();
+            }
         }
 
         public override async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)

@@ -15,9 +15,26 @@ namespace MapControl.MBTiles
     {
         private readonly SQLiteConnection connection;
 
+        public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
+
         private MBTileData(string file)
         {
             connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file));
+        }
+
+        public void Dispose()
+        {
+            connection.Dispose();
+        }
+
+        public static async Task<MBTileData> CreateAsync(string file)
+        {
+            var tileData = new MBTileData(file);
+
+            await tileData.OpenAsync();
+            await tileData.ReadMetadataAsync();
+
+            return tileData;
         }
 
         private async Task OpenAsync()
@@ -35,24 +52,8 @@ namespace MapControl.MBTiles
             }
         }
 
-        public static async Task<MBTileData> CreateAsync(string file)
+        private async Task ReadMetadataAsync()
         {
-            var tileData = new MBTileData(file);
-
-            await tileData.OpenAsync();
-
-            return tileData;
-        }
-
-        public void Dispose()
-        {
-            connection.Dispose();
-        }
-
-        public async Task<IDictionary<string, string>> ReadMetadataAsync()
-        {
-            var metadata = new Dictionary<string, string>();
-
             try
             {
                 using (var command = new SQLiteCommand("select * from metadata", connection))
@@ -61,7 +62,7 @@ namespace MapControl.MBTiles
 
                     while (await reader.ReadAsync())
                     {
-                        metadata[(string)reader["name"]] = (string)reader["value"];
+                        Metadata[(string)reader["name"]] = (string)reader["value"];
                     }
                 }
             }
@@ -69,17 +70,15 @@ namespace MapControl.MBTiles
             {
                 Debug.WriteLine("MBTileData: " + ex.Message);
             }
-
-            return metadata;
         }
 
-        public async Task WriteMetadataAsync(IDictionary<string, string> metaData)
+        public async Task WriteMetadataAsync()
         {
             try
             {
                 using (var command = new SQLiteCommand("insert or replace into metadata (name, value) values (@n, @v)", connection))
                 {
-                    foreach (var keyValue in metaData)
+                    foreach (var keyValue in Metadata)
                     {
                         command.Parameters.AddWithValue("@n", keyValue.Key);
                         command.Parameters.AddWithValue("@v", keyValue.Value);

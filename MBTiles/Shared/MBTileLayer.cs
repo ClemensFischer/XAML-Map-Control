@@ -36,6 +36,14 @@ namespace MapControl.MBTiles
             set { SetValue(FileProperty, value); }
         }
 
+        /// <summary>
+        /// May be overridden to create a derived MBTileSource that handles other tile formats than png and jpg, e.g. pbf.
+        /// </summary>
+        protected virtual MBTileSource CreateTileSource(MBTileData tileData)
+        {
+            return new MBTileSource(tileData);
+        }
+
         private async Task FilePropertyChanged(string file)
         {
             (TileSource as MBTileSource)?.Dispose();
@@ -48,33 +56,32 @@ namespace MapControl.MBTiles
 
             if (file != null)
             {
-                var tiledata = await MBTileData.CreateAsync(file);
-                var metadata = await tiledata.ReadMetadataAsync();
-                string s;
+                var tileData = await MBTileData.CreateAsync(file);
                 int minZoom;
                 int maxZoom;
+                string s;
 
-                if (metadata.TryGetValue("name", out s))
+                if (tileData.Metadata.TryGetValue("name", out s))
                 {
                     SourceName = s;
                 }
 
-                if (metadata.TryGetValue("description", out s))
+                if (tileData.Metadata.TryGetValue("description", out s))
                 {
                     Description = s;
                 }
 
-                if (metadata.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
+                if (tileData.Metadata.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
                 {
                     MinZoomLevel = minZoom;
                 }
 
-                if (metadata.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
+                if (tileData.Metadata.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
                 {
                     MaxZoomLevel = maxZoom;
                 }
 
-                TileSource = new MBTileSource(tiledata);
+                TileSource = CreateTileSource(tileData);
             }
         }
     }
