@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:ViewModel"
         xmlns:local="clr-namespace:WpfCoreApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800">
+        Title="XAML MapControl - WPF .NET Core 3.0 Test Application" Height="600" Width="800">
     <Window.Resources>
         <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
 
