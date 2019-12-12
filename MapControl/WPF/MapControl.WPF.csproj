@@ -38,49 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="..\Shared\AutoEquirectangularProjection.cs" Link="AutoEquirectangularProjection.cs" />
-        <Compile Include="..\Shared\AzimuthalEquidistantProjection.cs" Link="AzimuthalEquidistantProjection.cs" />
-        <Compile Include="..\Shared\AzimuthalProjection.cs" Link="AzimuthalProjection.cs" />
-        <Compile Include="..\Shared\BingMapsTileLayer.cs" Link="BingMapsTileLayer.cs" />
-        <Compile Include="..\Shared\BingMapsTileSource.cs" Link="BingMapsTileSource.cs" />
-        <Compile Include="..\Shared\BoundingBox.cs" Link="BoundingBox.cs" />
-        <Compile Include="..\Shared\CenteredBoundingBox.cs" Link="CenteredBoundingBox.cs" />
-        <Compile Include="..\Shared\EquirectangularProjection.cs" Link="EquirectangularProjection.cs" />
-        <Compile Include="..\Shared\GnomonicProjection.cs" Link="GnomonicProjection.cs" />
-        <Compile Include="..\Shared\HyperlinkText.cs" Link="HyperlinkText.cs" />
-        <Compile Include="..\Shared\ImageLoader.cs" Link="ImageLoader.cs" />
-        <Compile Include="..\Shared\Intersections.cs" Link="Intersections.cs" />
-        <Compile Include="..\Shared\Location.cs" Link="Location.cs" />
-        <Compile Include="..\Shared\LocationCollection.cs" Link="LocationCollection.cs" />
-        <Compile Include="..\Shared\LocationEx.cs" Link="LocationEx.cs" />
-        <Compile Include="..\Shared\MapBase.cs" Link="MapBase.cs" />
-        <Compile Include="..\Shared\MapGraticule.cs" Link="MapGraticule.cs" />
-        <Compile Include="..\Shared\MapImageLayer.cs" Link="MapImageLayer.cs" />
-        <Compile Include="..\Shared\MapItemsControl.cs" Link="MapItemsControl.cs" />
-        <Compile Include="..\Shared\MapOverlay.cs" Link="MapOverlay.cs" />
-        <Compile Include="..\Shared\MapPanel.cs" Link="MapPanel.cs" />
-        <Compile Include="..\Shared\MapPolygon.cs" Link="MapPolygon.cs" />
-        <Compile Include="..\Shared\MapPolyline.cs" Link="MapPolyline.cs" />
-        <Compile Include="..\Shared\MapProjection.cs" Link="MapProjection.cs" />
-        <Compile Include="..\Shared\MapScale.cs" Link="MapScale.cs" />
-        <Compile Include="..\Shared\MapShape.cs" Link="MapShape.cs" />
-        <Compile Include="..\Shared\MapTileLayer.cs" Link="MapTileLayer.cs" />
-        <Compile Include="..\Shared\OrthographicProjection.cs" Link="OrthographicProjection.cs" />
-        <Compile Include="..\Shared\PolygonCollection.cs" Link="PolygonCollection.cs" />
-        <Compile Include="..\Shared\Pushpin.cs" Link="Pushpin.cs" />
-        <Compile Include="..\Shared\StereographicProjection.cs" Link="StereographicProjection.cs" />
-        <Compile Include="..\Shared\Tile.cs" Link="Tile.cs" />
-        <Compile Include="..\Shared\TileGrid.cs" Link="TileGrid.cs" />
-        <Compile Include="..\Shared\TileImageLoader.cs" Link="TileImageLoader.cs" />
-        <Compile Include="..\Shared\TileSource.cs" Link="TileSource.cs" />
-        <Compile Include="..\Shared\ViewportChangedEventArgs.cs" Link="ViewportChangedEventArgs.cs" />
-        <Compile Include="..\Shared\WebMercatorProjection.cs" Link="WebMercatorProjection.cs" />
-        <Compile Include="..\Shared\WmsImageLayer.cs" Link="WmsImageLayer.cs" />
-        <Compile Include="..\Shared\WorldMercatorProjection.cs" Link="WorldMercatorProjection.cs" />
+        <Compile Include="..\Shared\*"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
