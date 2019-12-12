@@ -16,6 +16,11 @@ namespace MapControl
     /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
+        public override bool IsNormalCylindrical
+        {
+            get { return false; }
+        }
+
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
             var cbbox = boundingBox as CenteredBoundingBox;

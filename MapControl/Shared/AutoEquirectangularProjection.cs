@@ -14,14 +14,8 @@ namespace MapControl
     public class AutoEquirectangularProjection : MapProjection
     {
         public AutoEquirectangularProjection()
-            : this("AUTO2:42004")
         {
-        }
-
-        public AutoEquirectangularProjection(string crsId)
-        {
-            CrsId = crsId;
-            IsNormalCylindrical = true;
+            CrsId = "AUTO2:42004";
         }
 
         public override Point LocationToPoint(Location location)

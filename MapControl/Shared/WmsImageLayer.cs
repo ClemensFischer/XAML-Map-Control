@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
 using System.Xml.Linq;
 #if WINDOWS_UWP
 using Windows.Foundation;
@@ -65,17 +64,17 @@ namespace MapControl
         /// <summary>
         /// Gets a list of all layer names returned by a GetCapabilities response.
         /// </summary>
-        public async Task<IList<string>> GetLayerNamesAsync()
+        public async Task<List<string>> GetLayerNamesAsync()
         {
-            IList<string> layerNames = null;
+            List<string> layerNames = null;
 
             if (ServiceUri != null)
             {
-                var capabilitiesUri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
+                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
 
                 try
                 {
-                    var stream = await ImageLoader.HttpClient.GetStreamAsync(capabilitiesUri);
+                    var stream = await ImageLoader.HttpClient.GetStreamAsync(uri);
                     var capabilities = XDocument.Load(stream).Root;
                     var ns = capabilities.Name.Namespace;
 
@@ -88,31 +87,36 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", capabilitiesUri, ex.Message);
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
                 }
             }
 
             return layerNames;
         }
 
+        /// <summary>
+        /// Calls GetImageUri() and asynchronously loads an ImageSource from the returned GetMap URL.
+        /// </summary>
         protected override async Task<ImageSource> GetImageAsync()
         {
             var uri = GetImageUri();
 
-            return uri != null ? await ImageLoader.LoadImageAsync(uri) : null;
+            return uri != null
+                ? await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")))
+                : null;
         }
 
         /// <summary>
-        /// Returns a GetMap request URL for the current BoundingBox.
+        /// Returns a GetMap request URL string.
         /// </summary>
-        protected virtual Uri GetImageUri()
+        protected virtual string GetImageUri()
         {
-            Uri imageUri = null;
+            string uri = null;
             var projection = ParentMap?.MapProjection;
 
             if (ServiceUri != null && projection != null && !string.IsNullOrEmpty(projection.CrsId))
             {
-                var uri = GetRequestUri("GetMap");
+                uri = GetRequestUri("GetMap");
 
                 if (uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0 && Layers != null)
                 {
@@ -131,42 +135,13 @@ namespace MapControl
 
                 var rect = projection.BoundingBoxToRect(BoundingBox);
 
-                uri += "&" + GetCrsParam(projection);
-                uri += "&" + GetBboxParam(projection, rect);
+                uri += "&CRS=" + projection.GetCrsValue();
+                uri += "&BBOX=" + projection.GetBboxValue(rect);
                 uri += "&WIDTH=" + (int)Math.Round(projection.ViewportScale * rect.Width);
                 uri += "&HEIGHT=" + (int)Math.Round(projection.ViewportScale * rect.Height);
-
-                imageUri = new Uri(uri.Replace(" ", "%20"));
             }
 
-            return imageUri;
-        }
-
-        /// <summary>
-        /// Gets the effective value of the CRS query parameter.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual string GetCrsParam(MapProjection projection)
-        {
-            var crs = "CRS=" + projection.CrsId;
-
-            if (projection.CrsId.StartsWith("AUTO2:"))
-            {
-                crs += string.Format(CultureInfo.InvariantCulture, ",1,{0},{1}",
-                    projection.ProjectionCenter.Longitude, projection.ProjectionCenter.Latitude);
-            }
-
-            return crs;
-        }
-
-        /// <summary>
-        /// Gets the effective value of the BBOX (or some equivalent) query parameter.
-        /// </summary>
-        protected virtual string GetBboxParam(MapProjection projection, Rect bbox)
-        {
-            return string.Format(CultureInfo.InvariantCulture,
-                projection.HasLatLonBoundingBox ? "BBOX={1},{0},{3},{2}" : "BBOX={0},{1},{2},{3}",
-                bbox.X, bbox.Y, (bbox.X + bbox.Width), (bbox.Y + bbox.Height));
+            return uri;
         }
 
         private string GetRequestUri(string request)

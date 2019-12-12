@@ -15,19 +15,19 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
+        private static readonly double maxLatitude = YToLatitude(180d);
+
         public static double ConvergenceTolerance = 1e-6;
         public static int MaxIterations = 10;
 
         public WorldMercatorProjection()
-            : this("EPSG:3395")
         {
+            CrsId = "EPSG:3395";
         }
 
-        public WorldMercatorProjection(string crsId)
+        public override double MaxLatitude
         {
-            CrsId = crsId;
-            IsNormalCylindrical = true;
-            MaxLatitude = YToLatitude(180d);
+            get { return maxLatitude; }
         }
 
         public override Vector GetMapScale(Location location)

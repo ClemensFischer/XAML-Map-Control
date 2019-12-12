@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Globalization;
 #if WINDOWS_UWP
 using Windows.Foundation;
 #else
@@ -18,7 +19,6 @@ namespace MapControl
     public abstract class MapProjection
     {
         public const int TileSize = 256;
-        public const double PixelPerDegree = TileSize / 360d;
 
         public const double Wgs84EquatorialRadius = 6378137d;
         public const double Wgs84Flattening = 1d / 298.257223563;
@@ -29,34 +29,40 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the WMS 1.3.0 CRS identifier.
         /// </summary>
-        public string CrsId { get; protected set; }
-
-        /// <summary>
-        /// Indicates if a lat/lon coordinate system is used for the WMS BBOX query parameter,
-        /// like e.g. in an EquirectangularProjection with CrsId="EPSG:4326" (but not CrsId="CRS:84").
-        /// </summary>
-        public bool HasLatLonBoundingBox { get; protected set; }
+        public string CrsId { get; set; }
 
         /// <summary>
         /// Indicates if this is a normal cylindrical projection.
         /// </summary>
-        public bool IsNormalCylindrical { get; protected set; }
+        public virtual bool IsNormalCylindrical
+        {
+            get { return true; }
+        }
 
         /// <summary>
         /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
         /// </summary>
-        public bool IsWebMercator { get; protected set; }
+        public virtual bool IsWebMercator
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
+        /// </summary>
+        public virtual double MaxLatitude
+        {
+            get { return 90d; }
+        }
 
         /// <summary>
         /// Gets the scale factor from geographic to cartesian coordinates, on the line of true scale of a
         /// cylindrical projection (usually the equator), or at the projection center of an azimuthal projection.
         /// </summary>
-        public double TrueScale { get; protected set; } = Wgs84MetersPerDegree;
-
-        /// <summary>
-        /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
-        /// </summary>
-        public double MaxLatitude { get; protected set; } = 90d;
+        public virtual double TrueScale
+        {
+            get { return Wgs84MetersPerDegree; }
+        }
 
         /// <summary>
         /// Gets the projection center. Only relevant for azimuthal pprojections.
@@ -153,12 +159,31 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets the CRS parameter value for a WMS GetMap request.
+        /// </summary>
+        public virtual string GetCrsValue()
+        {
+            return CrsId.StartsWith("AUTO:") || CrsId.StartsWith("AUTO2:")
+                ? string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}", CrsId, ProjectionCenter.Longitude, ProjectionCenter.Latitude)
+                : CrsId;
+        }
+
+        /// <summary>
+        /// Gets the BBOX parameter value for a WMS GetMap request.
+        /// </summary>
+        public virtual string GetBboxValue(Rect rect)
+        {
+            return string.Format(CultureInfo.InvariantCulture,
+                "{0},{1},{2},{3}", rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height));
+        }
+
+        /// <summary>
         /// Sets ProjectionCenter, ViewportScale, ViewportTransform and InverseViewportTransform.
         /// </summary>
         public void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
         {
             ProjectionCenter = projectionCenter;
-            ViewportScale = Math.Pow(2d, zoomLevel) * PixelPerDegree / TrueScale;
+            ViewportScale = Math.Pow(2d, zoomLevel) * TileSize / (360d * TrueScale);
 
             var center = LocationToPoint(mapCenter);
             var matrix = CreateTransformMatrix(center, ViewportScale, -ViewportScale, heading, viewportCenter);

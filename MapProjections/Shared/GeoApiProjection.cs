@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Globalization;
 #if !WINDOWS_UWP
 using System.Windows;
 #endif
@@ -20,6 +21,10 @@ namespace MapControl.Projections
     public class GeoApiProjection : MapProjection
     {
         private ICoordinateSystem coordinateSystem;
+        private bool isNormalCylindrical;
+        private bool isWebMercator;
+        private double trueScale;
+        private string bboxFormat;
 
         public IMathTransform LocationToPointTransform { get; private set; }
         public IMathTransform PointToLocationTransform { get; private set; }
@@ -63,21 +68,21 @@ namespace MapControl.Projections
                     var falseNorthing = projection.GetParameter("false_northing");
                     var scaleFactor = projection.GetParameter("scale_factor");
 
-                    HasLatLonBoundingBox = false;
-                    IsNormalCylindrical =
+                    isNormalCylindrical =
                         centralMeridian != null && centralMeridian.Value == 0d &&
                         centralParallel != null && centralParallel.Value == 0d &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
-                    IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
-                    TrueScale = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
+                    isWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
+                    trueScale = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
+                    bboxFormat = "{0},{1},{2},{3}";
                 }
                 else
                 {
-                    HasLatLonBoundingBox = true;
-                    IsNormalCylindrical = true;
-                    IsWebMercator = false;
-                    TrueScale = 1d;
+                    isNormalCylindrical = true;
+                    isWebMercator = false;
+                    trueScale = 1d;
+                    bboxFormat = "{1},{0},{3},{2}";
                 }
             }
         }
@@ -91,6 +96,21 @@ namespace MapControl.Projections
         {
             get { return CoordinateSystem?.WKT; }
             set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }
+        }
+
+        public override bool IsNormalCylindrical
+        {
+            get { return isNormalCylindrical; }
+        }
+
+        public override bool IsWebMercator
+        {
+            get { return isWebMercator; }
+        }
+
+        public override double TrueScale
+        {
+            get { return trueScale; }
         }
 
         public override Point LocationToPoint(Location location)
@@ -115,6 +135,12 @@ namespace MapControl.Projections
             var coordinate = PointToLocationTransform.Transform(new Coordinate(point.X, point.Y));
 
             return new Location(coordinate.Y, coordinate.X);
+        }
+
+        public override string GetBboxValue(Rect rect)
+        {
+            return string.Format(CultureInfo.InvariantCulture,
+                bboxFormat, rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height));
         }
     }
 }

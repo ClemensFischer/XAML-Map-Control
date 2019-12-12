@@ -14,15 +14,7 @@ namespace MapControl
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {
-        public AzimuthalEquidistantProjection()
-        {
-            // No known standard or de-facto standard CRS ID
-        }
-
-        public AzimuthalEquidistantProjection(string crsId)
-        {
-            CrsId = crsId;
-        }
+        // No standard CRS ID
 
         public override Point LocationToPoint(Location location)
         {

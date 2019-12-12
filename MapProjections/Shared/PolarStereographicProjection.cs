@@ -27,11 +27,15 @@ namespace MapControl.Projections
         public PolarStereographicProjection(string crsId, bool north, double scaleFactor = 1d, double falseEasting = 0d, double falseNorthing = 0d)
         {
             CrsId = crsId;
-            TrueScale = scaleFactor * Wgs84MetersPerDegree;
             this.north = north;
             this.scaleFactor = scaleFactor;
             this.falseEasting = falseEasting;
             this.falseNorthing = falseNorthing;
+        }
+
+        public override double TrueScale
+        {
+            get { return scaleFactor * Wgs84MetersPerDegree; }
         }
 
         public override Vector GetMapScale(Location location)
