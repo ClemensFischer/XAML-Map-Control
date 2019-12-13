@@ -185,11 +185,11 @@ namespace MapControl.Caching
                         stream.Write(Encoding.ASCII.GetBytes("EXPIRES:"), 0, 8);
                         stream.Write(BitConverter.GetBytes(imageCacheItem.Expiration.Ticks), 0, 8);
                     }
-#if !NETCOREAPP3_0
-                    var fileSecurity = File.GetAccessControl(path);
+
+                    var fileInfo = new FileInfo(path);
+                    var fileSecurity = fileInfo.GetAccessControl();
                     fileSecurity.AddAccessRule(fullControlRule);
-                    File.SetAccessControl(path, fileSecurity);
-#endif
+                    fileInfo.SetAccessControl(fileSecurity);
                 }
                 catch (Exception ex)
                 {
