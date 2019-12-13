@@ -20,25 +20,21 @@
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugType>none</DebugType>
         <DebugSymbols>false</DebugSymbols>
+        <DefineConstants></DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.0|AnyCPU'">
-      <DefineConstants>DEBUG</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
-      <DefineConstants />
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <DefineConstants>DEBUG</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\..\MapControl.snk" Link="MapControl.snk" />
+        <None Include="..\..\MapControl.snk" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="..\Shared\*"/>
+        <Compile Include="..\Shared\*" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
