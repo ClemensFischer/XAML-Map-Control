@@ -181,11 +181,11 @@ namespace ViewModel
             MaxBoundingBoxWidth = 360;
         }
 
-        protected override string GetCrsParam(MapProjection projection)
+        protected override string GetImageUri()
         {
-            return base.GetCrsParam(projection)
-                .Replace("AUTO2:97001", "AUTO2:7CS01")
-                .Replace("AUTO2:97002", "AUTO2:7CS02");
+            return base.GetImageUri()
+                .Replace("&CRS=AUTO2:97001,", "&CRS=AUTO2:7CS01,")
+                .Replace("&CRS=AUTO2:97002,", "&CRS=AUTO2:7CS02,");
         }
     }
 }
