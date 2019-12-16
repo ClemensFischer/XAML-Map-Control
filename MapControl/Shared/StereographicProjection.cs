@@ -39,7 +39,7 @@ namespace MapControl
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return ProjectionCenter;
+                return new Location(ProjectionCenter.Latitude, ProjectionCenter.Longitude);
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);

@@ -71,18 +71,27 @@ namespace MapControl
         /// </summary>
         public static Location GetLocation(Location location, double azimuth, double distance)
         {
-            var lat1 = location.Latitude * Math.PI / 180d;
-            var sinDistance = Math.Sin(distance);
-            var cosDistance = Math.Cos(distance);
-            var cosAzimuth = Math.Cos(azimuth);
-            var sinAzimuth = Math.Sin(azimuth);
-            var cosLat1 = Math.Cos(lat1);
-            var sinLat1 = Math.Sin(lat1);
-            var sinLat2 = sinLat1 * cosDistance + cosLat1 * sinDistance * cosAzimuth;
-            var lat2 = Math.Asin(Math.Min(Math.Max(sinLat2, -1d), 1d));
-            var dLon = Math.Atan2(sinDistance * sinAzimuth, cosLat1 * cosDistance - sinLat1 * sinDistance * cosAzimuth);
+            var lat = location.Latitude;
+            var lon = location.Longitude;
 
-            return new Location(lat2 * 180d / Math.PI, location.Longitude + dLon * 180d / Math.PI);
+            if (distance > 0d)
+            {
+                var lat1 = lat * Math.PI / 180d;
+                var sinDistance = Math.Sin(distance);
+                var cosDistance = Math.Cos(distance);
+                var cosAzimuth = Math.Cos(azimuth);
+                var sinAzimuth = Math.Sin(azimuth);
+                var cosLat1 = Math.Cos(lat1);
+                var sinLat1 = Math.Sin(lat1);
+                var sinLat2 = sinLat1 * cosDistance + cosLat1 * sinDistance * cosAzimuth;
+                var lat2 = Math.Asin(Math.Min(Math.Max(sinLat2, -1d), 1d));
+                var dLon = Math.Atan2(sinDistance * sinAzimuth, cosLat1 * cosDistance - sinLat1 * sinDistance * cosAzimuth);
+
+                lat = lat2 * 180d / Math.PI;
+                lon += dLon * 180d / Math.PI;
+            }
+
+            return new Location(lat, lon);
         }
     }
 }

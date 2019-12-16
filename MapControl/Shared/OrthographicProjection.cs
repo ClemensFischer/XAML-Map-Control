@@ -40,7 +40,7 @@ namespace MapControl
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return ProjectionCenter;
+                return new Location(ProjectionCenter.Latitude, ProjectionCenter.Longitude);
             }
 
             var s = TrueScale * 180d / Math.PI;
