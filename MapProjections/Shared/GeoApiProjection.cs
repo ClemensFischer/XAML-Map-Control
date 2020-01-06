@@ -4,7 +4,9 @@
 
 using System;
 using System.Globalization;
-#if !WINDOWS_UWP
+#if WINDOWS_UWP
+using Windows.Foundation;
+#else
 using System.Windows;
 #endif
 using GeoAPI.CoordinateSystems;
