@@ -108,23 +108,23 @@ namespace MapControl.Caching
                     try
                     {
                         var buffer = File.ReadAllBytes(path);
-                        var expiration = DateTime.MinValue;
 
                         if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == "EXPIRES:")
                         {
-                            expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
+                            var expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
+
                             Array.Resize(ref buffer, buffer.Length - 16);
+
+                            imageCacheItem = new ImageCacheItem
+                            {
+                                Buffer = buffer,
+                                Expiration = expiration
+                            };
+
+                            memoryCache.Set(key, imageCacheItem, new CacheItemPolicy { AbsoluteExpiration = expiration });
+
+                            //Debug.WriteLine("ImageFileCache: Reading {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
                         }
-
-                        imageCacheItem = new ImageCacheItem
-                        {
-                            Buffer = buffer,
-                            Expiration = expiration
-                        };
-
-                        memoryCache.Set(key, imageCacheItem, new CacheItemPolicy { AbsoluteExpiration = expiration });
-
-                        //Debug.WriteLine("ImageFileCache: Reading {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
                     }
                     catch (Exception ex)
                     {
