@@ -4,6 +4,7 @@
         <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net462;net48</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl</RootNamespace>
+        <AssemblyName>MapControl.WPF</AssemblyName>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
@@ -14,7 +15,6 @@
         <Copyright>Copyright © 2020 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl</PackageId>
-        <AssemblyName>MapControl.WPF</AssemblyName>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
