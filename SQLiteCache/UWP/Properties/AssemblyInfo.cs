@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("IImageCache implementation based on SQLite")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
-[assembly: AssemblyCopyright("Copyright © 2019 Clemens Fischer")]
+[assembly: AssemblyCopyright("Copyright © 2020 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyVersion("4.16.0")]
 [assembly: AssemblyFileVersion("4.16.0")]

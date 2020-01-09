@@ -5,9 +5,11 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <UseWPF>true</UseWPF>
         <RootNamespace>WpfCoreApp</RootNamespace>
-        <Version>4.16.0</Version>
-        <Authors>Clemens Fischer</Authors>
         <Product>XAML Map Control</Product>
+        <Version>4.16.0</Version>
+        <Description>XAML Map Control WPF Sample Application</Description>
+        <Authors>Clemens Fischer</Authors>
+        <Copyright>Copyright © 2020 Clemens Fischer</Copyright>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
