@@ -2,27 +2,37 @@
 // © 2020 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace MapControl
 {
-    /// <summary>
-    /// MapBase with default input event handling.
-    /// </summary>
-    public class Map : MapBase
+    public partial class Map
     {
         public static readonly DependencyProperty ManipulationModeProperty = DependencyProperty.Register(
             nameof(ManipulationMode), typeof(ManipulationModes), typeof(Map), new PropertyMetadata(ManipulationModes.All));
 
-        public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
-            nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
+        public static readonly DependencyProperty TransformDelayProperty = DependencyProperty.Register(
+            nameof(TransformDelay), typeof(TimeSpan), typeof(Map), new PropertyMetadata(TimeSpan.FromMilliseconds(50)));
 
         private Point? mousePosition;
 
         static Map()
         {
             IsManipulationEnabledProperty.OverrideMetadata(typeof(Map), new FrameworkPropertyMetadata(true));
+        }
+
+        public Map()
+        {
+            ManipulationStarted += OnManipulationStarted;
+            ManipulationDelta += OnManipulationDelta;
+            MouseLeftButtonDown += OnMouseLeftButtonDown;
+            MouseLeftButtonUp += OnMouseLeftButtonUp;
+            MouseMove += OnMouseMove;
+            MouseWheel += OnMouseWheel;
         }
 
         /// <summary>
@@ -35,36 +45,57 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
+        /// Gets or sets a delay interval between adjacent calls to TranslateMap or TransformMap during mouse pan and manipulation.
+        /// The default value is 50 milliseconds.
         /// </summary>
-        public double MouseWheelZoomDelta
+        public TimeSpan TransformDelay
         {
-            get { return (double)GetValue(MouseWheelZoomDeltaProperty); }
-            set { SetValue(MouseWheelZoomDeltaProperty, value); }
+            get { return (TimeSpan)GetValue(TransformDelayProperty); }
+            set { SetValue(TransformDelayProperty, value); }
         }
 
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        private async Task InvokeTransformAsync(Action action)
         {
-            base.OnMouseWheel(e);
+            if (!transformPending)
+            {
+                transformPending = true;
 
-            var zoomDelta = MouseWheelZoomDelta * e.Delta / 120d;
-            ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomDelta);
+                if (TransformDelay > TimeSpan.Zero)
+                {
+                    await Task.Delay(TransformDelay);
+                }
+
+                await Dispatcher.InvokeAsync(action);
+
+                ResetTransform();
+            }
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        private void OnManipulationStarted(object sender, ManipulationStartedEventArgs e)
         {
-            base.OnMouseLeftButtonDown(e);
+            Manipulation.SetManipulationMode(this, ManipulationMode);
+        }
 
+        private async void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
+        {
+            translation.X += e.DeltaManipulation.Translation.X;
+            translation.Y += e.DeltaManipulation.Translation.Y;
+            rotation += e.DeltaManipulation.Rotation;
+            scale *= (e.DeltaManipulation.Scale.X + e.DeltaManipulation.Scale.Y) / 2d;
+
+            await InvokeTransformAsync(() => TransformMap(e.ManipulationOrigin, translation, rotation, scale));
+        }
+
+        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
             if (CaptureMouse())
             {
                 mousePosition = e.GetPosition(this);
             }
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            base.OnMouseLeftButtonUp(e);
-
             if (mousePosition.HasValue)
             {
                 mousePosition = null;
@@ -72,32 +103,23 @@ namespace MapControl
             }
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        private async void OnMouseMove(object sender, MouseEventArgs e)
         {
-            base.OnMouseMove(e);
-
             if (mousePosition.HasValue)
             {
                 var position = e.GetPosition(this);
-                TranslateMap(position - mousePosition.Value);
+                translation += position - mousePosition.Value;
                 mousePosition = position;
+
+                await InvokeTransformAsync(() => TranslateMap(translation));
             }
         }
 
-        protected override void OnManipulationStarted(ManipulationStartedEventArgs e)
+        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            base.OnManipulationStarted(e);
+            var zoomDelta = MouseWheelZoomDelta * e.Delta / 120d;
 
-            Manipulation.SetManipulationMode(this, ManipulationMode);
-        }
-
-        protected override void OnManipulationDelta(ManipulationDeltaEventArgs e)
-        {
-            base.OnManipulationDelta(e);
-
-            TransformMap(e.ManipulationOrigin,
-                e.DeltaManipulation.Translation, e.DeltaManipulation.Rotation,
-                (e.DeltaManipulation.Scale.X + e.DeltaManipulation.Scale.Y) / 2d);
+            ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomDelta);
         }
     }
 }
