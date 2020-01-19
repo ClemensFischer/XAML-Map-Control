@@ -81,7 +81,7 @@ namespace MapControl
             translation.X += e.DeltaManipulation.Translation.X;
             translation.Y += e.DeltaManipulation.Translation.Y;
             rotation += e.DeltaManipulation.Rotation;
-            scale *= (e.DeltaManipulation.Scale.X + e.DeltaManipulation.Scale.Y) / 2d;
+            scale *= e.DeltaManipulation.Scale.LengthSquared / 2d;
 
             await InvokeTransformAsync(() => TransformMap(e.ManipulationOrigin, translation, rotation, scale));
         }
