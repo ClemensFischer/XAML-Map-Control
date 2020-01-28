@@ -50,7 +50,6 @@ namespace MapControl
                 }
                 else
                 {
-                    // todo
                 }
             }
         }
@@ -63,14 +62,14 @@ namespace MapControl
             var latLabels = new List<Label>((int)((boundingBox.North - latLabelStart) / lineDistance) + 1);
             var lonLabels = new List<Label>((int)((boundingBox.East - lonLabelStart) / lineDistance) + 1);
             var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
-            var pixelsPerDpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+            var pixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
             var pen = CreatePen();
 
             for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
             {
                 latLabels.Add(new Label(lat, new FormattedText(
                     GetLabelText(lat, labelFormat, "NS"),
-                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDpi)));
+                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip)));
 
                 drawingContext.DrawLine(pen,
                     projection.LocationToViewportPoint(new Location(lat, boundingBox.West)),
@@ -81,7 +80,7 @@ namespace MapControl
             {
                 lonLabels.Add(new Label(lon, new FormattedText(
                     GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW"),
-                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDpi)));
+                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip)));
 
                 drawingContext.DrawLine(pen,
                     projection.LocationToViewportPoint(new Location(boundingBox.South, lon)),
