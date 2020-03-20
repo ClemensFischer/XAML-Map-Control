@@ -222,7 +222,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the transformation from cartesian map coordinates to viewport coordinates (pixels).
+        /// Gets the transformation from cartesian map coordinates to viewport coordinates.
         /// </summary>
         public MatrixTransform ViewportTransform { get; } = new MatrixTransform();
 

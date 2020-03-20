@@ -60,9 +60,10 @@ namespace MapControl
 
             try
             {
-                var stream = await ImageLoader.HttpClient.GetStreamAsync(metadataUri);
-
-                ProcessImageryMetadata(XDocument.Load(stream).Root);
+                using (var stream = await ImageLoader.HttpClient.GetStreamAsync(metadataUri))
+                {
+                    ReadImageryMetadata(XDocument.Load(stream).Root);
+                }
             }
             catch (Exception ex)
             {
@@ -70,7 +71,7 @@ namespace MapControl
             }
         }
 
-        private void ProcessImageryMetadata(XElement metadataResponse)
+        private void ReadImageryMetadata(XElement metadataResponse)
         {
             var ns = metadataResponse.Name.Namespace;
             var metadata = metadataResponse.Descendants(ns + "ImageryMetadata").FirstOrDefault();

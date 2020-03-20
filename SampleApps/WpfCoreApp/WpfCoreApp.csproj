@@ -6,7 +6,7 @@
         <UseWPF>true</UseWPF>
         <RootNamespace>WpfCoreApp</RootNamespace>
         <Product>XAML Map Control</Product>
-        <Version>4.16.0</Version>
+        <Version>4.17.0</Version>
         <Description>XAML Map Control WPF Sample Application</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2020 Clemens Fischer</Copyright>

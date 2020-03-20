@@ -125,6 +125,12 @@
     <Compile Include="..\Shared\MapTileLayer.cs">
       <Link>MapTileLayer.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapTileLayerBase.cs">
+      <Link>MapTileLayerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MatrixFactory.cs">
+      <Link>MatrixFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
     </Compile>
@@ -155,6 +161,21 @@
     <Compile Include="..\Shared\WmsImageLayer.cs">
       <Link>WmsImageLayer.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\WmtsTileLayer.cs">
+      <Link>WmtsTileLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\WmtsTileMatrix.cs">
+      <Link>WmtsTileMatrix.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\WmtsTileMatrixLayer.cs">
+      <Link>WmtsTileMatrixLayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\WmtsTileMatrixSet.cs">
+      <Link>WmtsTileMatrixSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\WmtsTileSource.cs">
+      <Link>WmtsTileSource.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\WorldMercatorProjection.cs">
       <Link>WorldMercatorProjection.cs</Link>
     </Compile>
@@ -179,7 +200,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.9</Version>
+      <Version>6.2.10</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

@@ -94,6 +94,10 @@
       <Project>{62f1726b-3144-49f4-8bcc-94160a3b2186}</Project>
       <Name>MapControl.WPF</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SQLiteCache\WPF\SQLiteCache.WPF.csproj">
+      <Project>{0109c2f0-ba2c-420f-b2ca-db5b29b1a349}</Project>
+      <Name>SQLiteCache.WPF</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

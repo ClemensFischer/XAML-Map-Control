@@ -74,8 +74,13 @@ namespace MapControl
 
                 try
                 {
-                    var stream = await ImageLoader.HttpClient.GetStreamAsync(uri);
-                    var capabilities = XDocument.Load(stream).Root;
+                    XElement capabilities;
+
+                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
+                    {
+                        capabilities = XDocument.Load(stream).Root;
+                    }
+
                     var ns = capabilities.Name.Namespace;
 
                     layerNames = capabilities

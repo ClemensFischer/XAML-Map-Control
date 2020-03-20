@@ -65,22 +65,22 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the projection center. Only relevant for azimuthal pprojections.
+        /// Gets the projection center. Only relevant for azimuthal projections.
         /// </summary>
         public Location ProjectionCenter { get; private set; } = new Location();
 
         /// <summary>
-        /// Gets the transform matrix from cartesian map coordinates to viewport coordinates (pixels).
+        /// Gets the transform matrix from cartesian map coordinates to viewport coordinates.
         /// </summary>
         public Matrix ViewportTransform { get; private set; }
 
         /// <summary>
-        /// Gets the transform matrix from viewport coordinates (pixels) to cartesian map coordinates.
+        /// Gets the transform matrix from viewport coordinates to cartesian map coordinates.
         /// </summary>
         public Matrix InverseViewportTransform { get; private set; }
 
         /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates (pixels)
+        /// Gets the scaling factor from cartesian map coordinates to viewport coordinates
         /// at the projection's point of true scale.
         /// </summary>
         public double ViewportScale { get; private set; }
@@ -186,26 +186,11 @@ namespace MapControl
             ViewportScale = Math.Pow(2d, zoomLevel) * TileSize / (360d * TrueScale);
 
             var center = LocationToPoint(mapCenter);
-            var matrix = CreateTransformMatrix(center, ViewportScale, -ViewportScale, heading, viewportCenter);
+            var matrix = MatrixFactory.Create(center, ViewportScale, -ViewportScale, heading, viewportCenter);
 
             ViewportTransform = matrix;
             matrix.Invert();
             InverseViewportTransform = matrix;
-        }
-
-        internal static Matrix CreateTransformMatrix(
-            Point translation1, double scale, double rotation, Point translation2)
-        {
-            return CreateTransformMatrix(translation1, scale, scale, rotation, translation2);
-        }
-
-        internal static Matrix CreateTransformMatrix(
-            Point translation1, double scaleX, double scaleY, double rotation, Point translation2)
-        {
-            var matrix = new Matrix(scaleX, 0d, 0d, scaleY, -translation1.X * scaleX, -translation1.Y * scaleY);
-            matrix.Rotate(rotation);
-            matrix.Translate(translation2.X, translation2.Y);
-            return matrix;
         }
     }
 }

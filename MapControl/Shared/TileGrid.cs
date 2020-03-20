@@ -2,11 +2,9 @@
 // © 2020 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
-
 namespace MapControl
 {
-    public class TileGrid : IEquatable<TileGrid>
+    public class TileGrid
     {
         public readonly int ZoomLevel;
         public readonly int XMin;
@@ -21,26 +19,6 @@ namespace MapControl
             YMin = yMin;
             XMax = xMax;
             YMax = yMax;
-        }
-
-        public bool Equals(TileGrid tileGrid)
-        {
-            return tileGrid != null
-                && tileGrid.ZoomLevel == ZoomLevel
-                && tileGrid.XMin == XMin
-                && tileGrid.YMin == YMin
-                && tileGrid.XMax == XMax
-                && tileGrid.YMax == YMax;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as TileGrid);
-        }
-
-        public override int GetHashCode()
-        {
-            return ZoomLevel ^ XMin ^ YMin ^ XMax ^ YMax;
         }
     }
 }
