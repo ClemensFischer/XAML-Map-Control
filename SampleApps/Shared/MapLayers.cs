@@ -116,7 +116,15 @@ namespace ViewModel
             {
                 "SevenCs ChartServer",
                 new ChartServerLayer()
-            }
+            },
+            {
+                "TopPlusOpen WMTS",
+                new WmtsTileLayer
+                {
+                    CapabilitiesUri = new Uri("https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"),
+                    SourceName = "TopPlusOpen"
+                }
+            },
         };
 
         private string currentMapLayerName = "OpenStreetMap";
@@ -150,7 +158,8 @@ namespace ViewModel
             "Stamen Toner Light",
             "OpenStreetMap WMS",
             "OpenStreetMap TOPO WMS",
-            "SevenCs ChartServer"
+            "TopPlusOpen WMTS",
+            "SevenCs ChartServer",
         };
 
         public MapLayers()
