@@ -114,16 +114,26 @@ namespace ViewModel
                 }
             },
             {
-                "SevenCs ChartServer",
-                new ChartServerLayer()
+                "TopPlusOpen WMS",
+                new WmsImageLayer
+                {
+                    Description = "© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)",
+                    ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_topplus_open"),
+                    Layers = "web"
+                }
             },
             {
                 "TopPlusOpen WMTS",
                 new WmtsTileLayer
                 {
+                    Description = "© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)",
                     CapabilitiesUri = new Uri("https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"),
                     SourceName = "TopPlusOpen"
                 }
+            },
+            {
+                "SevenCs ChartServer",
+                new ChartServerLayer()
             },
         };
 
@@ -158,6 +168,7 @@ namespace ViewModel
             "Stamen Toner Light",
             "OpenStreetMap WMS",
             "OpenStreetMap TOPO WMS",
+            "TopPlusOpen WMS",
             "TopPlusOpen WMTS",
             "SevenCs ChartServer",
         };

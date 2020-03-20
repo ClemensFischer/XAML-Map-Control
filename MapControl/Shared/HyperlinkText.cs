@@ -10,6 +10,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
 #else
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -45,7 +46,18 @@ namespace MapControl
                     link.Inlines.Add(new Run { Text = match.Groups[1].Value });
 #if !WINDOWS_UWP
                     link.ToolTip = uri.ToString();
-                    link.RequestNavigate += (s, e) => System.Diagnostics.Process.Start(e.Uri.ToString());
+
+                    link.RequestNavigate += (s, e) =>
+                    {
+                        try
+                        {
+                            Process.Start(e.Uri.ToString());
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("{0}: {1}", e.Uri, ex);
+                        }
+                    };
 #endif
                     inlines.Add(link);
                 }
