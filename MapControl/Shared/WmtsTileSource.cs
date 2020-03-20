@@ -19,17 +19,17 @@ namespace MapControl
 
         public override Uri GetUri(int x, int y, int zoomLevel)
         {
-            if (zoomLevel < 0 || zoomLevel >= tileMatrixes.Count)
+            Uri uri = null;
+
+            if (zoomLevel >= 0 && zoomLevel < tileMatrixes.Count)
             {
-                return null;
+                uri = new Uri(UriFormat
+                    .Replace("{TileMatrix}", tileMatrixes[zoomLevel].Identifier)
+                    .Replace("{TileCol}", x.ToString())
+                    .Replace("{TileRow}", y.ToString()));
             }
 
-            var url = UriFormat
-                .Replace("{TileMatrix}", tileMatrixes[zoomLevel].Identifier)
-                .Replace("{TileCol}", x.ToString())
-                .Replace("{TileRow}", y.ToString());
-
-            return new Uri(url);
+            return uri;
         }
     }
 }

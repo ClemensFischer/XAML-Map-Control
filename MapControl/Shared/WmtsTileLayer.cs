@@ -20,7 +20,8 @@ namespace MapControl
     public class WmtsTileLayer : MapTileLayerBase
     {
         public static readonly DependencyProperty CapabilitiesUriProperty = DependencyProperty.Register(
-            nameof(CapabilitiesUri), typeof(Uri), typeof(WmtsTileLayer), new PropertyMetadata(null));
+            nameof(CapabilitiesUri), typeof(Uri), typeof(WmtsTileLayer),
+            new PropertyMetadata(null, (o, e) => ((WmtsTileLayer)o).TileMatrixSet = null));
 
         public static readonly DependencyProperty LayerIdentifierProperty = DependencyProperty.Register(
             nameof(LayerIdentifier), typeof(string), typeof(WmtsTileLayer), new PropertyMetadata(null));
@@ -169,7 +170,7 @@ namespace MapControl
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (CapabilitiesUri != null)
+            if (TileMatrixSet == null && CapabilitiesUri != null)
             {
                 try
                 {
