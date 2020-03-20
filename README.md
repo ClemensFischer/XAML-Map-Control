@@ -15,14 +15,17 @@ For other projections, an appropriate WmsImageLayer could be used.
 
 Main classes are
 
-- **MapBase**: The core map control. Provides properties like Center, ZoomLevel and Heading, which
-define the currently displayed map viewport.
+- **MapBase**: The core map control. Provides properties like Center, ZoomLevel and Heading,
+which define the currently displayed map viewport.
 
 - **Map**: MapBase with basic mouse and touch input handling for zoom, pan, and rotation.
 
 - **MapTileLayer**: Provides tiled map content (e.g. from OpenStreetMap) by means of a **TileSource**.
 
-- **MapImageLayer**: Provides map content that covers the entire viewport (e.g. from a Web Map Service).
+- **MapImageLayer**, **WmsImageLayer**: Provides map content that covers the entire viewport,
+typically from a Web Map Service (WMS).
+
+- **WmtsTileLayer**: Provides tiled map content from a Web Map Tile Service (WMTS).
 
 - **MapItemsControl**: Displays a collection of **MapItem** objects (with a geographic **Location**).
 
