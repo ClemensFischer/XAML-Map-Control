@@ -125,6 +125,10 @@ namespace MapControl
                 {
                     currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList(); // last element only
                 }
+                else if (currentMatrixes.Count > MaxBackgroundLevels + 1)
+                {
+                    currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - MaxBackgroundLevels - 1).ToList();
+                }
 
                 var currentLayers = Children.Cast<WmtsTileMatrixLayer>()
                     .Where(layer => currentMatrixes.Contains(layer.TileMatrix))

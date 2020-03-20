@@ -102,7 +102,7 @@ namespace MapControl
 
         /// <summary>
         /// Maximum number of background tile levels. Default value is 8.
-        /// Is only effective in a MapTileLayer that is the MapLayer of its ParentMap.
+        /// Only effective in a MapTileLayer or WmtsTileLayer that is the MapLayer of its ParentMap.
         /// </summary>
         public int MaxBackgroundLevels
         {
