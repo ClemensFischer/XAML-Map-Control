@@ -11,10 +11,10 @@ namespace MapControl
     {
         private readonly IList<WmtsTileMatrix> tileMatrixes;
 
-        public WmtsTileSource(string uriFormat, WmtsTileMatrixSet tileMatrixSet)
-            : base(uriFormat.Replace("{TileMatrixSet}", tileMatrixSet.Identifier))
+        public WmtsTileSource(string uriFormat, IList<WmtsTileMatrix> tileMatrixes)
+            : base(uriFormat)
         {
-            tileMatrixes = tileMatrixSet.TileMatrixes;
+            this.tileMatrixes = tileMatrixes;
         }
 
         public override Uri GetUri(int x, int y, int zoomLevel)

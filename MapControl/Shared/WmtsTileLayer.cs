@@ -19,8 +19,8 @@ namespace MapControl
 {
     public class WmtsTileLayer : MapTileLayerBase
     {
-        public static readonly DependencyProperty CapabilitiesProperty = DependencyProperty.Register(
-            nameof(Capabilities), typeof(Uri), typeof(WmtsTileLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty CapabilitiesUriProperty = DependencyProperty.Register(
+            nameof(CapabilitiesUri), typeof(Uri), typeof(WmtsTileLayer), new PropertyMetadata(null));
 
         public static readonly DependencyProperty LayerIdentifierProperty = DependencyProperty.Register(
             nameof(LayerIdentifier), typeof(string), typeof(WmtsTileLayer), new PropertyMetadata(null));
@@ -40,10 +40,10 @@ namespace MapControl
             Loaded += OnLoaded;
         }
 
-        public Uri Capabilities
+        public Uri CapabilitiesUri
         {
-            get { return (Uri)GetValue(CapabilitiesProperty); }
-            set { SetValue(CapabilitiesProperty, value); }
+            get { return (Uri)GetValue(CapabilitiesUriProperty); }
+            set { SetValue(CapabilitiesUriProperty, value); }
         }
 
         public string LayerIdentifier
@@ -169,25 +169,25 @@ namespace MapControl
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (Capabilities != null)
+            if (CapabilitiesUri != null)
             {
                 try
                 {
-                    if (Capabilities.IsAbsoluteUri && (Capabilities.Scheme == "http" || Capabilities.Scheme == "https"))
+                    if (CapabilitiesUri.IsAbsoluteUri && (CapabilitiesUri.Scheme == "http" || CapabilitiesUri.Scheme == "https"))
                     {
-                        using (var stream = await ImageLoader.HttpClient.GetStreamAsync(Capabilities))
+                        using (var stream = await ImageLoader.HttpClient.GetStreamAsync(CapabilitiesUri))
                         {
                             ReadCapabilities(XDocument.Load(stream).Root);
                         }
                     }
                     else
                     {
-                        ReadCapabilities(XDocument.Load(Capabilities.ToString()).Root);
+                        ReadCapabilities(XDocument.Load(CapabilitiesUri.ToString()).Root);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("WmtsTileLayer: {0}: {1}", Capabilities, ex.Message);
+                    Debug.WriteLine("WmtsTileLayer: {0}: {1}", CapabilitiesUri, ex.Message);
                 }
             }
         }
@@ -229,14 +229,29 @@ namespace MapControl
 
             var tileMatrixSetId = layerElement.Element(ns + "TileMatrixSetLink")?.Element(ns + "TileMatrixSet")?.Value;
 
-            if (tileMatrixSetId == null)
+            if (string.IsNullOrEmpty(tileMatrixSetId))
             {
                 throw new ArgumentException("TileMatrixSetLink element not found.");
             }
 
+            var styleElement = layerElement.Descendants(ns + "Style")
+                .FirstOrDefault(e => e.Attribute("isDefault")?.Value == "true");
+
+            if (styleElement == null)
+            {
+                styleElement = layerElement.Descendants(ns + "Style").FirstOrDefault();
+            }
+
+            var style = styleElement?.Element(ows + "Identifier")?.Value;
+
+            if (string.IsNullOrEmpty(style))
+            {
+                throw new ArgumentException("Style element not found.");
+            }
+
             var urlTemplate = layerElement.Element(ns + "ResourceURL")?.Attribute("template")?.Value;
 
-            if (urlTemplate == null)
+            if (string.IsNullOrEmpty(urlTemplate))
             {
                 throw new ArgumentException("ResourceURL element (or template attribute) not found in Layer \"" + LayerIdentifier + "\".");
             }
@@ -251,7 +266,7 @@ namespace MapControl
 
             var supportedCrs = tileMatrixSetElement.Element(ows + "SupportedCRS")?.Value;
 
-            if (supportedCrs == null)
+            if (string.IsNullOrEmpty(supportedCrs))
             {
                 throw new ArgumentException("ows:SupportedCRS element not found in TileMatrixSet \"" + tileMatrixSetId + "\".");
             }
@@ -328,8 +343,12 @@ namespace MapControl
 
             var tileMatrixSet = new WmtsTileMatrixSet(tileMatrixSetId, supportedCrs, tileMatrixes);
 
-            SourceName = tileMatrixSet.Identifier;
-            TileSource = new WmtsTileSource(urlTemplate, tileMatrixSet);
+            urlTemplate = urlTemplate
+                .Replace("{Style}", style)
+                .Replace("{TileMatrixSet}", tileMatrixSet.Identifier);
+
+            TileSource = new WmtsTileSource(urlTemplate, tileMatrixSet.TileMatrixes);
+
             TileMatrixSet = tileMatrixSet; // calls UpdateTileLayer()
         }
     }
