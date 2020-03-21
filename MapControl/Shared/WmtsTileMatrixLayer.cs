@@ -79,8 +79,6 @@ namespace MapControl
             XMax = xMax;
             YMax = yMax;
 
-            System.Diagnostics.Debug.WriteLine("{0}: {1}..{2}, {3}..{4}", TileMatrix.Identifier, xMin, xMax, yMin, yMax);
-
             return true;
         }
 
