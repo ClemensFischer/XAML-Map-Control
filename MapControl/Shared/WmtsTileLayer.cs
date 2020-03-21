@@ -203,7 +203,9 @@ namespace MapControl
         {
             TileMatrixSets.Clear();
 
-            var ns = capabilitiesElement.Name.Namespace;
+            XNamespace ns = capabilitiesElement.Name.Namespace;
+            XNamespace ows = "http://www.opengis.net/ows/1.1";
+
             var contentsElement = capabilitiesElement.Element(ns + "Contents");
 
             if (contentsElement == null)
@@ -211,7 +213,6 @@ namespace MapControl
                 throw new ArgumentException("Contents element not found.");
             }
 
-            XNamespace ows = "http://www.opengis.net/ows/1.1";
             XElement layerElement;
 
             if (!string.IsNullOrEmpty(LayerIdentifier))

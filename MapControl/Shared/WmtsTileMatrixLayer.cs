@@ -38,19 +38,23 @@ namespace MapControl
 
         public bool SetBounds(MapProjection projection, double heading, Size mapSize)
         {
-            // top/left viewport corner in map coordinates
+            // top/left viewport corner in map coordinates (meters)
             //
             var tileOrigin = projection.InverseViewportTransform.Transform(new Point());
 
-            // top/left viewport corner in tile matrix coordinates
+            // top/left viewport corner in tile matrix coordinates (tile column and row indexes)
             //
             var tileMatrixOrigin = new Point(
                 TileMatrix.Scale * (tileOrigin.X - TileMatrix.TopLeft.X),
                 TileMatrix.Scale * (TileMatrix.TopLeft.Y - tileOrigin.Y));
 
+            // relative layer scale
+            //
+            var scale = TileMatrix.Scale / projection.ViewportScale;
+
             var transform = new MatrixTransform
             {
-                Matrix = MatrixFactory.Create(1, -heading, tileMatrixOrigin)
+                Matrix = MatrixFactory.Create(scale, -heading, tileMatrixOrigin)
             };
 
             var bounds = transform.TransformBounds(new Rect(0d, 0d, mapSize.Width, mapSize.Height));
@@ -75,22 +79,28 @@ namespace MapControl
             XMax = xMax;
             YMax = yMax;
 
+            System.Diagnostics.Debug.WriteLine("{0}: {1}..{2}, {3}..{4}", TileMatrix.Identifier, xMin, xMax, yMin, yMax);
+
             return true;
         }
 
         public void SetRenderTransform(MapProjection projection, double heading)
         {
-            // XMin/YMin corner in map and viewport coordinates
+            // XMin/YMin corner in map coordinates (meters)
             //
             var mapOrigin = new Point(
                 TileMatrix.TopLeft.X + XMin * TileMatrix.TileWidth / TileMatrix.Scale,
                 TileMatrix.TopLeft.Y - YMin * TileMatrix.TileHeight / TileMatrix.Scale);
 
+            // XMin/YMin corner in viewport coordinates (pixels)
+            //
             var viewOrigin = projection.ViewportTransform.Transform(mapOrigin);
 
-            var tileScale = projection.ViewportScale / TileMatrix.Scale; // relative scale
+            // relative layer scale
+            //
+            var scale = projection.ViewportScale / TileMatrix.Scale;
 
-            ((MatrixTransform)RenderTransform).Matrix = MatrixFactory.Create(tileScale, heading, viewOrigin);
+            ((MatrixTransform)RenderTransform).Matrix = MatrixFactory.Create(scale, heading, viewOrigin);
         }
 
         public void UpdateTiles()
