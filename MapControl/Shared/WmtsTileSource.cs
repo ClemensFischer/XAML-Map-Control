@@ -9,22 +9,22 @@ namespace MapControl
 {
     public class WmtsTileSource : TileSource
     {
-        private readonly IList<WmtsTileMatrix> tileMatrixes;
-
-        public WmtsTileSource(string uriFormat, IList<WmtsTileMatrix> tileMatrixes)
+        public WmtsTileSource(string uriFormat)
             : base(uriFormat)
         {
-            this.tileMatrixes = tileMatrixes;
         }
+
+        public WmtsTileMatrixSet TileMatrixSet { get; set; }
 
         public override Uri GetUri(int x, int y, int zoomLevel)
         {
             Uri uri = null;
 
-            if (zoomLevel >= 0 && zoomLevel < tileMatrixes.Count)
+            if (TileMatrixSet != null && zoomLevel >= 0 && zoomLevel < TileMatrixSet.TileMatrixes.Count)
             {
                 uri = new Uri(UriFormat
-                    .Replace("{TileMatrix}", tileMatrixes[zoomLevel].Identifier)
+                    .Replace("{TileMatrixSet}", TileMatrixSet.Identifier)
+                    .Replace("{TileMatrix}", TileMatrixSet.TileMatrixes[zoomLevel].Identifier)
                     .Replace("{TileCol}", x.ToString())
                     .Replace("{TileRow}", y.ToString()));
             }

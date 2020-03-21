@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 #if WINDOWS_UWP
@@ -21,14 +20,10 @@ namespace MapControl
     {
         public static readonly DependencyProperty CapabilitiesUriProperty = DependencyProperty.Register(
             nameof(CapabilitiesUri), typeof(Uri), typeof(WmtsTileLayer),
-            new PropertyMetadata(null, (o, e) => ((WmtsTileLayer)o).TileMatrixSet = null));
+            new PropertyMetadata(null, (o, e) => ((WmtsTileLayer)o).TileMatrixSets.Clear()));
 
         public static readonly DependencyProperty LayerIdentifierProperty = DependencyProperty.Register(
             nameof(LayerIdentifier), typeof(string), typeof(WmtsTileLayer), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty TileMatrixSetProperty = DependencyProperty.Register(
-            nameof(TileMatrixSet), typeof(WmtsTileMatrixSet), typeof(WmtsTileLayer),
-            new PropertyMetadata(null, (o, e) => ((WmtsTileLayer)o).UpdateTileLayer()));
 
         public WmtsTileLayer()
             : this(new TileImageLoader())
@@ -53,11 +48,7 @@ namespace MapControl
             set { SetValue(LayerIdentifierProperty, value); }
         }
 
-        public WmtsTileMatrixSet TileMatrixSet
-        {
-            get { return (WmtsTileMatrixSet)GetValue(TileMatrixSetProperty); }
-            set { SetValue(TileMatrixSetProperty, value); }
-        }
+        public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = new Dictionary<string, WmtsTileMatrixSet>();
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -87,17 +78,18 @@ namespace MapControl
         {
             UpdateTimer.Stop();
 
+            WmtsTileMatrixSet tileMatrixSet;
+
             if (ParentMap == null ||
-                TileMatrixSet == null ||
-                ParentMap.MapProjection.CrsId != TileMatrixSet.SupportedCrs)
+                !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out tileMatrixSet))
             {
                 Children.Clear();
-                UpdateTiles();
+                UpdateTiles(null);
             }
-            else if (UpdateChildLayers())
+            else if (UpdateChildLayers(tileMatrixSet))
             {
                 SetRenderTransform();
-                UpdateTiles();
+                UpdateTiles(tileMatrixSet);
             }
         }
 
@@ -109,56 +101,53 @@ namespace MapControl
             }
         }
 
-        private bool UpdateChildLayers()
+        private bool UpdateChildLayers(WmtsTileMatrixSet tileMatrixSet)
         {
             bool layersChanged = false;
 
-            if (TileMatrixSet != null)
+            // show all TileMatrix layers with Scale <= ViewportScale, or at least the first layer
+            //
+            var currentMatrixes = tileMatrixSet.TileMatrixes
+                .Where((matrix, i) => i == 0 || matrix.Scale <= ParentMap.MapProjection.ViewportScale)
+                .ToList();
+
+            if (this != ParentMap.MapLayer) // do not load background tiles
             {
-                // show all TileMatrix layers with Scale <= ViewportScale, or at least the first layer
-                //
-                var currentMatrixes = TileMatrixSet.TileMatrixes
-                    .Where((matrix, i) => i == 0 || matrix.Scale <= ParentMap.MapProjection.ViewportScale)
-                    .ToList();
+                currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList(); // last element only
+            }
+            else if (currentMatrixes.Count > MaxBackgroundLevels + 1)
+            {
+                currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - MaxBackgroundLevels - 1).ToList();
+            }
 
-                if (this != ParentMap.MapLayer) // do not load background tiles
+            var currentLayers = Children.Cast<WmtsTileMatrixLayer>()
+                .Where(layer => currentMatrixes.Contains(layer.TileMatrix))
+                .ToList();
+
+            Children.Clear();
+
+            foreach (var tileMatrix in currentMatrixes)
+            {
+                var layer = currentLayers.FirstOrDefault(l => l.TileMatrix == tileMatrix);
+
+                if (layer == null)
                 {
-                    currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList(); // last element only
+                    layer = new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
+                    layersChanged = true;
                 }
-                else if (currentMatrixes.Count > MaxBackgroundLevels + 1)
+
+                if (layer.SetBounds(ParentMap.MapProjection, ParentMap.Heading, ParentMap.RenderSize))
                 {
-                    currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - MaxBackgroundLevels - 1).ToList();
+                    layersChanged = true;
                 }
 
-                var currentLayers = Children.Cast<WmtsTileMatrixLayer>()
-                    .Where(layer => currentMatrixes.Contains(layer.TileMatrix))
-                    .ToList();
-
-                Children.Clear();
-
-                foreach (var tileMatrix in currentMatrixes)
-                {
-                    var layer = currentLayers.FirstOrDefault(l => l.TileMatrix == tileMatrix);
-
-                    if (layer == null)
-                    {
-                        layer = new WmtsTileMatrixLayer(tileMatrix, TileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
-                        layersChanged = true;
-                    }
-
-                    if (layer.SetBounds(ParentMap.MapProjection, ParentMap.Heading, ParentMap.RenderSize))
-                    {
-                        layersChanged = true;
-                    }
-
-                    Children.Add(layer);
-                }
+                Children.Add(layer);
             }
 
             return layersChanged;
         }
 
-        private void UpdateTiles()
+        private void UpdateTiles(WmtsTileMatrixSet tileMatrixSet)
         {
             var tiles = new List<Tile>();
 
@@ -169,12 +158,25 @@ namespace MapControl
                 tiles.AddRange(layer.Tiles);
             }
 
-            TileImageLoader.LoadTilesAsync(tiles, TileSource, SourceName);
+            var tileSource = TileSource as WmtsTileSource;
+            var sourceName = SourceName;
+
+            if (tileSource != null && tileMatrixSet != null)
+            {
+                tileSource.TileMatrixSet = tileMatrixSet;
+
+                if (sourceName != null)
+                {
+                    sourceName += "/" + tileMatrixSet.Identifier;
+                }
+            }
+
+            TileImageLoader.LoadTilesAsync(tiles, TileSource, sourceName);
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (TileMatrixSet == null && CapabilitiesUri != null)
+            if (TileMatrixSets.Count == 0 && CapabilitiesUri != null)
             {
                 try
                 {
@@ -197,10 +199,12 @@ namespace MapControl
             }
         }
 
-        private void ReadCapabilities(XElement capabilities)
+        private void ReadCapabilities(XElement capabilitiesElement)
         {
-            var ns = capabilities.Name.Namespace;
-            var contentsElement = capabilities.Element(ns + "Contents");
+            TileMatrixSets.Clear();
+
+            var ns = capabilitiesElement.Name.Namespace;
+            var contentsElement = capabilitiesElement.Element(ns + "Contents");
 
             if (contentsElement == null)
             {
@@ -222,7 +226,7 @@ namespace MapControl
             }
             else
             {
-                layerElement = capabilities.Descendants(ns + "Layer").FirstOrDefault();
+                layerElement = capabilitiesElement.Descendants(ns + "Layer").FirstOrDefault();
 
                 if (layerElement == null)
                 {
@@ -232,11 +236,11 @@ namespace MapControl
                 LayerIdentifier = layerElement.Element(ows + "Identifier")?.Value ?? "";
             }
 
-            var tileMatrixSetId = layerElement.Element(ns + "TileMatrixSetLink")?.Element(ns + "TileMatrixSet")?.Value;
+            var urlTemplate = layerElement.Element(ns + "ResourceURL")?.Attribute("template")?.Value;
 
-            if (string.IsNullOrEmpty(tileMatrixSetId))
+            if (string.IsNullOrEmpty(urlTemplate))
             {
-                throw new ArgumentException("TileMatrixSetLink element not found.");
+                throw new ArgumentException("No valid ResourceURL element found in Layer \"" + LayerIdentifier + "\".");
             }
 
             var styleElement = layerElement.Descendants(ns + "Style")
@@ -251,110 +255,33 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(style))
             {
-                throw new ArgumentException("Style element not found.");
+                throw new ArgumentException("No valid Style element found in Layer \"" + LayerIdentifier + "\".");
             }
 
-            var urlTemplate = layerElement.Element(ns + "ResourceURL")?.Attribute("template")?.Value;
+            var tileMatrixSetIds = layerElement
+                .Descendants(ns + "TileMatrixSetLink")
+                .Select(e => e.Element(ns + "TileMatrixSet")?.Value)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .ToList();
 
-            if (string.IsNullOrEmpty(urlTemplate))
+            foreach (var tileMatrixSetId in tileMatrixSetIds)
             {
-                throw new ArgumentException("ResourceURL element (or template attribute) not found in Layer \"" + LayerIdentifier + "\".");
+                var tileMatrixSetElement = capabilitiesElement.Descendants(ns + "TileMatrixSet")
+                    .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == tileMatrixSetId);
+
+                if (tileMatrixSetElement == null)
+                {
+                    throw new ArgumentException("Linked TileMatrixSet element not found in Layer \"" + LayerIdentifier + "\".");
+                }
+
+                var tileMatrixSet = WmtsTileMatrixSet.Create(tileMatrixSetElement);
+
+                TileMatrixSets.Add(tileMatrixSet.SupportedCrs, tileMatrixSet);
             }
 
-            var tileMatrixSetElement = capabilities.Descendants(ns + "TileMatrixSet")
-                .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == tileMatrixSetId);
+            TileSource = new WmtsTileSource(urlTemplate.Replace("{Style}", style));
 
-            if (tileMatrixSetElement == null)
-            {
-                throw new ArgumentException("Linked TileMatrixSet element not found in Layer \"" + LayerIdentifier + "\".");
-            }
-
-            var supportedCrs = tileMatrixSetElement.Element(ows + "SupportedCRS")?.Value;
-
-            if (string.IsNullOrEmpty(supportedCrs))
-            {
-                throw new ArgumentException("ows:SupportedCRS element not found in TileMatrixSet \"" + tileMatrixSetId + "\".");
-            }
-
-            var tileMatrixes = new List<WmtsTileMatrix>();
-
-            foreach (var tileMatrix in tileMatrixSetElement.Descendants(ns + "TileMatrix"))
-            {
-                var tileMatrixId = tileMatrix.Element(ows + "Identifier")?.Value;
-
-                if (string.IsNullOrEmpty(tileMatrixId))
-                {
-                    throw new ArgumentException("ows:Identifier element not found in TileMatrix.");
-                }
-
-                string[] topLeftCornerStrings;
-                double scaleDenominator, top, left;
-                int tileWidth, tileHeight, matrixWidth, matrixHeight;
-
-                var valueString = tileMatrix.Element(ns + "ScaleDenominator")?.Value;
-
-                if (string.IsNullOrEmpty(valueString) ||
-                    !double.TryParse(valueString, NumberStyles.Float, CultureInfo.InvariantCulture, out scaleDenominator))
-                {
-                    throw new ArgumentException("ScaleDenominator element not found in TileMatrix \"" + tileMatrixId + "\".");
-                }
-
-                valueString = tileMatrix.Element(ns + "TopLeftCorner")?.Value;
-
-                if (string.IsNullOrEmpty(valueString) ||
-                    (topLeftCornerStrings = valueString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)).Length < 2 ||
-                    !double.TryParse(topLeftCornerStrings[0], NumberStyles.Float, CultureInfo.InvariantCulture, out left) ||
-                    !double.TryParse(topLeftCornerStrings[1], NumberStyles.Float, CultureInfo.InvariantCulture, out top))
-                {
-                    throw new ArgumentException("TopLeftCorner element not found in TileMatrix \"" + tileMatrixId + "\".");
-                }
-
-                valueString = tileMatrix.Element(ns + "TileWidth")?.Value;
-
-                if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out tileWidth))
-                {
-                    throw new ArgumentException("TileWidth element not found in TileMatrix \"" + tileMatrixId + "\".");
-                }
-
-                valueString = tileMatrix.Element(ns + "TileHeight")?.Value;
-
-                if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out tileHeight))
-                {
-                    throw new ArgumentException("TileHeight element not found in TileMatrix \"" + tileMatrixId + "\".");
-                }
-
-                valueString = tileMatrix.Element(ns + "MatrixWidth")?.Value;
-
-                if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out matrixWidth))
-                {
-                    throw new ArgumentException("MatrixWidth element not found in TileMatrix \"" + tileMatrixId + "\".");
-                }
-
-                valueString = tileMatrix.Element(ns + "MatrixHeight")?.Value;
-
-                if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out matrixHeight))
-                {
-                    throw new ArgumentException("MatrixHeight element not found in TileMatrix \"" + tileMatrixId + "\".");
-                }
-
-                tileMatrixes.Add(new WmtsTileMatrix(
-                    tileMatrixId, scaleDenominator, new Point(left, top), tileWidth, tileHeight, matrixWidth, matrixHeight));
-            }
-
-            if (tileMatrixes.Count <= 0)
-            {
-                throw new ArgumentException("No TileMatrix elements found in TileMatrixSet \"" + tileMatrixSetId + "\".");
-            }
-
-            var tileMatrixSet = new WmtsTileMatrixSet(tileMatrixSetId, supportedCrs, tileMatrixes);
-
-            urlTemplate = urlTemplate
-                .Replace("{Style}", style)
-                .Replace("{TileMatrixSet}", tileMatrixSet.Identifier);
-
-            TileSource = new WmtsTileSource(urlTemplate, tileMatrixSet.TileMatrixes);
-
-            TileMatrixSet = tileMatrixSet; // calls UpdateTileLayer()
+            UpdateTileLayer();
         }
     }
 }
