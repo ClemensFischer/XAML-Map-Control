@@ -97,18 +97,19 @@ namespace MapControl
         {
             foreach (var layer in Children.Cast<WmtsTileMatrixLayer>())
             {
-                layer.SetRenderTransform(ParentMap.MapProjection, ParentMap.Heading);
+                layer.SetRenderTransform(ParentMap.MapProjection);
             }
         }
 
         private bool UpdateChildLayers(WmtsTileMatrixSet tileMatrixSet)
         {
-            bool layersChanged = false;
+            var layersChanged = false;
+            var maxScale = 1.001 * ParentMap.MapProjection.ViewportScale; // avoid rounding issues
 
-            // show all TileMatrix layers with Scale <= ViewportScale, or at least the first layer
+            // show all TileMatrix layers with Scale <= maxScale, or at least the first layer
             //
             var currentMatrixes = tileMatrixSet.TileMatrixes
-                .Where((matrix, i) => i == 0 || matrix.Scale <= ParentMap.MapProjection.ViewportScale)
+                .Where((matrix, i) => i == 0 || matrix.Scale <= maxScale)
                 .ToList();
 
             if (this != ParentMap.MapLayer) // do not load background tiles
@@ -136,7 +137,7 @@ namespace MapControl
                     layersChanged = true;
                 }
 
-                if (layer.SetBounds(ParentMap.MapProjection, ParentMap.Heading, ParentMap.RenderSize))
+                if (layer.SetBounds(ParentMap.MapProjection, ParentMap.RenderSize))
                 {
                     layersChanged = true;
                 }

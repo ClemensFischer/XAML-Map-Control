@@ -164,9 +164,7 @@ namespace MapControl
                 .Replace("{W}", west.ToString(CultureInfo.InvariantCulture))
                 .Replace("{S}", south.ToString(CultureInfo.InvariantCulture))
                 .Replace("{E}", east.ToString(CultureInfo.InvariantCulture))
-                .Replace("{N}", north.ToString(CultureInfo.InvariantCulture))
-                .Replace("{X}", MapProjection.TileSize.ToString())
-                .Replace("{Y}", MapProjection.TileSize.ToString());
+                .Replace("{N}", north.ToString(CultureInfo.InvariantCulture));
         }
 
         private string GetLatLonBoundingBoxUri(int x, int y, int zoomLevel)
@@ -181,9 +179,7 @@ namespace MapControl
                 .Replace("{w}", west.ToString(CultureInfo.InvariantCulture))
                 .Replace("{s}", south.ToString(CultureInfo.InvariantCulture))
                 .Replace("{e}", east.ToString(CultureInfo.InvariantCulture))
-                .Replace("{n}", north.ToString(CultureInfo.InvariantCulture))
-                .Replace("{X}", MapProjection.TileSize.ToString())
-                .Replace("{Y}", MapProjection.TileSize.ToString());
+                .Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
         }
     }
 }

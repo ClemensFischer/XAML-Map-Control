@@ -36,29 +36,24 @@ namespace MapControl
 
         public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
 
-        public bool SetBounds(MapProjection projection, double heading, Size mapSize)
+        public void SetRenderTransform(MapProjection projection)
         {
-            // top/left viewport corner in map coordinates (meters)
+            // tile grid origin in pixels
             //
-            var tileOrigin = projection.InverseViewportTransform.Transform(new Point());
+            var tileGridOrigin = new Point(TileMatrix.TileWidth * XMin, TileMatrix.TileHeight * YMin);
 
-            // top/left viewport corner in tile matrix coordinates (tile column and row indexes)
+            ((MatrixTransform)RenderTransform).Matrix =
+                projection.CreateTileLayerTransform(TileMatrix.Scale, TileMatrix.TopLeft, tileGridOrigin);
+        }
+
+        public bool SetBounds(MapProjection projection, Size viewportSize)
+        {
+            // bounds in tile pixels from viewport size
             //
-            var tileMatrixOrigin = new Point(
-                TileMatrix.Scale * (tileOrigin.X - TileMatrix.TopLeft.X),
-                TileMatrix.Scale * (TileMatrix.TopLeft.Y - tileOrigin.Y));
+            var bounds = projection.GetTileBounds(TileMatrix.Scale, TileMatrix.TopLeft, viewportSize);
 
-            // relative layer scale
+            // tile column and row index bounds
             //
-            var scale = TileMatrix.Scale / projection.ViewportScale;
-
-            var transform = new MatrixTransform
-            {
-                Matrix = MatrixFactory.Create(scale, -heading, tileMatrixOrigin)
-            };
-
-            var bounds = transform.TransformBounds(new Rect(0d, 0d, mapSize.Width, mapSize.Height));
-
             var xMin = (int)Math.Floor(bounds.X / TileMatrix.TileWidth);
             var yMin = (int)Math.Floor(bounds.Y / TileMatrix.TileHeight);
             var xMax = (int)Math.Floor((bounds.X + bounds.Width) / TileMatrix.TileWidth);
@@ -80,25 +75,6 @@ namespace MapControl
             YMax = yMax;
 
             return true;
-        }
-
-        public void SetRenderTransform(MapProjection projection, double heading)
-        {
-            // XMin/YMin corner in map coordinates (meters)
-            //
-            var mapOrigin = new Point(
-                TileMatrix.TopLeft.X + XMin * TileMatrix.TileWidth / TileMatrix.Scale,
-                TileMatrix.TopLeft.Y - YMin * TileMatrix.TileHeight / TileMatrix.Scale);
-
-            // XMin/YMin corner in viewport coordinates (pixels)
-            //
-            var viewOrigin = projection.ViewportTransform.Transform(mapOrigin);
-
-            // relative layer scale
-            //
-            var scale = projection.ViewportScale / TileMatrix.Scale;
-
-            ((MatrixTransform)RenderTransform).Matrix = MatrixFactory.Create(scale, heading, viewOrigin);
         }
 
         public void UpdateTiles()

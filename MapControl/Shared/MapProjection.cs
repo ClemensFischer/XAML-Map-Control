@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 #if WINDOWS_UWP
 using Windows.Foundation;
+using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
 using System.Windows.Media;
@@ -18,8 +19,6 @@ namespace MapControl
     /// </summary>
     public abstract class MapProjection
     {
-        public const int TileSize = 256;
-
         public const double Wgs84EquatorialRadius = 6378137d;
         public const double Wgs84Flattening = 1d / 298.257223563;
         public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
@@ -78,6 +77,11 @@ namespace MapControl
         /// Gets the transform matrix from viewport coordinates to cartesian map coordinates.
         /// </summary>
         public Matrix InverseViewportTransform { get; private set; }
+
+        /// <summary>
+        /// Gets the rotation angle of the ViewportTransform matrix.
+        /// </summary>
+        public double ViewportRotation { get; private set; }
 
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to viewport coordinates
@@ -178,19 +182,76 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets ProjectionCenter, ViewportScale, ViewportTransform and InverseViewportTransform.
+        /// Sets ProjectionCenter, ViewportScale, ViewportRotation, ViewportTransform and InverseViewportTransform.
         /// </summary>
-        public void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double heading)
+        public void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double rotation)
         {
             ProjectionCenter = projectionCenter;
-            ViewportScale = Math.Pow(2d, zoomLevel) * TileSize / (360d * TrueScale);
+            ViewportScale = Math.Pow(2d, zoomLevel) * 256d / (360d * TrueScale);
+            ViewportRotation = rotation;
 
             var center = LocationToPoint(mapCenter);
-            var matrix = MatrixFactory.Create(center, ViewportScale, -ViewportScale, heading, viewportCenter);
+            var matrix = CreateViewportTransform(center, viewportCenter);
 
             ViewportTransform = matrix;
             matrix.Invert();
             InverseViewportTransform = matrix;
+        }
+
+        internal Matrix CreateViewportTransform(Point mapCenter, Point viewportCenter)
+        {
+            var matrix = new Matrix(ViewportScale, 0d, 0d, -ViewportScale, -ViewportScale * mapCenter.X, ViewportScale * mapCenter.Y);
+
+            matrix.Rotate(ViewportRotation);
+            matrix.Translate(viewportCenter.X, viewportCenter.Y);
+
+            return matrix;
+        }
+
+        internal Matrix CreateTileLayerTransform(double tileGridScale, Point tileGridTopLeft, Point tileGridOrigin)
+        {
+            var scale = ViewportScale / tileGridScale;
+            var matrix = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+
+            matrix.Rotate(ViewportRotation);
+
+            // tile grid origin in map cordinates
+            //
+            var mapOrigin = new Point(
+                tileGridTopLeft.X + tileGridOrigin.X / tileGridScale,
+                tileGridTopLeft.Y - tileGridOrigin.Y / tileGridScale);
+
+            // tile grid origin in viewport cordinates
+            //
+            var viewOrigin = ViewportTransform.Transform(mapOrigin);
+
+            matrix.Translate(viewOrigin.X, viewOrigin.Y);
+
+            return matrix;
+        }
+
+        internal Rect GetTileBounds(double tileGridScale, Point tileGridTopLeft, Size viewportSize)
+        {
+            var scale = tileGridScale / ViewportScale;
+            var matrix = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+
+            matrix.Rotate(-ViewportRotation);
+
+            // viewport origin in map coordinates
+            //
+            var origin = InverseViewportTransform.Transform(new Point());
+
+            // translate origin to tile grid origin in pixels
+            //
+            matrix.Translate(
+                tileGridScale * (origin.X - tileGridTopLeft.X),
+                tileGridScale * (tileGridTopLeft.Y - origin.Y));
+
+            // transforms viewport bounds to tile pixel bounds
+            //
+            var transform = new MatrixTransform { Matrix = matrix };
+
+            return transform.TransformBounds(new Rect(0d, 0d, viewportSize.Width, viewportSize.Height));
         }
     }
 }

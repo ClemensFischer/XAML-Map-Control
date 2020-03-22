@@ -351,7 +351,7 @@ namespace MapControl
             var rect = MapProjection.BoundingBoxToRect(boundingBox);
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var scale = Math.Min(RenderSize.Width / rect.Width, RenderSize.Height / rect.Height)
-                      * MapProjection.TrueScale * 360d / MapProjection.TileSize;
+                      * MapProjection.TrueScale * 360d / 256d;
 
             TargetZoomLevel = Math.Log(scale, 2d);
             TargetCenter = MapProjection.PointToLocation(center);

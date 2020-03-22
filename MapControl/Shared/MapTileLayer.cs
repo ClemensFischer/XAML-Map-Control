@@ -21,7 +21,14 @@ namespace MapControl
     /// </summary>
     public class MapTileLayer : MapTileLayerBase
     {
-        private const double WebMercatorMapSize = 2 * Math.PI * MapProjection.Wgs84EquatorialRadius;
+        public const int TileSize = 256;
+        public const double MapSize = 2 * Math.PI * MapProjection.Wgs84EquatorialRadius;
+        public static readonly Point TileGridTopLeft = new Point(-MapSize / 2, MapSize / 2);
+
+        public static double TileGridScale(int zoomLevel)
+        {
+            return (TileSize << zoomLevel) / MapSize;
+        }
 
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.
@@ -96,9 +103,9 @@ namespace MapControl
             {
                 foreach (var tile in Tiles)
                 {
-                    var tileSize = MapProjection.TileSize << (TileGrid.ZoomLevel - tile.ZoomLevel);
-                    var x = tileSize * tile.X - MapProjection.TileSize * TileGrid.XMin;
-                    var y = tileSize * tile.Y - MapProjection.TileSize * TileGrid.YMin;
+                    var tileSize = TileSize << (TileGrid.ZoomLevel - tile.ZoomLevel);
+                    var x = tileSize * tile.X - TileSize * TileGrid.XMin;
+                    var y = tileSize * tile.Y - TileSize * TileGrid.YMin;
 
                     tile.Image.Width = tileSize;
                     tile.Image.Height = tileSize;
@@ -136,53 +143,29 @@ namespace MapControl
 
         protected override void SetRenderTransform()
         {
-            var tileGridSize = (double)(1 << TileGrid.ZoomLevel);
-
-            // top/left tile grid corner in map coordinates
+            // tile grid origin in pixels
             //
-            var tileGridOrigin = new Point(
-                WebMercatorMapSize * (TileGrid.XMin / tileGridSize - 0.5),
-                WebMercatorMapSize * (0.5 - TileGrid.YMin / tileGridSize));
+            var tileGridOrigin = new Point(TileSize * TileGrid.XMin, TileSize * TileGrid.YMin);
 
-            // top/left tile grid corner in viewport coordinates
-            //
-            var viewOrigin = ParentMap.MapProjection.ViewportTransform.Transform(tileGridOrigin);
-
-            // tile pixels per viewport unit, 0.5 .. 2
-            //
-            var tileScale = Math.Pow(2d, ParentMap.ZoomLevel - TileGrid.ZoomLevel);
-
-            ((MatrixTransform)RenderTransform).Matrix = MatrixFactory.Create(tileScale, ParentMap.Heading, viewOrigin);
+            ((MatrixTransform)RenderTransform).Matrix = ParentMap.MapProjection.CreateTileLayerTransform(
+                TileGridScale(TileGrid.ZoomLevel), TileGridTopLeft, tileGridOrigin);
         }
 
         private bool SetTileGrid()
         {
-            var tileGridZoomLevel = (int)Math.Round(ParentMap.ZoomLevel);
-            var tileGridSize = (double)(1 << tileGridZoomLevel);
+            var tileGridZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel + 0.001); // avoid rounding issues
 
-            // top/left viewport corner in map coordinates
+            // bounds in tile pixels from viewport size
             //
-            var tileOrigin = ParentMap.MapProjection.InverseViewportTransform.Transform(new Point());
+            var tileBounds = ParentMap.MapProjection.GetTileBounds(
+                TileGridScale(tileGridZoomLevel), TileGridTopLeft, ParentMap.RenderSize);
 
-            // top/left viewport corner in tile grid coordinates
+            // tile column and row index bounds
             //
-            var tileGridOrigin = new Point(
-                tileGridSize * (0.5 + tileOrigin.X / WebMercatorMapSize),
-                tileGridSize * (0.5 - tileOrigin.Y / WebMercatorMapSize));
-
-            // transforms viewport bounds to tile grid bounds
-            //
-            var transform = new MatrixTransform
-            {
-                Matrix = MatrixFactory.Create(1d / MapProjection.TileSize, -ParentMap.Heading, tileGridOrigin)
-            };
-
-            var bounds = transform.TransformBounds(new Rect(0d, 0d, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height));
-
-            var xMin = (int)Math.Floor(bounds.X);
-            var yMin = (int)Math.Floor(bounds.Y);
-            var xMax = (int)Math.Floor(bounds.X + bounds.Width);
-            var yMax = (int)Math.Floor(bounds.Y + bounds.Height);
+            var xMin = (int)Math.Floor(tileBounds.X / TileSize);
+            var yMin = (int)Math.Floor(tileBounds.Y / TileSize);
+            var xMax = (int)Math.Floor((tileBounds.X + tileBounds.Width) / TileSize);
+            var yMax = (int)Math.Floor((tileBounds.Y + tileBounds.Height) / TileSize);
 
             if (TileGrid != null &&
                 TileGrid.ZoomLevel == tileGridZoomLevel &&
