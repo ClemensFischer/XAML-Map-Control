@@ -198,7 +198,7 @@ namespace MapControl
             InverseViewportTransform = matrix;
         }
 
-        internal Matrix CreateViewportTransform(Point mapCenter, Point viewportCenter)
+        private Matrix CreateViewportTransform(Point mapCenter, Point viewportCenter)
         {
             var matrix = new Matrix(ViewportScale, 0d, 0d, -ViewportScale, -ViewportScale * mapCenter.X, ViewportScale * mapCenter.Y);
 
@@ -215,13 +215,13 @@ namespace MapControl
 
             matrix.Rotate(ViewportRotation);
 
-            // tile grid origin in map cordinates
+            // tile grid origin in map coordinates
             //
             var mapOrigin = new Point(
                 tileGridTopLeft.X + tileGridOrigin.X / tileGridScale,
                 tileGridTopLeft.Y - tileGridOrigin.Y / tileGridScale);
 
-            // tile grid origin in viewport cordinates
+            // tile grid origin in viewport coordinates
             //
             var viewOrigin = ViewportTransform.Transform(mapOrigin);
 

@@ -33,6 +33,8 @@ namespace MapControl
         public WmtsTileLayer(ITileImageLoader tileImageLoader)
             : base(tileImageLoader)
         {
+            IsHitTestVisible = false;
+
             Loaded += OnLoaded;
         }
 
@@ -48,11 +50,16 @@ namespace MapControl
             set { SetValue(LayerIdentifierProperty, value); }
         }
 
+        public IEnumerable<WmtsTileMatrixLayer> ChildLayers
+        {
+            get { return Children.Cast<WmtsTileMatrixLayer>(); }
+        }
+
         public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = new Dictionary<string, WmtsTileMatrixSet>();
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            foreach (var layer in Children.Cast<WmtsTileMatrixLayer>())
+            foreach (var layer in ChildLayers)
             {
                 layer.Measure(availableSize);
             }
@@ -62,7 +69,7 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (var layer in Children.Cast<WmtsTileMatrixLayer>())
+            foreach (var layer in ChildLayers)
             {
                 layer.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
             }
@@ -95,7 +102,7 @@ namespace MapControl
 
         protected override void SetRenderTransform()
         {
-            foreach (var layer in Children.Cast<WmtsTileMatrixLayer>())
+            foreach (var layer in ChildLayers)
             {
                 layer.SetRenderTransform(ParentMap.MapProjection);
             }
@@ -106,7 +113,7 @@ namespace MapControl
             var layersChanged = false;
             var maxScale = 1.001 * ParentMap.MapProjection.ViewportScale; // avoid rounding issues
 
-            // show all TileMatrix layers with Scale <= maxScale, or at least the first layer
+            // show all TileMatrix layers with Scale <= maxScale, at least the first layer
             //
             var currentMatrixes = tileMatrixSet.TileMatrixes
                 .Where((matrix, i) => i == 0 || matrix.Scale <= maxScale)
@@ -121,9 +128,7 @@ namespace MapControl
                 currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - MaxBackgroundLevels - 1).ToList();
             }
 
-            var currentLayers = Children.Cast<WmtsTileMatrixLayer>()
-                .Where(layer => currentMatrixes.Contains(layer.TileMatrix))
-                .ToList();
+            var currentLayers = ChildLayers.Where(layer => currentMatrixes.Contains(layer.TileMatrix)).ToList();
 
             Children.Clear();
 
@@ -152,7 +157,7 @@ namespace MapControl
         {
             var tiles = new List<Tile>();
 
-            foreach (var layer in Children.Cast<WmtsTileMatrixLayer>())
+            foreach (var layer in ChildLayers)
             {
                 layer.UpdateTiles();
 

@@ -28,7 +28,8 @@ namespace MapControl
         }
 
         public WmtsTileMatrix TileMatrix { get; }
-        public int ZoomLevel { get; }
+        public int ZoomLevel { get; } // index of TileMatrix in WmtsTileMatrixSet.TileMatrixes
+
         public int XMin { get; private set; }
         public int YMin { get; private set; }
         public int XMax { get; private set; }

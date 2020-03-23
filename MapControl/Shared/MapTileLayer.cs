@@ -63,9 +63,9 @@ namespace MapControl
         {
         }
 
-        public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
-
         public TileGrid TileGrid { get; private set; }
+
+        public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -83,37 +83,6 @@ namespace MapControl
         {
             get { return (int)GetValue(MaxZoomLevelProperty); }
             set { SetValue(MaxZoomLevelProperty, value); }
-        }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
-
-            foreach (var tile in Tiles)
-            {
-                tile.Image.Measure(availableSize);
-            }
-
-            return new Size();
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            if (TileGrid != null)
-            {
-                foreach (var tile in Tiles)
-                {
-                    var tileSize = TileSize << (TileGrid.ZoomLevel - tile.ZoomLevel);
-                    var x = tileSize * tile.X - TileSize * TileGrid.XMin;
-                    var y = tileSize * tile.Y - TileSize * TileGrid.YMin;
-
-                    tile.Image.Width = tileSize;
-                    tile.Image.Height = tileSize;
-                    tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
-                }
-            }
-
-            return finalSize;
         }
 
         protected override void TileSourcePropertyChanged()
@@ -241,6 +210,37 @@ namespace MapControl
             }
 
             TileImageLoader.LoadTilesAsync(Tiles, TileSource, SourceName);
+        }
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
+
+            foreach (var tile in Tiles)
+            {
+                tile.Image.Measure(availableSize);
+            }
+
+            return new Size();
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            if (TileGrid != null)
+            {
+                foreach (var tile in Tiles)
+                {
+                    var tileSize = TileSize << (TileGrid.ZoomLevel - tile.ZoomLevel);
+                    var x = tileSize * tile.X - TileSize * TileGrid.XMin;
+                    var y = tileSize * tile.Y - TileSize * TileGrid.YMin;
+
+                    tile.Image.Width = tileSize;
+                    tile.Image.Height = tileSize;
+                    tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
+                }
+            }
+
+            return finalSize;
         }
     }
 }
