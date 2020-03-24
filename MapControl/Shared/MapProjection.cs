@@ -187,7 +187,7 @@ namespace MapControl
         public void SetViewportTransform(Location projectionCenter, Location mapCenter, Point viewportCenter, double zoomLevel, double rotation)
         {
             ProjectionCenter = projectionCenter;
-            ViewportScale = Math.Pow(2d, zoomLevel) * 256d / (360d * TrueScale);
+            ViewportScale = 256d * Math.Pow(2d, zoomLevel) / (360d * TrueScale);
             ViewportRotation = rotation;
 
             var center = LocationToPoint(mapCenter);

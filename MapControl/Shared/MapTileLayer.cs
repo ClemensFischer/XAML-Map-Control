@@ -22,12 +22,13 @@ namespace MapControl
     public class MapTileLayer : MapTileLayerBase
     {
         public const int TileSize = 256;
-        public const double MapSize = 2 * Math.PI * MapProjection.Wgs84EquatorialRadius;
-        public static readonly Point TileGridTopLeft = new Point(-MapSize / 2, MapSize / 2);
+
+        public static readonly Point TileGridTopLeft = new Point(
+            -180d * MapProjection.Wgs84MetersPerDegree, 180d * MapProjection.Wgs84MetersPerDegree);
 
         public static double TileGridScale(int zoomLevel)
         {
-            return (TileSize << zoomLevel) / MapSize;
+            return (TileSize << zoomLevel) / (360d * MapProjection.Wgs84MetersPerDegree);
         }
 
         /// <summary>
