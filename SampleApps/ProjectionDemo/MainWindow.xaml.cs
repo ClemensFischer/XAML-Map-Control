@@ -63,7 +63,10 @@ namespace ProjectionDemo
 
         private void Map_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            viewModel.PushpinLocation = viewModel.CurrentProjection.ViewportPointToLocation(e.GetPosition((IInputElement)sender));
+            var map = (MapBase)sender;
+            var pos = e.GetPosition(map);
+
+            viewModel.PushpinLocation = map.MapProjection.ViewportPointToLocation(pos);
         }
     }
 
