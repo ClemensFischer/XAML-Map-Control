@@ -22,21 +22,6 @@ namespace ProjectionDemo
             InitializeComponent();
         }
 
-        private async Task<string> GetWktAsync(int epsgCode)
-        {
-            var wkt = await httpClient.GetStringAsync(string.Format("https://epsg.io/{0}.wkt", epsgCode));
-
-            if (!wkt.Contains("PARAMETER[\"latitude_of_origin\",") &&
-                !wkt.Contains("PARAMETER[\"latitude_of_center\","))
-            {
-                wkt = wkt.Replace(
-                    "PARAMETER[\"central_meridian\",",
-                    "PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",");
-            }
-
-            return wkt;
-        }
-
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             viewModel.Projections.Add(new MapControl.Projections.WebMercatorProjection());
