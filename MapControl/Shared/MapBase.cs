@@ -49,7 +49,7 @@ namespace MapControl
 
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
             nameof(MaxZoomLevel), typeof(double), typeof(MapBase),
-            new PropertyMetadata(19d, (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
+            new PropertyMetadata(20d, (o, e) => ((MapBase)o).MaxZoomLevelPropertyChanged((double)e.NewValue)));
 
         public static readonly DependencyProperty AnimationDurationProperty = DependencyProperty.Register(
             nameof(AnimationDuration), typeof(TimeSpan), typeof(MapBase),
@@ -146,8 +146,8 @@ namespace MapControl
 
         /// <summary>
         /// Gets or sets the maximum value of the ZoomLevel and TargetZommLevel properties.
-        /// Must be greater than or equal to MinZoomLevel and less than or equal to 20.
-        /// The default value is 19.
+        /// Must be greater than or equal to MinZoomLevel and less than or equal to 22.
+        /// The default value is 20.
         /// </summary>
         public double MaxZoomLevel
         {
