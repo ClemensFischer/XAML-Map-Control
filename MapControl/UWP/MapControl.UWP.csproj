@@ -128,9 +128,6 @@
     <Compile Include="..\Shared\MapTileLayerBase.cs">
       <Link>MapTileLayerBase.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MatrixFactory.cs">
-      <Link>MatrixFactory.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
     </Compile>
