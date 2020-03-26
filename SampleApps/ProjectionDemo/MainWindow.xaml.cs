@@ -117,8 +117,8 @@ namespace ProjectionDemo
         {
             get
             {
-                var latitude = (int)Math.Round(PushpinLocation.Latitude * 3600);
-                var longitude = (int)Math.Round(Location.NormalizeLongitude(PushpinLocation.Longitude) * 3600);
+                var latitude = (int)Math.Round(PushpinLocation.Latitude * 36000);
+                var longitude = (int)Math.Round(Location.NormalizeLongitude(PushpinLocation.Longitude) * 36000);
                 var latHemisphere = 'N';
                 var lonHemisphere = 'E';
 
@@ -135,9 +135,9 @@ namespace ProjectionDemo
                 }
 
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0}  {1:00} {2:00} {3:00}\n{4} {5:000} {6:00} {7:00}",
-                    latHemisphere, latitude / 3600, (latitude / 60) % 60, latitude % 60,
-                    lonHemisphere, longitude / 3600, (longitude / 60) % 60, longitude % 60);
+                    "{0}  {1:00} {2:00} {3:00.0}\n{4} {5:000} {6:00} {7:00.0}",
+                    latHemisphere, latitude / 36000, (latitude / 600) % 60, (latitude % 600) / 10d,
+                    lonHemisphere, longitude / 36000, (longitude / 600) % 60, (longitude % 600) / 10d);
             }
         }
     }
