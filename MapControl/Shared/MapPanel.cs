@@ -145,14 +145,13 @@ namespace MapControl
 
         private Point ArrangeElement(FrameworkElement element, Location location)
         {
-            var projection = parentMap.MapProjection;
-            var pos = projection.LocationToViewportPoint(location);
+            var pos = parentMap.LocationToViewportPoint(location);
 
-            if (projection.IsNormalCylindrical &&
+            if (parentMap.MapProjection.IsNormalCylindrical &&
                 (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                  pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
             {
-                pos = projection.LocationToViewportPoint(new Location(
+                pos = parentMap.LocationToViewportPoint(new Location(
                     location.Latitude,
                     Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
             }
@@ -202,20 +201,20 @@ namespace MapControl
             var projection = parentMap.MapProjection;
             var rect = projection.BoundingBoxToRect(boundingBox);
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-            var pos = projection.ViewportTransform.Transform(center);
+            var pos = parentMap.ViewTransform.MapToView(center);
 
             if (projection.IsNormalCylindrical &&
                 (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                  pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
             {
-                var location = projection.PointToLocation(center);
+                var location = projection.MapToLocation(center);
                 location.Longitude = Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude);
 
-                pos = projection.LocationToViewportPoint(location);
+                pos = parentMap.LocationToViewportPoint(location);
             }
 
-            rect.Width *= projection.ViewportScale;
-            rect.Height *= projection.ViewportScale;
+            rect.Width *= parentMap.ViewTransform.Scale;
+            rect.Height *= parentMap.ViewTransform.Scale;
             rect.X = pos.X - rect.Width / 2d;
             rect.Y = pos.Y - rect.Height / 2d;
 

@@ -46,7 +46,7 @@ namespace MapControl
 
                 if (projection.IsNormalCylindrical)
                 {
-                    DrawCylindricalGraticule(drawingContext, projection, lineDistance, labelFormat);
+                    DrawCylindricalGraticule(drawingContext, lineDistance, labelFormat);
                 }
                 else
                 {
@@ -54,9 +54,9 @@ namespace MapControl
             }
         }
 
-        private void DrawCylindricalGraticule(DrawingContext drawingContext, MapProjection projection, double lineDistance, string labelFormat)
+        private void DrawCylindricalGraticule(DrawingContext drawingContext, double lineDistance, string labelFormat)
         {
-            var boundingBox = projection.ViewportRectToBoundingBox(new Rect(ParentMap.RenderSize));
+            var boundingBox = ParentMap.ViewportRectToBoundingBox(new Rect(ParentMap.RenderSize));
             var latLabelStart = Math.Ceiling(boundingBox.South / lineDistance) * lineDistance;
             var lonLabelStart = Math.Ceiling(boundingBox.West / lineDistance) * lineDistance;
             var latLabels = new List<Label>((int)((boundingBox.North - latLabelStart) / lineDistance) + 1);
@@ -72,8 +72,8 @@ namespace MapControl
                     CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip)));
 
                 drawingContext.DrawLine(pen,
-                    projection.LocationToViewportPoint(new Location(lat, boundingBox.West)),
-                    projection.LocationToViewportPoint(new Location(lat, boundingBox.East)));
+                    ParentMap.LocationToViewportPoint(new Location(lat, boundingBox.West)),
+                    ParentMap.LocationToViewportPoint(new Location(lat, boundingBox.East)));
             }
 
             for (var lon = lonLabelStart; lon <= boundingBox.East; lon += lineDistance)
@@ -83,15 +83,15 @@ namespace MapControl
                     CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip)));
 
                 drawingContext.DrawLine(pen,
-                    projection.LocationToViewportPoint(new Location(boundingBox.South, lon)),
-                    projection.LocationToViewportPoint(new Location(boundingBox.North, lon)));
+                    ParentMap.LocationToViewportPoint(new Location(boundingBox.South, lon)),
+                    ParentMap.LocationToViewportPoint(new Location(boundingBox.North, lon)));
             }
 
             foreach (var latLabel in latLabels)
             {
                 foreach (var lonLabel in lonLabels)
                 {
-                    var position = projection.LocationToViewportPoint(new Location(latLabel.Position, lonLabel.Position));
+                    var position = ParentMap.LocationToViewportPoint(new Location(latLabel.Position, lonLabel.Position));
 
                     drawingContext.PushTransform(new RotateTransform(ParentMap.Heading, position.X, position.Y));
                     drawingContext.DrawText(latLabel.Text,

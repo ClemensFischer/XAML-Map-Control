@@ -19,35 +19,35 @@ namespace MapControl
             CrsId = "AUTO2:97002"; // GeoServer non-standard CRS ID
         }
 
-        public override Point LocationToPoint(Location location)
+        public override Point LocationToMap(Location location)
         {
-            if (location.Equals(ProjectionCenter))
+            if (location.Equals(Center))
             {
                 return new Point();
             }
 
             double azimuth, distance;
 
-            GetAzimuthDistance(ProjectionCenter, location, out azimuth, out distance);
+            GetAzimuthDistance(Center, location, out azimuth, out distance);
 
-            var mapDistance = Math.Tan(distance / 2d) * 2d * TrueScale * 180d / Math.PI;
+            var mapDistance = Math.Tan(distance / 2d) * 2d * UnitsPerDegree * 180d / Math.PI;
 
             return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
         }
 
-        public override Location PointToLocation(Point point)
+        public override Location MapToLocation(Point point)
         {
             if (point.X == 0d && point.Y == 0d)
             {
-                return new Location(ProjectionCenter.Latitude, ProjectionCenter.Longitude);
+                return new Location(Center.Latitude, Center.Longitude);
             }
 
             var azimuth = Math.Atan2(point.X, point.Y);
             var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
 
-            var distance = 2d * Math.Atan(mapDistance / (2d * TrueScale * 180d / Math.PI));
+            var distance = 2d * Math.Atan(mapDistance / (2d * UnitsPerDegree * 180d / Math.PI));
 
-            return GetLocation(ProjectionCenter, azimuth, distance);
+            return GetLocation(Center, azimuth, distance);
         }
     }
 }

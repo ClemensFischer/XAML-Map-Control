@@ -32,25 +32,25 @@ namespace MapControl
             get { return maxLatitude; }
         }
 
-        public override Vector GetMapScale(Location location)
+        public override Vector GetRelativeScale(Location location)
         {
             var k = 1d / Math.Cos(location.Latitude * Math.PI / 180d); // p.44 (7-3)
 
-            return new Vector(ViewportScale * k, ViewportScale * k);
+            return new Vector(k, k);
         }
 
-        public override Point LocationToPoint(Location location)
+        public override Point LocationToMap(Location location)
         {
             return new Point(
-                TrueScale * location.Longitude,
-                TrueScale * LatitudeToY(location.Latitude));
+                UnitsPerDegree * location.Longitude,
+                UnitsPerDegree * LatitudeToY(location.Latitude));
         }
 
-        public override Location PointToLocation(Point point)
+        public override Location MapToLocation(Point point)
         {
             return new Location(
-                YToLatitude(point.Y / TrueScale),
-                point.X / TrueScale);
+                YToLatitude(point.Y / UnitsPerDegree),
+                point.X / UnitsPerDegree);
         }
 
         public static double LatitudeToY(double latitude)

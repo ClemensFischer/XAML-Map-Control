@@ -81,9 +81,9 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
-        protected Point LocationToPoint(Location location)
+        protected Point LocationToMap(Location location)
         {
-            var point = parentMap.MapProjection.LocationToPoint(location);
+            var point = parentMap.MapProjection.LocationToMap(location);
 
             if (point.Y == double.PositiveInfinity)
             {
@@ -99,7 +99,7 @@ namespace MapControl
 
         protected Point LocationToViewportPoint(Location location)
         {
-            return parentMap.MapProjection.ViewportTransform.Transform(LocationToPoint(location));
+            return parentMap.ViewTransform.MapToView(LocationToMap(location));
         }
 
         protected double GetLongitudeOffset()

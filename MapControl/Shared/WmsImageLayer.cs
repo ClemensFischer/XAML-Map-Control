@@ -142,8 +142,8 @@ namespace MapControl
 
                 uri += "&CRS=" + projection.GetCrsValue();
                 uri += "&BBOX=" + projection.GetBboxValue(rect);
-                uri += "&WIDTH=" + (int)Math.Round(projection.ViewportScale * rect.Width);
-                uri += "&HEIGHT=" + (int)Math.Round(projection.ViewportScale * rect.Height);
+                uri += "&WIDTH=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Width);
+                uri += "&HEIGHT=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Height);
             }
 
             return uri;

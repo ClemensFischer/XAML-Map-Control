@@ -258,7 +258,7 @@ namespace MapControl
             var y = (ParentMap.RenderSize.Height - height) / 2d;
             var rect = new Rect(x, y, width, height);
 
-            BoundingBox = ParentMap.MapProjection.ViewportRectToBoundingBox(rect);
+            BoundingBox = ParentMap.ViewportRectToBoundingBox(rect);
 
             if (BoundingBox != null)
             {

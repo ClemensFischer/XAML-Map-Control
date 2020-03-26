@@ -45,10 +45,6 @@ namespace MapControl
 
         public MapBase()
         {
-            MapProjection = new WebMercatorProjection();
-            ScaleRotateTransform.Children.Add(ScaleTransform);
-            ScaleRotateTransform.Children.Add(RotateTransform);
-
             // set Background by Style to enable resetting by ClearValue in MapLayerPropertyChanged
             var style = new Style(typeof(MapBase));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.Transparent)));

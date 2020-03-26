@@ -104,14 +104,14 @@ namespace MapControl
         {
             foreach (var layer in ChildLayers)
             {
-                layer.SetRenderTransform(ParentMap.MapProjection);
+                layer.SetRenderTransform(ParentMap.ViewTransform);
             }
         }
 
         private bool UpdateChildLayers(WmtsTileMatrixSet tileMatrixSet)
         {
             var layersChanged = false;
-            var maxScale = 1.001 * ParentMap.MapProjection.ViewportScale; // avoid rounding issues
+            var maxScale = 1.001 * ParentMap.ViewTransform.Scale; // avoid rounding issues
 
             // show all TileMatrix layers with Scale <= maxScale, at least the first layer
             //
@@ -142,7 +142,7 @@ namespace MapControl
                     layersChanged = true;
                 }
 
-                if (layer.SetBounds(ParentMap.MapProjection, ParentMap.RenderSize))
+                if (layer.SetBounds(ParentMap.ViewTransform, ParentMap.RenderSize))
                 {
                     layersChanged = true;
                 }

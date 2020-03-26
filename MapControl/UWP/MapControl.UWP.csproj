@@ -140,17 +140,20 @@
     <Compile Include="..\Shared\Tile.cs">
       <Link>Tile.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\TileGrid.cs">
-      <Link>TileGrid.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\TileImageLoader.cs">
       <Link>TileImageLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\TileMatrix.cs">
+      <Link>TileMatrix.cs</Link>
     </Compile>
     <Compile Include="..\Shared\TileSource.cs">
       <Link>TileSource.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ViewportChangedEventArgs.cs">
       <Link>ViewportChangedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\ViewTransform.cs">
+      <Link>ViewTransform.cs</Link>
     </Compile>
     <Compile Include="..\Shared\WebMercatorProjection.cs">
       <Link>WebMercatorProjection.cs</Link>

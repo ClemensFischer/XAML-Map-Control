@@ -4,7 +4,7 @@
 
 namespace MapControl
 {
-    public class TileGrid
+    public class TileMatrix
     {
         public readonly int ZoomLevel;
         public readonly int XMin;
@@ -12,7 +12,7 @@ namespace MapControl
         public readonly int XMax;
         public readonly int YMax;
 
-        public TileGrid(int zoomLevel, int xMin, int yMin, int xMax, int yMax)
+        public TileMatrix(int zoomLevel, int xMin, int yMin, int xMax, int yMax)
         {
             ZoomLevel = zoomLevel;
             XMin = xMin;

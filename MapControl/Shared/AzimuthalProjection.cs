@@ -27,7 +27,7 @@ namespace MapControl
 
             if (cbbox != null)
             {
-                var center = LocationToPoint(cbbox.Center);
+                var center = LocationToMap(cbbox.Center);
 
                 return new Rect(
                      center.X - cbbox.Width / 2d, center.Y - cbbox.Height / 2d,
@@ -39,7 +39,7 @@ namespace MapControl
 
         public override BoundingBox RectToBoundingBox(Rect rect)
         {
-            var center = PointToLocation(new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d));
+            var center = MapToLocation(new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d));
 
             return new CenteredBoundingBox(center, rect.Width, rect.Height); // width and height in meters
         }

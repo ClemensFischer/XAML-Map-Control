@@ -24,7 +24,8 @@ namespace MapControl
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            var projection = ParentMap.MapProjection;
+            var map = ParentMap;
+            var projection = map.MapProjection;
 
             if (projection.IsNormalCylindrical)
             {
@@ -39,7 +40,7 @@ namespace MapControl
                     Children.Add(path);
                 }
 
-                var bounds = projection.ViewportRectToBoundingBox(new Rect(0d, 0d, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height));
+                var bounds = map.ViewportRectToBoundingBox(new Rect(0d, 0d, map.RenderSize.Width, map.RenderSize.Height));
                 var lineDistance = GetLineDistance();
 
                 var labelStart = new Location(
@@ -65,14 +66,14 @@ namespace MapControl
                 {
                     var figure = new PathFigure
                     {
-                        StartPoint = projection.LocationToViewportPoint(new Location(lat, lineStart.Longitude)),
+                        StartPoint = map.LocationToViewportPoint(new Location(lat, lineStart.Longitude)),
                         IsClosed = false,
                         IsFilled = false
                     };
 
                     figure.Segments.Add(new LineSegment
                     {
-                        Point = projection.LocationToViewportPoint(new Location(lat, lineEnd.Longitude))
+                        Point = map.LocationToViewportPoint(new Location(lat, lineEnd.Longitude))
                     });
 
                     geometry.Figures.Add(figure);
@@ -82,14 +83,14 @@ namespace MapControl
                 {
                     var figure = new PathFigure
                     {
-                        StartPoint = projection.LocationToViewportPoint(new Location(lineStart.Latitude, lon)),
+                        StartPoint = map.LocationToViewportPoint(new Location(lineStart.Latitude, lon)),
                         IsClosed = false,
                         IsFilled = false
                     };
 
                     figure.Segments.Add(new LineSegment
                     {
-                        Point = projection.LocationToViewportPoint(new Location(lineEnd.Latitude, lon))
+                        Point = map.LocationToViewportPoint(new Location(lineEnd.Latitude, lon))
                     });
 
                     geometry.Figures.Add(figure);
@@ -112,7 +113,7 @@ namespace MapControl
                         {
                             var renderTransform = new TransformGroup();
                             renderTransform.Children.Add(new TranslateTransform());
-                            renderTransform.Children.Add(ParentMap.RotateTransform);
+                            renderTransform.Children.Add(map.RotateTransform);
                             renderTransform.Children.Add(new TranslateTransform());
 
                             label = new TextBlock { RenderTransform = renderTransform };
@@ -153,7 +154,7 @@ namespace MapControl
                     var label = (TextBlock)Children[i];
                     var location = (Location)label.Tag;
                     var viewportTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[2];
-                    var viewportPosition = projection.LocationToViewportPoint(location);
+                    var viewportPosition = map.LocationToViewportPoint(location);
                     viewportTransform.X = viewportPosition.X;
                     viewportTransform.Y = viewportPosition.Y;
                 }

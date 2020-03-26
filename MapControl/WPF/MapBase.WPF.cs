@@ -53,13 +53,6 @@ namespace MapControl
             BackgroundProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
         }
 
-        public MapBase()
-        {
-            MapProjection = new WebMercatorProjection();
-            ScaleRotateTransform.Children.Add(ScaleTransform);
-            ScaleRotateTransform.Children.Add(RotateTransform);
-        }
-
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);

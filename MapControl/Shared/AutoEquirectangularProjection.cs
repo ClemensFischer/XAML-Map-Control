@@ -16,22 +16,22 @@ namespace MapControl
             CrsId = "AUTO2:42004";
         }
 
-        public override Point LocationToPoint(Location location)
+        public override Point LocationToMap(Location location)
         {
-            var xScale = Wgs84MetersPerDegree * Math.Cos(ProjectionCenter.Latitude * Math.PI / 180d);
+            var xScale = UnitsPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
 
             return new Point(
-                xScale * (location.Longitude - ProjectionCenter.Longitude),
-                Wgs84MetersPerDegree * location.Latitude);
+                xScale * (location.Longitude - Center.Longitude),
+                UnitsPerDegree * location.Latitude);
         }
 
-        public override Location PointToLocation(Point point)
+        public override Location MapToLocation(Point point)
         {
-            var xScale = Wgs84MetersPerDegree * Math.Cos(ProjectionCenter.Latitude * Math.PI / 180d);
+            var xScale = UnitsPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
 
             return new Location(
-                point.Y / Wgs84MetersPerDegree,
-                point.X / xScale + ProjectionCenter.Longitude);
+                point.Y / UnitsPerDegree,
+                point.X / xScale + Center.Longitude);
         }
     }
 }

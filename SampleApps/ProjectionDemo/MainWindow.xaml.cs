@@ -66,7 +66,7 @@ namespace ProjectionDemo
             var map = (MapBase)sender;
             var pos = e.GetPosition(map);
 
-            viewModel.PushpinLocation = map.MapProjection.ViewportPointToLocation(pos);
+            viewModel.PushpinLocation = map.ViewportPointToLocation(pos);
         }
     }
 

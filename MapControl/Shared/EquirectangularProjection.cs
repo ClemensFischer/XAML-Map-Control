@@ -14,7 +14,7 @@ namespace MapControl
 {
     /// <summary>
     /// Equirectangular Projection.
-    /// Longitude and Latitude values are transformed identically to X and Y.
+    /// Longitude and Latitude values are transformed linearly to X and Y in meters.
     /// </summary>
     public class EquirectangularProjection : MapProjection
     {
@@ -23,33 +23,33 @@ namespace MapControl
             CrsId = "EPSG:4326";
         }
 
-        public override double TrueScale
-        {
-            get { return 1d; }
-        }
-
-        public override Vector GetMapScale(Location location)
+        public override Vector GetRelativeScale(Location location)
         {
             return new Vector(
-                ViewportScale / (Wgs84MetersPerDegree * Math.Cos(location.Latitude * Math.PI / 180d)),
-                ViewportScale / Wgs84MetersPerDegree);
+                1d / Math.Cos(location.Latitude * Math.PI / 180d),
+                1d);
         }
 
-        public override Point LocationToPoint(Location location)
+        public override Point LocationToMap(Location location)
         {
-            return new Point(location.Longitude, location.Latitude);
+            return new Point(
+                location.Longitude * UnitsPerDegree,
+                location.Latitude * UnitsPerDegree);
         }
 
-        public override Location PointToLocation(Point point)
+        public override Location MapToLocation(Point point)
         {
-            return new Location(point.Y, point.X);
+            return new Location(
+                point.Y / UnitsPerDegree,
+                point.X / UnitsPerDegree);
         }
 
         public override string GetBboxValue(Rect rect)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 CrsId != "CRS:84" ? "{1},{0},{3},{2}" : "{0},{1},{2},{3}",
-                rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height));
+                rect.X / UnitsPerDegree, rect.Y / UnitsPerDegree,
+                (rect.X + rect.Width) / UnitsPerDegree, (rect.Y + rect.Height) / UnitsPerDegree);
         }
     }
 }

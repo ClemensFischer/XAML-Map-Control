@@ -37,21 +37,21 @@ namespace MapControl
 
         public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
 
-        public void SetRenderTransform(MapProjection projection)
+        public void SetRenderTransform(ViewTransform viewTransform)
         {
-            // tile grid origin in pixels
+            // tile matrix origin in pixels
             //
-            var tileGridOrigin = new Point(TileMatrix.TileWidth * XMin, TileMatrix.TileHeight * YMin);
+            var tileMatrixOrigin = new Point(TileMatrix.TileWidth * XMin, TileMatrix.TileHeight * YMin);
 
             ((MatrixTransform)RenderTransform).Matrix =
-                projection.CreateTileLayerTransform(TileMatrix.Scale, TileMatrix.TopLeft, tileGridOrigin);
+                viewTransform.GetTileLayerTransform(TileMatrix.Scale, TileMatrix.TopLeft, tileMatrixOrigin);
         }
 
-        public bool SetBounds(MapProjection projection, Size viewportSize)
+        public bool SetBounds(ViewTransform viewTransform, Size viewportSize)
         {
             // bounds in tile pixels from viewport size
             //
-            var bounds = projection.GetTileBounds(TileMatrix.Scale, TileMatrix.TopLeft, viewportSize);
+            var bounds = viewTransform.GetTileMatrixBounds(TileMatrix.Scale, TileMatrix.TopLeft, viewportSize);
 
             // tile column and row index bounds
             //

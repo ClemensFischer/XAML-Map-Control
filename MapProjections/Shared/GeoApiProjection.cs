@@ -25,11 +25,11 @@ namespace MapControl.Projections
         private ICoordinateSystem coordinateSystem;
         private bool isNormalCylindrical;
         private bool isWebMercator;
-        private double trueScale;
+        private double unitsPerDegree;
         private string bboxFormat;
 
-        public IMathTransform LocationToPointTransform { get; private set; }
-        public IMathTransform PointToLocationTransform { get; private set; }
+        public IMathTransform LocationToMapTransform { get; private set; }
+        public IMathTransform MapToLocationTransform { get; private set; }
 
         /// <summary>
         /// Gets or sets the ICoordinateSystem of the MapProjection.
@@ -48,11 +48,11 @@ namespace MapControl.Projections
 
                 var transformFactory = new CoordinateTransformationFactory();
 
-                LocationToPointTransform = transformFactory
+                LocationToMapTransform = transformFactory
                     .CreateFromCoordinateSystems(GeographicCoordinateSystem.WGS84, coordinateSystem)
                     .MathTransform;
 
-                PointToLocationTransform = transformFactory
+                MapToLocationTransform = transformFactory
                     .CreateFromCoordinateSystems(coordinateSystem, GeographicCoordinateSystem.WGS84)
                     .MathTransform;
 
@@ -76,14 +76,14 @@ namespace MapControl.Projections
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
                     isWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
-                    trueScale = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
+                    unitsPerDegree = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
                     bboxFormat = "{0},{1},{2},{3}";
                 }
                 else
                 {
                     isNormalCylindrical = true;
                     isWebMercator = false;
-                    trueScale = 1d;
+                    unitsPerDegree = 1d;
                     bboxFormat = "{1},{0},{3},{2}";
                 }
             }
@@ -110,31 +110,31 @@ namespace MapControl.Projections
             get { return isWebMercator; }
         }
 
-        public override double TrueScale
+        public override double UnitsPerDegree
         {
-            get { return trueScale; }
+            get { return unitsPerDegree; }
         }
 
-        public override Point LocationToPoint(Location location)
+        public override Point LocationToMap(Location location)
         {
-            if (LocationToPointTransform == null)
+            if (LocationToMapTransform == null)
             {
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = LocationToPointTransform.Transform(new Coordinate(location.Longitude, location.Latitude));
+            var coordinate = LocationToMapTransform.Transform(new Coordinate(location.Longitude, location.Latitude));
 
             return new Point(coordinate.X, coordinate.Y);
         }
 
-        public override Location PointToLocation(Point point)
+        public override Location MapToLocation(Point point)
         {
-            if (PointToLocationTransform == null)
+            if (MapToLocationTransform == null)
             {
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = PointToLocationTransform.Transform(new Coordinate(point.X, point.Y));
+            var coordinate = MapToLocationTransform.Transform(new Coordinate(point.X, point.Y));
 
             return new Location(coordinate.Y, coordinate.X);
         }
