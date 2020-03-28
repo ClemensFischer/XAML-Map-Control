@@ -16,7 +16,7 @@ namespace MapControl
     /// for the Polygons property if collection changes of the property itself and its
     /// elements are both supposed to trigger a UI update.
     /// </summary>
-    public class MapMultiPolygon : MapShape
+    public class MapMultiPolygon : MapPath
     {
         public static readonly DependencyProperty PolygonsProperty = DependencyProperty.Register(
             nameof(Polygons), typeof(IEnumerable<IEnumerable<Location>>), typeof(MapMultiPolygon),
@@ -29,6 +29,11 @@ namespace MapControl
         {
             get { return (IEnumerable<IEnumerable<Location>>)GetValue(PolygonsProperty); }
             set { SetValue(PolygonsProperty, value); }
+        }
+
+        public MapMultiPolygon()
+        {
+            Data = new PathGeometry();
         }
 
         protected override void UpdateData()

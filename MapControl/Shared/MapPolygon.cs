@@ -17,7 +17,7 @@ namespace MapControl
     /// <summary>
     /// A polygon defined by a collection of Locations.
     /// </summary>
-    public class MapPolygon : MapShape
+    public class MapPolygon : MapPath
     {
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolygon),
@@ -33,6 +33,11 @@ namespace MapControl
         {
             get { return (IEnumerable<Location>)GetValue(LocationsProperty); }
             set { SetValue(LocationsProperty, value); }
+        }
+
+        public MapPolygon()
+        {
+            Data = new PathGeometry();
         }
 
         protected override void UpdateData()

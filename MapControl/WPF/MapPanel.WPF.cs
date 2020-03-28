@@ -20,11 +20,11 @@ namespace MapControl
             "ParentMap", typeof(MapBase), typeof(MapPanel),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, ParentMapPropertyChanged));
 
-        private static readonly DependencyPropertyKey ViewportPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "ViewportPosition", typeof(Point?), typeof(MapPanel), new PropertyMetadata());
+        private static readonly DependencyPropertyKey ViewPositionPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
+            "ViewPosition", typeof(Point?), typeof(MapPanel), new PropertyMetadata());
 
         public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
-        public static readonly DependencyProperty ViewportPositionProperty = ViewportPositionPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty ViewPositionProperty = ViewPositionPropertyKey.DependencyProperty;
 
         public static MapBase GetParentMap(FrameworkElement element)
         {
@@ -39,9 +39,9 @@ namespace MapControl
             }
         }
 
-        private static void SetViewportPosition(FrameworkElement element, Point? viewportPosition)
+        private static void SetViewPosition(FrameworkElement element, Point? viewPosition)
         {
-            element.SetValue(ViewportPositionPropertyKey, viewportPosition);
+            element.SetValue(ViewPositionPropertyKey, viewPosition);
         }
     }
 }

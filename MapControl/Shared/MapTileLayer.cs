@@ -17,7 +17,7 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Fills the map viewport with map tiles from a TileSource.
+    /// Fills the viewport with map tiles from a TileSource.
     /// </summary>
     public class MapTileLayer : MapTileLayerBase
     {
@@ -25,11 +25,6 @@ namespace MapControl
 
         public static readonly Point TileMatrixTopLeft = new Point(
             -180d * MapProjection.Wgs84MetersPerDegree, 180d * MapProjection.Wgs84MetersPerDegree);
-
-        public static double TileMatrixScale(int zoomLevel)
-        {
-            return (TileSize << zoomLevel) / (360d * MapProjection.Wgs84MetersPerDegree);
-        }
 
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.
@@ -117,18 +112,22 @@ namespace MapControl
             //
             var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
 
+            var tileMatrixScale = ViewTransform.ZoomLevelToScale(TileMatrix.ZoomLevel);
+
             ((MatrixTransform)RenderTransform).Matrix = ParentMap.ViewTransform.GetTileLayerTransform(
-                TileMatrixScale(TileMatrix.ZoomLevel), TileMatrixTopLeft, tileMatrixOrigin);
+                tileMatrixScale, TileMatrixTopLeft, tileMatrixOrigin);
         }
 
         private bool SetTileMatrix()
         {
             var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel + 0.001); // avoid rounding issues
 
-            // bounds in tile pixels from viewport size
+            var tileMatrixScale = ViewTransform.ZoomLevelToScale(tileMatrixZoomLevel);
+
+            // bounds in tile pixels from view size
             //
             var tileBounds = ParentMap.ViewTransform.GetTileMatrixBounds(
-                TileMatrixScale(tileMatrixZoomLevel), TileMatrixTopLeft, ParentMap.RenderSize);
+                tileMatrixScale, TileMatrixTopLeft, ParentMap.RenderSize);
 
             // tile column and row index bounds
             //

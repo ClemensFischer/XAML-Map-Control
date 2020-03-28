@@ -74,7 +74,7 @@ namespace MapControl
         {
             SelectItems(item =>
             {
-                var pos = MapPanel.GetViewportPosition(ContainerFromItem(item));
+                var pos = MapPanel.GetViewPosition(ContainerFromItem(item));
                 return pos.HasValue && predicate(pos.Value);
             });
         }
@@ -116,10 +116,10 @@ namespace MapControl
             }
             else if (shiftKey && SelectedItem != null)
             {
-                // Extended with Shift -> select items in viewport rectangle
+                // Extended with Shift -> select items in view rectangle
 
-                var p1 = MapPanel.GetViewportPosition(ContainerFromItem(SelectedItem));
-                var p2 = MapPanel.GetViewportPosition(mapItem);
+                var p1 = MapPanel.GetViewPosition(ContainerFromItem(SelectedItem));
+                var p2 = MapPanel.GetViewPosition(mapItem);
 
                 if (p1.HasValue && p2.HasValue)
                 {

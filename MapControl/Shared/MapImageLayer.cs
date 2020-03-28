@@ -23,11 +23,14 @@ using System.Windows.Threading;
 namespace MapControl
 {
     /// <summary>
-    /// Map image layer. Fills the entire viewport with a map image, e.g. provided by a Web Map Service.
+    /// Map image layer. Fills the viewport with a single map image, e.g. provided by a Web Map Service.
     /// The image must be provided by the abstract GetImageAsync method.
     /// </summary>
     public abstract class MapImageLayer : MapPanel, IMapLayer
     {
+        public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
+            nameof(Description), typeof(string), typeof(MapImageLayer), new PropertyMetadata(null));
+
         public static readonly DependencyProperty MinLatitudeProperty = DependencyProperty.Register(
             nameof(MinLatitude), typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
 
@@ -53,9 +56,6 @@ namespace MapControl
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
             nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapImageLayer), new PropertyMetadata(false));
 
-        public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
-            nameof(Description), typeof(string), typeof(MapImageLayer), new PropertyMetadata(null));
-
         public static readonly DependencyProperty MapBackgroundProperty = DependencyProperty.Register(
             nameof(MapBackground), typeof(Brush), typeof(MapImageLayer), new PropertyMetadata(null));
 
@@ -72,6 +72,16 @@ namespace MapControl
 
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += async (s, e) => await UpdateImageAsync();
+        }
+
+        /// <summary>
+        /// Description of the MapImageLayer.
+        /// Used to display copyright information on top of the map.
+        /// </summary>
+        public string Description
+        {
+            get { return (string)GetValue(DescriptionProperty); }
+            set { SetValue(DescriptionProperty, value); }
         }
 
         /// <summary>
@@ -120,9 +130,9 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Relative size of the map image in relation to the current viewport size.
+        /// Relative size of the map image in relation to the current view size.
         /// Setting a value greater than one will let MapImageLayer request images that
-        /// are larger than the viewport, in order to support smooth panning.
+        /// are larger than the view, in order to support smooth panning.
         /// </summary>
         public double RelativeImageSize
         {
@@ -146,16 +156,6 @@ namespace MapControl
         {
             get { return (bool)GetValue(UpdateWhileViewportChangingProperty); }
             set { SetValue(UpdateWhileViewportChangingProperty, value); }
-        }
-
-        /// <summary>
-        /// Description of the MapImageLayer.
-        /// Used to display copyright information on top of the map.
-        /// </summary>
-        public string Description
-        {
-            get { return (string)GetValue(DescriptionProperty); }
-            set { SetValue(DescriptionProperty, value); }
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace MapControl
             var y = (ParentMap.RenderSize.Height - height) / 2d;
             var rect = new Rect(x, y, width, height);
 
-            BoundingBox = ParentMap.ViewportRectToBoundingBox(rect);
+            BoundingBox = ParentMap.ViewRectToBoundingBox(rect);
 
             if (BoundingBox != null)
             {

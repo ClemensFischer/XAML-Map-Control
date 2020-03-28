@@ -4,11 +4,9 @@
 
 using System;
 using Windows.Foundation;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
-using Windows.UI.Xaml.Data;
 
 namespace MapControl
 {
@@ -40,7 +38,7 @@ namespace MapControl
                     Children.Add(path);
                 }
 
-                var bounds = map.ViewportRectToBoundingBox(new Rect(0d, 0d, map.RenderSize.Width, map.RenderSize.Height));
+                var bounds = map.ViewRectToBoundingBox(new Rect(0d, 0d, map.RenderSize.Width, map.RenderSize.Height));
                 var lineDistance = GetLineDistance();
 
                 var labelStart = new Location(
@@ -66,14 +64,14 @@ namespace MapControl
                 {
                     var figure = new PathFigure
                     {
-                        StartPoint = map.LocationToViewportPoint(new Location(lat, lineStart.Longitude)),
+                        StartPoint = map.LocationToView(new Location(lat, lineStart.Longitude)),
                         IsClosed = false,
                         IsFilled = false
                     };
 
                     figure.Segments.Add(new LineSegment
                     {
-                        Point = map.LocationToViewportPoint(new Location(lat, lineEnd.Longitude))
+                        Point = map.LocationToView(new Location(lat, lineEnd.Longitude))
                     });
 
                     geometry.Figures.Add(figure);
@@ -83,14 +81,14 @@ namespace MapControl
                 {
                     var figure = new PathFigure
                     {
-                        StartPoint = map.LocationToViewportPoint(new Location(lineStart.Latitude, lon)),
+                        StartPoint = map.LocationToView(new Location(lineStart.Latitude, lon)),
                         IsClosed = false,
                         IsFilled = false
                     };
 
                     figure.Segments.Add(new LineSegment
                     {
-                        Point = map.LocationToViewportPoint(new Location(lineEnd.Latitude, lon))
+                        Point = map.LocationToView(new Location(lineEnd.Latitude, lon))
                     });
 
                     geometry.Figures.Add(figure);
@@ -111,21 +109,17 @@ namespace MapControl
                         }
                         else
                         {
-                            var renderTransform = new TransformGroup();
-                            renderTransform.Children.Add(new TranslateTransform());
-                            renderTransform.Children.Add(map.RotateTransform);
-                            renderTransform.Children.Add(new TranslateTransform());
-
-                            label = new TextBlock { RenderTransform = renderTransform };
-                            if (FontFamily != null)
-                            {
-                                label.SetBinding(TextBlock.FontFamilyProperty, GetBinding(FontFamilyProperty, nameof(FontFamily)));
-                            }
+                            label = new TextBlock { RenderTransform = new MatrixTransform() };
                             label.SetBinding(TextBlock.FontSizeProperty, GetBinding(FontSizeProperty, nameof(FontSize)));
                             label.SetBinding(TextBlock.FontStyleProperty, GetBinding(FontStyleProperty, nameof(FontStyle)));
                             label.SetBinding(TextBlock.FontStretchProperty, GetBinding(FontStretchProperty, nameof(FontStretch)));
                             label.SetBinding(TextBlock.FontWeightProperty, GetBinding(FontWeightProperty, nameof(FontWeight)));
                             label.SetBinding(TextBlock.ForegroundProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
+
+                            if (FontFamily != null)
+                            {
+                                label.SetBinding(TextBlock.FontFamilyProperty, GetBinding(FontFamilyProperty, nameof(FontFamily)));
+                            }
 
                             Children.Add(label);
                         }
@@ -135,10 +129,6 @@ namespace MapControl
                         label.Text = GetLabelText(lat, labelFormat, "NS") + "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
                         label.Tag = new Location(lat, lon);
                         label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-                        var translateTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[0];
-                        translateTransform.X = StrokeThickness / 2d + 2d;
-                        translateTransform.Y = -label.DesiredSize.Height / 2d;
                     }
 
                     while (Children.Count > childIndex)
@@ -153,10 +143,14 @@ namespace MapControl
                 {
                     var label = (TextBlock)Children[i];
                     var location = (Location)label.Tag;
-                    var viewportTransform = (TranslateTransform)((TransformGroup)label.RenderTransform).Children[2];
-                    var viewportPosition = map.LocationToViewportPoint(location);
-                    viewportTransform.X = viewportPosition.X;
-                    viewportTransform.Y = viewportPosition.Y;
+                    var viewPosition = map.LocationToView(location);
+                    var matrix = new Matrix(1, 0, 0, 1, 0, 0);
+
+                    matrix.Translate(StrokeThickness / 2d + 2d, -label.DesiredSize.Height / 2d);
+                    matrix.Rotate(map.ViewTransform.Rotation);
+                    matrix.Translate(viewPosition.X, viewPosition.Y);
+
+                    ((MatrixTransform)label.RenderTransform).Matrix = matrix;
                 }
             }
             else if (path != null)

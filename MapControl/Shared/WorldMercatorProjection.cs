@@ -15,10 +15,10 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
-        private static readonly double maxLatitude = YToLatitude(180d);
-
         public static double ConvergenceTolerance = 1e-6;
         public static int MaxIterations = 10;
+
+        private static readonly double maxLatitude = YToLatitude(180d);
 
         public WorldMercatorProjection()
         {

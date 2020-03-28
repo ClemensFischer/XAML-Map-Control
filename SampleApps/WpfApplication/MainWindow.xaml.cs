@@ -12,7 +12,7 @@ namespace WpfApplication
         public MainWindow()
         {
             ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = null;
@@ -26,7 +26,7 @@ namespace WpfApplication
             {
                 //map.ZoomMap(e.GetPosition(map), Math.Floor(map.ZoomLevel + 1.5));
                 //map.ZoomToBounds(new BoundingBox(53, 7, 54, 9));
-                map.TargetCenter = map.ViewportPointToLocation(e.GetPosition(map));
+                map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
             }
         }
 
@@ -40,7 +40,7 @@ namespace WpfApplication
 
         private void MapMouseMove(object sender, MouseEventArgs e)
         {
-            var location = map.ViewportPointToLocation(e.GetPosition(map));
+            var location = map.ViewToLocation(e.GetPosition(map));
             var latitude = (int)Math.Round(location.Latitude * 60000d);
             var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
             var latHemisphere = 'N';

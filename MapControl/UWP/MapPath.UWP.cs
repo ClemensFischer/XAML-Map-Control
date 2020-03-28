@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Shapes;
 
 namespace MapControl
 {
-    public abstract partial class MapShape : Path
+    public partial class MapPath : Path
     {
         protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -40,13 +40,7 @@ namespace MapControl
         {
             if (locations != null && locations.Count() >= 2)
             {
-                var offset = GetLongitudeOffset();
-                if (offset != 0d)
-                {
-                    locations = locations.Select(loc => new Location(loc.Latitude, loc.Longitude + offset));
-                }
-
-                var points = locations.Select(loc => LocationToViewportPoint(loc)).ToList();
+                var points = locations.Select(loc => LocationToView(loc)).ToList();
                 if (closed)
                 {
                     points.Add(points[0]);

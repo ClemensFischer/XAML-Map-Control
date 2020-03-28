@@ -12,9 +12,15 @@ using System.Windows.Shapes;
 
 namespace MapControl
 {
-    public abstract partial class MapShape : Shape, IWeakEventListener
+    public partial class MapPath : Shape, IWeakEventListener
     {
-        public Geometry Data { get; }
+        public static readonly DependencyProperty DataProperty = Path.DataProperty.AddOwner(typeof(MapPath));
+
+        public Geometry Data
+        {
+            get { return (Geometry)GetValue(DataProperty); }
+            set { SetValue(DataProperty, value); }
+        }
 
         protected override Geometry DefiningGeometry
         {
@@ -48,13 +54,7 @@ namespace MapControl
         {
             if (locations != null && locations.Count() >= 2)
             {
-                var offset = GetLongitudeOffset();
-                if (offset != 0d)
-                {
-                    locations = locations.Select(loc => new Location(loc.Latitude, loc.Longitude + offset));
-                }
-
-                var points = locations.Select(loc => LocationToViewportPoint(loc));
+                var points = locations.Select(loc => LocationToView(loc));
                 var figure = new PathFigure
                 {
                     StartPoint = points.First(),

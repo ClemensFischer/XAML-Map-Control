@@ -17,7 +17,7 @@ namespace MapControl
     /// <summary>
     /// A polyline defined by a collection of Locations.
     /// </summary>
-    public class MapPolyline : MapShape
+    public class MapPolyline : MapPath
     {
         public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
@@ -33,6 +33,11 @@ namespace MapControl
         {
             get { return (IEnumerable<Location>)GetValue(LocationsProperty); }
             set { SetValue(LocationsProperty, value); }
+        }
+
+        public MapPolyline()
+        {
+            Data = new PathGeometry();
         }
 
         protected override void UpdateData()

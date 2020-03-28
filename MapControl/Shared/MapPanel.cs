@@ -58,9 +58,9 @@ namespace MapControl
             element.SetValue(BoundingBoxProperty, value);
         }
 
-        public static Point? GetViewportPosition(FrameworkElement element)
+        public static Point? GetViewPosition(FrameworkElement element)
         {
-            return (Point?)element.GetValue(ViewportPositionProperty);
+            return (Point?)element.GetValue(ViewPositionProperty);
         }
 
         public MapBase ParentMap
@@ -118,9 +118,9 @@ namespace MapControl
 
                     if (location != null)
                     {
-                        var viewportPosition = ArrangeElement(element, location);
+                        var viewPosition = ArrangeElement(element, location);
 
-                        SetViewportPosition(element, viewportPosition);
+                        SetViewPosition(element, viewPosition);
                     }
                     else
                     {
@@ -135,7 +135,7 @@ namespace MapControl
                             ArrangeElement(element, finalSize);
                         }
 
-                        SetViewportPosition(element, null);
+                        SetViewPosition(element, null);
                     }
                 }
             }
@@ -145,13 +145,13 @@ namespace MapControl
 
         private Point ArrangeElement(FrameworkElement element, Location location)
         {
-            var pos = parentMap.LocationToViewportPoint(location);
+            var pos = parentMap.LocationToView(location);
 
             if (parentMap.MapProjection.IsNormalCylindrical &&
                 (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                  pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
             {
-                pos = parentMap.LocationToViewportPoint(new Location(
+                pos = parentMap.LocationToView(new Location(
                     location.Latitude,
                     Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
             }
@@ -210,7 +210,7 @@ namespace MapControl
                 var location = projection.MapToLocation(center);
                 location.Longitude = Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude);
 
-                pos = parentMap.LocationToViewportPoint(location);
+                pos = parentMap.LocationToView(location);
             }
 
             rect.Width *= parentMap.ViewTransform.Scale;
@@ -229,14 +229,15 @@ namespace MapControl
             element.Arrange(rect);
 
             var rotateTransform = element.RenderTransform as RotateTransform;
+            var rotation = parentMap.ViewTransform.Rotation;
 
             if (rotateTransform != null)
             {
-                rotateTransform.Angle = parentMap.Heading;
+                rotateTransform.Angle = rotation;
             }
-            else if (parentMap.Heading != 0d)
+            else if (rotation != 0d)
             {
-                rotateTransform = new RotateTransform { Angle = parentMap.Heading };
+                rotateTransform = new RotateTransform { Angle = rotation };
                 element.RenderTransform = rotateTransform;
                 element.RenderTransformOrigin = new Point(0.5, 0.5);
             }

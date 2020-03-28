@@ -59,9 +59,10 @@ namespace MapControl
         {
             var size = new Size();
 
-            if (ParentMap != null && ParentMap.ScaleTransform.ScaleX > 0d)
+            if (ParentMap != null)
             {
-                var length = MinWidth / ParentMap.ScaleTransform.ScaleX;
+                var scale = ParentMap.GetScale(ParentMap.Center).X;
+                var length = MinWidth / scale;
                 var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 
                 if (length / magnitude < 2d)
@@ -77,7 +78,7 @@ namespace MapControl
                     length = 10d * magnitude;
                 }
 
-                size.Width = length * ParentMap.ScaleTransform.ScaleX + StrokeThickness + Padding.Left + Padding.Right;
+                size.Width = length * scale + StrokeThickness + Padding.Left + Padding.Right;
                 size.Height = 1.25 * FontSize + StrokeThickness + Padding.Top + Padding.Bottom;
 
                 var x1 = Padding.Left + StrokeThickness / 2d;
