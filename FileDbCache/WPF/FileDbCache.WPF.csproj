@@ -39,14 +39,12 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0' or '$(TargetFramework)' == 'netcoreapp3.1'">
         <PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
+        <PackageReference Include="FileDb.Standard" Version="7.4.4" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net48'">
         <Reference Include="System.Runtime.Caching" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="FileDb.NET" Version="7.4.3" />
+        <PackageReference Include="FileDb.NET" Version="7.4.3" />
     </ItemGroup>
 
     <ItemGroup>
