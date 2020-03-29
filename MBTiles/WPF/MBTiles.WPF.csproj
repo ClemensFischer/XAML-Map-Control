@@ -1,79 +1,47 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MapControl.MBTiles</RootNamespace>
-    <AssemblyName>MBTiles.WPF</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Shared\MBTileData.cs">
-      <Link>MBTileData.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\MBTileLayer.cs">
-      <Link>MBTileLayer.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\MBTileSource.cs">
-      <Link>MBTileSource.cs</Link>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\MapControl.snk">
-      <Link>MapControl.snk</Link>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Data.SQLite.Core">
-      <Version>1.0.112</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj">
-      <Project>{a204a102-c745-4d65-aec8-7b96faedef2d}</Project>
-      <Name>MapControl.WPF</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net462;net48</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <RootNamespace>MapControl.MBTiles</RootNamespace>
+        <AssemblyName>MBTiles.WPF</AssemblyName>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
+        <DelaySign>false</DelaySign>
+        <Product>XAML Map Control</Product>
+        <Version>5.0.1</Version>
+        <Description>MBTiles Support Library for XAML Map Control</Description>
+        <Authors>Clemens Fischer</Authors>
+        <Copyright>Copyright © 2020 Clemens Fischer</Copyright>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.MBTiles</PackageId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+        <DefineConstants></DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <DefineConstants>DEBUG</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\MapControl.snk" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Shared\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
+    </ItemGroup>
 </Project>

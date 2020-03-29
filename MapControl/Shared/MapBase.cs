@@ -240,12 +240,6 @@ namespace MapControl
         public ViewTransform ViewTransform { get; } = new ViewTransform();
 
         /// <summary>
-        /// Gets a MatrixTransform that can be used to transform from cartesian map coordinates
-        /// to view coordinates.
-        /// </summary>
-        public MatrixTransform MapToViewTransform { get; } = new MatrixTransform();
-
-        /// <summary>
         /// Gets the horizontal and vertical scaling factors from cartesian map coordinates to view
         /// coordinates at the specified location, i.e. pixels per meter.
         /// </summary>
@@ -739,7 +733,6 @@ namespace MapControl
             }
 
             ViewScale = ViewTransform.Scale;
-            MapToViewTransform.Matrix = ViewTransform.MapToViewMatrix;
 
             OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, Center.Longitude - centerLongitude));
 

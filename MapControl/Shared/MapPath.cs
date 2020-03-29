@@ -13,8 +13,8 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// A path element with a Data property that holds a Geometry in cartesian map coordinates
-    /// or view coordinates. Cartesian coordinates can optionally be relative to an origin Location.
+    /// A path element with a Data property that holds a Geometry in view coordinates or
+    /// cartesian map coordinates that are relative to an origin Location.
     /// </summary>
     public partial class MapPath : IMapElement
     {
@@ -90,26 +90,19 @@ namespace MapControl
 
         protected virtual void UpdateData()
         {
-            if (parentMap != null && Data != null)
+            if (parentMap != null && Data != null && Location != null)
             {
                 if (dataTransform == null)
                 {
                     Data.Transform = dataTransform = new MatrixTransform();
                 }
 
-                if (Location != null)
-                {
-                    var viewPos = LocationToView(Location);
-                    var scale = parentMap.GetScale(Location);
-                    var matrix = new Matrix(scale.X, 0, 0, scale.Y, 0, 0);
-                    matrix.Rotate(parentMap.Heading);
-                    matrix.Translate(viewPos.X, viewPos.Y);
-                    dataTransform.Matrix = matrix;
-                }
-                else
-                {
-                    dataTransform.Matrix = parentMap.ViewTransform.MapToViewMatrix;
-                }
+                var viewPos = LocationToView(Location);
+                var scale = parentMap.GetScale(Location);
+                var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
+                transform.Rotate(parentMap.Heading);
+                transform.Translate(viewPos.X, viewPos.Y);
+                dataTransform.Matrix = transform;
             }
         }
 
