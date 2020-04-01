@@ -14,7 +14,7 @@ namespace MapControl
 {
     /// <summary>
     /// Equirectangular Projection.
-    /// Longitude and Latitude values are transformed linearly to X and Y in meters.
+    /// Longitude and Latitude values are transformed linearly to X and Y values in meters.
     /// </summary>
     public class EquirectangularProjection : MapProjection
     {
@@ -47,7 +47,7 @@ namespace MapControl
         public override string GetBboxValue(Rect rect)
         {
             return string.Format(CultureInfo.InvariantCulture,
-                CrsId != "CRS:84" ? "{1},{0},{3},{2}" : "{0},{1},{2},{3}",
+                CrsId == "CRS:84" ? "{0},{1},{2},{3}" : "{1},{0},{3},{2}",
                 rect.X / UnitsPerDegree, rect.Y / UnitsPerDegree,
                 (rect.X + rect.Width) / UnitsPerDegree, (rect.Y + rect.Height) / UnitsPerDegree);
         }

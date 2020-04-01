@@ -692,16 +692,13 @@ namespace MapControl
 
         private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
         {
+            var viewScale = ViewTransform.ZoomLevelToScale(ZoomLevel);
+            var center = transformCenter ?? Center;
             var projection = MapProjection;
 
             projection.Center = ProjectionCenter ?? Center;
 
-            var center = transformCenter ?? Center;
-            var mapCenter = projection.LocationToMap(center);
-
-            var viewScale = ViewTransform.ZoomLevelToScale(ZoomLevel);
-
-            ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, Heading);
+            ViewTransform.SetTransform(projection.LocationToMap(center), viewCenter, viewScale, Heading);
 
             if (transformCenter != null)
             {
@@ -726,9 +723,8 @@ namespace MapControl
                     ResetTransformCenter();
 
                     projection.Center = ProjectionCenter ?? center;
-                    mapCenter = projection.LocationToMap(center);
 
-                    ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, Heading);
+                    ViewTransform.SetTransform(projection.LocationToMap(center), viewCenter, viewScale, Heading);
                 }
             }
 
