@@ -57,15 +57,6 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the scale factor from geographic to cartesian coordinates, on the line of true scale of a
-        /// cylindrical projection (usually the equator), or at the projection center of an azimuthal projection.
-        /// </summary>
-        public virtual double UnitsPerDegree
-        {
-            get { return Wgs84MetersPerDegree; }
-        }
-
-        /// <summary>
         /// Gets the relative map scale at the specified Location.
         /// </summary>
         public virtual Vector GetRelativeScale(Location location)

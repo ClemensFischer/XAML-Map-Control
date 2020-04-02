@@ -29,11 +29,10 @@ namespace MapControl
             var lat0 = Center.Latitude * Math.PI / 180d;
             var lat = location.Latitude * Math.PI / 180d;
             var dLon = (location.Longitude - Center.Longitude) * Math.PI / 180d;
-            var s = UnitsPerDegree * 180d / Math.PI;
 
             return new Point(
-                s * Math.Cos(lat) * Math.Sin(dLon),
-                s * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
+                Wgs84EquatorialRadius * Math.Cos(lat) * Math.Sin(dLon),
+                Wgs84EquatorialRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
         }
 
         public override Location MapToLocation(Point point)
@@ -43,9 +42,8 @@ namespace MapControl
                 return new Location(Center.Latitude, Center.Longitude);
             }
 
-            var s = UnitsPerDegree * 180d / Math.PI;
-            var x = point.X / s;
-            var y = point.Y / s;
+            var x = point.X / Wgs84EquatorialRadius;
+            var y = point.Y / Wgs84EquatorialRadius;
             var r2 = x * x + y * y;
 
             if (r2 > 1d)

@@ -33,23 +33,23 @@ namespace MapControl
         public override Point LocationToMap(Location location)
         {
             return new Point(
-                location.Longitude * UnitsPerDegree,
-                location.Latitude * UnitsPerDegree);
+                Wgs84MetersPerDegree * location.Longitude,
+                Wgs84MetersPerDegree * location.Latitude);
         }
 
         public override Location MapToLocation(Point point)
         {
             return new Location(
-                point.Y / UnitsPerDegree,
-                point.X / UnitsPerDegree);
+                point.Y / Wgs84MetersPerDegree,
+                point.X / Wgs84MetersPerDegree);
         }
 
         public override string GetBboxValue(Rect rect)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 CrsId == "CRS:84" ? "{0},{1},{2},{3}" : "{1},{0},{3},{2}",
-                rect.X / UnitsPerDegree, rect.Y / UnitsPerDegree,
-                (rect.X + rect.Width) / UnitsPerDegree, (rect.Y + rect.Height) / UnitsPerDegree);
+                rect.X / Wgs84MetersPerDegree, rect.Y / Wgs84MetersPerDegree,
+                (rect.X + rect.Width) / Wgs84MetersPerDegree, (rect.Y + rect.Height) / Wgs84MetersPerDegree);
         }
     }
 }

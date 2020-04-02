@@ -18,19 +18,19 @@ namespace MapControl
 
         public override Point LocationToMap(Location location)
         {
-            var xScale = UnitsPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
+            var xScale = Wgs84MetersPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
 
             return new Point(
                 xScale * (location.Longitude - Center.Longitude),
-                UnitsPerDegree * location.Latitude);
+                Wgs84MetersPerDegree * location.Latitude);
         }
 
         public override Location MapToLocation(Point point)
         {
-            var xScale = UnitsPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
+            var xScale = Wgs84MetersPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
 
             return new Location(
-                point.Y / UnitsPerDegree,
+                point.Y / Wgs84MetersPerDegree,
                 point.X / xScale + Center.Longitude);
         }
     }

@@ -33,11 +33,6 @@ namespace MapControl.Projections
             this.falseNorthing = falseNorthing;
         }
 
-        public override double UnitsPerDegree
-        {
-            get { return scaleFactor * Wgs84MetersPerDegree; }
-        }
-
         public override Vector GetRelativeScale(Location location)
         {
             var lat = (north ? location.Latitude : -location.Latitude) * Math.PI / 180d;

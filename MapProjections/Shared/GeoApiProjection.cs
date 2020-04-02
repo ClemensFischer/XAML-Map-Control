@@ -110,11 +110,6 @@ namespace MapControl.Projections
             get { return isWebMercator; }
         }
 
-        public override double UnitsPerDegree
-        {
-            get { return unitsPerDegree; }
-        }
-
         public override Point LocationToMap(Location location)
         {
             if (LocationToMapTransform == null)
