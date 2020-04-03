@@ -100,7 +100,7 @@ namespace MapControl
                 var viewPos = LocationToView(Location);
                 var scale = parentMap.GetScale(Location);
                 var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
-                transform.Rotate(parentMap.Heading);
+                transform.Rotate(parentMap.ViewTransform.Rotation);
                 transform.Translate(viewPos.X, viewPos.Y);
                 dataTransform.Matrix = transform;
             }

@@ -229,15 +229,14 @@ namespace MapControl
             element.Arrange(rect);
 
             var rotateTransform = element.RenderTransform as RotateTransform;
-            var rotation = parentMap.ViewTransform.Rotation;
 
             if (rotateTransform != null)
             {
-                rotateTransform.Angle = rotation;
+                rotateTransform.Angle = parentMap.ViewTransform.Rotation;
             }
-            else if (rotation != 0d)
+            else if (parentMap.ViewTransform.Rotation != 0d)
             {
-                rotateTransform = new RotateTransform { Angle = rotation };
+                rotateTransform = new RotateTransform { Angle = parentMap.ViewTransform.Rotation };
                 element.RenderTransform = rotateTransform;
                 element.RenderTransformOrigin = new Point(0.5, 0.5);
             }
