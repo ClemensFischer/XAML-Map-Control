@@ -19,25 +19,15 @@ namespace MapControl
     public partial class TileImageLoader : ITileImageLoader
     {
         /// <summary>
-        /// Maximum number of parallel tile loading tasks. The default value is 4.
+        /// Maximum number of parallel tile loading tasks. The default value is 8.
         /// </summary>
-        public static int MaxLoadTasks { get; set; } = 4;
+        public static int MaxLoadTasks { get; set; } = 8;
 
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
         /// was transmitted on download. The default value is one day.
         /// </summary>
         public static TimeSpan DefaultCacheExpiration { get; set; } = TimeSpan.FromDays(1);
-
-        /// <summary>
-        /// Minimum expiration time for cached tile images. The default value is one day.
-        /// </summary>
-        public static TimeSpan MinCacheExpiration { get; set; } = TimeSpan.FromDays(1);
-
-        /// <summary>
-        /// Maximum expiration time for cached tile images. The default value is one week.
-        /// </summary>
-        public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(7);
 
         /// <summary>
         /// Format string for creating cache keys from the sourceName argument passed to LoadTilesAsync,
@@ -146,23 +136,7 @@ namespace MapControl
 
         private static DateTime GetExpiration(TimeSpan? maxAge)
         {
-            var expiration = DefaultCacheExpiration;
-
-            if (maxAge.HasValue)
-            {
-                expiration = maxAge.Value;
-
-                if (expiration < MinCacheExpiration)
-                {
-                    expiration = MinCacheExpiration;
-                }
-                else if (expiration > MaxCacheExpiration)
-                {
-                    expiration = MaxCacheExpiration;
-                }
-            }
-
-            return DateTime.UtcNow.Add(expiration);
+            return DateTime.UtcNow.Add(maxAge ?? DefaultCacheExpiration);
         }
     }
 }
