@@ -19,9 +19,9 @@ namespace MapControl
     public partial class TileImageLoader : ITileImageLoader
     {
         /// <summary>
-        /// Maximum number of parallel tile loading tasks. The default value is 8.
+        /// Maximum number of parallel tile loading tasks. The default value is 4.
         /// </summary>
-        public static int MaxLoadTasks { get; set; } = 8;
+        public static int MaxLoadTasks { get; set; } = 4;
 
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
