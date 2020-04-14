@@ -50,24 +50,25 @@ namespace MapControl
         {
             Loaded -= OnLoaded;
 
-            if (string.IsNullOrEmpty(ApiKey))
+            if (!string.IsNullOrEmpty(ApiKey))
             {
-                Debug.WriteLine("BingMapsTileLayer requires a Bing Maps API Key");
-                return;
-            }
+                var metadataUri = $"http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{Mode}?output=xml&key={ApiKey}";
 
-            var metadataUri = $"http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{Mode}?output=xml&key={ApiKey}";
-
-            try
-            {
-                using (var stream = await ImageLoader.HttpClient.GetStreamAsync(metadataUri))
+                try
                 {
-                    ReadImageryMetadata(XDocument.Load(stream).Root);
+                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(metadataUri))
+                    {
+                        ReadImageryMetadata(XDocument.Load(stream).Root);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("BingMapsTileLayer: {0}: {1}", metadataUri, ex.Message);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Debug.WriteLine("BingMapsTileLayer: {0}: {1}", metadataUri, ex.Message);
+                Debug.WriteLine("BingMapsTileLayer requires a Bing Maps API Key");
             }
         }
 

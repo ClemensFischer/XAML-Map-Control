@@ -52,12 +52,7 @@ namespace MapControl
 
         private MapBase parentMap;
 
-        public MapTileLayerBase()
-            : this(new TileImageLoader())
-        {
-        }
-
-        public MapTileLayerBase(ITileImageLoader tileImageLoader)
+        protected MapTileLayerBase(ITileImageLoader tileImageLoader)
         {
             IsHitTestVisible = false;
             RenderTransform = new MatrixTransform();
