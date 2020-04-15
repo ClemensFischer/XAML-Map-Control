@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Xml.Linq;
 #if WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -79,6 +78,7 @@ namespace MapControl
 
         protected override void TileSourcePropertyChanged()
         {
+            UpdateTileLayer();
         }
 
         protected override void UpdateTileLayer()
@@ -160,7 +160,6 @@ namespace MapControl
             foreach (var layer in ChildLayers)
             {
                 layer.UpdateTiles();
-
                 tiles.AddRange(layer.Tiles);
             }
 
@@ -177,7 +176,7 @@ namespace MapControl
                 }
             }
 
-            TileImageLoader.LoadTilesAsync(tiles, TileSource, sourceName);
+            TileImageLoader.LoadTilesAsync(tiles, tileSource, sourceName);
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -186,109 +185,19 @@ namespace MapControl
             {
                 try
                 {
-                    if (CapabilitiesUri.IsAbsoluteUri && (CapabilitiesUri.Scheme == "http" || CapabilitiesUri.Scheme == "https"))
-                    {
-                        using (var stream = await ImageLoader.HttpClient.GetStreamAsync(CapabilitiesUri))
-                        {
-                            ReadCapabilities(XDocument.Load(stream).Root);
-                        }
-                    }
-                    else
-                    {
-                        ReadCapabilities(XDocument.Load(CapabilitiesUri.ToString()).Root);
-                    }
+                    var capabilities = await WmtsCapabilities.ReadCapabilities(CapabilitiesUri, LayerIdentifier);
+
+                    TileMatrixSets.Clear();
+                    capabilities.TileMatrixSets.ForEach(s => TileMatrixSets.Add(s.SupportedCrs, s));
+
+                    LayerIdentifier = capabilities.LayerIdentifier;
+                    TileSource = capabilities.TileSource;
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("WmtsTileLayer: {0}: {1}", CapabilitiesUri, ex.Message);
                 }
             }
-        }
-
-        private void ReadCapabilities(XElement capabilitiesElement)
-        {
-            TileMatrixSets.Clear();
-
-            XNamespace ns = capabilitiesElement.Name.Namespace;
-            XNamespace ows = "http://www.opengis.net/ows/1.1";
-
-            var contentsElement = capabilitiesElement.Element(ns + "Contents");
-
-            if (contentsElement == null)
-            {
-                throw new ArgumentException("Contents element not found.");
-            }
-
-            XElement layerElement;
-
-            if (!string.IsNullOrEmpty(LayerIdentifier))
-            {
-                layerElement = contentsElement.Descendants(ns + "Layer")
-                    .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == LayerIdentifier);
-
-                if (layerElement == null)
-                {
-                    throw new ArgumentException("Layer element \"" + LayerIdentifier + "\" not found.");
-                }
-            }
-            else
-            {
-                layerElement = capabilitiesElement.Descendants(ns + "Layer").FirstOrDefault();
-
-                if (layerElement == null)
-                {
-                    throw new ArgumentException("No Layer element found.");
-                }
-
-                LayerIdentifier = layerElement.Element(ows + "Identifier")?.Value ?? "";
-            }
-
-            var urlTemplate = layerElement.Element(ns + "ResourceURL")?.Attribute("template")?.Value;
-
-            if (string.IsNullOrEmpty(urlTemplate))
-            {
-                throw new ArgumentException("No valid ResourceURL element found in Layer \"" + LayerIdentifier + "\".");
-            }
-
-            var styleElement = layerElement.Descendants(ns + "Style")
-                .FirstOrDefault(e => e.Attribute("isDefault")?.Value == "true");
-
-            if (styleElement == null)
-            {
-                styleElement = layerElement.Descendants(ns + "Style").FirstOrDefault();
-            }
-
-            var style = styleElement?.Element(ows + "Identifier")?.Value;
-
-            if (string.IsNullOrEmpty(style))
-            {
-                throw new ArgumentException("No valid Style element found in Layer \"" + LayerIdentifier + "\".");
-            }
-
-            var tileMatrixSetIds = layerElement
-                .Descendants(ns + "TileMatrixSetLink")
-                .Select(e => e.Element(ns + "TileMatrixSet")?.Value)
-                .Where(id => !string.IsNullOrEmpty(id))
-                .ToList();
-
-            foreach (var tileMatrixSetId in tileMatrixSetIds)
-            {
-                var tileMatrixSetElement = capabilitiesElement.Descendants(ns + "TileMatrixSet")
-                    .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == tileMatrixSetId);
-
-                if (tileMatrixSetElement == null)
-                {
-                    throw new ArgumentException("Linked TileMatrixSet element not found in Layer \"" + LayerIdentifier + "\".");
-                }
-
-                var tileMatrixSet = WmtsTileMatrixSet.Create(tileMatrixSetElement);
-
-                TileMatrixSets.Add(tileMatrixSet.SupportedCrs, tileMatrixSet);
-            }
-
-            TileSource = new WmtsTileSource(urlTemplate.Replace("{Style}", style));
-
-            UpdateTileLayer();
         }
     }
 }

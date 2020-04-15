@@ -161,6 +161,9 @@
     <Compile Include="..\Shared\WmsImageLayer.cs">
       <Link>WmsImageLayer.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\WmtsCapabilities.cs">
+      <Link>WmtsCapabilities.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\WmtsTileLayer.cs">
       <Link>WmtsTileLayer.cs</Link>
     </Compile>

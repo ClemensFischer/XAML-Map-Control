@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace MapControl
 {
@@ -35,40 +34,6 @@ namespace MapControl
             Identifier = identifier;
             SupportedCrs = supportedCrs;
             TileMatrixes = tileMatrixes.OrderBy(m => m.Scale).ToList();
-        }
-
-        public static WmtsTileMatrixSet Create(XElement tileMatrixSetElement)
-        {
-            XNamespace ns = tileMatrixSetElement.Name.Namespace;
-            XNamespace ows = "http://www.opengis.net/ows/1.1";
-
-            var identifier = tileMatrixSetElement.Element(ows + "Identifier")?.Value;
-
-            if (string.IsNullOrEmpty(identifier))
-            {
-                throw new ArgumentException("ows:Identifier element not found in TileMatrixSet.");
-            }
-
-            var supportedCrs = tileMatrixSetElement.Element(ows + "SupportedCRS")?.Value;
-
-            if (string.IsNullOrEmpty(supportedCrs))
-            {
-                throw new ArgumentException("ows:SupportedCRS element not found in TileMatrixSet \"" + identifier + "\".");
-            }
-
-            var tileMatrixes = new List<WmtsTileMatrix>();
-
-            foreach (var tileMatrixElement in tileMatrixSetElement.Descendants(ns + "TileMatrix"))
-            {
-                tileMatrixes.Add(WmtsTileMatrix.Create(tileMatrixElement));
-            }
-
-            if (tileMatrixes.Count <= 0)
-            {
-                throw new ArgumentException("No TileMatrix elements found in TileMatrixSet \"" + identifier + "\".");
-            }
-
-            return new WmtsTileMatrixSet(identifier, supportedCrs, tileMatrixes);
         }
     }
 }
