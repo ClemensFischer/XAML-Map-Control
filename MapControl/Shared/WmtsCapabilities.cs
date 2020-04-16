@@ -174,52 +174,49 @@ namespace MapControl
                 throw new ArgumentException("No ows:Identifier element found in TileMatrix.");
             }
 
-            string[] topLeftCornerStrings;
-            double scaleDenominator, top, left;
-            int tileWidth, tileHeight, matrixWidth, matrixHeight;
-
             var valueString = tileMatrixElement.Element(ns + "ScaleDenominator")?.Value;
 
             if (string.IsNullOrEmpty(valueString) ||
-                !double.TryParse(valueString, NumberStyles.Float, CultureInfo.InvariantCulture, out scaleDenominator))
+                !double.TryParse(valueString, NumberStyles.Float, CultureInfo.InvariantCulture, out double scaleDenominator))
             {
                 throw new ArgumentException("No ScaleDenominator element found in TileMatrix \"" + identifier + "\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "TopLeftCorner")?.Value;
+            string[] topLeftCornerStrings;
 
             if (string.IsNullOrEmpty(valueString) ||
                 (topLeftCornerStrings = valueString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)).Length < 2 ||
-                !double.TryParse(topLeftCornerStrings[0], NumberStyles.Float, CultureInfo.InvariantCulture, out left) ||
-                !double.TryParse(topLeftCornerStrings[1], NumberStyles.Float, CultureInfo.InvariantCulture, out top))
+                !double.TryParse(topLeftCornerStrings[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double left) ||
+                !double.TryParse(topLeftCornerStrings[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double top))
             {
                 throw new ArgumentException("No TopLeftCorner element found in TileMatrix \"" + identifier + "\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "TileWidth")?.Value;
 
-            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out tileWidth))
+            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int tileWidth))
             {
                 throw new ArgumentException("No TileWidth element found in TileMatrix \"" + identifier + "\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "TileHeight")?.Value;
 
-            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out tileHeight))
+            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int tileHeight))
             {
                 throw new ArgumentException("No TileHeight element found in TileMatrix \"" + identifier + "\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "MatrixWidth")?.Value;
 
-            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out matrixWidth))
+            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int matrixWidth))
             {
                 throw new ArgumentException("No MatrixWidth element found in TileMatrix \"" + identifier + "\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "MatrixHeight")?.Value;
 
-            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out matrixHeight))
+            if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int matrixHeight))
             {
                 throw new ArgumentException("No MatrixHeight element found in TileMatrix \"" + identifier + "\".");
             }

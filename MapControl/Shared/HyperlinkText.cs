@@ -33,11 +33,10 @@ namespace MapControl
             while (!string.IsNullOrEmpty(text))
             {
                 var match = regex.Match(text);
-                Uri uri;
 
                 if (match.Success &&
                     match.Groups.Count == 3 &&
-                    Uri.TryCreate(match.Groups[2].Value, UriKind.Absolute, out uri))
+                    Uri.TryCreate(match.Groups[2].Value, UriKind.Absolute, out Uri uri))
                 {
                     inlines.Add(new Run { Text = text.Substring(0, match.Index) });
                     text = text.Substring(match.Index + match.Length);

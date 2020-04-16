@@ -86,9 +86,8 @@ namespace MapControl
                 {
                     var zoomMin = metadata.Element(ns + "ZoomMin")?.Value;
                     var zoomMax = metadata.Element(ns + "ZoomMax")?.Value;
-                    int zoomLevel;
 
-                    if (zoomMin != null && int.TryParse(zoomMin, out zoomLevel) && MinZoomLevel < zoomLevel)
+                    if (zoomMin != null && int.TryParse(zoomMin, out int zoomLevel) && MinZoomLevel < zoomLevel)
                     {
                         MinZoomLevel = zoomLevel;
                     }

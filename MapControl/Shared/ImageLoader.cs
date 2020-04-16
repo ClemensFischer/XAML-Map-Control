@@ -81,10 +81,9 @@ namespace MapControl
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
-                        IEnumerable<string> tileInfo;
                         byte[] buffer = null;
 
-                        if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out tileInfo) ||
+                        if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out IEnumerable<string> tileInfo) ||
                             !tileInfo.Contains("no-tile"))
                         {
                             buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(continueOnCapturedContext);

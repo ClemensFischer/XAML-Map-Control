@@ -85,10 +85,8 @@ namespace MapControl
         {
             UpdateTimer.Stop();
 
-            WmtsTileMatrixSet tileMatrixSet;
-
             if (ParentMap == null ||
-                !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out tileMatrixSet))
+                !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
             {
                 Children.Clear();
                 UpdateTiles(null);

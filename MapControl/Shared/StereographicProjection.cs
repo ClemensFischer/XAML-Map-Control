@@ -26,9 +26,7 @@ namespace MapControl
                 return new Point();
             }
 
-            double azimuth, distance;
-
-            GetAzimuthDistance(Center, location, out azimuth, out distance);
+            GetAzimuthDistance(Center, location, out double azimuth, out double distance);
 
             var mapDistance = Math.Tan(distance / 2d) * 2d * Wgs84EquatorialRadius;
 

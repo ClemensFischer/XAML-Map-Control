@@ -23,9 +23,7 @@ namespace MapControl
                 return new Point();
             }
 
-            double azimuth, distance;
-
-            GetAzimuthDistance(Center, location, out azimuth, out distance);
+            GetAzimuthDistance(Center, location, out double azimuth, out double distance);
 
             var mapDistance = distance * Wgs84EquatorialRadius;
 

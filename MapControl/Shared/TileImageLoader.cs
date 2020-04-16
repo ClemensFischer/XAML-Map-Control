@@ -89,16 +89,16 @@ namespace MapControl
                 {
                     Interlocked.Add(ref taskCount, newTasks);
 
-                    await Task.WhenAll(Enumerable.Range(0, newTasks).Select(n => LoadTilesFromQueueAsync())).ConfigureAwait(false);
+                    var tasks = Enumerable.Range(0, newTasks).Select(n => LoadTilesFromQueueAsync());
+
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
             }
         }
 
         private async Task LoadTilesFromQueueAsync()
         {
-            Tile tile;
-
-            while (tileQueue.TryDequeue(out tile))
+            while (tileQueue.TryDequeue(out Tile tile))
             {
                 tile.Pending = false;
 
