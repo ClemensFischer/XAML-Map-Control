@@ -26,9 +26,7 @@ namespace MapControl
 
         protected override void InsertItem(int index, IEnumerable<Location> polygon)
         {
-            var observablePolygon = polygon as INotifyCollectionChanged;
-
-            if (observablePolygon != null)
+            if (polygon is INotifyCollectionChanged observablePolygon)
             {
                 CollectionChangedEventManager.AddListener(observablePolygon, this);
             }
@@ -38,9 +36,7 @@ namespace MapControl
 
         protected override void SetItem(int index, IEnumerable<Location> polygon)
         {
-            var observablePolygon = this[index] as INotifyCollectionChanged;
-
-            if (observablePolygon != null)
+            if (this[index] is INotifyCollectionChanged observablePolygon)
             {
                 CollectionChangedEventManager.RemoveListener(observablePolygon, this);
             }
@@ -50,9 +46,7 @@ namespace MapControl
 
         protected override void RemoveItem(int index)
         {
-            var observablePolygon = this[index] as INotifyCollectionChanged;
-
-            if (observablePolygon != null)
+            if (this[index] is INotifyCollectionChanged observablePolygon)
             {
                 CollectionChangedEventManager.RemoveListener(observablePolygon, this);
             }

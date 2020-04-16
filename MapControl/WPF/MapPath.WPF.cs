@@ -35,16 +35,14 @@ namespace MapControl
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
-            INotifyCollectionChanged collection;
-
-            if ((collection = e.OldValue as INotifyCollectionChanged) != null)
+            if (e.OldValue is INotifyCollectionChanged oldCollection)
             {
-                CollectionChangedEventManager.RemoveListener(collection, this);
+                CollectionChangedEventManager.RemoveListener(oldCollection, this);
             }
 
-            if ((collection = e.NewValue as INotifyCollectionChanged) != null)
+            if (e.NewValue is INotifyCollectionChanged newCollection)
             {
-                CollectionChangedEventManager.AddListener(collection, this);
+                CollectionChangedEventManager.AddListener(newCollection, this);
             }
 
             UpdateData();

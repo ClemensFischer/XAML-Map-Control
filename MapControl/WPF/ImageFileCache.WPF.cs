@@ -160,9 +160,8 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-            var imageCacheItem = value as ImageCacheItem;
 
-            if (imageCacheItem == null)
+            if (!(value is ImageCacheItem imageCacheItem))
             {
                 throw new ArgumentException("The parameter value must be a MapControl.Caching.ImageCacheItem instance.");
             }

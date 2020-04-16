@@ -17,12 +17,7 @@ namespace MapControl.Caching
 
         public ImageFileCache(StorageFolder folder)
         {
-            if (folder == null)
-            {
-                throw new ArgumentNullException("The parameter rootFolder must not be null.");
-            }
-
-            this.folder = folder;
+            this.folder = folder ?? throw new ArgumentNullException("The parameter rootFolder must not be null.");
 
             Debug.WriteLine("Created ImageFileCache in " + folder.Path);
         }

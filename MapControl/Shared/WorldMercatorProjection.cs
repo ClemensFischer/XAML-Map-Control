@@ -25,6 +25,11 @@ namespace MapControl
             CrsId = "EPSG:3395";
         }
 
+        public override bool IsNormalCylindrical
+        {
+            get { return true; }
+        }
+
         public override double MaxLatitude
         {
             get { return maxLatitude; }

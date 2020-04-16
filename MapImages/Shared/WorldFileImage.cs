@@ -115,12 +115,11 @@ namespace MapControl.Images
                 .Take(6)
                 .Select((line, i) =>
                 {
-                    double p;
-                    if (!double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out p))
+                    if (!double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double parameter))
                     {
                         throw new ArgumentException("Failed parsing line " + (i + 1) + " in world file \"" + path + "\".");
                     }
-                    return p;
+                    return parameter;
                 })
                 .ToList();
 

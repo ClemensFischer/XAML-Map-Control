@@ -388,8 +388,7 @@ namespace MapControl
             {
                 Children.Remove(oldLayer);
 
-                var mapLayer = oldLayer as IMapLayer;
-                if (mapLayer != null)
+                if (oldLayer is IMapLayer mapLayer)
                 {
                     if (mapLayer.MapBackground != null)
                     {
@@ -406,8 +405,7 @@ namespace MapControl
             {
                 Children.Insert(0, newLayer);
 
-                var mapLayer = newLayer as IMapLayer;
-                if (mapLayer != null)
+                if (newLayer is IMapLayer mapLayer)
                 {
                     if (mapLayer.MapBackground != null)
                     {

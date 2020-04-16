@@ -17,9 +17,7 @@ namespace MapControl
 
             if (fadeIn && FadeDuration > TimeSpan.Zero)
             {
-                var bitmap = image as BitmapSource;
-
-                if (bitmap != null && !bitmap.IsFrozen && bitmap.IsDownloading)
+                if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
                 {
                     bitmap.DownloadCompleted += BitmapDownloadCompleted;
                     bitmap.DownloadFailed += BitmapDownloadFailed;

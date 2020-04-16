@@ -57,26 +57,23 @@ namespace MapControl.MBTiles
             if (file != null)
             {
                 var tileData = await MBTileData.CreateAsync(file);
-                int minZoom;
-                int maxZoom;
-                string s;
 
-                if (tileData.Metadata.TryGetValue("name", out s))
+                if (tileData.Metadata.TryGetValue("name", out string sourceName))
                 {
-                    SourceName = s;
+                    SourceName = sourceName;
                 }
 
-                if (tileData.Metadata.TryGetValue("description", out s))
+                if (tileData.Metadata.TryGetValue("description", out string description))
                 {
-                    Description = s;
+                    Description = description;
                 }
 
-                if (tileData.Metadata.TryGetValue("minzoom", out s) && int.TryParse(s, out minZoom))
+                if (tileData.Metadata.TryGetValue("minzoom", out sourceName) && int.TryParse(sourceName, out int minZoom))
                 {
                     MinZoomLevel = minZoom;
                 }
 
-                if (tileData.Metadata.TryGetValue("maxzoom", out s) && int.TryParse(s, out maxZoom))
+                if (tileData.Metadata.TryGetValue("maxzoom", out sourceName) && int.TryParse(sourceName, out int maxZoom))
                 {
                     MaxZoomLevel = maxZoom;
                 }

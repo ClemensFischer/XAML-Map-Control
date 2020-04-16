@@ -18,9 +18,7 @@ namespace MapControl
 
             if (fadeIn && FadeDuration > TimeSpan.Zero)
             {
-                var bitmap = image as BitmapImage;
-
-                if (bitmap?.UriSource != null)
+                if (image is BitmapImage bitmap && bitmap.UriSource != null)
                 {
                     bitmap.ImageOpened += BitmapImageOpened;
                     bitmap.ImageFailed += BitmapImageFailed;

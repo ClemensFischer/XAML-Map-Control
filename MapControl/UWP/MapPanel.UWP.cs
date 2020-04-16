@@ -53,12 +53,9 @@ namespace MapControl
 
         private static MapBase FindParentMap(FrameworkElement element)
         {
-            var parent = VisualTreeHelper.GetParent(element) as FrameworkElement;
-
-            return parent == null ? null
-                : ((parent as MapBase)
-                ?? (MapBase)element.GetValue(ParentMapProperty)
-                ?? FindParentMap(parent));
+            return VisualTreeHelper.GetParent(element) is FrameworkElement parent
+                ? ((parent as MapBase) ?? (MapBase)element.GetValue(ParentMapProperty) ?? FindParentMap(parent))
+                : null;
         }
 
         private static void SetViewPosition(FrameworkElement element, Point? viewPosition)

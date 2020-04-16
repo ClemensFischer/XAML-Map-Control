@@ -38,12 +38,7 @@ namespace MapControl.Projections
             get { return coordinateSystem; }
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("The property value must not be null.");
-                }
-
-                coordinateSystem = value;
+                coordinateSystem = value ?? throw new ArgumentNullException("The property value must not be null.");
 
                 var transformFactory = new CoordinateTransformationFactory();
 

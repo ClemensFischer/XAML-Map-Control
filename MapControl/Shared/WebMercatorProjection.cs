@@ -22,6 +22,11 @@ namespace MapControl
             CrsId = "EPSG:3857";
         }
 
+        public override bool IsNormalCylindrical
+        {
+            get { return true; }
+        }
+
         public override bool IsWebMercator
         {
             get { return true; }

@@ -37,7 +37,7 @@ namespace MapControl
         /// </summary>
         public virtual bool IsNormalCylindrical
         {
-            get { return true; }
+            get { return false; }
         }
 
         /// <summary>

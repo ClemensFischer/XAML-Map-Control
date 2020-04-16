@@ -228,9 +228,7 @@ namespace MapControl
             element.Height = rect.Height;
             element.Arrange(rect);
 
-            var rotateTransform = element.RenderTransform as RotateTransform;
-
-            if (rotateTransform != null)
+            if (element.RenderTransform is RotateTransform rotateTransform)
             {
                 rotateTransform.Angle = parentMap.ViewTransform.Rotation;
             }
@@ -293,9 +291,7 @@ namespace MapControl
 
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            var mapElement = obj as IMapElement;
-
-            if (mapElement != null)
+            if (obj is IMapElement mapElement)
             {
                 mapElement.ParentMap = e.NewValue as MapBase;
             }

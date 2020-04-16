@@ -24,10 +24,9 @@ namespace MapControl.Projections
                     }
 
                     var hemisphere = value[value.Length - 1];
-                    int zoneNumber;
 
                     if ((hemisphere != 'N' && hemisphere != 'S') ||
-                        !int.TryParse(value.Substring(0, value.Length - 1), out zoneNumber))
+                        !int.TryParse(value.Substring(0, value.Length - 1), out int zoneNumber))
                     {
                         throw new ArgumentException("Invalid UTM zone.");
                     }

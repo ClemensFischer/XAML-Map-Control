@@ -23,6 +23,11 @@ namespace MapControl
             CrsId = "EPSG:4326";
         }
 
+        public override bool IsNormalCylindrical
+        {
+            get { return true; }
+        }
+
         public override Vector GetRelativeScale(Location location)
         {
             return new Vector(
