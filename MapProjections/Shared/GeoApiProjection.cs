@@ -25,7 +25,6 @@ namespace MapControl.Projections
         private ICoordinateSystem coordinateSystem;
         private bool isNormalCylindrical;
         private bool isWebMercator;
-        private double unitsPerDegree;
         private string bboxFormat;
 
         public IMathTransform LocationToMapTransform { get; private set; }
@@ -68,7 +67,6 @@ namespace MapControl.Projections
                     var centralParallel = projection.GetParameter("latitude_of_origin") ?? projection.GetParameter("central_parallel");
                     var falseEasting = projection.GetParameter("false_easting");
                     var falseNorthing = projection.GetParameter("false_northing");
-                    var scaleFactor = projection.GetParameter("scale_factor");
 
                     isNormalCylindrical =
                         centralMeridian != null && centralMeridian.Value == 0d &&
@@ -76,14 +74,12 @@ namespace MapControl.Projections
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
                     isWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
-                    unitsPerDegree = (scaleFactor != null ? scaleFactor.Value : 1d) * Wgs84MetersPerDegree;
                     bboxFormat = "{0},{1},{2},{3}";
                 }
                 else
                 {
                     isNormalCylindrical = true;
                     isWebMercator = false;
-                    unitsPerDegree = 1d;
                     bboxFormat = "{1},{0},{3},{2}";
                 }
             }
