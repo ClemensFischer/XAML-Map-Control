@@ -2,4 +2,13 @@
 bin/
 obj/
 packages/
+TestApps/
+Win2D/
+MapControl.UWP1.csproj
+MapControl.WPF.VS2015.csproj
+MapProjections.WPF.VS2015.csproj
+MapControl_TestApps.sln
+MapLayers_ApiKey.cs
+MergeNugetPackages.cmd
 *.nupkg
+*.txt

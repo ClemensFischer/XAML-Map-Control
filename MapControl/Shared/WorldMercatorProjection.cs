@@ -15,8 +15,8 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
-        public static double ConvergenceTolerance = 1e-6;
-        public static int MaxIterations = 10;
+        public static double ConvergenceTolerance { get; set; } = 1e-6;
+        public static int MaxIterations { get; set; } = 10;
 
         private static readonly double maxLatitude = YToLatitude(180d);
 
@@ -72,8 +72,7 @@ namespace MapControl
 
             var lat = latitude * Math.PI / 180d;
 
-            return Math.Log(Math.Tan(lat / 2d + Math.PI / 4d)
-                * ConformalFactor(lat)) * 180d / Math.PI; // p.44 (7-7)
+            return Math.Log(Math.Tan(lat / 2d + Math.PI / 4d) * ConformalFactor(lat)) * 180d / Math.PI; // p.44 (7-7)
         }
 
         public static double YToLatitude(double y)

@@ -61,7 +61,7 @@ namespace MapControl
         /// </summary>
         public virtual Vector GetRelativeScale(Location location)
         {
-            return new Vector(1, 1);
+            return new Vector(1d, 1d);
         }
 
         /// <summary>
