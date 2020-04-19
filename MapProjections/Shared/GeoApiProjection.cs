@@ -59,7 +59,7 @@ namespace MapControl.Projections
                 if (projection != null)
                 {
                     var centralMeridian = projection.GetParameter("central_meridian") ?? projection.GetParameter("longitude_of_origin");
-                    var centralParallel = projection.GetParameter("latitude_of_origin") ?? projection.GetParameter("central_parallel");
+                    var centralParallel = projection.GetParameter("central_parallel") ?? projection.GetParameter("latitude_of_origin");
                     var falseEasting = projection.GetParameter("false_easting");
                     var falseNorthing = projection.GetParameter("false_northing");
 
