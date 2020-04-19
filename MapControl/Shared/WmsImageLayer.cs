@@ -19,6 +19,9 @@ using System.Windows.Media;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Displays a single map image from a Web Map Service (WMS).
+    /// </summary>
     public partial class WmsImageLayer : MapImageLayer
     {
         public static readonly DependencyProperty ServiceUriProperty = DependencyProperty.Register(
@@ -27,7 +30,7 @@ namespace MapControl
 
         public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
             nameof(Layers), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
+            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
         public static readonly DependencyProperty StylesProperty = DependencyProperty.Register(
             nameof(Styles), typeof(string), typeof(WmsImageLayer),
@@ -37,24 +40,36 @@ namespace MapControl
             nameof(Format), typeof(string), typeof(WmsImageLayer),
             new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
+        /// <summary>
+        /// The base request URL. 
+        /// </summary>
         public Uri ServiceUri
         {
             get { return (Uri)GetValue(ServiceUriProperty); }
             set { SetValue(ServiceUriProperty, value); }
         }
 
+        /// <summary>
+        /// Comma-separated list of Layer names to be displayed. If not set, the first Layer is displayed.
+        /// </summary>
         public string Layers
         {
             get { return (string)GetValue(LayersProperty); }
             set { SetValue(LayersProperty, value); }
         }
 
+        /// <summary>
+        /// Comma-separated list of requested styles. Default is an empty string.
+        /// </summary>
         public string Styles
         {
             get { return (string)GetValue(StylesProperty); }
             set { SetValue(StylesProperty, value); }
         }
 
+        /// <summary>
+        /// Requested image format. Default is image/png.
+        /// </summary>
         public string Format
         {
             get { return (string)GetValue(FormatProperty); }
@@ -64,36 +79,19 @@ namespace MapControl
         /// <summary>
         /// Gets a list of all layer names returned by a GetCapabilities response.
         /// </summary>
-        public async Task<List<string>> GetLayerNamesAsync()
+        public async Task<IEnumerable<string>> GetLayerNamesAsync()
         {
-            List<string> layerNames = null;
+            IEnumerable<string> layerNames = null;
+            var capabilities = await GetCapabilities();
 
-            if (ServiceUri != null)
+            if (capabilities != null)
             {
-                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
+                var ns = capabilities.Name.Namespace;
 
-                try
-                {
-                    XElement capabilities;
-
-                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
-                    {
-                        capabilities = XDocument.Load(stream).Root;
-                    }
-
-                    var ns = capabilities.Name.Namespace;
-
-                    layerNames = capabilities
-                        .Descendants(ns + "Layer")
-                        .Where(e => e.Attribute("queryable")?.Value == "1")
-                        .Select(e => e.Element(ns + "Name")?.Value)
-                        .Where(n => !string.IsNullOrEmpty(n))
-                        .ToList();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
-                }
+                layerNames = capabilities
+                    .Descendants(ns + "Layer")
+                    .Select(e => e.Element(ns + "Name")?.Value)
+                    .Where(n => !string.IsNullOrEmpty(n));
             }
 
             return layerNames;
@@ -104,6 +102,13 @@ namespace MapControl
         /// </summary>
         protected override async Task<ImageSource> GetImageAsync()
         {
+            if (Layers == null && // get first Layer
+                ServiceUri != null &&
+                ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
+            }
+
             var uri = GetImageUri();
 
             return uri != null
@@ -169,6 +174,32 @@ namespace MapControl
             }
 
             return uri + "REQUEST=" + request;
+        }
+
+        private async Task<XElement> GetCapabilities()
+        {
+            XElement capabilities = null;
+
+            if (ServiceUri != null)
+            {
+                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
+
+                try
+                {
+                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
+                    {
+                        capabilities = XDocument.Load(stream).Root;
+                    }
+
+                    var ns = capabilities.Name.Namespace;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                }
+            }
+
+            return capabilities;
         }
     }
 }

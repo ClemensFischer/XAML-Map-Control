@@ -21,7 +21,13 @@ namespace ViewModel
         {
             {
                 "OpenStreetMap",
-                MapTileLayer.OpenStreetMapTileLayer
+                new MapTileLayer
+                {
+                    SourceName = "OpenStreetMap",
+                    Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
+                    TileSource = new TileSource { UriFormat = "https://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
+                    MaxZoomLevel = 19
+                }
             },
             {
                 "OpenStreetMap German",
@@ -29,7 +35,7 @@ namespace ViewModel
                 {
                     SourceName = "OpenStreetMap German",
                     Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://{c}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://{c}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 19
                 }
             },
@@ -50,16 +56,6 @@ namespace ViewModel
                     SourceName = "Stamen Toner Light",
                     Description = "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0)\nData by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright)",
                     TileSource = new TileSource { UriFormat = "http://tile.stamen.com/toner-lite/{z}/{x}/{y}.png" },
-                    MaxZoomLevel = 18
-                }
-            },
-            {
-                "Seamarks",
-                new MapTileLayer
-                {
-                    SourceName = "OpenSeaMap",
-                    TileSource = new TileSource { UriFormat = "http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png" },
-                    MinZoomLevel = 9,
                     MaxZoomLevel = 18
                 }
             },
@@ -100,17 +96,7 @@ namespace ViewModel
                 new WmsImageLayer
                 {
                     Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/)\nData © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service"),
-                    Layers = "OSM-WMS"
-                }
-            },
-            {
-                "OpenStreetMap TOPO WMS",
-                new WmsImageLayer
-                {
-                    Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/)\nData © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service"),
-                    Layers = "TOPO-OSM-WMS"
+                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service")
                 }
             },
             {
@@ -118,8 +104,7 @@ namespace ViewModel
                 new WmsImageLayer
                 {
                     Description = "© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)",
-                    ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_topplus_open"),
-                    Layers = "web"
+                    ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_topplus_open")
                 }
             },
             {
@@ -132,8 +117,18 @@ namespace ViewModel
                 }
             },
             {
-                "SevenCs ChartServer",
+                "SevenCs ChartServer WMS",
                 new ChartServerLayer()
+            },
+            {
+                "Seamarks",
+                new MapTileLayer
+                {
+                    SourceName = "OpenSeaMap",
+                    TileSource = new TileSource { UriFormat = "http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png" },
+                    MinZoomLevel = 9,
+                    MaxZoomLevel = 18
+                }
             },
         };
 
@@ -167,10 +162,9 @@ namespace ViewModel
             "Stamen Terrain",
             "Stamen Toner Light",
             "OpenStreetMap WMS",
-            "OpenStreetMap TOPO WMS",
             "TopPlusOpen WMS",
             "TopPlusOpen WMTS",
-            "SevenCs ChartServer",
+            "SevenCs ChartServer WMS",
         };
 
         public MapLayers()
