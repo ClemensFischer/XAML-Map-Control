@@ -15,6 +15,9 @@ using System.Windows;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Displays map tiles from a Web Map Tile Service (WMTS).
+    /// </summary>
     public class WmtsTileLayer : MapTileLayerBase
     {
         public static readonly DependencyProperty CapabilitiesUriProperty = DependencyProperty.Register(
@@ -37,12 +40,18 @@ namespace MapControl
             Loaded += OnLoaded;
         }
 
+        /// <summary>
+        /// The Uri of a XML file or web response that contains the service capabilities.
+        /// </summary>
         public Uri CapabilitiesUri
         {
             get { return (Uri)GetValue(CapabilitiesUriProperty); }
             set { SetValue(CapabilitiesUriProperty, value); }
         }
 
+        /// <summary>
+        /// The ows:Identifier of the Layer that should be displayed. If not set, the first Layer is displayed.
+        /// </summary>
         public string LayerIdentifier
         {
             get { return (string)GetValue(LayerIdentifierProperty); }

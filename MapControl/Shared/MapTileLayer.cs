@@ -17,7 +17,7 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Fills the viewport with map tiles from a TileSource.
+    /// Displays web mercator map tiles.
     /// </summary>
     public class MapTileLayer : MapTileLayerBase
     {

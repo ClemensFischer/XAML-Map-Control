@@ -33,6 +33,8 @@ namespace MapControl
     {
         private const double MaximumZoomLevel = 22d;
 
+        public static TimeSpan TileFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
+
         public static readonly DependencyProperty MapLayerProperty = DependencyProperty.Register(
             nameof(MapLayer), typeof(UIElement), typeof(MapBase),
             new PropertyMetadata(null, (o, e) => ((MapBase)o).MapLayerPropertyChanged((UIElement)e.OldValue, (UIElement)e.NewValue)));
@@ -60,10 +62,6 @@ namespace MapControl
         public static readonly DependencyProperty AnimationEasingFunctionProperty = DependencyProperty.Register(
             nameof(AnimationEasingFunction), typeof(EasingFunctionBase), typeof(MapBase),
             new PropertyMetadata(new QuadraticEase { EasingMode = EasingMode.EaseOut }));
-
-        public static readonly DependencyProperty TileFadeDurationProperty = DependencyProperty.Register(
-            nameof(TileFadeDuration), typeof(TimeSpan), typeof(MapBase),
-            new PropertyMetadata(Tile.FadeDuration, (o, e) => Tile.FadeDuration = (TimeSpan)e.NewValue));
 
         private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
@@ -211,16 +209,6 @@ namespace MapControl
         {
             get { return (EasingFunctionBase)GetValue(AnimationEasingFunctionProperty); }
             set { SetValue(AnimationEasingFunctionProperty, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the Duration of the Tile Opacity animation.
-        /// The default value is 0.2 seconds.
-        /// </summary>
-        public TimeSpan TileFadeDuration
-        {
-            get { return (TimeSpan)GetValue(TileFadeDurationProperty); }
-            set { SetValue(TileFadeDurationProperty, value); }
         }
 
         /// <summary>

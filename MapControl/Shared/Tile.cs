@@ -19,8 +19,6 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public static TimeSpan FadeDuration { get; set; } = TimeSpan.FromSeconds(0.15);
-
         public readonly int ZoomLevel;
         public readonly int X;
         public readonly int Y;
@@ -46,7 +44,14 @@ namespace MapControl
 
         private void FadeIn()
         {
-            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation { From = 0d, To = 1d, Duration = FadeDuration, FillBehavior = FillBehavior.Stop });
+            Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation
+            {
+                From = 0d,
+                To = 1d,
+                Duration = MapBase.TileFadeDuration,
+                FillBehavior = FillBehavior.Stop
+            });
+
             Image.Opacity = 1d;
         }
     }

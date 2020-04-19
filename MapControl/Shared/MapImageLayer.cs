@@ -23,8 +23,8 @@ using System.Windows.Threading;
 namespace MapControl
 {
     /// <summary>
-    /// Map image layer. Fills the viewport with a single map image, e.g. provided by a Web Map Service.
-    /// The image must be provided by the abstract GetImageAsync method.
+    /// Displays a single map image, e.g. from a Web Map Service (WMS).
+    /// The image must be provided by the abstract GetImageAsync() method.
     /// </summary>
     public abstract class MapImageLayer : MapPanel, IMapLayer
     {
@@ -335,13 +335,13 @@ namespace MapControl
             topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
                 To = 1d,
-                Duration = Tile.FadeDuration
+                Duration = MapBase.TileFadeDuration
             });
 
             bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
                 To = 0d,
-                BeginTime = Tile.FadeDuration,
+                BeginTime = MapBase.TileFadeDuration,
                 Duration = TimeSpan.Zero
             });
         }
