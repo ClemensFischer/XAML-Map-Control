@@ -25,6 +25,7 @@ namespace MapControl.Projections
         private ICoordinateSystem coordinateSystem;
         private bool isNormalCylindrical;
         private bool isWebMercator;
+        private double scaleFactor;
         private string bboxFormat;
 
         public IMathTransform LocationToMapTransform { get; private set; }
@@ -64,17 +65,19 @@ namespace MapControl.Projections
                     var falseNorthing = projection.GetParameter("false_northing");
 
                     isNormalCylindrical =
-                        centralMeridian != null && centralMeridian.Value == 0d &&
-                        centralParallel != null && centralParallel.Value == 0d &&
+                        (centralMeridian == null || centralMeridian.Value == 0d) &&
+                        (centralParallel == null || centralParallel.Value == 0d) &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
                     isWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
+                    scaleFactor = 1d;
                     bboxFormat = "{0},{1},{2},{3}";
                 }
                 else
                 {
                     isNormalCylindrical = true;
                     isWebMercator = false;
+                    scaleFactor = Wgs84MetersPerDegree;
                     bboxFormat = "{1},{0},{3},{2}";
                 }
             }
@@ -108,9 +111,10 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = LocationToMapTransform.Transform(new Coordinate(location.Longitude, location.Latitude));
+            var coordinate = LocationToMapTransform.Transform(
+                new Coordinate(location.Longitude, location.Latitude));
 
-            return new Point(coordinate.X, coordinate.Y);
+            return new Point(coordinate.X * scaleFactor, coordinate.Y * scaleFactor);
         }
 
         public override Location MapToLocation(Point point)
@@ -120,15 +124,17 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = MapToLocationTransform.Transform(new Coordinate(point.X, point.Y));
+            var coordinate = MapToLocationTransform.Transform(
+                new Coordinate(point.X / scaleFactor, point.Y / scaleFactor));
 
             return new Location(coordinate.Y, coordinate.X);
         }
 
         public override string GetBboxValue(Rect rect)
         {
-            return string.Format(CultureInfo.InvariantCulture,
-                bboxFormat, rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height));
+            return string.Format(CultureInfo.InvariantCulture, bboxFormat,
+                rect.X / scaleFactor, rect.Y / scaleFactor,
+                (rect.X + rect.Width) / scaleFactor, (rect.Y + rect.Height) / scaleFactor);
         }
     }
 }
