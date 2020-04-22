@@ -48,7 +48,7 @@ namespace MapControl
             {
                 From = 0d,
                 To = 1d,
-                Duration = MapBase.TileFadeDuration,
+                Duration = MapBase.ImageFadeDuration,
                 FillBehavior = FillBehavior.Stop
             });
 

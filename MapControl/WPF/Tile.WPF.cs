@@ -15,7 +15,7 @@ namespace MapControl
         {
             Pending = false;
 
-            if (fadeIn && MapBase.TileFadeDuration > TimeSpan.Zero)
+            if (fadeIn && MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
                 if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
                 {

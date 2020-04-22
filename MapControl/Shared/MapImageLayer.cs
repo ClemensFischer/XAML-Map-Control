@@ -335,13 +335,13 @@ namespace MapControl
             topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
                 To = 1d,
-                Duration = MapBase.TileFadeDuration
+                Duration = MapBase.ImageFadeDuration
             });
 
             bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
                 To = 0d,
-                BeginTime = MapBase.TileFadeDuration,
+                BeginTime = MapBase.ImageFadeDuration,
                 Duration = TimeSpan.Zero
             });
         }

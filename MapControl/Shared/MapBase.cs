@@ -33,7 +33,7 @@ namespace MapControl
     {
         private const double MaximumZoomLevel = 22d;
 
-        public static TimeSpan TileFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
+        public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
 
         public static readonly DependencyProperty MapLayerProperty = DependencyProperty.Register(
             nameof(MapLayer), typeof(UIElement), typeof(MapBase),
