@@ -22,8 +22,7 @@ which define the currently displayed map viewport.
 
 - **MapTileLayer**: Provides tiled map content (e.g. from OpenStreetMap) by means of a **TileSource**.
 
-- **MapImageLayer**, **WmsImageLayer**: Provides map content that covers the entire viewport,
-typically from a Web Map Service (WMS).
+- **MapImageLayer**, **WmsImageLayer**: Provides single image map content, e.g. from a Web Map Service (WMS).
 
 - **WmtsTileLayer**: Provides tiled map content from a Web Map Tile Service (WMTS).
 
