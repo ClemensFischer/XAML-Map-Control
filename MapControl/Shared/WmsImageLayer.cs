@@ -126,7 +126,7 @@ namespace MapControl
 
                 var uri = GetImageUri();
 
-                if (uri != null)
+                if (!string.IsNullOrEmpty(uri))
                 {
                     image = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")));
                 }
