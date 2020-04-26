@@ -82,16 +82,28 @@ namespace MapControl
         public async Task<IEnumerable<string>> GetLayerNamesAsync()
         {
             IEnumerable<string> layerNames = null;
-            var capabilities = await GetCapabilities();
 
-            if (capabilities != null)
+            if (ServiceUri != null)
             {
-                var ns = capabilities.Name.Namespace;
+                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
 
-                layerNames = capabilities
-                    .Descendants(ns + "Layer")
-                    .Select(e => e.Element(ns + "Name")?.Value)
-                    .Where(n => !string.IsNullOrEmpty(n));
+                try
+                {
+                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
+                    {
+                        var capabilities = XDocument.Load(stream).Root;
+                        var ns = capabilities.Name.Namespace;
+
+                        layerNames = capabilities
+                            .Descendants(ns + "Layer")
+                            .Select(e => e.Element(ns + "Name")?.Value)
+                            .Where(n => !string.IsNullOrEmpty(n));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                }
             }
 
             return layerNames;
@@ -102,18 +114,25 @@ namespace MapControl
         /// </summary>
         protected override async Task<ImageSource> GetImageAsync()
         {
-            if (Layers == null && // get first Layer
-                ServiceUri != null &&
-                ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+            ImageSource image = null;
+
+            if (ServiceUri != null)
             {
-                Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
+                if (Layers == null &&
+                    ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? ""; // get first Layer from Capabilities
+                }
+
+                var uri = GetImageUri();
+
+                if (uri != null)
+                {
+                    image = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")));
+                }
             }
 
-            var uri = GetImageUri();
-
-            return uri != null
-                ? await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")))
-                : null;
+            return image;
         }
 
         /// <summary>
@@ -124,7 +143,7 @@ namespace MapControl
             string uri = null;
             var projection = ParentMap?.MapProjection;
 
-            if (ServiceUri != null && projection != null && !string.IsNullOrEmpty(projection.CrsId))
+            if (projection != null && !string.IsNullOrEmpty(projection.CrsId))
             {
                 uri = GetRequestUri("GetMap");
 
@@ -174,32 +193,6 @@ namespace MapControl
             }
 
             return uri + "REQUEST=" + request;
-        }
-
-        private async Task<XElement> GetCapabilities()
-        {
-            XElement capabilities = null;
-
-            if (ServiceUri != null)
-            {
-                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
-
-                try
-                {
-                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
-                    {
-                        capabilities = XDocument.Load(stream).Root;
-                    }
-
-                    var ns = capabilities.Name.Namespace;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
-                }
-            }
-
-            return capabilities;
         }
     }
 }
