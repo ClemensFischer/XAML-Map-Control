@@ -2,14 +2,19 @@
 // © 2020 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
-using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 
 namespace MapControl
 {
-    public partial class Map
+    /// <summary>
+    /// MapBase with default input event handling.
+    /// </summary>
+    public class Map : MapBase
     {
+        public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
+            nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
+
         public Map()
         {
             ManipulationMode = ManipulationModes.Scale
@@ -21,22 +26,19 @@ namespace MapControl
             PointerWheelChanged += OnPointerWheelChanged;
         }
 
-        private async void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        /// <summary>
+        /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
+        /// The default value is 1.
+        /// </summary>
+        public double MouseWheelZoomDelta
         {
-            translation.X += e.Delta.Translation.X;
-            translation.Y += e.Delta.Translation.Y;
-            rotation += e.Delta.Rotation;
-            scale *= e.Delta.Scale;
+            get { return (double)GetValue(MouseWheelZoomDeltaProperty); }
+            set { SetValue(MouseWheelZoomDeltaProperty, value); }
+        }
 
-            if (!transformPending)
-            {
-                transformPending = true;
-
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Low,
-                    () => TransformMap(e.Position, translation, rotation, scale));
-
-                ResetTransform();
-            }
+        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
