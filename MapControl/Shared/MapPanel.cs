@@ -151,9 +151,9 @@ namespace MapControl
                 (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                  pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
             {
-                pos = parentMap.LocationToView(new Location(
-                    location.Latitude,
-                    Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude)));
+                location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
+
+                pos = parentMap.LocationToView(location);
             }
 
             var rect = new Rect(pos, element.DesiredSize);
@@ -208,7 +208,7 @@ namespace MapControl
                  pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
             {
                 var location = projection.MapToLocation(center);
-                location.Longitude = Location.NearestLongitude(location.Longitude, parentMap.Center.Longitude);
+                location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
 
                 pos = parentMap.LocationToView(location);
             }

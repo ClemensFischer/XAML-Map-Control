@@ -370,6 +370,22 @@ namespace MapControl
             TargetHeading = 0d;
         }
 
+        internal double ConstrainedLongitude(double longitude)
+        {
+            var offset = longitude - Center.Longitude;
+
+            if (offset > 180d)
+            {
+                longitude = Center.Longitude - 360d + offset % 360d;
+            }
+            else if (offset < -180d)
+            {
+                longitude = Center.Longitude + 360d + offset % 360d;
+            }
+
+            return longitude;
+        }
+
         private void MapLayerPropertyChanged(UIElement oldLayer, UIElement newLayer)
         {
             if (oldLayer != null)
@@ -458,10 +474,6 @@ namespace MapControl
 
                 if (!targetCenter.Equals(Center))
                 {
-                    var targetCenterLongitude = MapProjection.IsNormalCylindrical
-                        ? Location.NearestLongitude(targetCenter.Longitude, Center.Longitude)
-                        : targetCenter.Longitude;
-
                     if (centerAnimation != null)
                     {
                         centerAnimation.Completed -= CenterAnimationCompleted;
@@ -470,7 +482,7 @@ namespace MapControl
                     centerAnimation = new PointAnimation
                     {
                         From = new Point(Center.Longitude, Center.Latitude),
-                        To = new Point(targetCenterLongitude, targetCenter.Latitude),
+                        To = new Point(ConstrainedLongitude(targetCenter.Longitude), targetCenter.Latitude),
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction
                     };

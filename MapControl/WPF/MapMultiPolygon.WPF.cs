@@ -38,14 +38,16 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            var figures = ((PathGeometry)Data).Figures;
-            figures.Clear();
+            var pathFigures = ((PathGeometry)Data).Figures;
+            pathFigures.Clear();
 
             if (ParentMap != null && Polygons != null)
             {
+                var longitudeOffset = GetLongitudeOffset(Location);
+
                 foreach (var polygon in Polygons)
                 {
-                    AddPolylineLocations(figures, polygon, true);
+                    AddPolylineLocations(pathFigures, polygon, longitudeOffset, true);
                 }
             }
         }

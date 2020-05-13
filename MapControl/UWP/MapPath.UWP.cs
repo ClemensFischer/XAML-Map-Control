@@ -14,10 +14,7 @@ namespace MapControl
 {
     public partial class MapPath : Path
     {
-        protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            UpdateData();
-        }
+        #region Method used only by derived classes MapPolyline and MapPolygon
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
@@ -34,11 +31,17 @@ namespace MapControl
             UpdateData();
         }
 
-        protected void AddPolylineLocations(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
+        protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (locations != null && locations.Count() >= 2)
+            UpdateData();
+        }
+
+        protected void AddPolylineLocations(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        {
+            if (locations.Count() >= 2)
             {
-                var points = locations.Select(loc => LocationToView(loc)).ToList();
+                var points = locations.Select(location => LocationToView(location, longitudeOffset)).ToList();
+
                 if (closed)
                 {
                     points.Add(points[0]);
@@ -67,7 +70,7 @@ namespace MapControl
 
                             segment = new PolyLineSegment();
                             figure.Segments.Add(segment);
-                            figures.Add(figure);
+                            pathFigures.Add(figure);
                         }
 
                         segment.Points.Add(p2);
@@ -80,5 +83,7 @@ namespace MapControl
                 }
             }
         }
+
+        #endregion
     }
 }

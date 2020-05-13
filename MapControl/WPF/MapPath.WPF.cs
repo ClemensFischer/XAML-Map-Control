@@ -27,11 +27,7 @@ namespace MapControl
             get { return Data; }
         }
 
-        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
-        {
-            UpdateData();
-            return true;
-        }
+        #region Method used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
@@ -48,11 +44,17 @@ namespace MapControl
             UpdateData();
         }
 
-        protected void AddPolylineLocations(PathFigureCollection figures, IEnumerable<Location> locations, bool closed)
+        bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
-            if (locations != null && locations.Count() >= 2)
+            UpdateData();
+            return true;
+        }
+
+        protected void AddPolylineLocations(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        {
+            if (locations.Count() >= 2)
             {
-                var points = locations.Select(loc => LocationToView(loc));
+                var points = locations.Select(location => LocationToView(location, longitudeOffset));
                 var figure = new PathFigure
                 {
                     StartPoint = points.First(),
@@ -61,8 +63,10 @@ namespace MapControl
                 };
 
                 figure.Segments.Add(new PolyLineSegment(points.Skip(1), true));
-                figures.Add(figure);
+                pathFigures.Add(figure);
             }
         }
+
+        #endregion
     }
 }

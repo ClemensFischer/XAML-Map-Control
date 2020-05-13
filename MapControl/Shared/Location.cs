@@ -84,7 +84,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Normalizes a longitude to a value in the interval [-180..180].
+        /// Normalizes a longitude to a value in the interval [-180 .. 180].
         /// </summary>
         public static double NormalizeLongitude(double longitude)
         {
@@ -95,22 +95,6 @@ namespace MapControl
             else if (longitude > 180d)
             {
                 longitude = ((longitude - 180d) % 360d) - 180d;
-            }
-
-            return longitude;
-        }
-
-        internal static double NearestLongitude(double longitude, double referenceLongitude)
-        {
-            longitude = NormalizeLongitude(longitude);
-
-            if (longitude > referenceLongitude + 180d)
-            {
-                longitude -= 360d;
-            }
-            else if (longitude < referenceLongitude - 180d)
-            {
-                longitude += 360d;
             }
 
             return longitude;

@@ -20,11 +20,9 @@ namespace MapControl
     {
         public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
             nameof(Location), typeof(Location), typeof(MapPath),
-            new PropertyMetadata(null, (o, e) => ((MapPath)o).LocationOrViewportChanged()));
+            new PropertyMetadata(null, (o, e) => ((MapPath)o).UpdateData()));
 
         private MapBase parentMap;
-        private MatrixTransform dataTransform;
-        private double longitudeOffset;
 
         public MapPath()
         {
@@ -61,30 +59,12 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                LocationOrViewportChanged();
+                UpdateData();
             }
         }
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
-            LocationOrViewportChanged();
-        }
-
-        private void LocationOrViewportChanged()
-        {
-            longitudeOffset = 0d;
-
-            if (parentMap != null && parentMap.MapProjection.IsNormalCylindrical && Location != null)
-            {
-                var viewPos = LocationToView(Location);
-
-                if (viewPos.X < 0d || viewPos.X > parentMap.RenderSize.Width ||
-                    viewPos.Y < 0d || viewPos.Y > parentMap.RenderSize.Height)
-                {
-                    longitudeOffset = Location.NearestLongitude(Location.Longitude, parentMap.Center.Longitude) - Location.Longitude;
-                }
-            }
-
             UpdateData();
         }
 
@@ -92,21 +72,48 @@ namespace MapControl
         {
             if (parentMap != null && Data != null && Location != null)
             {
-                if (dataTransform == null)
+                var location = Location;
+                var viewPos = parentMap.LocationToView(location);
+
+                if (parentMap.MapProjection.IsNormalCylindrical &&
+                    (viewPos.X < 0d || viewPos.X > parentMap.RenderSize.Width ||
+                     viewPos.Y < 0d || viewPos.Y > parentMap.RenderSize.Height))
                 {
-                    Data.Transform = dataTransform = new MatrixTransform();
+                    location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
+                    viewPos = parentMap.LocationToView(location);
                 }
 
-                var viewPos = LocationToView(Location);
-                var scale = parentMap.GetScale(Location);
+                var scale = parentMap.GetScale(location);
                 var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
+
                 transform.Rotate(parentMap.ViewTransform.Rotation);
                 transform.Translate(viewPos.X, viewPos.Y);
-                dataTransform.Matrix = transform;
+
+                Data.Transform = new MatrixTransform { Matrix = transform };
             }
         }
 
-        protected Point LocationToMap(Location location)
+        #region Method used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
+
+        protected double GetLongitudeOffset(Location location)
+        {
+            var longitudeOffset = 0d;
+
+            if (location != null && parentMap.MapProjection.IsNormalCylindrical)
+            {
+                var viewPos = parentMap.LocationToView(location);
+
+                if (viewPos.X < 0d || viewPos.X > parentMap.RenderSize.Width ||
+                    viewPos.Y < 0d || viewPos.Y > parentMap.RenderSize.Height)
+                {
+                    longitudeOffset = parentMap.ConstrainedLongitude(location.Longitude) - location.Longitude;
+                }
+            }
+
+            return longitudeOffset;
+        }
+
+        protected Point LocationToMap(Location location, double longitudeOffset)
         {
             if (longitudeOffset != 0d)
             {
@@ -127,9 +134,11 @@ namespace MapControl
             return point;
         }
 
-        protected Point LocationToView(Location location)
+        protected Point LocationToView(Location location, double longitudeOffset)
         {
-            return parentMap.ViewTransform.MapToView(LocationToMap(location));
+            return parentMap.ViewTransform.MapToView(LocationToMap(location, longitudeOffset));
         }
+
+        #endregion
     }
 }
