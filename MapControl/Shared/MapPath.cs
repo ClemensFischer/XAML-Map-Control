@@ -70,24 +70,14 @@ namespace MapControl
 
         protected virtual void UpdateData()
         {
+            MapPanel.SetLocation(this, Location);
+
             if (parentMap != null && Data != null && Location != null)
             {
-                var location = Location;
-                var viewPos = parentMap.LocationToView(location);
-
-                if (parentMap.MapProjection.IsNormalCylindrical &&
-                    (viewPos.X < 0d || viewPos.X > parentMap.RenderSize.Width ||
-                     viewPos.Y < 0d || viewPos.Y > parentMap.RenderSize.Height))
-                {
-                    location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
-                    viewPos = parentMap.LocationToView(location);
-                }
-
-                var scale = parentMap.GetScale(location);
+                var scale = parentMap.GetScale(Location);
                 var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
 
                 transform.Rotate(parentMap.ViewTransform.Rotation);
-                transform.Translate(viewPos.X, viewPos.Y);
 
                 Data.Transform = new MatrixTransform { Matrix = transform };
             }
