@@ -36,10 +36,6 @@ namespace MapControl
             nameof(Styles), typeof(string), typeof(WmsImageLayer),
             new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
-        public static readonly DependencyProperty FormatProperty = DependencyProperty.Register(
-            nameof(Format), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata("image/png", async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
-
         /// <summary>
         /// The base request URL. 
         /// </summary>
@@ -65,15 +61,6 @@ namespace MapControl
         {
             get { return (string)GetValue(StylesProperty); }
             set { SetValue(StylesProperty, value); }
-        }
-
-        /// <summary>
-        /// Requested image format. Default is image/png.
-        /// </summary>
-        public string Format
-        {
-            get { return (string)GetValue(FormatProperty); }
-            set { SetValue(FormatProperty, value); }
         }
 
         /// <summary>
@@ -157,9 +144,9 @@ namespace MapControl
                     uri += "&STYLES=" + Styles;
                 }
 
-                if (uri.IndexOf("FORMAT=", StringComparison.OrdinalIgnoreCase) < 0 && Format != null)
+                if (uri.IndexOf("FORMAT=", StringComparison.OrdinalIgnoreCase) < 0)
                 {
-                    uri += "&FORMAT=" + Format;
+                    uri += "&FORMAT=image/png";
                 }
 
                 var rect = projection.BoundingBoxToRect(BoundingBox);
