@@ -194,8 +194,6 @@ namespace MapControl
                 {
                     var capabilities = await WmtsCapabilities.ReadCapabilities(CapabilitiesUri, LayerIdentifier);
 
-                    TileMatrixSets.Clear();
-
                     foreach (var tileMatrixSet in capabilities.TileMatrixSets
                         .Where(s => !TileMatrixSets.ContainsKey(s.SupportedCrs)))
                     {

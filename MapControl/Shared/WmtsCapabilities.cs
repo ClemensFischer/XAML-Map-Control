@@ -151,7 +151,7 @@ namespace MapControl
 
             foreach (var tileMatrixElement in tileMatrixSetElement.Descendants(ns + "TileMatrix"))
             {
-                tileMatrixes.Add(ReadTileMatrix(tileMatrixElement));
+                tileMatrixes.Add(ReadTileMatrix(tileMatrixElement, supportedCrs));
             }
 
             if (tileMatrixes.Count <= 0)
@@ -162,7 +162,7 @@ namespace MapControl
             return new WmtsTileMatrixSet(identifier, supportedCrs, tileMatrixes);
         }
 
-        public static WmtsTileMatrix ReadTileMatrix(XElement tileMatrixElement)
+        public static WmtsTileMatrix ReadTileMatrix(XElement tileMatrixElement, string supportedCrs)
         {
             XNamespace ns = tileMatrixElement.Name.Namespace;
             XNamespace ows = "http://www.opengis.net/ows/1.1";
@@ -221,8 +221,12 @@ namespace MapControl
                 throw new ArgumentException("No MatrixHeight element found in TileMatrix \"" + identifier + "\".");
             }
 
+            var topLeft = supportedCrs == "EPSG:4326"
+                ? new Point(MapProjection.Wgs84MetersPerDegree * top, MapProjection.Wgs84MetersPerDegree * left)
+                : new Point(left, top);
+
             return new WmtsTileMatrix(
-                identifier, scaleDenominator, new Point(left, top), tileWidth, tileHeight, matrixWidth, matrixHeight);
+                identifier, scaleDenominator, topLeft, tileWidth, tileHeight, matrixWidth, matrixHeight);
         }
     }
 }
