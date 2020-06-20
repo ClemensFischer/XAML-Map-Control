@@ -23,8 +23,6 @@ namespace MapControl
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            e.Handled = true;
-
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.OnItemClicked(
                 this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control), Keyboard.Modifiers.HasFlag(ModifierKeys.Shift));
         }

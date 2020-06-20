@@ -40,45 +40,69 @@ namespace MapControl
         {
             if (locations.Count() >= 2)
             {
-                var points = locations.Select(location => LocationToView(location, longitudeOffset)).ToList();
+                var points = locations.Select(location => LocationToView(location, longitudeOffset));
 
                 if (closed)
                 {
-                    points.Add(points[0]);
-                }
+                    var segment = new PolyLineSegment();
 
-                var viewport = new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height);
-                PathFigure figure = null;
-                PolyLineSegment segment = null;
-
-                for (int i = 1; i < points.Count; i++)
-                {
-                    var p1 = points[i - 1];
-                    var p2 = points[i];
-                    var inside = Intersections.GetIntersections(ref p1, ref p2, viewport);
-
-                    if (inside)
+                    foreach (var point in points.Skip(1))
                     {
-                        if (figure == null)
-                        {
-                            figure = new PathFigure
-                            {
-                                StartPoint = p1,
-                                IsClosed = false,
-                                IsFilled = false
-                            };
-
-                            segment = new PolyLineSegment();
-                            figure.Segments.Add(segment);
-                            pathFigures.Add(figure);
-                        }
-
-                        segment.Points.Add(p2);
+                        segment.Points.Add(point);
                     }
 
-                    if (!inside || p2 != points[i])
+                    var figure = new PathFigure
                     {
-                        figure = null;
+                        StartPoint = points.First(),
+                        IsClosed = closed,
+                        IsFilled = closed
+                    };
+
+                    figure.Segments.Add(segment);
+                    pathFigures.Add(figure);
+                }
+                else
+                {
+                    var pointList = points.ToList();
+
+                    if (closed)
+                    {
+                        pointList.Add(pointList[0]);
+                    }
+
+                    var viewport = new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height);
+                    PathFigure figure = null;
+                    PolyLineSegment segment = null;
+
+                    for (int i = 1; i < pointList.Count; i++)
+                    {
+                        var p1 = pointList[i - 1];
+                        var p2 = pointList[i];
+                        var inside = Intersections.GetIntersections(ref p1, ref p2, viewport);
+
+                        if (inside)
+                        {
+                            if (figure == null)
+                            {
+                                figure = new PathFigure
+                                {
+                                    StartPoint = p1,
+                                    IsClosed = false,
+                                    IsFilled = false
+                                };
+
+                                segment = new PolyLineSegment();
+                                figure.Segments.Add(segment);
+                                pathFigures.Add(figure);
+                            }
+
+                            segment.Points.Add(p2);
+                        }
+
+                        if (!inside || p2 != pointList[i])
+                        {
+                            figure = null;
+                        }
                     }
                 }
             }
