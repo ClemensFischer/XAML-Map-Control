@@ -179,7 +179,12 @@ namespace MapControl
 
                 if (sourceName != null)
                 {
-                    sourceName += "/" + tileMatrixSet.Identifier;
+                    sourceName += "/" + tileMatrixSet.Identifier
+                        .Replace(':', '_')
+                        .Replace(';', '_')
+                        .Replace(',', '_')
+                        .Replace('/', '_')
+                        .Replace('\\', '_');
                 }
             }
 
