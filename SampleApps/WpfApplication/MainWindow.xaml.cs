@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using MapControl;
@@ -12,12 +13,19 @@ namespace WpfApplication
         public MainWindow()
         {
             ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
-            TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            var cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            TileImageLoader.Cache = cache;
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = null;
 
             InitializeComponent();
+
+            Loaded += async (s, e) =>
+            {
+                await Task.Delay(2000);
+                await cache.Clean();
+            };
         }
 
         private void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -11,6 +11,7 @@ using System.Runtime.Caching;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MapControl.Caching
 {
@@ -20,23 +21,28 @@ namespace MapControl.Caching
     /// </summary>
     public class ImageFileCache : ObjectCache
     {
+        private const string ExpiresTag = "EXPIRES:";
+
         private static readonly FileSystemAccessRule fullControlRule = new FileSystemAccessRule(
             new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
             FileSystemRights.FullControl, AccessControlType.Allow);
 
         private readonly MemoryCache memoryCache = MemoryCache.Default;
-        private readonly string folder;
+        private readonly string rootDirectory;
 
-        public ImageFileCache(string folder)
+        public ImageFileCache(string directory)
         {
-            if (string.IsNullOrEmpty(folder))
+            if (string.IsNullOrEmpty(directory))
             {
-                throw new ArgumentException("The parameter folder must not be null or empty.");
+                throw new ArgumentException("The parameter directory must not be null or empty.");
             }
 
-            this.folder = folder;
+            rootDirectory = directory;
+        }
 
-            Debug.WriteLine("Created ImageFileCache in " + folder);
+        public Task Clean()
+        {
+            return Task.Factory.StartNew(() => CleanRootDirectory(), TaskCreationOptions.LongRunning);
         }
 
         public override string Name
@@ -108,23 +114,17 @@ namespace MapControl.Caching
                     try
                     {
                         var buffer = File.ReadAllBytes(path);
+                        var expiration = GetExpiration(ref buffer);
 
-                        if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == "EXPIRES:")
+                        imageCacheItem = new ImageCacheItem
                         {
-                            var expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
+                            Buffer = buffer,
+                            Expiration = expiration
+                        };
 
-                            Array.Resize(ref buffer, buffer.Length - 16);
+                        memoryCache.Set(key, imageCacheItem, new CacheItemPolicy { AbsoluteExpiration = expiration });
 
-                            imageCacheItem = new ImageCacheItem
-                            {
-                                Buffer = buffer,
-                                Expiration = expiration
-                            };
-
-                            memoryCache.Set(key, imageCacheItem, new CacheItemPolicy { AbsoluteExpiration = expiration });
-
-                            //Debug.WriteLine("ImageFileCache: Reading {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
-                        }
+                        //Debug.WriteLine("ImageFileCache: Reading {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
                     }
                     catch (Exception ex)
                     {
@@ -160,7 +160,6 @@ namespace MapControl.Caching
                 throw new ArgumentNullException("The parameter key must not be null.");
             }
 
-
             if (!(value is ImageCacheItem imageCacheItem))
             {
                 throw new ArgumentException("The parameter value must be a MapControl.Caching.ImageCacheItem instance.");
@@ -181,8 +180,7 @@ namespace MapControl.Caching
                     using (var stream = File.Create(path))
                     {
                         stream.Write(imageCacheItem.Buffer, 0, imageCacheItem.Buffer.Length);
-                        stream.Write(Encoding.ASCII.GetBytes("EXPIRES:"), 0, 8);
-                        stream.Write(BitConverter.GetBytes(imageCacheItem.Expiration.Ticks), 0, 8);
+                        SetExpiration(stream, imageCacheItem.Expiration);
                     }
 
                     var fileInfo = new FileInfo(path);
@@ -284,14 +282,108 @@ namespace MapControl.Caching
         {
             try
             {
-                return Path.Combine(folder, Path.Combine(key.Split('\\', '/', ',', ':', ';')));
+                return Path.Combine(rootDirectory, Path.Combine(key.Split('\\', '/', ',', ':', ';')));
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Invalid key {0}/{1}: {2}", folder, key, ex.Message);
+                Debug.WriteLine("ImageFileCache: Invalid key {0}/{1}: {2}", rootDirectory, key, ex.Message);
             }
 
             return null;
+        }
+
+        private async Task CleanRootDirectory()
+        {
+            var deletedFileCount = 0;
+
+            foreach (var dir in new DirectoryInfo(rootDirectory).EnumerateDirectories())
+            {
+                deletedFileCount += await CleanDirectory(dir).ConfigureAwait(false);
+            }
+
+            Debug.WriteLine("ImageFileCache: Cleaned {0} files in {1}", deletedFileCount, rootDirectory);
+        }
+
+        private static async Task<int> CleanDirectory(DirectoryInfo directory)
+        {
+            var deletedFileCount = 0;
+
+            foreach (var dir in directory.EnumerateDirectories())
+            {
+                deletedFileCount += await CleanDirectory(dir).ConfigureAwait(false);
+            }
+
+            foreach (var file in directory.EnumerateFiles())
+            {
+                try
+                {
+                    if (await ReadExpirationAsync(file).ConfigureAwait(false) < DateTime.UtcNow)
+                    {
+                        file.Delete();
+                        deletedFileCount++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", file.FullName, ex.Message);
+                }
+            }
+
+            if (!directory.EnumerateFileSystemInfos().Any())
+            {
+                try
+                {
+                    directory.Delete();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", directory.FullName, ex.Message);
+                }
+            }
+
+            return deletedFileCount;
+        }
+
+        private static void SetExpiration(Stream stream, DateTime expiration)
+        {
+            stream.Write(Encoding.ASCII.GetBytes(ExpiresTag), 0, 8);
+            stream.Write(BitConverter.GetBytes(expiration.Ticks), 0, 8);
+        }
+
+        private static DateTime GetExpiration(ref byte[] buffer)
+        {
+            DateTime expiration = DateTime.MaxValue;
+
+            if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == ExpiresTag)
+            {
+                expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
+                Array.Resize(ref buffer, buffer.Length - 16);
+            }
+
+            return expiration;
+        }
+
+        private static async Task<DateTime> ReadExpirationAsync(FileInfo file)
+        {
+            DateTime expiration = DateTime.MaxValue;
+
+            if (file.Length > 16)
+            {
+                var buffer = new byte[16];
+
+                using (var stream = file.OpenRead())
+                {
+                    stream.Seek(-16, SeekOrigin.End);
+
+                    if (await stream.ReadAsync(buffer, 0, 16).ConfigureAwait(false) == 16 &&
+                        Encoding.ASCII.GetString(buffer, 0, 8) == ExpiresTag)
+                    {
+                        expiration = new DateTime(BitConverter.ToInt64(buffer, 8), DateTimeKind.Utc);
+                    }
+                }
+            }
+
+            return expiration;
         }
     }
 }
