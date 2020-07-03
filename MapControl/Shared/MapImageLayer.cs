@@ -188,7 +188,7 @@ namespace MapControl
         /// </summary>
         protected abstract Task<ImageSource> GetImageAsync();
 
-        protected override void OnViewportChanged(ViewportChangedEventArgs e)
+        protected override async void OnViewportChanged(ViewportChangedEventArgs e)
         {
             if (e.ProjectionChanged)
             {
@@ -196,7 +196,7 @@ namespace MapControl
 
                 base.OnViewportChanged(e);
 
-                var task = UpdateImageAsync();
+                await UpdateImageAsync();
             }
             else
             {
