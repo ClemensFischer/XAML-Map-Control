@@ -21,7 +21,6 @@ namespace MapControl
     {
         public WmtsTileMatrixLayer(WmtsTileMatrix tileMatrix, int zoomLevel)
         {
-            IsHitTestVisible = false;
             RenderTransform = new MatrixTransform();
             TileMatrix = tileMatrix;
             ZoomLevel = zoomLevel;

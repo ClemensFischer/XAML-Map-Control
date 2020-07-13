@@ -35,8 +35,6 @@ namespace MapControl
         public WmtsTileLayer(ITileImageLoader tileImageLoader)
             : base(tileImageLoader)
         {
-            IsHitTestVisible = false;
-
             Loaded += OnLoaded;
         }
 

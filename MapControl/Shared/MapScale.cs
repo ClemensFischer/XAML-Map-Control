@@ -37,7 +37,6 @@ namespace MapControl
 
         public MapScale()
         {
-            IsHitTestVisible = false;
             MinWidth = 100d;
 
             line.SetBinding(Shape.StrokeProperty, GetBinding(StrokeProperty, nameof(Stroke)));

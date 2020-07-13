@@ -16,7 +16,6 @@ namespace MapControl
 
         public MapGraticule()
         {
-            IsHitTestVisible = false;
             StrokeThickness = 0.5;
         }
 

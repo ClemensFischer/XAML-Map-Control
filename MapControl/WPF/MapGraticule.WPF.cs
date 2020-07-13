@@ -26,7 +26,6 @@ namespace MapControl
 
         static MapGraticule()
         {
-            IsHitTestVisibleProperty.OverrideMetadata(typeof(MapGraticule), new FrameworkPropertyMetadata(false));
             StrokeThicknessProperty.OverrideMetadata(typeof(MapGraticule), new FrameworkPropertyMetadata(0.5));
         }
 

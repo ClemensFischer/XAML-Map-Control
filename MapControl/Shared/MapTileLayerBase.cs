@@ -54,7 +54,6 @@ namespace MapControl
 
         protected MapTileLayerBase(ITileImageLoader tileImageLoader)
         {
-            IsHitTestVisible = false;
             RenderTransform = new MatrixTransform();
             TileImageLoader = tileImageLoader;
 

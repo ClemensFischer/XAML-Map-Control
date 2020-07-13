@@ -64,27 +64,21 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets a list of all layer names returned by a GetCapabilities response.
+        /// Calls GetCapabilitiesRequestUri() and asynchronously loads an XElement from the returned URL.
         /// </summary>
-        public async Task<IEnumerable<string>> GetLayerNamesAsync()
+        public async Task<XElement> GetCapabilitiesAsync()
         {
-            IEnumerable<string> layerNames = null;
+            XElement element = null;
 
             if (ServiceUri != null)
             {
-                var uri = GetRequestUri("GetCapabilities").Replace(" ", "%20");
+                var uri = GetCapabilitiesRequestUri();
 
                 try
                 {
                     using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
                     {
-                        var capabilities = XDocument.Load(stream).Root;
-                        var ns = capabilities.Name.Namespace;
-
-                        layerNames = capabilities
-                            .Descendants(ns + "Layer")
-                            .Select(e => e.Element(ns + "Name")?.Value)
-                            .Where(n => !string.IsNullOrEmpty(n));
+                        element = XDocument.Load(stream).Root;
                     }
                 }
                 catch (Exception ex)
@@ -93,11 +87,60 @@ namespace MapControl
                 }
             }
 
+            return element;
+        }
+
+        /// <summary>
+        /// Calls GetFeatureInfoRequestUri() and asynchronously loads an XElement from the returned URL.
+        /// </summary>
+        public async Task<XElement> GetFeatureInfoAsync(Point position)
+        {
+            XElement element = null;
+
+            if (ServiceUri != null)
+            {
+                var uri = GetFeatureInfoRequestUri(position);
+
+                try
+                {
+                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
+                    {
+                        element = XDocument.Load(stream).Root;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                }
+            }
+
+            return element;
+        }
+
+        /// <summary>
+        /// Gets a list of all layer names returned by a GetCapabilities response.
+        /// </summary>
+        public async Task<IEnumerable<string>> GetLayerNamesAsync()
+        {
+            IEnumerable<string> layerNames = null;
+
+            var capabilities = await GetCapabilitiesAsync();
+
+            if (capabilities != null)
+            {
+                var ns = capabilities.Name.Namespace;
+
+                layerNames = capabilities
+                    .Descendants(ns + "Layer")
+                    .Select(e => e.Element(ns + "Name")?.Value)
+                    .Where(n => !string.IsNullOrEmpty(n));
+            }
+
             return layerNames;
         }
 
         /// <summary>
-        /// Calls GetImageUri() and asynchronously loads an ImageSource from the returned GetMap URL.
+        /// Calls GetMapRequestUri() and asynchronously loads an ImageSource from the returned URL.
         /// </summary>
         protected override async Task<ImageSource> GetImageAsync()
         {
@@ -111,11 +154,11 @@ namespace MapControl
                     Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? ""; // get first Layer from Capabilities
                 }
 
-                var uri = GetImageUri();
+                var uri = GetMapRequestUri();
 
                 if (!string.IsNullOrEmpty(uri))
                 {
-                    image = await ImageLoader.LoadImageAsync(new Uri(uri.Replace(" ", "%20")));
+                    image = await ImageLoader.LoadImageAsync(new Uri(uri));
                 }
             }
 
@@ -123,9 +166,17 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Returns a GetCapabilities request URL string.
+        /// </summary>
+        protected virtual string GetCapabilitiesRequestUri()
+        {
+            return GetRequestUri("GetCapabilities").Replace(" ", "%20");
+        }
+
+        /// <summary>
         /// Returns a GetMap request URL string.
         /// </summary>
-        protected virtual string GetImageUri()
+        protected virtual string GetMapRequestUri()
         {
             string uri = null;
             var projection = ParentMap?.MapProjection;
@@ -157,7 +208,49 @@ namespace MapControl
                 uri += "&HEIGHT=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Height);
             }
 
-            return uri;
+            return uri.Replace(" ", "%20");
+        }
+
+        /// <summary>
+        /// Returns a GetFeatureInfo request URL string.
+        /// </summary>
+        protected virtual string GetFeatureInfoRequestUri(Point position)
+        {
+            string uri = null;
+            var projection = ParentMap?.MapProjection;
+
+            if (projection != null && !string.IsNullOrEmpty(projection.CrsId))
+            {
+                uri = GetRequestUri("GetFeatureInfo");
+
+                var i = uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase);
+
+                if (i >= 0)
+                {
+                    i += 7;
+                    var j = uri.IndexOf('&', i);
+                    var layers = j >= i ? uri.Substring(i, j - i) : uri.Substring(i);
+                    uri += "&QUERY_LAYERS=" + layers;
+                }
+                else if (Layers != null)
+                {
+                    uri += "&LAYERS=" + Layers;
+                    uri += "&QUERY_LAYERS=" + Layers;
+                }
+
+                var rect = projection.BoundingBoxToRect(BoundingBox);
+                var pos = ParentMap.TransformToVisual(Children[1]).Transform(position); // top Image element
+
+                uri += "&CRS=" + projection.GetCrsValue();
+                uri += "&BBOX=" + projection.GetBboxValue(rect);
+                uri += "&WIDTH=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Width);
+                uri += "&HEIGHT=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Height);
+                uri += "&I=" + (int)Math.Round(pos.X);
+                uri += "&J=" + (int)Math.Round(pos.Y);
+                uri += "&INFO_FORMAT=text/xml";
+            }
+
+            return uri.Replace(" ", "%20");
         }
 
         private string GetRequestUri(string request)

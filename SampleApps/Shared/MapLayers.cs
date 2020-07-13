@@ -195,9 +195,9 @@ namespace ViewModel
             MaxBoundingBoxWidth = 360;
         }
 
-        protected override string GetImageUri()
+        protected override string GetMapRequestUri()
         {
-            return base.GetImageUri()
+            return base.GetMapRequestUri()
                 .Replace("&CRS=AUTO2:97001,", "&CRS=AUTO2:7CS01,")
                 .Replace("&CRS=AUTO2:97002,", "&CRS=AUTO2:7CS02,");
         }
