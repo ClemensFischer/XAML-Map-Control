@@ -239,14 +239,15 @@ namespace MapControl
                 }
 
                 var rect = projection.BoundingBoxToRect(BoundingBox);
-                var pos = ParentMap.TransformToVisual(Children[1]).Transform(position); // top Image element
+                var image = Children[1]; // top Image element
+                var imagePos = ParentMap.TransformToVisual(image).Transform(position);
 
                 uri += "&CRS=" + projection.GetCrsValue();
                 uri += "&BBOX=" + projection.GetBboxValue(rect);
                 uri += "&WIDTH=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Width);
                 uri += "&HEIGHT=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Height);
-                uri += "&I=" + (int)Math.Round(pos.X);
-                uri += "&J=" + (int)Math.Round(pos.Y);
+                uri += "&I=" + (int)Math.Round(imagePos.X);
+                uri += "&J=" + (int)Math.Round(imagePos.Y);
                 uri += "&INFO_FORMAT=text/xml";
             }
 
