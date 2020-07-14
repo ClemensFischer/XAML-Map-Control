@@ -91,10 +91,10 @@ namespace MapControl
 
             if (location != null && parentMap.MapProjection.IsNormalCylindrical)
             {
-                var viewPos = parentMap.LocationToView(location);
+                var pos = parentMap.LocationToView(location);
 
-                if (viewPos.X < 0d || viewPos.X > parentMap.RenderSize.Width ||
-                    viewPos.Y < 0d || viewPos.Y > parentMap.RenderSize.Height)
+                if (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
+                    pos.Y < 0d || pos.Y > parentMap.RenderSize.Height)
                 {
                     longitudeOffset = parentMap.ConstrainedLongitude(location.Longitude) - location.Longitude;
                 }
