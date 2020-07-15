@@ -36,6 +36,14 @@ namespace MapControl
             nameof(Styles), typeof(string), typeof(WmsImageLayer),
             new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
 
+        public WmsImageLayer()
+        {
+            foreach (FrameworkElement child in Children)
+            {
+                child.UseLayoutRounding = true;
+            }
+        }
+
         /// <summary>
         /// The base request URL. 
         /// </summary>
@@ -64,7 +72,29 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Calls GetCapabilitiesRequestUri() and asynchronously loads an XElement from the returned URL.
+        /// Gets a list of all layer names returned by a GetCapabilities response.
+        /// </summary>
+        public async Task<IEnumerable<string>> GetLayerNamesAsync()
+        {
+            IEnumerable<string> layerNames = null;
+
+            var capabilities = await GetCapabilitiesAsync();
+
+            if (capabilities != null)
+            {
+                var ns = capabilities.Name.Namespace;
+
+                layerNames = capabilities
+                    .Descendants(ns + "Layer")
+                    .Select(e => e.Element(ns + "Name")?.Value)
+                    .Where(n => !string.IsNullOrEmpty(n));
+            }
+
+            return layerNames;
+        }
+
+        /// <summary>
+        /// Loads an XElement from the URL returned by GetCapabilitiesRequestUri().
         /// </summary>
         public async Task<XElement> GetCapabilitiesAsync()
         {
@@ -91,7 +121,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Calls GetFeatureInfoRequestUri() and asynchronously loads an XElement from the returned URL.
+        /// Loads an XElement from the URL returned by GetFeatureInfoRequestUri().
         /// </summary>
         public async Task<XElement> GetFeatureInfoAsync(Point position)
         {
@@ -118,29 +148,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets a list of all layer names returned by a GetCapabilities response.
-        /// </summary>
-        public async Task<IEnumerable<string>> GetLayerNamesAsync()
-        {
-            IEnumerable<string> layerNames = null;
-
-            var capabilities = await GetCapabilitiesAsync();
-
-            if (capabilities != null)
-            {
-                var ns = capabilities.Name.Namespace;
-
-                layerNames = capabilities
-                    .Descendants(ns + "Layer")
-                    .Select(e => e.Element(ns + "Name")?.Value)
-                    .Where(n => !string.IsNullOrEmpty(n));
-            }
-
-            return layerNames;
-        }
-
-        /// <summary>
-        /// Calls GetMapRequestUri() and asynchronously loads an ImageSource from the returned URL.
+        /// Loads an ImageSource from the URL returned by GetMapRequestUri().
         /// </summary>
         protected override async Task<ImageSource> GetImageAsync()
         {
@@ -200,12 +208,13 @@ namespace MapControl
                     uri += "&FORMAT=image/png";
                 }
 
-                var rect = projection.BoundingBoxToRect(BoundingBox);
+                var mapRect = projection.BoundingBoxToRect(BoundingBox);
+                var viewScale = ParentMap.ViewTransform.Scale;
 
                 uri += "&CRS=" + projection.GetCrsValue();
-                uri += "&BBOX=" + projection.GetBboxValue(rect);
-                uri += "&WIDTH=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Width);
-                uri += "&HEIGHT=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Height);
+                uri += "&BBOX=" + projection.GetBboxValue(mapRect);
+                uri += "&WIDTH=" + (int)Math.Round(viewScale * mapRect.Width);
+                uri += "&HEIGHT=" + (int)Math.Round(viewScale * mapRect.Height);
             }
 
             return uri.Replace(" ", "%20");
@@ -238,14 +247,20 @@ namespace MapControl
                     uri += "&QUERY_LAYERS=" + Layers;
                 }
 
-                var rect = projection.BoundingBoxToRect(BoundingBox);
-                var image = Children[1]; // top Image element
-                var imagePos = ParentMap.TransformToVisual(image).Transform(position);
+                var mapRect = projection.BoundingBoxToRect(BoundingBox);
+                var viewRect = GetViewRectangle(mapRect);
+                var viewSize = ParentMap.RenderSize;
+
+                var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);
+                transform.Rotate(-viewRect.Rotation);
+                transform.Translate(viewRect.Width / 2, viewRect.Height / 2);
+
+                var imagePos = transform.Transform(position);
 
                 uri += "&CRS=" + projection.GetCrsValue();
-                uri += "&BBOX=" + projection.GetBboxValue(rect);
-                uri += "&WIDTH=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Width);
-                uri += "&HEIGHT=" + (int)Math.Round(ParentMap.ViewTransform.Scale * rect.Height);
+                uri += "&BBOX=" + projection.GetBboxValue(mapRect);
+                uri += "&WIDTH=" + (int)Math.Round(viewRect.Width);
+                uri += "&HEIGHT=" + (int)Math.Round(viewRect.Height);
                 uri += "&I=" + (int)Math.Round(imagePos.X);
                 uri += "&J=" + (int)Math.Round(imagePos.Y);
                 uri += "&INFO_FORMAT=text/xml";

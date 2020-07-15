@@ -122,16 +122,22 @@ namespace MapControl
         /// </summary>
         public ViewRect GetViewRectangle(BoundingBox boundingBox)
         {
-            var projection = parentMap.MapProjection;
-            var rect = projection.BoundingBoxToRect(boundingBox);
+            return GetViewRectangle(parentMap.MapProjection.BoundingBoxToRect(boundingBox));
+        }
+
+        /// <summary>
+        /// Returns the potentially rotated view rectangle of a map coordinate rectangle.
+        /// </summary>
+        public ViewRect GetViewRectangle(Rect rect)
+        {
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var pos = parentMap.ViewTransform.MapToView(center);
 
-            if (projection.IsNormalCylindrical &&
+            if (parentMap.MapProjection.IsNormalCylindrical &&
                 (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
                  pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
             {
-                var location = projection.MapToLocation(center);
+                var location = parentMap.MapProjection.MapToLocation(center);
                 location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
 
                 pos = parentMap.LocationToView(location);
@@ -224,7 +230,8 @@ namespace MapControl
         {
             element.Width = rect.Width;
             element.Height = rect.Height;
-            element.Arrange(new Rect(rect.X, rect.Y, rect.Width, rect.Height));
+
+            ArrangeElement(element, new Rect(rect.X, rect.Y, rect.Width, rect.Height));
 
             if (element.RenderTransform is RotateTransform rotateTransform)
             {
@@ -270,15 +277,7 @@ namespace MapControl
                     break;
             }
 
-            if (element.UseLayoutRounding)
-            {
-                rect.X = Math.Round(rect.X);
-                rect.Y = Math.Round(rect.Y);
-                rect.Width = Math.Round(rect.Width);
-                rect.Height = Math.Round(rect.Height);
-            }
-
-            element.Arrange(rect);
+            ArrangeElement(element, rect);
         }
 
         private static void ArrangeElement(FrameworkElement element, Size parentSize)
@@ -321,6 +320,11 @@ namespace MapControl
                     break;
             }
 
+            ArrangeElement(element, rect);
+        }
+
+        private static void ArrangeElement(FrameworkElement element, Rect rect)
+        {
             if (element.UseLayoutRounding)
             {
                 rect.X = Math.Round(rect.X);
