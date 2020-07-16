@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -121,6 +122,30 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets a response string from the URL returned by GetFeatureInfoRequestUri().
+        /// </summary>
+        public async Task<string> GetFeatureInfoTextAsync(Point position, string format = "text/plain")
+        {
+            string response = null;
+
+            if (ServiceUri != null)
+            {
+                var uri = GetFeatureInfoRequestUri(position, format);
+
+                try
+                {
+                    response = await ImageLoader.HttpClient.GetStringAsync(uri);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                }
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Loads an XElement from the URL returned by GetFeatureInfoRequestUri().
         /// </summary>
         public async Task<XElement> GetFeatureInfoAsync(Point position)
@@ -129,7 +154,7 @@ namespace MapControl
 
             if (ServiceUri != null)
             {
-                var uri = GetFeatureInfoRequestUri(position);
+                var uri = GetFeatureInfoRequestUri(position, "text/xml");
 
                 try
                 {
@@ -223,7 +248,7 @@ namespace MapControl
         /// <summary>
         /// Returns a GetFeatureInfo request URL string.
         /// </summary>
-        protected virtual string GetFeatureInfoRequestUri(Point position)
+        protected virtual string GetFeatureInfoRequestUri(Point position, string format)
         {
             string uri = null;
             var projection = ParentMap?.MapProjection;
@@ -263,7 +288,7 @@ namespace MapControl
                 uri += "&HEIGHT=" + (int)Math.Round(viewRect.Height);
                 uri += "&I=" + (int)Math.Round(imagePos.X);
                 uri += "&J=" + (int)Math.Round(imagePos.Y);
-                uri += "&INFO_FORMAT=text/xml";
+                uri += "&INFO_FORMAT=" + format;
             }
 
             return uri.Replace(" ", "%20");
