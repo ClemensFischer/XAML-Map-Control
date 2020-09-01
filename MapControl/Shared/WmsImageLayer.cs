@@ -273,7 +273,7 @@ namespace MapControl
                 }
 
                 var mapRect = projection.BoundingBoxToRect(BoundingBox);
-                var viewRect = GetViewRectangle(mapRect);
+                var viewRect = GetViewRect(mapRect);
                 var viewSize = ParentMap.RenderSize;
 
                 var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);

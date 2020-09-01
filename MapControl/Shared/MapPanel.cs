@@ -26,27 +26,6 @@ namespace MapControl
     }
 
     /// <summary>
-    /// Rotated rectangle used to arrange and rotate an element with a BoundingBox.
-    /// </summary>
-    public struct ViewRect
-    {
-        public double X { get; }
-        public double Y { get; }
-        public double Width { get; }
-        public double Height { get; }
-        public double Rotation { get; }
-
-        public ViewRect(double x, double y, double width, double height, double rotation)
-        {
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
-            Rotation = rotation;
-        }
-    }
-
-    /// <summary>
     /// Arranges child elements on a Map at positions specified by the attached property Location,
     /// or in rectangles specified by the attached property BoundingBox.
     /// </summary>
@@ -120,15 +99,15 @@ namespace MapControl
         /// <summary>
         /// Returns the potentially rotated view rectangle of a BoundingBox.
         /// </summary>
-        public ViewRect GetViewRectangle(BoundingBox boundingBox)
+        public ViewRect GetViewRect(BoundingBox boundingBox)
         {
-            return GetViewRectangle(parentMap.MapProjection.BoundingBoxToRect(boundingBox));
+            return GetViewRect(parentMap.MapProjection.BoundingBoxToRect(boundingBox));
         }
 
         /// <summary>
         /// Returns the potentially rotated view rectangle of a map coordinate rectangle.
         /// </summary>
-        public ViewRect GetViewRectangle(Rect rect)
+        public ViewRect GetViewRect(Rect rect)
         {
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var pos = parentMap.ViewTransform.MapToView(center);
@@ -213,7 +192,7 @@ namespace MapControl
 
                         if (boundingBox != null)
                         {
-                            ArrangeElement(element, GetViewRectangle(boundingBox));
+                            ArrangeElement(element, GetViewRect(boundingBox));
                         }
                         else
                         {
