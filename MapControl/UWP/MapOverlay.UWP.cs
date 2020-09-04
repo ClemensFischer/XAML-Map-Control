@@ -56,6 +56,11 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = DependencyProperty.Register(
             nameof(StrokeMiterLimit), typeof(double), typeof(MapOverlay), new PropertyMetadata(1d));
 
+        public MapOverlay()
+        {
+            IsHitTestVisible = false;
+        }
+
         protected override void SetParentMap(MapBase map)
         {
             if (map != null)

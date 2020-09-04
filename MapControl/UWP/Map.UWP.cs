@@ -2,8 +2,6 @@
 // © 2020 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 
@@ -16,11 +14,6 @@ namespace MapControl
     {
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
             nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
-
-        private Vector transformTranslation;
-        private double transformRotation;
-        private double transformScale = 1d;
-        private bool transformPending;
 
         public Map()
         {
@@ -43,26 +36,9 @@ namespace MapControl
             set { SetValue(MouseWheelZoomDeltaProperty, value); }
         }
 
-        private async void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            transformTranslation.X += e.Delta.Translation.X;
-            transformTranslation.Y += e.Delta.Translation.Y;
-            transformRotation += e.Delta.Rotation;
-            transformScale *= e.Delta.Scale;
-
-            if (!transformPending)
-            {
-                transformPending = true;
-
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Low,
-                    () => TransformMap(e.Position, transformTranslation, transformRotation, transformScale));
-
-                transformTranslation.X = 0d;
-                transformTranslation.Y = 0d;
-                transformRotation = 0d;
-                transformScale = 1d;
-                transformPending = false;
-            }
+            TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)

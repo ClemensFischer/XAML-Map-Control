@@ -56,6 +56,11 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
             typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
 
+        static MapOverlay()
+        {
+            IsHitTestVisibleProperty.OverrideMetadata(typeof(MapOverlay), new FrameworkPropertyMetadata(false));
+        }
+
         public MapOverlay()
         {
             // Set Stroke Binding in a Loaded handler to allow Stroke value from a Style Setter.
