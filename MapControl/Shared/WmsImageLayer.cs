@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -105,16 +104,49 @@ namespace MapControl
             {
                 var uri = GetCapabilitiesRequestUri();
 
-                try
+                if (!string.IsNullOrEmpty(uri))
                 {
-                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
+                    try
                     {
-                        element = XDocument.Load(stream).Root;
+                        using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
+                        {
+                            element = XDocument.Load(stream).Root;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
                     }
                 }
-                catch (Exception ex)
+            }
+
+            return element;
+        }
+
+        /// <summary>
+        /// Loads an XElement from the URL returned by GetFeatureInfoRequestUri().
+        /// </summary>
+        public async Task<XElement> GetFeatureInfoAsync(Point position)
+        {
+            XElement element = null;
+
+            if (ServiceUri != null)
+            {
+                var uri = GetFeatureInfoRequestUri(position, "text/xml");
+
+                if (!string.IsNullOrEmpty(uri))
                 {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                    try
+                    {
+                        using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
+                        {
+                            element = XDocument.Load(stream).Root;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                    }
                 }
             }
 
@@ -132,44 +164,20 @@ namespace MapControl
             {
                 var uri = GetFeatureInfoRequestUri(position, format);
 
-                try
+                if (!string.IsNullOrEmpty(uri))
                 {
-                    response = await ImageLoader.HttpClient.GetStringAsync(uri);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                    try
+                    {
+                        response = await ImageLoader.HttpClient.GetStringAsync(uri);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                    }
                 }
             }
 
             return response;
-        }
-
-        /// <summary>
-        /// Loads an XElement from the URL returned by GetFeatureInfoRequestUri().
-        /// </summary>
-        public async Task<XElement> GetFeatureInfoAsync(Point position)
-        {
-            XElement element = null;
-
-            if (ServiceUri != null)
-            {
-                var uri = GetFeatureInfoRequestUri(position, "text/xml");
-
-                try
-                {
-                    using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
-                    {
-                        element = XDocument.Load(stream).Root;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
-                }
-            }
-
-            return element;
         }
 
         /// <summary>
@@ -240,9 +248,11 @@ namespace MapControl
                 uri += "&BBOX=" + projection.GetBboxValue(mapRect);
                 uri += "&WIDTH=" + (int)Math.Round(viewScale * mapRect.Width);
                 uri += "&HEIGHT=" + (int)Math.Round(viewScale * mapRect.Height);
+
+                uri = uri.Replace(" ", "%20");
             }
 
-            return uri.Replace(" ", "%20");
+            return uri;
         }
 
         /// <summary>
@@ -289,12 +299,14 @@ namespace MapControl
                 uri += "&I=" + (int)Math.Round(imagePos.X);
                 uri += "&J=" + (int)Math.Round(imagePos.Y);
                 uri += "&INFO_FORMAT=" + format;
+
+                uri = uri.Replace(" ", "%20");
             }
 
-            return uri.Replace(" ", "%20");
+            return uri;
         }
 
-        private string GetRequestUri(string request)
+        protected string GetRequestUri(string request)
         {
             var uri = ServiceUri.ToString();
 
