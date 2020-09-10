@@ -222,7 +222,7 @@ namespace MapControl
             string uri = null;
             var projection = ParentMap?.MapProjection;
 
-            if (projection != null && !string.IsNullOrEmpty(projection.CrsId))
+            if (projection != null)
             {
                 uri = GetRequestUri("GetMap");
 
@@ -244,8 +244,8 @@ namespace MapControl
                 var mapRect = projection.BoundingBoxToRect(BoundingBox);
                 var viewScale = ParentMap.ViewTransform.Scale;
 
-                uri += "&CRS=" + projection.GetCrsValue();
-                uri += "&BBOX=" + projection.GetBboxValue(mapRect);
+                uri += "&" + GetCrsParam(projection);
+                uri += "&" + GetBboxParam(projection, mapRect);
                 uri += "&WIDTH=" + (int)Math.Round(viewScale * mapRect.Width);
                 uri += "&HEIGHT=" + (int)Math.Round(viewScale * mapRect.Height);
 
@@ -263,7 +263,7 @@ namespace MapControl
             string uri = null;
             var projection = ParentMap?.MapProjection;
 
-            if (projection != null && !string.IsNullOrEmpty(projection.CrsId))
+            if (projection != null)
             {
                 uri = GetRequestUri("GetFeatureInfo");
 
@@ -292,8 +292,8 @@ namespace MapControl
 
                 var imagePos = transform.Transform(position);
 
-                uri += "&CRS=" + projection.GetCrsValue();
-                uri += "&BBOX=" + projection.GetBboxValue(mapRect);
+                uri += "&" + GetCrsParam(projection);
+                uri += "&" + GetBboxParam(projection, mapRect);
                 uri += "&WIDTH=" + (int)Math.Round(viewRect.Width);
                 uri += "&HEIGHT=" + (int)Math.Round(viewRect.Height);
                 uri += "&I=" + (int)Math.Round(imagePos.X);
@@ -304,6 +304,16 @@ namespace MapControl
             }
 
             return uri;
+        }
+
+        protected virtual string GetCrsParam(MapProjection projection)
+        {
+            return "CRS=" + projection.GetCrsValue();
+        }
+
+        protected virtual string GetBboxParam(MapProjection projection, Rect mapRect)
+        {
+            return "BBOX=" + projection.GetBboxValue(mapRect);
         }
 
         protected string GetRequestUri(string request)
