@@ -186,7 +186,7 @@ namespace MapControl
                 }
             }
 
-            TileImageLoader.LoadTilesAsync(tiles, tileSource, sourceName);
+            TileImageLoader.LoadTiles(tiles, tileSource, sourceName);
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)

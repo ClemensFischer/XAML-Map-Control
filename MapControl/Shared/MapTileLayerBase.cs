@@ -19,7 +19,7 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName);
+        void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName);
     }
 
     public abstract class MapTileLayerBase : Panel, IMapLayer

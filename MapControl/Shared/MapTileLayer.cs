@@ -208,7 +208,7 @@ namespace MapControl
                 Children.Add(tile.Image);
             }
 
-            TileImageLoader.LoadTilesAsync(Tiles, TileSource, SourceName);
+            TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
         }
 
         protected override Size MeasureOverride(Size availableSize)

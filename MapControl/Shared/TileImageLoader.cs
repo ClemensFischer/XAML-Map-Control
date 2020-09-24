@@ -37,7 +37,7 @@ namespace MapControl
         public static string CacheKeyFormat { get; set; } = "{0}/{1}/{2}/{3}{4}";
 
 
-        public class TileQueue : ConcurrentStack<Tile>
+        private class TileQueue : ConcurrentStack<Tile>
         {
             public void Enqueue(IEnumerable<Tile> tiles)
             {
@@ -58,10 +58,10 @@ namespace MapControl
         /// Loads all pending tiles from the tiles collection.
         /// If tileSource.UriFormat starts with "http" and sourceName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache (if it's not null).
-        /// The method is async void because it implements void ITileImageLoader.LoadTilesAsync
+        /// The method is async void because it implements void ITileImageLoader.LoadTiles
         /// and is not awaited when it is called in MapTileLayer.UpdateTiles().
         /// </summary>
-        public async void LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
+        public async void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
         {
             tileQueue.Clear();
 
