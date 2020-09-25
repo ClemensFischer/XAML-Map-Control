@@ -35,7 +35,7 @@ namespace MapControl
 
             if (cacheItem == null || cacheItem.Expiration < DateTime.UtcNow)
             {
-                var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
+                var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
                 if (response != null) // download succeeded
                 {
@@ -64,13 +64,7 @@ namespace MapControl
             {
                 try
                 {
-                    var image = await loadImageFunc();
-
-                    if (image != null)
-                    {
-                        tile.SetImage(image);
-                    }
-
+                    tile.SetImage(await loadImageFunc());
                     tcs.SetResult(null);
                 }
                 catch (Exception ex)
@@ -79,7 +73,7 @@ namespace MapControl
                 }
             });
 
-            await tcs.Task.ConfigureAwait(false);
+            await tcs.Task.ConfigureAwait(false); // wait until image loading in the UI thread is completed
         }
     }
 }

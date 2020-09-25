@@ -44,7 +44,7 @@ namespace MapControl
 
             if (cacheItem == null || cacheItem.Expiration < DateTime.UtcNow)
             {
-                var response = await ImageLoader.GetHttpResponseAsync(uri, false).ConfigureAwait(false);
+                var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
                 if (response != null) // download succeeded
                 {
@@ -58,7 +58,7 @@ namespace MapControl
             {
                 var image = await ImageLoader.LoadImageAsync(buffer).ConfigureAwait(false);
 
-                SetTileImage(tile, image);
+                await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
             }
         }
 
@@ -66,15 +66,7 @@ namespace MapControl
         {
             var image = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false);
 
-            SetTileImage(tile, image);
-        }
-
-        private static void SetTileImage(Tile tile, ImageSource image)
-        {
-            if (image != null)
-            {
-                tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
-            }
+            await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
         }
 
         private static Task<ImageCacheItem> GetCacheAsync(string cacheKey)

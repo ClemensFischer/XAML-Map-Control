@@ -70,14 +70,13 @@ namespace MapControl
             }
         }
 
-        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, bool continueOnCapturedContext = true)
+        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri)
         {
             HttpResponse response = null;
 
             try
             {
-                using (var responseMessage = await HttpClient
-                    .GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(continueOnCapturedContext))
+                using (var responseMessage = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
@@ -86,7 +85,7 @@ namespace MapControl
                         if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out IEnumerable<string> tileInfo) ||
                             !tileInfo.Contains("no-tile"))
                         {
-                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(continueOnCapturedContext);
+                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                         }
 
                         response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);

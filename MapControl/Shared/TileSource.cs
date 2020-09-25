@@ -108,11 +108,11 @@ namespace MapControl
         /// <summary>
         /// Loads a tile ImageSource asynchronously from GetUri(x, y, zoomLevel).
         /// </summary>
-        public virtual async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
+        public virtual Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
         {
             var uri = GetUri(x, y, zoomLevel);
 
-            return uri != null ? await ImageLoader.LoadImageAsync(uri) : null;
+            return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
 
         private string GetDefaultUri(int x, int y, int zoomLevel)
