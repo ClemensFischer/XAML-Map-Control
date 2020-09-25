@@ -6,11 +6,11 @@ using System;
 using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
-using System.Windows.Media;
-using MapControl.Caching;
 
 namespace MapControl
 {
+    using Caching;
+
     namespace Caching
     {
         public class ImageCacheItem
