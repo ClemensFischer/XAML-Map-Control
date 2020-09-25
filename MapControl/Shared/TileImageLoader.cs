@@ -83,32 +83,30 @@ namespace MapControl
 
                 tileQueue.Enqueue(tiles);
 
-                var newTasks = Math.Min(tileQueue.Count, MaxLoadTasks) - taskCount;
+                var numTasks = Math.Min(tileQueue.Count, MaxLoadTasks);
+                var tasks = Enumerable.Range(0, numTasks).Select(n => LoadTilesFromQueueAsync());
 
-                if (newTasks > 0)
-                {
-                    Interlocked.Add(ref taskCount, newTasks);
-
-                    var tasks = Enumerable.Range(0, newTasks).Select(n => LoadTilesFromQueueAsync());
-
-                    await Task.WhenAll(tasks).ConfigureAwait(false);
-                }
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         }
 
         private async Task LoadTilesFromQueueAsync()
         {
-            while (tileQueue.TryDequeue(out Tile tile))
+            if (Interlocked.Increment(ref taskCount) <= MaxLoadTasks)
             {
-                tile.Pending = false;
+                while (tileQueue.TryDequeue(out Tile tile))
+                {
+                    tile.Pending = false;
 
-                try
-                {
-                    await loadTileImage(tile).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
+                    try
+                    {
+                        Debug.WriteLine(Thread.CurrentThread.ManagedThreadId);
+                        await loadTileImage(tile).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
+                    }
                 }
             }
 
