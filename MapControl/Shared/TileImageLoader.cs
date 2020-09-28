@@ -100,7 +100,6 @@ namespace MapControl
 
                     try
                     {
-                        Debug.WriteLine(Thread.CurrentThread.ManagedThreadId);
                         await loadTileImage(tile).ConfigureAwait(false);
                     }
                     catch (Exception ex)
