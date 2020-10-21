@@ -81,7 +81,7 @@ namespace MapControl
             return numIntersections > 0;
         }
 
-        private static bool GetIntersection(ref Point p1, ref Point p2, Point p3, Point p4, Func<Point, bool> condition)
+        private static bool GetIntersection(ref Point p1, ref Point p2, Point p3, Point p4, Predicate<Point> predicate)
         {
             var intersection = GetIntersection(p1, p2, p3, p4);
 
@@ -90,7 +90,7 @@ namespace MapControl
                 return false;
             }
 
-            if (condition(p1))
+            if (predicate(p1))
             {
                 p1 = intersection.Value;
             }

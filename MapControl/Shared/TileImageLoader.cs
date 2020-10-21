@@ -51,17 +51,15 @@ namespace MapControl
         }
 
         private readonly TileQueue tileQueue = new TileQueue();
-        private Func<Tile, Task> loadTileImage;
+        private Func<Tile, Task> loadTile;
         private int taskCount;
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection.
         /// If tileSource.UriFormat starts with "http" and sourceName is a non-empty string,
-        /// tile images will be cached in the TileImageLoader's Cache (if it's not null).
-        /// The method is async void because it implements void ITileImageLoader.LoadTiles
-        /// and is not awaited when it is called in MapTileLayer.UpdateTiles().
+        /// tile images will be cached in the TileImageLoader's Cache (if that is not null).
         /// </summary>
-        public async void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
+        public void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
         {
             tileQueue.Clear();
 
@@ -74,45 +72,44 @@ namespace MapControl
                     tileSource.UriFormat.StartsWith("http") &&
                     !string.IsNullOrEmpty(sourceName))
                 {
-                    loadTileImage = tile => LoadCachedTileImageAsync(tile, tileSource, sourceName);
+                    loadTile = tile => LoadCachedTileAsync(tile, tileSource, sourceName);
                 }
                 else
                 {
-                    loadTileImage = tile => LoadTileImageAsync(tile, tileSource);
+                    loadTile = tile => LoadTileAsync(tile, tileSource);
                 }
 
                 tileQueue.Enqueue(tiles);
 
-                var numTasks = Math.Min(tileQueue.Count, MaxLoadTasks);
-                var tasks = Enumerable.Range(0, numTasks).Select(n => LoadTilesFromQueueAsync());
+                while (taskCount < Math.Min(tileQueue.Count, MaxLoadTasks))
+                {
+                    Interlocked.Increment(ref taskCount);
 
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+                    Task.Run(() => LoadTilesFromQueueAsync());
+                }
             }
         }
 
         private async Task LoadTilesFromQueueAsync()
         {
-            if (Interlocked.Increment(ref taskCount) <= MaxLoadTasks)
+            while (tileQueue.TryDequeue(out Tile tile))
             {
-                while (tileQueue.TryDequeue(out Tile tile))
-                {
-                    tile.Pending = false;
+                tile.Pending = false;
 
-                    try
-                    {
-                        await loadTileImage(tile).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
-                    }
+                try
+                {
+                     await loadTile(tile).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
                 }
             }
 
             Interlocked.Decrement(ref taskCount);
         }
 
-        private static async Task LoadCachedTileImageAsync(Tile tile, TileSource tileSource, string sourceName)
+        private static async Task LoadCachedTileAsync(Tile tile, TileSource tileSource, string sourceName)
         {
             var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
@@ -127,7 +124,7 @@ namespace MapControl
 
                 var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
 
-                await LoadCachedTileImageAsync(tile, uri, cacheKey).ConfigureAwait(false);
+                await LoadCachedTileAsync(tile, uri, cacheKey).ConfigureAwait(false);
             }
         }
 

@@ -36,7 +36,7 @@ namespace MapControl
             return item is MapItem;
         }
 
-        public void SelectItems(Func<object, bool> predicate)
+        public void SelectItems(Predicate<object> predicate)
         {
             if (SelectionMode == SelectionMode.Single)
             {
@@ -61,7 +61,7 @@ namespace MapControl
             }
         }
 
-        public void SelectItemsByLocation(Func<Location, bool> predicate)
+        public void SelectItemsByLocation(Predicate<Location> predicate)
         {
             SelectItems(item =>
             {
@@ -70,7 +70,7 @@ namespace MapControl
             });
         }
 
-        public void SelectItemsByPosition(Func<Point, bool> predicate)
+        public void SelectItemsByPosition(Predicate<Point> predicate)
         {
             SelectItems(item =>
             {
