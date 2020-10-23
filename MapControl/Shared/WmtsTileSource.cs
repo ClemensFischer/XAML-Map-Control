@@ -8,18 +8,13 @@ namespace MapControl
 {
     public class WmtsTileSource : TileSource
     {
-        public WmtsTileSource(string uriFormat)
-            : base(uriFormat)
-        {
-        }
-
         public WmtsTileMatrixSet TileMatrixSet { get; set; }
 
         public override Uri GetUri(int x, int y, int zoomLevel)
         {
             Uri uri = null;
 
-            if (TileMatrixSet != null && zoomLevel >= 0 && zoomLevel < TileMatrixSet.TileMatrixes.Count)
+            if (UriFormat != null && TileMatrixSet != null && zoomLevel >= 0 && zoomLevel < TileMatrixSet.TileMatrixes.Count)
             {
                 uri = new Uri(UriFormat
                     .Replace("{TileMatrixSet}", TileMatrixSet.Identifier)

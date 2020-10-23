@@ -123,7 +123,7 @@ namespace MapControl
             return new WmtsCapabilities
             {
                 LayerIdentifier = layerIdentifier,
-                TileSource = new WmtsTileSource(urlTemplate.Replace("{Style}", style)),
+                TileSource = new WmtsTileSource { UriFormat = urlTemplate.Replace("{Style}", style) },
                 TileMatrixSets = tileMatrixSets
             };
         }

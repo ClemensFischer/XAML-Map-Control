@@ -1,5 +1,4 @@
 ﻿using MapControl;
-using System;
 using ViewModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;

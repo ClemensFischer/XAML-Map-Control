@@ -8,32 +8,26 @@ namespace MapControl
 {
     public class BingMapsTileSource : TileSource
     {
-        private readonly string[] subdomains;
-
-        public BingMapsTileSource(string uriFormat, string[] subdomains)
-            : base(uriFormat)
-        {
-            this.subdomains = subdomains;
-        }
-
         public override Uri GetUri(int x, int y, int zoomLevel)
         {
-            if (zoomLevel < 1)
+            Uri uri = null;
+
+            if (UriFormat != null && Subdomains != null && Subdomains.Length > 0 && zoomLevel > 0)
             {
-                return null;
+                var subdomain = Subdomains[(x + y) % Subdomains.Length];
+                var quadkey = new char[zoomLevel];
+
+                for (var z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)
+                {
+                    quadkey[z] = (char)('0' + 2 * (y % 2) + (x % 2));
+                }
+
+                uri = new Uri(UriFormat
+                    .Replace("{subdomain}", subdomain)
+                    .Replace("{quadkey}", new string(quadkey)));
             }
 
-            var subdomain = subdomains[(x + y) % subdomains.Length];
-            var quadkey = new char[zoomLevel];
-
-            for (var z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)
-            {
-                quadkey[z] = (char)('0' + 2 * (y % 2) + (x % 2));
-            }
-
-            return new Uri(UriFormat
-                .Replace("{subdomain}", subdomain)
-                .Replace("{quadkey}", new string(quadkey)));
+            return uri;
         }
     }
 }

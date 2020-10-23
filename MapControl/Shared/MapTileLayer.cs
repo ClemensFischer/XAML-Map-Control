@@ -35,9 +35,9 @@ namespace MapControl
             {
                 return new MapTileLayer
                 {
+                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap",
                     Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 19
                 };
             }

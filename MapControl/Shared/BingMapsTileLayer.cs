@@ -102,7 +102,11 @@ namespace MapControl
                         Culture = CultureInfo.CurrentUICulture.Name;
                     }
 
-                    TileSource = new BingMapsTileSource(imageUrl.Replace("{culture}", Culture), subdomains);
+                    TileSource = new BingMapsTileSource
+                    {
+                        UriFormat = imageUrl.Replace("{culture}", Culture),
+                        Subdomains = subdomains
+                    };
                 }
             }
 

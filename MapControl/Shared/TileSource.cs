@@ -22,88 +22,29 @@ namespace MapControl
 #endif
     public class TileSource
     {
-        private Func<int, int, int, string> getUri;
         private string uriFormat;
-        private int subdomainIndex = -1;
-
-        public TileSource()
-        {
-        }
-
-        protected TileSource(string uriFormat)
-        {
-            this.uriFormat = uriFormat;
-        }
-
-        public string[] Subdomains { get; set; }
 
         /// <summary>
-        /// Gets or sets the format string to produce tile Uris.
+        /// Gets or sets the format string to produce tile request Uris.
         /// </summary>
         public string UriFormat
         {
             get { return uriFormat; }
             set
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    throw new ArgumentException("The value of the UriFormat property must not be null or empty.");
-                }
-
                 uriFormat = value;
 
-                if (uriFormat.Contains("{x}") && uriFormat.Contains("{z}"))
+                if (Subdomains == null && uriFormat.Contains("{s}"))
                 {
-                    if (uriFormat.Contains("{y}"))
-                    {
-                        getUri = GetDefaultUri;
-                    }
-                    else if (uriFormat.Contains("{v}"))
-                    {
-                        getUri = GetTmsUri;
-                    }
-                }
-                else if (uriFormat.Contains("{q}")) // {i} is optional
-                {
-                    getUri = GetQuadKeyUri;
-                }
-                else if (uriFormat.Contains("{W}") && uriFormat.Contains("{S}") && uriFormat.Contains("{E}") && uriFormat.Contains("{N}"))
-                {
-                    getUri = GetBoundingBoxUri;
-                }
-                else if (uriFormat.Contains("{w}") && uriFormat.Contains("{s}") && uriFormat.Contains("{e}") && uriFormat.Contains("{n}"))
-                {
-                    getUri = GetLatLonBoundingBoxUri;
-                }
-
-                if (Subdomains == null && uriFormat.Contains("{c}"))
-                {
-                    Subdomains = new string[] { "a", "b", "c" };
+                    Subdomains = new string[] { "a", "b", "c" }; // default OpenStreetMap subdomains
                 }
             }
         }
 
         /// <summary>
-        /// Gets the image Uri for the specified tile indices and zoom level.
+        /// Gets or sets an array of request subdomain names that are replaced for the {s} format specifier.
         /// </summary>
-        public virtual Uri GetUri(int x, int y, int zoomLevel)
-        {
-            if (getUri == null)
-            {
-                return null;
-            }
-
-            var uri = getUri(x, y, zoomLevel);
-
-            if (Subdomains != null && Subdomains.Length > 0)
-            {
-                subdomainIndex = (subdomainIndex + 1) % Subdomains.Length;
-
-                uri = uri.Replace("{c}", Subdomains[subdomainIndex]);
-            }
-
-            return new Uri(uri, UriKind.RelativeOrAbsolute);
-        }
+        public string[] Subdomains { get; set; }
 
         /// <summary>
         /// Loads a tile ImageSource asynchronously from GetUri(x, y, zoomLevel).
@@ -115,71 +56,62 @@ namespace MapControl
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
 
-        private string GetDefaultUri(int x, int y, int zoomLevel)
+        /// <summary>
+        /// Gets the image Uri for the specified tile indices and zoom level.
+        /// </summary>
+        public virtual Uri GetUri(int x, int y, int zoomLevel)
         {
-            return uriFormat
-                .Replace("{x}", x.ToString())
-                .Replace("{y}", y.ToString())
-                .Replace("{z}", zoomLevel.ToString());
-        }
+            Uri uri = null;
 
-        private string GetTmsUri(int x, int y, int zoomLevel)
-        {
-            y = (1 << zoomLevel) - 1 - y;
-
-            return uriFormat
-                .Replace("{x}", x.ToString())
-                .Replace("{v}", y.ToString())
-                .Replace("{z}", zoomLevel.ToString());
-        }
-
-        private string GetQuadKeyUri(int x, int y, int zoomLevel)
-        {
-            if (zoomLevel < 1)
+            if (UriFormat != null)
             {
-                return null;
+                var uriString = UriFormat
+                    .Replace("{x}", x.ToString())
+                    .Replace("{y}", y.ToString())
+                    .Replace("{z}", zoomLevel.ToString());
+
+                if (Subdomains != null && Subdomains.Length > 0)
+                {
+                    uriString = uriString.Replace("{s}", Subdomains[(x + y) % Subdomains.Length]);
+                }
+
+                uri = new Uri(uriString, UriKind.RelativeOrAbsolute);
             }
 
-            var quadkey = new char[zoomLevel];
+            return uri;
+        }
+    }
 
-            for (var z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)
+    public class TmsTileSource : TileSource
+    {
+        public override Uri GetUri(int x, int y, int zoomLevel)
+        {
+            return base.GetUri(x, (1 << zoomLevel) - 1 - y, zoomLevel);
+        }
+    }
+
+    public class BoundingBoxTileSource : TileSource
+    {
+        public override Uri GetUri(int x, int y, int zoomLevel)
+        {
+            Uri uri = null;
+
+            if (UriFormat != null)
             {
-                quadkey[z] = (char)('0' + 2 * (y % 2) + (x % 2));
+                var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
+                var west = MapProjection.Wgs84MetersPerDegree * (x * tileSize - 180d);
+                var east = MapProjection.Wgs84MetersPerDegree * ((x + 1) * tileSize - 180d);
+                var south = MapProjection.Wgs84MetersPerDegree * (180d - (y + 1) * tileSize);
+                var north = MapProjection.Wgs84MetersPerDegree * (180d - y * tileSize);
+
+                uri = new Uri(UriFormat
+                    .Replace("{west}", west.ToString(CultureInfo.InvariantCulture))
+                    .Replace("{south}", south.ToString(CultureInfo.InvariantCulture))
+                    .Replace("{east}", east.ToString(CultureInfo.InvariantCulture))
+                    .Replace("{north}", north.ToString(CultureInfo.InvariantCulture)));
             }
 
-            return uriFormat
-                .Replace("{i}", new string(quadkey, zoomLevel - 1, 1))
-                .Replace("{q}", new string(quadkey));
-        }
-
-        private string GetBoundingBoxUri(int x, int y, int zoomLevel)
-        {
-            var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
-            var west = MapProjection.Wgs84MetersPerDegree * (x * tileSize - 180d);
-            var east = MapProjection.Wgs84MetersPerDegree * ((x + 1) * tileSize - 180d);
-            var south = MapProjection.Wgs84MetersPerDegree * (180d - (y + 1) * tileSize);
-            var north = MapProjection.Wgs84MetersPerDegree * (180d - y * tileSize);
-
-            return uriFormat
-                .Replace("{W}", west.ToString(CultureInfo.InvariantCulture))
-                .Replace("{S}", south.ToString(CultureInfo.InvariantCulture))
-                .Replace("{E}", east.ToString(CultureInfo.InvariantCulture))
-                .Replace("{N}", north.ToString(CultureInfo.InvariantCulture));
-        }
-
-        private string GetLatLonBoundingBoxUri(int x, int y, int zoomLevel)
-        {
-            var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
-            var west = x * tileSize - 180d;
-            var east = (x + 1) * tileSize - 180d;
-            var south = WebMercatorProjection.YToLatitude(180d - (y + 1) * tileSize);
-            var north = WebMercatorProjection.YToLatitude(180d - y * tileSize);
-
-            return uriFormat
-                .Replace("{w}", west.ToString(CultureInfo.InvariantCulture))
-                .Replace("{s}", south.ToString(CultureInfo.InvariantCulture))
-                .Replace("{e}", east.ToString(CultureInfo.InvariantCulture))
-                .Replace("{n}", north.ToString(CultureInfo.InvariantCulture));
+            return uri;
         }
     }
 }
