@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 #if WINDOWS_UWP
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -183,11 +184,17 @@ namespace ViewModel
             MaxBoundingBoxWidth = 360;
         }
 
-        protected override string GetMapRequestUri()
+        protected override string GetCrsParam(MapProjection projection)
         {
-            return base.GetMapRequestUri()
-                .Replace("&CRS=AUTO2:97001,", "&CRS=AUTO2:7CS01,")
-                .Replace("&CRS=AUTO2:97002,", "&CRS=AUTO2:7CS02,");
+            switch (projection.CrsId)
+            {
+                case "AUTO2:97001":
+                    return string.Format(CultureInfo.InvariantCulture, "CRS=AUTO2:7CS01,1,{0},{1}", projection.Center.Longitude, projection.Center.Latitude);
+                case "AUTO2:97002":
+                    return string.Format(CultureInfo.InvariantCulture, "CRS=AUTO2:7CS02,1,{0},{1}", projection.Center.Longitude, projection.Center.Latitude);
+                default:
+                    return base.GetCrsParam(projection);
+            }
         }
     }
 }
