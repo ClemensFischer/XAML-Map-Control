@@ -1,31 +1,49 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using MapControl;
+using MapControl.Caching;
 using ViewModel;
 
 namespace WpfApplication
 {
     public partial class MainWindow : Window
     {
+        static MainWindow()
+        {
+            try
+            {
+                ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
+
+                TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+                //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
+                //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
+                //TileImageLoader.Cache = null;
+
+                BingMapsTileLayer.ApiKey = File.ReadAllText(@"..\..\..\BingMapsApiKey.txt")?.Trim();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
         public MainWindow()
         {
-            ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
-            var cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
-            TileImageLoader.Cache = cache;
-            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = null;
-
             InitializeComponent();
 
-            Loaded += async (s, e) =>
+            if (TileImageLoader.Cache is ImageFileCache cache)
             {
-                await Task.Delay(2000);
-                await cache.Clean();
-            };
+                Loaded += async (s, e) =>
+                {
+                    await Task.Delay(2000);
+                    await cache.Clean();
+                };
+            }
         }
 
         private void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -163,8 +163,6 @@ namespace ViewModel
             // A Bing Maps API Key (http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
             // for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
 
-            //BingMapsTileLayer.ApiKey = "...";
-
             if (!string.IsNullOrEmpty(BingMapsTileLayer.ApiKey))
             {
                 MapLayerNames.Add("Bing Maps Road");
