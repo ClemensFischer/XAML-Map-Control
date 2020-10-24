@@ -46,7 +46,7 @@ namespace ViewModel
                 {
                     TileSource = new TileSource { UriFormat = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" },
                     SourceName = "OpenTopoMap",
-                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
+                    Description = "© [OpenTopoMap](https://opentopomap.org/)\n© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
                     MaxZoomLevel = 17
                 }
             },
