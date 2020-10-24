@@ -187,19 +187,22 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <StackPanel Margin="5">
                     <TextBlock Text="Zoom Level" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
-                    <Slider ToolTip="Zoom Level" Width="100" VerticalAlignment="Center" SmallChange="0.01"
+                    <Slider AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0"
+                            Width="100" VerticalAlignment="Center" SmallChange="0.01"
                             Minimum="{Binding MinZoomLevel, ElementName=map}"
                             Maximum="{Binding MaxZoomLevel, ElementName=map}"
                             Value="{Binding TargetZoomLevel, ElementName=map}"/>
                 </StackPanel>
                 <StackPanel Margin="5">
                     <TextBlock Text="Heading" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
-                    <Slider ToolTip="Heading" Width="100" VerticalAlignment="Center" SmallChange="5" LargeChange="45"
+                    <Slider AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0"
+                            Width="100" VerticalAlignment="Center" SmallChange="5" LargeChange="45"
                             Minimum="0" Maximum="360" Value="{Binding TargetHeading, ElementName=map}"/>
                 </StackPanel>
                 <StackPanel Margin="5">
                     <TextBlock Text="Image Opacity" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
-                    <Slider ToolTip="Image Opacity" Width="100" VerticalAlignment="Center"
+                    <Slider AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0"
+                            Width="100" VerticalAlignment="Center"
                             Minimum="0" Maximum="1" Value="{Binding Opacity, ElementName=mapImage}"/>
                 </StackPanel>
                 <CheckBox ToolTip="Seamarks Overlay" Margin="7" VerticalAlignment="Bottom" Content="Seamarks"
