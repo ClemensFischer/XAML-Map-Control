@@ -32,9 +32,9 @@ namespace MapControl
             get { return uriFormat; }
             set
             {
-                uriFormat = value;
+                uriFormat = value?.Replace("{c}", "{s}"); // for backwards compatibility since 5.4.0
 
-                if (Subdomains == null && uriFormat.Contains("{s}"))
+                if (Subdomains == null && uriFormat != null && uriFormat.Contains("{s}"))
                 {
                     Subdomains = new string[] { "a", "b", "c" }; // default OpenStreetMap subdomains
                 }
