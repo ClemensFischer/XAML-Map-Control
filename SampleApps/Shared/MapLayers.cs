@@ -162,12 +162,12 @@ namespace ViewModel
 
         public MapLayers()
         {
-            SetBingMapsApiKey();
-
-            // Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
+            // Add Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
             // (http://msdn.microsoft.com/en-us/library/ff701716.aspx).
             // A Bing Maps API Key (http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
             // for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
+
+            SetBingMapsApiKey();
 
             if (!string.IsNullOrEmpty(BingMapsTileLayer.ApiKey))
             {
