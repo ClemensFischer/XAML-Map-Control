@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 #if WINDOWS_UWP
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -14,7 +16,7 @@ using System.Windows.Media;
 
 namespace ViewModel
 {
-    public class MapLayers : INotifyPropertyChanged
+    public partial class MapLayers : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -156,13 +158,15 @@ namespace ViewModel
             "SevenCs ChartServer WMS",
         };
 
+        partial void SetBingMapsApiKey();
+
         public MapLayers()
         {
-            //BingMapsTileLayer.ApiKey = "...";
+            SetBingMapsApiKey();
 
             // Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
-            // (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
-            // A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
+            // (http://msdn.microsoft.com/en-us/library/ff701716.aspx).
+            // A Bing Maps API Key (http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
             // for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
 
             if (!string.IsNullOrEmpty(BingMapsTileLayer.ApiKey))
