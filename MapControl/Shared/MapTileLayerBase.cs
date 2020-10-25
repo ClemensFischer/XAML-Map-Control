@@ -39,7 +39,7 @@ namespace MapControl
 
         public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
             nameof(UpdateInterval), typeof(TimeSpan), typeof(MapTileLayerBase),
-            new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapTileLayerBase)o).UpdateTimer.Interval = (TimeSpan)e.NewValue));
+            new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapTileLayerBase)o).updateTimer.Interval = (TimeSpan)e.NewValue));
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
             nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapTileLayerBase), new PropertyMetadata(false));
@@ -50,6 +50,7 @@ namespace MapControl
         public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
             nameof(MapForeground), typeof(Brush), typeof(MapTileLayerBase), new PropertyMetadata(null));
 
+        private readonly DispatcherTimer updateTimer;
         private MapBase parentMap;
 
         protected MapTileLayerBase(ITileImageLoader tileImageLoader)
@@ -57,15 +58,18 @@ namespace MapControl
             RenderTransform = new MatrixTransform();
             TileImageLoader = tileImageLoader;
 
-            UpdateTimer = new DispatcherTimer { Interval = UpdateInterval };
-            UpdateTimer.Tick += (s, e) => UpdateTileLayer();
+            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
+
+            updateTimer.Tick += (s, e) =>
+            {
+                updateTimer.Stop();
+                UpdateTileLayer();
+            };
 
             MapPanel.InitMapElement(this);
         }
 
         public ITileImageLoader TileImageLoader { get; }
-
-        public DispatcherTimer UpdateTimer { get; }
 
         /// <summary>
         /// Provides map tile URIs or images.
@@ -145,6 +149,8 @@ namespace MapControl
             get { return parentMap; }
             set
             {
+                updateTimer.Stop();
+
                 if (parentMap != null)
                 {
                     parentMap.ViewportChanged -= OnViewportChanged;
@@ -165,20 +171,21 @@ namespace MapControl
         {
             if (Children.Count == 0 || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
             {
+                updateTimer.Stop();
                 UpdateTileLayer(); // update immediately when projection has changed or center has moved across 180° longitude
             }
             else
             {
                 SetRenderTransform();
 
-                if (UpdateTimer.IsEnabled && !UpdateWhileViewportChanging)
+                if (updateTimer.IsEnabled && !UpdateWhileViewportChanging)
                 {
-                    UpdateTimer.Stop(); // restart
+                    updateTimer.Stop(); // restart
                 }
 
-                if (!UpdateTimer.IsEnabled)
+                if (!updateTimer.IsEnabled)
                 {
-                    UpdateTimer.Start();
+                    updateTimer.Start();
                 }
             }
         }

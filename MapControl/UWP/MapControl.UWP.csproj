@@ -59,6 +59,9 @@
     <Compile Include="..\Shared\BoundingBox.cs">
       <Link>BoundingBox.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\BoundingBoxTileSource.cs">
+      <Link>BoundingBoxTileSource.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\CenteredBoundingBox.cs">
       <Link>CenteredBoundingBox.cs</Link>
     </Compile>

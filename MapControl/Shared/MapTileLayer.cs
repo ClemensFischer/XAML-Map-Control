@@ -37,8 +37,7 @@ namespace MapControl
                 {
                     TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap",
-                    Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    MaxZoomLevel = 19
+                    Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
                 };
             }
         }
@@ -47,7 +46,7 @@ namespace MapControl
             nameof(MinZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(0));
 
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
-            nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(18));
+            nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(19));
 
         public MapTileLayer()
             : this(new TileImageLoader())
@@ -73,7 +72,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Maximum zoom level supported by the MapTileLayer. Default value is 18.
+        /// Maximum zoom level supported by the MapTileLayer. Default value is 19.
         /// </summary>
         public int MaxZoomLevel
         {
@@ -92,8 +91,6 @@ namespace MapControl
 
         protected override void UpdateTileLayer()
         {
-            UpdateTimer.Stop();
-
             if (ParentMap == null || !ParentMap.MapProjection.IsWebMercator)
             {
                 TileMatrix = null;

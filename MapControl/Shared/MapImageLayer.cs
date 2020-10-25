@@ -216,7 +216,7 @@ namespace MapControl
             }
         }
 
-        protected virtual async Task UpdateImageAsync()
+        protected async Task UpdateImageAsync()
         {
             updateTimer.Stop();
 

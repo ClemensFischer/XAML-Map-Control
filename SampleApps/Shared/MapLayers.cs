@@ -26,18 +26,25 @@ namespace ViewModel
                 {
                     TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap",
-                    Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)",
-                    MaxZoomLevel = 19
+                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
             },
             {
                 "OpenStreetMap German",
                 new MapTileLayer
                 {
-                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap German",
-                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-                    MaxZoomLevel = 19
+                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
+                }
+            },
+            {
+                "OpenStreetMap French",
+                new MapTileLayer
+                {
+                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png" },
+                    SourceName = "OpenStreetMap French",
+                    Description = "© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
             },
             {
@@ -46,8 +53,17 @@ namespace ViewModel
                 {
                     TileSource = new TileSource { UriFormat = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" },
                     SourceName = "OpenTopoMap",
-                    Description = "© [OpenTopoMap](https://opentopomap.org/)\n© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
+                    Description = "© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
                     MaxZoomLevel = 17
+                }
+            },
+            {
+                "Hike & Bike",
+                new MapTileLayer
+                {
+                    TileSource = new TileSource { UriFormat = "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png" },
+                    SourceName = "HikeBike",
+                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
             },
             {
@@ -59,35 +75,6 @@ namespace ViewModel
                     MinZoomLevel = 9,
                     MaxZoomLevel = 18
                 }
-            },
-            {
-                "TopPlusOpen WMTS",
-                new WmtsTileLayer
-                {
-                    SourceName = "TopPlusOpen",
-                    Description = "© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)",
-                    CapabilitiesUri = new Uri("https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml")
-                }
-            },
-            {
-                "TopPlusOpen WMS",
-                new WmsImageLayer
-                {
-                    Description = "© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)",
-                    ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_topplus_open")
-                }
-            },
-            {
-                "OpenStreetMap WMS",
-                new WmsImageLayer
-                {
-                    Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/)\nData © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
-                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service")
-                }
-            },
-            {
-                "SevenCs ChartServer WMS",
-                new ChartServerLayer()
             },
             {
                 "Bing Maps Road",
@@ -120,6 +107,35 @@ namespace ViewModel
                     MapBackground = new SolidColorBrush(Colors.Black)
                 }
             },
+            {
+                "TopPlusOpen WMTS",
+                new WmtsTileLayer
+                {
+                    SourceName = "TopPlusOpen",
+                    Description = "© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)",
+                    CapabilitiesUri = new Uri("https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml")
+                }
+            },
+            {
+                "TopPlusOpen WMS",
+                new WmsImageLayer
+                {
+                    Description = "© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)",
+                    ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_topplus_open")
+                }
+            },
+            {
+                "OpenStreetMap WMS",
+                new WmsImageLayer
+                {
+                    Description = "© [terrestris GmbH & Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
+                    ServiceUri = new Uri("http://ows.terrestris.de/osm/service")
+                }
+            },
+            {
+                "SevenCs ChartServer WMS",
+                new ChartServerLayer()
+            },
         };
 
         private string currentMapLayerName = "OpenStreetMap";
@@ -149,7 +165,9 @@ namespace ViewModel
         {
             "OpenStreetMap",
             "OpenStreetMap German",
+            "OpenStreetMap French",
             "OpenTopoMap",
+            "Hike & Bike",
             "TopPlusOpen WMTS",
             "TopPlusOpen WMS",
             "OpenStreetMap WMS",

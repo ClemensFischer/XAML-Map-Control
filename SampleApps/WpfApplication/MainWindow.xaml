@@ -174,8 +174,8 @@
             </map:Pushpin>
         </map:Map>
 
-        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF">
-            <TextBlock Margin="2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF">
+            <TextBlock Margin="4,2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
         </Border>
 
         <Grid Grid.Row="1">

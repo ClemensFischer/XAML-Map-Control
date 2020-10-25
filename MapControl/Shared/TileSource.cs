@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
 #if WINDOWS_UWP
 using Windows.UI.Xaml.Media;
@@ -87,31 +86,6 @@ namespace MapControl
         public override Uri GetUri(int x, int y, int zoomLevel)
         {
             return base.GetUri(x, (1 << zoomLevel) - 1 - y, zoomLevel);
-        }
-    }
-
-    public class BoundingBoxTileSource : TileSource
-    {
-        public override Uri GetUri(int x, int y, int zoomLevel)
-        {
-            Uri uri = null;
-
-            if (UriFormat != null)
-            {
-                var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
-                var west = MapProjection.Wgs84MetersPerDegree * (x * tileSize - 180d);
-                var east = MapProjection.Wgs84MetersPerDegree * ((x + 1) * tileSize - 180d);
-                var south = MapProjection.Wgs84MetersPerDegree * (180d - (y + 1) * tileSize);
-                var north = MapProjection.Wgs84MetersPerDegree * (180d - y * tileSize);
-
-                uri = new Uri(UriFormat
-                    .Replace("{west}", west.ToString(CultureInfo.InvariantCulture))
-                    .Replace("{south}", south.ToString(CultureInfo.InvariantCulture))
-                    .Replace("{east}", east.ToString(CultureInfo.InvariantCulture))
-                    .Replace("{north}", north.ToString(CultureInfo.InvariantCulture)));
-            }
-
-            return uri;
         }
     }
 }

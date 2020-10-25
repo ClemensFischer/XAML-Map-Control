@@ -90,8 +90,6 @@ namespace MapControl
 
         protected override void UpdateTileLayer()
         {
-            UpdateTimer.Stop();
-
             if (ParentMap == null ||
                 !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
             {
