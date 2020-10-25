@@ -185,6 +185,7 @@ namespace MapControl
         private void Update()
         {
             updateTimer.Stop();
+
             UpdateTileLayer();
         }
 
