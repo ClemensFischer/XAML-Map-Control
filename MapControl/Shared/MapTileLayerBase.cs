@@ -59,12 +59,7 @@ namespace MapControl
             TileImageLoader = tileImageLoader;
 
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
-
-            updateTimer.Tick += (s, e) =>
-            {
-                updateTimer.Stop();
-                UpdateTileLayer();
-            };
+            updateTimer.Tick += (s, e) => Update();
 
             MapPanel.InitMapElement(this);
         }
@@ -149,8 +144,6 @@ namespace MapControl
             get { return parentMap; }
             set
             {
-                updateTimer.Stop();
-
                 if (parentMap != null)
                 {
                     parentMap.ViewportChanged -= OnViewportChanged;
@@ -163,7 +156,7 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                UpdateTileLayer();
+                Update();
             }
         }
 
@@ -171,8 +164,7 @@ namespace MapControl
         {
             if (Children.Count == 0 || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
             {
-                updateTimer.Stop();
-                UpdateTileLayer(); // update immediately when projection has changed or center has moved across 180° longitude
+                Update(); // update immediately when projection has changed or center has moved across 180° longitude
             }
             else
             {
@@ -188,6 +180,12 @@ namespace MapControl
                     updateTimer.Start();
                 }
             }
+        }
+
+        private void Update()
+        {
+            updateTimer.Stop();
+            UpdateTileLayer();
         }
 
         protected abstract void UpdateTileLayer();
