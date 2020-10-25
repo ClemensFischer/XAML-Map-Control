@@ -46,16 +46,6 @@ namespace MapControl
         public string[] Subdomains { get; set; }
 
         /// <summary>
-        /// Loads a tile ImageSource asynchronously from GetUri(x, y, zoomLevel).
-        /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
-        {
-            var uri = GetUri(x, y, zoomLevel);
-
-            return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
-        }
-
-        /// <summary>
         /// Gets the image Uri for the specified tile indices and zoom level.
         /// </summary>
         public virtual Uri GetUri(int x, int y, int zoomLevel)
@@ -78,6 +68,16 @@ namespace MapControl
             }
 
             return uri;
+        }
+
+        /// <summary>
+        /// Loads a tile ImageSource asynchronously from GetUri(x, y, zoomLevel).
+        /// </summary>
+        public virtual Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
+        {
+            var uri = GetUri(x, y, zoomLevel);
+
+            return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
     }
 
