@@ -60,7 +60,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
+        public List<Tile> Tiles { get; private set; } = new List<Tile>();
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -80,25 +80,32 @@ namespace MapControl
             set { SetValue(MaxZoomLevelProperty, value); }
         }
 
-        protected override void TileSourcePropertyChanged()
+        protected override void UpdateTileLayer(bool tileSourceChanged)
         {
-            if (TileMatrix != null)
-            {
-                Tiles = new List<Tile>();
-                UpdateTiles();
-            }
-        }
+            var update = false;
 
-        protected override void UpdateTileLayer()
-        {
             if (ParentMap == null || !ParentMap.MapProjection.IsWebMercator)
             {
                 TileMatrix = null;
-                UpdateTiles();
+                update = true;
             }
-            else if (SetTileMatrix())
+            else
             {
-                SetRenderTransform();
+                if (tileSourceChanged)
+                {
+                    Tiles.Clear();
+                    update = true;
+                }
+
+                if (SetTileMatrix())
+                {
+                    SetRenderTransform();
+                    update = true;
+                }
+            }
+
+            if (update)
+            {
                 UpdateTiles();
             }
         }

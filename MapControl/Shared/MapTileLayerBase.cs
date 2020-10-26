@@ -26,7 +26,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
             nameof(TileSource), typeof(TileSource), typeof(MapTileLayerBase),
-            new PropertyMetadata(null, (o, e) => ((MapTileLayerBase)o).TileSourcePropertyChanged()));
+            new PropertyMetadata(null, (o, e) => ((MapTileLayerBase)o).Update(true)));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
             nameof(SourceName), typeof(string), typeof(MapTileLayerBase), new PropertyMetadata(null));
@@ -59,7 +59,7 @@ namespace MapControl
             TileImageLoader = tileImageLoader;
 
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
-            updateTimer.Tick += (s, e) => Update();
+            updateTimer.Tick += (s, e) => Update(false);
 
             MapPanel.InitMapElement(this);
         }
@@ -156,7 +156,7 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                Update();
+                Update(false);
             }
         }
 
@@ -164,7 +164,7 @@ namespace MapControl
         {
             if (Children.Count == 0 || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
             {
-                Update(); // update immediately when projection has changed or center has moved across 180° longitude
+                Update(false); // update immediately when projection has changed or center has moved across 180° longitude
             }
             else
             {
@@ -182,17 +182,15 @@ namespace MapControl
             }
         }
 
-        private void Update()
+        private void Update(bool tileSourceChanged)
         {
             updateTimer.Stop();
 
-            UpdateTileLayer();
+            UpdateTileLayer(tileSourceChanged);
         }
 
-        protected abstract void UpdateTileLayer();
+        protected abstract void UpdateTileLayer(bool tileSourceChanged);
 
         protected abstract void SetRenderTransform();
-
-        protected abstract void TileSourcePropertyChanged();
     }
 }

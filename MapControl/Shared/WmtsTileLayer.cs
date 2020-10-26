@@ -83,12 +83,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override void TileSourcePropertyChanged()
-        {
-            UpdateTileLayer();
-        }
-
-        protected override void UpdateTileLayer()
+        protected override void UpdateTileLayer(bool tileSourceChanged)
         {
             if (ParentMap == null ||
                 !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
