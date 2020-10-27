@@ -204,15 +204,12 @@ namespace MapControl
 
                 base.OnViewportChanged(e);
 
-                if (updateTimer.IsEnabled && !UpdateWhileViewportChanging)
+                if (!UpdateWhileViewportChanging)
                 {
                     updateTimer.Stop(); // restart
                 }
 
-                if (!updateTimer.IsEnabled)
-                {
-                    updateTimer.Start();
-                }
+                updateTimer.Start();
             }
         }
 

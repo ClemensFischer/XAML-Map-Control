@@ -170,15 +170,12 @@ namespace MapControl
             {
                 SetRenderTransform();
 
-                if (updateTimer.IsEnabled && !UpdateWhileViewportChanging)
+                if (!UpdateWhileViewportChanging)
                 {
                     updateTimer.Stop(); // restart
                 }
 
-                if (!updateTimer.IsEnabled)
-                {
-                    updateTimer.Start();
-                }
+                updateTimer.Start();
             }
         }
 

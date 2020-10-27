@@ -82,29 +82,30 @@ namespace MapControl
 
         protected override void UpdateTileLayer(bool tileSourceChanged)
         {
-            var update = false;
+            var updateTiles = false;
 
             if (ParentMap == null || !ParentMap.MapProjection.IsWebMercator)
             {
+                Tiles.Clear();
                 TileMatrix = null;
-                update = true;
+                updateTiles = true;
             }
             else
             {
                 if (tileSourceChanged)
                 {
                     Tiles.Clear();
-                    update = true;
+                    updateTiles = true;
                 }
 
                 if (SetTileMatrix())
                 {
                     SetRenderTransform();
-                    update = true;
+                    updateTiles = true;
                 }
             }
 
-            if (update)
+            if (updateTiles)
             {
                 UpdateTiles();
             }
@@ -154,10 +155,9 @@ namespace MapControl
 
         private void UpdateTiles()
         {
-            var newTiles = new List<Tile>();
-
             if (ParentMap != null && TileMatrix != null && TileSource != null)
             {
+                var newTiles = new List<Tile>();
                 var maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel);
 
                 if (maxZoomLevel >= MinZoomLevel)
@@ -201,9 +201,9 @@ namespace MapControl
                         }
                     }
                 }
-            }
 
-            Tiles = newTiles;
+                Tiles = newTiles;
+            }
 
             Children.Clear();
 
