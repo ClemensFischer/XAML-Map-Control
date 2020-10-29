@@ -60,7 +60,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public List<Tile> Tiles { get; private set; } = new List<Tile>();
+        public List<Tile> Tiles { get; } = new List<Tile>();
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -80,34 +80,73 @@ namespace MapControl
             set { SetValue(MaxZoomLevelProperty, value); }
         }
 
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
+
+            foreach (var tile in Tiles)
+            {
+                tile.Image.Measure(availableSize);
+            }
+
+            return new Size();
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            if (TileMatrix != null)
+            {
+                foreach (var tile in Tiles)
+                {
+                    var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
+                    var x = tileSize * tile.X - TileSize * TileMatrix.XMin;
+                    var y = tileSize * tile.Y - TileSize * TileMatrix.YMin;
+
+                    tile.Image.Width = tileSize;
+                    tile.Image.Height = tileSize;
+                    tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
+                }
+            }
+
+            return finalSize;
+        }
+
         protected override void UpdateTileLayer(bool tileSourceChanged)
         {
-            var updateTiles = false;
+            var update = false;
 
             if (ParentMap == null || !ParentMap.MapProjection.IsWebMercator)
             {
-                Tiles.Clear();
                 TileMatrix = null;
-                updateTiles = true;
+                update = true;
             }
             else
             {
                 if (tileSourceChanged)
                 {
                     Tiles.Clear();
-                    updateTiles = true;
+                    update = true;
                 }
 
                 if (SetTileMatrix())
                 {
                     SetRenderTransform();
-                    updateTiles = true;
+                    update = true;
                 }
             }
 
-            if (updateTiles)
+            if (update)
             {
-                UpdateTiles();
+                SetTiles();
+
+                Children.Clear();
+
+                foreach (var tile in Tiles)
+                {
+                    Children.Add(tile.Image);
+                }
+
+                TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
             }
         }
 
@@ -153,97 +192,62 @@ namespace MapControl
             return true;
         }
 
-        private void UpdateTiles()
+        private void SetTiles()
         {
-            if (ParentMap != null && TileMatrix != null && TileSource != null)
+            int maxZoomLevel;
+
+            if (TileSource == null ||
+                TileMatrix == null ||
+                (maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel)) < MinZoomLevel)
+            {
+                Tiles.Clear();
+            }
+            else
             {
                 var newTiles = new List<Tile>();
-                var maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel);
+                var minZoomLevel = maxZoomLevel;
 
-                if (maxZoomLevel >= MinZoomLevel)
+                if (this == ParentMap.MapLayer) // load background tiles
                 {
-                    var minZoomLevel = maxZoomLevel;
+                    minZoomLevel = Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel);
+                }
 
-                    if (this == ParentMap.MapLayer) // load background tiles
+                var oldTiles = Tiles.Where(t => t.ZoomLevel >= minZoomLevel && t.ZoomLevel <= maxZoomLevel).ToList();
+
+                Tiles.Clear();
+
+                for (var z = minZoomLevel; z <= maxZoomLevel; z++)
+                {
+                    var tileSize = 1 << (TileMatrix.ZoomLevel - z);
+                    var x1 = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
+                    var x2 = TileMatrix.XMax / tileSize;
+                    var y1 = Math.Max(TileMatrix.YMin / tileSize, 0);
+                    var y2 = Math.Min(TileMatrix.YMax / tileSize, (1 << z) - 1);
+
+                    for (var y = y1; y <= y2; y++)
                     {
-                        minZoomLevel = Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel);
-                    }
-
-                    for (var z = minZoomLevel; z <= maxZoomLevel; z++)
-                    {
-                        var tileSize = 1 << (TileMatrix.ZoomLevel - z);
-                        var x1 = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
-                        var x2 = TileMatrix.XMax / tileSize;
-                        var y1 = Math.Max(TileMatrix.YMin / tileSize, 0);
-                        var y2 = Math.Min(TileMatrix.YMax / tileSize, (1 << z) - 1);
-
-                        for (var y = y1; y <= y2; y++)
+                        for (var x = x1; x <= x2; x++)
                         {
-                            for (var x = x1; x <= x2; x++)
+                            var tile = oldTiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
+
+                            if (tile == null)
                             {
-                                var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
+                                tile = new Tile(z, x, y);
 
-                                if (tile == null)
+                                var equivalentTile = oldTiles.FirstOrDefault(
+                                    t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && !t.Pending);
+
+                                if (equivalentTile != null)
                                 {
-                                    tile = new Tile(z, x, y);
-
-                                    var equivalentTile = Tiles.FirstOrDefault(
-                                        t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && t.Image.Source != null);
-
-                                    if (equivalentTile != null)
-                                    {
-                                        tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
-                                    }
+                                    tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
                                 }
-
-                                newTiles.Add(tile);
                             }
+
+                            Tiles.Add(tile);
                         }
                     }
                 }
-
-                Tiles = newTiles;
             }
-
-            Children.Clear();
-
-            foreach (var tile in Tiles)
-            {
-                Children.Add(tile.Image);
-            }
-
-            TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
-        }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
-
-            foreach (var tile in Tiles)
-            {
-                tile.Image.Measure(availableSize);
-            }
-
-            return new Size();
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            if (TileMatrix != null)
-            {
-                foreach (var tile in Tiles)
-                {
-                    var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
-                    var x = tileSize * tile.X - TileSize * TileMatrix.XMin;
-                    var y = tileSize * tile.Y - TileSize * TileMatrix.YMin;
-
-                    tile.Image.Width = tileSize;
-                    tile.Image.Height = tileSize;
-                    tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
-                }
-            }
-
-            return finalSize;
         }
     }
 }

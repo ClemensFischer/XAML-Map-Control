@@ -6,12 +6,6 @@ namespace MapControl
 {
     public class TileMatrix
     {
-        public readonly int ZoomLevel;
-        public readonly int XMin;
-        public readonly int YMin;
-        public readonly int XMax;
-        public readonly int YMax;
-
         public TileMatrix(int zoomLevel, int xMin, int yMin, int xMax, int yMax)
         {
             ZoomLevel = zoomLevel;
@@ -20,5 +14,11 @@ namespace MapControl
             XMax = xMax;
             YMax = yMax;
         }
+
+        public int ZoomLevel { get; }
+        public int XMin { get; }
+        public int YMin { get; }
+        public int XMax { get; }
+        public int YMax { get; }
     }
 }

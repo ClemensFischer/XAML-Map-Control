@@ -2,7 +2,6 @@
 // © 2020 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 #if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -19,11 +18,6 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public readonly int ZoomLevel;
-        public readonly int X;
-        public readonly int Y;
-        public readonly Image Image = new Image { Opacity = 0d, Stretch = Stretch.Fill };
-
         public Tile(int zoomLevel, int x, int y)
         {
             ZoomLevel = zoomLevel;
@@ -31,7 +25,9 @@ namespace MapControl
             Y = y;
         }
 
-        public bool Pending { get; set; } = true;
+        public int ZoomLevel { get; }
+        public int X { get; }
+        public int Y { get; }
 
         public int XIndex
         {
@@ -41,6 +37,10 @@ namespace MapControl
                 return ((X % numTiles) + numTiles) % numTiles;
             }
         }
+
+        public Image Image { get; } = new Image { Opacity = 0d, Stretch = Stretch.Fill };
+
+        public bool Pending { get; set; } = true;
 
         private void FadeIn()
         {
