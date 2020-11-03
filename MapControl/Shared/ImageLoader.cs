@@ -23,7 +23,7 @@ namespace MapControl
         /// <summary>
         /// The System.Net.Http.HttpClient instance used to download images via a http or https Uri.
         /// </summary>
-        public static HttpClient HttpClient { get; set; } = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        public static HttpClient HttpClient { get; set; } = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 
 
         public static async Task<ImageSource> LoadImageAsync(Uri uri)
