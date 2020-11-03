@@ -28,18 +28,18 @@ namespace MapControl
             {
                 using (var stream = await ImageLoader.HttpClient.GetStreamAsync(capabilitiesUri))
                 {
-                    capabilities = ReadCapabilities(XDocument.Load(stream).Root, layerIdentifier);
+                    capabilities = ReadCapabilities(XDocument.Load(stream).Root, layerIdentifier, capabilitiesUri.ToString());
                 }
             }
             else
             {
-                capabilities = ReadCapabilities(XDocument.Load(capabilitiesUri.ToString()).Root, layerIdentifier);
+                capabilities = ReadCapabilities(XDocument.Load(capabilitiesUri.ToString()).Root, layerIdentifier, null);
             }
 
             return capabilities;
         }
 
-        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layerIdentifier)
+        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layerIdentifier, string capabilitiesUrl)
         {
             XNamespace ns = capabilitiesElement.Name.Namespace;
             XNamespace ows = "http://www.opengis.net/ows/1.1";
@@ -75,12 +75,7 @@ namespace MapControl
                 layerIdentifier = layerElement.Element(ows + "Identifier")?.Value ?? "";
             }
 
-            var urlTemplate = layerElement.Element(ns + "ResourceURL")?.Attribute("template")?.Value;
-
-            if (string.IsNullOrEmpty(urlTemplate))
-            {
-                throw new ArgumentException("No valid ResourceURL element found in Layer \"" + layerIdentifier + "\".");
-            }
+            var urlTemplate = ReadUrlTemplate(layerElement, layerIdentifier, capabilitiesUrl);
 
             var styleElement = layerElement.Descendants(ns + "Style")
                 .FirstOrDefault(e => e.Attribute("isDefault")?.Value == "true");
@@ -126,6 +121,65 @@ namespace MapControl
                 TileSource = new WmtsTileSource { UriFormat = urlTemplate.Replace("{Style}", style) },
                 TileMatrixSets = tileMatrixSets
             };
+        }
+
+        public static string ReadUrlTemplate(XElement layerElement, string layerIdentifier, string capabilitiesUrl)
+        {
+            XNamespace ns = layerElement.Name.Namespace;
+            const string formatPng = "image/png";
+            const string formatJpg = "image/jpeg";
+            string urlTemplate = null;
+
+            var resourceUrls = layerElement.Descendants(ns + "ResourceURL")
+                .ToLookup(e => e.Attribute("format")?.Value ?? "", e => e.Attribute("template")?.Value ?? "");
+
+            if (resourceUrls.Any())
+            {
+                var urlTemplates
+                    = resourceUrls.Contains(formatPng) ? resourceUrls[formatPng]
+                    : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]
+                    : resourceUrls.First();
+
+                urlTemplate = urlTemplates.FirstOrDefault();
+            }
+            else if (capabilitiesUrl != null)
+            {
+                var requestIndex = capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase);
+
+                if (requestIndex > 0)
+                {
+                    var formats = layerElement.Descendants(ns + "Format").Select(e => e.Value).ToList();
+
+                    if (formats.Count == 0)
+                    {
+                        throw new ArgumentException("No Format element found in Layer \"" + layerIdentifier + "\".");
+                    }
+
+                    var format
+                        = formats.Contains(formatPng) ? formatPng
+                        : formats.Contains(formatJpg) ? formatJpg
+                        : formats[0];
+
+                    urlTemplate = capabilitiesUrl.Substring(0, requestIndex)
+                        + "Request=GetTile"
+                        + capabilitiesUrl.Substring(requestIndex + 23)
+                        + "&Version=1.0.0"
+                        + "&Layer=" + layerIdentifier
+                        + "&Format=" + format
+                        + "&Style={Style}"
+                        + "&TileMatrixSet={TileMatrixSet}"
+                        + "&TileMatrix={TileMatrix}"
+                        + "&TileCol={TileCol}"
+                        + "&TileRow={TileRow}";
+                }
+            }
+
+            if (string.IsNullOrEmpty(urlTemplate))
+            {
+                throw new ArgumentException("No valid ResourceURL element found in Layer \"" + layerIdentifier + "\".");
+            }
+
+            return urlTemplate;
         }
 
         public static WmtsTileMatrixSet ReadTileMatrixSet(XElement tileMatrixSetElement)
