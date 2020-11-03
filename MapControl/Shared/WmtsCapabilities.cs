@@ -75,8 +75,6 @@ namespace MapControl
                 layerIdentifier = layerElement.Element(ows + "Identifier")?.Value ?? "";
             }
 
-            var urlTemplate = ReadUrlTemplate(layerElement, layerIdentifier, capabilitiesUrl);
-
             var styleElement = layerElement.Descendants(ns + "Style")
                 .FirstOrDefault(e => e.Attribute("isDefault")?.Value == "true");
 
@@ -91,6 +89,8 @@ namespace MapControl
             {
                 throw new ArgumentException("No valid Style element found in Layer \"" + layerIdentifier + "\".");
             }
+
+            var urlTemplate = ReadUrlTemplate(layerElement, layerIdentifier, style, capabilitiesUrl);
 
             var tileMatrixSetIds = layerElement
                 .Descendants(ns + "TileMatrixSetLink")
@@ -110,20 +110,18 @@ namespace MapControl
                     throw new ArgumentException("Linked TileMatrixSet element not found in Layer \"" + layerIdentifier + "\".");
                 }
 
-                var tileMatrixSet = ReadTileMatrixSet(tileMatrixSetElement);
-
-                tileMatrixSets.Add(tileMatrixSet);
+                tileMatrixSets.Add(ReadTileMatrixSet(tileMatrixSetElement));
             }
 
             return new WmtsCapabilities
             {
                 LayerIdentifier = layerIdentifier,
-                TileSource = new WmtsTileSource { UriFormat = urlTemplate.Replace("{Style}", style) },
+                TileSource = new WmtsTileSource { UriFormat = urlTemplate },
                 TileMatrixSets = tileMatrixSets
             };
         }
 
-        public static string ReadUrlTemplate(XElement layerElement, string layerIdentifier, string capabilitiesUrl)
+        public static string ReadUrlTemplate(XElement layerElement, string layerIdentifier, string style, string capabilitiesUrl)
         {
             XNamespace ns = layerElement.Name.Namespace;
             const string formatPng = "image/png";
@@ -140,7 +138,7 @@ namespace MapControl
                     : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]
                     : resourceUrls.First();
 
-                urlTemplate = urlTemplates.FirstOrDefault();
+                urlTemplate = urlTemplates.First().Replace("{Style}", style);
             }
             else if (capabilitiesUrl != null)
             {
@@ -166,7 +164,7 @@ namespace MapControl
                         + "&Version=1.0.0"
                         + "&Layer=" + layerIdentifier
                         + "&Format=" + format
-                        + "&Style={Style}"
+                        + "&Style=" + style
                         + "&TileMatrixSet={TileMatrixSet}"
                         + "&TileMatrix={TileMatrix}"
                         + "&TileCol={TileCol}"
