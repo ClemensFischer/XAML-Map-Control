@@ -2,11 +2,11 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+        <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>WpfApplication</RootNamespace>
         <Product>XAML Map Control</Product>
-        <Version>5.4.1</Version>
+        <Version>5.5.0</Version>
         <Description>XAML Map Control WPF Sample Application</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2020 Clemens Fischer</Copyright>

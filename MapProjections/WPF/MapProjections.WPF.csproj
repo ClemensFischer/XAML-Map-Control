@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net462;net48</TargetFrameworks>
+        <TargetFrameworks>net5.0-windows;netcoreapp3.1;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyName>MapProjections.WPF</AssemblyName>
@@ -9,7 +9,7 @@
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
         <Product>XAML Map Control</Product>
-        <Version>5.4.1</Version>
+        <Version>5.5.0</Version>
         <Description>Map Projections Library for XAML Map Control</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2020 Clemens Fischer</Copyright>
