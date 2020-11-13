@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>5.0.1</Version>
+    <Version>5.5.0</Version>
     <Authors>Clemens Fischer</Authors>
     <Description>XAML Map Control Map Projection Demo Application</Description>
     <Product>XAML Map Control</Product>
