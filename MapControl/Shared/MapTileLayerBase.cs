@@ -19,7 +19,7 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName);
+        void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName);
     }
 
     public abstract class MapTileLayerBase : Panel, IMapLayer
@@ -189,5 +189,10 @@ namespace MapControl
         protected abstract void UpdateTileLayer(bool tileSourceChanged);
 
         protected abstract void SetRenderTransform();
+
+        protected virtual void LoadTiles(IEnumerable<Tile> tiles, string cacheName)
+        {
+            TileImageLoader.LoadTiles(tiles, TileSource, cacheName);
+        }
     }
 }

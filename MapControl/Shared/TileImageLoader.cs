@@ -30,7 +30,7 @@ namespace MapControl
         public static TimeSpan DefaultCacheExpiration { get; set; } = TimeSpan.FromDays(1);
 
         /// <summary>
-        /// Format string for creating cache keys from the sourceName argument passed to LoadTilesAsync,
+        /// Format string for creating cache keys from the cacheName argument passed to LoadTilesAsync,
         /// the ZoomLevel, XIndex, and Y properties of a Tile, and the image file extension.
         /// The default value is "{0}/{1}/{2}/{3}{4}".
         /// </summary>
@@ -56,10 +56,10 @@ namespace MapControl
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection.
-        /// If tileSource.UriFormat starts with "http" and sourceName is a non-empty string,
+        /// If tileSource.UriFormat starts with "http" and cacheName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache (if that is not null).
         /// </summary>
-        public void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string sourceName)
+        public void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
         {
             tileQueue.Clear();
 
@@ -70,9 +70,9 @@ namespace MapControl
                 if (Cache != null &&
                     tileSource.UriFormat != null &&
                     tileSource.UriFormat.StartsWith("http") &&
-                    !string.IsNullOrEmpty(sourceName))
+                    !string.IsNullOrEmpty(cacheName))
                 {
-                    loadTile = tile => LoadCachedTileAsync(tile, tileSource, sourceName);
+                    loadTile = tile => LoadCachedTileAsync(tile, tileSource, cacheName);
                 }
                 else
                 {
@@ -109,7 +109,7 @@ namespace MapControl
             Interlocked.Decrement(ref taskCount);
         }
 
-        private static async Task LoadCachedTileAsync(Tile tile, TileSource tileSource, string sourceName)
+        private static async Task LoadCachedTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
             var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
@@ -122,7 +122,7 @@ namespace MapControl
                     extension = ".jpg";
                 }
 
-                var cacheKey = string.Format(CacheKeyFormat, sourceName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+                var cacheKey = string.Format(CacheKeyFormat, cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
 
                 await LoadCachedTileAsync(tile, uri, cacheKey).ConfigureAwait(false);
             }

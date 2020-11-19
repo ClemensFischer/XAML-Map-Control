@@ -146,7 +146,7 @@ namespace MapControl
                     Children.Add(tile.Image);
                 }
 
-                TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
+                LoadTiles(Tiles, SourceName);
             }
         }
 

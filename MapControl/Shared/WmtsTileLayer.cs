@@ -162,15 +162,15 @@ namespace MapControl
             }
 
             var tileSource = TileSource as WmtsTileSource;
-            var sourceName = SourceName;
+            var cacheName = SourceName;
 
             if (tileSource != null && tileMatrixSet != null)
             {
                 tileSource.TileMatrixSet = tileMatrixSet;
 
-                if (sourceName != null)
+                if (cacheName != null)
                 {
-                    sourceName += "/" + tileMatrixSet.Identifier
+                    cacheName += "/" + tileMatrixSet.Identifier
                         .Replace(':', '_')
                         .Replace(';', '_')
                         .Replace(',', '_')
@@ -179,7 +179,7 @@ namespace MapControl
                 }
             }
 
-            TileImageLoader.LoadTiles(tiles, tileSource, sourceName);
+            LoadTiles(tiles, cacheName);
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
