@@ -85,7 +85,7 @@ namespace MapControl
                 {
                     Interlocked.Increment(ref taskCount);
 
-                    Task.Run(() => LoadTilesFromQueueAsync());
+                    Task.Run(LoadTilesFromQueueAsync);
                 }
             }
         }
