@@ -42,7 +42,7 @@ namespace MapControl.Caching
 
         public Task Clean()
         {
-            return Task.Factory.StartNew(() => CleanRootDirectory(), TaskCreationOptions.LongRunning);
+            return Task.Factory.StartNew(CleanRootDirectory, TaskCreationOptions.LongRunning);
         }
 
         public override string Name
