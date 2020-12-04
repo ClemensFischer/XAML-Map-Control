@@ -9,7 +9,7 @@
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
         <Product>XAML Map Control</Product>
-        <Version>5.5.0</Version>
+        <Version>5.6.0</Version>
         <Description>Image Support Library for XAML Map Control</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2020 Clemens Fischer</Copyright>
