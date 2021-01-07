@@ -31,8 +31,6 @@ namespace MapControl
     /// </summary>
     public partial class MapBase : MapPanel
     {
-        private const double MaximumZoomLevel = 22d;
-
         public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
 
         public static readonly DependencyProperty MapLayerProperty = DependencyProperty.Register(
@@ -321,6 +319,7 @@ namespace MapControl
                 if (rotation != 0d)
                 {
                     var heading = (((Heading + rotation) % 360d) + 360d) % 360d;
+
                     SetValueInternal(HeadingProperty, heading);
                     SetValueInternal(TargetHeadingProperty, heading);
                 }
@@ -328,6 +327,7 @@ namespace MapControl
                 if (scale != 1d)
                 {
                     var zoomLevel = Math.Min(Math.Max(ZoomLevel + Math.Log(scale, 2d), MinZoomLevel), MaxZoomLevel);
+
                     SetValueInternal(ZoomLevelProperty, zoomLevel);
                     SetValueInternal(TargetZoomLevelProperty, zoomLevel);
                 }
@@ -437,17 +437,16 @@ namespace MapControl
 
         private void AdjustCenterProperty(DependencyProperty property, ref Location center)
         {
-            if (center == null)
-            {
-                center = new Location();
-                SetValueInternal(property, center);
-            }
-            else if (center.Longitude < -180d || center.Longitude > 180d ||
+            if (center == null ||
+                center.Longitude < -180d || center.Longitude > 180d ||
                 center.Latitude < -MapProjection.MaxLatitude || center.Latitude > MapProjection.MaxLatitude)
             {
-                center = new Location(
-                    Math.Min(Math.Max(center.Latitude, -MapProjection.MaxLatitude), MapProjection.MaxLatitude),
-                    Location.NormalizeLongitude(center.Longitude));
+                center = (center == null)
+                    ? new Location()
+                    : new Location(
+                        Math.Min(Math.Max(center.Latitude, -MapProjection.MaxLatitude), MapProjection.MaxLatitude),
+                        Location.NormalizeLongitude(center.Longitude));
+
                 SetValueInternal(property, center);
             }
         }
@@ -519,6 +518,7 @@ namespace MapControl
             if (minZoomLevel < 0d || minZoomLevel > MaxZoomLevel)
             {
                 minZoomLevel = Math.Min(Math.Max(minZoomLevel, 0d), MaxZoomLevel);
+
                 SetValueInternal(MinZoomLevelProperty, minZoomLevel);
             }
 
@@ -530,9 +530,10 @@ namespace MapControl
 
         private void MaxZoomLevelPropertyChanged(double maxZoomLevel)
         {
-            if (maxZoomLevel < MinZoomLevel || maxZoomLevel > MaximumZoomLevel)
+            if (maxZoomLevel < MinZoomLevel)
             {
-                maxZoomLevel = Math.Min(Math.Max(maxZoomLevel, MinZoomLevel), MaximumZoomLevel);
+                maxZoomLevel = MinZoomLevel;
+
                 SetValueInternal(MaxZoomLevelProperty, maxZoomLevel);
             }
 
@@ -547,6 +548,7 @@ namespace MapControl
             if (zoomLevel < MinZoomLevel || zoomLevel > MaxZoomLevel)
             {
                 zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
+
                 SetValueInternal(property, zoomLevel);
             }
         }
@@ -611,6 +613,7 @@ namespace MapControl
             if (heading < 0d || heading > 360d)
             {
                 heading = ((heading % 360d) + 360d) % 360d;
+
                 SetValueInternal(property, heading);
             }
         }
@@ -684,7 +687,9 @@ namespace MapControl
         private void SetValueInternal(DependencyProperty property, object value)
         {
             internalPropertyChange = true;
+
             SetValue(property, value);
+
             internalPropertyChange = false;
         }
 

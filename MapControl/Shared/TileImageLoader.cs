@@ -30,11 +30,10 @@ namespace MapControl
         public static TimeSpan DefaultCacheExpiration { get; set; } = TimeSpan.FromDays(1);
 
         /// <summary>
-        /// Format string for creating cache keys from the cacheName argument passed to LoadTilesAsync,
-        /// the ZoomLevel, XIndex, and Y properties of a Tile, and the image file extension.
-        /// The default value is "{0}/{1}/{2}/{3}{4}".
+        /// Maximum expiration time for cached tile images. A transmitted expiration time
+        /// that exceeds this value is ignored. The default value is ten days.
         /// </summary>
-        public static string CacheKeyFormat { get; set; } = "{0}/{1}/{2}/{3}{4}";
+        public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
 
 
         private class TileQueue : ConcurrentStack<Tile>
@@ -51,7 +50,7 @@ namespace MapControl
         }
 
         private readonly TileQueue tileQueue = new TileQueue();
-        private Func<Tile, Task> loadTile;
+        private Func<Tile, Task> loadTileFunc;
         private int taskCount;
 
         /// <summary>
@@ -72,11 +71,11 @@ namespace MapControl
                     tileSource.UriFormat.StartsWith("http") &&
                     !string.IsNullOrEmpty(cacheName))
                 {
-                    loadTile = tile => LoadCachedTileAsync(tile, tileSource, cacheName);
+                    loadTileFunc = tile => LoadCachedTileAsync(tile, tileSource, cacheName);
                 }
                 else
                 {
-                    loadTile = tile => LoadTileAsync(tile, tileSource);
+                    loadTileFunc = tile => LoadTileAsync(tile, tileSource);
                 }
 
                 tileQueue.Enqueue(tiles);
@@ -98,7 +97,7 @@ namespace MapControl
 
                 try
                 {
-                     await loadTile(tile).ConfigureAwait(false);
+                    await loadTileFunc(tile).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -122,7 +121,7 @@ namespace MapControl
                     extension = ".jpg";
                 }
 
-                var cacheKey = string.Format(CacheKeyFormat, cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+                var cacheKey = string.Format("{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
 
                 await LoadCachedTileAsync(tile, uri, cacheKey).ConfigureAwait(false);
             }
@@ -130,7 +129,16 @@ namespace MapControl
 
         private static DateTime GetExpiration(TimeSpan? maxAge)
         {
-            return DateTime.UtcNow.Add(maxAge ?? DefaultCacheExpiration);
+            if (!maxAge.HasValue)
+            {
+                maxAge = DefaultCacheExpiration;
+            }
+            else if (maxAge.Value > MaxCacheExpiration)
+            {
+                maxAge = MaxCacheExpiration;
+            }
+
+            return DateTime.UtcNow.Add(maxAge.Value);
         }
     }
 }

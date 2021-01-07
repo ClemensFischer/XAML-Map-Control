@@ -169,7 +169,9 @@ namespace MapControl.Caching
 
             string path;
 
-            if (imageCacheItem.Buffer != null && imageCacheItem.Buffer.Length > 0 && (path = GetPath(key)) != null)
+            if (imageCacheItem.Buffer != null &&
+                imageCacheItem.Buffer.Length > 0 &&
+                (path = GetPath(key)) != null)
             {
                 try
                 {
@@ -282,7 +284,7 @@ namespace MapControl.Caching
         {
             try
             {
-                return Path.Combine(rootDirectory, Path.Combine(key.Split('\\', '/', ',', ':', ';')));
+                return Path.Combine(rootDirectory, Path.Combine(key.Split('/', ':', ';', ',')));
             }
             catch (Exception ex)
             {
@@ -294,14 +296,15 @@ namespace MapControl.Caching
 
         private async Task CleanRootDirectory()
         {
-            var deletedFileCount = 0;
-
             foreach (var dir in new DirectoryInfo(rootDirectory).EnumerateDirectories())
             {
-                deletedFileCount += await CleanDirectory(dir).ConfigureAwait(false);
-            }
+                var deletedFileCount = await CleanDirectory(dir).ConfigureAwait(false);
 
-            Debug.WriteLine("ImageFileCache: Cleaned {0} files in {1}", deletedFileCount, rootDirectory);
+                if (deletedFileCount > 0)
+                {
+                    Debug.WriteLine("ImageFileCache: Cleaned {0} files in {1}", deletedFileCount, dir);
+                }
+            }
         }
 
         private static async Task<int> CleanDirectory(DirectoryInfo directory)
