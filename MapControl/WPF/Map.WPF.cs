@@ -2,6 +2,7 @@
 // © 2020 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -98,9 +99,9 @@ namespace MapControl
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            var zoomDelta = MouseWheelZoomDelta * e.Delta / 120d;
+            var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * Math.Sign(e.Delta);
 
-            ZoomMap(e.GetPosition(this), TargetZoomLevel + zoomDelta);
+            ZoomMap(e.GetPosition(this), MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta));
         }
     }
 }

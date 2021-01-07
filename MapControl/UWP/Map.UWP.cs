@@ -2,6 +2,7 @@
 // © 2020 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 
@@ -44,9 +45,9 @@ namespace MapControl
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
-            var zoomDelta = MouseWheelZoomDelta * point.Properties.MouseWheelDelta / 120d;
+            var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * Math.Sign(point.Properties.MouseWheelDelta);
 
-            ZoomMap(point.Position, TargetZoomLevel + zoomDelta);
+            ZoomMap(point.Position, MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta));
         }
     }
 }
