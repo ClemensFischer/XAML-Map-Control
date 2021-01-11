@@ -9,17 +9,11 @@ using Windows.UI.Xaml.Input;
 
 namespace MapControl
 {
-    /// <summary>
-    /// Container class for an item in a MapItemsControl.
-    /// </summary>
-    public class MapItem : ListBoxItem
+    public partial class MapItem
     {
-        public MapItem()
-        {
-            DefaultStyleKey = typeof(MapItem);
-
-            MapPanel.InitMapElement(this);
-        }
+        public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
+            nameof(Location), typeof(Location), typeof(MapItem),
+            new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((FrameworkElement)o, (Location)e.NewValue)));
 
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {

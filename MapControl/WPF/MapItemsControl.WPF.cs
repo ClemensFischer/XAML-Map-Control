@@ -9,17 +9,9 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    /// <summary>
-    /// Container class for an item in a MapItemsControl.
-    /// </summary>
-    public class MapItem : ListBoxItem
+    public partial class MapItem
     {
-        public MapItem()
-        {
-            DefaultStyleKey = typeof(MapItem);
-
-            MapPanel.InitMapElement(this);
-        }
+        public static readonly DependencyProperty LocationProperty = MapPanel.LocationProperty.AddOwner(typeof(MapItem));
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {

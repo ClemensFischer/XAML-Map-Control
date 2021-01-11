@@ -25,7 +25,7 @@
 
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
-            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Location" Value="{Binding Location}"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -80,7 +80,7 @@
 
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
-            <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+            <Setter Property="Location" Value="{Binding Location}"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Visibility">
@@ -123,7 +123,7 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" ZoomLevel="11" MaxZoomLevel="21"
+        <map:Map x:Name="map" ZoomLevel="11" MaxZoomLevel="21" MouseWheelZoomDelta="0.5"
                  Center="{Binding MapCenter}"
                  MapLayer="{Binding MapLayers.CurrentMapLayer}"
                  MapProjection="{Binding SelectedValue, ElementName=projectionComboBox,

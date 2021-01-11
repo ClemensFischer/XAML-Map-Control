@@ -7,13 +7,45 @@ using System;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 #else
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 #endif
 
 namespace MapControl
 {
+    /// <summary>
+    /// Container class for an item in a MapItemsControl.
+    /// </summary>
+    public partial class MapItem : ListBoxItem
+    {
+        public static readonly DependencyProperty LocationMemberPathProperty = DependencyProperty.Register(
+            nameof(LocationMemberPath), typeof(string), typeof(MapItem),
+            new PropertyMetadata(null, (o, e) => BindingOperations.SetBinding(
+                o, LocationProperty, new Binding { Path = new PropertyPath((string)e.NewValue) })));
+
+        public MapItem()
+        {
+            DefaultStyleKey = typeof(MapItem);
+
+            MapPanel.InitMapElement(this);
+        }
+
+        public Location Location
+        {
+            get { return (Location)GetValue(LocationProperty); }
+            set { SetValue(LocationProperty, value); }
+        }
+
+        public string LocationMemberPath
+        {
+            get { return (string)GetValue(LocationMemberPathProperty); }
+            set { SetValue(LocationMemberPathProperty, value); }
+        }
+    }
+
     /// <summary>
     /// Manages a collection of selectable items on a Map.
     /// </summary>

@@ -27,7 +27,7 @@ namespace MapControl
             get { return Data; }
         }
 
-        #region Method used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
+        #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
