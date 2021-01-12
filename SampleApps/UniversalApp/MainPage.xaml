@@ -131,9 +131,9 @@
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
             <map:Pushpin Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
-                <map:MapPanel.Location>
+                <map:Pushpin.Location>
                     <map:Location Latitude="53.5" Longitude="8.2"/>
-                </map:MapPanel.Location>
+                </map:Pushpin.Location>
             </map:Pushpin>
         </map:Map>
 

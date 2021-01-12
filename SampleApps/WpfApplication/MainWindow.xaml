@@ -153,10 +153,10 @@
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-            <map:Pushpin map:MapPanel.Location="65,-18" Content="Iceland"/>
-            <map:Pushpin map:MapPanel.Location="71,25" Content="Norway"/>
-            <map:Pushpin map:MapPanel.Location="35,33" Content="Cyprus"/>
-            <map:Pushpin map:MapPanel.Location="28.25,-16.5" Content="Tenerife"/>
+            <map:Pushpin Location="65,-18" Content="Iceland"/>
+            <map:Pushpin Location="71,25" Content="Norway"/>
+            <map:Pushpin Location="35,33" Content="Cyprus"/>
+            <map:Pushpin Location="28.25,-16.5" Content="Tenerife"/>
 
             <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
                 <map:MapPath.Data>
@@ -164,7 +164,7 @@
                 </map:MapPath.Data>
             </map:MapPath>
 
-            <map:Pushpin map:MapPanel.Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53°30' E 8°12'">
+            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53°30' E 8°12'">
                 <map:Pushpin.Visibility>
                     <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
                         <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
