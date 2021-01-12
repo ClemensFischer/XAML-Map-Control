@@ -11,6 +11,8 @@ namespace MapControl
 {
     public partial class MapItem
     {
+        public static readonly DependencyProperty AutoCollapseProperty = MapPanel.AutoCollapseProperty.AddOwner(typeof(MapItem));
+
         public static readonly DependencyProperty LocationProperty = MapPanel.LocationProperty.AddOwner(typeof(MapItem));
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)

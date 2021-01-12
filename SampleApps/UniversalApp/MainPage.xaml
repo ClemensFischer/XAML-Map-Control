@@ -21,6 +21,7 @@
         </Style>
 
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
+            <Setter Property="AutoCollapse" Value="True"/>
             <Setter Property="LocationMemberPath" Value="Location"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
@@ -76,6 +77,7 @@
         </Style>
 
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
+            <Setter Property="AutoCollapse" Value="True"/>
             <Setter Property="LocationMemberPath" Value="Location"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Foreground" Value="Black"/>
@@ -130,7 +132,7 @@
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-            <map:Pushpin Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
+            <map:Pushpin AutoCollapse="True" Background="Yellow" Foreground="Blue" Content="N 53° 30' E 8° 12'">
                 <map:Pushpin.Location>
                     <map:Location Latitude="53.5" Longitude="8.2"/>
                 </map:Pushpin.Location>

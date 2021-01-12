@@ -11,6 +11,10 @@ namespace MapControl
 {
     public partial class MapItem
     {
+        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.Register(
+            nameof(AutoCollapse), typeof(bool), typeof(MapItem),
+            new PropertyMetadata(false, (o, e) => MapPanel.SetAutoCollapse((FrameworkElement)o, (bool)e.NewValue)));
+
         public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
             nameof(Location), typeof(Location), typeof(MapItem),
             new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((FrameworkElement)o, (Location)e.NewValue)));

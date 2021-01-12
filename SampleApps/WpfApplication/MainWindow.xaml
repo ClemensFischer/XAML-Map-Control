@@ -7,8 +7,6 @@
         Title="XAML MapControl - WPF Test Application" Height="600" Width="900"
         Stylus.IsPressAndHoldEnabled="False">
     <Window.Resources>
-        <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
-
         <DataTemplate x:Key="PolylineItemTemplate">
             <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
         </DataTemplate>
@@ -25,6 +23,7 @@
 
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
+            <Setter Property="AutoCollapse" Value="True"/>
             <Setter Property="Location" Value="{Binding Location}"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
@@ -80,17 +79,10 @@
 
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
+            <Setter Property="AutoCollapse" Value="True"/>
             <Setter Property="Location" Value="{Binding Location}"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Visibility">
-                <Setter.Value>
-                    <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
-                        <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
-                        <Binding Path="(map:MapPanel.ViewPosition)" RelativeSource="{RelativeSource Self}"/>
-                    </MultiBinding>
-                </Setter.Value>
-            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -123,7 +115,7 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <map:Map x:Name="map" ZoomLevel="11" MaxZoomLevel="21" MouseWheelZoomDelta="0.5"
+        <map:Map x:Name="map" ZoomLevel="11" MaxZoomLevel="21" MouseWheelZoomDelta="1"
                  Center="{Binding MapCenter}"
                  MapLayer="{Binding MapLayers.CurrentMapLayer}"
                  MapProjection="{Binding SelectedValue, ElementName=projectionComboBox,
@@ -153,25 +145,18 @@
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-            <map:Pushpin Location="65,-18" Content="Iceland"/>
-            <map:Pushpin Location="71,25" Content="Norway"/>
-            <map:Pushpin Location="35,33" Content="Cyprus"/>
-            <map:Pushpin Location="28.25,-16.5" Content="Tenerife"/>
+            <map:Pushpin AutoCollapse="True" Location="65,-18" Content="Iceland"/>
+            <map:Pushpin AutoCollapse="True" Location="71,25" Content="Norway"/>
+            <map:Pushpin AutoCollapse="True" Location="35,33" Content="Cyprus"/>
+            <map:Pushpin AutoCollapse="True" Location="28.25,-16.5" Content="Tenerife"/>
 
-            <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
+            <map:MapPath AutoCollapse="True" Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
                 <map:MapPath.Data>
                     <EllipseGeometry RadiusX="1852" RadiusY="1852"/>
                 </map:MapPath.Data>
             </map:MapPath>
 
-            <map:Pushpin Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53°30' E 8°12'">
-                <map:Pushpin.Visibility>
-                    <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
-                        <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
-                        <Binding Path="(map:MapPanel.ViewPosition)" RelativeSource="{RelativeSource Self}"/>
-                    </MultiBinding>
-                </map:Pushpin.Visibility>
-            </map:Pushpin>
+            <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF">

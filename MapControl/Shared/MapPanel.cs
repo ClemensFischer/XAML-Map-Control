@@ -31,13 +31,8 @@ namespace MapControl
     /// </summary>
     public partial class MapPanel : Panel, IMapElement
     {
-        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            if (obj is IMapElement mapElement)
-            {
-                mapElement.ParentMap = e.NewValue as MapBase;
-            }
-        }
+        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.RegisterAttached(
+            "AutoCollapse", typeof(bool), typeof(MapPanel), new PropertyMetadata(false));
 
         private MapBase parentMap;
 
@@ -52,26 +47,58 @@ namespace MapControl
             InitMapElement(this);
         }
 
+        /// <summary>
+        /// Gets a value that controls whether an element's Visibility is automatically
+        /// set to Collapsed when it is located outside the visible viewport area.
+        /// </summary>
+        public static bool GetAutoCollapse(FrameworkElement element)
+        {
+            return (bool)element.GetValue(AutoCollapseProperty);
+        }
+
+        /// <summary>
+        /// Sets the AutoCollapse property.
+        /// </summary>
+        public static void SetAutoCollapse(FrameworkElement element, bool value)
+        {
+            element.SetValue(AutoCollapseProperty, value);
+        }
+
+        /// <summary>
+        /// Gets the geodetic Location of an element.
+        /// </summary>
         public static Location GetLocation(FrameworkElement element)
         {
             return (Location)element.GetValue(LocationProperty);
         }
 
+        /// <summary>
+        /// Sets the geodetic Location of an element.
+        /// </summary>
         public static void SetLocation(FrameworkElement element, Location value)
         {
             element.SetValue(LocationProperty, value);
         }
 
+        /// <summary>
+        /// Gets the BoundingBox of an element.
+        /// </summary>
         public static BoundingBox GetBoundingBox(FrameworkElement element)
         {
             return (BoundingBox)element.GetValue(BoundingBoxProperty);
         }
 
+        /// <summary>
+        /// Sets the BoundingBox of an element.
+        /// </summary>
         public static void SetBoundingBox(FrameworkElement element, BoundingBox value)
         {
             element.SetValue(BoundingBoxProperty, value);
         }
 
+        /// <summary>
+        /// Gets the position of an element in view coordinates.
+        /// </summary>
         public static Point? GetViewPosition(FrameworkElement element)
         {
             return (Point?)element.GetValue(ViewPositionProperty);
@@ -80,8 +107,13 @@ namespace MapControl
         /// <summary>
         /// Returns the view position of a Location.
         /// </summary>
-        public Point GetViewPosition(Location location)
+        public Point? GetViewPosition(Location location)
         {
+            if (location == null)
+            {
+                return null;
+            }
+
             var pos = parentMap.LocationToView(location);
 
             if (parentMap.MapProjection.IsNormalCylindrical &&
@@ -175,19 +207,32 @@ namespace MapControl
             {
                 foreach (var element in Children.OfType<FrameworkElement>())
                 {
-                    var location = GetLocation(element);
+                    var position = GetViewPosition(GetLocation(element));
 
-                    if (location != null)
+                    SetViewPosition(element, position);
+
+                    if (GetAutoCollapse(element))
                     {
-                        var position = GetViewPosition(location);
+                        if (position.HasValue &&
+                           (position.Value.X < 0d ||
+                            position.Value.Y < 0d ||
+                            position.Value.X > parentMap.RenderSize.Width ||
+                            position.Value.Y > parentMap.RenderSize.Height))
+                        {
+                            element.SetValue(VisibilityProperty, Visibility.Collapsed);
+                        }
+                        else
+                        {
+                            element.ClearValue(VisibilityProperty);
+                        }
+                    }
 
-                        SetViewPosition(element, position);
-                        ArrangeElement(element, position);
+                    if (position.HasValue)
+                    {
+                        ArrangeElement(element, position.Value);
                     }
                     else
                     {
-                        SetViewPosition(element, null);
-
                         var boundingBox = GetBoundingBox(element);
 
                         if (boundingBox != null)
@@ -313,6 +358,14 @@ namespace MapControl
             }
 
             element.Arrange(rect);
+        }
+
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            if (obj is IMapElement mapElement)
+            {
+                mapElement.ParentMap = e.NewValue as MapBase;
+            }
         }
     }
 }

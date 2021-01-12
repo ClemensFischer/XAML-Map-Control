@@ -33,12 +33,27 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
+        /// <summary>
+        /// Wrapper for the MapPanel.AutoCollapse attached property.
+        /// </summary>
+        public bool AutoCollapse
+        {
+            get { return (bool)GetValue(AutoCollapseProperty); }
+            set { SetValue(AutoCollapseProperty, value); }
+        }
+
+        /// <summary>
+        /// Wrapper for the MapPanel.Location attached property.
+        /// </summary>
         public Location Location
         {
             get { return (Location)GetValue(LocationProperty); }
             set { SetValue(LocationProperty, value); }
         }
 
+        /// <summary>
+        /// Path to a source property for binding the Location property.
+        /// </summary>
         public string LocationMemberPath
         {
             get { return (string)GetValue(LocationMemberPathProperty); }
