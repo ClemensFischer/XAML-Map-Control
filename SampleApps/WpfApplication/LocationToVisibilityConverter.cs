@@ -10,7 +10,7 @@ namespace WpfApplication
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            var visibility = Visibility.Hidden;
+            var visibility = Visibility.Collapsed;
 
             if (values.Length == 2 && values[0] is MapBase && values[1] is Point?)
             {
@@ -18,8 +18,10 @@ namespace WpfApplication
                 var position = (Point?)values[1];
 
                 if (position.HasValue &&
-                    position.Value.X >= 0d && position.Value.X <= parentMap.ActualWidth &&
-                    position.Value.Y >= 0d && position.Value.Y <= parentMap.ActualHeight)
+                    position.Value.X >= 0d &&
+                    position.Value.Y >= 0d &&
+                    position.Value.X <= parentMap.ActualWidth &&
+                    position.Value.Y <= parentMap.ActualHeight)
                 {
                     visibility = Visibility.Visible;
                 }
