@@ -30,15 +30,6 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Wrapper for the MapPanel.AutoCollapse attached property.
-        /// </summary>
-        public bool AutoCollapse
-        {
-            get { return (bool)GetValue(AutoCollapseProperty); }
-            set { SetValue(AutoCollapseProperty, value); }
-        }
-
-        /// <summary>
         /// Gets or sets a Location that is used as
         /// - either the origin point of a geometry specified in cartesian map units (meters)
         /// - or as an optional value to constrain the view position of MapPaths with multiple

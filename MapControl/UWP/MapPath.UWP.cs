@@ -14,10 +14,6 @@ namespace MapControl
 {
     public partial class MapPath : Path
     {
-        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.Register(
-            nameof(AutoCollapse), typeof(bool), typeof(MapPath),
-            new PropertyMetadata(false, (o, e) => MapPanel.SetAutoCollapse((FrameworkElement)o, (bool)e.NewValue)));
-
         #region Methods used only by derived classes MapPolyline and MapPolygon
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)

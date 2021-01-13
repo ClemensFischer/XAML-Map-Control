@@ -14,8 +14,6 @@ namespace MapControl
 {
     public partial class MapPath : Shape, IWeakEventListener
     {
-        public static readonly DependencyProperty AutoCollapseProperty = MapPanel.AutoCollapseProperty.AddOwner(typeof(MapPath));
-
         public static readonly DependencyProperty DataProperty = Path.DataProperty.AddOwner(typeof(MapPath));
 
         public Geometry Data
