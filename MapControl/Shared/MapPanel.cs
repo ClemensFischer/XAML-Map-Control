@@ -214,10 +214,8 @@ namespace MapControl
                     if (GetAutoCollapse(element))
                     {
                         if (position.HasValue &&
-                           (position.Value.X < 0d ||
-                            position.Value.Y < 0d ||
-                            position.Value.X > parentMap.RenderSize.Width ||
-                            position.Value.Y > parentMap.RenderSize.Height))
+                            (position.Value.X < 0d || position.Value.X > parentMap.RenderSize.Width ||
+                             position.Value.Y < 0d || position.Value.Y > parentMap.RenderSize.Height))
                         {
                             element.SetValue(VisibilityProperty, Visibility.Collapsed);
                         }
