@@ -114,18 +114,16 @@ namespace MapControl
                 return null;
             }
 
-            var pos = parentMap.LocationToView(location);
+            var position = parentMap.LocationToView(location);
 
-            if (parentMap.MapProjection.IsNormalCylindrical &&
-                (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
-                 pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
+            if (parentMap.MapProjection.IsNormalCylindrical && !IsVisible(position))
             {
                 location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
 
-                pos = parentMap.LocationToView(location);
+                position = parentMap.LocationToView(location);
             }
 
-            return pos;
+            return position;
         }
 
         /// <summary>
@@ -142,22 +140,20 @@ namespace MapControl
         public ViewRect GetViewRect(Rect rect)
         {
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-            var pos = parentMap.ViewTransform.MapToView(center);
+            var position = parentMap.ViewTransform.MapToView(center);
 
-            if (parentMap.MapProjection.IsNormalCylindrical &&
-                (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
-                 pos.Y < 0d || pos.Y > parentMap.RenderSize.Height))
+            if (parentMap.MapProjection.IsNormalCylindrical && !IsVisible(position))
             {
                 var location = parentMap.MapProjection.MapToLocation(center);
                 location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
 
-                pos = parentMap.LocationToView(location);
+                position = parentMap.LocationToView(location);
             }
 
             var width = rect.Width * parentMap.ViewTransform.Scale;
             var height = rect.Height * parentMap.ViewTransform.Scale;
-            var x = pos.X - width / 2d;
-            var y = pos.Y - height / 2d;
+            var x = position.X - width / 2d;
+            var y = position.Y - height / 2d;
 
             return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
         }
@@ -213,9 +209,7 @@ namespace MapControl
 
                     if (GetAutoCollapse(element))
                     {
-                        if (position.HasValue &&
-                            (position.Value.X < 0d || position.Value.X > parentMap.RenderSize.Width ||
-                             position.Value.Y < 0d || position.Value.Y > parentMap.RenderSize.Height))
+                        if (position.HasValue && !IsVisible(position.Value))
                         {
                             element.SetValue(VisibilityProperty, Visibility.Collapsed);
                         }
@@ -246,6 +240,12 @@ namespace MapControl
             }
 
             return finalSize;
+        }
+
+        private bool IsVisible(Point point)
+        {
+            return point.X >= 0d && point.X <= parentMap.RenderSize.Width
+                && point.Y >= 0d && point.Y <= parentMap.RenderSize.Height;
         }
 
         private static void ArrangeElement(FrameworkElement element, ViewRect rect)
