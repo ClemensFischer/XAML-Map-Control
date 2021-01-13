@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("XAML Map Control Library")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
-[assembly: AssemblyCopyright("Copyright © 2020 Clemens Fischer")]
+[assembly: AssemblyCopyright("Copyright © 2021 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyVersion("5.6.0")]
 [assembly: AssemblyFileVersion("5.6.0")]

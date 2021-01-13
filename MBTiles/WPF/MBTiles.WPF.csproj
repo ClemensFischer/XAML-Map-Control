@@ -12,7 +12,7 @@
         <Version>5.6.0</Version>
         <Description>MBTiles Support Library for XAML Map Control</Description>
         <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2020 Clemens Fischer</Copyright>
+        <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MBTiles</PackageId>
     </PropertyGroup>

@@ -9,7 +9,7 @@
         <Version>5.6.0</Version>
         <Description>XAML Map Control WPF Sample Application</Description>
         <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2020 Clemens Fischer</Copyright>
+        <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
