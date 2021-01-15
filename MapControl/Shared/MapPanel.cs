@@ -116,7 +116,7 @@ namespace MapControl
 
             var position = parentMap.LocationToView(location);
 
-            if (parentMap.MapProjection.IsNormalCylindrical && !IsVisible(position))
+            if (parentMap.MapProjection.IsNormalCylindrical && !IsInsideViewport(position))
             {
                 location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
 
@@ -142,7 +142,7 @@ namespace MapControl
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
 
-            if (parentMap.MapProjection.IsNormalCylindrical && !IsVisible(position))
+            if (parentMap.MapProjection.IsNormalCylindrical && !IsInsideViewport(position))
             {
                 var location = parentMap.MapProjection.MapToLocation(center);
                 location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
@@ -209,7 +209,7 @@ namespace MapControl
 
                     if (GetAutoCollapse(element))
                     {
-                        if (position.HasValue && !IsVisible(position.Value))
+                        if (position.HasValue && !IsInsideViewport(position.Value))
                         {
                             element.SetValue(VisibilityProperty, Visibility.Collapsed);
                         }
@@ -242,7 +242,7 @@ namespace MapControl
             return finalSize;
         }
 
-        private bool IsVisible(Point point)
+        private bool IsInsideViewport(Point point)
         {
             return point.X >= 0d && point.X <= parentMap.RenderSize.Width
                 && point.Y >= 0d && point.Y <= parentMap.RenderSize.Height;
