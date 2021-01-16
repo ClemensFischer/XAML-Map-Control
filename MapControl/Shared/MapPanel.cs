@@ -18,7 +18,7 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Optional interface to hold the value of the MapPanel.ParentMap attached property.
+    /// Optional interface to hold the value of the attached property MapPanel.ParentMap.
     /// </summary>
     public interface IMapElement
     {

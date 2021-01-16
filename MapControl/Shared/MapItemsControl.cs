@@ -34,7 +34,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Wrapper for the MapPanel.AutoCollapse attached property.
+        /// Gets/sets MapPanel.AutoCollapse.
         /// </summary>
         public bool AutoCollapse
         {
@@ -43,7 +43,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Wrapper for the MapPanel.Location attached property.
+        /// Gets/sets MapPanel.Location.
         /// </summary>
         public Location Location
         {

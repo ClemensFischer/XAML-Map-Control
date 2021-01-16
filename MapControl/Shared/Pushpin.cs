@@ -20,11 +20,11 @@ namespace MapControl
 #if WINDOWS_UWP
         public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.Register(
             nameof(AutoCollapse), typeof(bool), typeof(Pushpin),
-            new PropertyMetadata(false, (o, e) => MapPanel.SetAutoCollapse((FrameworkElement)o, (bool)e.NewValue)));
+            new PropertyMetadata(false, (o, e) => MapPanel.SetAutoCollapse((Pushpin)o, (bool)e.NewValue)));
 
         public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
             nameof(Location), typeof(Location), typeof(Pushpin),
-            new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((FrameworkElement)o, (Location)e.NewValue)));
+            new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((Pushpin)o, (Location)e.NewValue)));
 #else
         public static readonly DependencyProperty AutoCollapseProperty = MapPanel.AutoCollapseProperty.AddOwner(typeof(Pushpin));
 
@@ -38,7 +38,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Wrapper for the MapPanel.AutoCollapse attached property.
+        /// Gets/sets MapPanel.AutoCollapse.
         /// </summary>
         public bool AutoCollapse
         {
@@ -47,7 +47,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Wrapper for the MapPanel.Location attached property.
+        /// Gets/sets MapPanel.Location.
         /// </summary>
         public Location Location
         {

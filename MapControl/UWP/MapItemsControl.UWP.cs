@@ -13,11 +13,11 @@ namespace MapControl
     {
         public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.Register(
             nameof(AutoCollapse), typeof(bool), typeof(MapItem),
-            new PropertyMetadata(false, (o, e) => MapPanel.SetAutoCollapse((FrameworkElement)o, (bool)e.NewValue)));
+            new PropertyMetadata(false, (o, e) => MapPanel.SetAutoCollapse((MapItem)o, (bool)e.NewValue)));
 
         public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
             nameof(Location), typeof(Location), typeof(MapItem),
-            new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((FrameworkElement)o, (Location)e.NewValue)));
+            new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((MapItem)o, (Location)e.NewValue)));
 
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
