@@ -26,13 +26,6 @@ namespace MapControl
             new PropertyMetadata(null, (o, e) => BindingOperations.SetBinding(
                 o, LocationProperty, new Binding { Path = new PropertyPath((string)e.NewValue) })));
 
-        public MapItem()
-        {
-            DefaultStyleKey = typeof(MapItem);
-
-            MapPanel.InitMapElement(this);
-        }
-
         /// <summary>
         /// Gets/sets MapPanel.AutoCollapse.
         /// </summary>
@@ -66,13 +59,6 @@ namespace MapControl
     /// </summary>
     public partial class MapItemsControl : ListBox
     {
-        public MapItemsControl()
-        {
-            DefaultStyleKey = typeof(MapItemsControl);
-
-            MapPanel.InitMapElement(this);
-        }
-
         protected override DependencyObject GetContainerForItemOverride()
         {
             return new MapItem();

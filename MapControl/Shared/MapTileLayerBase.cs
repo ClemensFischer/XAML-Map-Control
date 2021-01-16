@@ -61,7 +61,9 @@ namespace MapControl
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => Update(false);
 
+#if WINDOWS_UWP
             MapPanel.InitMapElement(this);
+#endif
         }
 
         public ITileImageLoader TileImageLoader { get; }

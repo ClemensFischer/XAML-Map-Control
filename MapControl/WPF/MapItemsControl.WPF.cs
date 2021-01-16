@@ -15,6 +15,11 @@ namespace MapControl
 
         public static readonly DependencyProperty LocationProperty = MapPanel.LocationProperty.AddOwner(typeof(MapItem));
 
+        static MapItem()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
+        }
+
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.OnItemClicked(
@@ -24,6 +29,11 @@ namespace MapControl
 
     public partial class MapItemsControl
     {
+        static MapItemsControl()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItemsControl), new FrameworkPropertyMetadata(typeof(MapItemsControl)));
+        }
+
         public FrameworkElement ContainerFromItem(object item)
         {
             return (FrameworkElement)ItemContainerGenerator.ContainerFromItem(item);

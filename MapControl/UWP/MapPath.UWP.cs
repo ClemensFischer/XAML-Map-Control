@@ -14,6 +14,11 @@ namespace MapControl
 {
     public partial class MapPath : Path
     {
+        public MapPath()
+        {
+            MapPanel.InitMapElement(this);
+        }
+
         #region Methods used only by derived classes MapPolyline and MapPolygon
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)

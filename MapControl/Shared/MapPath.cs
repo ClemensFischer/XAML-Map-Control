@@ -24,11 +24,6 @@ namespace MapControl
 
         private MapBase parentMap;
 
-        public MapPath()
-        {
-            MapPanel.InitMapElement(this);
-        }
-
         /// <summary>
         /// Gets or sets a Location that is used as
         /// - either the origin point of a geometry specified in cartesian map units (meters)

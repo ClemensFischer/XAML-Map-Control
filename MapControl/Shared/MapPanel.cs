@@ -42,11 +42,6 @@ namespace MapControl
             set { SetParentMap(value); }
         }
 
-        public MapPanel()
-        {
-            InitMapElement(this);
-        }
-
         /// <summary>
         /// Gets a value that controls whether an element's Visibility is automatically
         /// set to Collapsed when it is located outside the visible viewport area.

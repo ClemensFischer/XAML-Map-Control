@@ -131,9 +131,6 @@
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\Pushpin.cs">
-      <Link>Pushpin.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\StereographicProjection.cs">
       <Link>StereographicProjection.cs</Link>
     </Compile>
@@ -198,6 +195,7 @@
     <Compile Include="Matrix.UWP.cs" />
     <Compile Include="Point.UWP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Pushpin.cs" />
     <Compile Include="Tile.UWP.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />
     <Compile Include="ImageLoader.UWP.cs" />

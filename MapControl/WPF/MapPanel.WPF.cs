@@ -26,17 +26,17 @@ namespace MapControl
         public static readonly DependencyProperty ParentMapProperty = ParentMapPropertyKey.DependencyProperty;
         public static readonly DependencyProperty ViewPositionProperty = ViewPositionPropertyKey.DependencyProperty;
 
+        public MapPanel()
+        {
+            if (this is MapBase)
+            {
+                SetValue(ParentMapPropertyKey, this);
+            }
+        }
+
         public static MapBase GetParentMap(FrameworkElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);
-        }
-
-        public static void InitMapElement(FrameworkElement element)
-        {
-            if (element is MapBase)
-            {
-                element.SetValue(ParentMapPropertyKey, element);
-            }
         }
 
         private static void SetViewPosition(FrameworkElement element, Point? viewPosition)

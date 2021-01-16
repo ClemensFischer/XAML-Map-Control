@@ -23,6 +23,11 @@ namespace MapControl
         private static readonly DependencyProperty ViewPositionProperty = DependencyProperty.RegisterAttached(
             "ViewPosition", typeof(Point?), typeof(MapPanel), new PropertyMetadata(null));
 
+        public MapPanel()
+        {
+            InitMapElement(this);
+        }
+
         public static void InitMapElement(FrameworkElement element)
         {
             if (element is MapBase)
@@ -31,7 +36,7 @@ namespace MapControl
             }
             else
             {
-                // Workaround for missing property value inheritance in Windows Runtime.
+                // Workaround for missing property value inheritance in UWP.
                 // Loaded and Unloaded handlers set and clear the ParentMap property value.
 
                 element.Loaded += (s, e) => GetParentMap(element);

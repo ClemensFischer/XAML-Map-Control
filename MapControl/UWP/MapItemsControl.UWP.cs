@@ -19,6 +19,12 @@ namespace MapControl
             nameof(Location), typeof(Location), typeof(MapItem),
             new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((MapItem)o, (Location)e.NewValue)));
 
+        public MapItem()
+        {
+            DefaultStyleKey = typeof(MapItem);
+            MapPanel.InitMapElement(this);
+        }
+
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.OnItemClicked(
@@ -28,6 +34,12 @@ namespace MapControl
 
     public partial class MapItemsControl
     {
+        public MapItemsControl()
+        {
+            DefaultStyleKey = typeof(MapItemsControl);
+            MapPanel.InitMapElement(this);
+        }
+
         public new FrameworkElement ContainerFromItem(object item)
         {
             return (FrameworkElement)base.ContainerFromItem(item);
