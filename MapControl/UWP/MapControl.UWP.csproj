@@ -185,7 +185,7 @@
     <Compile Include="..\Shared\WorldMercatorProjection.cs">
       <Link>WorldMercatorProjection.cs</Link>
     </Compile>
-    <Compile Include="AnimatableEx.UWP.cs" />
+    <Compile Include="Animatable.UWP.cs" />
     <Compile Include="ImageCache.UWP.cs" />
     <Compile Include="ImageFileCache.UWP.cs" />
     <Compile Include="Map.UWP.cs" />
