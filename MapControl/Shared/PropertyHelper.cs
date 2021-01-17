@@ -12,7 +12,7 @@ using System.Windows.Data;
 
 namespace MapControl
 {
-    public static class PropertyHelper
+    internal static class PropertyHelper
     {
         public static Binding GetBinding(this object sourceObject, string sourceProperty)
         {
