@@ -4,12 +4,9 @@
 
 #if WINDOWS_UWP
 using Windows.UI.Text;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Media;
 #endif
 
@@ -108,11 +105,6 @@ namespace MapControl
         {
             get { return (double)GetValue(StrokeMiterLimitProperty); }
             set { SetValue(StrokeMiterLimitProperty, value); }
-        }
-
-        protected Binding GetBinding(string propertyName)
-        {
-            return new Binding { Source = this, Path = new PropertyPath(propertyName) };
         }
     }
 }

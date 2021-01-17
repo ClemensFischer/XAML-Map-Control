@@ -4,7 +4,6 @@
 
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
 
 namespace MapControl
 {
@@ -49,24 +48,13 @@ namespace MapControl
         {
             base.OnApplyTemplate();
 
-            var map = MapPanel.GetParentMap(this);
+            var parentMap = MapPanel.GetParentMap(this);
 
-            if (map != null)
+            if (parentMap != null)
             {
-                if (Background == null)
-                {
-                    SetBinding(BackgroundProperty, new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Background)) });
-                }
-
-                if (BorderBrush == null)
-                {
-                    SetBinding(BorderBrushProperty, new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
-                }
-
-                if (Foreground == null)
-                {
-                    SetBinding(ForegroundProperty, new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
-                }
+                this.ValidateProperty(BackgroundProperty, parentMap, nameof(MapBase.Background));
+                this.ValidateProperty(BorderBrushProperty, parentMap, nameof(MapBase.Foreground));
+                this.ValidateProperty(ForegroundProperty, parentMap, nameof(MapBase.Foreground));
             }
         }
     }

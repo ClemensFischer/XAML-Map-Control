@@ -131,6 +131,9 @@
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\PropertyHelper.cs">
+      <Link>PropertyHelper.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\StereographicProjection.cs">
       <Link>StereographicProjection.cs</Link>
     </Compile>

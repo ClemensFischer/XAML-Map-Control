@@ -4,7 +4,6 @@
 
 using Windows.UI.Text;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
 namespace MapControl
@@ -65,15 +64,8 @@ namespace MapControl
         {
             if (map != null)
             {
-                if (Foreground == null)
-                {
-                    SetBinding(ForegroundProperty, new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
-                }
-
-                if (Stroke == null)
-                {
-                    SetBinding(StrokeProperty, GetBinding(nameof(Foreground)));
-                }
+                this.ValidateProperty(ForegroundProperty, map, nameof(MapBase.Foreground));
+                this.ValidateProperty(StrokeProperty, this, nameof(Foreground));
             }
 
             base.SetParentMap(map);

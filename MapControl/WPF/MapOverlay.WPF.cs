@@ -65,11 +65,7 @@ namespace MapControl
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-
-            if (Stroke == null)
-            {
-                SetBinding(StrokeProperty, GetBinding(nameof(Foreground)));
-            }
+            this.ValidateProperty(StrokeProperty, this, nameof(Foreground));
         }
 
         public Pen CreatePen()

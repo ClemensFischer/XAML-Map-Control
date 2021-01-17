@@ -30,6 +30,20 @@ namespace MapControl
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.OnItemClicked(
                 this, e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control), e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift));
         }
+
+        protected override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            var parentMap = MapPanel.GetParentMap(this);
+
+            if (parentMap != null)
+            {
+                this.ValidateProperty(BackgroundProperty, parentMap, nameof(MapBase.Background));
+                this.ValidateProperty(BorderBrushProperty, parentMap, nameof(MapBase.Foreground));
+                this.ValidateProperty(ForegroundProperty, parentMap, nameof(MapBase.Foreground));
+            }
+        }
     }
 
     public partial class MapItemsControl
