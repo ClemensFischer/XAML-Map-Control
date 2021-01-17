@@ -110,10 +110,9 @@ namespace MapControl
             set { SetValue(StrokeMiterLimitProperty, value); }
         }
 
-        protected Binding GetBinding(DependencyProperty property, string propertyName)
+        protected Binding GetBinding(string propertyName)
         {
-            return GetBindingExpression(property)?.ParentBinding ??
-                new Binding { Source = this, Path = new PropertyPath(propertyName) };
+            return new Binding { Source = this, Path = new PropertyPath(propertyName) };
         }
     }
 }

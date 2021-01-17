@@ -67,14 +67,12 @@ namespace MapControl
             {
                 if (Foreground == null)
                 {
-                    SetBinding(ForegroundProperty,
-                        map.GetBindingExpression(MapBase.ForegroundProperty)?.ParentBinding ??
-                        new Binding { Source = map, Path = new PropertyPath("Foreground") });
+                    SetBinding(ForegroundProperty, new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
                 }
 
                 if (Stroke == null)
                 {
-                    SetBinding(StrokeProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
+                    SetBinding(StrokeProperty, GetBinding(nameof(Foreground)));
                 }
             }
 

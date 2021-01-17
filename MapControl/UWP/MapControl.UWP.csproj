@@ -195,7 +195,7 @@
     <Compile Include="Matrix.UWP.cs" />
     <Compile Include="Point.UWP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Pushpin.cs" />
+    <Compile Include="MapContentControl.UWP.cs" />
     <Compile Include="Tile.UWP.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />
     <Compile Include="ImageLoader.UWP.cs" />

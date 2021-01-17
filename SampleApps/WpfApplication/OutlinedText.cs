@@ -117,9 +117,8 @@ namespace WpfApplication
                 }
 
                 var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
-                GlyphTypeface glyphTypeface;
 
-                if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
+                if (!typeface.TryGetGlyphTypeface(out GlyphTypeface glyphTypeface))
                 {
                     return false;
                 }

@@ -12,8 +12,7 @@ namespace MapControl
     public partial class MapBase
     {
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
-            nameof(Foreground), typeof(Brush), typeof(MapBase),
-            new PropertyMetadata(new SolidColorBrush(Colors.Black)));
+            nameof(Foreground), typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Black)));
 
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
             nameof(Center), typeof(Location), typeof(MapBase),
@@ -50,7 +49,7 @@ namespace MapControl
         {
             // set Background by Style to enable resetting by ClearValue in MapLayerPropertyChanged
             var style = new Style(typeof(MapBase));
-            style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.Transparent)));
+            style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.White)));
             Style = style;
 
             SizeChanged += (s, e) =>

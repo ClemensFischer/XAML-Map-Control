@@ -25,7 +25,6 @@
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
             <Setter Property="AutoCollapse" Value="True"/>
             <Setter Property="Location" Value="{Binding Location}"/>
-            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
@@ -36,7 +35,9 @@
                                     <VisualState x:Name="Disabled"/>
                                     <VisualState x:Name="MouseOver">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="labelBackground" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="hoverPath"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0.7" Duration="0:0:0.1"/>
                                         </Storyboard>
                                     </VisualState>
                                 </VisualStateGroup>
@@ -44,27 +45,31 @@
                                     <VisualState x:Name="Unselected"/>
                                     <VisualState x:Name="Selected">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="selectedPath"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0.7" Duration="0:0:0.1"/>
                                         </Storyboard>
                                     </VisualState>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
                             <Path x:Name="selectedPath" Fill="White" Opacity="0">
                                 <Path.Data>
-                                    <EllipseGeometry RadiusX="15" RadiusY="15"/>
+                                    <EllipseGeometry RadiusX="12" RadiusY="12"/>
                                 </Path.Data>
                             </Path>
-                            <Path StrokeThickness="2" Fill="Transparent">
-                                <Path.Stroke>
-                                    <SolidColorBrush Color="Gray"/>
-                                </Path.Stroke>
+                            <Path x:Name="hoverPath" StrokeThickness="6" Stroke="White" Opacity="0">
+                                <Path.Data>
+                                    <EllipseGeometry RadiusX="8" RadiusY="8"/>
+                                </Path.Data>
+                            </Path>
+                            <Path StrokeThickness="2" Stroke="Gray" Fill="Transparent">
                                 <Path.Data>
                                     <EllipseGeometry RadiusX="8" RadiusY="8"/>
                                 </Path.Data>
                             </Path>
                             <Grid Canvas.Left="15" Canvas.Top="-8">
-                                <Rectangle x:Name="labelBackground" Fill="White" Opacity="0"/>
-                                <local:OutlinedText Margin="1" OutlineThickness="1.5" Text="{Binding Name}"/>
+                                <local:OutlinedText Margin="1" OutlineThickness="1.5" Text="{Binding Name}"
+                                                    Background="{Binding Background, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
                             </Grid>
                         </Canvas>
                     </ControlTemplate>
@@ -82,11 +87,10 @@
             <Setter Property="AutoCollapse" Value="True"/>
             <Setter Property="Location" Value="{Binding Location}"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
-            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
-                        <map:Pushpin Content="{Binding Name}" Foreground="{TemplateBinding Foreground}"/>
+                        <map:Pushpin Content="{Binding Name}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -156,7 +160,7 @@
                 </map:MapPath.Data>
             </map:MapPath>
 
-            <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Background="Yellow" Foreground="Blue" Content="N 53°30' E 8°12'"/>
+            <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF">

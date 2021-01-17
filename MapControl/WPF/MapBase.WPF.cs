@@ -55,7 +55,7 @@ namespace MapControl
         static MapBase()
         {
             ClipToBoundsProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(true));
-            BackgroundProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Transparent));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(typeof(MapBase)));
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)

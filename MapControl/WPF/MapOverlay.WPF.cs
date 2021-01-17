@@ -2,6 +2,7 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -61,18 +62,14 @@ namespace MapControl
             IsHitTestVisibleProperty.OverrideMetadata(typeof(MapOverlay), new FrameworkPropertyMetadata(false));
         }
 
-        public MapOverlay()
+        protected override void OnInitialized(EventArgs e)
         {
-            // Set Stroke Binding in a Loaded handler to allow Stroke value from a Style Setter.
-            // SetParentMap is called too early.
+            base.OnInitialized(e);
 
-            Loaded += (s, e) =>
+            if (Stroke == null)
             {
-                if (Stroke == null)
-                {
-                    SetBinding(StrokeProperty, GetBinding(ForegroundProperty, nameof(Foreground)));
-                }
-            };
+                SetBinding(StrokeProperty, GetBinding(nameof(Foreground)));
+            }
         }
 
         public Pen CreatePen()
