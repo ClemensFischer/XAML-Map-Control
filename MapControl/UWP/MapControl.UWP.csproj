@@ -50,6 +50,9 @@
     <Compile Include="..\Shared\AzimuthalProjection.cs">
       <Link>AzimuthalProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\BindingHelper.cs">
+      <Link>BindingHelper.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\BingMapsTileLayer.cs">
       <Link>BingMapsTileLayer.cs</Link>
     </Compile>
@@ -130,9 +133,6 @@
     </Compile>
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\PropertyHelper.cs">
-      <Link>PropertyHelper.cs</Link>
     </Compile>
     <Compile Include="..\Shared\StereographicProjection.cs">
       <Link>StereographicProjection.cs</Link>
