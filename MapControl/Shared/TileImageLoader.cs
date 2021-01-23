@@ -13,6 +13,16 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
+#if NETFRAMEWORK
+    static class ConcurrentQueueEx
+    {
+        public static void Clear<T>(this ConcurrentQueue<T> tileQueue)
+        {
+            while (tileQueue.TryDequeue(out _)) ;
+        }
+    }
+#endif
+
     /// <summary>
     /// Loads and optionally caches map tile images for a MapTileLayer.
     /// </summary>
@@ -35,21 +45,7 @@ namespace MapControl
         /// </summary>
         public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
 
-
-        private class TileQueue : ConcurrentStack<Tile>
-        {
-            public void Enqueue(IEnumerable<Tile> tiles)
-            {
-                PushRange(tiles.Reverse().ToArray());
-            }
-
-            public bool TryDequeue(out Tile tile)
-            {
-                return TryPop(out tile);
-            }
-        }
-
-        private readonly TileQueue tileQueue = new TileQueue();
+        private readonly ConcurrentQueue<Tile> tileQueue = new ConcurrentQueue<Tile>();
         private TileSource tileSource;
         private string cacheName;
         private int taskCount;
@@ -70,12 +66,18 @@ namespace MapControl
 
             if (tiles.Any() && tileSource != null)
             {
-                if (Cache != null && tileSource.UriFormat != null && tileSource.UriFormat.StartsWith("http"))
+                if (!string.IsNullOrEmpty(cache) &&
+                    Cache != null &&
+                    tileSource.UriFormat != null &&
+                    tileSource.UriFormat.StartsWith("http"))
                 {
                     cacheName = cache;
                 }
 
-                tileQueue.Enqueue(tiles);
+                foreach (var tile in tiles)
+                {
+                    tileQueue.Enqueue(tile);
+                }
 
                 while (taskCount < Math.Min(tileQueue.Count, MaxLoadTasks))
                 {
@@ -98,14 +100,7 @@ namespace MapControl
 
                 try
                 {
-                    if (string.IsNullOrEmpty(cache))
-                    {
-                        await LoadTileAsync(tile, source).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await LoadCachedTileAsync(tile, source, cache).ConfigureAwait(false);
-                    }
+                    await LoadTileAsync(tile, source, cache).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -116,22 +111,29 @@ namespace MapControl
             Interlocked.Decrement(ref taskCount);
         }
 
-        private static async Task LoadCachedTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        private static async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
-            var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-
-            if (uri != null)
+            if (cacheName == null)
             {
-                var extension = Path.GetExtension(uri.LocalPath);
+                await LoadTileAsync(tile, tileSource).ConfigureAwait(false);
+            }
+            else
+            {
+                var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-                if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                if (uri != null)
                 {
-                    extension = ".jpg";
+                    var extension = Path.GetExtension(uri.LocalPath);
+
+                    if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                    {
+                        extension = ".jpg";
+                    }
+
+                    var cacheKey = string.Format("{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+
+                    await LoadCachedTileAsync(tile, uri, cacheKey).ConfigureAwait(false);
                 }
-
-                var cacheKey = string.Format("{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-
-                await LoadCachedTileAsync(tile, uri, cacheKey).ConfigureAwait(false);
             }
         }
 
