@@ -63,13 +63,18 @@ namespace MapControl
         {
             tileQueue.Clear();
 
-            tileSource = source;
-            cacheName = Cache != null && (bool)source.UriFormat?.StartsWith("http") ? cache : null;
-
             tiles = tiles.Where(tile => tile.Pending);
+
+            tileSource = source;
+            cacheName = null;
 
             if (tiles.Any() && tileSource != null)
             {
+                if (Cache != null && tileSource.UriFormat != null && tileSource.UriFormat.StartsWith("http"))
+                {
+                    cacheName = cache;
+                }
+
                 tileQueue.Enqueue(tiles);
 
                 while (taskCount < Math.Min(tileQueue.Count, MaxLoadTasks))
