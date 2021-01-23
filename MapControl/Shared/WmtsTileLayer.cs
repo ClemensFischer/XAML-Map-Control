@@ -154,6 +154,7 @@ namespace MapControl
         private void UpdateTiles(WmtsTileMatrixSet tileMatrixSet)
         {
             var tiles = new List<Tile>();
+            var cacheName = SourceName;
 
             foreach (var layer in ChildLayers)
             {
@@ -161,14 +162,11 @@ namespace MapControl
                 tiles.AddRange(layer.Tiles);
             }
 
-            var tileSource = TileSource as WmtsTileSource;
-            var cacheName = SourceName;
-
-            if (tileSource != null && tileMatrixSet != null)
+            if (tileMatrixSet != null && TileSource is WmtsTileSource tileSource)
             {
                 tileSource.TileMatrixSet = tileMatrixSet;
 
-                if (cacheName != null)
+                if (!string.IsNullOrEmpty(cacheName))
                 {
                     cacheName += "/" + tileMatrixSet.Identifier
                         .Replace(':', '_')
