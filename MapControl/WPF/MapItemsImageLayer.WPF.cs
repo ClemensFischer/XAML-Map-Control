@@ -42,42 +42,38 @@ namespace MapControl
             return image;
         }
 
-        private ImageSource GetImage(MapProjection projection, IEnumerable<IMapDrawingItem> items)
+        private DrawingImage GetImage(MapProjection projection, IEnumerable<IMapDrawingItem> items)
         {
             var scale = ParentMap.ViewTransform.Scale;
             var rotation = ParentMap.ViewTransform.Rotation;
             var mapRect = projection.BoundingBoxToRect(BoundingBox);
-            var imageRect = new Rect(0, 0, scale * mapRect.Width, scale * mapRect.Height);
             var drawings = new DrawingGroup();
 
             foreach (var item in items)
             {
-                var positions = item.Locations.Select(l => projection.LocationToMap(l)).ToList();
+                var positions = item.Locations.Select(l => projection.LocationToMap(l)).ToArray();
 
                 if (positions.Any(p => mapRect.Contains(p)))
                 {
-                    for (int i = 0; i < positions.Count; i++)
+                    for (int i = 0; i < positions.Length; i++)
                     {
-                        positions[i] = new Point(scale * (positions[i].X - mapRect.X),
-                              imageRect.Height - scale * (positions[i].Y - mapRect.Y));
+                        positions[i] = new Point(
+                            scale * (positions[i].X - mapRect.X),
+                            scale * (mapRect.Height + mapRect.Y - positions[i].Y));
                     }
 
                     drawings.Children.Add(item.GetDrawing(positions, scale, rotation));
                 }
             }
 
-            var drawingBrush = new DrawingBrush
+            var drawingBrush = new DrawingBrush(drawings)
             {
-                Drawing = drawings,
                 ViewboxUnits = BrushMappingMode.Absolute,
-                Viewbox = imageRect,
+                Viewbox = new Rect(0, 0, scale * mapRect.Width, scale * mapRect.Height),
             };
 
-            var drawing = new GeometryDrawing
-            {
-                Geometry = new RectangleGeometry(imageRect),
-                Brush = drawingBrush
-            };
+            var drawing = new GeometryDrawing(
+                drawingBrush, null, new RectangleGeometry(drawingBrush.Viewbox));
 
             var image = new DrawingImage(drawing);
             image.Freeze();
