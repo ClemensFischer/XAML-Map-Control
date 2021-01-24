@@ -186,7 +186,7 @@
                     <TextBlock Text="Heading" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
                     <Slider AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0"
                             Width="100" VerticalAlignment="Center" SmallChange="5" LargeChange="45"
-                            Minimum="0" Maximum="360" Value="{Binding TargetHeading, ElementName=map}"/>
+                            Minimum="0" Maximum="360" Value="{Binding Heading, ElementName=map}"/>
                 </StackPanel>
                 <StackPanel Margin="5">
                     <TextBlock Text="Image Opacity" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
