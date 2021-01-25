@@ -23,8 +23,8 @@ namespace MapControl
 
                 if (UriFormat.Contains("{bbox}"))
                 {
-                    uri = new Uri(UriFormat.Replace("{bbox}", string.Format(CultureInfo.InvariantCulture,
-                        "{0:F2},{1:F2},{2:F2},{3:F2}", west, south, east, north)));
+                    uri = new Uri(UriFormat.Replace("{bbox}",
+                        string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}", west, south, east, north)));
                 }
                 else
                 {
