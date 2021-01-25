@@ -51,11 +51,11 @@ namespace MapControl
 
             foreach (var item in items)
             {
-                var positions = item.Locations.Select(l => projection.LocationToMap(l)).ToArray();
+                var positions = item.Locations.Select(l => projection.LocationToMap(l)).ToList();
 
                 if (positions.Any(p => mapRect.Contains(p)))
                 {
-                    for (int i = 0; i < positions.Length; i++)
+                    for (int i = 0; i < positions.Count; i++)
                     {
                         positions[i] = new Point(
                             scale * (positions[i].X - mapRect.X),
@@ -66,8 +66,9 @@ namespace MapControl
                 }
             }
 
-            var drawingBrush = new DrawingBrush(drawings)
+            var drawingBrush = new DrawingBrush
             {
+                Drawing = drawings,
                 ViewboxUnits = BrushMappingMode.Absolute,
                 Viewbox = new Rect(0, 0, scale * mapRect.Width, scale * mapRect.Height),
             };
