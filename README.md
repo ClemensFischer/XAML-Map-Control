@@ -2,14 +2,14 @@
 
 A set of controls for WPF and UWP for rendering digital maps from different providers and various types of map overlays.
 
-Map providers can easily be added by specifying an URL template for their map tile bitmaps. 
+Map providers can easily be added by specifying a template string for their map tile URLs. 
 Map overlay layers allow to draw and interact with graphical objects and pushpins on the map.
-The Map Control API is similar to the Microsoft Bing Maps Control for WPF, except that no API key is needed.
+The Map Control API is similar to the Microsoft Bing Maps Control for WPF, except that no API key is required.
 
 The project includes sample applications for both platforms, which demonstrate the features of XAML Map Control.
 
 Map Control supports multiple map projections. However, the MapTileLayer class only works with WebMercatorProjection.
-For other projections, an appropriate WmsImageLayer could be used.
+For other projections, an appropriate WmtsTileLayer or WmsImageLayer could be used.
 
 ---
 
