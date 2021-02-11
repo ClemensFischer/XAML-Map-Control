@@ -9,7 +9,8 @@ using System.Linq;
 namespace MapControl
 {
     /// <summary>
-    /// A collection of Locations with support for string parsing and calculation of great circle and rhumb line locations.
+    /// A collection of Locations with support for string parsing
+    /// and calculation of great circle and rhumb line locations.
     /// </summary>
 #if !WINDOWS_UWP
     [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
@@ -64,7 +65,7 @@ namespace MapControl
             if (resolution <= 0d)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(resolution), "The parameter resolution must be greater than zero.");
+                    nameof(resolution), "The resolution argument must be greater than zero.");
             }
 
             resolution *= Math.PI / 180d;
@@ -126,7 +127,7 @@ namespace MapControl
             if (resolution <= 0d)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(resolution), "The parameter resolution must be greater than zero.");
+                    nameof(resolution), "The resolution argument must be greater than zero.");
             }
 
             resolution *= Math.PI / 180d;
@@ -139,13 +140,13 @@ namespace MapControl
             if (double.IsInfinity(y1))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(location1), "The parameter location1 must have an absolute latitude value of less than 90 degrees.");
+                    nameof(location1), "The location1 argument must have an absolute latitude value of less than 90.");
             }
 
             if (double.IsInfinity(y2))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(location2), "The parameter location2 must have an absolute latitude value of less than 90 degrees.");
+                    nameof(location2), "The location2 argument must have an absolute latitude value of less than 90.");
             }
 
             var lon1 = location1.Longitude;
@@ -154,12 +155,12 @@ namespace MapControl
             var dlon = lon2 - lon1;
             var dy = y2 - y1;
 
-            // sec(beta) = 1 / cos(atan(dx,dy)) = sqrt(1 + (dx/dy)^2)
+            // sec(beta) = 1 / cos(atan(dlon,dy)) = sqrt(1 + (dlon/dy)^2)
             var sec = Math.Sqrt(1d + dlon * dlon / (dy * dy));
 
             var s12 = sec < 1000d
                 ? Math.Abs(dlat * Math.PI / 180d * sec)
-                : Math.Abs(dlon * Math.PI / 180d);
+                : Math.Abs(dlon * Math.PI / 180d * Math.Cos((lat1 + lat2) * Math.PI / 360d));
 
             var locations = new LocationCollection(new Location(lat1, lon1));
 

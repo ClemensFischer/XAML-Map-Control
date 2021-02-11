@@ -17,7 +17,7 @@ namespace MapControl.Caching
         {
             if (string.IsNullOrEmpty(path))
             {
-                throw new ArgumentException("The parameter path must not be null or empty.");
+                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
             }
 
             if (string.IsNullOrEmpty(Path.GetExtension(path)))
@@ -82,12 +82,12 @@ namespace MapControl.Caching
 
             if (key == null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new ArgumentNullException(nameof(key));
             }
 
             try
             {
-                return fileDb.GetRecordByKey(key, new string[0], false) != null;
+                return fileDb.GetRecordByKey(key, Array.Empty<string>(), false) != null;
             }
             catch (Exception ex)
             {
@@ -106,7 +106,7 @@ namespace MapControl.Caching
 
             if (key == null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new ArgumentNullException(nameof(key));
             }
 
             var record = GetRecordByKey(key);
@@ -144,12 +144,12 @@ namespace MapControl.Caching
 
             if (key == null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new ArgumentNullException(nameof(key));
             }
 
             if (!(value is ImageCacheItem imageCacheItem))
             {
-                throw new ArgumentException("The parameter value must be a MapControl.Caching.ImageCacheItem instance.");
+                throw new ArgumentException("The value argument must be a MapControl.Caching.ImageCacheItem instance.", nameof(value));
             }
 
             AddOrUpdateRecord(key, imageCacheItem.Buffer, imageCacheItem.Expiration);

@@ -34,7 +34,7 @@ namespace MapControl.Caching
         {
             if (string.IsNullOrEmpty(directory))
             {
-                throw new ArgumentException("The parameter directory must not be null or empty.");
+                throw new ArgumentException("The directory argument must not be null or empty.", nameof(directory));
             }
 
             rootDirectory = directory;
@@ -85,7 +85,7 @@ namespace MapControl.Caching
 
             if (key == null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new ArgumentNullException(nameof(key));
             }
 
             return memoryCache.Contains(key) || FindFile(key) != null;
@@ -100,7 +100,7 @@ namespace MapControl.Caching
 
             if (key == null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new ArgumentNullException(nameof(key));
             }
 
             var imageCacheItem = memoryCache.Get(key) as ImageCacheItem;
@@ -157,12 +157,12 @@ namespace MapControl.Caching
 
             if (key == null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new ArgumentNullException(nameof(key));
             }
 
             if (!(value is ImageCacheItem imageCacheItem))
             {
-                throw new ArgumentException("The parameter value must be a MapControl.Caching.ImageCacheItem instance.");
+                throw new ArgumentException("The value argument must be a MapControl.Caching.ImageCacheItem instance.", nameof(value));
             }
 
             memoryCache.Set(key, imageCacheItem, policy);
@@ -239,7 +239,7 @@ namespace MapControl.Caching
 
             if (key == null)
             {
-                throw new ArgumentNullException("The parameter key must not be null.");
+                throw new ArgumentNullException(nameof(key));
             }
 
             memoryCache.Remove(key);

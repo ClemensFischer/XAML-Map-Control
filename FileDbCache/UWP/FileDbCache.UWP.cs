@@ -17,12 +17,12 @@ namespace MapControl.Caching
         {
             if (folder == null)
             {
-                throw new ArgumentNullException("The parameter folder must not be null.");
+                throw new ArgumentNullException(nameof(folder));
             }
 
             if (string.IsNullOrEmpty(fileName))
             {
-                throw new ArgumentException("The parameter fileName must not be null or empty.");
+                throw new ArgumentException("The fileName argument must not be null or empty", nameof(fileName));
             }
 
             Open(Path.Combine(folder.Path, fileName));

@@ -39,7 +39,7 @@ namespace MapControl.Projections
             get { return coordinateSystem; }
             set
             {
-                coordinateSystem = value ?? throw new ArgumentNullException("The property value must not be null.");
+                coordinateSystem = value ?? throw new ArgumentNullException(nameof(value));
 
                 var transformFactory = new CoordinateTransformationFactory();
 

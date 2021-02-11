@@ -18,17 +18,17 @@ namespace MapControl
         {
             if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("The parameter identifier must not be null or empty.");
+                throw new ArgumentException("The identifier argument must not be null or empty.", nameof(identifier));
             }
 
             if (string.IsNullOrEmpty(supportedCrs))
             {
-                throw new ArgumentException("The parameter supportedCrs must not be null or empty.");
+                throw new ArgumentException("The supportedCrs argument must not be null or empty.", nameof(supportedCrs));
             }
 
-            if (tileMatrixes == null || tileMatrixes.Count() <= 0)
+            if (tileMatrixes == null || !tileMatrixes.Any())
             {
-                throw new ArgumentException("The parameter tileMatrixes must not be null or an empty collection.");
+                throw new ArgumentException("The tileMatrixes argument must not be null or an empty collection.", nameof(tileMatrixes));
             }
 
             Identifier = identifier;

@@ -40,7 +40,7 @@ namespace MapControl.Projections
         {
             if (zoneNumber < 1 || zoneNumber > 61)
             {
-                throw new ArgumentException("Invalid UTM zone number.");
+                throw new ArgumentException("Invalid UTM zone number.", nameof(zoneNumber));
             }
 
             var zoneName = zoneNumber.ToString() + (north ? "N" : "S");
