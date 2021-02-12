@@ -68,8 +68,6 @@ namespace MapControl
                     nameof(resolution), "The resolution argument must be greater than zero.");
             }
 
-            resolution *= Math.PI / 180d;
-
             var lat1 = location1.Latitude * Math.PI / 180d;
             var lon1 = location1.Longitude * Math.PI / 180d;
             var lat2 = location2.Latitude * Math.PI / 180d;
@@ -87,7 +85,9 @@ namespace MapControl
 
             var locations = new LocationCollection(new Location(location1.Latitude, location1.Longitude));
 
-            if (s12 > resolution)
+            resolution *= Math.PI / 180d;
+
+            if (s12 > resolution) // s12 and resolution in radians
             {
                 var n = (int)Math.Round(s12 / resolution);
 
@@ -102,13 +102,13 @@ namespace MapControl
                 var s01 = Math.Atan2(sinLat1, cosLat1 * cosAz1);
                 var lon0 = lon1 - Math.Atan2(sinAz0 * Math.Sin(s01), Math.Cos(s01));
 
-                for (int i = 1; i < n; i++)
+                for (var i = 1; i < n; i++)
                 {
-                    double s = s01 + i * s12 / n;
-                    double sinS = Math.Sin(s);
-                    double cosS = Math.Cos(s);
-                    double lat = Math.Atan2(cosAz0 * sinS, Math.Sqrt(cosS * cosS + sinAz0 * sinAz0 * sinS * sinS));
-                    double lon = Math.Atan2(sinAz0 * sinS, cosS) + lon0;
+                    var s = s01 + i * s12 / n;
+                    var sinS = Math.Sin(s);
+                    var cosS = Math.Cos(s);
+                    var lat = Math.Atan2(cosAz0 * sinS, Math.Sqrt(cosS * cosS + sinAz0 * sinAz0 * sinS * sinS));
+                    var lon = Math.Atan2(sinAz0 * sinS, cosS) + lon0;
 
                     locations.Add(lat * 180d / Math.PI, lon * 180d / Math.PI);
                 }
@@ -129,8 +129,6 @@ namespace MapControl
                 throw new ArgumentOutOfRangeException(
                     nameof(resolution), "The resolution argument must be greater than zero.");
             }
-
-            resolution *= Math.PI / 180d;
 
             var lat1 = location1.Latitude;
             var lat2 = location2.Latitude;
@@ -154,26 +152,45 @@ namespace MapControl
             var dlat = lat2 - lat1;
             var dlon = lon2 - lon1;
             var dy = y2 - y1;
+            double s12;
 
             // sec(beta) = 1 / cos(atan(dlon,dy)) = sqrt(1 + (dlon/dy)^2)
             var sec = Math.Sqrt(1d + dlon * dlon / (dy * dy));
 
-            var s12 = sec < 1000d
-                ? Math.Abs(dlat * Math.PI / 180d * sec)
-                : Math.Abs(dlon * Math.PI / 180d * Math.Cos((lat1 + lat2) * Math.PI / 360d));
+            if (sec > 1000d) // beta near +/-90°
+            {
+                var lat = (lat1 + lat2) * Math.PI / 360d;
+
+                s12 = Math.Abs(dlon * Math.Cos(lat));
+            }
+            else
+            {
+                s12 = Math.Abs(dlat * sec);
+            }
 
             var locations = new LocationCollection(new Location(lat1, lon1));
 
-            if (s12 > resolution)
+            if (s12 > resolution) // s12 and resolution in degress
             {
                 var n = (int)Math.Round(s12 / resolution);
 
-                for (int i = 1; i < n; i++)
+                if (sec > 1000d)
                 {
-                    double lon = lon1 + i * dlon / n;
-                    double lat = WebMercatorProjection.YToLatitude(y1 + i * dy / n);
-
-                    locations.Add(lat, lon);
+                    for (var i = 1; i < n; i++)
+                    {
+                        var lon = lon1 + i * dlon / n;
+                        var lat = WebMercatorProjection.YToLatitude(y1 + i * dy / n);
+                        locations.Add(lat, lon);
+                    }
+                }
+                else
+                {
+                    for (var i = 1; i < n; i++)
+                    {
+                        var lat = lat1 + i * dlat / n;
+                        var lon = lon1 + dlon * (WebMercatorProjection.LatitudeToY(lat) - y1) / dy;
+                        locations.Add(lat, lon);
+                    }
                 }
             }
 
