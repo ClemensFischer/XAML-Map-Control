@@ -58,9 +58,12 @@ namespace MapControl
         }
 
         /// <summary>
-        /// see https://en.wikipedia.org/wiki/Great-circle_navigation
+        /// Calculates a series of Locations on a great circle, or orthodrome, that connects the two specified Locations,
+        /// with an optional angular resolution specified in degrees.
+        ///
+        /// See https://en.wikipedia.org/wiki/Great-circle_navigation
         /// </summary>
-        public static LocationCollection CalculateGreatCircleLocations(Location location1, Location location2, double resolution = 1d)
+        public static LocationCollection OrthodromeLocations(Location location1, Location location2, double resolution = 1d)
         {
             if (resolution <= 0d)
             {
@@ -72,6 +75,7 @@ namespace MapControl
             var lon1 = location1.Longitude * Math.PI / 180d;
             var lat2 = location2.Latitude * Math.PI / 180d;
             var lon2 = location2.Longitude * Math.PI / 180d;
+
             var cosLat1 = Math.Cos(lat1);
             var sinLat1 = Math.Sin(lat1);
             var cosLat2 = Math.Cos(lat2);
@@ -83,14 +87,12 @@ namespace MapControl
             var b = cosLat2 * sinLon12;
             var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12);
 
+            var n = (int)Math.Ceiling(s12 / resolution * 180d / Math.PI); // s12 in radians
+
             var locations = new LocationCollection(new Location(location1.Latitude, location1.Longitude));
 
-            resolution *= Math.PI / 180d;
-
-            if (s12 > resolution) // s12 and resolution in radians
+            if (n > 1)
             {
-                var n = (int)Math.Round(s12 / resolution);
-
                 var az1 = Math.Atan2(sinLon12, cosLat1 * sinLat2 / cosLat2 - sinLat1 * cosLon12);
                 var cosAz1 = Math.Cos(az1);
                 var sinAz1 = Math.Sin(az1);
@@ -120,9 +122,12 @@ namespace MapControl
         }
 
         /// <summary>
-        /// see https://en.wikipedia.org/wiki/Rhumb_line
+        /// Calculates a series of Locations on a rhumb line, or loxodrome, that connects the two specified Locations,
+        /// with an optional angular resolution specified in degrees.
+        ///
+        /// See https://en.wikipedia.org/wiki/Rhumb_line
         /// </summary>
-        public static LocationCollection CalculateRhumbLineLocations(Location location1, Location location2, double resolution = 1d)
+        public static LocationCollection LoxodromeLocations(Location location1, Location location2, double resolution = 1d)
         {
             if (resolution <= 0d)
             {
@@ -131,7 +136,10 @@ namespace MapControl
             }
 
             var lat1 = location1.Latitude;
+            var lon1 = location1.Longitude;
             var lat2 = location2.Latitude;
+            var lon2 = location2.Longitude;
+
             var y1 = WebMercatorProjection.LatitudeToY(lat1);
             var y2 = WebMercatorProjection.LatitudeToY(lat2);
 
@@ -147,50 +155,50 @@ namespace MapControl
                     nameof(location2), "The location2 argument must have an absolute latitude value of less than 90.");
             }
 
-            var lon1 = location1.Longitude;
-            var lon2 = location2.Longitude;
             var dlat = lat2 - lat1;
             var dlon = lon2 - lon1;
             var dy = y2 - y1;
-            double s12;
 
+            // beta = atan(dlon,dy)
             // sec(beta) = 1 / cos(atan(dlon,dy)) = sqrt(1 + (dlon/dy)^2)
+
             var sec = Math.Sqrt(1d + dlon * dlon / (dy * dy));
 
-            if (sec > 1000d) // beta near +/-90°
-            {
-                var lat = (lat1 + lat2) * Math.PI / 360d;
+            const double secLimit = 1000d; // beta approximately +/-90°
 
-                s12 = Math.Abs(dlon * Math.Cos(lat));
+            double s12;
+
+            if (sec > secLimit)
+            {
+                var lat = (lat1 + lat2) * Math.PI / 360d; // mean latitude
+
+                s12 = Math.Abs(dlon * Math.Cos(lat)); // distance in degrees along parallel of latitude
             }
             else
             {
-                s12 = Math.Abs(dlat * sec);
+                s12 = Math.Abs(dlat * sec); // distance in degrees along loxodrome
             }
+
+            var n = (int)Math.Ceiling(s12 / resolution);
 
             var locations = new LocationCollection(new Location(lat1, lon1));
 
-            if (s12 > resolution) // s12 and resolution in degress
+            if (sec > secLimit)
             {
-                var n = (int)Math.Round(s12 / resolution);
-
-                if (sec > 1000d)
+                for (var i = 1; i < n; i++)
                 {
-                    for (var i = 1; i < n; i++)
-                    {
-                        var lon = lon1 + i * dlon / n;
-                        var lat = WebMercatorProjection.YToLatitude(y1 + i * dy / n);
-                        locations.Add(lat, lon);
-                    }
+                    var lon = lon1 + i * dlon / n;
+                    var lat = WebMercatorProjection.YToLatitude(y1 + i * dy / n);
+                    locations.Add(lat, lon);
                 }
-                else
+            }
+            else
+            {
+                for (var i = 1; i < n; i++)
                 {
-                    for (var i = 1; i < n; i++)
-                    {
-                        var lat = lat1 + i * dlat / n;
-                        var lon = lon1 + dlon * (WebMercatorProjection.LatitudeToY(lat) - y1) / dy;
-                        locations.Add(lat, lon);
-                    }
+                    var lat = lat1 + i * dlat / n;
+                    var lon = lon1 + dlon * (WebMercatorProjection.LatitudeToY(lat) - y1) / dy;
+                    locations.Add(lat, lon);
                 }
             }
 
