@@ -50,7 +50,7 @@ namespace MapControl
                     {
                         try
                         {
-                            Process.Start(e.Uri.ToString());
+                            Process.Start(new ProcessStartInfo(e.Uri.ToString()) { UseShellExecute = true });
                         }
                         catch (Exception ex)
                         {
