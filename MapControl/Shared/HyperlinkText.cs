@@ -20,7 +20,7 @@ namespace MapControl
 {
     public static class HyperlinkText
     {
-        private static Regex regex = new Regex(@"\[([^\]]+)\]\(([^\)]+)\)");
+        private static readonly Regex regex = new Regex(@"\[([^\]]+)\]\(([^\)]+)\)");
 
         /// <summary>
         /// Converts text containing hyperlinks in markdown syntax [text](url)
@@ -87,13 +87,13 @@ namespace MapControl
         {
             InlineCollection inlines = null;
 
-            if (obj is TextBlock)
+            if (obj is TextBlock block)
             {
-                inlines = ((TextBlock)obj).Inlines;
+                inlines = block.Inlines;
             }
-            else if (obj is Paragraph)
+            else if (obj is Paragraph paragraph)
             {
-                inlines = ((Paragraph)obj).Inlines;
+                inlines = paragraph.Inlines;
             }
 
             if (inlines != null)
