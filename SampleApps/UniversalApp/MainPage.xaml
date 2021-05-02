@@ -114,7 +114,9 @@
                 </map:MapPanel.BoundingBox>
             </Image>
 
-            <map:MapGraticule x:Name="mapGraticule" Opacity="0.6"/>
+            <map:MapGraticule x:Name="graticule" Opacity="0.6"
+                              Visibility="{Binding IsChecked, ElementName=graticuleCheckBox}"/>
+
             <map:MapScale HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
 
             <!-- use ItemTemplate or ItemContainerStyle alternatively -->
@@ -149,27 +151,35 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <StackPanel Margin="5">
-                    <TextBlock Text="Zoom Level" HorizontalAlignment="Center" Foreground="Gray" FontSize="14"/>
-                    <Slider Margin="10,-10,10,-10" Width="100" SmallChange="0.1"
+                    <TextBlock Text="Zoom Level" HorizontalAlignment="Center" FontSize="12"/>
+                    <Slider Margin="10,-10,10,0" Width="100" SmallChange="0.1"
                             Minimum="{Binding MinZoomLevel, ElementName=map}"
                             Maximum="{Binding MaxZoomLevel, ElementName=map}"
                             Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
                 </StackPanel>
+
                 <StackPanel Margin="5">
-                    <TextBlock Text="Heading" HorizontalAlignment="Center" Foreground="Gray" FontSize="14"/>
-                    <Slider Margin="10,-10,10,-10" Width="100" Minimum="0" Maximum="360" SmallChange="5" LargeChange="45"
+                    <TextBlock Text="Heading" HorizontalAlignment="Center" FontSize="12"/>
+                    <Slider Margin="10,-10,10,0" Width="100" Minimum="0" Maximum="360" SmallChange="5" LargeChange="45"
                             Value="{Binding Heading, ElementName=map, Mode=TwoWay}"/>
                 </StackPanel>
-                <StackPanel Margin="5">
-                    <TextBlock Text="Image Opacity" HorizontalAlignment="Center" Foreground="Gray" FontSize="14"/>
-                    <Slider Margin="10,-10,10,-10" Width="100" Value="50" ValueChanged="ImageOpacitySliderValueChanged"/>
+
+                <StackPanel Margin="5,5,25,5">
+                    <TextBlock Text="Image Opacity" HorizontalAlignment="Center" FontSize="12"/>
+                    <Slider Margin="10,-10,10,0" Width="100" Value="50" ValueChanged="ImageOpacitySliderValueChanged"/>
                 </StackPanel>
-                <CheckBox Margin="10" VerticalAlignment="Center" Content="Seamarks"
+
+                <CheckBox x:Name="graticuleCheckBox"
+                          VerticalAlignment="Center" Content="Graticule"/>
+
+                <CheckBox VerticalAlignment="Center" Content="Seamarks"
                           Checked="SeamarksChecked" Unchecked="SeamarksUnchecked"/>
-                <ComboBox Width="250" Margin="10" VerticalAlignment="Center"
+
+                <ComboBox Width="250" VerticalAlignment="Center" Margin="0,5"
                           ItemsSource="{Binding MapLayers.MapLayerNames}"
                           SelectedItem="{Binding MapLayers.CurrentMapLayerName, Mode=TwoWay}"/>
-                <ComboBox x:Name="projectionComboBox" Width="150" Margin="10" VerticalAlignment="Bottom"
+
+                <ComboBox x:Name="projectionComboBox" Width="150" VerticalAlignment="Center" Margin="5"
                           SelectedIndex="0" SelectedValuePath="Tag"
                           SelectedValue="{Binding MapProjection, ElementName=map, Mode=TwoWay}">
                     <ComboBoxItem Content="Web Mercator" Tag="{StaticResource WebMercatorProjection}"/>

@@ -58,15 +58,6 @@ namespace ViewModel
                 }
             },
             {
-                "Hike & Bike",
-                new MapTileLayer
-                {
-                    TileSource = new TileSource { UriFormat = "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png" },
-                    SourceName = "HikeBike",
-                    Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
-                }
-            },
-            {
                 "Seamarks",
                 new MapTileLayer
                 {
@@ -135,7 +126,7 @@ namespace ViewModel
             {
                 "SevenCs ChartServer WMS",
                 new ChartServerLayer()
-            },
+            }
         };
 
         private string currentMapLayerName = "OpenStreetMap";
@@ -167,7 +158,6 @@ namespace ViewModel
             "OpenStreetMap German",
             "OpenStreetMap French",
             "OpenTopoMap",
-            "Hike & Bike",
             "TopPlusOpen WMTS",
             "TopPlusOpen WMS",
             "OpenStreetMap WMS",
@@ -195,7 +185,7 @@ namespace ViewModel
         public ChartServerLayer()
         {
             Description = "© [SevenCs GmbH](http://www.sevencs.com)";
-            ServiceUri = new Uri("https://wms.sevencs.com:9090");
+            ServiceUri = new Uri("http://wms.sevencs.com");
             Layers = "ENC";
             MaxBoundingBoxWidth = 360;
         }

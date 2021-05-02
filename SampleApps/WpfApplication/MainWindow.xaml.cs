@@ -109,7 +109,7 @@ namespace WpfApplication
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.Children.Insert(map.Children.IndexOf(mapGraticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
+            map.Children.Insert(map.Children.IndexOf(graticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
