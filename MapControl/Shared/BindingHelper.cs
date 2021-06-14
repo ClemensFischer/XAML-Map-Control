@@ -1,8 +1,11 @@
-// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// � 2021 Clemens Fischer
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
+#elif WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 #else
@@ -12,7 +15,7 @@ using System.Windows.Data;
 
 namespace MapControl
 {
-    internal static class PropertyHelper
+    internal static class BindingHelper
     {
         public static Binding GetBinding(this object sourceObject, string sourceProperty)
         {

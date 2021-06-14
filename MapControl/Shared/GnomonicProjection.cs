@@ -3,7 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if !WINDOWS_UWP
+#if !WINUI && !WINDOWS_UWP
 using System.Windows;
 #endif
 

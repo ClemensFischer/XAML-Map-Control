@@ -2,8 +2,13 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+#if WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+#else
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
@@ -36,7 +41,7 @@ namespace MapControl
             }
             else
             {
-                // Workaround for missing property value inheritance in UWP.
+                // Workaround for missing property value inheritance.
                 // Loaded and Unloaded handlers set and clear the ParentMap property value.
 
                 element.Loaded += (s, e) => GetParentMap(element);

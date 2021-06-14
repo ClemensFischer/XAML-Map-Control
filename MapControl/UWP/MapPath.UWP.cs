@@ -6,9 +6,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Windows.Foundation;
+#if WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
+#else
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
+#endif
 
 namespace MapControl
 {
@@ -19,7 +25,7 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
-        #region Methods used only by derived classes MapPolyline and MapPolygon
+#region Methods used only by derived classes MapPolyline and MapPolygon
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
@@ -113,6 +119,6 @@ namespace MapControl
             }
         }
 
-        #endregion
+#endregion
     }
 }

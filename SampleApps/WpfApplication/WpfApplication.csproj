@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>WpfApplication</RootNamespace>
         <Product>XAML Map Control</Product>
-        <Version>5.6.0</Version>
+        <Version>6.0.0</Version>
         <Description>XAML Map Control WPF Sample Application</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>

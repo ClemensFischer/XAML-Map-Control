@@ -4,7 +4,7 @@
 
 using System;
 using System.Globalization;
-#if WINDOWS_UWP
+#if WINUI || WINDOWS_UWP
 using Windows.Foundation;
 #else
 using System.Windows;

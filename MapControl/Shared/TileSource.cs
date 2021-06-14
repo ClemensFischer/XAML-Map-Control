@@ -4,10 +4,11 @@
 
 using System;
 using System.Threading.Tasks;
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI.Xaml.Media;
+#elif WINDOWS_UWP
 using Windows.UI.Xaml.Media;
 #else
-using System.ComponentModel;
 using System.Windows.Media;
 #endif
 
@@ -17,7 +18,7 @@ namespace MapControl
     /// Provides the download Uri or ImageSource of map tiles.
     /// </summary>
 #if !WINDOWS_UWP
-    [TypeConverter(typeof(TileSourceConverter))]
+    [System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]
 #endif
     public class TileSource
     {

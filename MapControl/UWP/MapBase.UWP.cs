@@ -2,10 +2,15 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Windows.Foundation;
+#if WINUI
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+#else
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
@@ -43,7 +48,11 @@ namespace MapControl
 
         internal static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
             "CenterPoint", typeof(Windows.Foundation.Point), typeof(MapBase),
-            new PropertyMetadata(new Windows.Foundation.Point(), (o, e) => ((MapBase)o).CenterPointPropertyChanged((Windows.Foundation.Point)e.NewValue)));
+            new PropertyMetadata(new Windows.Foundation.Point(), (o, e) =>
+            {
+                var center = (Windows.Foundation.Point)e.NewValue;
+                ((MapBase)o).CenterPointPropertyChanged(new Location(center.Y, center.X));
+            }));
 
         public MapBase()
         {
@@ -52,26 +61,23 @@ namespace MapControl
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.White)));
             Style = style;
 
-            SizeChanged += (s, e) =>
-            {
-                Clip = new RectangleGeometry
-                {
-                    Rect = new Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height)
-                };
+            SizeChanged += OnSizeChanged;
+        }
 
-                ResetTransformCenter();
-                UpdateTransform();
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Clip = new RectangleGeometry
+            {
+                Rect = new Windows.Foundation.Rect(0d, 0d, e.NewSize.Width, e.NewSize.Height)
             };
+
+            ResetTransformCenter();
+            UpdateTransform();
         }
 
         private void SetViewScale(double scale)
         {
             SetValue(ViewScaleProperty, scale);
-        }
-
-        private void CenterPointPropertyChanged(Windows.Foundation.Point center)
-        {
-            CenterPointPropertyChanged(new Location(center.Y, center.X));
         }
     }
 }

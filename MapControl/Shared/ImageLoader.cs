@@ -8,7 +8,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
+#elif WINDOWS_UWP
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else

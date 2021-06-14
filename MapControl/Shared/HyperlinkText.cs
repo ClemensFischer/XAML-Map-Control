@@ -5,7 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
+#elif WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
@@ -43,7 +47,7 @@ namespace MapControl
 
                     var link = new Hyperlink { NavigateUri = uri };
                     link.Inlines.Add(new Run { Text = match.Groups[1].Value });
-#if !WINDOWS_UWP
+#if !WINUI && !WINDOWS_UWP
                     link.ToolTip = uri.ToString();
 
                     link.RequestNavigate += (s, e) =>

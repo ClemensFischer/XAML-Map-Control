@@ -3,6 +3,11 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+#if WINUI
+using XamlMedia = Microsoft.UI.Xaml.Media;
+#else
+using XamlMedia = Windows.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
@@ -28,9 +33,9 @@ namespace MapControl
             OffsetY = offsetY;
         }
 
-        public static implicit operator Windows.UI.Xaml.Media.Matrix(Matrix m)
+        public static implicit operator XamlMedia.Matrix(Matrix m)
         {
-            return new Windows.UI.Xaml.Media.Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
+            return new XamlMedia.Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
         }
 
         public Point Transform(Point p)

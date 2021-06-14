@@ -4,7 +4,6 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace MapControl
 {
@@ -49,8 +48,12 @@ namespace MapControl
         public static readonly DependencyProperty ViewScaleProperty = ViewScalePropertyKey.DependencyProperty;
 
         private static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
-            "CenterPoint", typeof(Point), typeof(MapBase),
-            new PropertyMetadata(new Point(), (o, e) => ((MapBase)o).CenterPointPropertyChanged((Point)e.NewValue)));
+            "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
+                (o, e) =>
+                {
+                    var center = (Point)e.NewValue;
+                    ((MapBase)o).CenterPointPropertyChanged(new Location(center.Y, center.X));
+                }));
 
         static MapBase()
         {
@@ -69,11 +72,6 @@ namespace MapControl
         private void SetViewScale(double scale)
         {
             SetValue(ViewScalePropertyKey, scale);
-        }
-
-        private void CenterPointPropertyChanged(Point center)
-        {
-            CenterPointPropertyChanged(new Location(center.Y, center.X));
         }
     }
 }

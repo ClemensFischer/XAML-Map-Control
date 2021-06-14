@@ -6,8 +6,13 @@ using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
+#if WINUI
+using Microsoft.System;
+using Microsoft.UI.Xaml.Media;
+#else
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
@@ -60,7 +65,7 @@ namespace MapControl
         {
             var tcs = new TaskCompletionSource<object>();
 
-            await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            async void callback()
             {
                 try
                 {
@@ -71,9 +76,18 @@ namespace MapControl
                 {
                     tcs.SetException(ex);
                 }
-            });
-
-            await tcs.Task.ConfigureAwait(false); // wait until image loading in the UI thread is completed
+            }
+#if WINUI
+            if (!tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, callback))
+            {
+                // not sure if this can ever happen, but just in case: reset tile.Pending and complete tcs
+                tile.Pending = true;
+                tcs.SetResult(null);
+            }
+#else
+            _ = tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, callback);
+#endif
+            _ = await tcs.Task.ConfigureAwait(false); // wait until image loading in the UI thread is completed
         }
     }
 }

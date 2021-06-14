@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using System.Threading.Tasks;
-#if !WINDOWS_UWP
+#if !WINUI && !WINDOWS_UWP
 using System.Windows;
 #endif
 

@@ -2,7 +2,10 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+#elif WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else

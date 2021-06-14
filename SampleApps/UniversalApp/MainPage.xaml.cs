@@ -47,7 +47,7 @@ namespace UniversalApp
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
-            map.Children.Insert(map.Children.IndexOf(mapGraticule), ViewModel.MapLayers.SeamarksLayer);
+            map.Children.Insert(map.Children.IndexOf(graticule), ViewModel.MapLayers.SeamarksLayer);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)

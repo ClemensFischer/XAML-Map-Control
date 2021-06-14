@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI.Xaml;
+#elif WINDOWS_UWP
 using Windows.UI.Xaml;
 #else
 using System.Windows;

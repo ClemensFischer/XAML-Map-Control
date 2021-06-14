@@ -8,8 +8,13 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+#if WINUI
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
+#else
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+#endif
 
 namespace MapControl
 {

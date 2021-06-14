@@ -2,8 +2,13 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+#if WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media.Animation;
+#else
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
+#endif
 
 namespace MapControl
 {

@@ -4,7 +4,11 @@
 
 using System;
 using System.Collections.Generic;
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+#elif WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -61,7 +65,7 @@ namespace MapControl
             updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => Update(false);
 
-#if WINDOWS_UWP
+#if WINUI || WINDOWS_UWP
             MapPanel.InitMapElement(this);
 #endif
         }

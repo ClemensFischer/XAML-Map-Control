@@ -3,7 +3,12 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINDOWS_UWP
+#if WINUI
+using Windows.Foundation;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
+#elif WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -216,7 +221,6 @@ namespace MapControl
         public double ViewScale
         {
             get { return (double)GetValue(ViewScaleProperty); }
-            private set { SetViewScale(value); }
         }
 
         /// <summary>
@@ -731,7 +735,7 @@ namespace MapControl
                 }
             }
 
-            ViewScale = ViewTransform.Scale;
+            SetViewScale(ViewTransform.Scale);
 
             OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, Center.Longitude - centerLongitude));
 

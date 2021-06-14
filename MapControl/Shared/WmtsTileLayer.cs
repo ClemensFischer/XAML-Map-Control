@@ -6,7 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-#if WINDOWS_UWP
+#if WINUI
+using Windows.Foundation;
+using Microsoft.UI.Xaml;
+#elif WINDOWS_UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 #else
