@@ -3,7 +3,6 @@
         <TargetFrameworks>net5.0-windows;netcoreapp3.1;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl</RootNamespace>
-        <AssemblyName>MapControl.WPF</AssemblyName>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
