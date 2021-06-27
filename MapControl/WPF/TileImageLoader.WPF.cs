@@ -58,7 +58,7 @@ namespace MapControl
             {
                 var image = await ImageLoader.LoadImageAsync(buffer).ConfigureAwait(false);
 
-                await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
+                await tile.SetImageAsync(image);
             }
         }
 
@@ -66,7 +66,7 @@ namespace MapControl
         {
             var image = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false);
 
-            await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
+            await tile.SetImageAsync(image);
         }
 
         private static Task<ImageCacheItem> GetCacheAsync(string cacheKey)

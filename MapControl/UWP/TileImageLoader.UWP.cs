@@ -6,13 +6,6 @@ using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
-#if WINUI
-using Microsoft.System;
-using Microsoft.UI.Xaml.Media;
-#else
-using Windows.UI.Core;
-using Windows.UI.Xaml.Media;
-#endif
 
 namespace MapControl
 {
@@ -52,42 +45,13 @@ namespace MapControl
 
             if (buffer != null && buffer.Length > 0)
             {
-                await SetTileImageAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
+                await tile.SetImageAsync(() => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
             }
         }
 
         private static Task LoadTileAsync(Tile tile, TileSource tileSource)
         {
-            return SetTileImageAsync(tile, () => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
-        }
-
-        private static async Task SetTileImageAsync(Tile tile, Func<Task<ImageSource>> loadImage)
-        {
-            var tcs = new TaskCompletionSource<object>();
-
-            async void callback()
-            {
-                try
-                {
-                    tile.SetImage(await loadImage());
-                    tcs.SetResult(null);
-                }
-                catch (Exception ex)
-                {
-                    tcs.SetException(ex);
-                }
-            }
-#if WINUI
-            if (!tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, callback))
-            {
-                // not sure if this can ever happen, but just in case: reset tile.Pending and complete tcs
-                tile.Pending = true;
-                tcs.SetResult(null);
-            }
-#else
-            _ = tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, callback);
-#endif
-            _ = await tcs.Task.ConfigureAwait(false); // wait until image loading in the UI thread is completed
+            return tile.SetImageAsync(() => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
         }
     }
 }
