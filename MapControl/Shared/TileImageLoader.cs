@@ -111,30 +111,30 @@ namespace MapControl
             Interlocked.Decrement(ref taskCount);
         }
 
-        private static async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
             if (cacheName == null)
             {
-                await LoadTileAsync(tile, tileSource).ConfigureAwait(false);
+                return LoadTileAsync(tile, tileSource);
             }
-            else
+
+            var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+
+            if (uri == null)
             {
-                var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
-
-                if (uri != null)
-                {
-                    var extension = Path.GetExtension(uri.LocalPath);
-
-                    if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
-                    {
-                        extension = ".jpg";
-                    }
-
-                    var cacheKey = string.Format("{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-
-                    await LoadCachedTileAsync(tile, uri, cacheKey).ConfigureAwait(false);
-                }
+                return Task.CompletedTask;
             }
+
+            var extension = Path.GetExtension(uri.LocalPath);
+
+            if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+            {
+                extension = ".jpg";
+            }
+
+            var cacheKey = string.Format("{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+
+            return LoadCachedTileAsync(tile, uri, cacheKey);
         }
 
         private static DateTime GetExpiration(TimeSpan? maxAge)

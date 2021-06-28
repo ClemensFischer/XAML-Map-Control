@@ -6,11 +6,11 @@ using System;
 using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using MapControl.Caching;
 
 namespace MapControl
 {
-    using Caching;
-
     namespace Caching
     {
         public class ImageCacheItem
@@ -58,7 +58,7 @@ namespace MapControl
             {
                 var image = await ImageLoader.LoadImageAsync(buffer).ConfigureAwait(false);
 
-                await tile.SetImageAsync(image);
+                await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
             }
         }
 
@@ -66,7 +66,7 @@ namespace MapControl
         {
             var image = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false);
 
-            await tile.SetImageAsync(image);
+            await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
         }
 
         private static Task<ImageCacheItem> GetCacheAsync(string cacheKey)

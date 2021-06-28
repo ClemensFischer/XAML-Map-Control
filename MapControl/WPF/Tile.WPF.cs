@@ -6,17 +6,11 @@ using System;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace MapControl
 {
     public partial class Tile
     {
-        public DispatcherOperation SetImageAsync(ImageSource image)
-        {
-            return Image.Dispatcher.InvokeAsync(() => SetImage(image));
-        }
-
         public void SetImage(ImageSource image, bool fadeIn = true)
         {
             Pending = false;

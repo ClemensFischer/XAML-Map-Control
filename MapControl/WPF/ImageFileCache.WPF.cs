@@ -38,6 +38,7 @@ namespace MapControl.Caching
             }
 
             rootDirectory = directory;
+            Debug.WriteLine("Created ImageFileCache in " + rootDirectory);
         }
 
         public Task Clean()

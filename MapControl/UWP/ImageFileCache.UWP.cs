@@ -13,13 +13,17 @@ namespace MapControl.Caching
 {
     public class ImageFileCache : IImageCache
     {
-        private readonly StorageFolder folder;
+        private readonly string folderPath;
 
         public ImageFileCache(StorageFolder folder)
+            : this(folder.Path)
         {
-            this.folder = folder ?? throw new ArgumentNullException(nameof(folder));
+        }
 
-            Debug.WriteLine("Created ImageFileCache in " + folder.Path);
+        public ImageFileCache(string path)
+        {
+            folderPath = path;
+            Debug.WriteLine("Created ImageFileCache in " + folderPath);
         }
 
         public async Task<ImageCacheItem> GetAsync(string key)
@@ -36,6 +40,7 @@ namespace MapControl.Caching
                 return null;
             }
 
+            var folder = await StorageFolder.GetFolderFromPathAsync(folderPath);
             var item = await folder.TryGetItemAsync(path);
 
             if (item != null && item.IsOfType(StorageItemTypes.File))
@@ -68,7 +73,7 @@ namespace MapControl.Caching
 
                 try
                 {
-                    var folder = this.folder;
+                    var folder = await StorageFolder.GetFolderFromPathAsync(folderPath);
 
                     for (int i = 0; i < folders.Length - 1; i++)
                     {
@@ -88,12 +93,12 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("ImageFileCache: Writing {0}: {1}", Path.Combine(folder.Path, Path.Combine(folders)), ex.Message);
+                    Debug.WriteLine("ImageFileCache: Writing {0}: {1}", Path.Combine(folderPath, Path.Combine(folders)), ex.Message);
                 }
             }
         }
 
-        private string[] GetPathElements(string key)
+        private static string[] GetPathElements(string key)
         {
             return key.Split('\\', '/', ',', ':', ';');
         }
