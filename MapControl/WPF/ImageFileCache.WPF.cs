@@ -21,7 +21,7 @@ namespace MapControl.Caching
     /// </summary>
     public class ImageFileCache : ObjectCache
     {
-        private const string ExpiresTag = "EXPIRES:";
+        private const string expiresTag = "EXPIRES:";
 
         private static readonly FileSystemAccessRule fullControlRule = new FileSystemAccessRule(
             new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
@@ -125,7 +125,7 @@ namespace MapControl.Caching
 
                         memoryCache.Set(key, imageCacheItem, new CacheItemPolicy { AbsoluteExpiration = expiration });
 
-                        //Debug.WriteLine("ImageFileCache: Reading {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
+                        //Debug.WriteLine("ImageFileCache: Read {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
                     }
                     catch (Exception ex)
                     {
@@ -176,14 +176,15 @@ namespace MapControl.Caching
             {
                 try
                 {
-                    //Debug.WriteLine("ImageFileCache: Writing {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
+                    //Debug.WriteLine("ImageFileCache: Write {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
 
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
 
                     using (var stream = File.Create(path))
                     {
                         stream.Write(imageCacheItem.Buffer, 0, imageCacheItem.Buffer.Length);
-                        SetExpiration(stream, imageCacheItem.Expiration);
+                        stream.Write(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
+                        stream.Write(BitConverter.GetBytes(imageCacheItem.Expiration.Ticks), 0, 8);
                     }
 
                     var fileInfo = new FileInfo(path);
@@ -348,17 +349,11 @@ namespace MapControl.Caching
             return deletedFileCount;
         }
 
-        private static void SetExpiration(Stream stream, DateTime expiration)
-        {
-            stream.Write(Encoding.ASCII.GetBytes(ExpiresTag), 0, 8);
-            stream.Write(BitConverter.GetBytes(expiration.Ticks), 0, 8);
-        }
-
         private static DateTime GetExpiration(ref byte[] buffer)
         {
-            DateTime expiration = DateTime.MaxValue;
+            DateTime expiration = DateTime.Today;
 
-            if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == ExpiresTag)
+            if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == expiresTag)
             {
                 expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
                 Array.Resize(ref buffer, buffer.Length - 16);
@@ -369,7 +364,7 @@ namespace MapControl.Caching
 
         private static async Task<DateTime> ReadExpirationAsync(FileInfo file)
         {
-            DateTime expiration = DateTime.MaxValue;
+            DateTime expiration = DateTime.Today;
 
             if (file.Length > 16)
             {
@@ -380,7 +375,7 @@ namespace MapControl.Caching
                     stream.Seek(-16, SeekOrigin.End);
 
                     if (await stream.ReadAsync(buffer, 0, 16).ConfigureAwait(false) == 16 &&
-                        Encoding.ASCII.GetString(buffer, 0, 8) == ExpiresTag)
+                        Encoding.ASCII.GetString(buffer, 0, 8) == expiresTag)
                     {
                         expiration = new DateTime(BitConverter.ToInt64(buffer, 8), DateTimeKind.Utc);
                     }
