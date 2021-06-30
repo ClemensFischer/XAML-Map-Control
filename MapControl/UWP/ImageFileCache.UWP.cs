@@ -12,23 +12,8 @@ using Windows.Storage.Streams;
 
 namespace MapControl.Caching
 {
-    public class ImageFileCache : IImageCache
+    public partial class ImageFileCache : IImageCache
     {
-        private const string expiresTag = "EXPIRES:";
-
-        private readonly string rootDirectory;
-
-        public ImageFileCache(string directory)
-        {
-            if (string.IsNullOrEmpty(directory))
-            {
-                throw new ArgumentException("The directory argument must not be null or empty.", nameof(directory));
-            }
-
-            rootDirectory = directory;
-            Debug.WriteLine("Created ImageFileCache in " + rootDirectory);
-        }
-
         public async Task<ImageCacheItem> GetAsync(string key)
         {
             ImageCacheItem imageCacheItem = null;
@@ -39,7 +24,7 @@ namespace MapControl.Caching
                 if (path != null && File.Exists(path))
                 {
                     var buffer = await File.ReadAllBytesAsync(path);
-                    var expiration = GetExpiration(ref buffer);
+                    var expiration = ReadExpiration(ref buffer);
 
                     imageCacheItem = new ImageCacheItem
                     {
@@ -82,33 +67,6 @@ namespace MapControl.Caching
                     Debug.WriteLine("ImageFileCache: Failed writing {0}: {1}", path, ex.Message);
                 }
             }
-        }
-
-        private string GetPath(string key)
-        {
-            try
-            {
-                return Path.Combine(rootDirectory, Path.Combine(key.Split('/', ':', ';', ',')));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageFileCache: Invalid key {0}/{1}: {2}", rootDirectory, key, ex.Message);
-            }
-
-            return null;
-        }
-
-        private static DateTime GetExpiration(ref byte[] buffer)
-        {
-            DateTime expiration = DateTime.Today;
-
-            if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == expiresTag)
-            {
-                expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
-                Array.Resize(ref buffer, buffer.Length - 16);
-            }
-
-            return expiration;
         }
     }
 }

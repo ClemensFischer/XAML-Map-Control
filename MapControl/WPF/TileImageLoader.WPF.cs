@@ -2,12 +2,11 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using MapControl.Caching;
 using System;
 using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
-using System.Windows.Media;
-using MapControl.Caching;
 
 namespace MapControl
 {
@@ -39,7 +38,7 @@ namespace MapControl
 
         private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheKey)
         {
-            var cacheItem = await GetCacheAsync(cacheKey).ConfigureAwait(false);
+            var cacheItem = Cache.Get(cacheKey) as ImageCacheItem;
             var buffer = cacheItem?.Buffer;
 
             if (cacheItem == null || cacheItem.Expiration < DateTime.UtcNow)
@@ -48,9 +47,15 @@ namespace MapControl
 
                 if (response != null) // download succeeded
                 {
-                    buffer = response.Buffer; // may be null or empty when no tile available, but still be cached
+                    buffer = response.Buffer;
 
-                    await SetCacheAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
+                    cacheItem = new ImageCacheItem
+                    {
+                        Buffer = buffer, // may be null or empty when no tile available, but still be cached
+                        Expiration = GetExpiration(response.MaxAge)
+                    };
+
+                    Cache.Set(cacheKey, cacheItem, new CacheItemPolicy { AbsoluteExpiration = cacheItem.Expiration });
                 }
             }
 
@@ -67,27 +72,6 @@ namespace MapControl
             var image = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false);
 
             await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImage(image));
-        }
-
-        private static Task<ImageCacheItem> GetCacheAsync(string cacheKey)
-        {
-            return Task.Run(() => Cache.Get(cacheKey) as ImageCacheItem);
-        }
-
-        private static Task SetCacheAsync(string cacheKey, byte[] buffer, DateTime expiration)
-        {
-            var imageCacheItem = new ImageCacheItem
-            {
-                Buffer = buffer,
-                Expiration = expiration
-            };
-
-            var cacheItemPolicy = new CacheItemPolicy
-            {
-                AbsoluteExpiration = expiration
-            };
-
-            return Task.Run(() => Cache.Set(cacheKey, imageCacheItem, cacheItemPolicy));
         }
     }
 }

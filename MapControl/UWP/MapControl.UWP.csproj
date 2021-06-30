@@ -77,6 +77,9 @@
     <Compile Include="..\Shared\HyperlinkText.cs">
       <Link>HyperlinkText.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\ImageFileCache.cs">
+      <Link>ImageFileCache.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\ImageLoader.cs">
       <Link>ImageLoader.cs</Link>
     </Compile>

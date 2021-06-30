@@ -19,27 +19,13 @@ namespace MapControl.Caching
     /// ObjectCache implementation based on local image files.
     /// The only valid data type for cached values is MapControl.ImageCacheItem.
     /// </summary>
-    public class ImageFileCache : ObjectCache
+    public partial class ImageFileCache : ObjectCache
     {
-        private const string expiresTag = "EXPIRES:";
-
         private static readonly FileSystemAccessRule fullControlRule = new FileSystemAccessRule(
             new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
             FileSystemRights.FullControl, AccessControlType.Allow);
 
         private readonly MemoryCache memoryCache = MemoryCache.Default;
-        private readonly string rootDirectory;
-
-        public ImageFileCache(string directory)
-        {
-            if (string.IsNullOrEmpty(directory))
-            {
-                throw new ArgumentException("The directory argument must not be null or empty.", nameof(directory));
-            }
-
-            rootDirectory = directory;
-            Debug.WriteLine("Created ImageFileCache in " + rootDirectory);
-        }
 
         public Task Clean()
         {
@@ -115,7 +101,7 @@ namespace MapControl.Caching
                     try
                     {
                         var buffer = File.ReadAllBytes(path);
-                        var expiration = GetExpiration(ref buffer);
+                        var expiration = ReadExpiration(ref buffer);
 
                         imageCacheItem = new ImageCacheItem
                         {
@@ -282,20 +268,6 @@ namespace MapControl.Caching
             return null;
         }
 
-        private string GetPath(string key)
-        {
-            try
-            {
-                return Path.Combine(rootDirectory, Path.Combine(key.Split('/', ':', ';', ',')));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageFileCache: Invalid key {0}/{1}: {2}", rootDirectory, key, ex.Message);
-            }
-
-            return null;
-        }
-
         private async Task CleanRootDirectory()
         {
             foreach (var dir in new DirectoryInfo(rootDirectory).EnumerateDirectories())
@@ -349,22 +321,9 @@ namespace MapControl.Caching
             return deletedFileCount;
         }
 
-        private static DateTime GetExpiration(ref byte[] buffer)
-        {
-            DateTime expiration = DateTime.Today;
-
-            if (buffer.Length > 16 && Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == expiresTag)
-            {
-                expiration = new DateTime(BitConverter.ToInt64(buffer, buffer.Length - 8), DateTimeKind.Utc);
-                Array.Resize(ref buffer, buffer.Length - 16);
-            }
-
-            return expiration;
-        }
-
         private static async Task<DateTime> ReadExpirationAsync(FileInfo file)
         {
-            DateTime expiration = DateTime.Today;
+            DateTime? expiration = null;
 
             if (file.Length > 16)
             {
@@ -374,15 +333,14 @@ namespace MapControl.Caching
                 {
                     stream.Seek(-16, SeekOrigin.End);
 
-                    if (await stream.ReadAsync(buffer, 0, 16).ConfigureAwait(false) == 16 &&
-                        Encoding.ASCII.GetString(buffer, 0, 8) == expiresTag)
+                    if (await stream.ReadAsync(buffer, 0, 16).ConfigureAwait(false) == 16)
                     {
-                        expiration = new DateTime(BitConverter.ToInt64(buffer, 8), DateTimeKind.Utc);
+                        expiration = ReadExpiration(buffer);
                     }
                 }
             }
 
-            return expiration;
+            return expiration ?? DateTime.Today;
         }
     }
 }
