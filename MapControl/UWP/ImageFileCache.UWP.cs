@@ -45,19 +45,19 @@ namespace MapControl.Caching
 
         public async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
         {
-            string path;
+            var path = GetPath(key);
 
-            if (buffer != null && buffer.Length > 0 && (path = GetPath(key)) != null)
+            if (buffer != null && buffer.Length > 0 && path != null)
             {
                 try
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                    using (var stream = File.Create(path).AsOutputStream())
+                    using (var stream = File.Create(path))
                     {
-                        await stream.WriteAsync(buffer);
-                        await stream.WriteAsync(Encoding.ASCII.GetBytes(expiresTag).AsBuffer());
-                        await stream.WriteAsync(BitConverter.GetBytes(expiration.Ticks).AsBuffer());
+                        await stream.AsOutputStream().WriteAsync(buffer);
+                        await stream.WriteAsync(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
+                        await stream.WriteAsync(BitConverter.GetBytes(expiration.Ticks), 0, 8);
                     }
 
                     //Debug.WriteLine("ImageFileCache: Wrote {0}, Expires {1}", path, expiration.ToLocalTime());

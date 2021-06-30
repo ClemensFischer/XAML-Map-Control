@@ -160,11 +160,10 @@ namespace MapControl.Caching
 
             memoryCache.Set(key, imageCacheItem, policy);
 
-            string path;
+            var buffer = imageCacheItem.Buffer;
+            var path = GetPath(key);
 
-            if (imageCacheItem.Buffer != null &&
-                imageCacheItem.Buffer.Length > 0 &&
-                (path = GetPath(key)) != null)
+            if (buffer != null && buffer.Length > 0 && path != null)
             {
                 try
                 {
@@ -172,7 +171,7 @@ namespace MapControl.Caching
 
                     using (var stream = File.Create(path))
                     {
-                        stream.Write(imageCacheItem.Buffer, 0, imageCacheItem.Buffer.Length);
+                        stream.Write(buffer, 0, buffer.Length);
                         stream.Write(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
                         stream.Write(BitConverter.GetBytes(imageCacheItem.Expiration.Ticks), 0, 8);
                     }
