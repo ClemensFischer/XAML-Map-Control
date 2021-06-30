@@ -3,31 +3,14 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace MapControl.Caching
 {
     public partial class FileDbCache : IImageCache
     {
-        public FileDbCache(StorageFolder folder, string fileName = "TileCache.fdb")
-        {
-            if (folder == null)
-            {
-                throw new ArgumentNullException(nameof(folder));
-            }
-
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new ArgumentException("The fileName argument must not be null or empty", nameof(fileName));
-            }
-
-            Open(Path.Combine(folder.Path, fileName));
-        }
-
         public Task<ImageCacheItem> GetAsync(string key)
         {
             return Task.Run(() =>

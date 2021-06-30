@@ -8,7 +8,6 @@ using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace MapControl.Caching
@@ -18,11 +17,6 @@ namespace MapControl.Caching
         private const string expiresTag = "EXPIRES:";
 
         private readonly string rootDirectory;
-
-        public ImageFileCache(StorageFolder folder)
-            : this(folder.Path)
-        {
-        }
 
         public ImageFileCache(string directory)
         {

@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
 
@@ -13,21 +12,6 @@ namespace MapControl.Caching
 {
     public partial class FileDbCache : ObjectCache
     {
-        public FileDbCache(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
-            }
-
-            if (string.IsNullOrEmpty(Path.GetExtension(path)))
-            {
-                path = Path.Combine(path, "TileCache.fdb");
-            }
-
-            Open(path);
-        }
-
         public override string Name
         {
             get { return string.Empty; }

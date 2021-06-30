@@ -5,7 +5,6 @@
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Storage;
 #if WINDOWS_UWP
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
@@ -19,12 +18,12 @@ namespace MapControl
     public partial class TileImageLoader
     {
         /// <summary>
-        /// Default StorageFolder where an IImageCache instance may save cached data,
-        /// i.e. ApplicationData.Current.TemporaryFolder.
+        /// Default folder path where an IImageCache instance may save cached data,
+        /// i.e. Windows.Storage.ApplicationData.Current.TemporaryFolder.Path.
         /// </summary>
-        public static StorageFolder DefaultCacheFolder
+        public static string DefaultCacheFolder
         {
-            get { return ApplicationData.Current.TemporaryFolder; }
+            get { return Windows.Storage.ApplicationData.Current.TemporaryFolder.Path; }
         }
 
         /// <summary>

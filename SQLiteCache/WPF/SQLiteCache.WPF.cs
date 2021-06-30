@@ -6,34 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
 
 namespace MapControl.Caching
 {
-    /// <summary>
-    /// ObjectCache implementation based on SqLite.
-    /// </summary>
     public partial class SQLiteCache : ObjectCache
     {
-        public SQLiteCache(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
-            }
-
-            if (string.IsNullOrEmpty(Path.GetExtension(path)))
-            {
-                path = Path.Combine(path, "TileCache.sqlite");
-            }
-
-            connection = Open(Path.GetFullPath(path));
-
-            Clean();
-        }
-
         public override string Name
         {
             get { return string.Empty; }

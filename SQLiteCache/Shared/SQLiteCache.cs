@@ -5,6 +5,7 @@
 using System;
 using System.Data.SQLite;
 using System.Diagnostics;
+using System.IO;
 
 namespace MapControl.Caching
 {
@@ -14,6 +15,23 @@ namespace MapControl.Caching
     public sealed partial class SQLiteCache : IDisposable
     {
         private readonly SQLiteConnection connection;
+
+        public SQLiteCache(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
+            }
+
+            if (string.IsNullOrEmpty(Path.GetExtension(path)))
+            {
+                path = Path.Combine(path, "TileCache.sqlite");
+            }
+
+            connection = Open(Path.GetFullPath(path));
+
+            Clean();
+        }
 
         private static SQLiteConnection Open(string path)
         {

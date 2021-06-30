@@ -4,36 +4,14 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace MapControl.Caching
 {
-    /// <summary>
-    /// IImageCache implementation based on SqLite.
-    /// </summary>
     public partial class SQLiteCache : IImageCache
     {
-        public SQLiteCache(StorageFolder folder, string fileName = "TileCache.sqlite")
-        {
-            if (folder == null)
-            {
-                throw new ArgumentNullException(nameof(folder));
-            }
-
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new ArgumentException("The fileName argument must not be null or empty.", nameof(fileName));
-            }
-
-            connection = Open(Path.Combine(folder.Path, fileName));
-
-            Clean();
-        }
-
         public async Task<ImageCacheItem> GetAsync(string key)
         {
             try

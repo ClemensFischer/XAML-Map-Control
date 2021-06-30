@@ -21,6 +21,21 @@ namespace MapControl.Caching
 
         private readonly FileDb fileDb = new FileDb() { AutoFlush = true };
 
+        public FileDbCache(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
+            }
+
+            if (string.IsNullOrEmpty(Path.GetExtension(path)))
+            {
+                path = Path.Combine(path, "TileCache.fdb");
+            }
+
+            Open(path);
+        }
+
         public void Dispose()
         {
             fileDb.Dispose();
