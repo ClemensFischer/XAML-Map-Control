@@ -13,7 +13,7 @@ namespace MapControl.Caching
 {
     /// <summary>
     /// Image Cache implementation based on local image files.
-    /// The only valid data type for cached values is MapControl.ImageCacheItem.
+    /// The only valid data type for cached values is ImageCacheItem.
     /// </summary>
     public partial class ImageFileCache
     {

@@ -14,10 +14,6 @@ using System.Text;
 
 namespace MapControl.Caching
 {
-    /// <summary>
-    /// ObjectCache implementation based on local image files.
-    /// The only valid data type for cached values is MapControl.ImageCacheItem.
-    /// </summary>
     public partial class ImageFileCache : ObjectCache
     {
         private static readonly FileSystemAccessRule fullControlRule = new FileSystemAccessRule(
