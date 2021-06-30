@@ -176,8 +176,6 @@ namespace MapControl.Caching
             {
                 try
                 {
-                    //Debug.WriteLine("ImageFileCache: Write {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
-
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
 
                     using (var stream = File.Create(path))
@@ -191,6 +189,8 @@ namespace MapControl.Caching
                     var fileSecurity = fileInfo.GetAccessControl();
                     fileSecurity.AddAccessRule(fullControlRule);
                     fileInfo.SetAccessControl(fileSecurity);
+
+                    //Debug.WriteLine("ImageFileCache: Wrote {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
                 }
                 catch (Exception ex)
                 {
