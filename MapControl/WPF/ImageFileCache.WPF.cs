@@ -11,7 +11,6 @@ using System.Runtime.Caching;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MapControl.Caching
 {
@@ -26,11 +25,6 @@ namespace MapControl.Caching
             FileSystemRights.FullControl, AccessControlType.Allow);
 
         private readonly MemoryCache memoryCache = MemoryCache.Default;
-
-        public Task Clean()
-        {
-            return Task.Factory.StartNew(CleanRootDirectory, TaskCreationOptions.LongRunning);
-        }
 
         public override string Name
         {
@@ -75,7 +69,23 @@ namespace MapControl.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return memoryCache.Contains(key) || FindFile(key) != null;
+            if (memoryCache.Contains(key))
+            {
+                return true;
+            }
+
+            var path = GetPath(key);
+
+            try
+            {
+                return path != null && File.Exists(path);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageFileCache: Failed finding {0}: {1}", path, ex.Message);
+            }
+
+            return false;
         }
 
         public override object Get(string key, string regionName = null)
@@ -94,11 +104,11 @@ namespace MapControl.Caching
 
             if (imageCacheItem == null)
             {
-                var path = FindFile(key);
+                var path = GetPath(key);
 
-                if (path != null)
+                try
                 {
-                    try
+                    if (path != null && File.Exists(path))
                     {
                         var buffer = File.ReadAllBytes(path);
                         var expiration = ReadExpiration(ref buffer);
@@ -113,10 +123,10 @@ namespace MapControl.Caching
 
                         //Debug.WriteLine("ImageFileCache: Read {0}, Expires {1}", path, imageCacheItem.Expiration.ToLocalTime());
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("ImageFileCache: Failed reading {0}: {1}", path, ex.Message);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ImageFileCache: Failed reading {0}: {1}", path, ex.Message);
                 }
             }
 
@@ -232,115 +242,21 @@ namespace MapControl.Caching
 
             memoryCache.Remove(key);
 
-            var path = FindFile(key);
-
-            if (path != null)
-            {
-                try
-                {
-                    File.Delete(path);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("ImageFileCache: Failed removing {0}: {1}", path, ex.Message);
-                }
-            }
-
-            return null;
-        }
-
-        private string FindFile(string key)
-        {
             var path = GetPath(key);
 
             try
             {
                 if (path != null && File.Exists(path))
                 {
-                    return path;
+                    File.Delete(path);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Failed finding {0}: {1}", path, ex.Message);
+                Debug.WriteLine("ImageFileCache: Failed removing {0}: {1}", path, ex.Message);
             }
 
             return null;
-        }
-
-        private async Task CleanRootDirectory()
-        {
-            foreach (var dir in new DirectoryInfo(rootDirectory).EnumerateDirectories())
-            {
-                var deletedFileCount = await CleanDirectory(dir).ConfigureAwait(false);
-
-                if (deletedFileCount > 0)
-                {
-                    Debug.WriteLine("ImageFileCache: Cleaned {0} files in {1}", deletedFileCount, dir);
-                }
-            }
-        }
-
-        private static async Task<int> CleanDirectory(DirectoryInfo directory)
-        {
-            var deletedFileCount = 0;
-
-            foreach (var dir in directory.EnumerateDirectories())
-            {
-                deletedFileCount += await CleanDirectory(dir).ConfigureAwait(false);
-            }
-
-            foreach (var file in directory.EnumerateFiles())
-            {
-                try
-                {
-                    if (await ReadExpirationAsync(file).ConfigureAwait(false) < DateTime.UtcNow)
-                    {
-                        file.Delete();
-                        deletedFileCount++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", file.FullName, ex.Message);
-                }
-            }
-
-            if (!directory.EnumerateFileSystemInfos().Any())
-            {
-                try
-                {
-                    directory.Delete();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", directory.FullName, ex.Message);
-                }
-            }
-
-            return deletedFileCount;
-        }
-
-        private static async Task<DateTime> ReadExpirationAsync(FileInfo file)
-        {
-            DateTime? expiration = null;
-
-            if (file.Length > 16)
-            {
-                var buffer = new byte[16];
-
-                using (var stream = file.OpenRead())
-                {
-                    stream.Seek(-16, SeekOrigin.End);
-
-                    if (await stream.ReadAsync(buffer, 0, 16).ConfigureAwait(false) == 16)
-                    {
-                        expiration = ReadExpiration(buffer);
-                    }
-                }
-            }
-
-            return expiration ?? DateTime.Today;
         }
     }
 }
