@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
-#if WINDOWS_UWP
+#if WINUI
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+#elif WINDOWS_UWP
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -123,10 +126,6 @@ namespace ViewModel
                     ServiceUri = new Uri("http://ows.terrestris.de/osm/service")
                 }
             },
-            {
-                "SevenCs ChartServer WMS",
-                new ChartServerLayer()
-            }
         };
 
         private string currentMapLayerName = "OpenStreetMap";
@@ -161,7 +160,6 @@ namespace ViewModel
             "TopPlusOpen WMTS",
             "TopPlusOpen WMS",
             "OpenStreetMap WMS",
-            "SevenCs ChartServer WMS",
         };
 
         public MapLayers()
@@ -176,30 +174,6 @@ namespace ViewModel
                 MapLayerNames.Add("Bing Maps Road");
                 MapLayerNames.Add("Bing Maps Aerial");
                 MapLayerNames.Add("Bing Maps Aerial with Labels");
-            }
-        }
-    }
-
-    public class ChartServerLayer : WmsImageLayer
-    {
-        public ChartServerLayer()
-        {
-            Description = "© [SevenCs GmbH](http://www.sevencs.com)";
-            ServiceUri = new Uri("http://wms.sevencs.com");
-            Layers = "ENC";
-            MaxBoundingBoxWidth = 360;
-        }
-
-        protected override string GetCrsParam(MapProjection projection)
-        {
-            switch (projection.CrsId)
-            {
-                case "AUTO2:97001":
-                    return string.Format(CultureInfo.InvariantCulture, "CRS=AUTO2:7CS01,1,{0},{1}", projection.Center.Longitude, projection.Center.Latitude);
-                case "AUTO2:97002":
-                    return string.Format(CultureInfo.InvariantCulture, "CRS=AUTO2:7CS02,1,{0},{1}", projection.Center.Longitude, projection.Center.Latitude);
-                default:
-                    return base.GetCrsParam(projection);
             }
         }
     }

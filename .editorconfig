@@ -1,0 +1,9 @@
+﻿[*.cs]
+csharp_style_var_when_type_is_apparent=true:silent
+csharp_style_var_for_built_in_types=true:silent
+csharp_style_var_elsewhere=true:silent
+csharp_prefer_simple_using_statement=false:suggestion
+csharp_style_expression_bodied_properties=false:silent
+csharp_style_expression_bodied_indexers=false:silent
+csharp_style_expression_bodied_accessors=false:silent
+csharp_style_expression_bodied_lambdas=false:silent
