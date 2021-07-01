@@ -24,7 +24,10 @@ namespace WpfApplication
                 //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = null;
 
-                BingMapsTileLayer.ApiKey = File.ReadAllText(@"..\..\..\BingMapsApiKey.txt")?.Trim();
+                var apiKeyPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "BingMapsApiKey.txt");
+
+                BingMapsTileLayer.ApiKey = File.ReadAllText(apiKeyPath)?.Trim();
             }
             catch (Exception ex)
             {

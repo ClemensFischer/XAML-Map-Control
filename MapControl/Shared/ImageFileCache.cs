@@ -29,6 +29,7 @@ namespace MapControl.Caching
             }
 
             rootDirectory = directory;
+
             Debug.WriteLine("Created ImageFileCache in " + rootDirectory);
         }
 
@@ -133,6 +134,7 @@ namespace MapControl.Caching
             if (expiration.HasValue)
             {
                 Array.Resize(ref buffer, buffer.Length - 16);
+
                 return expiration.Value;
             }
 
@@ -150,6 +152,18 @@ namespace MapControl.Caching
             }
 
             return expiration;
+        }
+
+        private static void WriteExpiration(Stream stream, DateTime expiration)
+        {
+            stream.Write(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
+            stream.Write(BitConverter.GetBytes(expiration.Ticks), 0, 8);
+        }
+
+        private static async Task WriteExpirationAsync(Stream stream, DateTime expiration)
+        {
+            await stream.WriteAsync(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
+            await stream.WriteAsync(BitConverter.GetBytes(expiration.Ticks), 0, 8);
         }
     }
 }

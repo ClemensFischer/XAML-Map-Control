@@ -10,7 +10,6 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Text;
 
 namespace MapControl.Caching
 {
@@ -172,8 +171,7 @@ namespace MapControl.Caching
                     using (var stream = File.Create(path))
                     {
                         stream.Write(buffer, 0, buffer.Length);
-                        stream.Write(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
-                        stream.Write(BitConverter.GetBytes(imageCacheItem.Expiration.Ticks), 0, 8);
+                        WriteExpiration(stream, imageCacheItem.Expiration);
                     }
 
                     var fileInfo = new FileInfo(path);

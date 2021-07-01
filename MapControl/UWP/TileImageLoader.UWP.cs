@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
 #else
-using Microsoft.System;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media;
 #endif
 

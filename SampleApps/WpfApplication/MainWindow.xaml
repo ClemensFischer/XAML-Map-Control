@@ -4,7 +4,7 @@
         xmlns:map="clr-namespace:MapControl;assembly=MapControl.WPF"
         xmlns:vm="clr-namespace:ViewModel"
         xmlns:local="clr-namespace:WpfApplication"
-        Title="XAML MapControl - WPF Test Application" Height="600" Width="900"
+        Title="XAML MapControl - WPF Sample Application" Height="600" Width="900"
         Stylus.IsPressAndHoldEnabled="False">
     <Window.Resources>
         <DataTemplate x:Key="PolylineItemTemplate">

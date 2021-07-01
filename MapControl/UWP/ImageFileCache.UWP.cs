@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -56,8 +55,7 @@ namespace MapControl.Caching
                     using (var stream = File.Create(path))
                     {
                         await stream.AsOutputStream().WriteAsync(buffer);
-                        await stream.WriteAsync(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
-                        await stream.WriteAsync(BitConverter.GetBytes(expiration.Ticks), 0, 8);
+                        await WriteExpirationAsync(stream, expiration);
                     }
 
                     //Debug.WriteLine("ImageFileCache: Wrote {0}, Expires {1}", path, expiration.ToLocalTime());
