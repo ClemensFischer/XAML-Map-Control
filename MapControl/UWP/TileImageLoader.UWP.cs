@@ -57,7 +57,7 @@ namespace MapControl
                     await Cache.SetAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                 }
             }
-            else System.Diagnostics.Debug.WriteLine("Cached: " + cacheKey);
+            //else System.Diagnostics.Debug.WriteLine("Cached: " + cacheKey);
 
             if (buffer != null && buffer.Length > 0)
             {

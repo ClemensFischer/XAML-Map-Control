@@ -44,7 +44,7 @@ namespace MapControl
                     Cache.Set(cacheKey, cacheItem, new CacheItemPolicy { AbsoluteExpiration = cacheItem.Item2 });
                 }
             }
-            else System.Diagnostics.Debug.WriteLine("Cached: " + cacheKey);
+            //else System.Diagnostics.Debug.WriteLine("Cached: " + cacheKey);
 
             if (buffer != null && buffer.Length > 0)
             {
