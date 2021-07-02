@@ -31,7 +31,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// The IImageCache implementation used to cache tile images. The default is null.
+        /// An IImageCache implementation used to cache tile images. The default is null.
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
 

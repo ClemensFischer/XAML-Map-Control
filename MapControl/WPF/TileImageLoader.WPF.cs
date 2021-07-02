@@ -20,8 +20,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// An ObjectCache instance used to cache tile image data, i.e. (byte[],DateTime) tuples.
-        /// The default ObjectCache value is MemoryCache.Default.
+        /// An ObjectCache instance used to cache tile image data. The default value is MemoryCache.Default.
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
 
