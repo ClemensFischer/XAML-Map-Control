@@ -46,8 +46,4 @@
         <Reference Include="System.Runtime.Caching" />
         <PackageReference Include="FileDb.NET" Version="7.4.3" />
     </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
-    </ItemGroup>
 </Project>

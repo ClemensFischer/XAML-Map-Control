@@ -11,9 +11,9 @@ namespace MapControl.Caching
 {
     public partial class ImageFileCache : IImageCache
     {
-        public async Task<ImageCacheItem> GetAsync(string key)
+        public async Task<Tuple<byte[], DateTime>> GetAsync(string key)
         {
-            ImageCacheItem cacheItem = null;
+            Tuple<byte[], DateTime> cacheItem = null;
             var path = GetPath(key);
 
             try
@@ -23,13 +23,7 @@ namespace MapControl.Caching
                     var buffer = await File.ReadAllBytesAsync(path);
                     var expiration = ReadExpiration(ref buffer);
 
-                    cacheItem = new ImageCacheItem
-                    {
-                        Buffer = buffer,
-                        Expiration = expiration
-                    };
-
-                    //Debug.WriteLine("ImageFileCache: Read {0}, Expires {1}", path, expiration.ToLocalTime());
+                    cacheItem = Tuple.Create(buffer, expiration);
                 }
             }
             catch (Exception ex)
@@ -40,11 +34,11 @@ namespace MapControl.Caching
             return cacheItem;
         }
 
-        public async Task SetAsync(string key, ImageCacheItem cacheItem)
+        public async Task SetAsync(string key, byte[] buffer, DateTime expiration)
         {
             var path = GetPath(key);
 
-            if (cacheItem.Buffer != null && cacheItem.Buffer.Length > 0 && path != null)
+            if (buffer != null && buffer.Length > 0 && path != null)
             {
                 try
                 {
@@ -52,11 +46,9 @@ namespace MapControl.Caching
 
                     using (var stream = File.Create(path))
                     {
-                        await stream.WriteAsync(cacheItem.Buffer, 0, cacheItem.Buffer.Length);
-                        await WriteExpirationAsync(stream, cacheItem.Expiration);
+                        await stream.WriteAsync(buffer, 0, buffer.Length);
+                        await WriteExpirationAsync(stream, expiration);
                     }
-
-                    //Debug.WriteLine("ImageFileCache: Wrote {0}, Expires {1}", path, expiration.ToLocalTime());
                 }
                 catch (Exception ex)
                 {

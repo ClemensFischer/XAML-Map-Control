@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
-using MapControl.Caching;
 
 namespace MapControl
 {
@@ -21,7 +20,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// An ObjectCache instance used to cache tile image data (i.e. ImageCacheItem objects).
+        /// An ObjectCache instance used to cache tile image data, i.e. (byte[],DateTime) tuples.
         /// The default ObjectCache value is MemoryCache.Default.
         /// </summary>
         public static ObjectCache Cache { get; set; } = MemoryCache.Default;
@@ -29,26 +28,23 @@ namespace MapControl
 
         private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheKey)
         {
-            var cacheItem = Cache.Get(cacheKey) as ImageCacheItem;
-            var buffer = cacheItem?.Buffer;
+            var cacheItem = Cache.Get(cacheKey) as Tuple<byte[], DateTime>;
+            var buffer = cacheItem?.Item1;
 
-            if (cacheItem == null || cacheItem.Expiration < DateTime.UtcNow)
+            if (cacheItem == null || cacheItem.Item2 < DateTime.UtcNow)
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
                 if (response != null) // download succeeded
                 {
-                    buffer = response.Buffer;
+                    buffer = response.Buffer; // may be null or empty when no tile available, but still be cached
 
-                    cacheItem = new ImageCacheItem
-                    {
-                        Buffer = buffer, // may be null or empty when no tile available, but still be cached
-                        Expiration = GetExpiration(response.MaxAge)
-                    };
+                    cacheItem = Tuple.Create(buffer, GetExpiration(response.MaxAge));
 
-                    Cache.Set(cacheKey, cacheItem, new CacheItemPolicy { AbsoluteExpiration = cacheItem.Expiration });
+                    Cache.Set(cacheKey, cacheItem, new CacheItemPolicy { AbsoluteExpiration = cacheItem.Item2 });
                 }
             }
+            else System.Diagnostics.Debug.WriteLine("Cached: " + cacheKey);
 
             if (buffer != null && buffer.Length > 0)
             {

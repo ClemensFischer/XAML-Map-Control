@@ -82,7 +82,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.Contains(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.Contains({0}): {1}", key, ex.Message);
             }
 
             return false;
@@ -108,17 +108,13 @@ namespace MapControl.Caching
 
                     if (reader.Read())
                     {
-                        return new ImageCacheItem
-                        {
-                            Expiration = new DateTime((long)reader["expiration"]),
-                            Buffer = (byte[])reader["buffer"]
-                        };
+                        return Tuple.Create((byte[])reader["buffer"], new DateTime((long)reader["expiration"]));
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.Get(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.Get({0}): {1}", key, ex.Message);
             }
 
             return null;
@@ -148,23 +144,21 @@ namespace MapControl.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            if (!(value is ImageCacheItem imageCacheItem))
+            if (!(value is Tuple<byte[], DateTime> cacheItem))
             {
-                throw new ArgumentException("The value argument must be a MapControl.Caching.ImageCacheItem instance.", nameof(value));
+                throw new ArgumentException("The value argument must be a Tuple<byte[], DateTime>.", nameof(value));
             }
 
             try
             {
-                using (var command = SetItemCommand(key, imageCacheItem.Expiration, imageCacheItem.Buffer))
+                using (var command = SetItemCommand(key, cacheItem.Item2, cacheItem.Item1))
                 {
                     command.ExecuteNonQuery();
                 }
-
-                //Debug.WriteLine("SQLiteCache.Set(\"{0}\"): expires {1}", key, expiration.ToLocalTime());
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.Set(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.Set({0}): {1}", key, ex.Message);
             }
         }
 
@@ -216,7 +210,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("SQLiteCache.Remove(\"{0}\"): {1}", key, ex.Message);
+                    Debug.WriteLine("SQLiteCache.Remove({0}): {1}", key, ex.Message);
                 }
             }
 

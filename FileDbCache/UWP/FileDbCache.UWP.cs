@@ -9,7 +9,7 @@ namespace MapControl.Caching
 {
     public partial class FileDbCache : IImageCache
     {
-        public Task<ImageCacheItem> GetAsync(string key)
+        public Task<Tuple<byte[], DateTime>> GetAsync(string key)
         {
             return Task.Run(() =>
             {
@@ -20,17 +20,13 @@ namespace MapControl.Caching
                     return null;
                 }
 
-                return new ImageCacheItem
-                {
-                    Buffer = (byte[])record[0],
-                    Expiration = (DateTime)record[1]
-                };
+                return Tuple.Create((byte[])record[0], (DateTime)record[1]);
             });
         }
 
-        public Task SetAsync(string key, ImageCacheItem cacheItem)
+        public Task SetAsync(string key, byte[] buffer, DateTime expiration)
         {
-            return Task.Run(() => AddOrUpdateRecord(key, cacheItem.Buffer, cacheItem.Expiration));
+            return Task.Run(() => AddOrUpdateRecord(key, buffer, expiration));
         }
     }
 }

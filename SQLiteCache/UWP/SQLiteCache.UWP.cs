@@ -10,7 +10,7 @@ namespace MapControl.Caching
 {
     public partial class SQLiteCache : IImageCache
     {
-        public async Task<ImageCacheItem> GetAsync(string key)
+        public async Task<Tuple<byte[], DateTime>> GetAsync(string key)
         {
             try
             {
@@ -20,36 +20,30 @@ namespace MapControl.Caching
 
                     if (await reader.ReadAsync())
                     {
-                        return new ImageCacheItem
-                        {
-                            Expiration = new DateTime((long)reader["expiration"]),
-                            Buffer = (byte[])reader["buffer"]
-                        };
+                        return Tuple.Create((byte[])reader["buffer"], new DateTime((long)reader["expiration"]));
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.GetAsync(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.GetAsync({0}): {1}", key, ex.Message);
             }
 
             return null;
         }
 
-        public async Task SetAsync(string key, ImageCacheItem cacheItem)
+        public async Task SetAsync(string key, byte[] buffer, DateTime expiration)
         {
             try
             {
-                using (var command = SetItemCommand(key, cacheItem.Expiration, cacheItem.Buffer))
+                using (var command = SetItemCommand(key, expiration, buffer))
                 {
                     await command.ExecuteNonQueryAsync();
                 }
-
-                //Debug.WriteLine("SQLiteCache.SetAsync(\"{0}\"): expires {1}", key, cacheItem.Expiration.ToLocalTime());
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.SetAsync(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("SQLiteCache.SetAsync({0}): {1}", key, ex.Message);
             }
         }
     }

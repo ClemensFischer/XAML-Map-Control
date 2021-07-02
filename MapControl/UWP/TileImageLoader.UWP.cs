@@ -4,7 +4,6 @@
 
 using System;
 using System.Threading.Tasks;
-using MapControl.Caching;
 #if WINDOWS_UWP
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
@@ -19,9 +18,9 @@ namespace MapControl
     {
         public interface IImageCache
         {
-            Task<ImageCacheItem> GetAsync(string key);
+            Task<Tuple<byte[], DateTime>> GetAsync(string key);
 
-            Task SetAsync(string key, ImageCacheItem cacheItem);
+            Task SetAsync(string key, byte[] buffer, DateTime expiration);
         }
     }
 
@@ -39,15 +38,15 @@ namespace MapControl
         /// <summary>
         /// The IImageCache implementation used to cache tile images. The default is null.
         /// </summary>
-        public static IImageCache Cache { get; set; }
+        public static Caching.IImageCache Cache { get; set; }
 
 
         private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
-            var buffer = cacheItem?.Buffer;
+            var buffer = cacheItem?.Item1;
 
-            if (cacheItem == null || cacheItem.Expiration < DateTime.UtcNow)
+            if (cacheItem == null || cacheItem.Item2 < DateTime.UtcNow)
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
@@ -55,15 +54,10 @@ namespace MapControl
                 {
                     buffer = response.Buffer; // may be null or empty when no tile available, but still be cached
 
-                    cacheItem = new ImageCacheItem
-                    {
-                        Buffer = buffer,
-                        Expiration = GetExpiration(response.MaxAge)
-                    };
-
-                    await Cache.SetAsync(cacheKey, cacheItem).ConfigureAwait(false);
+                    await Cache.SetAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
                 }
             }
+            else System.Diagnostics.Debug.WriteLine("Cached: " + cacheKey);
 
             if (buffer != null && buffer.Length > 0)
             {

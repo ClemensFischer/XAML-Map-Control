@@ -75,7 +75,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache.Contains(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("FileDbCache.Contains({0}): {1}", key, ex.Message);
             }
 
             return false;
@@ -100,11 +100,7 @@ namespace MapControl.Caching
                 return null;
             }
 
-            return new ImageCacheItem
-            {
-                Buffer = (byte[])record[0],
-                Expiration = (DateTime)record[1]
-            };
+            return Tuple.Create((byte[])record[0], (DateTime)record[1]);
         }
 
         public override CacheItem GetCacheItem(string key, string regionName = null)
@@ -131,12 +127,12 @@ namespace MapControl.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            if (!(value is ImageCacheItem imageCacheItem))
+            if (!(value is Tuple<byte[], DateTime> cacheItem))
             {
-                throw new ArgumentException("The value argument must be a MapControl.Caching.ImageCacheItem instance.", nameof(value));
+                throw new ArgumentException("The value argument must be a Tuple<byte[], DateTime>.", nameof(value));
             }
 
-            AddOrUpdateRecord(key, imageCacheItem.Buffer, imageCacheItem.Expiration);
+            AddOrUpdateRecord(key, cacheItem.Item1, cacheItem.Item2);
         }
 
         public override void Set(string key, object value, DateTimeOffset absoluteExpiration, string regionName = null)
@@ -184,7 +180,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache.Remove(\"{0}\"): {1}", key, ex.Message);
+                    Debug.WriteLine("FileDbCache.Remove({0}): {1}", key, ex.Message);
                 }
             }
 

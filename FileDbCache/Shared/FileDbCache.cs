@@ -19,7 +19,7 @@ namespace MapControl.Caching
         private const string valueField = "Value";
         private const string expiresField = "Expires";
 
-        private readonly FileDb fileDb = new FileDb() { AutoFlush = true };
+        private readonly FileDb fileDb = new FileDb { AutoFlush = true };
 
         public FileDbCache(string path)
         {
@@ -91,7 +91,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache.GetRecordByKey(\"{0}\"): {1}", key, ex.Message);
+                Debug.WriteLine("FileDbCache.GetRecordByKey({0}): {1}", key, ex.Message);
             }
 
             return null;
@@ -114,12 +114,10 @@ namespace MapControl.Caching
                     fieldValues.Add(keyField, key);
                     fileDb.AddRecord(fieldValues);
                 }
-
-                //Debug.WriteLine("FileDbCache: Writing \"{0}\", Expires {1}", key, imageCacheItem.Expiration.ToLocalTime());
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache.AddOrUpdateRecord(\"{0}\"): {1}", key, ex.Message); return;
+                Debug.WriteLine("FileDbCache.AddOrUpdateRecord({0}): {1}", key, ex.Message); return;
             }
         }
     }

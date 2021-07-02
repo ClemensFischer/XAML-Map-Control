@@ -48,8 +48,4 @@
     <ItemGroup>
         <PackageReference Include="System.Data.SQLite.Core" Version="1.0.114.2" />
     </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
-    </ItemGroup>
 </Project>

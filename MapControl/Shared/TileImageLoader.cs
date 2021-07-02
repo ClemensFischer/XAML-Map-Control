@@ -13,15 +13,6 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
-    namespace Caching
-    {
-        public class ImageCacheItem
-        {
-            public byte[] Buffer { get; set; }
-            public DateTime Expiration { get; set; }
-        }
-    }
-
 #if NETFRAMEWORK
     static class ConcurrentQueueEx
     {

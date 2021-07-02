@@ -95,7 +95,7 @@ namespace MapControl.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var cacheItem = memoryCache.Get(key) as ImageCacheItem;
+            var cacheItem = memoryCache.Get(key) as Tuple<byte[], DateTime>;
 
             if (cacheItem == null)
             {
@@ -108,15 +108,9 @@ namespace MapControl.Caching
                         var buffer = File.ReadAllBytes(path);
                         var expiration = ReadExpiration(ref buffer);
 
-                        cacheItem = new ImageCacheItem
-                        {
-                            Buffer = buffer,
-                            Expiration = expiration
-                        };
+                        cacheItem = new Tuple<byte[], DateTime>(buffer, expiration);
 
                         memoryCache.Set(key, cacheItem, new CacheItemPolicy { AbsoluteExpiration = expiration });
-
-                        //Debug.WriteLine("ImageFileCache: Read {0}, Expires {1}", path, cacheItem.Expiration.ToLocalTime());
                     }
                 }
                 catch (Exception ex)
@@ -152,16 +146,17 @@ namespace MapControl.Caching
                 throw new ArgumentNullException(nameof(key));
             }
 
-            if (!(value is ImageCacheItem cacheItem))
+            if (!(value is Tuple<byte[], DateTime> cacheItem))
             {
-                throw new ArgumentException("The value argument must be a MapControl.Caching.ImageCacheItem instance.", nameof(value));
+                throw new ArgumentException("The value argument must be a Tuple<byte[], DateTime>.", nameof(value));
             }
 
             memoryCache.Set(key, cacheItem, policy);
 
+            var buffer = cacheItem.Item1;
             var path = GetPath(key);
 
-            if (cacheItem.Buffer != null && cacheItem.Buffer.Length > 0 && path != null)
+            if (buffer != null && buffer.Length > 0 && path != null)
             {
                 try
                 {
@@ -169,16 +164,14 @@ namespace MapControl.Caching
 
                     using (var stream = File.Create(path))
                     {
-                        stream.Write(cacheItem.Buffer, 0, cacheItem.Buffer.Length);
-                        WriteExpiration(stream, cacheItem.Expiration);
+                        stream.Write(buffer, 0, buffer.Length);
+                        WriteExpiration(stream, cacheItem.Item2);
                     }
 
                     var fileInfo = new FileInfo(path);
                     var fileSecurity = fileInfo.GetAccessControl();
                     fileSecurity.AddAccessRule(fullControlRule);
                     fileInfo.SetAccessControl(fileSecurity);
-
-                    //Debug.WriteLine("ImageFileCache: Wrote {0}, Expires {1}", path, cacheItem.Expiration.ToLocalTime());
                 }
                 catch (Exception ex)
                 {
