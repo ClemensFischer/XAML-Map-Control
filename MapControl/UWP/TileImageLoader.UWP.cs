@@ -3,8 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using MapControl.Caching;
 #if WINDOWS_UWP
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
@@ -15,6 +15,16 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MapControl
 {
+    namespace Caching
+    {
+        public interface IImageCache
+        {
+            Task<ImageCacheItem> GetAsync(string key);
+
+            Task SetAsync(string key, ImageCacheItem cacheItem);
+        }
+    }
+
     public partial class TileImageLoader
     {
         /// <summary>
@@ -29,7 +39,7 @@ namespace MapControl
         /// <summary>
         /// The IImageCache implementation used to cache tile images. The default is null.
         /// </summary>
-        public static Caching.IImageCache Cache { get; set; }
+        public static IImageCache Cache { get; set; }
 
 
         private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheKey)
@@ -43,9 +53,15 @@ namespace MapControl
 
                 if (response != null) // download succeeded
                 {
-                    buffer = response.Buffer?.AsBuffer(); // may be null or empty when no tile available, but still be cached
+                    buffer = response.Buffer; // may be null or empty when no tile available, but still be cached
 
-                    await Cache.SetAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
+                    cacheItem = new ImageCacheItem
+                    {
+                        Buffer = buffer,
+                        Expiration = GetExpiration(response.MaxAge)
+                    };
+
+                    await Cache.SetAsync(cacheKey, cacheItem).ConfigureAwait(false);
                 }
             }
 

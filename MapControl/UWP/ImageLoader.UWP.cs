@@ -4,7 +4,6 @@
 
 using System;
 using System.IO;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -29,14 +28,16 @@ namespace MapControl
             return image;
         }
 
-        public static async Task<ImageSource> LoadImageAsync(IBuffer buffer)
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            using (var stream = new InMemoryRandomAccessStream())
-            {
-                await stream.WriteAsync(buffer);
-                stream.Seek(0);
+            return LoadImageAsync(stream.AsRandomAccessStream());
+        }
 
-                return await LoadImageAsync(stream);
+        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        {
+            using (var stream = new MemoryStream(buffer))
+            {
+                return LoadImageAsync(stream);
             }
         }
 
@@ -55,16 +56,6 @@ namespace MapControl
             }
 
             return image;
-        }
-
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
-        {
-            return LoadImageAsync(stream.AsRandomAccessStream());
-        }
-
-        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            return LoadImageAsync(buffer.AsBuffer());
         }
     }
 }

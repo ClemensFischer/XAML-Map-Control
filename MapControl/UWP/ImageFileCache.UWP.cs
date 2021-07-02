@@ -5,9 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Storage.Streams;
 
 namespace MapControl.Caching
 {
@@ -15,7 +13,7 @@ namespace MapControl.Caching
     {
         public async Task<ImageCacheItem> GetAsync(string key)
         {
-            ImageCacheItem imageCacheItem = null;
+            ImageCacheItem cacheItem = null;
             var path = GetPath(key);
 
             try
@@ -25,9 +23,9 @@ namespace MapControl.Caching
                     var buffer = await File.ReadAllBytesAsync(path);
                     var expiration = ReadExpiration(ref buffer);
 
-                    imageCacheItem = new ImageCacheItem
+                    cacheItem = new ImageCacheItem
                     {
-                        Buffer = buffer.AsBuffer(),
+                        Buffer = buffer,
                         Expiration = expiration
                     };
 
@@ -39,14 +37,14 @@ namespace MapControl.Caching
                 Debug.WriteLine("ImageFileCache: Failed reading {0}: {1}", path, ex.Message);
             }
 
-            return imageCacheItem;
+            return cacheItem;
         }
 
-        public async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
+        public async Task SetAsync(string key, ImageCacheItem cacheItem)
         {
             var path = GetPath(key);
 
-            if (buffer != null && buffer.Length > 0 && path != null)
+            if (cacheItem.Buffer != null && cacheItem.Buffer.Length > 0 && path != null)
             {
                 try
                 {
@@ -54,8 +52,8 @@ namespace MapControl.Caching
 
                     using (var stream = File.Create(path))
                     {
-                        await stream.AsOutputStream().WriteAsync(buffer);
-                        await WriteExpirationAsync(stream, expiration);
+                        await stream.WriteAsync(cacheItem.Buffer, 0, cacheItem.Buffer.Length);
+                        await WriteExpirationAsync(stream, cacheItem.Expiration);
                     }
 
                     //Debug.WriteLine("ImageFileCache: Wrote {0}, Expires {1}", path, expiration.ToLocalTime());

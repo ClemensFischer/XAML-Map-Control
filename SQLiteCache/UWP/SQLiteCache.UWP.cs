@@ -4,9 +4,7 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Storage.Streams;
 
 namespace MapControl.Caching
 {
@@ -25,7 +23,7 @@ namespace MapControl.Caching
                         return new ImageCacheItem
                         {
                             Expiration = new DateTime((long)reader["expiration"]),
-                            Buffer = ((byte[])reader["buffer"]).AsBuffer()
+                            Buffer = (byte[])reader["buffer"]
                         };
                     }
                 }
@@ -38,16 +36,16 @@ namespace MapControl.Caching
             return null;
         }
 
-        public async Task SetAsync(string key, IBuffer buffer, DateTime expiration)
+        public async Task SetAsync(string key, ImageCacheItem cacheItem)
         {
             try
             {
-                using (var command = SetItemCommand(key, expiration, buffer?.ToArray()))
+                using (var command = SetItemCommand(key, cacheItem.Expiration, cacheItem.Buffer))
                 {
                     await command.ExecuteNonQueryAsync();
                 }
 
-                //Debug.WriteLine("SQLiteCache.SetAsync(\"{0}\"): expires {1}", key, expiration.ToLocalTime());
+                //Debug.WriteLine("SQLiteCache.SetAsync(\"{0}\"): expires {1}", key, cacheItem.Expiration.ToLocalTime());
             }
             catch (Exception ex)
             {

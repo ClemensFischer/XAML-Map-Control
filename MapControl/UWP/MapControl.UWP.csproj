@@ -186,7 +186,6 @@
       <Link>WorldMercatorProjection.cs</Link>
     </Compile>
     <Compile Include="Animatable.UWP.cs" />
-    <Compile Include="ImageCache.UWP.cs" />
     <Compile Include="ImageFileCache.UWP.cs" />
     <Compile Include="Map.UWP.cs" />
     <Compile Include="MapBase.UWP.cs" />

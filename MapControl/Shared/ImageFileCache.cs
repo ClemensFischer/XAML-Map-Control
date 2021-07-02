@@ -54,14 +54,21 @@ namespace MapControl.Caching
 
         private void CleanRootDirectory()
         {
-            foreach (var dir in new DirectoryInfo(rootDirectory).EnumerateDirectories())
+            try
             {
-                var deletedFileCount = CleanDirectory(dir);
-
-                if (deletedFileCount > 0)
+                foreach (var dir in new DirectoryInfo(rootDirectory).EnumerateDirectories())
                 {
-                    Debug.WriteLine("ImageFileCache: Cleaned {0} files in {1}", deletedFileCount, dir);
+                    var deletedFileCount = CleanDirectory(dir);
+
+                    if (deletedFileCount > 0)
+                    {
+                        Debug.WriteLine("ImageFileCache: Cleaned {0} files in {1}", deletedFileCount, dir);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageFileCache: Failed enumerating directories in {0}: {1}", rootDirectory, ex.Message);
             }
         }
 
@@ -69,37 +76,54 @@ namespace MapControl.Caching
         {
             var deletedFileCount = 0;
 
-            foreach (var dir in directory.EnumerateDirectories())
+            try
             {
-                deletedFileCount += CleanDirectory(dir);
+                deletedFileCount += directory.EnumerateDirectories().Sum(dir => CleanDirectory(dir));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageFileCache: Failed enumerating directories in {0}: {1}", directory.FullName, ex.Message);
             }
 
-            foreach (var file in directory.EnumerateFiles())
+            try
             {
-                try
-                {
-                    if (ReadExpiration(file) < DateTime.UtcNow)
-                    {
-                        file.Delete();
-                        deletedFileCount++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", file.FullName, ex.Message);
-                }
+                deletedFileCount += directory.EnumerateFiles().Sum(file => CleanFile(file));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageFileCache: Failed enumerating files in {0}: {1}", directory.FullName, ex.Message);
             }
 
-            if (!directory.EnumerateFileSystemInfos().Any())
+            try
             {
-                try
+                if (!directory.EnumerateFileSystemInfos().Any())
                 {
                     directory.Delete();
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", directory.FullName, ex.Message);
+            }
+
+            return deletedFileCount;
+        }
+
+        private static int CleanFile(FileInfo file)
+        {
+            var deletedFileCount = 0;
+
+            try
+            {
+                if (ReadExpiration(file) < DateTime.UtcNow)
                 {
-                    Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", directory.FullName, ex.Message);
+                    file.Delete();
+                    deletedFileCount = 1;
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", file.FullName, ex.Message);
             }
 
             return deletedFileCount;

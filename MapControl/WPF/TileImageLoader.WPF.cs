@@ -2,23 +2,14 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using MapControl.Caching;
 using System;
 using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
+using MapControl.Caching;
 
 namespace MapControl
 {
-    namespace Caching
-    {
-        public class ImageCacheItem
-        {
-            public byte[] Buffer { get; set; }
-            public DateTime Expiration { get; set; }
-        }
-    }
-
     public partial class TileImageLoader
     {
         /// <summary>

@@ -3,9 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Storage.Streams;
 
 namespace MapControl.Caching
 {
@@ -24,15 +22,15 @@ namespace MapControl.Caching
 
                 return new ImageCacheItem
                 {
-                    Buffer = ((byte[])record[0]).AsBuffer(),
+                    Buffer = (byte[])record[0],
                     Expiration = (DateTime)record[1]
                 };
             });
         }
 
-        public Task SetAsync(string key, IBuffer buffer, DateTime expiration)
+        public Task SetAsync(string key, ImageCacheItem cacheItem)
         {
-            return Task.Run(() => AddOrUpdateRecord(key, buffer?.ToArray(), expiration));
+            return Task.Run(() => AddOrUpdateRecord(key, cacheItem.Buffer, cacheItem.Expiration));
         }
     }
 }
