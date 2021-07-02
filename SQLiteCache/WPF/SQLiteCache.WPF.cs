@@ -151,7 +151,7 @@ namespace MapControl.Caching
 
             try
             {
-                using (var command = SetItemCommand(key, cacheItem.Item2, cacheItem.Item1))
+                using (var command = SetItemCommand(key, cacheItem.Item1, cacheItem.Item2))
                 {
                     command.ExecuteNonQuery();
                 }

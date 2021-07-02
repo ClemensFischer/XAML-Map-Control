@@ -36,7 +36,7 @@ namespace MapControl.Caching
         {
             try
             {
-                using (var command = SetItemCommand(key, expiration, buffer))
+                using (var command = SetItemCommand(key, buffer, expiration))
                 {
                     await command.ExecuteNonQueryAsync();
                 }

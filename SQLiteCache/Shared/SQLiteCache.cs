@@ -86,7 +86,7 @@ namespace MapControl.Caching
             return command;
         }
 
-        private SQLiteCommand SetItemCommand(string key, DateTime expiration, byte[] buffer)
+        private SQLiteCommand SetItemCommand(string key, byte[] buffer, DateTime expiration)
         {
             var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
             command.Parameters.AddWithValue("@key", key);

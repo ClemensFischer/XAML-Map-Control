@@ -47,7 +47,7 @@ namespace MapControl
 
             line.SetBinding(Shape.StrokeProperty, this.GetBinding(nameof(Stroke)));
             line.SetBinding(Shape.StrokeThicknessProperty, this.GetBinding(nameof(StrokeThickness)));
-#if WINDOWS_UWP
+#if WINUI || WINDOWS_UWP
             label.SetBinding(TextBlock.ForegroundProperty, this.GetBinding(nameof(Foreground)));
 #endif
             Children.Add(line);

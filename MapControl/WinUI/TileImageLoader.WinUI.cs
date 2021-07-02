@@ -3,9 +3,10 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
-using Windows.UI.Core;
-using Windows.UI.Xaml.Media;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Media;
 
 namespace MapControl
 {
@@ -22,12 +23,11 @@ namespace MapControl
     public partial class TileImageLoader
     {
         /// <summary>
-        /// Default folder path where an IImageCache instance may save cached data,
-        /// i.e. Windows.Storage.ApplicationData.Current.TemporaryFolder.Path.
+        /// Default folder path where an IImageCache instance may save cached data, i.e. C:\ProgramData\MapControl\TileCache
         /// </summary>
         public static string DefaultCacheFolder
         {
-            get { return Windows.Storage.ApplicationData.Current.TemporaryFolder.Path; }
+            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache"); }
         }
 
         /// <summary>
@@ -65,16 +65,16 @@ namespace MapControl
             return SetTileImageAsync(tile, () => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
         }
 
-        public static async Task SetTileImageAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
+        public static Task SetTileImageAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource();
 
-            await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, async () =>
             {
                 try
                 {
                     tile.SetImage(await loadImageFunc());
-                    tcs.TrySetResult(null);
+                    tcs.TrySetResult();
                 }
                 catch (Exception ex)
                 {
@@ -82,7 +82,7 @@ namespace MapControl
                 }
             });
 
-            await tcs.Task.ConfigureAwait(false);
+            return tcs.Task;
         }
     }
 }

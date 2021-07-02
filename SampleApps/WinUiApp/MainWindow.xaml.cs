@@ -19,11 +19,14 @@ namespace WinUiApp
             {
                 ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
 
-                var appData = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl");
+                var bingMapsApiKeyFile = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "BingMapsApiKey.txt");
 
-                TileImageLoader.Cache = new ImageFileCache(Path.Combine(appData, "TileCache"));
-                BingMapsTileLayer.ApiKey = File.ReadAllText(Path.Combine(appData, "BingMapsApiKey.txt"))?.Trim();
+                BingMapsTileLayer.ApiKey = File.ReadAllText(bingMapsApiKeyFile)?.Trim();
+
+                TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+                //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
+                //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
             }
             catch (Exception ex)
             {
