@@ -24,9 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\FileDbCache\WPF\FileDbCache.WPF.csproj" />
         <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
-        <ProjectReference Include="..\..\SQLiteCache\WPF\SQLiteCache.WPF.csproj" />
     </ItemGroup>
 
     <ItemGroup>
