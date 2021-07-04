@@ -24,7 +24,7 @@ namespace WinUiApp
 
                 BingMapsTileLayer.ApiKey = File.ReadAllText(bingMapsApiKeyFile)?.Trim();
 
-                TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+                //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
             }
