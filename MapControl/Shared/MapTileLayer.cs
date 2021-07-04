@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 #if WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
@@ -115,7 +116,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override void UpdateTileLayer(bool tileSourceChanged)
+        protected override Task UpdateTileLayer()
         {
             var update = false;
 
@@ -126,7 +127,7 @@ namespace MapControl
             }
             else
             {
-                if (tileSourceChanged)
+                if (TileSource != TileImageLoader.TileSource)
                 {
                     Tiles.Clear();
                     update = true;
@@ -141,7 +142,7 @@ namespace MapControl
 
             if (update)
             {
-                SetTiles();
+                UpdateTiles();
 
                 Children.Clear();
 
@@ -150,8 +151,10 @@ namespace MapControl
                     Children.Add(tile.Image);
                 }
 
-                LoadTiles(Tiles, SourceName);
+                return TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
             }
+
+            return Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()
@@ -196,7 +199,7 @@ namespace MapControl
             return true;
         }
 
-        private void SetTiles()
+        private void UpdateTiles()
         {
             int maxZoomLevel;
 

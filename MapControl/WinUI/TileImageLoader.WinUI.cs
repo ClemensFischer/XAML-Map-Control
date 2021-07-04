@@ -2,11 +2,11 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Media;
 
 namespace MapControl
 {
@@ -31,7 +31,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// An IImageCache implementation used to cache tile images. The default is null.
+        /// An IImageCache implementation used to cache tile images.
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
 
@@ -69,7 +69,7 @@ namespace MapControl
         {
             var tcs = new TaskCompletionSource();
 
-            tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, async () =>
+            async void callback()
             {
                 try
                 {
@@ -80,7 +80,13 @@ namespace MapControl
                 {
                     tcs.TrySetException(ex);
                 }
-            });
+            }
+
+            if (!tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, callback))
+            {
+                tile.Pending = true;
+                tcs.TrySetResult();
+            }
 
             return tcs.Task;
         }

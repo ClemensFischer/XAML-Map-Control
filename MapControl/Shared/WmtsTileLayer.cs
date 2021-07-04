@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 #if WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
@@ -86,19 +87,24 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override void UpdateTileLayer(bool tileSourceChanged)
+        protected override Task UpdateTileLayer()
         {
             if (ParentMap == null ||
                 !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
             {
                 Children.Clear();
-                UpdateTiles(null);
+
+                return UpdateTiles(null);
             }
-            else if (UpdateChildLayers(tileMatrixSet))
+
+            if (UpdateChildLayers(tileMatrixSet))
             {
                 SetRenderTransform();
-                UpdateTiles(tileMatrixSet);
+
+                return UpdateTiles(tileMatrixSet);
             }
+
+            return Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()
@@ -154,7 +160,7 @@ namespace MapControl
             return layersChanged;
         }
 
-        private void UpdateTiles(WmtsTileMatrixSet tileMatrixSet)
+        private Task UpdateTiles(WmtsTileMatrixSet tileMatrixSet)
         {
             var tiles = new List<Tile>();
             var cacheName = SourceName;
@@ -180,7 +186,7 @@ namespace MapControl
                 }
             }
 
-            LoadTiles(tiles, cacheName);
+            return TileImageLoader.LoadTiles(tiles, TileSource, cacheName);
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)

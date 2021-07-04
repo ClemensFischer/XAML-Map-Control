@@ -31,7 +31,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// An IImageCache implementation used to cache tile images. The default is null.
+        /// An IImageCache implementation used to cache tile images.
         /// </summary>
         public static Caching.IImageCache Cache { get; set; }
 
@@ -69,7 +69,7 @@ namespace MapControl
         {
             var tcs = new TaskCompletionSource<object>();
 
-            await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            async void callback()
             {
                 try
                 {
@@ -80,7 +80,9 @@ namespace MapControl
                 {
                     tcs.TrySetException(ex);
                 }
-            });
+            }
+
+            await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, callback);
 
             await tcs.Task.ConfigureAwait(false);
         }

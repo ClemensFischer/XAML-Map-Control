@@ -4,7 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 #if WINUI
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -23,14 +25,16 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName);
+        TileSource TileSource { get; }
+
+        Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName);
     }
 
     public abstract class MapTileLayerBase : Panel, IMapLayer
     {
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
             nameof(TileSource), typeof(TileSource), typeof(MapTileLayerBase),
-            new PropertyMetadata(null, (o, e) => ((MapTileLayerBase)o).Update(true)));
+            new PropertyMetadata(null, async (o, e) => await ((MapTileLayerBase)o).Update()));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
             nameof(SourceName), typeof(string), typeof(MapTileLayerBase), new PropertyMetadata(null));
@@ -54,7 +58,11 @@ namespace MapControl
         public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
             nameof(MapForeground), typeof(Brush), typeof(MapTileLayerBase), new PropertyMetadata(null));
 
-        private readonly DispatcherTimer updateTimer;
+#if WINUI
+        private readonly DispatcherQueueTimer updateTimer;
+#else
+        private readonly DispatcherTimer updateTimer = new DispatcherTimer();
+#endif
         private MapBase parentMap;
 
         protected MapTileLayerBase(ITileImageLoader tileImageLoader)
@@ -62,8 +70,11 @@ namespace MapControl
             RenderTransform = new MatrixTransform();
             TileImageLoader = tileImageLoader;
 
-            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
-            updateTimer.Tick += (s, e) => Update(false);
+#if WINUI
+            updateTimer = DispatcherQueue.CreateTimer();
+#endif
+            updateTimer.Interval = UpdateInterval;
+            updateTimer.Tick += async (s, e) => await Update();
 
 #if WINUI || WINDOWS_UWP
             MapPanel.InitMapElement(this);
@@ -162,15 +173,15 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                Update(false);
+                updateTimer.Start();
             }
         }
 
-        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
+        private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (Children.Count == 0 || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
             {
-                Update(false); // update immediately when projection has changed or center has moved across 180° longitude
+                await Update(); // update immediately when projection has changed or center has moved across 180° longitude
             }
             else
             {
@@ -185,20 +196,15 @@ namespace MapControl
             }
         }
 
-        private void Update(bool tileSourceChanged)
+        private Task Update()
         {
             updateTimer.Stop();
 
-            UpdateTileLayer(tileSourceChanged);
+            return UpdateTileLayer();
         }
 
-        protected abstract void UpdateTileLayer(bool tileSourceChanged);
+        protected abstract Task UpdateTileLayer();
 
         protected abstract void SetRenderTransform();
-
-        protected virtual void LoadTiles(IEnumerable<Tile> tiles, string cacheName)
-        {
-            TileImageLoader.LoadTiles(tiles, TileSource, cacheName);
-        }
     }
 }
