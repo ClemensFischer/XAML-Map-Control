@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Globalization;
 #if WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
@@ -70,18 +71,9 @@ namespace MapControl
                 var length = MinWidth / scale;
                 var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 
-                if (length / magnitude < 2d)
-                {
-                    length = 2d * magnitude;
-                }
-                else if (length / magnitude < 5d)
-                {
-                    length = 5d * magnitude;
-                }
-                else
-                {
-                    length = 10d * magnitude;
-                }
+                length = length / magnitude < 2d ? 2d * magnitude
+                       : length / magnitude < 5d ? 5d * magnitude
+                       : 10d * magnitude;
 
                 size.Width = length * scale + StrokeThickness + Padding.Left + Padding.Right;
                 size.Height = 1.25 * FontSize + StrokeThickness + Padding.Top + Padding.Bottom;
@@ -100,7 +92,9 @@ namespace MapControl
                 };
                 line.Measure(size);
 
-                label.Text = length >= 1000d ? string.Format("{0:0} km", length / 1000d) : string.Format("{0:0} m", length);
+                label.Text = length >= 1000d
+                    ? string.Format(CultureInfo.InvariantCulture, "{0:0} km", length / 1000d)
+                    : string.Format(CultureInfo.InvariantCulture, "{0:0} m", length);
                 label.Width = size.Width;
                 label.Height = size.Height;
                 label.Measure(size);
