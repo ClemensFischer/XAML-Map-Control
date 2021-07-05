@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl
@@ -46,50 +45,47 @@ namespace MapControl
         /// </summary>
         public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
 
+        /// <summary>
+        /// The current TileSource, passed to the most recent LoadTiles call.
+        /// </summary>
         public TileSource TileSource { get; private set; }
 
-        private readonly ConcurrentQueue<Tile> tileQueue = new ConcurrentQueue<Tile>();
-        private int taskCount;
+        private ConcurrentQueue<Tile> tileQueue;
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection.
-        /// If tileSource.UriFormat starts with "http" and tileCacheName is a non-empty string,
-        /// tile images will be cached in the TileImageLoader's Cache (if that is not null).
+        /// If tileSource.UriFormat starts with "http" and cacheName is a non-empty string,
+        /// tile images will be cached in the TileImageLoader's Cache - if that is not null.
         /// </summary>
         public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
         {
-            var tasks = new List<Task>();
+            tileQueue?.Clear(); // stop download from current queue
 
-            tileQueue.Clear();
+            tileQueue = new ConcurrentQueue<Tile>(tiles.Where(tile => tile.Pending));
 
             TileSource = tileSource;
-            tiles = tiles.Where(tile => tile.Pending);
 
-            if (tileSource != null && tiles.Any())
+            if (tileSource == null || tileQueue.IsEmpty)
             {
-                if (string.IsNullOrEmpty(cacheName) || Cache == null ||
-                    tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
-                {
-                    cacheName = null;
-                }
-
-                foreach (var tile in tiles)
-                {
-                    tileQueue.Enqueue(tile);
-                }
-
-                while (taskCount < Math.Min(tileQueue.Count, MaxLoadTasks))
-                {
-                    Interlocked.Increment(ref taskCount);
-
-                    tasks.Add(LoadTilesFromQueueAsync(tileSource, cacheName));
-                }
+                return Task.CompletedTask;
             }
 
-            return tasks.Count > 0 ? Task.WhenAll(tasks) : Task.CompletedTask;
+            if (string.IsNullOrEmpty(cacheName) ||
+                Cache == null ||
+                tileSource.UriFormat == null ||
+                !tileSource.UriFormat.StartsWith("http"))
+            {
+                cacheName = null; // no tile caching
+            }
+
+            var tasks = Enumerable
+                .Range(0, Math.Min(tileQueue.Count, MaxLoadTasks))
+                .Select(_ => Task.Run(() => LoadTilesFromQueueAsync(tileQueue, tileSource, cacheName)));
+
+            return Task.WhenAll(tasks);
         }
 
-        private async Task LoadTilesFromQueueAsync(TileSource tileSource, string cacheName)
+        private static async Task LoadTilesFromQueueAsync(ConcurrentQueue<Tile> tileQueue, TileSource tileSource, string cacheName)
         {
             while (tileQueue.TryDequeue(out var tile))
             {
@@ -104,11 +100,9 @@ namespace MapControl
                     Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
                 }
             }
-
-            Interlocked.Decrement(ref taskCount);
         }
 
-        private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+            private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
             if (cacheName == null)
             {
