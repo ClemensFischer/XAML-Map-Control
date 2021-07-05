@@ -79,23 +79,9 @@ namespace MapControl.Caching
             try
             {
                 deletedFileCount += directory.EnumerateDirectories().Sum(dir => CleanDirectory(dir));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageFileCache: Failed enumerating directories in {0}: {1}", directory.FullName, ex.Message);
-            }
 
-            try
-            {
                 deletedFileCount += directory.EnumerateFiles().Sum(file => CleanFile(file));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("ImageFileCache: Failed enumerating files in {0}: {1}", directory.FullName, ex.Message);
-            }
 
-            try
-            {
                 if (!directory.EnumerateFileSystemInfos().Any())
                 {
                     directory.Delete();
