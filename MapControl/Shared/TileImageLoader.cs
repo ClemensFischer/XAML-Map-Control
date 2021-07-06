@@ -13,16 +13,6 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
-#if NETFRAMEWORK
-    static class ConcurrentQueueEx
-    {
-        public static void Clear<T>(this ConcurrentQueue<T> tileQueue)
-        {
-            while (tileQueue.TryDequeue(out _)) ;
-        }
-    }
-#endif
-
     /// <summary>
     /// Loads and optionally caches map tile images for a MapTileLayer.
     /// </summary>
@@ -50,7 +40,7 @@ namespace MapControl
         /// </summary>
         public TileSource TileSource { get; private set; }
 
-        private ConcurrentQueue<Tile> tileQueue;
+        private ConcurrentStack<Tile> pendingTiles;
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection.
@@ -59,13 +49,13 @@ namespace MapControl
         /// </summary>
         public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
         {
-            tileQueue?.Clear(); // stop download from current queue
+            pendingTiles?.Clear(); // stop download from current stack
 
-            tileQueue = new ConcurrentQueue<Tile>(tiles.Where(tile => tile.Pending));
+            pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.Pending).Reverse());
 
             TileSource = tileSource;
 
-            if (tileSource == null || tileQueue.IsEmpty)
+            if (tileSource == null || pendingTiles.IsEmpty)
             {
                 return Task.CompletedTask;
             }
@@ -79,15 +69,15 @@ namespace MapControl
             }
 
             var tasks = Enumerable
-                .Range(0, Math.Min(tileQueue.Count, MaxLoadTasks))
-                .Select(_ => Task.Run(() => LoadTilesFromQueueAsync(tileQueue, tileSource, cacheName)));
+                .Range(0, Math.Min(pendingTiles.Count, MaxLoadTasks))
+                .Select(_ => Task.Run(() => LoadPendingTilesAsync(pendingTiles, tileSource, cacheName)));
 
             return Task.WhenAll(tasks);
         }
 
-        private static async Task LoadTilesFromQueueAsync(ConcurrentQueue<Tile> tileQueue, TileSource tileSource, string cacheName)
+        private static async Task LoadPendingTilesAsync(ConcurrentStack<Tile> pendingTiles, TileSource tileSource, string cacheName)
         {
-            while (tileQueue.TryDequeue(out var tile))
+            while (pendingTiles.TryPop(out var tile))
             {
                 tile.Pending = false;
 
@@ -97,12 +87,12 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("TileImageLoader: {0}/{1}/{2}: {3}", tile.ZoomLevel, tile.XIndex, tile.Y, ex.Message);
+                    Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.XIndex}/{tile.Y}: {ex.Message}");
                 }
             }
         }
 
-            private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
             if (cacheName == null)
             {
