@@ -55,7 +55,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.GetCount(): {0}", ex.Message);
+                Debug.WriteLine($"SQLiteCache.GetCount(): {ex.Message}");
             }
 
             return 0;
@@ -82,7 +82,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.Contains({0}): {1}", key, ex.Message);
+                Debug.WriteLine($"SQLiteCache.Contains({key}): {ex.Message}");
             }
 
             return false;
@@ -114,7 +114,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.Get({0}): {1}", key, ex.Message);
+                Debug.WriteLine($"SQLiteCache.Get({key}): {ex.Message}");
             }
 
             return null;
@@ -158,7 +158,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.Set({0}): {1}", key, ex.Message);
+                Debug.WriteLine($"SQLiteCache.Set({key}): {ex.Message}");
             }
         }
 
@@ -210,7 +210,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("SQLiteCache.Remove({0}): {1}", key, ex.Message);
+                    Debug.WriteLine($"SQLiteCache.Remove({key}): {ex.Message}");
                 }
             }
 

@@ -77,7 +77,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Failed finding {0}: {1}", path, ex.Message);
+                Debug.WriteLine($"ImageFileCache: Failed finding {path}: {ex.Message}");
             }
 
             return false;
@@ -115,7 +115,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("ImageFileCache: Failed reading {0}: {1}", path, ex.Message);
+                    Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
                 }
             }
 
@@ -175,7 +175,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("ImageFileCache: Failed writing {0}: {1}", path, ex.Message);
+                    Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
                 }
             }
         }
@@ -238,7 +238,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Failed removing {0}: {1}", path, ex.Message);
+                Debug.WriteLine($"ImageFileCache: Failed removing {path}: {ex.Message}");
             }
 
             return null;

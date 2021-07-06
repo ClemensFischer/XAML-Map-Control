@@ -47,7 +47,7 @@ namespace MapControl.Caching
 
             if (deleted > 0)
             {
-                Debug.WriteLine("FileDbCache: Deleted {0} expired items.", deleted);
+                Debug.WriteLine($"FileDbCache: Deleted {deleted} expired items");
                 fileDb.Clean();
             }
         }
@@ -57,7 +57,7 @@ namespace MapControl.Caching
             try
             {
                 fileDb.Open(path);
-                Debug.WriteLine("FileDbCache: Opened database " + path);
+                Debug.WriteLine($"FileDbCache: Opened database {path}");
 
                 Clean();
             }
@@ -79,7 +79,7 @@ namespace MapControl.Caching
                     new Field(expiresField, DataTypeEnum.DateTime)
                 });
 
-                Debug.WriteLine("FileDbCache: Created database " + path);
+                Debug.WriteLine($"FileDbCache: Created database {path}");
             }
         }
 
@@ -91,7 +91,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache.GetRecordByKey({0}): {1}", key, ex.Message);
+                Debug.WriteLine($"FileDbCache.GetRecordByKey({key}): {ex.Message}");
             }
 
             return null;
@@ -117,7 +117,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache.AddOrUpdateRecord({0}): {1}", key, ex.Message); return;
+                Debug.WriteLine($"FileDbCache.AddOrUpdateRecord({key}): {ex.Message}");
             }
         }
     }

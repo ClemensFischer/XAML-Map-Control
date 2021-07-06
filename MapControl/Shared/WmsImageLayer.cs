@@ -119,7 +119,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                        Debug.WriteLine($"WmsImageLayer: {uri}: {ex.Message}");
                     }
                 }
             }
@@ -149,7 +149,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                        Debug.WriteLine($"WmsImageLayer: {uri}: {ex.Message}");
                     }
                 }
             }
@@ -176,7 +176,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("WmsImageLayer: {0}: {1}", uri, ex.Message);
+                        Debug.WriteLine($"WmsImageLayer: {uri}: {ex.Message}");
                     }
                 }
             }

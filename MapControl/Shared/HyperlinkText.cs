@@ -58,7 +58,7 @@ namespace MapControl
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine("{0}: {1}", e.Uri, ex);
+                            Debug.WriteLine($"{e.Uri}: {ex}");
                         }
                     };
 #endif

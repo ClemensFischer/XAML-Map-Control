@@ -28,7 +28,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Failed reading {0}: {1}", path, ex.Message);
+                Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
             }
 
             return cacheItem;
@@ -52,7 +52,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("ImageFileCache: Failed writing {0}: {1}", path, ex.Message);
+                    Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
                 }
             }
         }

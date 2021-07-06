@@ -81,7 +81,7 @@ namespace MapControl.Images
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("GroundOverlayPanel: {0}: {1}", path, ex.Message);
+                    Debug.WriteLine($"GroundOverlayPanel: {path}: {ex.Message}");
                 }
             }
 

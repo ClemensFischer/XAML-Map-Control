@@ -65,7 +65,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("BingMapsTileLayer: {0}: {1}", metadataUri, ex.Message);
+                    Debug.WriteLine($"BingMapsTileLayer: {metadataUri}: {ex.Message}");
                 }
             }
             else

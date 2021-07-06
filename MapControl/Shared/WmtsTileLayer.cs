@@ -208,7 +208,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("WmtsTileLayer: {0}: {1}", CapabilitiesUri, ex.Message);
+                    Debug.WriteLine($"WmtsTileLayer: {CapabilitiesUri}: {ex.Message}");
                 }
             }
         }

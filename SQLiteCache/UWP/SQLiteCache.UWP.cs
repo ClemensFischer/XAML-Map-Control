@@ -26,7 +26,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.GetAsync({0}): {1}", key, ex.Message);
+                Debug.WriteLine($"SQLiteCache.GetAsync({key}): {ex.Message}");
             }
 
             return null;
@@ -43,7 +43,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SQLiteCache.SetAsync({0}): {1}", key, ex.Message);
+                Debug.WriteLine($"SQLiteCache.SetAsync({key}): {ex.Message}");
             }
         }
     }

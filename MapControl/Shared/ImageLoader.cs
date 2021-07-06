@@ -55,7 +55,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+                Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
             }
 
             return image;
@@ -95,13 +95,13 @@ namespace MapControl
                     }
                     else
                     {
-                        Debug.WriteLine("ImageLoader: {0}: {1} {2}", uri, (int)responseMessage.StatusCode, responseMessage.ReasonPhrase);
+                        Debug.WriteLine($"ImageLoader: {uri}: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageLoader: {0}: {1}", uri, ex.Message);
+                Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
             }
 
             return response;

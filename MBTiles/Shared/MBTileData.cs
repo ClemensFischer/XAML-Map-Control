@@ -68,7 +68,7 @@ namespace MapControl.MBTiles
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("MBTileData: " + ex.Message);
+                Debug.WriteLine($"MBTileData: {ex.Message}");
             }
         }
 
@@ -89,7 +89,7 @@ namespace MapControl.MBTiles
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("MBTileData: " + ex.Message);
+                Debug.WriteLine($"MBTileData: {ex.Message}");
             }
         }
 
@@ -110,7 +110,7 @@ namespace MapControl.MBTiles
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("MBTileData: {0}/{1}/{2}: {3}", zoomLevel, x, y, ex.Message);
+                Debug.WriteLine($"MBTileData: {zoomLevel}/{x}/{y}: {ex.Message}");
             }
 
             return imageBuffer;
@@ -132,7 +132,7 @@ namespace MapControl.MBTiles
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("MBTileData: {0}/{1}/{2}: {3}", zoomLevel, x, y, ex.Message);
+                Debug.WriteLine($"MBTileData: {zoomLevel}/{x}/{y}: {ex.Message}");
             }
         }
     }

@@ -51,7 +51,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache.GetCount(): " + ex.Message);
+                Debug.WriteLine($"FileDbCache.GetCount(): {ex.Message}");
             }
 
             return 0;
@@ -75,7 +75,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FileDbCache.Contains({0}): {1}", key, ex.Message);
+                Debug.WriteLine($"FileDbCache.Contains({key}): {ex.Message}");
             }
 
             return false;
@@ -180,7 +180,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("FileDbCache.Remove({0}): {1}", key, ex.Message);
+                    Debug.WriteLine($"FileDbCache.Remove({key}): {ex.Message}");
                 }
             }
 

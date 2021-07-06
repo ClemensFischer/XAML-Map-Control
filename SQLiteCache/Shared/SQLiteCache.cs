@@ -43,7 +43,7 @@ namespace MapControl.Caching
                 command.ExecuteNonQuery();
             }
 
-            Debug.WriteLine("SQLiteCache: Opened database " + path);
+            Debug.WriteLine($"SQLiteCache: Opened database {path}");
 
             return connection;
         }
@@ -66,7 +66,7 @@ namespace MapControl.Caching
                 var deleted = (long)command.ExecuteScalar();
                 if (deleted > 0)
                 {
-                    Debug.WriteLine("SQLiteCache: Deleted {0} expired items.", deleted);
+                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
                 }
             }
 #endif

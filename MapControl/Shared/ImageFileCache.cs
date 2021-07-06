@@ -30,7 +30,7 @@ namespace MapControl.Caching
 
             rootDirectory = directory;
 
-            Debug.WriteLine("Created ImageFileCache in " + rootDirectory);
+            Debug.WriteLine($"Created ImageFileCache in {rootDirectory}");
         }
 
         public Task Clean()
@@ -46,7 +46,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Invalid key {0}/{1}: {2}", rootDirectory, key, ex.Message);
+                Debug.WriteLine($"ImageFileCache: Invalid key {rootDirectory}/{key}: {ex.Message}");
             }
 
             return null;
@@ -62,13 +62,13 @@ namespace MapControl.Caching
 
                     if (deletedFileCount > 0)
                     {
-                        Debug.WriteLine("ImageFileCache: Cleaned {0} files in {1}", deletedFileCount, dir);
+                        Debug.WriteLine($"ImageFileCache: Cleaned {deletedFileCount} files in {dir}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Failed enumerating directories in {0}: {1}", rootDirectory, ex.Message);
+                Debug.WriteLine($"ImageFileCache: Failed enumerating directories in {rootDirectory}: {ex.Message}");
             }
         }
 
@@ -89,7 +89,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", directory.FullName, ex.Message);
+                Debug.WriteLine($"ImageFileCache: Failed cleaning {directory.FullName}: {ex.Message}");
             }
 
             return deletedFileCount;
@@ -109,7 +109,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ImageFileCache: Failed cleaning {0}: {1}", file.FullName, ex.Message);
+                Debug.WriteLine($"ImageFileCache: Failed cleaning {file.FullName}: {ex.Message}");
             }
 
             return deletedFileCount;

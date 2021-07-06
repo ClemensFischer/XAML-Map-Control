@@ -251,7 +251,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("MapImageLayer: " + ex.Message);
+                        Debug.WriteLine($"MapImageLayer: {ex.Message}");
                     }
                 }
 
