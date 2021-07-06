@@ -60,10 +60,7 @@ namespace MapControl
                 return Task.CompletedTask;
             }
 
-            if (string.IsNullOrEmpty(cacheName) ||
-                Cache == null ||
-                tileSource.UriFormat == null ||
-                !tileSource.UriFormat.StartsWith("http"))
+            if (Cache == null || tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
             {
                 cacheName = null; // no tile caching
             }
@@ -94,7 +91,7 @@ namespace MapControl
 
         private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
-            if (cacheName == null)
+            if (string.IsNullOrEmpty(cacheName))
             {
                 return LoadTileAsync(tile, tileSource);
             }
