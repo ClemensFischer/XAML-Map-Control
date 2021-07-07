@@ -42,14 +42,18 @@ namespace WinUiApp
 
             root.DataContext = viewModel;
 
-            if (TileImageLoader.Cache is ImageFileCache cache)
+            if (TileImageLoader.Cache is ImageFileCache)
             {
-                Activated += async (s, e) =>
-                {
-                    await Task.Delay(2000);
-                    await cache.Clean();
-                };
+                Activated += WindowActivated;
             }
+        }
+
+        private async void WindowActivated(object sender, WindowActivatedEventArgs e)
+        {
+            Activated -= WindowActivated;
+
+            await Task.Delay(2000);
+            await ((ImageFileCache)TileImageLoader.Cache).Clean();
         }
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)
@@ -60,6 +64,11 @@ namespace WinUiApp
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
             map.Children.Remove(viewModel.MapLayers.SeamarksLayer);
+        }
+
+        private void MapViewportChanged(object sender, ViewportChangedEventArgs e)
+        {
+            GC.Collect();
         }
     }
 }
