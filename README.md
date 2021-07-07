@@ -1,6 +1,6 @@
 # XAML Map Control
 
-A set of controls for WPF and UWP for rendering digital maps from different providers and various types of map overlays.
+A set of controls for WPF, UWP and WinUI for rendering digital maps from different providers and various types of map overlays.
 
 Map providers can easily be added by specifying a template string for their map tile URLs. 
 Map overlay layers allow to draw and interact with graphical objects and pushpins on the map.
@@ -47,8 +47,9 @@ If you want to try the sample application with persistent caching, uncomment the
 setting in the sample application's MainWindow.xaml.cs file. Please note that some map providers may not allow
 persistent caching of their map data.
 
-For UWP, the cache functionality is defined by the interface IImageCache in the namespace MapControl.Caching,
-and implemented by the classes ImageFileCache, FileDbCache (in library FileDbCache.UWP) and SQLiteCache (in library SQLiteCache.UWP).
+For UWP and WinUI, the cache functionality is defined by the interface IImageCache in the namespace MapControl.Caching,
+and implemented by the classes ImageFileCache, FileDbCache (in library FileDbCache.UWP/.WinUI) and SQLiteCache
+(in library SQLiteCache.UWP/.WinUI).
 Local image files and database files are written to ApplicationData.Current.TemporaryFolder by default.
 
 ---
