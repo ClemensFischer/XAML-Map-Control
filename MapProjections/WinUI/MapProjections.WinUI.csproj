@@ -13,6 +13,7 @@
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.MapProjections</PackageId>
         <UseWinUI>true</UseWinUI>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
