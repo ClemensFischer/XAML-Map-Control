@@ -2,18 +2,20 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
-using System.Globalization;
-#if WINDOWS_UWP
-using Windows.Foundation;
-#else
-using System.Windows;
-#endif
 using GeoAPI.CoordinateSystems;
 using GeoAPI.CoordinateSystems.Transformations;
 using GeoAPI.Geometries;
 using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
+using System;
+using System.Globalization;
+#if WINUI
+using Windows.Foundation;
+#elif WINDOWS_UWP
+using Windows.Foundation;
+#else
+using System.Windows;
+#endif
 
 namespace MapControl.Projections
 {

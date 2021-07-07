@@ -2,11 +2,11 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using ProjNet.CoordinateSystems;
 using System;
 #if !WINDOWS_UWP
 using System.Windows;
 #endif
-using ProjNet.CoordinateSystems;
 
 namespace MapControl.Projections
 {
