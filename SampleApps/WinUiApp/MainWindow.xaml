@@ -12,7 +12,8 @@
 
         <map:Map x:Name="map" ZoomLevel="11" MaxZoomLevel="21" MouseWheelZoomDelta="1"
                  Center="{Binding MapCenter}"
-                 MapLayer="{Binding MapLayers.CurrentMapLayer}">
+                 MapLayer="{Binding MapLayers.CurrentMapLayer}"
+                 ViewportChanged="MapViewportChanged">
 
             <map:MapGraticule x:Name="graticule" Opacity="0.6"
                               Visibility="{Binding IsChecked, ElementName=graticuleCheckBox}"/>
