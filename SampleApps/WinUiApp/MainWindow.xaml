@@ -5,6 +5,91 @@
     xmlns:map="using:MapControl">
 
     <Grid x:Name="root">
+        <Grid.Resources>
+            <DataTemplate x:Key="PolylineItemTemplate">
+                <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
+            </DataTemplate>
+
+            <Style x:Key="PolylineItemStyle" TargetType="map:MapItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="PointItemStyle" TargetType="map:MapItem">
+                <Setter Property="AutoCollapse" Value="True"/>
+                <Setter Property="LocationMemberPath" Value="Location"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <Canvas>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="Disabled"/>
+                                        <VisualState x:Name="PointerOver"/>
+                                        <VisualState x:Name="Pressed"/>
+                                        <VisualState x:Name="Selected">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedUnfocused">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPointerOver">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPressed">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <Path x:Name="selectedPath" Fill="White" Opacity="0">
+                                    <Path.Data>
+                                        <EllipseGeometry RadiusX="12" RadiusY="12"/>
+                                    </Path.Data>
+                                </Path>
+                                <Path Fill="Transparent" Stroke="Gray" StrokeThickness="2">
+                                    <Path.Data>
+                                        <EllipseGeometry RadiusX="8" RadiusY="8"/>
+                                    </Path.Data>
+                                </Path>
+                                <Grid Canvas.Left="15" Canvas.Top="-8">
+                                    <TextBlock Margin="2,0,2,0" Text="{Binding Name}"/>
+                                </Grid>
+                            </Canvas>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
+                <Setter Property="AutoCollapse" Value="True"/>
+                <Setter Property="LocationMemberPath" Value="Location"/>
+                <Setter Property="VerticalAlignment" Value="Bottom"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <map:Pushpin Content="{Binding Name}"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
@@ -15,9 +100,35 @@
                  MapLayer="{Binding MapLayers.CurrentMapLayer}"
                  ViewportChanged="MapViewportChanged">
 
+            <Image x:Name="mapImage" Source="10_535_330.jpg" Opacity="0.5" Stretch="Fill">
+                <map:MapPanel.BoundingBox>
+                    <map:BoundingBox South="53.54031" North="53.74871" West="8.08594" East="8.43750"/>
+                </map:MapPanel.BoundingBox>
+            </Image>
+
             <map:MapGraticule x:Name="graticule" Opacity="0.6"
                               Visibility="{Binding IsChecked, ElementName=graticuleCheckBox}"/>
 
+            <map:MapScale HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+
+            <!-- use ItemTemplate or ItemContainerStyle alternatively -->
+            <map:MapItemsControl ItemsSource="{Binding Polylines}"
+                                 ItemTemplate="{StaticResource PolylineItemTemplate}"/>
+            <!--<map:MapItemsControl ItemsSource="{Binding Polylines}"
+                                 ItemContainerStyle="{StaticResource PolylineItemStyle}"/>-->
+
+            <map:MapItemsControl ItemsSource="{Binding Points}"
+                                 ItemContainerStyle="{StaticResource PointItemStyle}"
+                                 SelectionMode="Extended"/>
+
+            <map:MapItemsControl ItemsSource="{Binding Pushpins}"
+                                 ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
+
+            <map:Pushpin AutoCollapse="True" Content="N 53° 30' E 8° 12'">
+                <map:Pushpin.Location>
+                    <map:Location Latitude="53.5" Longitude="8.2"/>
+                </map:Pushpin.Location>
+            </map:Pushpin>
         </map:Map>
 
         <Grid Grid.Row="1">
