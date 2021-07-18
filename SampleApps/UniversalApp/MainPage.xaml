@@ -132,7 +132,7 @@
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-            <map:Pushpin AutoCollapse="True" Content="N 53° 30' E 8° 12'">
+            <map:Pushpin AutoCollapse="True" Content="N 53°30' E 8°12'">
                 <map:Pushpin.Location>
                     <map:Location Latitude="53.5" Longitude="8.2"/>
                 </map:Pushpin.Location>

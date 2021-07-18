@@ -16,7 +16,6 @@ namespace MapControl
     public class Location : IEquatable<Location>
     {
         private double latitude;
-        private double longitude;
 
         public Location()
         {
@@ -34,17 +33,13 @@ namespace MapControl
             set { latitude = Math.Min(Math.Max(value, -90d), 90d); }
         }
 
-        public double Longitude
-        {
-            get { return longitude; }
-            set { longitude = value; }
-        }
+        public double Longitude { get; set; }
 
         public bool Equals(Location location)
         {
             return location != null
-                && Math.Abs(location.latitude - latitude) < 1e-9
-                && Math.Abs(location.longitude - longitude) < 1e-9;
+                && Math.Abs(location.Latitude - Latitude) < 1e-9
+                && Math.Abs(location.Longitude - Longitude) < 1e-9;
         }
 
         public override bool Equals(object obj)
@@ -54,12 +49,12 @@ namespace MapControl
 
         public override int GetHashCode()
         {
-            return latitude.GetHashCode() ^ longitude.GetHashCode();
+            return Latitude.GetHashCode() ^ Longitude.GetHashCode();
         }
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0:F5},{1:F5}", latitude, longitude);
+            return string.Format(CultureInfo.InvariantCulture, "{0:F5},{1:F5}", Latitude, Longitude);
         }
 
         public static Location Parse(string locationString)
@@ -109,10 +104,10 @@ namespace MapControl
         public double GetDistance(
             Location location, double earthRadius = MapProjection.Wgs84EquatorialRadius)
         {
-            var lat1 = latitude * Math.PI / 180d;
-            var lon1 = longitude * Math.PI / 180d;
-            var lat2 = location.latitude * Math.PI / 180d;
-            var lon2 = location.longitude * Math.PI / 180d;
+            var lat1 = Latitude * Math.PI / 180d;
+            var lon1 = Longitude * Math.PI / 180d;
+            var lat2 = location.Latitude * Math.PI / 180d;
+            var lon2 = location.Longitude * Math.PI / 180d;
             var sinLat1 = Math.Sin(lat1);
             var cosLat1 = Math.Cos(lat1);
             var sinLat2 = Math.Sin(lat2);
@@ -136,8 +131,8 @@ namespace MapControl
         {
             var s12 = distance / earthRadius;
             var az1 = azimuth * Math.PI / 180d;
-            var lat1 = latitude * Math.PI / 180d;
-            var lon1 = longitude * Math.PI / 180d;
+            var lat1 = Latitude * Math.PI / 180d;
+            var lon1 = Longitude * Math.PI / 180d;
             var sinS12 = Math.Sin(s12);
             var cosS12 = Math.Cos(s12);
             var sinAz1 = Math.Sin(az1);
@@ -145,7 +140,7 @@ namespace MapControl
             var sinLat1 = Math.Sin(lat1);
             var cosLat1 = Math.Cos(lat1);
             var lat2 = Math.Asin(sinLat1 * cosS12 + cosLat1 * sinS12 * cosAz1);
-            var lon2 = lon1 + Math.Atan2(sinS12 * sinAz1, (cosLat1 * cosS12 - sinLat1 * sinS12 * cosAz1));
+            var lon2 = lon1 + Math.Atan2(sinS12 * sinAz1, cosLat1 * cosS12 - sinLat1 * sinS12 * cosAz1);
 
             return new Location(lat2 * 180d / Math.PI, lon2 * 180d / Math.PI);
         }
