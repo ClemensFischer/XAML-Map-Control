@@ -27,7 +27,7 @@ namespace ViewModel
                 "OpenStreetMap",
                 new MapTileLayer
                 {
-                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap",
                     Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
@@ -36,7 +36,7 @@ namespace ViewModel
                 "OpenStreetMap German",
                 new MapTileLayer
                 {
-                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.de/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap German",
                     Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
@@ -45,7 +45,7 @@ namespace ViewModel
                 "OpenStreetMap French",
                 new MapTileLayer
                 {
-                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap French",
                     Description = "© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
@@ -54,7 +54,7 @@ namespace ViewModel
                 "OpenTopoMap",
                 new MapTileLayer
                 {
-                    TileSource = new TileSource { UriFormat = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://tile.opentopomap.org/{z}/{x}/{y}.png" },
                     SourceName = "OpenTopoMap",
                     Description = "© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)",
                     MaxZoomLevel = 17
