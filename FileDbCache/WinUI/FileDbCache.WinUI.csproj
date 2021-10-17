@@ -8,13 +8,21 @@
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
         <Product>XAML Map Control</Product>
-        <Version>6.0.1</Version>
+        <Version>6.1.0</Version>
         <Description>IImageCache implementation based on EzTools FileDb</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.FileDbCache</PackageId>
         <UseWinUI>true</UseWinUI>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DefineConstants>DEBUG;WINUI</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,9 +36,9 @@
 
     <ItemGroup>
         <PackageReference Include="FileDb.Standard" Version="7.4.4" />
-        <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.1" />
-        <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.1" />
-        <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.1" />
+        <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
+        <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.5" />
+        <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.5" />
     </ItemGroup>
 
     <ItemGroup>

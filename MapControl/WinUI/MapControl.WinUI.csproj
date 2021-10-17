@@ -8,7 +8,7 @@
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
         <Product>XAML Map Control</Product>
-        <Version>6.0.1</Version>
+        <Version>6.1.0</Version>
         <Description>XAML Map Control Library</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
@@ -17,7 +17,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DefineConstants>WINUI</DefineConstants>
+        <DefineConstants>DEBUG;WINUI</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -38,8 +38,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.1" />
-        <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.1" />
-        <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.1" />
+        <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
+        <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.5" />
+        <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.5" />
     </ItemGroup>
 </Project>

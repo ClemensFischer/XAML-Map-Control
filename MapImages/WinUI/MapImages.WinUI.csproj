@@ -1,20 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5.0-windows10.0.19041.0</TargetFramework>
+        <TargetFramework>net5.0-windows10.0.19041</TargetFramework>
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-        <RootNamespace>MapProjections.WinUI</RootNamespace>
+        <RootNamespace>MapControl.Images</RootNamespace>
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
         <Product>XAML Map Control</Product>
         <Version>6.1.0</Version>
-        <Description>Map Projections Library for XAML Map Control</Description>
+        <Description>Image Support Library for XAML Map Control</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <PackageId>XAML.MapControl.MapProjections</PackageId>
-        <UseWinUI>true</UseWinUI>
+        <PackageId>XAML.MapControl.MapImages</PackageId>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -30,17 +29,22 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="..\Shared\*" />
+        <Compile Include="..\Shared\*.cs" />
+        <Compile Include="..\UWP\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="..\UWP\TileImageLoader.UWP.cs" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
         <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.5" />
         <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.5" />
-        <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
+        <ProjectReference Include="..\..\MapProjections\WinUI\MapProjections.WinUI.csproj" />
     </ItemGroup>
 </Project>

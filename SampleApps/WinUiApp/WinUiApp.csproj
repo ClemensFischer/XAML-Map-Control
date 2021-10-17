@@ -9,19 +9,21 @@
         <RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
         <UseWinUI>true</UseWinUI>
         <Product>XAML Map Control</Product>
-        <Version>6.0.1</Version>
+        <Version>6.1.0</Version>
         <Description>XAML Map Control WinUI Sample Application</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <AnalysisLevel>none</AnalysisLevel>
     </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-        <DefineConstants>WINUI</DefineConstants>
+        <DefineConstants>DEBUG;WINUI</DefineConstants>
     </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <Compile Include="..\Shared\MapLayers.cs" Link="MapLayers.cs" />
         <Compile Include="..\Shared\MapViewModel.cs" Link="MapViewModel.cs" />
@@ -32,9 +34,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.1" />
-        <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.1" />
-        <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.1" />
+        <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
+        <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.5" />
+        <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.5" />
         <Manifest Include="$(ApplicationManifest)" />
     </ItemGroup>
 
