@@ -48,6 +48,9 @@
     <EnableGatekeeperAnalysis>false</EnableGatekeeperAnalysis>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\HyperlinkText.cs">
+      <Link>HyperlinkText.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapLayers.cs">
       <Link>MapLayers.cs</Link>
     </Compile>

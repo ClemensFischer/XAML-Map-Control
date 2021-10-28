@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace WpfApplication
+namespace SampleApplication
 {
     public class OutlinedText : FrameworkElement
     {

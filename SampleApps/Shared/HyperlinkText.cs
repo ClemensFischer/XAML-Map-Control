@@ -20,7 +20,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 #endif
 
-namespace MapControl
+namespace SampleApplication
 {
     public static class HyperlinkText
     {

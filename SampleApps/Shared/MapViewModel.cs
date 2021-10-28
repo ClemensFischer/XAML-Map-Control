@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace ViewModel
+namespace SampleApplication
 {
     public class ViewModelBase : INotifyPropertyChanged
     {

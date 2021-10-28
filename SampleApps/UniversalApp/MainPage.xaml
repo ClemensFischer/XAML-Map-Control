@@ -1,7 +1,8 @@
 ﻿<Page
-    x:Class="UniversalApp.MainPage"
+    x:Class="SampleApplication.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SampleApplication"
     xmlns:map="using:MapControl">
 
     <Page.Resources>
@@ -141,7 +142,7 @@
 
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#BFFFFFFF">
             <TextBlock Margin="2" FontSize="10"
-                       map:HyperlinkText.InlinesSource="{Binding MapLayers.CurrentMapLayer.Description}"/>
+                       local:HyperlinkText.InlinesSource="{Binding MapLayers.CurrentMapLayer.Description}"/>
         </Border>
 
         <Grid Grid.Row="1">

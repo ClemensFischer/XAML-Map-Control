@@ -3,7 +3,7 @@
         <OutputType>WinExe</OutputType>
         <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
         <UseWPF>true</UseWPF>
-        <RootNamespace>WpfApplication</RootNamespace>
+        <RootNamespace>SampleApplication</RootNamespace>
         <Product>XAML Map Control</Product>
         <Version>6.1.0</Version>
         <Description>XAML Map Control WPF Sample Application</Description>

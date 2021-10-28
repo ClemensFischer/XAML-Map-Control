@@ -15,7 +15,7 @@ using System.Windows;
 using System.Windows.Media;
 #endif
 
-namespace ViewModel
+namespace SampleApplication
 {
     public class MapLayers : INotifyPropertyChanged
     {

@@ -7,9 +7,8 @@ using System.Windows;
 using System.Windows.Input;
 using MapControl;
 using MapControl.Caching;
-using ViewModel;
 
-namespace WpfApplication
+namespace SampleApplication
 {
     public partial class MainWindow : Window
     {
@@ -19,7 +18,7 @@ namespace WpfApplication
             {
                 ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
 
-                TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+                //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = null;

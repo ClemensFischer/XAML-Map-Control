@@ -5,9 +5,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using ViewModel;
 
-namespace WinUiApp
+namespace SampleApplication
 {
     public sealed partial class MainWindow : Window
     {

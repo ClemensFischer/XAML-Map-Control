@@ -2,12 +2,11 @@
 using System.Diagnostics;
 using System.IO;
 using MapControl;
-using ViewModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 
-namespace UniversalApp
+namespace SampleApplication
 {
     public sealed partial class MainPage : Page
     {
