@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
+        <TargetFrameworks>net6.0-windows;net48</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>SampleApplication</RootNamespace>
         <Product>XAML Map Control</Product>
