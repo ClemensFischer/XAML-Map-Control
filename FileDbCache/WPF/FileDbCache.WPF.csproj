@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-
     <PropertyGroup>
-        <TargetFrameworks>net5.0-windows;netcoreapp3.1;net48;net462</TargetFrameworks>
+        <TargetFrameworks>net6.0-windows;net5.0-windows;netcoreapp3.1;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl.Caching</RootNamespace>
         <AssemblyName>FileDbCache.WPF</AssemblyName>
@@ -37,12 +36,17 @@
         <Compile Include="..\Shared\*" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows' or '$(TargetFramework)' == 'netcoreapp3.1'">
+    <ItemGroup Condition="'$(TargetFramework)'=='net6.0-windows'">
+        <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
+        <PackageReference Include="FileDb.Standard" Version="7.4.4" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)'=='net5.0-windows' or '$(TargetFramework)'=='netcoreapp3.1'">
         <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
         <PackageReference Include="FileDb.Standard" Version="7.4.4" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'net462'">
+    <ItemGroup Condition="'$(TargetFramework)'=='net48' or '$(TargetFramework)'=='net462'">
         <Reference Include="System.Runtime.Caching" />
         <PackageReference Include="FileDb.NET" Version="7.4.3" />
     </ItemGroup>

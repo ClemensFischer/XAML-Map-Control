@@ -38,7 +38,7 @@
         <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
         <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.5" />
         <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.5" />
-        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.115" />
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.115.5" />
     </ItemGroup>
 
     <ItemGroup>
