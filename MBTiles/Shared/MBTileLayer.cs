@@ -39,7 +39,7 @@ namespace MapControl.MBTiles
         }
 
         /// <summary>
-        /// May be overridden to create a derived MBTileSource that handles other tile formats than png and jpg, e.g. pbf.
+        /// May be overridden to create a derived MBTileSource that handles other tile formats than png and jpg.
         /// </summary>
         protected virtual MBTileSource CreateTileSource(MBTileData tileData)
         {

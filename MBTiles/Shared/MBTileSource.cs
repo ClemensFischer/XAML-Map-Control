@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 #if WINUI
 using Microsoft.UI.Xaml.Media;
@@ -20,17 +21,27 @@ namespace MapControl.MBTiles
 
         public MBTileSource(MBTileData tiledata)
         {
-            TileData = tiledata;
+            var format = tiledata.Metadata["format"];
+
+            if (format == "png" || format == "jpg")
+            {
+                TileData = tiledata;
+            }
+            else
+            {
+                Debug.WriteLine($"MBTileSource: unsupported format '{format}'");
+            }
         }
 
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && TileData != null)
             {
                 TileData.Dispose();
             }
@@ -38,9 +49,19 @@ namespace MapControl.MBTiles
 
         public override async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
         {
-            var buffer = await TileData.ReadImageBufferAsync(x, y, zoomLevel);
+            ImageSource image = null;
 
-            return buffer != null ? await ImageLoader.LoadImageAsync(buffer) : null;
+            if (TileData != null)
+            {
+                var buffer = await TileData.ReadImageBufferAsync(x, y, zoomLevel);
+
+                if (buffer != null)
+                {
+                    image = await ImageLoader.LoadImageAsync(buffer);
+                }
+            }
+
+            return image;
         }
     }
 }
