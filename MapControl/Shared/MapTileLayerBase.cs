@@ -69,7 +69,6 @@ namespace MapControl
         {
             RenderTransform = new MatrixTransform();
             TileImageLoader = tileImageLoader;
-
 #if WINUI
             updateTimer = DispatcherQueue.CreateTimer();
 #endif
@@ -175,6 +174,11 @@ namespace MapControl
 
                 updateTimer.Start();
             }
+        }
+
+        protected bool LoadBackgroundTiles
+        {
+            get { return this == parentMap?.MapLayer; }
         }
 
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)

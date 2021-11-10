@@ -126,7 +126,7 @@ namespace MapControl
                 .Where((matrix, i) => i == 0 || matrix.Scale <= maxScale)
                 .ToList();
 
-            if (this != ParentMap.MapLayer) // do not load background tiles
+            if (!LoadBackgroundTiles)
             {
                 currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList(); // last element only
             }

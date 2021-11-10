@@ -211,15 +211,12 @@ namespace MapControl
             }
             else
             {
-                var newTiles = new List<Tile>();
-                var minZoomLevel = maxZoomLevel;
-
-                if (this == ParentMap.MapLayer) // load background tiles
-                {
-                    minZoomLevel = Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel);
-                }
+                var minZoomLevel = LoadBackgroundTiles
+                    ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
+                    : maxZoomLevel;
 
                 var oldTiles = Tiles.Where(t => t.ZoomLevel >= minZoomLevel && t.ZoomLevel <= maxZoomLevel).ToList();
+                var newTiles = new List<Tile>();
 
                 Tiles.Clear();
 
