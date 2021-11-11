@@ -120,15 +120,15 @@ namespace MapControl
             var layersChanged = false;
             var maxScale = 1.001 * ParentMap.ViewTransform.Scale; // avoid rounding issues
 
-            // show all TileMatrix layers with Scale <= maxScale, at least the first layer
+            // show all WmtsTileMatrix layers with Scale <= maxScale, at least the first layer
             //
             var currentMatrixes = tileMatrixSet.TileMatrixes
                 .Where((matrix, i) => i == 0 || matrix.Scale <= maxScale)
                 .ToList();
 
-            if (!LoadBackgroundTiles)
+            if (!IsBaseMapLayer) // show only the last layer
             {
-                currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList(); // last element only
+                currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList();
             }
             else if (currentMatrixes.Count > MaxBackgroundLevels + 1)
             {

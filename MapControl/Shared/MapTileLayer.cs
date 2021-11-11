@@ -211,7 +211,7 @@ namespace MapControl
             }
             else
             {
-                var minZoomLevel = LoadBackgroundTiles
+                var minZoomLevel = IsBaseMapLayer
                     ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
                     : maxZoomLevel;
 

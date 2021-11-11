@@ -176,9 +176,14 @@ namespace MapControl
             }
         }
 
-        protected bool LoadBackgroundTiles
+        protected bool IsBaseMapLayer
         {
-            get { return this == parentMap?.MapLayer; }
+            get
+            {
+                return parentMap != null
+                    && parentMap.Children.Count > 0
+                    && parentMap.Children[0] == this;
+            }
         }
 
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
