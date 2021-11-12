@@ -10,14 +10,6 @@ namespace MapControl
 {
     public class WmtsTileMatrix
     {
-        public string Identifier { get; }
-        public double Scale { get; }
-        public Point TopLeft { get; }
-        public int TileWidth { get; }
-        public int TileHeight { get; }
-        public int MatrixWidth { get; }
-        public int MatrixHeight { get; }
-
         public WmtsTileMatrix(string identifier, double scaleDenominator, Point topLeft,
             int tileWidth, int tileHeight, int matrixWidth, int matrixHeight)
         {
@@ -29,5 +21,13 @@ namespace MapControl
             MatrixWidth = matrixWidth;
             MatrixHeight = matrixHeight;
         }
+
+        public string Identifier { get; }
+        public double Scale { get; }
+        public Point TopLeft { get; }
+        public int TileWidth { get; }
+        public int TileHeight { get; }
+        public int MatrixWidth { get; }
+        public int MatrixHeight { get; }
     }
 }
