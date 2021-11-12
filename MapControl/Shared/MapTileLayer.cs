@@ -65,7 +65,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public List<Tile> Tiles { get; } = new List<Tile>();
+        public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -129,7 +129,7 @@ namespace MapControl
             {
                 if (TileSource != TileImageLoader.TileSource)
                 {
-                    Tiles.Clear();
+                    Tiles = new List<Tile>();
                     update = true;
                 }
 
@@ -143,13 +143,6 @@ namespace MapControl
             if (update)
             {
                 UpdateTiles();
-
-                Children.Clear();
-
-                foreach (var tile in Tiles)
-                {
-                    Children.Add(tile.Image);
-                }
 
                 return TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
             }
@@ -201,24 +194,16 @@ namespace MapControl
 
         private void UpdateTiles()
         {
+            var newTiles = new List<Tile>();
             int maxZoomLevel;
 
-            if (TileSource == null ||
-                TileMatrix == null ||
-                (maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel)) < MinZoomLevel)
-            {
-                Tiles.Clear();
-            }
-            else
+            if (TileSource != null &&
+                TileMatrix != null &&
+                (maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel)) >= MinZoomLevel)
             {
                 var minZoomLevel = IsBaseMapLayer
                     ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
                     : maxZoomLevel;
-
-                var oldTiles = Tiles.Where(t => t.ZoomLevel >= minZoomLevel && t.ZoomLevel <= maxZoomLevel).ToList();
-                var newTiles = new List<Tile>();
-
-                Tiles.Clear();
 
                 for (var z = minZoomLevel; z <= maxZoomLevel; z++)
                 {
@@ -232,13 +217,13 @@ namespace MapControl
                     {
                         for (var x = x1; x <= x2; x++)
                         {
-                            var tile = oldTiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
+                            var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
 
                             if (tile == null)
                             {
                                 tile = new Tile(z, x, y);
 
-                                var equivalentTile = oldTiles.FirstOrDefault(
+                                var equivalentTile = Tiles.FirstOrDefault(
                                     t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && !t.Pending);
 
                                 if (equivalentTile != null)
@@ -247,10 +232,19 @@ namespace MapControl
                                 }
                             }
 
-                            Tiles.Add(tile);
+                            newTiles.Add(tile);
                         }
                     }
                 }
+            }
+
+            Tiles = newTiles;
+
+            Children.Clear();
+
+            foreach (var tile in Tiles)
+            {
+                Children.Add(tile.Image);
             }
         }
     }
