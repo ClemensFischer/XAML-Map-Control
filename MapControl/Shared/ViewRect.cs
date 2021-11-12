@@ -9,12 +9,6 @@ namespace MapControl
     /// </summary>
     public struct ViewRect
     {
-        public double X { get; }
-        public double Y { get; }
-        public double Width { get; }
-        public double Height { get; }
-        public double Rotation { get; }
-
         public ViewRect(double x, double y, double width, double height, double rotation)
         {
             X = x;
@@ -23,5 +17,11 @@ namespace MapControl
             Height = height;
             Rotation = rotation;
         }
+
+        public double X { get; }
+        public double Y { get; }
+        public double Width { get; }
+        public double Height { get; }
+        public double Rotation { get; }
     }
 }
