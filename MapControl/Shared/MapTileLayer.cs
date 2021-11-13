@@ -122,14 +122,17 @@ namespace MapControl
 
             if (ParentMap == null || !ParentMap.MapProjection.IsWebMercator)
             {
+                update = TileMatrix != null;
                 TileMatrix = null;
-                update = true;
             }
             else
             {
                 if (TileSource != TileImageLoader.TileSource)
                 {
-                    Tiles = new List<Tile>();
+                    if (Tiles.Count > 0)
+                    {
+                        Tiles = new List<Tile>(); // clear all
+                    }
                     update = true;
                 }
 
