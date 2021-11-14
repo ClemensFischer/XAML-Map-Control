@@ -25,6 +25,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using System.Xml.Linq;
 #endif
 
 namespace MapControl
@@ -78,9 +79,6 @@ namespace MapControl
 
         public MapImageLayer()
         {
-            Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
-            Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
-
 #if WINUI
             updateTimer = DispatcherQueue.CreateTimer();
 #endif
@@ -197,10 +195,24 @@ namespace MapControl
         /// </summary>
         public BoundingBox BoundingBox { get; private set; }
 
-        /// <summary>
-        /// Returns an ImageSource for the current BoundingBox.
-        /// </summary>
         protected abstract Task<ImageSource> GetImageAsync();
+
+        protected override void SetParentMap(MapBase map)
+        {
+            if (map == null)
+            {
+                updateTimer.Stop();
+                ClearImages();
+                Children.Clear();
+            }
+            else if (Children.Count == 0)
+            {
+                Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
+                Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
+            }
+
+            base.SetParentMap(map);
+        }
 
         protected override async void OnViewportChanged(ViewportChangedEventArgs e)
         {
@@ -295,9 +307,9 @@ namespace MapControl
 
                 if (!double.IsNaN(MaxBoundingBoxWidth) && BoundingBox.Width > MaxBoundingBoxWidth)
                 {
-                    var d = (BoundingBox.Width - MaxBoundingBoxWidth) / 2d;
-                    BoundingBox.West += d;
-                    BoundingBox.East -= d;
+                    var margin = (BoundingBox.Width - MaxBoundingBoxWidth) / 2d;
+                    BoundingBox.West += margin;
+                    BoundingBox.East -= margin;
                 }
             }
         }
@@ -311,13 +323,13 @@ namespace MapControl
                 BoundingBox.West += offset;
                 BoundingBox.East += offset;
 
-                foreach (var element in Children.OfType<FrameworkElement>())
+                foreach (var image in Children.OfType<Image>())
                 {
-                    var bbox = GetBoundingBox(element);
+                    var bbox = GetBoundingBox(image);
 
                     if (bbox != null)
                     {
-                        SetBoundingBox(element, new BoundingBox(bbox.South, bbox.West + offset, bbox.North, bbox.East + offset));
+                        SetBoundingBox(image, new BoundingBox(bbox.South, bbox.West + offset, bbox.North, bbox.East + offset));
                     }
                 }
             }
@@ -325,36 +337,39 @@ namespace MapControl
 
         private void ClearImages()
         {
-            foreach (var element in Children.OfType<FrameworkElement>())
+            foreach (var image in Children.OfType<Image>())
             {
-                element.ClearValue(BoundingBoxProperty);
-                element.ClearValue(Image.SourceProperty);
+                image.ClearValue(BoundingBoxProperty);
+                image.ClearValue(Image.SourceProperty);
             }
         }
 
         private void SwapImages(ImageSource image)
         {
-            var topImage = (Image)Children[0];
-            var bottomImage = (Image)Children[1];
-
-            Children.RemoveAt(0);
-            Children.Insert(1, topImage);
-
-            topImage.Source = image;
-            SetBoundingBox(topImage, BoundingBox?.Clone());
-
-            topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
+            if (Children.Count >= 2)
             {
-                To = 1d,
-                Duration = MapBase.ImageFadeDuration
-            });
+                var topImage = (Image)Children[0];
+                var bottomImage = (Image)Children[1];
 
-            bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
-            {
-                To = 0d,
-                BeginTime = MapBase.ImageFadeDuration,
-                Duration = TimeSpan.Zero
-            });
+                Children.RemoveAt(0);
+                Children.Insert(1, topImage);
+
+                topImage.Source = image;
+                SetBoundingBox(topImage, BoundingBox?.Clone());
+
+                topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
+                {
+                    To = 1d,
+                    Duration = MapBase.ImageFadeDuration
+                });
+
+                bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
+                {
+                    To = 0d,
+                    BeginTime = MapBase.ImageFadeDuration,
+                    Duration = TimeSpan.Zero
+                });
+            }
         }
     }
 }
