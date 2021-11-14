@@ -57,7 +57,14 @@ namespace MapControl.MBTiles
 
                 if (buffer != null)
                 {
-                    image = await ImageLoader.LoadImageAsync(buffer);
+                    try
+                    {
+                        image = await ImageLoader.LoadImageAsync(buffer);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"MBTileSource : {ex.Message}");
+                    }
                 }
             }
 
