@@ -186,6 +186,10 @@ namespace MapControl
             }
         }
 
+        protected abstract void SetRenderTransform();
+
+        protected abstract Task UpdateTileLayer();
+
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (Children.Count == 0 || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
@@ -211,9 +215,5 @@ namespace MapControl
 
             return UpdateTileLayer();
         }
-
-        protected abstract Task UpdateTileLayer();
-
-        protected abstract void SetRenderTransform();
     }
 }
