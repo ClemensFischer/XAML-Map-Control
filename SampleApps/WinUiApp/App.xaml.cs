@@ -4,6 +4,8 @@ namespace SampleApplication
 {
     public partial class App : Application
     {
+        private Window window;
+
         public App()
         {
             InitializeComponent();
@@ -14,7 +16,5 @@ namespace SampleApplication
             window = new MainWindow();
             window.Activate();
         }
-
-        private Window window;
     }
 }

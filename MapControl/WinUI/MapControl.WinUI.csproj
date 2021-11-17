@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5.0-windows10.0.19041</TargetFramework>
+        <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <RootNamespace>MapControl</RootNamespace>
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
+        <UseWinUI>true</UseWinUI>
         <DelaySign>false</DelaySign>
         <Product>XAML Map Control</Product>
         <Version>6.1.0</Version>
@@ -38,8 +39,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
-        <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.5" />
-        <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.5" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.196" />
     </ItemGroup>
 </Project>
