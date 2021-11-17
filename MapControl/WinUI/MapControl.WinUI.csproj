@@ -17,11 +17,7 @@
         <PackageId>XAML.MapControl</PackageId>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DefineConstants>WINUI</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PropertyGroup>
         <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>
 

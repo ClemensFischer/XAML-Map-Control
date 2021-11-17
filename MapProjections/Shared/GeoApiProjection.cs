@@ -11,7 +11,7 @@ using System;
 using System.Globalization;
 #if WINUI
 using Windows.Foundation;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.Foundation;
 #else
 using System.Windows;

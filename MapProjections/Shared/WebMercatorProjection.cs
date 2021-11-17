@@ -4,7 +4,7 @@
 
 using ProjNet.CoordinateSystems;
 using System;
-#if !WINDOWS_UWP
+#if !UWP
 using System.Windows;
 #endif
 

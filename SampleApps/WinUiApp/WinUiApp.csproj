@@ -18,11 +18,7 @@
         <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-        <DefineConstants>DEBUG;WINUI</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PropertyGroup>
         <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>
 
