@@ -6,7 +6,7 @@ using System.ComponentModel;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;

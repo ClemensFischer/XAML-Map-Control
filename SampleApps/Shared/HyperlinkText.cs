@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
@@ -47,7 +47,7 @@ namespace SampleApplication
 
                     var link = new Hyperlink { NavigateUri = uri };
                     link.Inlines.Add(new Run { Text = match.Groups[1].Value });
-#if !WINUI && !WINDOWS_UWP
+#if !WINUI && !UWP
                     link.ToolTip = uri.ToString();
 
                     link.RequestNavigate += (s, e) =>
