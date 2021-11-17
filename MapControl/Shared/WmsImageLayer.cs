@@ -12,7 +12,7 @@ using System.Xml.Linq;
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;

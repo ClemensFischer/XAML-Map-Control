@@ -10,7 +10,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -75,7 +75,7 @@ namespace MapControl
             updateTimer.Interval = UpdateInterval;
             updateTimer.Tick += async (s, e) => await Update();
 
-#if WINUI || WINDOWS_UWP
+#if WINUI || UWP
             MapPanel.InitMapElement(this);
 #endif
         }

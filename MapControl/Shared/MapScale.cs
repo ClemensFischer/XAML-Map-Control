@@ -10,7 +10,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -48,7 +48,7 @@ namespace MapControl
 
             line.SetBinding(Shape.StrokeProperty, this.GetBinding(nameof(Stroke)));
             line.SetBinding(Shape.StrokeThicknessProperty, this.GetBinding(nameof(StrokeThickness)));
-#if WINUI || WINDOWS_UWP
+#if WINUI || UWP
             label.SetBinding(TextBlock.ForegroundProperty, this.GetBinding(nameof(Foreground)));
 #endif
             Children.Add(line);

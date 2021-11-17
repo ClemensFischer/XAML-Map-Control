@@ -9,7 +9,7 @@ using System.Linq;
 using System.Xml.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI.Xaml;
 #else
 using System.Windows;

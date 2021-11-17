@@ -7,7 +7,7 @@ using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -29,7 +29,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.
         /// </summary>
-#if !WINDOWS_UWP
+#if !UWP
         [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
         public IEnumerable<Location> Locations

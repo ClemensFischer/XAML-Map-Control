@@ -6,7 +6,7 @@ using System;
 using System.Globalization;
 #if WINUI
 using Microsoft.UI.Xaml;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI.Xaml;
 #else
 using System.Windows;

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 #if WINUI
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #else

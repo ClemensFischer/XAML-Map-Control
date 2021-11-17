@@ -5,7 +5,7 @@
 #if WINUI
 using Microsoft.UI.Xaml.Media;
 using Windows.UI.Text;
-#elif WINDOWS_UWP
+#elif UWP
 using Windows.UI.Text;
 using Windows.UI.Xaml.Media;
 #else

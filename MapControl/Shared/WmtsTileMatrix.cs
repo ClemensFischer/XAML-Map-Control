@@ -2,7 +2,7 @@
 // © 2021 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if !WINUI && !WINDOWS_UWP
+#if !WINUI && !UWP
 using System.Windows;
 #endif
 
