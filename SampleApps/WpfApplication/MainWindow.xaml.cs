@@ -23,10 +23,10 @@ namespace SampleApplication
                 //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = null;
 
-                var apiKeyPath = Path.Combine(
+                var bingMapsApiKeyPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "BingMapsApiKey.txt");
 
-                BingMapsTileLayer.ApiKey = File.ReadAllText(apiKeyPath)?.Trim();
+                BingMapsTileLayer.ApiKey = File.ReadAllText(bingMapsApiKeyPath)?.Trim();
             }
             catch (Exception ex)
             {
