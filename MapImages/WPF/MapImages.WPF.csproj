@@ -14,6 +14,7 @@
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapImages</PackageId>
+        <DefineConstants></DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

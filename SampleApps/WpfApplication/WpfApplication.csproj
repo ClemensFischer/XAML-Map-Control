@@ -9,13 +9,6 @@
         <Description>XAML Map Control WPF Sample Application</Description>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DefineConstants>DEBUG</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DefineConstants></DefineConstants>
     </PropertyGroup>
 
