@@ -49,13 +49,20 @@ namespace MapControl
         /// </summary>
         public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
         {
-            pendingTiles?.Clear(); // stop download from current stack
-
-            pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.Pending).Reverse());
+            pendingTiles?.Clear(); // stop processing the current queue
 
             TileSource = tileSource;
 
-            if (tileSource == null || pendingTiles.IsEmpty)
+            if (tileSource == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.Pending).Reverse());
+
+            var numTasks = Math.Min(pendingTiles.Count, MaxLoadTasks);
+
+            if (numTasks < 1)
             {
                 return Task.CompletedTask;
             }
@@ -65,14 +72,13 @@ namespace MapControl
                 cacheName = null; // no tile caching
             }
 
-            var tasks = Enumerable
-                .Range(0, Math.Min(pendingTiles.Count, MaxLoadTasks))
-                .Select(_ => Task.Run(() => LoadPendingTilesAsync(pendingTiles, tileSource, cacheName)));
+            var tasks = Enumerable.Range(0, numTasks)
+                .Select(_ => Task.Run(() => LoadPendingTiles(pendingTiles, tileSource, cacheName)));
 
             return Task.WhenAll(tasks);
         }
 
-        private static async Task LoadPendingTilesAsync(ConcurrentStack<Tile> pendingTiles, TileSource tileSource, string cacheName)
+        private static async Task LoadPendingTiles(ConcurrentStack<Tile> pendingTiles, TileSource tileSource, string cacheName)
         {
             while (pendingTiles.TryPop(out var tile))
             {
@@ -80,7 +86,7 @@ namespace MapControl
 
                 try
                 {
-                    await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
+                    await LoadTile(tile, tileSource, cacheName).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -89,11 +95,11 @@ namespace MapControl
             }
         }
 
-        private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        private static Task LoadTile(Tile tile, TileSource tileSource, string cacheName)
         {
             if (string.IsNullOrEmpty(cacheName))
             {
-                return LoadTileAsync(tile, tileSource);
+                return LoadTile(tile, tileSource);
             }
 
             var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
@@ -113,7 +119,7 @@ namespace MapControl
             var cacheKey = string.Format(CultureInfo.InvariantCulture,
                 "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
 
-            return LoadCachedTileAsync(tile, uri, cacheKey);
+            return LoadCachedTile(tile, uri, cacheKey);
         }
 
         private static DateTime GetExpiration(TimeSpan? maxAge)
