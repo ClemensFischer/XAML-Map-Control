@@ -190,6 +190,13 @@ namespace MapControl
 
         protected abstract Task UpdateTileLayer();
 
+        private Task Update()
+        {
+            updateTimer.Stop();
+
+            return UpdateTileLayer();
+        }
+
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (Children.Count == 0 || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
@@ -207,13 +214,6 @@ namespace MapControl
 
                 updateTimer.Start();
             }
-        }
-
-        private Task Update()
-        {
-            updateTimer.Stop();
-
-            return UpdateTileLayer();
         }
     }
 }
