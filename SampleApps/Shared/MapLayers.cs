@@ -21,6 +21,8 @@ namespace SampleApplication
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        // See https://wiki.openstreetmap.org/wiki/Tile_servers for a list of free OpenStreetMap Tile Servers
+
         private readonly Dictionary<string, UIElement> mapLayers = new Dictionary<string, UIElement>
         {
             {
@@ -36,7 +38,7 @@ namespace SampleApplication
                 "OpenStreetMap German",
                 new MapTileLayer
                 {
-                    TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.de/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap German",
                     Description = "© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
@@ -45,7 +47,7 @@ namespace SampleApplication
                 "OpenStreetMap French",
                 new MapTileLayer
                 {
-                    TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource { UriFormat = "http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png" },
                     SourceName = "OpenStreetMap French",
                     Description = "© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"
                 }
