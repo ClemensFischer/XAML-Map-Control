@@ -101,7 +101,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Description of the tile layer. Used to display copyright information on top of the map.
+        /// Description of the layer. Used to display copyright information on top of the map.
         /// </summary>
         public string Description
         {
