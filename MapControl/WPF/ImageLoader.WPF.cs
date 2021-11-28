@@ -11,7 +11,39 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static ImageSource LoadImage(Stream stream)
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
+        {
+            return Task.Run(() => LoadImage(stream));
+        }
+
+        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        {
+            return Task.Run(() =>
+            {
+                using (var stream = new MemoryStream(buffer))
+                {
+                    return LoadImage(stream);
+                }
+            });
+        }
+
+        public static Task<ImageSource> LoadImageAsync(string path)
+        {
+            return Task.Run(() =>
+            {
+                if (!File.Exists(path))
+                {
+                    return null;
+                }
+
+                using (var stream = File.OpenRead(path))
+                {
+                    return LoadImage(stream);
+                }
+            });
+        }
+
+        private static ImageSource LoadImage(Stream stream)
         {
             var bitmapImage = new BitmapImage();
 
@@ -22,44 +54,6 @@ namespace MapControl
             bitmapImage.Freeze();
 
             return bitmapImage;
-        }
-
-        public static ImageSource LoadImage(byte[] buffer)
-        {
-            using (var stream = new MemoryStream(buffer))
-            {
-                return LoadImage(stream);
-            }
-        }
-
-        public static ImageSource LoadImage(string path)
-        {
-            ImageSource image = null;
-
-            if (File.Exists(path))
-            {
-                using (var stream = File.OpenRead(path))
-                {
-                    image = LoadImage(stream);
-                }
-            }
-
-            return image;
-        }
-
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
-        {
-            return Task.Run(() => LoadImage(stream));
-        }
-
-        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            return Task.Run(() => LoadImage(buffer));
-        }
-
-        public static Task<ImageSource> LoadImageAsync(string path)
-        {
-            return Task.Run(() => LoadImage(path));
         }
     }
 }
