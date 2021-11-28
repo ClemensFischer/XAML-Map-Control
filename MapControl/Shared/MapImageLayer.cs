@@ -87,8 +87,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Description of the MapImageLayer.
-        /// Used to display copyright information on top of the map.
+        /// Description of the layer. Used to display copyright information on top of the map.
         /// </summary>
         public string Description
         {
@@ -171,23 +170,21 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Optional foreground brush.
-        /// Sets MapBase.Foreground if not null and the MapImageLayer is the base map layer.
-        /// </summary>
-        public Brush MapForeground
-        {
-            get { return (Brush)GetValue(MapForegroundProperty); }
-            set { SetValue(MapForegroundProperty, value); }
-        }
-
-        /// <summary>
-        /// Optional background brush.
-        /// Sets MapBase.Background if not null and the MapImageLayer is the base map layer.
+        /// Optional background brush. Sets MapBase.Background if not null and this layer is the base map layer.
         /// </summary>
         public Brush MapBackground
         {
             get { return (Brush)GetValue(MapBackgroundProperty); }
             set { SetValue(MapBackgroundProperty, value); }
+        }
+
+        /// <summary>
+        /// Optional foreground brush. Sets MapBase.Foreground if not null and this layer is the base map layer.
+        /// </summary>
+        public Brush MapForeground
+        {
+            get { return (Brush)GetValue(MapForegroundProperty); }
+            set { SetValue(MapForegroundProperty, value); }
         }
 
         /// <summary>
