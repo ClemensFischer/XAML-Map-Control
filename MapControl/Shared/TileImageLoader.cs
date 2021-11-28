@@ -53,29 +53,27 @@ namespace MapControl
 
             TileSource = tileSource;
 
-            if (tileSource == null)
+            if (tileSource != null)
             {
-                return Task.CompletedTask;
+                pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.Pending).Reverse());
+
+                var numTasks = Math.Min(pendingTiles.Count, MaxLoadTasks);
+
+                if (numTasks > 0)
+                {
+                    if (Cache == null || tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
+                    {
+                        cacheName = null; // no tile caching
+                    }
+
+                    var tasks = Enumerable.Range(0, numTasks)
+                        .Select(_ => Task.Run(() => LoadPendingTiles(pendingTiles, tileSource, cacheName)));
+
+                    return Task.WhenAll(tasks);
+                }
             }
 
-            pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.Pending).Reverse());
-
-            var numTasks = Math.Min(pendingTiles.Count, MaxLoadTasks);
-
-            if (numTasks < 1)
-            {
-                return Task.CompletedTask;
-            }
-
-            if (Cache == null || tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
-            {
-                cacheName = null; // no tile caching
-            }
-
-            var tasks = Enumerable.Range(0, numTasks)
-                .Select(_ => Task.Run(() => LoadPendingTiles(pendingTiles, tileSource, cacheName)));
-
-            return Task.WhenAll(tasks);
+            return Task.CompletedTask;
         }
 
         private static async Task LoadPendingTiles(ConcurrentStack<Tile> pendingTiles, TileSource tileSource, string cacheName)
@@ -104,22 +102,22 @@ namespace MapControl
 
             var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
 
-            if (uri == null)
+            if (uri != null)
             {
-                return Task.CompletedTask;
+                var extension = Path.GetExtension(uri.LocalPath);
+
+                if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+                {
+                    extension = ".jpg";
+                }
+
+                var cacheKey = string.Format(CultureInfo.InvariantCulture,
+                    "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+
+                return LoadCachedTile(tile, uri, cacheKey);
             }
 
-            var extension = Path.GetExtension(uri.LocalPath);
-
-            if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
-            {
-                extension = ".jpg";
-            }
-
-            var cacheKey = string.Format(CultureInfo.InvariantCulture,
-                "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
-
-            return LoadCachedTile(tile, uri, cacheKey);
+            return Task.CompletedTask;
         }
 
         private static DateTime GetExpiration(TimeSpan? maxAge)
