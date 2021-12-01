@@ -17,18 +17,34 @@ namespace MapControl
 {
     internal static class BindingHelper
     {
-        public static Binding GetBinding(this object sourceObject, string sourceProperty)
+        /// <summary>
+        /// Returns a Binding to the specified dependency property of a FrameworkElement.
+        /// If the source property is itself already bound, the method returns the existing Binding,
+        /// otherwise it creates one with sourceElement as Source and sourcePropertyName as Path.
+        /// </summary>
+        public static Binding GetOrCreateBinding(
+            this FrameworkElement sourceElement, DependencyProperty sourceProperty, string sourcePropertyName)
         {
-            return new Binding { Source = sourceObject, Path = new PropertyPath(sourceProperty) };
+            var sourceBinding = sourceElement.GetBindingExpression(sourceProperty);
+
+            return sourceBinding != null
+                ? sourceBinding.ParentBinding
+                : new Binding { Source = sourceElement, Path = new PropertyPath(sourcePropertyName) };
         }
 
-        public static void ValidateProperty(
-            this FrameworkElement targetObject, DependencyProperty targetProperty, object sourceObject, string sourceProperty)
+        /// <summary>
+        /// Sets a Binding on the specified dependency property of targetElement, if the target property does
+        /// not yet have a value or a Binding assigned to it. The potentially assigned Binding is created by
+        /// GetOrCreateBinding(sourceElement, sourceProperty, sourcePropertyName).
+        /// </summary>
+        public static void SetBindingOnUnsetProperty(
+            this FrameworkElement targetElement, DependencyProperty targetProperty,
+            FrameworkElement sourceElement, DependencyProperty sourceProperty, string sourcePropertyName)
         {
-            if (targetObject.GetValue(targetProperty) == null &&
-                targetObject.GetBindingExpression(targetProperty) == null)
+            if (targetElement.GetValue(targetProperty) == null &&
+                targetElement.GetBindingExpression(targetProperty) == null)
             {
-                targetObject.SetBinding(targetProperty, sourceObject.GetBinding(sourceProperty));
+                targetElement.SetBinding(targetProperty, GetOrCreateBinding(sourceElement, sourceProperty, sourcePropertyName));
             }
         }
     }

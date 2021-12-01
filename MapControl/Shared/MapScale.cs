@@ -46,10 +46,10 @@ namespace MapControl
         {
             MinWidth = 100d;
 
-            line.SetBinding(Shape.StrokeProperty, this.GetBinding(nameof(Stroke)));
-            line.SetBinding(Shape.StrokeThicknessProperty, this.GetBinding(nameof(StrokeThickness)));
+            line.SetBinding(Shape.StrokeProperty, this.GetOrCreateBinding(StrokeProperty, nameof(Stroke)));
+            line.SetBinding(Shape.StrokeThicknessProperty, this.GetOrCreateBinding(StrokeThicknessProperty, nameof(StrokeThickness)));
 #if WINUI || UWP
-            label.SetBinding(TextBlock.ForegroundProperty, this.GetBinding(nameof(Foreground)));
+            label.SetBinding(TextBlock.ForegroundProperty, this.GetOrCreateBinding(ForegroundProperty, nameof(Foreground)));
 #endif
             Children.Add(line);
             Children.Add(label);

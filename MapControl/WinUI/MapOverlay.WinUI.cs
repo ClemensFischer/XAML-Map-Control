@@ -71,8 +71,11 @@ namespace MapControl
         {
             if (map != null)
             {
-                this.ValidateProperty(ForegroundProperty, map, nameof(MapBase.Foreground));
-                this.ValidateProperty(StrokeProperty, this, nameof(Foreground));
+                // If this.Forground is not explicitly set, bind it to map.Foreground
+                this.SetBindingOnUnsetProperty(ForegroundProperty, map, MapBase.ForegroundProperty, nameof(Foreground));
+
+                // If this.Stroke is not explicitly set, bind it to this.Foreground
+                this.SetBindingOnUnsetProperty(StrokeProperty, this, ForegroundProperty, nameof(Foreground));
             }
 
             base.SetParentMap(map);
