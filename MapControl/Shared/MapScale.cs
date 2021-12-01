@@ -45,14 +45,19 @@ namespace MapControl
         public MapScale()
         {
             MinWidth = 100d;
+            Children.Add(line);
+            Children.Add(label);
+        }
+
+        protected override void SetParentMap(MapBase map)
+        {
+            base.SetParentMap(map);
 
             line.SetBinding(Shape.StrokeProperty, this.GetOrCreateBinding(StrokeProperty, nameof(Stroke)));
             line.SetBinding(Shape.StrokeThicknessProperty, this.GetOrCreateBinding(StrokeThicknessProperty, nameof(StrokeThickness)));
 #if WINUI || UWP
             label.SetBinding(TextBlock.ForegroundProperty, this.GetOrCreateBinding(ForegroundProperty, nameof(Foreground)));
 #endif
-            Children.Add(line);
-            Children.Add(label);
         }
 
         public Thickness Padding
