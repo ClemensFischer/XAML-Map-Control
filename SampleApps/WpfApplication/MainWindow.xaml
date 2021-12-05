@@ -104,7 +104,8 @@
             <local:MapViewModel/>
         </Grid.DataContext>
         
-        <map:Map x:Name="map" ZoomLevel="11" MaxZoomLevel="21" MouseWheelZoomDelta="1"
+        <map:Map x:Name="map"
+                 MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11" MouseWheelZoomDelta="1"
                  Center="53.5,8.2"
                  MapLayer="{Binding MapLayers[OpenStreetMap]}"
                  MouseLeftButtonDown="MapMouseLeftButtonDown"

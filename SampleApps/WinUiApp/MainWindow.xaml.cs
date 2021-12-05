@@ -53,11 +53,6 @@ namespace SampleApplication
             await ((ImageFileCache)TileImageLoader.Cache).Clean();
         }
 
-        private void MapViewportChanged(object sender, ViewportChangedEventArgs e)
-        {
-            GC.Collect();
-        }
-
         private void MapPointerMoved(object sender, PointerRoutedEventArgs e)
         {
             var location = map.ViewToLocation(e.GetCurrentPoint(map).Position);

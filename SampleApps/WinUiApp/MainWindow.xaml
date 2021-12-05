@@ -88,7 +88,6 @@
         <map:Map x:Name="map"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11" MouseWheelZoomDelta="1"
                  MapLayer="{Binding MapLayers[OpenStreetMap]}"
-                 ViewportChanged="MapViewportChanged"
                  PointerMoved="MapPointerMoved"
                  PointerExited="MapPointerExited">
             <map:Map.Center>
@@ -113,7 +112,8 @@
         </map:Map>
 
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF">
-            <TextBlock Margin="4,2" FontSize="10" local:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
+            <TextBlock Margin="4,2" FontSize="10"
+                       local:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
         </Border>
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6">

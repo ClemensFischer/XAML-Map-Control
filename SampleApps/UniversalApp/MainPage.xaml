@@ -5,10 +5,6 @@
     xmlns:map="using:MapControl"
     xmlns:local="using:SampleApplication">
 
-    <Page.DataContext>
-        <local:MapViewModel/>
-    </Page.DataContext>
-
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.Resources>
             <DataTemplate x:Key="PolylineItemTemplate">
@@ -83,6 +79,10 @@
                 </Setter>
             </Style>
         </Grid.Resources>
+
+        <Grid.DataContext>
+            <local:MapViewModel/>
+        </Grid.DataContext>
 
         <map:Map x:Name="map"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11" ManipulationMode="All"
