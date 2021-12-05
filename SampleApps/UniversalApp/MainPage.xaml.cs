@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MapControl;
+using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
-using MapControl;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
 
 namespace SampleApplication
 {
@@ -28,30 +29,42 @@ namespace SampleApplication
             }
         }
 
-        public MapViewModel ViewModel { get; } = new MapViewModel();
-
         public MainPage()
         {
             InitializeComponent();
-            DataContext = ViewModel;
         }
 
-        private void ImageOpacitySliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        private void MapPointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            if (mapImage != null)
+            var location = map.ViewToLocation(e.GetCurrentPoint(map).Position);
+            var latitude = (int)Math.Round(location.Latitude * 60000d);
+            var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
+            var latHemisphere = 'N';
+            var lonHemisphere = 'E';
+
+            if (latitude < 0)
             {
-                mapImage.Opacity = e.NewValue / 100;
+                latitude = -latitude;
+                latHemisphere = 'S';
             }
+
+            if (longitude < 0)
+            {
+                longitude = -longitude;
+                lonHemisphere = 'W';
+            }
+
+            mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
+                "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
+                latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
+                lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
+            mouseLocation.Visibility = Visibility.Visible;
         }
 
-        private void SeamarksChecked(object sender, RoutedEventArgs e)
+        private void MapPointerExited(object sender, PointerRoutedEventArgs e)
         {
-            map.Children.Insert(map.Children.IndexOf(graticule), ViewModel.MapLayers.SeamarksLayer);
-        }
-
-        private void SeamarksUnchecked(object sender, RoutedEventArgs e)
-        {
-            map.Children.Remove(ViewModel.MapLayers.SeamarksLayer);
+            mouseLocation.Visibility = Visibility.Collapsed;
+            mouseLocation.Text = string.Empty;
         }
     }
 }

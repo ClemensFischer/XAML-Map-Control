@@ -2,129 +2,99 @@
     x:Class="SampleApplication.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:SampleApplication"
-    xmlns:map="using:MapControl">
+    xmlns:map="using:MapControl"
+    xmlns:local="using:SampleApplication">
 
-    <Page.Resources>
-        <DataTemplate x:Key="PolylineItemTemplate">
-            <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
-        </DataTemplate>
-
-        <Style x:Key="PolylineItemStyle" TargetType="map:MapItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="PointItemStyle" TargetType="map:MapItem">
-            <Setter Property="AutoCollapse" Value="True"/>
-            <Setter Property="LocationMemberPath" Value="Location"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <Canvas>
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal"/>
-                                    <VisualState x:Name="Disabled"/>
-                                    <VisualState x:Name="PointerOver"/>
-                                    <VisualState x:Name="Pressed"/>
-                                    <VisualState x:Name="Selected">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="SelectedUnfocused">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="SelectedPointerOver">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="SelectedPressed">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                            <Path x:Name="selectedPath" Fill="White" Opacity="0">
-                                <Path.Data>
-                                    <EllipseGeometry RadiusX="12" RadiusY="12"/>
-                                </Path.Data>
-                            </Path>
-                            <Path Fill="Transparent" Stroke="Gray" StrokeThickness="2">
-                                <Path.Data>
-                                    <EllipseGeometry RadiusX="8" RadiusY="8"/>
-                                </Path.Data>
-                            </Path>
-                            <Grid Canvas.Left="15" Canvas.Top="-8">
-                                <TextBlock Margin="2,0,2,0" Text="{Binding Name}"/>
-                            </Grid>
-                        </Canvas>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
-            <Setter Property="AutoCollapse" Value="True"/>
-            <Setter Property="LocationMemberPath" Value="Location"/>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <map:Pushpin Content="{Binding Name}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <map:WebMercatorProjection x:Key="WebMercatorProjection"/>
-        <map:WorldMercatorProjection x:Key="WorldMercatorProjection"/>
-        <map:EquirectangularProjection x:Key="EquirectangularProjection"/>
-        <map:OrthographicProjection x:Key="OrthographicProjection"/>
-        <map:GnomonicProjection x:Key="GnomonicProjection"/>
-        <map:StereographicProjection x:Key="StereographicProjection"/>
-    </Page.Resources>
+    <Page.DataContext>
+        <local:MapViewModel/>
+    </Page.DataContext>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <DataTemplate x:Key="PolylineItemTemplate">
+                <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
+            </DataTemplate>
 
-        <map:Map x:Name="map" MinZoomLevel="2" MaxZoomLevel="20" ZoomLevel="11" ManipulationMode="All"
-                 Center="{x:Bind ViewModel.MapCenter, Mode=TwoWay}"
-                 MapLayer="{x:Bind ViewModel.MapLayers.CurrentMapLayer, Mode=OneWay}"
-                 MapProjection="{Binding SelectedValue, ElementName=projectionComboBox,
-                                         FallbackValue={StaticResource WebMercatorProjection},
-                                         TargetNullValue={StaticResource WebMercatorProjection}}">
+            <Style x:Key="PointItemStyle" TargetType="map:MapItem">
+                <Setter Property="AutoCollapse" Value="True"/>
+                <Setter Property="LocationMemberPath" Value="Location"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <Canvas>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="Disabled"/>
+                                        <VisualState x:Name="PointerOver"/>
+                                        <VisualState x:Name="Pressed"/>
+                                        <VisualState x:Name="Selected">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedUnfocused">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPointerOver">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPressed">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <Path x:Name="selectedPath" Fill="White" Opacity="0">
+                                    <Path.Data>
+                                        <EllipseGeometry RadiusX="12" RadiusY="12"/>
+                                    </Path.Data>
+                                </Path>
+                                <Path Fill="Transparent" Stroke="Gray" StrokeThickness="2">
+                                    <Path.Data>
+                                        <EllipseGeometry RadiusX="8" RadiusY="8"/>
+                                    </Path.Data>
+                                </Path>
+                                <Grid Canvas.Left="15" Canvas.Top="-8">
+                                    <TextBlock Margin="2,0,2,0" Text="{Binding Name}"/>
+                                </Grid>
+                            </Canvas>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-            <Image x:Name="mapImage" Source="10_535_330.jpg" Opacity="0.5" Stretch="Fill">
-                <map:MapPanel.BoundingBox>
-                    <map:BoundingBox South="53.54031" North="53.74871" West="8.08594" East="8.43750"/>
-                </map:MapPanel.BoundingBox>
-            </Image>
+            <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
+                <Setter Property="AutoCollapse" Value="True"/>
+                <Setter Property="LocationMemberPath" Value="Location"/>
+                <Setter Property="VerticalAlignment" Value="Bottom"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <map:Pushpin Content="{Binding Name}"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
 
-            <map:MapGraticule x:Name="graticule" Opacity="0.6"
-                              Visibility="{Binding IsChecked, ElementName=graticuleCheckBox}"/>
+        <map:Map x:Name="map"
+                 MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11" ManipulationMode="All"
+                 MapLayer="{Binding MapLayers[OpenStreetMap]}"
+                 PointerMoved="MapPointerMoved"
+                 PointerExited="MapPointerExited">
+            <map:Map.Center>
+                <map:Location Latitude="53.5" Longitude="8.2"/>
+            </map:Map.Center>
 
-            <map:MapScale HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-
-            <!-- use ItemTemplate or ItemContainerStyle alternatively -->
             <map:MapItemsControl ItemsSource="{Binding Polylines}"
                                  ItemTemplate="{StaticResource PolylineItemTemplate}"/>
-            <!--<map:MapItemsControl ItemsSource="{Binding Polylines}"
-                                 ItemContainerStyle="{StaticResource PolylineItemStyle}"/>-->
 
             <map:MapItemsControl ItemsSource="{Binding Points}"
                                  ItemContainerStyle="{StaticResource PointItemStyle}"
@@ -142,55 +112,29 @@
 
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#BFFFFFFF">
             <TextBlock Margin="2" FontSize="10"
-                       local:HyperlinkText.InlinesSource="{Binding MapLayers.CurrentMapLayer.Description}"/>
+                       local:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
         </Border>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <StackPanel Margin="5">
-                    <TextBlock Text="Zoom Level" HorizontalAlignment="Center" FontSize="12"/>
-                    <Slider Margin="10,-10,10,0" Width="100" SmallChange="0.1"
-                            Minimum="{Binding MinZoomLevel, ElementName=map}"
-                            Maximum="{Binding MaxZoomLevel, ElementName=map}"
-                            Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
-                </StackPanel>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6" Background="#7FFFFFFF">
+            <local:MapLayersMenuButton
+                Margin="2" Padding="8" ToolTipService.ToolTip="Map Layers"
+                Map="{Binding ElementName=map}"
+                MapLayers="{Binding MapLayers}"
+                MapOverlays="{Binding MapOverlays}"/>
 
-                <StackPanel Margin="5">
-                    <TextBlock Text="Heading" HorizontalAlignment="Center" FontSize="12"/>
-                    <Slider Margin="10,-10,10,0" Width="100" Minimum="0" Maximum="360" SmallChange="5" LargeChange="45"
-                            Value="{Binding Heading, ElementName=map, Mode=TwoWay}"/>
-                </StackPanel>
+            <!--<local:MapProjectionsMenuButton
+                Margin="2" Padding="8" ToolTipService.ToolTip="Map Projections"
+                Map="{Binding ElementName=map}"
+                MapProjections="{Binding MapProjections}"/>-->
 
-                <StackPanel Margin="5,5,25,5">
-                    <TextBlock Text="Image Opacity" HorizontalAlignment="Center" FontSize="12"/>
-                    <Slider Margin="10,-10,10,0" Width="100" Value="50" ValueChanged="ImageOpacitySliderValueChanged"/>
-                </StackPanel>
+            <Slider Orientation="Vertical" Margin="4,8" Height="100"
+                    Minimum="{Binding MinZoomLevel, ElementName=map}"
+                    Maximum="{Binding MaxZoomLevel, ElementName=map}"
+                    Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
+        </StackPanel>
 
-                <CheckBox x:Name="graticuleCheckBox"
-                          VerticalAlignment="Center" Content="Graticule"/>
-
-                <CheckBox VerticalAlignment="Center" Content="Seamarks"
-                          Checked="SeamarksChecked" Unchecked="SeamarksUnchecked"/>
-
-                <ComboBox Width="250" VerticalAlignment="Center" Margin="0,5"
-                          ItemsSource="{Binding MapLayers.MapLayerNames}"
-                          SelectedItem="{Binding MapLayers.CurrentMapLayerName, Mode=TwoWay}"/>
-
-                <ComboBox x:Name="projectionComboBox" Width="150" VerticalAlignment="Center" Margin="5"
-                          SelectedIndex="0" SelectedValuePath="Tag"
-                          SelectedValue="{Binding MapProjection, ElementName=map, Mode=TwoWay}">
-                    <ComboBoxItem Content="Web Mercator" Tag="{StaticResource WebMercatorProjection}"/>
-                    <ComboBoxItem Content="World Mercator" Tag="{StaticResource WorldMercatorProjection}"/>
-                    <ComboBoxItem Content="Equirectangular" Tag="{StaticResource EquirectangularProjection}"/>
-                    <ComboBoxItem Content="Orthographic" Tag="{StaticResource OrthographicProjection}"/>
-                    <ComboBoxItem Content="Gnomonic" Tag="{StaticResource GnomonicProjection}"/>
-                    <ComboBoxItem Content="Stereographic" Tag="{StaticResource StereographicProjection}"/>
-                </ComboBox>
-            </StackPanel>
-        </Grid>
+        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4" Background="#AFFFFFFF">
+            <TextBlock x:Name="mouseLocation" Margin="4,2" Visibility="Collapsed"/>
+        </Border>
     </Grid>
 </Page>

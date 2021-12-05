@@ -1,8 +1,10 @@
 ﻿using MapControl;
 using MapControl.Caching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Input;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -10,8 +12,6 @@ namespace SampleApplication
 {
     public sealed partial class MainWindow : Window
     {
-        private readonly MapViewModel viewModel = new();
-
         static MainWindow()
         {
             try
@@ -39,8 +39,6 @@ namespace SampleApplication
 
             Title = "XAML Map Control - WinUI Sample Application";
 
-            root.DataContext = viewModel;
-
             if (TileImageLoader.Cache is ImageFileCache)
             {
                 Activated += WindowActivated;
@@ -55,19 +53,42 @@ namespace SampleApplication
             await ((ImageFileCache)TileImageLoader.Cache).Clean();
         }
 
-        private void SeamarksChecked(object sender, RoutedEventArgs e)
-        {
-            map.Children.Insert(map.Children.IndexOf(graticule), viewModel.MapLayers.SeamarksLayer);
-        }
-
-        private void SeamarksUnchecked(object sender, RoutedEventArgs e)
-        {
-            map.Children.Remove(viewModel.MapLayers.SeamarksLayer);
-        }
-
         private void MapViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             GC.Collect();
+        }
+
+        private void MapPointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            var location = map.ViewToLocation(e.GetCurrentPoint(map).Position);
+            var latitude = (int)Math.Round(location.Latitude * 60000d);
+            var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
+            var latHemisphere = 'N';
+            var lonHemisphere = 'E';
+
+            if (latitude < 0)
+            {
+                latitude = -latitude;
+                latHemisphere = 'S';
+            }
+
+            if (longitude < 0)
+            {
+                longitude = -longitude;
+                lonHemisphere = 'W';
+            }
+
+            mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
+                "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
+                latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
+                lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
+            mouseLocation.Visibility = Visibility.Visible;
+        }
+
+        private void MapPointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            mouseLocation.Visibility = Visibility.Collapsed;
+            mouseLocation.Text = string.Empty;
         }
     }
 }

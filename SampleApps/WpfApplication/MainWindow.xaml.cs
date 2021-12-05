@@ -1,12 +1,12 @@
-﻿using System;
+﻿using MapControl;
+using MapControl.Caching;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using MapControl;
-using MapControl.Caching;
 
 namespace SampleApplication
 {
@@ -107,16 +107,6 @@ namespace SampleApplication
             var mapItem = (MapItem)sender;
             mapItem.IsSelected = !mapItem.IsSelected;
             e.Handled = true;
-        }
-
-        private void SeamarksChecked(object sender, RoutedEventArgs e)
-        {
-            map.Children.Insert(map.Children.IndexOf(graticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
-        }
-
-        private void SeamarksUnchecked(object sender, RoutedEventArgs e)
-        {
-            map.Children.Remove(((MapViewModel)DataContext).MapLayers.SeamarksLayer);
         }
     }
 }

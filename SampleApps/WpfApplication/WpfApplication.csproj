@@ -17,11 +17,17 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Remove="..\Shared\MapLayers.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Resource Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg" />
+        <Content Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='net48'">
@@ -29,4 +35,9 @@
         <Reference Include="System.Runtime.Caching" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="App.config">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>

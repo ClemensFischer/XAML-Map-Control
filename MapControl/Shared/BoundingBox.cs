@@ -67,7 +67,7 @@ namespace MapControl
 
             if (values.Length != 4)
             {
-                throw new FormatException("BoundingBox string must be a comma-separated list of four double values.");
+                throw new FormatException("BoundingBox string must be a comma-separated list of four floating point numbers.");
             }
 
             return new BoundingBox(

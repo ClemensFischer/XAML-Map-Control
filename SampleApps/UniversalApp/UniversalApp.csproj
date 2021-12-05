@@ -7,7 +7,7 @@
     <ProjectGuid>{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UniversalApp</RootNamespace>
+    <RootNamespace>SampleApplication</RootNamespace>
     <AssemblyName>UniversalApp</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
@@ -51,11 +51,17 @@
     <Compile Include="..\Shared\HyperlinkText.cs">
       <Link>HyperlinkText.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MapLayers.cs">
-      <Link>MapLayers.cs</Link>
+    <Compile Include="..\Shared\MapLayersMenuButton.cs">
+      <Link>MapLayersMenuButton.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapProjectionsMenuButton.cs">
+      <Link>MapProjectionsMenuButton.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapViewModel.cs">
       <Link>MapViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MenuButton.cs">
+      <Link>MenuButton.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
