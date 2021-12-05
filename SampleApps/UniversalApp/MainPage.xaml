@@ -133,7 +133,8 @@
                     Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
         </StackPanel>
 
-        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4" Background="#AFFFFFFF">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4"
+                Background="#AFFFFFFF" IsHitTestVisible="False">
             <TextBlock x:Name="mouseLocation" Margin="4,2" Visibility="Collapsed"/>
         </Border>
     </Grid>

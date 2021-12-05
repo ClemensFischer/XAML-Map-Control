@@ -165,6 +165,7 @@
             x:Name="mouseLocation" Margin="4"
             Background="{Binding Background, ElementName=map}"
             Foreground="{Binding Foreground, ElementName=map}"
-            HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            HorizontalAlignment="Center" VerticalAlignment="Top"
+            IsHitTestVisible="False"/>
     </Grid>
 </Window>

@@ -46,11 +46,6 @@ namespace SampleApplication
             nameof(OutlineThickness), typeof(double), typeof(OutlinedText),
             new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsMeasure, (o, e) => ((OutlinedText)o).text = null));
 
-        public OutlinedText()
-        {
-            IsHitTestVisible = false;
-        }
-
         public string Text
         {
             get { return (string)GetValue(TextProperty); }
