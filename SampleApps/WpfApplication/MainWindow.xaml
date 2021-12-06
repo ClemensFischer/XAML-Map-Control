@@ -5,6 +5,7 @@
         xmlns:local="clr-namespace:SampleApplication"
         Title="XAML MapControl - WPF Sample Application" Height="600" Width="900"
         Stylus.IsPressAndHoldEnabled="False">
+
     <Grid>
         <Grid.Resources>
             <DataTemplate DataType="{x:Type local:PolylineItem}">
@@ -159,6 +160,17 @@
                     Value="{Binding TargetZoomLevel, ElementName=map}"
                     SmallChange="0.1"
                     AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="0"/>
+
+            <Button Margin="2" Padding="8" ToolTipService.ToolTip="Reset Heading" Click="ResetHeadingButtonClick"
+                    FontSize="16" FontFamily="Segoe MDL2 Assets" Content="&#xEBE6;">
+                <Button.Visibility>
+                    <Binding Path="Heading" ElementName="map">
+                        <Binding.Converter>
+                            <local:HeadingToVisibilityConverter/>
+                        </Binding.Converter>
+                    </Binding>
+                </Button.Visibility>
+            </Button>
         </StackPanel>
 
         <local:OutlinedText

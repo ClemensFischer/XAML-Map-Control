@@ -18,7 +18,7 @@ namespace SampleApplication
             {
                 ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
 
-                //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+                TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
                 //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
 
@@ -51,6 +51,11 @@ namespace SampleApplication
 
             await Task.Delay(2000);
             await ((ImageFileCache)TileImageLoader.Cache).Clean();
+        }
+
+        private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
+        {
+            map.TargetHeading = 0d;
         }
 
         private void MapPointerMoved(object sender, PointerRoutedEventArgs e)

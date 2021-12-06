@@ -63,6 +63,9 @@
     <Compile Include="..\Shared\MenuButton.cs">
       <Link>MenuButton.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\ValueConverters.cs">
+      <Link>ValueConverters.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
