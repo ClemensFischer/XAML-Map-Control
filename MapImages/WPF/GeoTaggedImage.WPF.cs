@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,17 +33,15 @@ namespace MapControl.Images
 
                 var mdata = bitmap.Metadata as BitmapMetadata;
 
-                if (mdata.GetQuery(PixelScaleQuery) is double[] pixelScale &&
-                    mdata.GetQuery(TiePointQuery) is double[] tiePoint &&
-                    pixelScale.Length == 3 && tiePoint.Length >= 6)
+                if (mdata.GetQuery(PixelScaleQuery) is double[] ps &&
+                    mdata.GetQuery(TiePointQuery) is double[] tp &&
+                    ps.Length == 3 && tp.Length >= 6)
                 {
-                    transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
+                    transform = new Matrix(ps[0], 0d, 0d, -ps[1], tp[3], tp[4]);
                 }
-                else if (mdata.GetQuery(TransformationQuery) is double[] transformation &&
-                         transformation.Length == 16)
+                else if (mdata.GetQuery(TransformationQuery) is double[] tf && tf.Length == 16)
                 {
-                    transform = new Matrix(transformation[0], transformation[1], transformation[4],
-                                           transformation[5], transformation[3], transformation[7]);
+                    transform = new Matrix(tf[0], tf[1], tf[4], tf[5], tf[3], tf[7]);
                 }
                 else
                 {
@@ -60,21 +59,41 @@ namespace MapControl.Images
 
         public static BitmapSource ConvertTransparentPixel(BitmapSource source, int transparentPixel)
         {
+            List<Color> colors = null;
+            var format = source.Format;
+            var bpp = format.BitsPerPixel;
+
+            if (format == PixelFormats.Indexed8 ||
+                format == PixelFormats.Indexed4 ||
+                format == PixelFormats.Indexed2)
+            {
+                colors = source.Palette.Colors.ToList();
+            }
+            else if (format == PixelFormats.Gray8 ||
+                format == PixelFormats.Gray4 ||
+                format == PixelFormats.Gray2)
+            {
+                format = bpp == 8 ? PixelFormats.Indexed8
+                    : bpp == 4 ? PixelFormats.Indexed4 : PixelFormats.Indexed2;
+
+                colors = Enumerable.Range(0, (1 << bpp))
+                    .Select(i => Color.FromRgb((byte)i, (byte)i, (byte)i)).ToList();
+            }
+
             var target = source;
 
-            if (source.Format == PixelFormats.Gray8 && transparentPixel < 256)
+            if (colors != null && transparentPixel < colors.Count)
             {
-                var colors = Enumerable.Range(0, 256)
-                    .Select(i => Color.FromArgb(i == transparentPixel ? (byte)0 : (byte)255, (byte)i, (byte)i, (byte)i))
-                    .ToList();
+                colors[transparentPixel] = Colors.Transparent;
 
-                var buffer = new byte[source.PixelWidth * source.PixelHeight];
+                var stride = (source.PixelWidth * bpp + 7) / 8;
+                var buffer = new byte[stride * source.PixelHeight];
 
-                source.CopyPixels(buffer, source.PixelWidth, 0);
+                source.CopyPixels(buffer, stride, 0);
 
                 target = BitmapSource.Create(
                     source.PixelWidth, source.PixelHeight, source.DpiX, source.DpiY,
-                    PixelFormats.Indexed8, new BitmapPalette(colors), buffer, source.PixelWidth);
+                    format, new BitmapPalette(colors), buffer, stride);
 
                 target.Freeze();
             }
