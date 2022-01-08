@@ -29,11 +29,10 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl.Images
 {
-    public class WorldFileImage
+    public partial class GeoTaggedImage
     {
         public static readonly DependencyProperty PathProperty = DependencyProperty.RegisterAttached(
-            "Path", typeof(string), typeof(WorldFileImage),
-            new PropertyMetadata(null, async (o, e) => (await ReadWorldFileImage((string)e.NewValue)).SetImage((Image)o)));
+            "Path", typeof(string), typeof(GeoTaggedImage), new PropertyMetadata(null, PathPropertyChanged));
 
         public BitmapSource Bitmap { get; }
         public Matrix Transform { get; }
@@ -41,7 +40,7 @@ namespace MapControl.Images
         public BoundingBox BoundingBox { get; }
         public double Rotation { get; }
 
-        public WorldFileImage(BitmapSource bitmap, Matrix transform, MapProjection projection)
+        public GeoTaggedImage(BitmapSource bitmap, Matrix transform, MapProjection projection)
         {
             Bitmap = bitmap;
             Transform = transform;
@@ -83,40 +82,41 @@ namespace MapControl.Images
             image.SetValue(PathProperty, path);
         }
 
-        public static async Task<WorldFileImage> ReadWorldFileImage(string imagePath, string worldFilePath, string projFilePath = null)
+        public static Task<GeoTaggedImage> ReadImage(string imageFilePath)
         {
-            var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(imagePath);
-            var transform = ReadWorldFile(worldFilePath);
-            var projection = (projFilePath != null && File.Exists(projFilePath))
-                ? new GeoApiProjection { WKT = File.ReadAllText(projFilePath) }
-                : null;
-
-            return new WorldFileImage(bitmap, transform, projection);
-        }
-
-        public static Task<WorldFileImage> ReadWorldFileImage(string imagePath)
-        {
-            var ext = Path.GetExtension(imagePath);
+            var ext = Path.GetExtension(imageFilePath);
             if (ext.Length < 4)
             {
                 throw new ArgumentException("Invalid image file path extension, must have at least three characters.");
             }
 
-            var dir = Path.GetDirectoryName(imagePath);
-            var file = Path.GetFileNameWithoutExtension(imagePath);
+            var dir = Path.GetDirectoryName(imageFilePath);
+            var file = Path.GetFileNameWithoutExtension(imageFilePath);
             var worldFilePath = Path.Combine(dir, file + ext.Remove(2, 1) + "w");
-            var projFilePath = Path.Combine(dir, file + ".prj");
 
-            return ReadWorldFileImage(imagePath, worldFilePath, projFilePath);
+            if (File.Exists(worldFilePath))
+            {
+                return ReadImage(imageFilePath, worldFilePath, Path.Combine(dir, file + ".prj"));
+            }
+
+            return ReadGeoTiff(imageFilePath);
+        }
+
+        public static async Task<GeoTaggedImage> ReadImage(string imageFilePath, string worldFilePath, string projFilePath = null)
+        {
+            var transform = ReadWorldFile(worldFilePath);
+
+            var projection = (projFilePath != null && File.Exists(projFilePath))
+                ? ReadProjectionFile(projFilePath)
+                : null;
+
+            var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(imageFilePath);
+
+            return new GeoTaggedImage(bitmap, transform, projection);
         }
 
         public static Matrix ReadWorldFile(string path)
         {
-            if (!File.Exists(path))
-            {
-                throw new ArgumentException("World file \"" + path + "\"not found.");
-            }
-
             var parameters = File.ReadLines(path)
                 .Take(6)
                 .Select((line, i) =>
@@ -143,12 +143,12 @@ namespace MapControl.Images
                 parameters[5]); // line 6: F or OffsetY
         }
 
-        public static MapProjection ReadProjFile(string path)
+        public static MapProjection ReadProjectionFile(string path)
         {
             return new GeoApiProjection { WKT = File.ReadAllText(path) };
         }
 
-        public void SetImage(Image image)
+        public void ApplyToImage(Image image)
         {
             if (Rotation != 0d)
             {
@@ -178,12 +178,21 @@ namespace MapControl.Images
             }
 
             MapPanel.SetBoundingBox(image, BoundingBox);
+
             return image;
         }
 
-        public static async Task<FrameworkElement> CreateImage(string imagePath)
+        public static async Task<FrameworkElement> CreateImage(string imageFilePath)
         {
-            return (await ReadWorldFileImage(imagePath)).CreateImage();
+            return (await ReadImage(imageFilePath)).CreateImage();
+        }
+
+        private static async void PathPropertyChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        {
+            if (o is Image image && e.NewValue is string imageFilePath)
+            {
+                (await ReadImage(imageFilePath)).ApplyToImage(image);
+            }
         }
     }
 }
