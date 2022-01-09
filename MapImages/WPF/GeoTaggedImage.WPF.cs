@@ -64,7 +64,8 @@ namespace MapControl.Images
 
             if (source.Format == PixelFormats.Indexed8 ||
                 source.Format == PixelFormats.Indexed4 ||
-                source.Format == PixelFormats.Indexed2)
+                source.Format == PixelFormats.Indexed2 ||
+                source.Format == PixelFormats.Indexed1)
             {
                 targetFormat = source.Format;
                 colors = source.Palette.Colors.ToList();
@@ -76,13 +77,18 @@ namespace MapControl.Images
             }
             else if (source.Format == PixelFormats.Gray4)
             {
-                targetFormat = PixelFormats.Indexed8;
+                targetFormat = PixelFormats.Indexed4;
                 colors = BitmapPalettes.Gray16.Colors.ToList();
             }
             else if (source.Format == PixelFormats.Gray2)
             {
-                targetFormat = PixelFormats.Indexed8;
+                targetFormat = PixelFormats.Indexed2;
                 colors = BitmapPalettes.Gray4.Colors.ToList();
+            }
+            else if (source.Format == PixelFormats.BlackWhite)
+            {
+                targetFormat = PixelFormats.Indexed1;
+                colors = BitmapPalettes.BlackAndWhite.Colors.ToList();
             }
 
             if (colors == null || transparentPixel >= colors.Count)
