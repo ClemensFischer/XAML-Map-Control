@@ -59,44 +59,49 @@ namespace MapControl.Images
 
         public static BitmapSource ConvertTransparentPixel(BitmapSource source, int transparentPixel)
         {
+            var targetFormat = source.Format;
             List<Color> colors = null;
-            var format = source.Format;
-            var bpp = format.BitsPerPixel;
 
-            if (format == PixelFormats.Indexed8 ||
-                format == PixelFormats.Indexed4 ||
-                format == PixelFormats.Indexed2)
+            if (source.Format == PixelFormats.Indexed8 ||
+                source.Format == PixelFormats.Indexed4 ||
+                source.Format == PixelFormats.Indexed2)
             {
+                targetFormat = source.Format;
                 colors = source.Palette.Colors.ToList();
             }
-            else if (format == PixelFormats.Gray8 ||
-                format == PixelFormats.Gray4 ||
-                format == PixelFormats.Gray2)
+            else if (source.Format == PixelFormats.Gray8)
             {
-                format = bpp == 8 ? PixelFormats.Indexed8
-                    : bpp == 4 ? PixelFormats.Indexed4 : PixelFormats.Indexed2;
-
-                colors = Enumerable.Range(0, (1 << bpp))
-                    .Select(i => Color.FromRgb((byte)i, (byte)i, (byte)i)).ToList();
+                targetFormat = PixelFormats.Indexed8;
+                colors = BitmapPalettes.Gray256.Colors.ToList();
+            }
+            else if (source.Format == PixelFormats.Gray4)
+            {
+                targetFormat = PixelFormats.Indexed8;
+                colors = BitmapPalettes.Gray16.Colors.ToList();
+            }
+            else if (source.Format == PixelFormats.Gray2)
+            {
+                targetFormat = PixelFormats.Indexed8;
+                colors = BitmapPalettes.Gray4.Colors.ToList();
             }
 
-            var target = source;
-
-            if (colors != null && transparentPixel < colors.Count)
+            if (colors == null || transparentPixel >= colors.Count)
             {
-                colors[transparentPixel] = Colors.Transparent;
-
-                var stride = (source.PixelWidth * bpp + 7) / 8;
-                var buffer = new byte[stride * source.PixelHeight];
-
-                source.CopyPixels(buffer, stride, 0);
-
-                target = BitmapSource.Create(
-                    source.PixelWidth, source.PixelHeight, source.DpiX, source.DpiY,
-                    format, new BitmapPalette(colors), buffer, stride);
-
-                target.Freeze();
+                return source;
             }
+
+            colors[transparentPixel] = Colors.Transparent;
+
+            var stride = (source.PixelWidth * source.Format.BitsPerPixel + 7) / 8;
+            var buffer = new byte[stride * source.PixelHeight];
+
+            source.CopyPixels(buffer, stride, 0);
+
+            var target = BitmapSource.Create(
+                source.PixelWidth, source.PixelHeight, source.DpiX, source.DpiY,
+                targetFormat, new BitmapPalette(colors), buffer, stride);
+
+            target.Freeze();
 
             return target;
         }
