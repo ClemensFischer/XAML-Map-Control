@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +13,6 @@ namespace MapControl.Images
 {
     public partial class GeoTaggedImage
     {
-        private const string PixelScaleQuery = "/ifd/{ushort=33550}";
-        private const string TiePointQuery = "/ifd/{ushort=33922}";
-        private const string TransformationQuery = "/ifd/{ushort=34264}";
-        private const string NoDataQuery = "/ifd/{ushort=42113}";
-
         public static Task<GeoTaggedImage> ReadGeoTiff(string imageFilePath)
         {
             return Task.Run(() =>
@@ -31,24 +25,23 @@ namespace MapControl.Images
                     bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                 }
 
-                var mdata = bitmap.Metadata as BitmapMetadata;
+                var metadata = bitmap.Metadata as BitmapMetadata;
 
-                if (mdata.GetQuery(PixelScaleQuery) is double[] ps &&
-                    mdata.GetQuery(TiePointQuery) is double[] tp &&
-                    ps.Length == 3 && tp.Length >= 6)
+                if (metadata.GetQuery(PixelScaleQuery) is double[] pixelScale && pixelScale.Length == 3 &&
+                    metadata.GetQuery(TiePointQuery) is double[] tiePoint && tiePoint.Length >= 6)
                 {
-                    transform = new Matrix(ps[0], 0d, 0d, -ps[1], tp[3], tp[4]);
+                    transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
-                else if (mdata.GetQuery(TransformationQuery) is double[] tf && tf.Length == 16)
+                else if (metadata.GetQuery(TransformQuery) is double[] tform && tform.Length == 16)
                 {
-                    transform = new Matrix(tf[0], tf[1], tf[4], tf[5], tf[3], tf[7]);
+                    transform = new Matrix(tform[0], tform[1], tform[4], tform[5], tform[3], tform[7]);
                 }
                 else
                 {
                     throw new ArgumentException("No coordinate transformation found in \"" + imageFilePath + "\".");
                 }
 
-                if (mdata.GetQuery(NoDataQuery) is string noData && int.TryParse(noData, out int noDataValue))
+                if (metadata.GetQuery(NoDataQuery) is string noData && int.TryParse(noData, out int noDataValue))
                 {
                     bitmap = ConvertTransparentPixel(bitmap, noDataValue);
                 }
@@ -59,42 +52,43 @@ namespace MapControl.Images
 
         public static BitmapSource ConvertTransparentPixel(BitmapSource source, int transparentPixel)
         {
+            BitmapPalette sourcePalette = null;
             var targetFormat = source.Format;
-            List<Color> colors = null;
 
             if (source.Format == PixelFormats.Indexed8 ||
                 source.Format == PixelFormats.Indexed4 ||
                 source.Format == PixelFormats.Indexed2 ||
                 source.Format == PixelFormats.Indexed1)
             {
-                targetFormat = source.Format;
-                colors = source.Palette.Colors.ToList();
+                sourcePalette = source.Palette;
             }
             else if (source.Format == PixelFormats.Gray8)
             {
+                sourcePalette = BitmapPalettes.Gray256;
                 targetFormat = PixelFormats.Indexed8;
-                colors = BitmapPalettes.Gray256.Colors.ToList();
             }
             else if (source.Format == PixelFormats.Gray4)
             {
+                sourcePalette = BitmapPalettes.Gray16;
                 targetFormat = PixelFormats.Indexed4;
-                colors = BitmapPalettes.Gray16.Colors.ToList();
             }
             else if (source.Format == PixelFormats.Gray2)
             {
+                sourcePalette = BitmapPalettes.Gray4;
                 targetFormat = PixelFormats.Indexed2;
-                colors = BitmapPalettes.Gray4.Colors.ToList();
             }
             else if (source.Format == PixelFormats.BlackWhite)
             {
+                sourcePalette = BitmapPalettes.BlackAndWhite;
                 targetFormat = PixelFormats.Indexed1;
-                colors = BitmapPalettes.BlackAndWhite.Colors.ToList();
             }
 
-            if (colors == null || transparentPixel >= colors.Count)
+            if (sourcePalette == null || transparentPixel >= sourcePalette.Colors.Count)
             {
                 return source;
             }
+
+            var colors = sourcePalette.Colors.ToList();
 
             colors[transparentPixel] = Colors.Transparent;
 

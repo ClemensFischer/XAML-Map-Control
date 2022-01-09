@@ -31,6 +31,11 @@ namespace MapControl.Images
 {
     public partial class GeoTaggedImage
     {
+        private const string PixelScaleQuery = "/ifd/{ushort=33550}";
+        private const string TiePointQuery = "/ifd/{ushort=33922}";
+        private const string TransformQuery = "/ifd/{ushort=34264}";
+        private const string NoDataQuery = "/ifd/{ushort=42113}";
+
         public static readonly DependencyProperty PathProperty = DependencyProperty.RegisterAttached(
             "Path", typeof(string), typeof(GeoTaggedImage), new PropertyMetadata(null, PathPropertyChanged));
 
