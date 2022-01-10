@@ -17,12 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApplication", "SampleApp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.WinUI", "MapControl\WinUI\MapControl.WinUI.csproj", "{92894476-02E1-47CB-936E-4154023456F0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{47E434EE-BB49-4171-A24A-8FFF55EE0C2F}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinUiApp", "SampleApps\WinUiApp\WinUiApp.csproj", "{579B29D7-91CA-44F3-A96D-5D9BC957BADA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUiApp", "SampleApps\WinUiApp\WinUiApp.csproj", "{579B29D7-91CA-44F3-A96D-5D9BC957BADA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
