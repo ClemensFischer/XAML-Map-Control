@@ -1,36 +1,24 @@
-﻿using MapControl;
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2022 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
 using System.Collections.Generic;
 using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 #elif UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 #endif
 
-namespace SampleApplication
+namespace MapControl.UiTools
 {
     public class MapLayersMenuButton : MenuButton
     {
         public MapLayersMenuButton()
+            : base("\uE81E")
         {
-#if WINUI || UWP
-            Content = new FontIcon
-            {
-                FontFamily = new FontFamily("Segoe MDL2 Assets"),
-                Glyph = "\uE81E"
-            };
-#else
-            FontFamily = new FontFamily("Segoe MDL2 Assets");
-            Content = "\uE81E";
-#endif
         }
 
         public static readonly DependencyProperty MapProperty = DependencyProperty.Register(

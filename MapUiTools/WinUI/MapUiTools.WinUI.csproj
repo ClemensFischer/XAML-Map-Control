@@ -4,8 +4,8 @@
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <UseWinUI>true</UseWinUI>
-        <RootNamespace>MapControl</RootNamespace>
-        <AssemblyTitle>XAML Map Control Library for WinUI</AssemblyTitle>
+        <RootNamespace>MapControl.UiTools</RootNamespace>
+        <AssemblyTitle>XAML Map Control UI Tools Library for WinUI</AssemblyTitle>
         <Product>XAML Map Control</Product>
         <Version>7.1.0</Version>
         <Authors>Clemens Fischer</Authors>
@@ -13,8 +13,6 @@
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <PackageId>XAML.MapControl</PackageId>
         <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>
 
@@ -29,5 +27,9 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.196" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
     </ItemGroup>
 </Project>

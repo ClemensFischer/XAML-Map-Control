@@ -1,21 +1,32 @@
-﻿using System.Collections.Generic;
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// © 2022 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System.Collections.Generic;
 using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-#else
-using System.Windows;
-using System.Windows.Controls;
+using Windows.UI.Xaml.Media;
 #endif
 
-namespace SampleApplication
+namespace MapControl.UiTools
 {
     public class MenuButton : Button
     {
-#if WINUI || UWP
+        protected MenuButton(string icon)
+        {
+            Content = new FontIcon
+            {
+                FontFamily = new FontFamily("Segoe Fluent Icons"),
+                Glyph = icon
+            };
+        }
+
         protected MenuFlyout CreateMenu()
         {
             var menu = new MenuFlyout();
@@ -39,35 +50,5 @@ namespace SampleApplication
         {
             return new MenuFlyoutSeparator();
         }
-#else
-        protected ContextMenu CreateMenu()
-        {
-            var menu = new ContextMenu();
-            ContextMenu = menu;
-            return menu;
-        }
-
-        protected IEnumerable<MenuItem> GetMenuItems()
-        {
-            return ContextMenu.Items.OfType<MenuItem>();
-        }
-
-        protected static MenuItem CreateMenuItem(string text, object item, RoutedEventHandler click)
-        {
-            var menuItem = new MenuItem { Header = text, Tag = item };
-            menuItem.Click += click;
-            return menuItem;
-        }
-
-        protected static Separator CreateSeparator()
-        {
-            return new Separator();
-        }
-
-        protected MenuButton()
-        {
-            Click += (s, e) => ContextMenu.IsOpen = true;
-        }
-#endif
     }
 }

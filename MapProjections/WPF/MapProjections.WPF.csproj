@@ -3,15 +3,14 @@
         <TargetFrameworks>net6.0-windows;net5.0-windows;netcoreapp3.1;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl.Projections</RootNamespace>
-        <AssemblyName>MapProjections.WPF</AssemblyName>
+        <AssemblyTitle>XAML Map Control Projections Library for WPF</AssemblyTitle>
+        <Product>XAML Map Control</Product>
+        <Version>7.1.0</Version>
+        <Authors>Clemens Fischer</Authors>
+        <Copyright>Copyright © 2022 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
-        <Product>XAML Map Control</Product>
-        <Version>7.0.0</Version>
-        <Description>Map Projections Library for XAML Map Control</Description>
-        <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
         <DefineConstants></DefineConstants>

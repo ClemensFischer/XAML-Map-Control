@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("XAML Map Control UWP Sample Application")]
+[assembly: AssemblyTitle("XAML Map Control UI Tools Library for UWP")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
 [assembly: AssemblyCopyright("Copyright © 2022 Clemens Fischer")]

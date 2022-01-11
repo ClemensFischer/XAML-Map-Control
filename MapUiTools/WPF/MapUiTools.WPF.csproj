@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net6.0-windows;net5.0-windows;netcoreapp3.1;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
-        <RootNamespace>MapControl.Images</RootNamespace>
-        <AssemblyTitle>XAML Map Control Image Support Library for WPF</AssemblyTitle>
+        <RootNamespace>MapControl.UiTools</RootNamespace>
+        <AssemblyTitle>XAML Map Control UI Tools Library for WPF</AssemblyTitle>
         <Product>XAML Map Control</Product>
         <Version>7.1.0</Version>
         <Authors>Clemens Fischer</Authors>
@@ -11,8 +11,6 @@
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <PackageId>XAML.MapControl.MapImages</PackageId>
         <DefineConstants></DefineConstants>
     </PropertyGroup>
 
@@ -24,12 +22,7 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)'=='net48' or '$(TargetFramework)'=='net462'">
-        <Reference Include="System.IO.Compression" />
-    </ItemGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
-        <ProjectReference Include="..\..\MapProjections\WPF\MapProjections.WPF.csproj" />
     </ItemGroup>
 </Project>

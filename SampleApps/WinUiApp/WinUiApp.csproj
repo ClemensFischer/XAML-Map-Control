@@ -3,17 +3,17 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-        <Platforms>x86;x64;arm64</Platforms>
+        <Platforms>x64</Platforms>
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
         <UseWinUI>true</UseWinUI>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <RootNamespace>SampleApplication</RootNamespace>
+        <AssemblyTitle>XAML Map Control WinUI Sample Application</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>7.0.0</Version>
-        <Description>XAML Map Control WinUI Sample Application</Description>
+        <Version>7.1.0</Version>
         <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
+        <Copyright>Copyright © 2022 Clemens Fischer</Copyright>
         <AnalysisLevel>none</AnalysisLevel>
         <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
         <DefineConstants>WINUI</DefineConstants>
@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg"/>
+        <Content Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg" />
         <Content Include="Assets\SplashScreen.scale-200.png" />
         <Content Include="Assets\LockScreenLogo.scale-200.png" />
         <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -42,6 +42,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
+        <ProjectReference Include="..\..\MapUiTools\WinUI\MapUiTools.WinUI.csproj" />
     </ItemGroup>
 
     <!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging

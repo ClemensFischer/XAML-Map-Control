@@ -5,14 +5,14 @@
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <UseWinUI>true</UseWinUI>
         <RootNamespace>MapControl.MBTiles</RootNamespace>
+        <AssemblyTitle>XAML Map Control MBTiles Library for WinUI</AssemblyTitle>
+        <Product>XAML Map Control</Product>
+        <Version>7.1.0</Version>
+        <Authors>Clemens Fischer</Authors>
+        <Copyright>Copyright © 2022 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
-        <Product>XAML Map Control</Product>
-        <Version>7.0.0</Version>
-        <Description>MBTiles Support Library for XAML Map Control</Description>
-        <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2021 Clemens Fischer</Copyright>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MBTiles</PackageId>
         <DefineConstants>WINUI</DefineConstants>

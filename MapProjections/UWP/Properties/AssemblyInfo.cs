@@ -1,14 +1,13 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("XAML Map Control Projections (UWP)")]
-[assembly: AssemblyDescription("Map Projections Library for XAML Map Control")]
+[assembly: AssemblyTitle("XAML Map Control Projections Library for UWP")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
-[assembly: AssemblyCopyright("Copyright © 2021 Clemens Fischer")]
+[assembly: AssemblyCopyright("Copyright © 2022 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyVersion("7.0.0")]
-[assembly: AssemblyFileVersion("7.0.0")]
+[assembly: AssemblyVersion("7.1.0")]
+[assembly: AssemblyFileVersion("7.1.0")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
