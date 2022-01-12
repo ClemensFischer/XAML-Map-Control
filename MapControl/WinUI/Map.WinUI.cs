@@ -21,6 +21,8 @@ namespace MapControl
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
             nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
 
+        private Point? mousePosition;
+
         public Map()
         {
             ManipulationMode = ManipulationModes.Scale
@@ -28,8 +30,11 @@ namespace MapControl
                 | ManipulationModes.TranslateY
                 | ManipulationModes.TranslateInertia;
 
-            ManipulationDelta += OnManipulationDelta;
             PointerWheelChanged += OnPointerWheelChanged;
+            PointerPressed += OnPointerPressed;
+            PointerReleased += OnPointerReleased;
+            PointerMoved += OnPointerMoved;
+            ManipulationDelta += OnManipulationDelta;
         }
 
         /// <summary>
@@ -42,17 +47,49 @@ namespace MapControl
             set { SetValue(MouseWheelZoomDeltaProperty, value); }
         }
 
-        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
-        {
-            TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
-        }
-
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
             var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * Math.Sign(point.Properties.MouseWheelDelta);
 
             ZoomMap(point.Position, MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta));
+        }
+
+        private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (CapturePointer(e.Pointer))
+            {
+                mousePosition = e.GetCurrentPoint(this).Position;
+            }
+        }
+
+        private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            if (mousePosition.HasValue)
+            {
+                mousePosition = null;
+                ReleasePointerCaptures();
+            }
+        }
+
+        private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (mousePosition.HasValue)
+            {
+                Point position = e.GetCurrentPoint(this).Position;
+                var translation = position - mousePosition.Value;
+                mousePosition = position;
+
+                TranslateMap(translation);
+            }
+        }
+
+        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            if (!mousePosition.HasValue)
+            {
+                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+            }
         }
     }
 }

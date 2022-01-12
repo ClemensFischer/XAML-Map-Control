@@ -73,16 +73,13 @@ namespace MapControl
 #if WINUI
         private readonly DispatcherQueueTimer updateTimer;
 #else
-        private readonly DispatcherTimer updateTimer = new DispatcherTimer();
+        private readonly DispatcherTimer updateTimer;
 #endif
         private bool updateInProgress;
 
         public MapImageLayer()
         {
-#if WINUI
-            updateTimer = DispatcherQueue.CreateTimer();
-#endif
-            updateTimer.Interval = UpdateInterval;
+            updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await UpdateImageAsync();
         }
 
@@ -227,12 +224,7 @@ namespace MapControl
 
                 base.OnViewportChanged(e);
 
-                if (!UpdateWhileViewportChanging)
-                {
-                    updateTimer.Stop(); // restart
-                }
-
-                updateTimer.Start();
+                updateTimer.Run(!UpdateWhileViewportChanging);
             }
         }
 
@@ -242,7 +234,7 @@ namespace MapControl
 
             if (updateInProgress)
             {
-                updateTimer.Start(); // update image on next timer tick
+                updateTimer.Run(); // update image on next timer tick
             }
             else if (ParentMap != null && ParentMap.RenderSize.Width > 0 && ParentMap.RenderSize.Height > 0)
             {

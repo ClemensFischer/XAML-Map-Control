@@ -61,7 +61,7 @@ namespace MapControl
 #if WINUI
         private readonly DispatcherQueueTimer updateTimer;
 #else
-        private readonly DispatcherTimer updateTimer = new DispatcherTimer();
+        private readonly DispatcherTimer updateTimer;
 #endif
         private MapBase parentMap;
 
@@ -69,10 +69,8 @@ namespace MapControl
         {
             RenderTransform = new MatrixTransform();
             TileImageLoader = tileImageLoader;
-#if WINUI
-            updateTimer = DispatcherQueue.CreateTimer();
-#endif
-            updateTimer.Interval = UpdateInterval;
+
+            updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await Update();
 
 #if WINUI || UWP
@@ -172,7 +170,7 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                updateTimer.Start();
+                updateTimer.Run();
             }
         }
 
@@ -207,12 +205,7 @@ namespace MapControl
             {
                 SetRenderTransform();
 
-                if (!UpdateWhileViewportChanging)
-                {
-                    updateTimer.Stop(); // restart
-                }
-
-                updateTimer.Start();
+                updateTimer.Run(!UpdateWhileViewportChanging);
             }
         }
     }

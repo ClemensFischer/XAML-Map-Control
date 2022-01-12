@@ -227,6 +227,9 @@
     <Compile Include="..\WinUI\Vector.WinUI.cs">
       <Link>Vector.WinUI.cs</Link>
     </Compile>
+    <Compile Include="..\WPF\Timer.WPF.cs">
+      <Link>Timer.WPF.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />
     <EmbeddedResource Include="Properties\MapControl.UWP.rd.xml" />
