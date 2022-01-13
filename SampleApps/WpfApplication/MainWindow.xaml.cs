@@ -40,38 +40,19 @@ namespace SampleApplication
                 mapLayersMenuButton.MapLayers.Add(new MapLayerItem
                 {
                     Text = "Bing Maps Road",
-                    Layer = new BingMapsTileLayer
-                    {
-                        Mode = BingMapsTileLayer.MapMode.Road,
-                        SourceName = "Bing Maps Road",
-                        Description = "© [Microsoft](http://www.bing.com/maps/)"
-                    }
+                    Layer = (UIElement)Resources["BingMapsRoad"]
                 });
 
                 mapLayersMenuButton.MapLayers.Add(new MapLayerItem
                 {
                     Text = "Bing Maps Aerial",
-                    Layer = new BingMapsTileLayer
-                    {
-                        Mode = BingMapsTileLayer.MapMode.Aerial,
-                        SourceName = "Bing Maps Aerial",
-                        Description = "© [Microsoft](http://www.bing.com/maps/)",
-                        MapForeground = new SolidColorBrush(Colors.White),
-                        MapBackground = new SolidColorBrush(Colors.Black)
-                    }
+                    Layer = (UIElement)Resources["BingMapsAerial"]
                 });
 
                 mapLayersMenuButton.MapLayers.Add(new MapLayerItem
                 {
                     Text = "Bing Maps Aerial with Labels",
-                    Layer = new BingMapsTileLayer
-                    {
-                        Mode = BingMapsTileLayer.MapMode.AerialWithLabels,
-                        SourceName = "Bing Maps Hybrid",
-                        Description = "© [Microsoft](http://www.bing.com/maps/)",
-                        MapForeground = new SolidColorBrush(Colors.White),
-                        MapBackground = new SolidColorBrush(Colors.Black)
-                    }
+                    Layer = (UIElement)Resources["BingMapsHybrid"]
                 });
             }
 

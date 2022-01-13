@@ -1,0 +1,63 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:map="clr-namespace:MapControl;assembly=MapControl.WPF">
+    <map:MapTileLayer
+        x:Key="OpenStreetMap"
+        TileSource="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        SourceName="OpenStreetMap"
+        Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+    <map:MapTileLayer
+        x:Key="OpenStreetMapGerman"
+        TileSource="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"
+        SourceName="OpenStreetMap German"
+        Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+    <map:MapTileLayer
+        x:Key="OpenStreetMapFrench"
+        TileSource="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
+        SourceName="OpenStreetMap French"
+        Description="© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+    <map:MapTileLayer
+        x:Key="OpenTopoMap"
+        TileSource="https://tile.opentopomap.org/{z}/{x}/{y}.png"
+        SourceName="OpenTopoMap"
+        Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+    <map:MapTileLayer
+        x:Key="Seamarks"
+        TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
+        SourceName="Seamarks"
+        MinZoomLevel="9"
+        MaxZoomLevel="18"/>
+    <map:BingMapsTileLayer
+        x:Key="BingMapsRoad"
+        Mode="Road"
+        SourceName="Bing Maps Road"
+        Description="© [Microsoft](http://www.bing.com/maps/)"/>
+    <map:BingMapsTileLayer
+        x:Key="BingMapsAerial"
+        Mode="Aerial"
+        SourceName="Bing Maps Aerial"
+        Description="© [Microsoft](http://www.bing.com/maps/)"
+        MapBackground="Black"
+        MapForeground="White"/>
+    <map:BingMapsTileLayer
+        x:Key="BingMapsHybrid"
+        Mode="AerialWithLabels"
+        SourceName="Bing Maps Hybrid"
+        Description="© [Microsoft](http://www.bing.com/maps/)"
+        MapBackground="Black"
+        MapForeground="White"/>
+    <map:WmtsTileLayer
+        x:Key="TopPlusOpenWMTS"
+        CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"
+        SourceName="TopPlusOpen"
+        Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)"/>
+    <map:WmsImageLayer
+        x:Key="TopPlusOpenWMS"
+        ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"
+        Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)"/>
+    <map:WmsImageLayer
+        x:Key="OpenStreetMapWMS"
+        ServiceUri="http://ows.terrestris.de/osm/service"
+        Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+</ResourceDictionary>
