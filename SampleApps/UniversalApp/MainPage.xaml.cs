@@ -1,11 +1,13 @@
 ﻿using MapControl;
+using MapControl.UiTools;
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 
 namespace SampleApplication
 {
@@ -13,25 +15,63 @@ namespace SampleApplication
     {
         static MainPage()
         {
-            try
-            {
-                ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
+            ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
 
-                TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
-                //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
-                //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
+            TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
 
-                BingMapsTileLayer.ApiKey = File.ReadAllText("BingMapsApiKey.txt")?.Trim();
-            }
-            catch (Exception ex)
+            var bingMapsApiKeyPath = "BingMapsApiKey.txt";
+
+            if (File.Exists(bingMapsApiKeyPath))
             {
-                Debug.WriteLine(ex.Message);
+                BingMapsTileLayer.ApiKey = File.ReadAllText(bingMapsApiKeyPath)?.Trim();
             }
         }
 
         public MainPage()
         {
             InitializeComponent();
+
+            if (!string.IsNullOrEmpty(BingMapsTileLayer.ApiKey))
+            {
+                mapLayersMenuButton.MapLayers.Add(new MapLayerItem
+                {
+                    Text = "Bing Maps Road",
+                    Layer = new BingMapsTileLayer
+                    {
+                        Mode = BingMapsTileLayer.MapMode.Road,
+                        SourceName = "Bing Maps Road",
+                        Description = "© [Microsoft](http://www.bing.com/maps/)"
+                    }
+                });
+
+                mapLayersMenuButton.MapLayers.Add(new MapLayerItem
+                {
+                    Text = "Bing Maps Aerial",
+                    Layer = new BingMapsTileLayer
+                    {
+                        Mode = BingMapsTileLayer.MapMode.Aerial,
+                        SourceName = "Bing Maps Aerial",
+                        Description = "© [Microsoft](http://www.bing.com/maps/)",
+                        MapForeground = new SolidColorBrush(Colors.White),
+                        MapBackground = new SolidColorBrush(Colors.Black)
+                    }
+                });
+
+                mapLayersMenuButton.MapLayers.Add(new MapLayerItem
+                {
+                    Text = "Bing Maps Aerial with Labels",
+                    Layer = new BingMapsTileLayer
+                    {
+                        Mode = BingMapsTileLayer.MapMode.AerialWithLabels,
+                        SourceName = "Bing Maps Hybrid",
+                        Description = "© [Microsoft](http://www.bing.com/maps/)",
+                        MapForeground = new SolidColorBrush(Colors.White),
+                        MapBackground = new SolidColorBrush(Colors.Black)
+                    }
+                });
+            }
         }
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
