@@ -5,13 +5,12 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage;
 using System.Collections.Generic;
-#if WINUI
 using Windows.Graphics.Imaging;
+using Windows.Storage;
+#if WINUI
 using Microsoft.UI.Xaml.Media.Imaging;
 #else
-using Windows.Graphics.Imaging;
 using Windows.UI.Xaml.Media.Imaging;
 #endif
 
