@@ -15,7 +15,7 @@ namespace MapControl.Images
     {
         public static Task<GeoImage> ReadGeoTiff(string imageFilePath)
         {
-            return Task.Run((Func<GeoImage>)(() =>
+            return Task.Run(() =>
             {
                 BitmapSource bitmap;
                 Matrix transform;
@@ -47,7 +47,7 @@ namespace MapControl.Images
                 }
 
                 return new GeoImage(bitmap, transform, (MapProjection)null);
-            }));
+            });
         }
 
         public static BitmapSource ConvertTransparentPixel(BitmapSource source, int transparentPixel)
