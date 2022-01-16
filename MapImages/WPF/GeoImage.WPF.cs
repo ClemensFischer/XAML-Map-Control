@@ -11,11 +11,11 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl.Images
 {
-    public partial class GeoTaggedImage
+    public partial class GeoImage
     {
-        public static Task<GeoTaggedImage> ReadGeoTiff(string imageFilePath)
+        public static Task<GeoImage> ReadGeoTiff(string imageFilePath)
         {
-            return Task.Run(() =>
+            return Task.Run((Func<GeoImage>)(() =>
             {
                 BitmapSource bitmap;
                 Matrix transform;
@@ -27,12 +27,12 @@ namespace MapControl.Images
 
                 var metadata = bitmap.Metadata as BitmapMetadata;
 
-                if (metadata.GetQuery(PixelScaleQuery) is double[] pixelScale && pixelScale.Length == 3 &&
-                    metadata.GetQuery(TiePointQuery) is double[] tiePoint && tiePoint.Length >= 6)
+                if (metadata.GetQuery((string)PixelScaleQuery) is double[] pixelScale && pixelScale.Length == 3 &&
+                    metadata.GetQuery((string)TiePointQuery) is double[] tiePoint && tiePoint.Length >= 6)
                 {
                     transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
-                else if (metadata.GetQuery(TransformQuery) is double[] tform && tform.Length == 16)
+                else if (metadata.GetQuery((string)TransformQuery) is double[] tform && tform.Length == 16)
                 {
                     transform = new Matrix(tform[0], tform[1], tform[4], tform[5], tform[3], tform[7]);
                 }
@@ -41,13 +41,13 @@ namespace MapControl.Images
                     throw new ArgumentException("No coordinate transformation found in \"" + imageFilePath + "\".");
                 }
 
-                if (metadata.GetQuery(NoDataQuery) is string noData && int.TryParse(noData, out int noDataValue))
+                if (metadata.GetQuery((string)NoDataQuery) is string noData && int.TryParse(noData, out int noDataValue))
                 {
                     bitmap = ConvertTransparentPixel(bitmap, noDataValue);
                 }
 
-                return new GeoTaggedImage(bitmap, transform, null);
-            });
+                return new GeoImage(bitmap, transform, (MapProjection)null);
+            }));
         }
 
         public static BitmapSource ConvertTransparentPixel(BitmapSource source, int transparentPixel)

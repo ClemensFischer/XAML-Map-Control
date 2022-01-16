@@ -17,9 +17,9 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace MapControl.Images
 {
-    public partial class GeoTaggedImage
+    public partial class GeoImage
     {
-        public static async Task<GeoTaggedImage> ReadGeoTiff(string imageFilePath)
+        public static async Task<GeoImage> ReadGeoTiff(string imageFilePath)
         {
             var file = await StorageFile.GetFileFromPathAsync(Path.GetFullPath(imageFilePath));
 
@@ -60,7 +60,7 @@ namespace MapControl.Images
                     throw new ArgumentException("No coordinate transformation found in \"" + imageFilePath + "\".");
                 }
 
-                return new GeoTaggedImage(bitmap, transform, null);
+                return new GeoImage(bitmap, transform, null);
             }
         }
     }

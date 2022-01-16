@@ -40,14 +40,14 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\GeoTaggedImage.cs">
-      <Link>GeoTaggedImage.cs</Link>
+    <Compile Include="..\Shared\GeoImage.cs">
+      <Link>GeoImage.cs</Link>
     </Compile>
     <Compile Include="..\Shared\GroundOverlayPanel.cs">
       <Link>GroundOverlayPanel.cs</Link>
     </Compile>
-    <Compile Include="..\WinUI\GeoTaggedImage.WinUI.cs">
-      <Link>GeoTaggedImage.WinUI.cs</Link>
+    <Compile Include="..\WinUI\GeoImage.WinUI.cs">
+      <Link>GeoImage.WinUI.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MapImages.UWP.rd.xml" />

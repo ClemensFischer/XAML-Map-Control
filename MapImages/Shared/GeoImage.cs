@@ -29,7 +29,7 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl.Images
 {
-    public partial class GeoTaggedImage
+    public partial class GeoImage
     {
         private const string PixelScaleQuery = "/ifd/{ushort=33550}";
         private const string TiePointQuery = "/ifd/{ushort=33922}";
@@ -37,7 +37,7 @@ namespace MapControl.Images
         private const string NoDataQuery = "/ifd/{ushort=42113}";
 
         public static readonly DependencyProperty PathProperty = DependencyProperty.RegisterAttached(
-            "Path", typeof(string), typeof(GeoTaggedImage), new PropertyMetadata(null, PathPropertyChanged));
+            "Path", typeof(string), typeof(GeoImage), new PropertyMetadata(null, PathPropertyChanged));
 
         public BitmapSource Bitmap { get; }
         public Matrix Transform { get; }
@@ -45,7 +45,7 @@ namespace MapControl.Images
         public BoundingBox BoundingBox { get; }
         public double Rotation { get; }
 
-        public GeoTaggedImage(BitmapSource bitmap, Matrix transform, MapProjection projection)
+        public GeoImage(BitmapSource bitmap, Matrix transform, MapProjection projection)
         {
             Bitmap = bitmap;
             Transform = transform;
@@ -87,7 +87,7 @@ namespace MapControl.Images
             image.SetValue(PathProperty, path);
         }
 
-        public static Task<GeoTaggedImage> ReadImage(string imageFilePath)
+        public static Task<GeoImage> ReadImage(string imageFilePath)
         {
             var ext = Path.GetExtension(imageFilePath);
             if (ext.Length < 4)
@@ -107,7 +107,7 @@ namespace MapControl.Images
             return ReadGeoTiff(imageFilePath);
         }
 
-        public static async Task<GeoTaggedImage> ReadImage(string imageFilePath, string worldFilePath, string projFilePath = null)
+        public static async Task<GeoImage> ReadImage(string imageFilePath, string worldFilePath, string projFilePath = null)
         {
             var transform = ReadWorldFile(worldFilePath);
 
@@ -117,7 +117,7 @@ namespace MapControl.Images
 
             var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(imageFilePath);
 
-            return new GeoTaggedImage(bitmap, transform, projection);
+            return new GeoImage(bitmap, transform, projection);
         }
 
         public static Matrix ReadWorldFile(string path)
