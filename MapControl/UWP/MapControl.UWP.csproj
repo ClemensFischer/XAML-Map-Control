@@ -71,6 +71,9 @@
     <Compile Include="..\Shared\EquirectangularProjection.cs">
       <Link>EquirectangularProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\GeoImage.cs">
+      <Link>GeoImage.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\GnomonicProjection.cs">
       <Link>GnomonicProjection.cs</Link>
     </Compile>
@@ -184,6 +187,9 @@
     </Compile>
     <Compile Include="..\WinUI\Animatable.WinUI.cs">
       <Link>Animatable.WinUI.cs</Link>
+    </Compile>
+    <Compile Include="..\WinUI\GeoImage.WinUI.cs">
+      <Link>GeoImage.WinUI.cs</Link>
     </Compile>
     <Compile Include="..\WinUI\ImageFileCache.WinUI.cs">
       <Link>ImageFileCache.WinUI.cs</Link>

@@ -35,7 +35,7 @@ namespace MapControl
 
             try
             {
-                if (!uri.IsAbsoluteUri || uri.Scheme == "file")
+                if (!uri.IsAbsoluteUri || uri.IsFile)
                 {
                     image = await LoadImageAsync(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
                 }
