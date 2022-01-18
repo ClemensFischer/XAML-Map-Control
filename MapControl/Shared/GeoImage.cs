@@ -35,14 +35,14 @@ namespace MapControl
         private const string TransformQuery = "/ifd/{ushort=34264}";
         private const string NoDataQuery = "/ifd/{ushort=42113}";
 
-        public static readonly DependencyProperty SourceUriProperty = DependencyProperty.Register(
-            nameof(SourceUri), typeof(Uri), typeof(GeoImage),
-            new PropertyMetadata(null, async (o, e) => await ((GeoImage)o).SourceUriPropertyChanged((Uri)e.NewValue)));
+        public static readonly DependencyProperty SourcePathProperty = DependencyProperty.Register(
+            nameof(SourcePath), typeof(string), typeof(GeoImage),
+            new PropertyMetadata(null, async (o, e) => await ((GeoImage)o).SourcePathPropertyChanged((string)e.NewValue)));
 
-        public Uri SourceUri
+        public string SourcePath
         {
-            get { return (Uri)GetValue(SourceUriProperty); }
-            set { SetValue(SourceUriProperty, value); }
+            get { return (string)GetValue(SourcePathProperty); }
+            set { SetValue(SourcePathProperty, value); }
         }
 
         public GeoImage()
@@ -51,36 +51,32 @@ namespace MapControl
             VerticalContentAlignment = VerticalAlignment.Stretch;
         }
 
-        private async Task SourceUriPropertyChanged(Uri sourceUri)
+        private async Task SourcePathPropertyChanged(string sourcePath)
         {
             Image image = null;
             BoundingBox boundingBox = null;
 
-            if (sourceUri != null)
+            if (sourcePath != null)
             {
                 Tuple<BitmapSource, Matrix> geoBitmap = null;
 
-                if (!sourceUri.IsAbsoluteUri || sourceUri.IsFile)
+                var ext = Path.GetExtension(sourcePath);
+
+                if (ext.Length >= 4)
                 {
-                    var imageFilePath = sourceUri.IsAbsoluteUri ? sourceUri.LocalPath : sourceUri.OriginalString;
-                    var ext = Path.GetExtension(imageFilePath);
+                    var dir = Path.GetDirectoryName(sourcePath);
+                    var file = Path.GetFileNameWithoutExtension(sourcePath);
+                    var worldFilePath = Path.Combine(dir, file + ext.Remove(2, 1) + "w");
 
-                    if (ext.Length >= 4)
+                    if (File.Exists(worldFilePath))
                     {
-                        var dir = Path.GetDirectoryName(imageFilePath);
-                        var file = Path.GetFileNameWithoutExtension(imageFilePath);
-                        var worldFilePath = Path.Combine(dir, file + ext.Remove(2, 1) + "w");
-
-                        if (File.Exists(worldFilePath))
-                        {
-                            geoBitmap = await ReadWorldFileImage(imageFilePath, worldFilePath);
-                        }
+                        geoBitmap = await ReadWorldFileImage(sourcePath, worldFilePath);
                     }
                 }
 
                 if (geoBitmap == null)
                 {
-                    geoBitmap = await ReadGeoTiff(sourceUri);
+                    geoBitmap = await ReadGeoTiff(sourcePath);
                 }
 
                 var bitmap = geoBitmap.Item1;
@@ -117,9 +113,9 @@ namespace MapControl
             MapPanel.SetBoundingBox(this, boundingBox);
         }
 
-        private static async Task<Tuple<BitmapSource, Matrix>> ReadWorldFileImage(string imageFilePath, string worldFilePath)
+        private static async Task<Tuple<BitmapSource, Matrix>> ReadWorldFileImage(string sourcePath, string worldFilePath)
         {
-            var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(imageFilePath);
+            var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
 
             var transform = await Task.Run(() =>
             {

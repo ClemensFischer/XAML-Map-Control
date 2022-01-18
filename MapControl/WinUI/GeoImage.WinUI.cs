@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -18,19 +17,9 @@ namespace MapControl
 {
     public partial class GeoImage
     {
-        public static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(Uri sourceUri)
+        public static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(string sourcePath)
         {
-            StorageFile file;
-
-            if (!sourceUri.IsAbsoluteUri || sourceUri.IsFile)
-            {
-                file = await StorageFile.GetFileFromPathAsync(
-                    sourceUri.IsAbsoluteUri ? sourceUri.LocalPath : Path.GetFullPath(sourceUri.OriginalString));
-            }
-            else
-            {
-                file = await StorageFile.GetFileFromApplicationUriAsync(sourceUri);
-            }
+            var file = await StorageFile.GetFileFromPathAsync(sourcePath);
 
             using (var stream = await file.OpenReadAsync())
             {
@@ -66,7 +55,7 @@ namespace MapControl
                 }
                 else
                 {
-                    throw new ArgumentException("No coordinate transformation found in \"" + sourceUri + "\".");
+                    throw new ArgumentException("No coordinate transformation found in \"" + sourcePath + "\".");
                 }
 
                 return new Tuple<BitmapSource, Matrix>(bitmap, transform);

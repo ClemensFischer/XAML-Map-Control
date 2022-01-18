@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -12,13 +13,19 @@ namespace MapControl
 {
     public partial class GeoImage
     {
-        private static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(Uri sourceUri)
+        private static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(string sourcePath)
         {
             return await Task.Run(() =>
             {
-                BitmapSource bitmap = BitmapFrame.Create(sourceUri, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                var metadata = (BitmapMetadata)bitmap.Metadata;
+                BitmapSource bitmap;
                 Matrix transform;
+
+                using (var stream = File.OpenRead(sourcePath))
+                {
+                    bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                }
+
+                var metadata = (BitmapMetadata)bitmap.Metadata;
 
                 if (metadata.GetQuery(PixelScaleQuery) is double[] pixelScale && pixelScale.Length == 3 &&
                     metadata.GetQuery(TiePointQuery) is double[] tiePoint && tiePoint.Length >= 6)
@@ -31,7 +38,7 @@ namespace MapControl
                 }
                 else
                 {
-                    throw new ArgumentException("No coordinate transformation found in \"" + sourceUri + "\".");
+                    throw new ArgumentException("No coordinate transformation found in \"" + sourcePath + "\".");
                 }
 
                 if (metadata.GetQuery(NoDataQuery) is string noData && int.TryParse(noData, out int noDataValue))
