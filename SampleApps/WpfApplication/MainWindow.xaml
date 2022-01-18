@@ -100,11 +100,11 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.DataContext>
-            <local:MapViewModel/>
-        </Grid.DataContext>
+    <Window.DataContext>
+        <local:MapViewModel/>
+    </Window.DataContext>
 
+    <Grid>
         <map:Map x:Name="map"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11" MouseWheelZoomDelta="1"
                  Center="53.5,8.2"
