@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -19,7 +20,7 @@ namespace MapControl
     {
         public static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(string sourcePath)
         {
-            var file = await StorageFile.GetFileFromPathAsync(sourcePath);
+            var file = await StorageFile.GetFileFromPathAsync(Path.GetFullPath(sourcePath));
 
             using (var stream = await file.OpenReadAsync())
             {
