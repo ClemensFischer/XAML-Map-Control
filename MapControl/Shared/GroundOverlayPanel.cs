@@ -55,37 +55,38 @@ namespace MapControl
             public ImageSource ImageSource { get; set; }
         }
 
-        public static readonly DependencyProperty KmlFileProperty = DependencyProperty.Register(
-            nameof(KmlFile), typeof(string), typeof(GroundOverlayPanel),
-            new PropertyMetadata(null, async (o, e) => await ((GroundOverlayPanel)o).KmlFilePropertyChanged((string)e.NewValue)));
+        public static readonly DependencyProperty SourcePathProperty = DependencyProperty.Register(
+            nameof(SourcePath), typeof(string), typeof(GroundOverlayPanel),
+            new PropertyMetadata(null, async (o, e) => await ((GroundOverlayPanel)o).SourcePathPropertyChanged((string)e.NewValue)));
 
-        public string KmlFile
+        public string SourcePath
         {
-            get { return (string)GetValue(KmlFileProperty); }
-            set { SetValue(KmlFileProperty, value); }
+            get { return (string)GetValue(SourcePathProperty); }
+            set { SetValue(SourcePathProperty, value); }
         }
 
-        private async Task KmlFilePropertyChanged(string path)
+        private async Task SourcePathPropertyChanged(string sourcePath)
         {
             IEnumerable<ImageOverlay> imageOverlays = null;
 
-            if (!string.IsNullOrEmpty(path))
+            if (!string.IsNullOrEmpty(sourcePath))
             {
                 try
                 {
-                    var ext = Path.GetExtension(path).ToLower();
+                    var ext = Path.GetExtension(sourcePath).ToLower();
+
                     if (ext == ".kmz")
                     {
-                        imageOverlays = await ReadGroundOverlaysFromArchiveAsync(path);
+                        imageOverlays = await ReadGroundOverlaysFromArchiveAsync(sourcePath);
                     }
                     else if (ext == ".kml")
                     {
-                        imageOverlays = await ReadGroundOverlaysFromFileAsync(path);
+                        imageOverlays = await ReadGroundOverlaysFromFileAsync(sourcePath);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"GroundOverlayPanel: {path}: {ex.Message}");
+                    Debug.WriteLine($"GroundOverlayPanel: {sourcePath}: {ex.Message}");
                 }
             }
 
@@ -125,15 +126,15 @@ namespace MapControl
             }
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFile)
+        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFilePath)
         {
-            using (var archive = await Task.Run(() => ZipFile.OpenRead(archiveFile)))
+            using (var archive = await Task.Run(() => ZipFile.OpenRead(archiveFilePath)))
             {
                 var docEntry = await Task.Run(() => archive.GetEntry("doc.kml") ?? archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")));
 
                 if (docEntry == null)
                 {
-                    throw new ArgumentException("No KML entry found in " + archiveFile);
+                    throw new ArgumentException("No KML entry found in " + archiveFilePath);
                 }
 
                 var imageOverlays = await Task.Run(() =>
@@ -169,15 +170,15 @@ namespace MapControl
             }
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFileAsync(string docFile)
+        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFileAsync(string docFilePath)
         {
-            docFile = Path.GetFullPath(docFile);
-            var docUri = new Uri(docFile);
+            docFilePath = Path.GetFullPath(docFilePath);
+            var docUri = new Uri(docFilePath);
 
             var imageOverlays = await Task.Run(() =>
             {
                 var kmlDocument = new XmlDocument();
-                kmlDocument.Load(docFile);
+                kmlDocument.Load(docFilePath);
 
                 return ReadGroundOverlays(kmlDocument).ToList();
             });
