@@ -43,6 +43,9 @@
     <Compile Include="..\Shared\GeoApiProjection.cs">
       <Link>GeoApiProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\GeoApiProjectionFactory.cs">
+      <Link>GeoApiProjectionFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\PolarStereographicProjection.cs">
       <Link>PolarStereographicProjection.cs</Link>
     </Compile>

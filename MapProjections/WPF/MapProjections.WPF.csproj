@@ -24,6 +24,10 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(TargetFramework)'=='net48' or '$(TargetFramework)'=='net462'">
+        <Reference Include="System.Net.Http" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
     </ItemGroup>

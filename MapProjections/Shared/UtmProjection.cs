@@ -36,9 +36,23 @@ namespace MapControl.Projections
             }
         }
 
+        public UtmProjection()
+        {
+        }
+
+        public UtmProjection(int zoneNumber, bool north)
+        {
+            SetZone(zoneNumber, north);
+        }
+
+        public UtmProjection(Location location)
+        {
+            SetZone(location);
+        }
+
         public void SetZone(int zoneNumber, bool north)
         {
-            if (zoneNumber < 1 || zoneNumber > 61)
+            if (zoneNumber < 1 || zoneNumber > 60)
             {
                 throw new ArgumentException("Invalid UTM zone number.", nameof(zoneNumber));
             }
@@ -56,7 +70,7 @@ namespace MapControl.Projections
         {
             var zoneNumber = Math.Min((int)(Location.NormalizeLongitude(location.Longitude) + 180d) / 6 + 1, 60);
 
-            SetZone(zoneNumber, location.Latitude >= 0);
+            SetZone(zoneNumber, location.Latitude >= 0d);
         }
     }
 }

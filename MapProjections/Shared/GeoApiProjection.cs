@@ -106,6 +106,15 @@ namespace MapControl.Projections
             get { return isWebMercator; }
         }
 
+
+        public GeoApiProjection(string wkt = null)
+        {
+            if (wkt != null)
+            {
+                WKT = wkt;
+            }
+        }
+
         public override Point LocationToMap(Location location)
         {
             if (LocationToMapTransform == null)

@@ -114,14 +114,16 @@ namespace MapControl.Projections
 
     public class UpsNorthProjection : PolarStereographicProjection
     {
-        public UpsNorthProjection() : base("EPSG:32661", true, 0.994, 2e6, 2e6)
+        public UpsNorthProjection()
+            : base("EPSG:32661", true, 0.994, 2e6, 2e6)
         {
         }
     }
 
     public class UpsSouthProjection : PolarStereographicProjection
     {
-        public UpsSouthProjection() : base("EPSG:32761", false, 0.994, 2e6, 2e6)
+        public UpsSouthProjection()
+            : base("EPSG:32761", false, 0.994, 2e6, 2e6)
         {
         }
     }
