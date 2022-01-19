@@ -197,12 +197,8 @@
             <tools:MapProjectionsMenuButton
                 Margin="2" Padding="8" ToolTipService.ToolTip="Map Projections"
                 Map="{Binding ElementName=map}">
-                <tools:MapProjectionItem Text="Web Mercator">
-                    <map:WebMercatorProjection/>
-                </tools:MapProjectionItem>
-                <tools:MapProjectionItem Text="Equirectangular">
-                    <map:EquirectangularProjection/>
-                </tools:MapProjectionItem>
+                <tools:MapProjectionItem Text="Web Mercator" Projection="EPSG:3857"/>
+                <tools:MapProjectionItem Text="Equirectangular" Projection="EPSG:4326"/>
             </tools:MapProjectionsMenuButton>
 
             <Slider Orientation="Vertical" Margin="4,8" Height="100"
