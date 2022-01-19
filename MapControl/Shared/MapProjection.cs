@@ -22,6 +22,8 @@ namespace MapControl
         public const double Wgs84Flattening = 1d / 298.257223563;
         public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
 
+        public static MapProjectionFactory Factory { get; set; } = new MapProjectionFactory();
+
         /// <summary>
         /// Gets or sets the WMS 1.3.0 CRS identifier.
         /// </summary>

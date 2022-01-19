@@ -26,7 +26,7 @@ namespace MapControl.UiTools
     public class MapProjectionItem
     {
         public string Text { get; set; }
-        public MapProjection Projection { get; set; }
+        public string Projection { get; set; }
     }
 
 #if WINUI || UWP
@@ -77,18 +77,18 @@ namespace MapControl.UiTools
         private void MapProjectionClicked(object sender, RoutedEventArgs e)
         {
             var item = (FrameworkElement)sender;
-            var projection = (MapProjection)item.Tag;
+            var projection = (string)item.Tag;
 
             SetMapProjection(projection);
         }
 
-        private void SetMapProjection(MapProjection projection)
+        private void SetMapProjection(string projection)
         {
-            Map.MapProjection = projection;
+            Map.MapProjection = MapProjection.Factory.CreateProjection(projection);
 
             foreach (var item in GetMenuItems())
             {
-                item.IsChecked = Map.MapProjection == (MapProjection)item.Tag;
+                item.IsChecked = projection == (string)item.Tag;
             }
         }
     }

@@ -77,8 +77,8 @@
     <Compile Include="..\Shared\GnomonicProjection.cs">
       <Link>GnomonicProjection.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\GroundOverlayPanel.cs">
-      <Link>GroundOverlayPanel.cs</Link>
+    <Compile Include="..\Shared\GroundOverlay.cs">
+      <Link>GroundOverlay.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ImageFileCache.cs">
       <Link>ImageFileCache.cs</Link>
@@ -124,6 +124,9 @@
     </Compile>
     <Compile Include="..\Shared\MapProjection.cs">
       <Link>MapProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapProjectionFactory.cs">
+      <Link>MapProjectionFactory.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapScale.cs">
       <Link>MapScale.cs</Link>

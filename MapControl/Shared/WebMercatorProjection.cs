@@ -15,11 +15,13 @@ namespace MapControl
     /// </summary>
     public class WebMercatorProjection : MapProjection
     {
+        public const string DefaultCrsId = "EPSG:3857";
+
         private static readonly double maxLatitude = YToLatitude(180d);
 
         public WebMercatorProjection()
         {
-            CrsId = "EPSG:3857";
+            CrsId = DefaultCrsId;
         }
 
         public override bool IsNormalCylindrical

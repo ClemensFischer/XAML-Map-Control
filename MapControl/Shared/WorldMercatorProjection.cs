@@ -15,6 +15,8 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
+        public const string DefaultCrsId = "EPSG:3395";
+
         public static double ConvergenceTolerance { get; set; } = 1e-6;
         public static int MaxIterations { get; set; } = 10;
 
@@ -22,7 +24,7 @@ namespace MapControl
 
         public WorldMercatorProjection()
         {
-            CrsId = "EPSG:3395";
+            CrsId = DefaultCrsId;
         }
 
         public override bool IsNormalCylindrical

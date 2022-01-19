@@ -27,7 +27,7 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    public class GroundOverlayPanel : MapPanel
+    public class GroundOverlay : MapPanel
     {
         class LatLonBox : BoundingBox
         {
@@ -56,8 +56,8 @@ namespace MapControl
         }
 
         public static readonly DependencyProperty SourcePathProperty = DependencyProperty.Register(
-            nameof(SourcePath), typeof(string), typeof(GroundOverlayPanel),
-            new PropertyMetadata(null, async (o, e) => await ((GroundOverlayPanel)o).SourcePathPropertyChanged((string)e.NewValue)));
+            nameof(SourcePath), typeof(string), typeof(GroundOverlay),
+            new PropertyMetadata(null, async (o, e) => await ((GroundOverlay)o).SourcePathPropertyChanged((string)e.NewValue)));
 
         public string SourcePath
         {
