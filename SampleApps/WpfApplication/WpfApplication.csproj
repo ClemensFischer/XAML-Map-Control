@@ -17,6 +17,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="BingMapsApiKey.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
         <ProjectReference Include="..\..\MapUiTools\WPF\MapUiTools.WPF.csproj" />
     </ItemGroup>
