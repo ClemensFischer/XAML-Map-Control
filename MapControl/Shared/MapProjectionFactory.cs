@@ -6,11 +6,11 @@ namespace MapControl
 {
     public class MapProjectionFactory
     {
-        public virtual MapProjection CreateProjection(string projectionDefinition)
+        public virtual MapProjection CreateProjection(string crsId)
         {
             MapProjection projection = null;
 
-            switch (projectionDefinition)
+            switch (crsId)
             {
                 case WorldMercatorProjection.DefaultCrsId:
                     projection = new WorldMercatorProjection();
@@ -41,7 +41,7 @@ namespace MapControl
                     break;
 
                 case "EPSG:97003": // proprietary CRS ID
-                    projection = new AzimuthalEquidistantProjection { CrsId = projectionDefinition };
+                    projection = new AzimuthalEquidistantProjection { CrsId = crsId };
                     break;
             }
 
