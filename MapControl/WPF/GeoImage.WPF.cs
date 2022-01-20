@@ -38,7 +38,7 @@ namespace MapControl
                 }
                 else
                 {
-                    throw new ArgumentException("No coordinate transformation found in \"" + sourcePath + "\".");
+                    throw new ArgumentException($"No coordinate transformation found in {sourcePath}.");
                 }
 
                 if (metadata.GetQuery(NoDataQuery) is string noData && int.TryParse(noData, out int noDataValue))

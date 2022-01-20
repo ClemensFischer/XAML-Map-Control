@@ -60,7 +60,7 @@ namespace MapControl
 
                 if (layerElement == null)
                 {
-                    throw new ArgumentException("Layer element \"" + layerIdentifier + "\" not found.");
+                    throw new ArgumentException($"Layer element \"{layerIdentifier}\" not found.");
                 }
             }
             else
@@ -87,7 +87,7 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(style))
             {
-                throw new ArgumentException("No valid Style element found in Layer \"" + layerIdentifier + "\".");
+                throw new ArgumentException($"No valid Style element found in Layer \"{layerIdentifier}\".");
             }
 
             var urlTemplate = ReadUrlTemplate(layerElement, layerIdentifier, style, capabilitiesUrl);
@@ -107,7 +107,7 @@ namespace MapControl
 
                 if (tileMatrixSetElement == null)
                 {
-                    throw new ArgumentException("Linked TileMatrixSet element not found in Layer \"" + layerIdentifier + "\".");
+                    throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layerIdentifier}\".");
                 }
 
                 tileMatrixSets.Add(ReadTileMatrixSet(tileMatrixSetElement));
@@ -150,7 +150,7 @@ namespace MapControl
 
                     if (formats.Count == 0)
                     {
-                        throw new ArgumentException("No Format element found in Layer \"" + layerIdentifier + "\".");
+                        throw new ArgumentException($"No Format element found in Layer \"{layerIdentifier}\".");
                     }
 
                     var format
@@ -174,7 +174,7 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(urlTemplate))
             {
-                throw new ArgumentException("No valid ResourceURL element found in Layer \"" + layerIdentifier + "\".");
+                throw new ArgumentException($"No valid ResourceURL element found in Layer \"{layerIdentifier}\".");
             }
 
             return urlTemplate;
@@ -196,7 +196,7 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(supportedCrs))
             {
-                throw new ArgumentException("No ows:SupportedCRS element found in TileMatrixSet \"" + identifier + "\".");
+                throw new ArgumentException($"No ows:SupportedCRS element found in TileMatrixSet \"{identifier}\".");
             }
 
             var tileMatrixes = new List<WmtsTileMatrix>();
@@ -208,7 +208,7 @@ namespace MapControl
 
             if (tileMatrixes.Count <= 0)
             {
-                throw new ArgumentException("No TileMatrix elements found in TileMatrixSet \"" + identifier + "\".");
+                throw new ArgumentException($"No TileMatrix elements found in TileMatrixSet \"{identifier}\".");
             }
 
             return new WmtsTileMatrixSet(identifier, supportedCrs, tileMatrixes);
@@ -231,7 +231,7 @@ namespace MapControl
             if (string.IsNullOrEmpty(valueString) ||
                 !double.TryParse(valueString, NumberStyles.Float, CultureInfo.InvariantCulture, out double scaleDenominator))
             {
-                throw new ArgumentException("No ScaleDenominator element found in TileMatrix \"" + identifier + "\".");
+                throw new ArgumentException($"No ScaleDenominator element found in TileMatrix \"{identifier}\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "TopLeftCorner")?.Value;
@@ -242,35 +242,35 @@ namespace MapControl
                 !double.TryParse(topLeftCornerStrings[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double left) ||
                 !double.TryParse(topLeftCornerStrings[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double top))
             {
-                throw new ArgumentException("No TopLeftCorner element found in TileMatrix \"" + identifier + "\".");
+                throw new ArgumentException($"No TopLeftCorner element found in TileMatrix \"{identifier}\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "TileWidth")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int tileWidth))
             {
-                throw new ArgumentException("No TileWidth element found in TileMatrix \"" + identifier + "\".");
+                throw new ArgumentException($"No TileWidth element found in TileMatrix \"{identifier}\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "TileHeight")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int tileHeight))
             {
-                throw new ArgumentException("No TileHeight element found in TileMatrix \"" + identifier + "\".");
+                throw new ArgumentException($"No TileHeight element found in TileMatrix \"{identifier}\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "MatrixWidth")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int matrixWidth))
             {
-                throw new ArgumentException("No MatrixWidth element found in TileMatrix \"" + identifier + "\".");
+                throw new ArgumentException($"No MatrixWidth element found in TileMatrix \"{identifier}\".");
             }
 
             valueString = tileMatrixElement.Element(ns + "MatrixHeight")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int matrixHeight))
             {
-                throw new ArgumentException("No MatrixHeight element found in TileMatrix \"" + identifier + "\".");
+                throw new ArgumentException($"No MatrixHeight element found in TileMatrix \"{identifier}\".");
             }
 
             var topLeft = supportedCrs == "EPSG:4326"

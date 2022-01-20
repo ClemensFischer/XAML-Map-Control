@@ -134,7 +134,7 @@ namespace MapControl
 
                 if (docEntry == null)
                 {
-                    throw new ArgumentException("No KML entry found in " + archiveFilePath);
+                    throw new ArgumentException($"No KML entry found in {archiveFilePath}.");
                 }
 
                 var imageOverlays = await Task.Run(() =>

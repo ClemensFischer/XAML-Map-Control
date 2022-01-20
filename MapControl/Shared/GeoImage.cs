@@ -125,7 +125,7 @@ namespace MapControl
                     {
                         if (!double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double parameter))
                         {
-                            throw new ArgumentException("Failed parsing line " + (i + 1) + " in world file \"" + worldFilePath + "\".");
+                            throw new ArgumentException($"Failed parsing line {i + 1} in world file {worldFilePath}.");
                         }
                         return parameter;
                     })
@@ -133,7 +133,7 @@ namespace MapControl
 
                 if (parameters.Count != 6)
                 {
-                    throw new ArgumentException("Insufficient number of parameters in world file \"" + worldFilePath + "\".");
+                    throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
                 }
 
                 return new Matrix(

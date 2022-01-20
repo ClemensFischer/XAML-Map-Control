@@ -56,7 +56,7 @@ namespace MapControl
                 }
                 else
                 {
-                    throw new ArgumentException("No coordinate transformation found in \"" + sourcePath + "\".");
+                    throw new ArgumentException($"No coordinate transformation found in {sourcePath}.");
                 }
 
                 return new Tuple<BitmapSource, Matrix>(bitmap, transform);
