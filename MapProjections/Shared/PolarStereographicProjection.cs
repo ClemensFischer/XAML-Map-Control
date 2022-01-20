@@ -16,15 +16,15 @@ namespace MapControl.Projections
     /// </summary>
     public class PolarStereographicProjection : MapProjection
     {
-        public static double ConvergenceTolerance = 1e-6;
-        public static int MaxIterations = 10;
+        public static double ConvergenceTolerance { get; set; } = 1e-6;
+        public static int MaxIterations { get; set; } = 10;
 
         private readonly bool north;
         private readonly double scaleFactor;
         private readonly double falseEasting;
         private readonly double falseNorthing;
 
-        public PolarStereographicProjection(string crsId, bool north, double scaleFactor = 1d, double falseEasting = 0d, double falseNorthing = 0d)
+        public PolarStereographicProjection(string crsId, bool north, double scaleFactor, double falseEasting, double falseNorthing)
         {
             CrsId = crsId;
             this.north = north;

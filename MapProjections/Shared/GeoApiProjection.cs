@@ -30,8 +30,24 @@ namespace MapControl.Projections
         private double scaleFactor;
         private string bboxFormat;
 
-        public IMathTransform LocationToMapTransform { get; private set; }
-        public IMathTransform MapToLocationTransform { get; private set; }
+        public GeoApiProjection(string wkt = null)
+        {
+            if (wkt != null)
+            {
+                WKT = wkt;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets an OGC Well-known text representation of a coordinate system,
+        /// i.e. a PROJCS[...] or GEOGCS[...] string as used by https://epsg.io or http://spatialreference.org.
+        /// Setting this property updates the CoordinateSystem property with an ICoordinateSystem created from the WKT string.
+        /// </summary>
+        public string WKT
+        {
+            get { return CoordinateSystem?.WKT; }
+            set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }
+        }
 
         /// <summary>
         /// Gets or sets the ICoordinateSystem of the MapProjection.
@@ -85,16 +101,9 @@ namespace MapControl.Projections
             }
         }
 
-        /// <summary>
-        /// Gets or sets an OGC Well-known text representation of a coordinate system,
-        /// i.e. a PROJCS[...] or GEOGCS[...] string as used by https://epsg.io or http://spatialreference.org.
-        /// Setting this property updates the CoordinateSystem property with an ICoordinateSystem created from the WKT string.
-        /// </summary>
-        public string WKT
-        {
-            get { return CoordinateSystem?.WKT; }
-            set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }
-        }
+        public IMathTransform LocationToMapTransform { get; private set; }
+
+        public IMathTransform MapToLocationTransform { get; private set; }
 
         public override bool IsNormalCylindrical
         {
@@ -104,15 +113,6 @@ namespace MapControl.Projections
         public override bool IsWebMercator
         {
             get { return isWebMercator; }
-        }
-
-
-        public GeoApiProjection(string wkt = null)
-        {
-            if (wkt != null)
-            {
-                WKT = wkt;
-            }
         }
 
         public override Point LocationToMap(Location location)
