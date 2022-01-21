@@ -20,21 +20,11 @@ namespace MapControl
         public static double ConvergenceTolerance { get; set; } = 1e-6;
         public static int MaxIterations { get; set; } = 10;
 
-        private static readonly double maxLatitude = YToLatitude(180d);
-
         public WorldMercatorProjection()
         {
             CrsId = DefaultCrsId;
-        }
-
-        public override bool IsNormalCylindrical
-        {
-            get { return true; }
-        }
-
-        public override double MaxLatitude
-        {
-            get { return maxLatitude; }
+            IsNormalCylindrical = true;
+            MaxLatitude = YToLatitude(180d);
         }
 
         public override Vector GetRelativeScale(Location location)

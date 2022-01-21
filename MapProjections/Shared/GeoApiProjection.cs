@@ -25,8 +25,6 @@ namespace MapControl.Projections
     public class GeoApiProjection : MapProjection
     {
         private ICoordinateSystem coordinateSystem;
-        private bool isNormalCylindrical;
-        private bool isWebMercator;
         private double scaleFactor;
         private string bboxFormat;
 
@@ -83,19 +81,19 @@ namespace MapControl.Projections
                     var falseEasting = projection.GetParameter("false_easting");
                     var falseNorthing = projection.GetParameter("false_northing");
 
-                    isNormalCylindrical =
+                    IsNormalCylindrical =
                         (centralMeridian == null || centralMeridian.Value == 0d) &&
                         (centralParallel == null || centralParallel.Value == 0d) &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
-                    isWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
+                    IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
                     scaleFactor = 1d;
                     bboxFormat = "{0},{1},{2},{3}";
                 }
                 else
                 {
-                    isNormalCylindrical = true;
-                    isWebMercator = false;
+                    IsNormalCylindrical = true;
+                    IsWebMercator = false;
                     scaleFactor = Wgs84MetersPerDegree;
                     bboxFormat = "{1},{0},{3},{2}";
                 }
@@ -105,16 +103,6 @@ namespace MapControl.Projections
         public IMathTransform LocationToMapTransform { get; private set; }
 
         public IMathTransform MapToLocationTransform { get; private set; }
-
-        public override bool IsNormalCylindrical
-        {
-            get { return isNormalCylindrical; }
-        }
-
-        public override bool IsWebMercator
-        {
-            get { return isWebMercator; }
-        }
 
         public override Point LocationToMap(Location location)
         {

@@ -37,26 +37,17 @@ namespace MapControl
         /// <summary>
         /// Indicates if this is a normal cylindrical projection.
         /// </summary>
-        public virtual bool IsNormalCylindrical
-        {
-            get { return false; }
-        }
+        public bool IsNormalCylindrical { get; protected set; }
 
         /// <summary>
         /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
         /// </summary>
-        public virtual bool IsWebMercator
-        {
-            get { return false; }
-        }
+        public bool IsWebMercator { get; protected set; }
 
         /// <summary>
         /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
         /// </summary>
-        public virtual double MaxLatitude
-        {
-            get { return 90d; }
-        }
+        public double MaxLatitude { get; protected set; } = 90d;
 
         /// <summary>
         /// Gets the relative map scale at the specified Location.

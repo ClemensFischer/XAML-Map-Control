@@ -17,26 +17,12 @@ namespace MapControl
     {
         public const string DefaultCrsId = "EPSG:3857";
 
-        private static readonly double maxLatitude = YToLatitude(180d);
-
         public WebMercatorProjection()
         {
             CrsId = DefaultCrsId;
-        }
-
-        public override bool IsNormalCylindrical
-        {
-            get { return true; }
-        }
-
-        public override bool IsWebMercator
-        {
-            get { return true; }
-        }
-
-        public override double MaxLatitude
-        {
-            get { return maxLatitude; }
+            IsNormalCylindrical = true;
+            IsWebMercator = true;
+            MaxLatitude = YToLatitude(180d);
         }
 
         public override Vector GetRelativeScale(Location location)
