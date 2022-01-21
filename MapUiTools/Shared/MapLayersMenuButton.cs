@@ -36,6 +36,8 @@ namespace MapControl.UiTools
 #endif
     public class MapLayersMenuButton : MenuButton
     {
+        private UIElement selectedLayer;
+
         public MapLayersMenuButton()
             : base("\uE81E")
         {
@@ -108,7 +110,11 @@ namespace MapControl.UiTools
 
         private void SetMapLayer(UIElement layer)
         {
-            Map.MapLayer = layer;
+            if (selectedLayer != layer)
+            {
+                selectedLayer = layer;
+                Map.MapLayer = selectedLayer;
+            }
 
             UpdateCheckedStates();
         }

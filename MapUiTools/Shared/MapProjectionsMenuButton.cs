@@ -4,6 +4,7 @@
 
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
@@ -13,6 +14,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
 #else
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Markup;
 #endif
 
@@ -36,6 +38,8 @@ namespace MapControl.UiTools
 #endif
     public class MapProjectionsMenuButton : MenuButton
     {
+        private string selectedProjection;
+
         public MapProjectionsMenuButton()
             : base("\uE809")
         {
@@ -84,11 +88,20 @@ namespace MapControl.UiTools
 
         private void SetMapProjection(string projection)
         {
-            Map.MapProjection = MapProjection.Factory.CreateProjection(projection);
+            if (selectedProjection != projection)
+            {
+                selectedProjection = projection;
+                Map.MapProjection = MapProjection.Factory.CreateProjection(selectedProjection);
+            }
 
+            UpdateCheckedStates();
+        }
+
+        private void UpdateCheckedStates()
+        {
             foreach (var item in GetMenuItems())
             {
-                item.IsChecked = projection == (string)item.Tag;
+                item.IsChecked = selectedProjection == (string)item.Tag;
             }
         }
     }
