@@ -25,10 +25,7 @@ namespace ProjectionDemo
         {
             viewModel.Projections.Add(new MapControl.Projections.WebMercatorProjection());
 
-            viewModel.Projections.Add(new GeoApiProjection
-            {
-                WKT = await httpClient.GetStringAsync("https://epsg.io/25832.wkt") // ETRS89 / UTM zone 32N
-            });
+            viewModel.Projections.Add(new GeoApiProjection(await httpClient.GetStringAsync("https://epsg.io/25832.wkt"))); // ETRS89 / UTM zone 32N
 
             viewModel.Layers.Add(
                 "OpenStreetMap WMS",

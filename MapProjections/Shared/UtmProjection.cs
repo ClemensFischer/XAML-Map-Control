@@ -9,10 +9,6 @@ namespace MapControl.Projections
 {
     public class UtmProjection : GeoApiProjection
     {
-        public UtmProjection()
-        {
-        }
-
         public UtmProjection(int zone, bool north)
         {
             SetZone(zone, north);
@@ -20,17 +16,12 @@ namespace MapControl.Projections
 
         public UtmProjection(Location location)
         {
-            SetZone(location);
+            var zone = Math.Min((int)Math.Floor(Location.NormalizeLongitude(location.Longitude) + 180d) / 6 + 1, 60);
+
+            SetZone(zone, location.Latitude >= 0d);
         }
 
-        public void SetZone(Location location)
-        {
-            var zoneNumber = Math.Min((int)(Location.NormalizeLongitude(location.Longitude) + 180d) / 6 + 1, 60);
-
-            SetZone(zoneNumber, location.Latitude >= 0d);
-        }
-
-        public void SetZone(int zone, bool north)
+        protected void SetZone(int zone, bool north)
         {
             if (zone < 1 || zone > 60)
             {

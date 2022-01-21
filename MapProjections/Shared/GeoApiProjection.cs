@@ -30,12 +30,13 @@ namespace MapControl.Projections
         private double scaleFactor;
         private string bboxFormat;
 
-        public GeoApiProjection(string wkt = null)
+        protected GeoApiProjection()
         {
-            if (wkt != null)
-            {
-                WKT = wkt;
-            }
+        }
+
+        public GeoApiProjection(string wkt)
+        {
+            WKT = wkt;
         }
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace MapControl.Projections
         public string WKT
         {
             get { return CoordinateSystem?.WKT; }
-            set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }
+            protected set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }
         }
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace MapControl.Projections
         public ICoordinateSystem CoordinateSystem
         {
             get { return coordinateSystem; }
-            set
+            protected set
             {
                 coordinateSystem = value ?? throw new ArgumentNullException(nameof(value));
 
