@@ -4,7 +4,6 @@
 
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
@@ -14,7 +13,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
 #else
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Markup;
 #endif
 
@@ -91,7 +89,7 @@ namespace MapControl.UiTools
             if (selectedProjection != projection)
             {
                 selectedProjection = projection;
-                Map.MapProjection = MapProjection.Factory.CreateProjection(selectedProjection);
+                Map.MapProjection = MapProjection.Factory.GetProjection(selectedProjection);
             }
 
             UpdateCheckedStates();

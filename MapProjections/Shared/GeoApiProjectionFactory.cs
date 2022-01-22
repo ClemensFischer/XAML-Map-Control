@@ -2,11 +2,6 @@
 // © 2022 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net.Http;
-
 namespace MapControl.Projections
 {
     public class GeoApiProjectionFactory : MapProjectionFactory
@@ -22,10 +17,7 @@ namespace MapControl.Projections
         public const int Wgs84UtmSouthLast = 32760;
         public const int Wgs84UpsSouth = 32761;
 
-        private readonly Dictionary<int, string> wkts = new Dictionary<int, string>();
-        private readonly HttpClient httpClient = new HttpClient();
-
-        public override MapProjection CreateProjection(string crsId)
+        public override MapProjection GetProjection(string crsId)
         {
             MapProjection projection = null;
 
@@ -62,17 +54,16 @@ namespace MapControl.Projections
                         break;
 
                     default:
-                        projection = new GeoApiProjection(GetWkt(epsgCode));
                         break;
                 }
             }
 
-            return projection ?? base.CreateProjection(crsId);
+            return projection ?? base.GetProjection(crsId);
         }
 
         private static string GetEtrs89UtmWkt(int epsgCode)
         {
-            const string etrs89UtmWktFormat
+            const string wktFormat
                 = "PROJCS[\"ETRS89 / UTM zone {1}N\","
                 + "GEOGCS[\"ETRS89\","
                 + "DATUM[\"European_Terrestrial_Reference_System_1989\","
@@ -97,29 +88,10 @@ namespace MapControl.Projections
                 + "AXIS[\"Northing\",NORTH],"
                 + "AUTHORITY[\"EPSG\",\"{0}\"]]";
 
-            int centralMeridian = 6 * (epsgCode - Etrs89UtmNorthFirst) - 15;
+            var zone = epsgCode % 100;
+            var centralMeridian = 6 * (epsgCode - Etrs89UtmNorthFirst) - 15;
 
-            return string.Format(etrs89UtmWktFormat, epsgCode, epsgCode - 25800, centralMeridian);
-        }
-
-        private string GetWkt(int epsgCode)
-        {
-            if (!wkts.TryGetValue(epsgCode, out string wkt))
-            {
-                var url = string.Format("https://epsg.io/{0}.wkt", epsgCode);
-
-                try
-                {
-                    wkt = httpClient.GetStringAsync(url).Result; // potential deadlock?
-                    wkts[epsgCode] = wkt;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"GeoApiProjectionFactory.GetWkt({epsgCode}): {url}: {ex.Message}");
-                }
-            }
-
-            return wkt;
+            return string.Format(wktFormat, epsgCode, zone, centralMeridian);
         }
     }
 }
