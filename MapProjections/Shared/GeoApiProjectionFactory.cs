@@ -8,6 +8,8 @@ namespace MapControl.Projections
     {
         public const int WorldMercator = 3395;
         public const int WebMercator = 3857;
+        public const int Ed50UtmFirst = 23028;
+        public const int Ed50UtmLast = 23038;
         public const int Etrs89UtmFirst = 25828;
         public const int Etrs89UtmLast = 25838;
         public const int Wgs84UtmNorthFirst = 32601;
@@ -31,6 +33,10 @@ namespace MapControl.Projections
 
                     case WebMercator:
                         projection = new WebMercatorProjection();
+                        break;
+
+                    case int c when c >= Ed50UtmFirst && c <= Ed50UtmLast:
+                        projection = new Ed50UtmProjection(epsgCode % 100);
                         break;
 
                     case int c when c >= Etrs89UtmFirst && c <= Etrs89UtmLast:
