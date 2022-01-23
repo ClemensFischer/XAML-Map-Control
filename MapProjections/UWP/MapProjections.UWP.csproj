@@ -40,6 +40,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\Ed50UtmProjection.cs">
+      <Link>Ed50UtmProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Etrs89UtmProjection.cs">
       <Link>Etrs89UtmProjection.cs</Link>
     </Compile>
