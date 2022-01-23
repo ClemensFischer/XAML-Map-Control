@@ -40,6 +40,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\Etrs89UtmProjection.cs">
+      <Link>Etrs89UtmProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\GeoApiProjection.cs">
       <Link>GeoApiProjection.cs</Link>
     </Compile>
@@ -49,11 +52,11 @@
     <Compile Include="..\Shared\PolarStereographicProjection.cs">
       <Link>PolarStereographicProjection.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\UtmProjection.cs">
-      <Link>UtmProjection.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\WebMercatorProjection.cs">
       <Link>WebMercatorProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wgs84UtmProjection.cs">
+      <Link>Wgs84UtmProjection.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MapProjections.UWP.rd.xml" />

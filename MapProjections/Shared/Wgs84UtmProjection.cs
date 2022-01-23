@@ -7,25 +7,18 @@ using System;
 
 namespace MapControl.Projections
 {
-    public class UtmProjection : GeoApiProjection
+    public class Wgs84UtmProjection : GeoApiProjection
     {
-        public UtmProjection(int zone, bool north)
+        public Wgs84UtmProjection(int zone, bool north)
         {
             SetZone(zone, north);
-        }
-
-        public UtmProjection(Location location)
-        {
-            var zone = Math.Min((int)Math.Floor(Location.NormalizeLongitude(location.Longitude) + 180d) / 6 + 1, 60);
-
-            SetZone(zone, location.Latitude >= 0d);
         }
 
         protected void SetZone(int zone, bool north)
         {
             if (zone < 1 || zone > 60)
             {
-                throw new ArgumentException("Invalid UTM zone number.", nameof(zone));
+                throw new ArgumentException($"Invalid UTM zone {zone}.", nameof(zone));
             }
 
             CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(zone, north);
