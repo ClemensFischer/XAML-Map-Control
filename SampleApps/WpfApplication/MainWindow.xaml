@@ -143,7 +143,7 @@
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6">
             <tools:MapLayersMenuButton x:Name="mapLayersMenuButton"
-                Margin="2" Padding="6" FontSize="16" ToolTip="Map Layers and Overlays"
+                Margin="2" ToolTip="Map Layers and Overlays"
                 Map="{Binding ElementName=map}">
                 <tools:MapLayerItem Text="OpenStreetMap" Layer="{StaticResource OpenStreetMap}"/>
                 <tools:MapLayerItem Text="OpenStreetMap German" Layer="{StaticResource OpenStreetMapGerman}"/>
@@ -167,7 +167,7 @@
             </tools:MapLayersMenuButton>
 
             <tools:MapProjectionsMenuButton x:Name="mapProjectionsMenuButton"
-                Margin="2" Padding="6" FontSize="16" ToolTip="Map Projections"
+                Margin="2" ToolTip="Map Projections"
                 Map="{Binding ElementName=map}">
                 <tools:MapProjectionItem Text="Web Mercator" Projection="EPSG:3857"/>
                 <tools:MapProjectionItem Text="Equirectangular" Projection="EPSG:4326"/>
@@ -180,8 +180,8 @@
                     SmallChange="0.1"
                     AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="0"/>
 
-            <Button Margin="2" Padding="8" ToolTipService.ToolTip="Reset Heading" Click="ResetHeadingButtonClick"
-                    FontSize="16" FontFamily="Segoe MDL2 Assets" Content="&#xEBE6;">
+            <Button Margin="2" Padding="8" ToolTip="Reset Heading" Click="ResetHeadingButtonClick"
+                    FontSize="20" FontFamily="Segoe MDL2 Assets" Content="&#xEBE6;">
                 <Button.Visibility>
                     <Binding Path="Heading" ElementName="map">
                         <Binding.Converter>

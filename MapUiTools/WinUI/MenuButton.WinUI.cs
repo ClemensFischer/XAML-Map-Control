@@ -7,11 +7,9 @@ using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 #endif
 
 namespace MapControl.UiTools
@@ -20,11 +18,7 @@ namespace MapControl.UiTools
     {
         protected MenuButton(string icon)
         {
-            Content = new FontIcon
-            {
-                FontFamily = new FontFamily("Segoe Fluent Icons"),
-                Glyph = icon
-            };
+            Content = new FontIcon { Glyph = icon };
         }
 
         protected MenuFlyout CreateMenu()

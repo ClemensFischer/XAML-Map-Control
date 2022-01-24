@@ -6,15 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace MapControl.UiTools
 {
     public class MenuButton : Button
     {
+        static MenuButton()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MenuButton), new FrameworkPropertyMetadata(typeof(MenuButton)));
+        }
+
         protected MenuButton(string icon)
         {
-            FontFamily = new FontFamily("Segoe MDL2 Assets");
             Content = icon;
 
             Click += (s, e) => ContextMenu.IsOpen = true;

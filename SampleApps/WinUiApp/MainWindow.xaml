@@ -215,7 +215,7 @@
                         </Binding.Converter>
                     </Binding>
                 </Button.Visibility>
-                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEBE6;"/>
+                <FontIcon Glyph="&#xEBE6;"/>
             </Button>
         </StackPanel>
 

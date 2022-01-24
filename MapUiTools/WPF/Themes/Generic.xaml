@@ -1,0 +1,11 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tools="clr-namespace:MapControl.UiTools">
+
+    <Style TargetType="tools:MenuButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Padding" Value="8"/>
+    </Style>
+</ResourceDictionary>
