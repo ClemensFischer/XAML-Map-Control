@@ -21,54 +21,57 @@ namespace MapControl.Projections
         public const int Wgs84UtmSouthLast = 32760;
         public const int Wgs84UpsSouth = 32761;
 
-        public Dictionary<string, string> CoordinateSystemWkts { get; } = new Dictionary<string, string>();
+        public Dictionary<int, string> CoordinateSystemWkts { get; } = new Dictionary<int, string>();
 
         public override MapProjection GetProjection(string crsId)
         {
             MapProjection projection = null;
 
-            if (CoordinateSystemWkts.TryGetValue(crsId, out string wkt))
+            if (crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode))
             {
-                projection = new GeoApiProjection(wkt);
-            }
-            else if (crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode))
-            {
-                switch (epsgCode)
+                if (CoordinateSystemWkts.TryGetValue(epsgCode, out string wkt))
                 {
-                    case WorldMercator:
-                        projection = new WorldMercatorProjection();
-                        break;
+                    projection = new GeoApiProjection(wkt);
+                }
+                else
+                {
+                    switch (epsgCode)
+                    {
+                        case WorldMercator:
+                            projection = new WorldMercatorProjection();
+                            break;
 
-                    case WebMercator:
-                        projection = new WebMercatorProjection();
-                        break;
+                        case WebMercator:
+                            projection = new WebMercatorProjection();
+                            break;
 
-                    case int c when c >= Ed50UtmFirst && c <= Ed50UtmLast:
-                        projection = new Ed50UtmProjection(epsgCode % 100);
-                        break;
+                        case int c when c >= Ed50UtmFirst && c <= Ed50UtmLast:
+                            projection = new Ed50UtmProjection(epsgCode % 100);
+                            break;
 
-                    case int c when c >= Etrs89UtmFirst && c <= Etrs89UtmLast:
-                        projection = new Etrs89UtmProjection(epsgCode % 100);
-                        break;
+                        case int c when c >= Etrs89UtmFirst && c <= Etrs89UtmLast:
+                            projection = new Etrs89UtmProjection(epsgCode % 100);
+                            break;
 
-                    case int c when c >= Wgs84UtmNorthFirst && c <= Wgs84UtmNorthLast:
-                        projection = new Wgs84UtmProjection(epsgCode % 100, true);
-                        break;
+                        case int c when c >= Wgs84UtmNorthFirst && c <= Wgs84UtmNorthLast:
+                            projection = new Wgs84UtmProjection(epsgCode % 100, true);
+                            break;
 
-                    case int c when c >= Wgs84UtmSouthFirst && c <= Wgs84UtmSouthLast:
-                        projection = new Wgs84UtmProjection(epsgCode % 100, false);
-                        break;
+                        case int c when c >= Wgs84UtmSouthFirst && c <= Wgs84UtmSouthLast:
+                            projection = new Wgs84UtmProjection(epsgCode % 100, false);
+                            break;
 
-                    case Wgs84UpsNorth:
-                        projection = new UpsNorthProjection();
-                        break;
+                        case Wgs84UpsNorth:
+                            projection = new UpsNorthProjection();
+                            break;
 
-                    case Wgs84UpsSouth:
-                        projection = new UpsSouthProjection();
-                        break;
+                        case Wgs84UpsSouth:
+                            projection = new UpsSouthProjection();
+                            break;
 
-                    default:
-                        break;
+                        default:
+                            break;
+                    }
                 }
             }
 
