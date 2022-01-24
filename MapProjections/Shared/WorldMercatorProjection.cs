@@ -17,7 +17,8 @@ namespace MapControl.Projections
     {
         public WorldMercatorProjection()
         {
-            WKT = "PROJCS[\"WGS 84 / World Mercator\","
+            CoordinateSystemWkt
+                = "PROJCS[\"WGS 84 / World Mercator\","
                 + "GEOGCS[\"WGS 84\","
                 + "DATUM[\"WGS_1984\","
                 + "SPHEROID[\"WGS 84\",6378137,298.257223563,"

@@ -2,6 +2,8 @@
 // © 2022 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System.Collections.Generic;
+
 namespace MapControl.Projections
 {
     public class GeoApiProjectionFactory : MapProjectionFactory
@@ -19,11 +21,17 @@ namespace MapControl.Projections
         public const int Wgs84UtmSouthLast = 32760;
         public const int Wgs84UpsSouth = 32761;
 
+        public Dictionary<string, string> CoordinateSystemWkts { get; } = new Dictionary<string, string>();
+
         public override MapProjection GetProjection(string crsId)
         {
             MapProjection projection = null;
 
-            if (crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode))
+            if (CoordinateSystemWkts.TryGetValue(crsId, out string wkt))
+            {
+                projection = new GeoApiProjection(wkt);
+            }
+            else if (crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode))
             {
                 switch (epsgCode)
                 {

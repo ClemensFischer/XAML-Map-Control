@@ -32,9 +32,9 @@ namespace MapControl.Projections
         {
         }
 
-        public GeoApiProjection(string wkt)
+        public GeoApiProjection(string coordinateSystemWkt)
         {
-            WKT = wkt;
+            CoordinateSystemWkt = coordinateSystemWkt;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace MapControl.Projections
         /// i.e. a PROJCS[...] or GEOGCS[...] string as used by https://epsg.io or http://spatialreference.org.
         /// Setting this property updates the CoordinateSystem property with an ICoordinateSystem created from the WKT string.
         /// </summary>
-        public string WKT
+        public string CoordinateSystemWkt
         {
             get { return CoordinateSystem?.WKT; }
             protected set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }

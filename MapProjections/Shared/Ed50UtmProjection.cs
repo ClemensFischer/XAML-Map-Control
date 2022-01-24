@@ -45,7 +45,7 @@ namespace MapControl.Projections
                 + "AXIS[\"Northing\",NORTH],"
                 + "AUTHORITY[\"EPSG\",\"230{0}\"]]";
 
-            WKT = string.Format(wktFormat, zone, 6 * zone - 183);
+            CoordinateSystemWkt = string.Format(wktFormat, zone, 6 * zone - 183);
         }
     }
 }
