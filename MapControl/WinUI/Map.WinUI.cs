@@ -4,9 +4,11 @@
 
 using System;
 #if WINUI
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 #else
+using Windows.Devices.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 #endif
@@ -57,7 +59,8 @@ namespace MapControl
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (CapturePointer(e.Pointer))
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
+                CapturePointer(e.Pointer))
             {
                 mousePosition = e.GetCurrentPoint(this).Position;
             }
@@ -65,7 +68,8 @@ namespace MapControl
 
         private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            if (mousePosition.HasValue)
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
+                mousePosition.HasValue)
             {
                 mousePosition = null;
                 ReleasePointerCaptures();
@@ -74,7 +78,11 @@ namespace MapControl
 
         private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            if (mousePosition.HasValue)
+            // Perform translation by explicit Mouse input because with Manipulation pointer capture is
+            // lost when Map content changes, e.g. when a MapTileLayer or WmsImageLayer loads new images.
+
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
+                mousePosition.HasValue)
             {
                 Point position = e.GetCurrentPoint(this).Position;
                 var translation = position - mousePosition.Value;
