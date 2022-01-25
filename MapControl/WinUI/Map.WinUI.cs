@@ -51,10 +51,13 @@ namespace MapControl
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
-            var point = e.GetCurrentPoint(this);
-            var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * Math.Sign(point.Properties.MouseWheelDelta);
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                var point = e.GetCurrentPoint(this);
+                var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * Math.Sign(point.Properties.MouseWheelDelta);
 
-            ZoomMap(point.Position, MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta));
+                ZoomMap(point.Position, MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta));
+            }
         }
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
