@@ -82,11 +82,13 @@
                 <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
                 <Setter Property="AutoCollapse" Value="True"/>
                 <Setter Property="Location" Value="{Binding Location}"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
                 <Setter Property="VerticalAlignment" Value="Bottom"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="map:MapItem">
-                            <map:Pushpin Content="{Binding Name}"/>
+                            <map:Pushpin Content="{Binding Name}"
+                                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}"/>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
