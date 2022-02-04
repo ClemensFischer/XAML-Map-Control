@@ -21,6 +21,11 @@ namespace MapControl
             new FrameworkPropertyMetadata(null,
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
+        public static readonly DependencyProperty BorderThicknessProperty = DependencyProperty.Register(
+            nameof(BorderThickness), typeof(double), typeof(PushpinBorder),
+            new FrameworkPropertyMetadata(0d,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
         public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(
             nameof(CornerRadius), typeof(CornerRadius), typeof(PushpinBorder),
             new FrameworkPropertyMetadata(new CornerRadius(),
@@ -29,11 +34,6 @@ namespace MapControl
         public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register(
             nameof(Padding), typeof(Thickness), typeof(PushpinBorder),
             new FrameworkPropertyMetadata(new Thickness(2),
-                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public static readonly DependencyProperty BorderThicknessProperty = DependencyProperty.Register(
-            nameof(BorderThickness), typeof(double), typeof(PushpinBorder),
-            new FrameworkPropertyMetadata(0d,
                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
         public static readonly DependencyProperty ArrowSizeProperty = DependencyProperty.Register(
@@ -98,8 +98,8 @@ namespace MapControl
                 CornerRadius.TopRight + CornerRadius.BottomRight);
 
             return new Size(
-                Math.Max(width, minWidth),
-                Math.Max(height, minHeight) + ArrowSize.Height);
+                Math.Max(width, minWidth) + BorderThickness,
+                Math.Max(height, minHeight) + BorderThickness + ArrowSize.Height);
         }
 
         protected override Size ArrangeOverride(Size size)
@@ -115,15 +115,6 @@ namespace MapControl
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            var w = RenderSize.Width;
-            var aw = ArrowSize.Width;
-            var h1 = RenderSize.Height - ArrowSize.Height;
-            var h2 = RenderSize.Height;
-            var r1 = CornerRadius.TopLeft;
-            var r2 = CornerRadius.TopRight;
-            var r3 = CornerRadius.BottomRight;
-            var r4 = CornerRadius.BottomLeft;
-
             var pen = new Pen
             {
                 Brush = BorderBrush,
@@ -131,49 +122,87 @@ namespace MapControl
                 LineJoin = PenLineJoin.Round
             };
 
-            var geometry = new StreamGeometry();
-
-            using (var context = geometry.Open())
-            {
-                context.BeginFigure(new Point(0d, r1), true, true);
-                context.ArcTo(new Point(r1, 0d), new Size(r1, r1), 0d, false, SweepDirection.Clockwise, true, true);
-
-                context.LineTo(new Point(w - r2, 0d), true, true);
-                context.ArcTo(new Point(w, r2), new Size(r2, r2), 0d, false, SweepDirection.Clockwise, true, true);
-
-                if (HorizontalAlignment == HorizontalAlignment.Right)
-                {
-                    context.LineTo(new Point(w, h2), true, true);
-                    context.LineTo(new Point(w - aw, h1), true, true);
-                }
-                else
-                {
-                    context.LineTo(new Point(w, h1 - r3), true, true);
-                    context.ArcTo(new Point(w - r3, h1), new Size(r3, r3), 0d, false, SweepDirection.Clockwise, true, true);
-                }
-
-                if (HorizontalAlignment != HorizontalAlignment.Left && HorizontalAlignment != HorizontalAlignment.Right)
-                {
-                    context.LineTo(new Point((w + aw) / 2d, h1), true, true);
-                    context.LineTo(new Point(w / 2d, h2), true, true);
-                    context.LineTo(new Point((w - aw) / 2d, h1), true, true);
-                }
-
-                if (HorizontalAlignment == HorizontalAlignment.Left)
-                {
-                    context.LineTo(new Point(aw, h1), true, true);
-                    context.LineTo(new Point(0d, h2), true, true);
-                }
-                else
-                {
-                    context.LineTo(new Point(r4, h1), true, true);
-                    context.ArcTo(new Point(0d, h1 - r4), new Size(r4, r4), 0d, false, SweepDirection.Clockwise, true, true);
-                }
-            }
-
-            drawingContext.DrawGeometry(Background, pen, geometry);
+            drawingContext.DrawGeometry(Background, pen, BuildGeometry(RenderSize));
 
             base.OnRender(drawingContext);
+        }
+
+        private Geometry BuildGeometry(Size size)
+        {
+            var x1 = BorderThickness / 2d;
+            var y1 = BorderThickness / 2d;
+            var x2 = size.Width - x1;
+            var y3 = size.Height - y1;
+            var y2 = y3 - ArrowSize.Height;
+            var aw = ArrowSize.Width;
+            var r1 = CornerRadius.TopLeft;
+            var r2 = CornerRadius.TopRight;
+            var r3 = CornerRadius.BottomRight;
+            var r4 = CornerRadius.BottomLeft;
+
+            var figure = new PathFigure
+            {
+                StartPoint = new Point(x1, y1 + r1),
+                IsClosed = true,
+                IsFilled = true
+            };
+
+            figure.Segments.Add(ArcTo(x1 + r1, y1, r1));
+            figure.Segments.Add(LineTo(x2 - r2, y1));
+            figure.Segments.Add(ArcTo(x2, y1 + r2, r2));
+
+            if (HorizontalAlignment == HorizontalAlignment.Right)
+            {
+                figure.Segments.Add(LineTo(x2, y3));
+                figure.Segments.Add(LineTo(x2 - aw, y2));
+            }
+            else
+            {
+                figure.Segments.Add(LineTo(x2, y2 - r3));
+                figure.Segments.Add(ArcTo(x2 - r3, y2, r3));
+            }
+
+            if (HorizontalAlignment != HorizontalAlignment.Left && HorizontalAlignment != HorizontalAlignment.Right)
+            {
+                var c = size.Width / 2d;
+                figure.Segments.Add(LineTo(c + aw / 2d, y2));
+                figure.Segments.Add(LineTo(c, y3));
+                figure.Segments.Add(LineTo(c - aw / 2d, y2));
+            }
+
+            if (HorizontalAlignment == HorizontalAlignment.Left)
+            {
+                figure.Segments.Add(LineTo(x1 + aw, y2));
+                figure.Segments.Add(LineTo(x1, y3));
+            }
+            else
+            {
+                figure.Segments.Add(LineTo(x1 + r4, y2));
+                figure.Segments.Add(ArcTo(x1, y2 - r4, r4));
+            }
+
+            var geometry = new PathGeometry();
+            geometry.Figures.Add(figure);
+
+            return geometry;
+        }
+
+        private static LineSegment LineTo(double x, double y)
+        {
+            return new LineSegment
+            {
+                Point = new Point(x, y)
+            };
+        }
+
+        private static ArcSegment ArcTo(double x, double y, double r)
+        {
+            return new ArcSegment
+            {
+                Point = new Point(x, y),
+                Size = new Size(r, r),
+                SweepDirection = SweepDirection.Clockwise
+            };
         }
     }
 }

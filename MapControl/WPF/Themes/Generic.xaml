@@ -53,7 +53,7 @@
     <Style TargetType="map:Pushpin" BasedOn="{StaticResource ContentControlStyle}">
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment" Value="Bottom"/>
-        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Padding" Value="7,5"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="map:Pushpin">
@@ -62,7 +62,8 @@
                         Padding="{TemplateBinding Padding}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="1">
+                        BorderThickness="1"
+                        CornerRadius="5">
                         <ContentPresenter
                             Content="{TemplateBinding Content}"
                             ContentTemplate="{TemplateBinding ContentTemplate}"
