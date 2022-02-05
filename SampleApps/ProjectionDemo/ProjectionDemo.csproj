@@ -6,7 +6,7 @@
 		<RootNamespace>ProjectionDemo</RootNamespace>
 		<AssemblyTitle>XAML Map Control Projection Demo Application</AssemblyTitle>
 		<Product>XAML Map Control</Product>
-		<Version>7.1.0</Version>
+		<Version>7.2.0</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2022 Clemens Fischer</Copyright>
     </PropertyGroup>
