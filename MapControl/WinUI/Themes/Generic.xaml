@@ -49,31 +49,24 @@
     <Style TargetType="map:Pushpin" BasedOn="{StaticResource ContentControlStyle}">
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment" Value="Bottom"/>
-        <Setter Property="Padding" Value="5,3"/>
+        <Setter Property="Padding" Value="7,5"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="map:Pushpin">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1">
-                            <ContentPresenter Content="{TemplateBinding Content}"
-                                              ContentTemplate="{TemplateBinding ContentTemplate}"
-                                              ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <Path Grid.Row="1"
-                              Data="M0.5,-1.2 L0.5,15 10,-1.2"
-                              Fill="{TemplateBinding Background}"
-                              Stroke="{TemplateBinding BorderBrush}"
-                              StrokeThickness="1"/>
-                    </Grid>
+                    <map:PushpinBorder
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                        Padding="{TemplateBinding Padding}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderWidth="1"
+                        CornerRadius="5">
+                        <ContentPresenter
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </map:PushpinBorder>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

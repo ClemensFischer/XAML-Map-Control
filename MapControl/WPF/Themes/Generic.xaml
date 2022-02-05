@@ -62,7 +62,7 @@
                         Padding="{TemplateBinding Padding}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="1"
+                        BorderWidth="1"
                         CornerRadius="5">
                         <ContentPresenter
                             Content="{TemplateBinding Content}"
