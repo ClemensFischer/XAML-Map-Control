@@ -47,7 +47,7 @@
     <Style TargetType="map:MapItem" BasedOn="{StaticResource ContentControlStyle}"/>
 
     <Style TargetType="map:Pushpin" BasedOn="{StaticResource ContentControlStyle}">
-        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Bottom"/>
         <Setter Property="Padding" Value="7,5"/>
         <Setter Property="Template">

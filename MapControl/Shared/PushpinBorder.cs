@@ -69,7 +69,7 @@ namespace MapControl
                 figure.Segments.Add(ArcTo(x2 - r3, y2, r3));
             }
 
-            if (HorizontalAlignment != HorizontalAlignment.Left && HorizontalAlignment != HorizontalAlignment.Right)
+            if (HorizontalAlignment == HorizontalAlignment.Center)
             {
                 var c = width / 2d;
                 figure.Segments.Add(LineTo(c + aw / 2d, y2));
@@ -77,7 +77,7 @@ namespace MapControl
                 figure.Segments.Add(LineTo(c - aw / 2d, y2));
             }
 
-            if (HorizontalAlignment == HorizontalAlignment.Left)
+            if (HorizontalAlignment == HorizontalAlignment.Left || HorizontalAlignment == HorizontalAlignment.Stretch)
             {
                 figure.Segments.Add(LineTo(x1 + aw, y2));
                 figure.Segments.Add(LineTo(x1, y3));
