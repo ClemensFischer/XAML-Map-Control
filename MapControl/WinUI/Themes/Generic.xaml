@@ -49,17 +49,19 @@
     <Style TargetType="map:Pushpin" BasedOn="{StaticResource ContentControlStyle}">
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Bottom"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="5"/>
         <Setter Property="Padding" Value="7,5"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="map:Pushpin">
                     <map:PushpinBorder
                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                        Padding="{TemplateBinding Padding}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderWidth="1"
-                        CornerRadius="5">
+                        BorderWidth="{Binding BorderThickness.Left, RelativeSource={RelativeSource TemplatedParent}}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="{TemplateBinding Padding}">
                         <ContentPresenter
                             Content="{TemplateBinding Content}"
                             ContentTemplate="{TemplateBinding ContentTemplate}"
