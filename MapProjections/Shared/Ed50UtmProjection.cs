@@ -10,11 +10,6 @@ namespace MapControl.Projections
     {
         public Ed50UtmProjection(int zone)
         {
-            SetZone(zone);
-        }
-
-        protected void SetZone(int zone)
-        {
             if (zone < 28 || zone > 38)
             {
                 throw new ArgumentException($"Invalid UTM zone {zone}.", nameof(zone));

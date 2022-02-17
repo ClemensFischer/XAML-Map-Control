@@ -11,11 +11,6 @@ namespace MapControl.Projections
     {
         public Wgs84UtmProjection(int zone, bool north)
         {
-            SetZone(zone, north);
-        }
-
-        protected void SetZone(int zone, bool north)
-        {
             if (zone < 1 || zone > 60)
             {
                 throw new ArgumentException($"Invalid UTM zone {zone}.", nameof(zone));
