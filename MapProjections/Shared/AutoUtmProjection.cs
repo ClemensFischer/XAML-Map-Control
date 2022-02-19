@@ -42,8 +42,6 @@ namespace MapControl.Projections
 
                 CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(zoneNumber, zoneIsNorth);
                 CrsId = "AUTO2:42001";
-
-                System.Diagnostics.Debug.WriteLine(CoordinateSystem.Name);
             }
         }
     }
