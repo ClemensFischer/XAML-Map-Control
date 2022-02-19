@@ -174,6 +174,13 @@
                         ServiceUri="http://ows.terrestris.de/osm/service"/>
                 </tools:MapLayerItem>
                 <tools:MapLayersMenuButton.MapOverlays>
+                    <tools:MapLayerItem Text="Sample Image">
+                        <Image Source="10_535_330.jpg">
+                            <map:MapPanel.BoundingBox>
+                                <map:BoundingBox South="53.54031" West="8.08594" North="53.74871" East="8.43750"/>
+                            </map:MapPanel.BoundingBox>
+                        </Image>
+                    </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Seamarks">
                         <map:MapTileLayer SourceName="Seamarks" MinZoomLevel="9" MaxZoomLevel="18">
                             <map:MapTileLayer.TileSource>
@@ -186,13 +193,6 @@
                     </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Scale">
                         <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Sample Image">
-                        <Image Source="10_535_330.jpg">
-                            <map:MapPanel.BoundingBox>
-                                <map:BoundingBox South="53.54031" West="8.08594" North="53.74871" East="8.43750"/>
-                            </map:MapPanel.BoundingBox>
-                        </Image>
                     </tools:MapLayerItem>
                 </tools:MapLayersMenuButton.MapOverlays>
             </tools:MapLayersMenuButton>

@@ -155,15 +155,15 @@
                 <tools:MapLayerItem Text="TopPlusOpen WMS" Layer="{StaticResource TopPlusOpenWMS}"/>
                 <tools:MapLayerItem Text="OpenStreetMap WMS" Layer="{StaticResource OpenStreetMapWMS}"/>
                 <tools:MapLayersMenuButton.MapOverlays>
+                    <tools:MapLayerItem Text="Sample Image">
+                        <Image Source="10_535_330.jpg" map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
+                    </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Seamarks" Layer="{StaticResource Seamarks}"/>
                     <tools:MapLayerItem Text="Graticule">
                         <map:MapGraticule Opacity="0.7"/>
                     </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Scale">
                         <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Sample Image">
-                        <Image Source="10_535_330.jpg" map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
                     </tools:MapLayerItem>
                 </tools:MapLayersMenuButton.MapOverlays>
             </tools:MapLayersMenuButton>
