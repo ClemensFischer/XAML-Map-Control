@@ -86,7 +86,7 @@ namespace MapControl.Projections
                         (centralParallel == null || centralParallel.Value == 0d) &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
                         (falseNorthing == null || falseNorthing.Value == 0d);
-                    IsWebMercator = CrsId == "EPSG:3857" || CrsId == "EPSG:900913";
+                    IsWebMercator = CrsId == "EPSG:3857";
                     scaleFactor = 1d;
                     bboxFormat = "{0},{1},{2},{3}";
                 }
