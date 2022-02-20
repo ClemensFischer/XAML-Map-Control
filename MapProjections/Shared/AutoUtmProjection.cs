@@ -17,6 +17,8 @@ namespace MapControl.Projections
             UpdateZone();
         }
 
+        public bool UseZoneCrsId { get; set; }
+
         public override Point LocationToMap(Location location)
         {
             UpdateZone();
@@ -41,7 +43,11 @@ namespace MapControl.Projections
                 zoneIsNorth = north;
 
                 CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(zoneNumber, zoneIsNorth);
-                CrsId = "AUTO2:42001";
+
+                if (!UseZoneCrsId)
+                {
+                    CrsId = "AUTO2:42001";
+                }
             }
         }
     }
