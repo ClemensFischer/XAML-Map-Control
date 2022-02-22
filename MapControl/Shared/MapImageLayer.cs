@@ -214,24 +214,19 @@ namespace MapControl
 
         private void AdjustBoundingBox(double longitudeOffset)
         {
-            if (Math.Abs(longitudeOffset) > 180d &&
-                BoundingBox != null &&
-                BoundingBox.West < BoundingBox.East && // not an azimuthal projection
-                BoundingBox.South < BoundingBox.North)
+            if (Math.Abs(longitudeOffset) > 180d && BoundingBox != null)
             {
                 var offset = 360d * Math.Sign(longitudeOffset);
 
-                BoundingBox = new BoundingBox(
-                    BoundingBox.South, BoundingBox.West + offset,
-                    BoundingBox.North, BoundingBox.East + offset);
+                BoundingBox = new BoundingBox(BoundingBox, offset);
 
                 foreach (var image in Children.OfType<Image>())
                 {
-                    var bbox = GetBoundingBox(image);
+                    var imageBoundingBox = GetBoundingBox(image);
 
-                    if (bbox != null)
+                    if (imageBoundingBox != null)
                     {
-                        SetBoundingBox(image, new BoundingBox(bbox.South, bbox.West + offset, bbox.North, bbox.East + offset));
+                        SetBoundingBox(image, new BoundingBox(imageBoundingBox, offset));
                     }
                 }
             }
