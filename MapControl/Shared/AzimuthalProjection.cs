@@ -19,17 +19,19 @@ namespace MapControl
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
             var center = LocationToMap(boundingBox.Center);
+            var width = boundingBox.Width * Wgs84MetersPerDegree;
+            var height = boundingBox.Height * Wgs84MetersPerDegree;
 
-            return new Rect(
-                 center.X - boundingBox.Width / 2d, center.Y - boundingBox.Height / 2d,
-                 boundingBox.Width, boundingBox.Height);
+            return new Rect(center.X - width / 2d, center.Y - height / 2d, width, height);
         }
 
         public override BoundingBox RectToBoundingBox(Rect rect)
         {
             var center = MapToLocation(new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d));
+            var width = rect.Width / Wgs84MetersPerDegree;
+            var height = rect.Height / Wgs84MetersPerDegree;
 
-            return new CenteredBoundingBox(center, rect.Width, rect.Height); // width and height in meters
+            return new CenteredBoundingBox(center, width, height);
         }
 
         /// <summary>
