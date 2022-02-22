@@ -197,6 +197,7 @@
             </tools:MapLayersMenuButton>
 
             <tools:MapProjectionsMenuButton
+                x:Name="mapProjectionsMenuButton"
                 Margin="2" Padding="8" ToolTipService.ToolTip="Map Projections"
                 Map="{Binding ElementName=map}">
                 <tools:MapProjectionItem Text="Web Mercator" Projection="EPSG:3857"/>

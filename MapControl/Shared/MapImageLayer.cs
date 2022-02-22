@@ -25,7 +25,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using System.Xml.Linq;
 #endif
 
 namespace MapControl
@@ -38,21 +37,6 @@ namespace MapControl
     {
         public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
             nameof(Description), typeof(string), typeof(MapImageLayer), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty MinLatitudeProperty = DependencyProperty.Register(
-            nameof(MinLatitude), typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
-
-        public static readonly DependencyProperty MaxLatitudeProperty = DependencyProperty.Register(
-            nameof(MaxLatitude), typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
-
-        public static readonly DependencyProperty MinLongitudeProperty = DependencyProperty.Register(
-            nameof(MinLongitude), typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
-
-        public static readonly DependencyProperty MaxLongitudeProperty = DependencyProperty.Register(
-            nameof(MaxLongitude), typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
-
-        public static readonly DependencyProperty MaxBoundingBoxWidthProperty = DependencyProperty.Register(
-            nameof(MaxBoundingBoxWidth), typeof(double), typeof(MapImageLayer), new PropertyMetadata(double.NaN));
 
         public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
             nameof(RelativeImageSize), typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
@@ -90,51 +74,6 @@ namespace MapControl
         {
             get { return (string)GetValue(DescriptionProperty); }
             set { SetValue(DescriptionProperty, value); }
-        }
-
-        /// <summary>
-        /// Optional minimum latitude value. Default is NaN.
-        /// </summary>
-        public double MinLatitude
-        {
-            get { return (double)GetValue(MinLatitudeProperty); }
-            set { SetValue(MinLatitudeProperty, value); }
-        }
-
-        /// <summary>
-        /// Optional maximum latitude value. Default is NaN.
-        /// </summary>
-        public double MaxLatitude
-        {
-            get { return (double)GetValue(MaxLatitudeProperty); }
-            set { SetValue(MaxLatitudeProperty, value); }
-        }
-
-        /// <summary>
-        /// Optional minimum longitude value. Default is NaN.
-        /// </summary>
-        public double MinLongitude
-        {
-            get { return (double)GetValue(MinLongitudeProperty); }
-            set { SetValue(MinLongitudeProperty, value); }
-        }
-
-        /// <summary>
-        /// Optional maximum longitude value. Default is NaN.
-        /// </summary>
-        public double MaxLongitude
-        {
-            get { return (double)GetValue(MaxLongitudeProperty); }
-            set { SetValue(MaxLongitudeProperty, value); }
-        }
-
-        /// <summary>
-        /// Optional maximum width of the map image's bounding box. Default is NaN.
-        /// </summary>
-        public double MaxBoundingBoxWidth
-        {
-            get { return (double)GetValue(MaxBoundingBoxWidthProperty); }
-            set { SetValue(MaxBoundingBoxWidthProperty, value); }
         }
 
         /// <summary>
@@ -271,46 +210,20 @@ namespace MapControl
             var rect = new Rect(x, y, width, height);
 
             BoundingBox = ParentMap.ViewRectToBoundingBox(rect);
-
-            if (BoundingBox != null)
-            {
-                if (!double.IsNaN(MinLatitude) && BoundingBox.South < MinLatitude)
-                {
-                    BoundingBox.South = MinLatitude;
-                }
-
-                if (!double.IsNaN(MinLongitude) && BoundingBox.West < MinLongitude)
-                {
-                    BoundingBox.West = MinLongitude;
-                }
-
-                if (!double.IsNaN(MaxLatitude) && BoundingBox.North > MaxLatitude)
-                {
-                    BoundingBox.North = MaxLatitude;
-                }
-
-                if (!double.IsNaN(MaxLongitude) && BoundingBox.East > MaxLongitude)
-                {
-                    BoundingBox.East = MaxLongitude;
-                }
-
-                if (!double.IsNaN(MaxBoundingBoxWidth) && BoundingBox.Width > MaxBoundingBoxWidth)
-                {
-                    var margin = (BoundingBox.Width - MaxBoundingBoxWidth) / 2d;
-                    BoundingBox.West += margin;
-                    BoundingBox.East -= margin;
-                }
-            }
         }
 
         private void AdjustBoundingBox(double longitudeOffset)
         {
-            if (Math.Abs(longitudeOffset) > 180d && BoundingBox != null)
+            if (Math.Abs(longitudeOffset) > 180d &&
+                BoundingBox != null &&
+                BoundingBox.West < BoundingBox.East && // not an azimuthal projection
+                BoundingBox.South < BoundingBox.North)
             {
                 var offset = 360d * Math.Sign(longitudeOffset);
 
-                BoundingBox.West += offset;
-                BoundingBox.East += offset;
+                BoundingBox = new BoundingBox(
+                    BoundingBox.South, BoundingBox.West + offset,
+                    BoundingBox.North, BoundingBox.East + offset);
 
                 foreach (var image in Children.OfType<Image>())
                 {
@@ -344,7 +257,7 @@ namespace MapControl
                 Children.Insert(1, topImage);
 
                 topImage.Source = image;
-                SetBoundingBox(topImage, BoundingBox?.Clone());
+                SetBoundingBox(topImage, BoundingBox);
 
                 topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
                 {

@@ -18,16 +18,11 @@ namespace MapControl
     {
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
-            if (boundingBox is CenteredBoundingBox cbbox)
-            {
-                var center = LocationToMap(cbbox.Center);
+            var center = LocationToMap(boundingBox.Center);
 
-                return new Rect(
-                     center.X - cbbox.Width / 2d, center.Y - cbbox.Height / 2d,
-                     cbbox.Width, cbbox.Height);
-            }
-
-            return base.BoundingBoxToRect(boundingBox);
+            return new Rect(
+                 center.X - boundingBox.Width / 2d, center.Y - boundingBox.Height / 2d,
+                 boundingBox.Width, boundingBox.Height);
         }
 
         public override BoundingBox RectToBoundingBox(Rect rect)

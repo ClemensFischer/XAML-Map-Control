@@ -49,16 +49,19 @@ namespace MapControl
         public virtual double Width
         {
             get { return East - West; }
+            protected set { }
         }
 
         public virtual double Height
         {
             get { return North - South; }
+            protected set { }
         }
 
-        public virtual BoundingBox Clone()
+        public virtual Location Center
         {
-            return new BoundingBox(South, West, North, East);
+            get { return new Location((South + North) / 2d, (West + East) / 2d); }
+            protected set { }
         }
 
         public static BoundingBox Parse(string s)

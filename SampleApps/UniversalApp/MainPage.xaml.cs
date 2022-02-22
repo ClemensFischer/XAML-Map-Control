@@ -72,7 +72,11 @@ namespace SampleApplication
                     }
                 });
             }
+
+            AddChartServerLayer();
         }
+
+        partial void AddChartServerLayer();
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {
