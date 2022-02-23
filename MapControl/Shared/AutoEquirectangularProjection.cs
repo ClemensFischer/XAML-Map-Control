@@ -9,6 +9,11 @@ using System.Windows;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Auto-Equirectangular Projection - AUTO2:42004.
+    /// Equidistant cylindrical projection with standard parallel and central meridian set by the Center property.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.90-91.
+    /// </summary>
     public class AutoEquirectangularProjection : MapProjection
     {
         public const string DefaultCrsId = "AUTO2:42004";
@@ -16,24 +21,21 @@ namespace MapControl
         public AutoEquirectangularProjection()
         {
             CrsId = DefaultCrsId;
+            IsNormalCylindrical = true;
         }
 
         public override Point LocationToMap(Location location)
         {
-            var xScale = Wgs84MetersPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
-
             return new Point(
-                xScale * (location.Longitude - Center.Longitude),
+                Wgs84MetersPerDegree * (location.Longitude - Center.Longitude) * Math.Cos(Center.Latitude * Math.PI / 180d),
                 Wgs84MetersPerDegree * location.Latitude);
         }
 
         public override Location MapToLocation(Point point)
         {
-            var xScale = Wgs84MetersPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d);
-
             return new Location(
                 point.Y / Wgs84MetersPerDegree,
-                point.X / xScale + Center.Longitude);
+                point.X / (Wgs84MetersPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d)) + Center.Longitude);
         }
     }
 }

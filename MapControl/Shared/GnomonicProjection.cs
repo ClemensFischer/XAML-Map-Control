@@ -10,7 +10,8 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Spherical Gnomonic Projection.
+    /// Spherical Gnomonic Projection - AUTO2:97001.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.165-167.
     /// </summary>
     public class GnomonicProjection : AzimuthalProjection
     {

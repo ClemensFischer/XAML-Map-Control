@@ -10,7 +10,7 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Spherical Mercator Projection, EPSG:3857.
+    /// Spherical Mercator Projection - EPSG:3857.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.41-44.
     /// </summary>
     public class WebMercatorProjection : MapProjection

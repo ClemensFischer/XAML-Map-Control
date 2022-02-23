@@ -10,12 +10,11 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Spherical Azimuthal Equidistant Projection.
+    /// Spherical Azimuthal Equidistant Projection - No standard CRS ID.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.195-197.
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {
-        // No standard CRS ID
-
         public override Point LocationToMap(Location location)
         {
             if (location.Equals(Center))

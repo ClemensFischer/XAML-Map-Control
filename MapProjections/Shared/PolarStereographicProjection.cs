@@ -112,6 +112,9 @@ namespace MapControl.Projections
         }
     }
 
+    /// <summary>
+    /// Elliptical North Polar Stereographic Projection - EPSG:32661.
+    /// </summary>
     public class UpsNorthProjection : PolarStereographicProjection
     {
         public const string DefaultCrsId = "EPSG:32661";
@@ -122,6 +125,9 @@ namespace MapControl.Projections
         }
     }
 
+    /// <summary>
+    /// Elliptical South Polar Stereographic Projection - EPSG:32761.
+    /// </summary>
     public class UpsSouthProjection : PolarStereographicProjection
     {
         public const string DefaultCrsId = "EPSG:32761";
