@@ -19,28 +19,28 @@ namespace MapControl.Projections
         public static double ConvergenceTolerance { get; set; } = 1e-6;
         public static int MaxIterations { get; set; } = 10;
 
-        private readonly bool north;
-        private readonly double scaleFactor;
-        private readonly double falseEasting;
-        private readonly double falseNorthing;
+        public bool IsNorth { get; }
+        public double ScaleFactor { get; }
+        public double FalseEasting { get; }
+        public double FalseNorthing { get; }
 
-        public PolarStereographicProjection(string crsId, bool north, double scaleFactor, double falseEasting, double falseNorthing)
+        public PolarStereographicProjection(string crsId, bool isNorth, double scaleFactor, double falseEasting, double falseNorthing)
         {
             CrsId = crsId;
-            this.north = north;
-            this.scaleFactor = scaleFactor;
-            this.falseEasting = falseEasting;
-            this.falseNorthing = falseNorthing;
+            IsNorth = isNorth;
+            ScaleFactor = scaleFactor;
+            FalseEasting = falseEasting;
+            FalseNorthing = falseNorthing;
         }
 
         public override Vector GetRelativeScale(Location location)
         {
-            var lat = (north ? location.Latitude : -location.Latitude) * Math.PI / 180d;
+            var lat = (IsNorth ? location.Latitude : -location.Latitude) * Math.PI / 180d;
             var a = Wgs84EquatorialRadius;
             var e = Wgs84Eccentricity;
             var s = Math.Sqrt(Math.Pow(1 + e, 1 + e) * Math.Pow(1 - e, 1 - e));
             var t = Math.Tan(Math.PI / 4d - lat / 2d) / ConformalFactor(lat);
-            var rho = 2d * a * scaleFactor * t / s;
+            var rho = 2d * a * ScaleFactor * t / s;
             var eSinLat = e * Math.Sin(lat);
             var m = Math.Cos(lat) / Math.Sqrt(1d - eSinLat * eSinLat);
             var k = rho / (a * m);
@@ -53,7 +53,7 @@ namespace MapControl.Projections
             var lat = location.Latitude * Math.PI / 180d;
             var lon = location.Longitude * Math.PI / 180d;
 
-            if (north)
+            if (IsNorth)
             {
                 lon = Math.PI - lon;
             }
@@ -66,22 +66,22 @@ namespace MapControl.Projections
             var e = Wgs84Eccentricity;
             var s = Math.Sqrt(Math.Pow(1 + e, 1 + e) * Math.Pow(1 - e, 1 - e));
             var t = Math.Tan(Math.PI / 4d - lat / 2d) / ConformalFactor(lat);
-            var rho = 2d * a * scaleFactor * t / s;
+            var rho = 2d * a * ScaleFactor * t / s;
 
-            return new Point(rho * Math.Sin(lon) + falseEasting, rho * Math.Cos(lon) + falseNorthing);
+            return new Point(rho * Math.Sin(lon) + FalseEasting, rho * Math.Cos(lon) + FalseNorthing);
         }
 
         public override Location MapToLocation(Point point)
         {
-            point.X -= falseEasting;
-            point.Y -= falseNorthing;
+            point.X -= FalseEasting;
+            point.Y -= FalseNorthing;
 
             var lon = Math.Atan2(point.X, point.Y);
             var rho = Math.Sqrt(point.X * point.X + point.Y * point.Y);
             var a = Wgs84EquatorialRadius;
             var e = Wgs84Eccentricity;
             var s = Math.Sqrt(Math.Pow(1 + e, 1 + e) * Math.Pow(1 - e, 1 - e));
-            var t = rho * s / (2d * a * scaleFactor);
+            var t = rho * s / (2d * a * ScaleFactor);
             var lat = Math.PI / 2d - 2d * Math.Atan(t);
             var relChange = 1d;
 
@@ -92,7 +92,7 @@ namespace MapControl.Projections
                 lat = newLat;
             }
 
-            if (north)
+            if (IsNorth)
             {
                 lon = Math.PI - lon;
             }
@@ -114,16 +114,20 @@ namespace MapControl.Projections
 
     public class UpsNorthProjection : PolarStereographicProjection
     {
+        public const string DefaultCrsId = "EPSG:32661";
+
         public UpsNorthProjection()
-            : base("EPSG:32661", true, 0.994, 2e6, 2e6)
+            : base(DefaultCrsId, true, 0.994, 2e6, 2e6)
         {
         }
     }
 
     public class UpsSouthProjection : PolarStereographicProjection
     {
+        public const string DefaultCrsId = "EPSG:32761";
+
         public UpsSouthProjection()
-            : base("EPSG:32761", false, 0.994, 2e6, 2e6)
+            : base(DefaultCrsId, false, 0.994, 2e6, 2e6)
         {
         }
     }

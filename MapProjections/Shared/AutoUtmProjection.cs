@@ -9,8 +9,10 @@ namespace MapControl.Projections
 {
     public class AutoUtmProjection : GeoApiProjection
     {
-        private int zoneNumber;
-        private bool zoneIsNorth;
+        public const string DefaultCrsId = "AUTO2:42001";
+
+        public int ZoneNumber { get; private set; }
+        public bool ZoneIsNorth { get; private set; }
 
         public AutoUtmProjection()
         {
@@ -37,16 +39,16 @@ namespace MapControl.Projections
             var lon = Location.NormalizeLongitude(Center.Longitude);
             var zone = (int)(lon + 180d) / 6 + 1;
 
-            if (zoneNumber != zone || zoneIsNorth != north)
+            if (ZoneNumber != zone || ZoneIsNorth != north)
             {
-                zoneNumber = zone;
-                zoneIsNorth = north;
+                ZoneNumber = zone;
+                ZoneIsNorth = north;
 
-                CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(zoneNumber, zoneIsNorth);
+                CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(ZoneNumber, ZoneIsNorth);
 
                 if (!UseZoneCrsId)
                 {
-                    CrsId = "AUTO2:42001";
+                    CrsId = DefaultCrsId;
                 }
             }
         }
