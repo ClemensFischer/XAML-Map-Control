@@ -3,7 +3,9 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Policy;
 #if WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
@@ -219,22 +221,29 @@ namespace MapControl
                         }
                     }
 
-                    if (position.HasValue)
+                    try
                     {
-                        ArrangeElement(element, position.Value);
-                    }
-                    else
-                    {
-                        var boundingBox = GetBoundingBox(element);
-
-                        if (boundingBox != null)
+                        if (position.HasValue)
                         {
-                            ArrangeElement(element, GetViewRect(boundingBox));
+                            ArrangeElement(element, position.Value);
                         }
                         else
                         {
-                            ArrangeElement(element, finalSize);
+                            var boundingBox = GetBoundingBox(element);
+
+                            if (boundingBox != null)
+                            {
+                                ArrangeElement(element, GetViewRect(boundingBox));
+                            }
+                            else
+                            {
+                                ArrangeElement(element, finalSize);
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"MapPanel.ArrangeElement: {ex.Message}");
                     }
                 }
             }
