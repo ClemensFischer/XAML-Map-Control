@@ -33,7 +33,7 @@ namespace MapControl
 
         private double GetLineDistance()
         {
-            var pixelPerDegree = ParentMap.ViewTransform.Scale * MapProjection.Wgs84MetersPerDegree;
+            var pixelPerDegree = ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree;
             var minDistance = MinLineDistance / pixelPerDegree;
             var scale = 1d;
 

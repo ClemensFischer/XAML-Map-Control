@@ -27,15 +27,15 @@ namespace MapControl
         public override Point LocationToMap(Location location)
         {
             return new Point(
-                Wgs84MetersPerDegree * (location.Longitude - Center.Longitude) * Math.Cos(Center.Latitude * Math.PI / 180d),
-                Wgs84MetersPerDegree * location.Latitude);
+                Wgs84MeterPerDegree * (location.Longitude - Center.Longitude) * Math.Cos(Center.Latitude * Math.PI / 180d),
+                Wgs84MeterPerDegree * location.Latitude);
         }
 
         public override Location MapToLocation(Point point)
         {
             return new Location(
-                point.Y / Wgs84MetersPerDegree,
-                point.X / (Wgs84MetersPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d)) + Center.Longitude);
+                point.Y / Wgs84MeterPerDegree,
+                point.X / (Wgs84MeterPerDegree * Math.Cos(Center.Latitude * Math.PI / 180d)) + Center.Longitude);
         }
     }
 }

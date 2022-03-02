@@ -29,7 +29,7 @@ namespace MapControl
         public const int TileSize = 256;
 
         public static readonly Point MapTopLeft = new Point(
-            -180d * MapProjection.Wgs84MetersPerDegree, 180d * MapProjection.Wgs84MetersPerDegree);
+            -180d * MapProjection.Wgs84MeterPerDegree, 180d * MapProjection.Wgs84MeterPerDegree);
 
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.

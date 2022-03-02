@@ -18,7 +18,7 @@ namespace MapControl
     public abstract class MapProjection
     {
         public const double Wgs84EquatorialRadius = 6378137d;
-        public const double Wgs84MetersPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
+        public const double Wgs84MeterPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
         public const double Wgs84Flattening = 1d / 298.257223563;
         public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
 

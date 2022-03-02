@@ -19,8 +19,8 @@ namespace MapControl
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
             var center = LocationToMap(boundingBox.Center);
-            var width = boundingBox.Width * Wgs84MetersPerDegree;
-            var height = boundingBox.Height * Wgs84MetersPerDegree;
+            var width = boundingBox.Width * Wgs84MeterPerDegree;
+            var height = boundingBox.Height * Wgs84MeterPerDegree;
 
             return new Rect(center.X - width / 2d, center.Y - height / 2d, width, height);
         }
@@ -28,8 +28,8 @@ namespace MapControl
         public override BoundingBox RectToBoundingBox(Rect rect)
         {
             var center = MapToLocation(new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d));
-            var width = rect.Width / Wgs84MetersPerDegree;
-            var height = rect.Height / Wgs84MetersPerDegree;
+            var width = rect.Width / Wgs84MeterPerDegree;
+            var height = rect.Height / Wgs84MeterPerDegree;
 
             return new CenteredBoundingBox(center, width, height);
         }

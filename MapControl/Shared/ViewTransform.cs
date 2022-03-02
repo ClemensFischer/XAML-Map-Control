@@ -24,12 +24,12 @@ namespace MapControl
     {
         public static double ZoomLevelToScale(double zoomLevel)
         {
-            return 256d * Math.Pow(2d, zoomLevel) / (360d * MapProjection.Wgs84MetersPerDegree);
+            return 256d * Math.Pow(2d, zoomLevel) / (360d * MapProjection.Wgs84MeterPerDegree);
         }
 
         public static double ScaleToZoomLevel(double scale)
         {
-            return Math.Log(scale * 360d * MapProjection.Wgs84MetersPerDegree / 256d, 2d);
+            return Math.Log(scale * 360d * MapProjection.Wgs84MeterPerDegree / 256d, 2d);
         }
 
         /// <summary>

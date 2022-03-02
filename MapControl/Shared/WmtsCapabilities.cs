@@ -274,7 +274,7 @@ namespace MapControl
             }
 
             var topLeft = supportedCrs == "EPSG:4326"
-                ? new Point(MapProjection.Wgs84MetersPerDegree * top, MapProjection.Wgs84MetersPerDegree * left)
+                ? new Point(MapProjection.Wgs84MeterPerDegree * top, MapProjection.Wgs84MeterPerDegree * left)
                 : new Point(left, top);
 
             return new WmtsTileMatrix(
