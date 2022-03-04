@@ -86,28 +86,37 @@ namespace SampleApplication
         private void MapPointerMoved(object sender, PointerRoutedEventArgs e)
         {
             var location = map.ViewToLocation(e.GetCurrentPoint(map).Position);
-            var latitude = (int)Math.Round(location.Latitude * 60000d);
-            var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
-            var latHemisphere = 'N';
-            var lonHemisphere = 'E';
 
-            if (latitude < 0)
+            if (location != null)
             {
-                latitude = -latitude;
-                latHemisphere = 'S';
-            }
+                var latitude = (int)Math.Round(location.Latitude * 60000d);
+                var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
+                var latHemisphere = 'N';
+                var lonHemisphere = 'E';
 
-            if (longitude < 0)
+                if (latitude < 0)
+                {
+                    latitude = -latitude;
+                    latHemisphere = 'S';
+                }
+
+                if (longitude < 0)
+                {
+                    longitude = -longitude;
+                    lonHemisphere = 'W';
+                }
+
+                mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
+                    "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
+                    latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
+                    lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
+                mouseLocation.Visibility = Visibility.Visible;
+            }
+            else
             {
-                longitude = -longitude;
-                lonHemisphere = 'W';
+                mouseLocation.Visibility = Visibility.Collapsed;
+                mouseLocation.Text = string.Empty;
             }
-
-            mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
-                "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
-                latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
-                lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
-            mouseLocation.Visibility = Visibility.Visible;
         }
 
         private void MapPointerExited(object sender, PointerRoutedEventArgs e)

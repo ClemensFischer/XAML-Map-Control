@@ -94,7 +94,7 @@ namespace MapControl.Projections
                 {
                     IsNormalCylindrical = true;
                     IsWebMercator = false;
-                    scaleFactor = Wgs84MetersPerDegree;
+                    scaleFactor = Wgs84MeterPerDegree;
                     bboxFormat = "{1},{0},{3},{2}";
                 }
             }

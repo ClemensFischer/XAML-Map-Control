@@ -33,15 +33,9 @@ namespace MapControl
 
         private double GetLineDistance()
         {
-            var pixelPerDegree = ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree;
-            var minDistance = MinLineDistance / pixelPerDegree;
-            var scale = 1d;
-
-            if (minDistance < 1d)
-            {
-                scale = minDistance < 1d / 60d ? 3600d : 60d;
-                minDistance *= scale;
-            }
+            var minDistance = MinLineDistance / PixelPerLongitudeDegree(ParentMap.Center);
+            var scale = minDistance < 1d / 60d ? 3600d : minDistance < 1d ? 60d : 1d;
+            minDistance *= scale;
 
             var lineDistances = new double[] { 1d, 2d, 5d, 10d, 15d, 30d, 60d };
             var i = 0;
@@ -51,7 +45,14 @@ namespace MapControl
                 i++;
             }
 
-            return lineDistances[i] / scale;
+            return Math.Min(lineDistances[i] / scale, 30d);
+        }
+
+        private double PixelPerLongitudeDegree(Location location)
+        {
+            return Math.Max(1d, // a reasonable lower limit
+                ParentMap.GetScale(location).X *
+                Math.Cos(location.Latitude * Math.PI / 180d) * MapProjection.Wgs84MeterPerDegree);
         }
 
         private static string GetLabelFormat(double lineDistance)
@@ -63,6 +64,8 @@ namespace MapControl
         private static string GetLabelText(double value, string format, string hemispheres)
         {
             var hemisphere = hemispheres[0];
+
+            value = (value + 540d) % 360d - 180d;
 
             if (value < -1e-8) // ~1mm
             {

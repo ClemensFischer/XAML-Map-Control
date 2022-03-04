@@ -147,9 +147,11 @@ namespace MapControl
             if (parentMap.MapProjection.IsNormalCylindrical && IsOutsideViewport(position))
             {
                 var location = parentMap.MapProjection.MapToLocation(center);
-                location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
-
-                position = parentMap.LocationToView(location);
+                if (location != null)
+                {
+                    location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
+                    position = parentMap.LocationToView(location);
+                }
             }
 
             var width = rect.Width * parentMap.ViewTransform.Scale;

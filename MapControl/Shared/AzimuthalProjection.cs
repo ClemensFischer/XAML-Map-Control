@@ -31,7 +31,7 @@ namespace MapControl
             var width = rect.Width / Wgs84MeterPerDegree;
             var height = rect.Height / Wgs84MeterPerDegree;
 
-            return new CenteredBoundingBox(center, width, height);
+            return center != null ? new CenteredBoundingBox(center, width, height) : null;
         }
 
         /// <summary>

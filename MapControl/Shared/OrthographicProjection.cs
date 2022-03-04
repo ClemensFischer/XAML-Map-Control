@@ -33,6 +33,11 @@ namespace MapControl
             var lat = location.Latitude * Math.PI / 180d;
             var dLon = (location.Longitude - Center.Longitude) * Math.PI / 180d;
 
+            if (Math.Abs(lat - lat0) > Math.PI / 2d || Math.Abs(dLon) > Math.PI / 2d)
+            {
+                return new Point(double.NaN, double.NaN);
+            }
+
             return new Point(
                 Wgs84EquatorialRadius * Math.Cos(lat) * Math.Sin(dLon),
                 Wgs84EquatorialRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
@@ -51,7 +56,7 @@ namespace MapControl
 
             if (r2 > 1d)
             {
-                return new Location(double.NaN, double.NaN);
+                return null;
             }
 
             var r = Math.Sqrt(r2);

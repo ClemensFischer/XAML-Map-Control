@@ -95,27 +95,35 @@ namespace SampleApplication
         private void MapMouseMove(object sender, MouseEventArgs e)
         {
             var location = map.ViewToLocation(e.GetPosition(map));
-            var latitude = (int)Math.Round(location.Latitude * 60000d);
-            var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
-            var latHemisphere = 'N';
-            var lonHemisphere = 'E';
 
-            if (latitude < 0)
+            if (location != null)
             {
-                latitude = -latitude;
-                latHemisphere = 'S';
-            }
+                var latitude = (int)Math.Round(location.Latitude * 60000d);
+                var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
+                var latHemisphere = 'N';
+                var lonHemisphere = 'E';
 
-            if (longitude < 0)
+                if (latitude < 0)
+                {
+                    latitude = -latitude;
+                    latHemisphere = 'S';
+                }
+
+                if (longitude < 0)
+                {
+                    longitude = -longitude;
+                    lonHemisphere = 'W';
+                }
+
+                mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
+                    "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
+                    latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
+                    lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
+            }
+            else
             {
-                longitude = -longitude;
-                lonHemisphere = 'W';
+                mouseLocation.Text = string.Empty;
             }
-
-            mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
-                "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
-                latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
-                lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
         }
 
         private void MapMouseLeave(object sender, MouseEventArgs e)

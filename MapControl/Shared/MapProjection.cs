@@ -64,6 +64,7 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a Point in cartesian map coordinates to a Location in geographic coordinates.
+        /// Returns null when the Point can not be transformed.
         /// </summary>
         public abstract Location MapToLocation(Point point);
 
@@ -79,13 +80,16 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a Rect in cartesian map coordinates to a BoundingBox in geographic coordinates.
+        /// Returns null when the Rect can not be transformed.
         /// </summary>
         public virtual BoundingBox RectToBoundingBox(Rect rect)
         {
             var sw = MapToLocation(new Point(rect.X, rect.Y));
             var ne = MapToLocation(new Point(rect.X + rect.Width, rect.Y + rect.Height));
 
-            return new BoundingBox(sw.Latitude, sw.Longitude, ne.Latitude, ne.Longitude);
+            return sw != null && ne != null
+                ? new BoundingBox(sw.Latitude, sw.Longitude, ne.Latitude, ne.Longitude)
+                : null;
         }
 
         /// <summary>
@@ -105,6 +109,26 @@ namespace MapControl
         {
             return string.Format(CultureInfo.InvariantCulture,
                 "{0},{1},{2},{3}", rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height));
+        }
+
+        /// <summary>
+        /// Checks if the X and Y values of a Point are neither NaN nor Infinity.
+        /// </summary>
+        public static bool IsValid(Point point)
+        {
+            return !double.IsNaN(point.X) && !double.IsInfinity(point.X) &&
+                   !double.IsNaN(point.Y) && !double.IsInfinity(point.Y);
+        }
+
+        /// <summary>
+        /// Checks if the X, Y, Width and Height values of a Rect are neither NaN nor Infinity.
+        /// </summary>
+        public static bool IsValid(Rect rect)
+        {
+            return !double.IsNaN(rect.X) && !double.IsInfinity(rect.X) &&
+                   !double.IsNaN(rect.Y) && !double.IsInfinity(rect.Y) &&
+                   !double.IsNaN(rect.Width) && !double.IsInfinity(rect.Width) &&
+                   !double.IsNaN(rect.Height) && !double.IsInfinity(rect.Height);
         }
     }
 }
