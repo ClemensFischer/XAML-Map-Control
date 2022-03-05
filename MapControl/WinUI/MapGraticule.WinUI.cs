@@ -30,7 +30,7 @@ namespace MapControl
             var map = ParentMap;
             var projection = map.MapProjection;
 
-            if (projection.IsNormalCylindrical)
+            if (projection.Type <= MapProjectionType.NormalCylindrical)
             {
                 if (path == null)
                 {
@@ -43,11 +43,14 @@ namespace MapControl
                     Children.Add(path);
                 }
 
+                var maxLocation = projection.MapToLocation(new Point(0d, 180d * MapProjection.Wgs84MeterPerDegree));
+                var maxLatitude = maxLocation != null && maxLocation.Latitude < 90d ? maxLocation.Latitude : 90d;
+
                 var bounds = map.ViewRectToBoundingBox(new Rect(0d, 0d, map.RenderSize.Width, map.RenderSize.Height));
                 var lineDistance = GetLineDistance();
 
                 var labelStart = new Location(
-                    Math.Ceiling(bounds.South / lineDistance) * lineDistance,
+                Math.Ceiling(bounds.South / lineDistance) * lineDistance,
                     Math.Ceiling(bounds.West / lineDistance) * lineDistance);
 
                 var labelEnd = new Location(
@@ -55,11 +58,11 @@ namespace MapControl
                     Math.Floor(bounds.East / lineDistance) * lineDistance);
 
                 var lineStart = new Location(
-                    Math.Min(Math.Max(labelStart.Latitude - lineDistance, -projection.MaxLatitude), projection.MaxLatitude),
+                    Math.Min(Math.Max(labelStart.Latitude - lineDistance, -maxLatitude), maxLatitude),
                     labelStart.Longitude - lineDistance);
 
                 var lineEnd = new Location(
-                    Math.Min(Math.Max(labelEnd.Latitude + lineDistance, -projection.MaxLatitude), projection.MaxLatitude),
+                    Math.Min(Math.Max(labelEnd.Latitude + lineDistance, -maxLatitude), maxLatitude),
                     labelEnd.Longitude + lineDistance);
 
                 var geometry = (PathGeometry)path.Data;

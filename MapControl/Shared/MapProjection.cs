@@ -12,6 +12,15 @@ using System.Windows;
 
 namespace MapControl
 {
+    public enum MapProjectionType
+    {
+        WebMercator, // normal cylindrical projection compatible with MapTileLayer
+        NormalCylindrical,
+        TransverseCylindrical,
+        Azimuthal,
+        Other
+    }
+
     /// <summary>
     /// Defines a map projection between geographic coordinates and cartesian map coordinates.
     /// </summary>
@@ -25,29 +34,19 @@ namespace MapControl
         public static MapProjectionFactory Factory { get; set; } = new MapProjectionFactory();
 
         /// <summary>
-        /// Gets or sets the WMS 1.3.0 CRS identifier.
+        /// Gets the type of the projection.
         /// </summary>
-        public string CrsId { get; set; } = string.Empty;
+        public MapProjectionType Type { get; protected set; } = MapProjectionType.Other;
+
+        /// <summary>
+        /// Gets the WMS 1.3.0 CRS identifier.
+        /// </summary>
+        public string CrsId { get; protected set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the projection center.
         /// </summary>
         public Location Center { get; set; } = new Location();
-
-        /// <summary>
-        /// Indicates if this is a normal cylindrical projection.
-        /// </summary>
-        public bool IsNormalCylindrical { get; protected set; }
-
-        /// <summary>
-        /// Indicates if this is a web mercator projection, i.e. compatible with MapTileLayer.
-        /// </summary>
-        public bool IsWebMercator { get; protected set; }
-
-        /// <summary>
-        /// Gets the absolute value of the minimum and maximum latitude that can be transformed.
-        /// </summary>
-        public double MaxLatitude { get; protected set; } = 90d;
 
         /// <summary>
         /// Gets the relative map scale at the specified Location.

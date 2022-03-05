@@ -15,6 +15,11 @@ namespace MapControl
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {
+        public AzimuthalEquidistantProjection(string crsId)
+        {
+            CrsId = crsId;
+        }
+
         public override Point LocationToMap(Location location)
         {
             if (location.Equals(Center))

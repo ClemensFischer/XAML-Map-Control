@@ -19,10 +19,8 @@ namespace MapControl
 
         public WebMercatorProjection()
         {
+            Type = MapProjectionType.WebMercator;
             CrsId = DefaultCrsId;
-            IsNormalCylindrical = true;
-            IsWebMercator = true;
-            MaxLatitude = YToLatitude(180d);
         }
 
         public override Vector GetRelativeScale(Location location)

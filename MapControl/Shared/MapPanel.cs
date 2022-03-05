@@ -118,7 +118,7 @@ namespace MapControl
 
             var position = parentMap.LocationToView(location);
 
-            if (parentMap.MapProjection.IsNormalCylindrical && IsOutsideViewport(position))
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical && IsOutsideViewport(position))
             {
                 location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
 
@@ -144,7 +144,7 @@ namespace MapControl
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
 
-            if (parentMap.MapProjection.IsNormalCylindrical && IsOutsideViewport(position))
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical && IsOutsideViewport(position))
             {
                 var location = parentMap.MapProjection.MapToLocation(center);
                 if (location != null)

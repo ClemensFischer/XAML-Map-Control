@@ -41,7 +41,7 @@ namespace MapControl
                     break;
 
                 case "EPSG:97003": // proprietary CRS ID
-                    projection = new AzimuthalEquidistantProjection { CrsId = crsId };
+                    projection = new AzimuthalEquidistantProjection(crsId);
                     break;
 
                 default:

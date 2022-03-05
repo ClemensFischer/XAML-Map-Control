@@ -20,8 +20,8 @@ namespace MapControl
 
         public AutoEquirectangularProjection()
         {
+            Type = MapProjectionType.NormalCylindrical;
             CrsId = DefaultCrsId;
-            IsNormalCylindrical = true;
         }
 
         public override Point LocationToMap(Location location)

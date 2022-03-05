@@ -43,7 +43,7 @@ namespace MapControl
 
             if (projection != null)
             {
-                if (projection.IsNormalCylindrical)
+                if (projection.Type <= MapProjectionType.NormalCylindrical)
                 {
                     DrawCylindricalGraticule(drawingContext);
                 }
@@ -126,9 +126,6 @@ namespace MapControl
             var lineDistance = GetLineDistance();
             var labelFormat = GetLabelFormat(lineDistance);
 
-            var centerLon = Math.Floor(ParentMap.Center.Longitude / lineDistance) * lineDistance;
-            var minLon = centerLon - lineDistance;
-            var maxLon = centerLon + lineDistance;
             var minLat = 0d;
             var maxLat = 0d;
 
@@ -139,16 +136,21 @@ namespace MapControl
             var interpolationDistance = lineDistance / interpolationCount;
             var latPoints = latSegments * interpolationCount;
 
+            var centerLon = Math.Floor(ParentMap.Center.Longitude / lineDistance) * lineDistance;
+            var minLon = centerLon - lineDistance;
+            var maxLon = centerLon + lineDistance;
+            var lonRange = ParentMap.MapProjection.Type == MapProjectionType.TransverseCylindrical ? 15d : 180d;
+
             if (DrawMeridian(path.Figures, centerLon, minLat, interpolationDistance, latPoints))
             {
-                while (minLon > centerLon - 180d &&
-                    DrawMeridian(path.Figures, minLon, minLat, interpolationDistance, latPoints))
+                while (DrawMeridian(path.Figures, minLon, minLat, interpolationDistance, latPoints) &&
+                    minLon > centerLon - lonRange)
                 {
                     minLon -= lineDistance;
                 }
 
-                while (maxLon <= centerLon + 180d &&
-                    DrawMeridian(path.Figures, maxLon, minLat, interpolationDistance, latPoints))
+                while (DrawMeridian(path.Figures, maxLon, minLat, interpolationDistance, latPoints) &&
+                    maxLon <= centerLon + lonRange)
                 {
                     maxLon += lineDistance;
                 }
@@ -160,12 +162,14 @@ namespace MapControl
             {
                 var lat = minLat + s * lineDistance;
                 var lon = minLon;
+                var location = new Location(lat, lon);
                 var points = new List<Point>();
-                var p = ParentMap.LocationToView(new Location(lat, lon));
+                var p = ParentMap.LocationToView(location);
 
                 if (MapProjection.IsValid(p))
                 {
                     points.Add(p);
+                    DrawLabel(drawingContext, typeface, pixelsPerDip, p, location, labelFormat);
                 }
 
                 for (int i = 0; i < lonSegments; i++)
@@ -173,7 +177,8 @@ namespace MapControl
                     for (int j = 1; j <= interpolationCount; j++)
                     {
                         lon = minLon + i * lineDistance + j * interpolationDistance;
-                        p = ParentMap.LocationToView(new Location(lat, lon));
+                        location = new Location(lat, lon);
+                        p = ParentMap.LocationToView(location);
 
                         if (MapProjection.IsValid(p))
                         {
@@ -181,11 +186,7 @@ namespace MapControl
                         }
                     }
 
-                    if (p.X >= 0d && p.X <= ParentMap.RenderSize.Width &&
-                        p.Y >= 0d && p.Y <= ParentMap.RenderSize.Height)
-                    {
-                        DrawLabel(drawingContext, typeface, pixelsPerDip, p, new Location(lat, lon), labelFormat);
-                    }
+                    DrawLabel(drawingContext, typeface, pixelsPerDip, p, location, labelFormat);
                 }
 
                 if (points.Count >= 2)
@@ -232,18 +233,22 @@ namespace MapControl
         private void DrawLabel(DrawingContext drawingContext, Typeface typeface, double pixelsPerDip,
             Point position, Location location, string labelFormat)
         {
-            var latText = new FormattedText(GetLabelText(location.Latitude, labelFormat, "NS"),
-                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip);
-            var lonText = new FormattedText(GetLabelText(location.Longitude, labelFormat, "EW"),
-                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip);
-
-            location.Longitude += latText.Width / PixelPerLongitudeDegree(location);
-
-            var p = ParentMap.LocationToView(location);
-
-            if (MapProjection.IsValid(p))
+            if (position.X >= 0d && position.X <= ParentMap.RenderSize.Width &&
+                position.Y >= 0d && position.Y <= ParentMap.RenderSize.Height)
             {
-                DrawLabel(drawingContext, latText, lonText, position, Vector.AngleBetween(new Vector(1d, 0d), p - position));
+                var latText = new FormattedText(GetLabelText(location.Latitude, labelFormat, "NS"),
+                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip);
+                var lonText = new FormattedText(GetLabelText(location.Longitude, labelFormat, "EW"),
+                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip);
+
+                location.Longitude += latText.Width / PixelPerLongitudeDegree(location);
+
+                var p = ParentMap.LocationToView(location);
+
+                if (MapProjection.IsValid(p))
+                {
+                    DrawLabel(drawingContext, latText, lonText, position, Vector.AngleBetween(new Vector(1d, 0d), p - position));
+                }
             }
         }
 

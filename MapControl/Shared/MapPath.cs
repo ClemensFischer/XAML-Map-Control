@@ -87,7 +87,7 @@ namespace MapControl
         {
             var longitudeOffset = 0d;
 
-            if (location != null && parentMap.MapProjection.IsNormalCylindrical)
+            if (location != null && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
             {
                 var pos = parentMap.LocationToView(location);
 

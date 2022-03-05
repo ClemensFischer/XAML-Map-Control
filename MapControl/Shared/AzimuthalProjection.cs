@@ -16,6 +16,11 @@ namespace MapControl
     /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
+        protected AzimuthalProjection()
+        {
+            Type = MapProjectionType.Azimuthal;
+        }
+
         public override Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
             var center = LocationToMap(boundingBox.Center);

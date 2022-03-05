@@ -120,7 +120,7 @@ namespace MapControl
         {
             var update = false;
 
-            if (ParentMap == null || !ParentMap.MapProjection.IsWebMercator)
+            if (ParentMap == null || ParentMap.MapProjection.Type != MapProjectionType.WebMercator)
             {
                 update = TileMatrix != null;
                 TileMatrix = null;

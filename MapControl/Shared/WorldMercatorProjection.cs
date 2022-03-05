@@ -22,9 +22,8 @@ namespace MapControl
 
         public WorldMercatorProjection()
         {
+            Type = MapProjectionType.NormalCylindrical;
             CrsId = DefaultCrsId;
-            IsNormalCylindrical = true;
-            MaxLatitude = YToLatitude(180d);
         }
 
         public override Vector GetRelativeScale(Location location)

@@ -23,8 +23,8 @@ namespace MapControl
 
         public EquirectangularProjection()
         {
+            Type = MapProjectionType.NormalCylindrical;
             CrsId = DefaultCrsId;
-            IsNormalCylindrical = true;
         }
 
         public override Vector GetRelativeScale(Location location)

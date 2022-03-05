@@ -81,19 +81,31 @@ namespace MapControl.Projections
                     var falseEasting = projection.GetParameter("false_easting");
                     var falseNorthing = projection.GetParameter("false_northing");
 
-                    IsNormalCylindrical =
+                    if (CrsId == "EPSG:3857")
+                    {
+                        Type = MapProjectionType.WebMercator;
+                    }
+                    else if (
                         (centralMeridian == null || centralMeridian.Value == 0d) &&
                         (centralParallel == null || centralParallel.Value == 0d) &&
                         (falseEasting == null || falseEasting.Value == 0d) &&
-                        (falseNorthing == null || falseNorthing.Value == 0d);
-                    IsWebMercator = CrsId == "EPSG:3857";
+                        (falseNorthing == null || falseNorthing.Value == 0d))
+                    {
+                        Type = MapProjectionType.NormalCylindrical;
+                    }
+                    else if (
+                        projection.Name.StartsWith("UTM") ||
+                        projection.Name.StartsWith("Transverse"))
+                    {
+                        Type = MapProjectionType.TransverseCylindrical;
+                    }
+
                     scaleFactor = 1d;
                     bboxFormat = "{0},{1},{2},{3}";
                 }
                 else
                 {
-                    IsNormalCylindrical = true;
-                    IsWebMercator = false;
+                    Type = MapProjectionType.NormalCylindrical;
                     scaleFactor = Wgs84MeterPerDegree;
                     bboxFormat = "{1},{0},{3},{2}";
                 }

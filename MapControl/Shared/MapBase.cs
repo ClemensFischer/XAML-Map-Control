@@ -44,7 +44,7 @@ namespace MapControl
 
         public static readonly DependencyProperty MapProjectionProperty = DependencyProperty.Register(
             nameof(MapProjection), typeof(MapProjection), typeof(MapBase),
-            new PropertyMetadata(new WebMercatorProjection(), (o, e) => ((MapBase)o).MapProjectionPropertyChanged()));
+            new PropertyMetadata(new WebMercatorProjection(), (o, e) => ((MapBase)o).MapProjectionPropertyChanged((MapProjection)e.NewValue)));
 
         public static readonly DependencyProperty ProjectionCenterProperty = DependencyProperty.Register(
             nameof(ProjectionCenter), typeof(Location), typeof(MapBase),
@@ -72,6 +72,7 @@ namespace MapControl
         private Location transformCenter;
         private Point viewCenter;
         private double centerLongitude;
+        private double maxLatitude = 90d;
         private bool internalPropertyChange;
 
         /// <summary>
@@ -436,8 +437,23 @@ namespace MapControl
             }
         }
 
-        private void MapProjectionPropertyChanged()
+        private void MapProjectionPropertyChanged(MapProjection projection)
         {
+            maxLatitude = 90d;
+
+            if (projection.Type <= MapProjectionType.NormalCylindrical)
+            {
+                var maxLocation = projection.MapToLocation(new Point(0d, 180d * MapProjection.Wgs84MeterPerDegree));
+
+                if (maxLocation != null && maxLocation.Latitude < 90d)
+                {
+                    maxLatitude = maxLocation.Latitude;
+
+                    var center = Center;
+                    AdjustCenterProperty(CenterProperty, ref center);
+                }
+            }
+
             ResetTransformCenter();
             UpdateTransform(false, true);
         }
@@ -450,16 +466,23 @@ namespace MapControl
 
         private void AdjustCenterProperty(DependencyProperty property, ref Location center)
         {
-            if (center == null ||
-                center.Longitude < -180d || center.Longitude > 180d ||
-                center.Latitude < -MapProjection.MaxLatitude || center.Latitude > MapProjection.MaxLatitude)
-            {
-                center = (center == null)
-                    ? new Location()
-                    : new Location(
-                        Math.Min(Math.Max(center.Latitude, -MapProjection.MaxLatitude), MapProjection.MaxLatitude),
-                        Location.NormalizeLongitude(center.Longitude));
+            var c = center;
 
+            if (center == null)
+            {
+                center = new Location();
+            }
+            else if (
+                center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
+                center.Longitude < -180d || center.Longitude > 180d)
+            {
+                center = new Location(
+                    Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude),
+                    Location.NormalizeLongitude(center.Longitude));
+            }
+
+            if (center != c)
+            {
                 SetValueInternal(property, center);
             }
         }
@@ -727,9 +750,9 @@ namespace MapControl
                     {
                         center.Longitude = Location.NormalizeLongitude(center.Longitude);
 
-                        if (center.Latitude < -projection.MaxLatitude || center.Latitude > projection.MaxLatitude)
+                        if (center.Latitude < -maxLatitude || center.Latitude > maxLatitude)
                         {
-                            center.Latitude = Math.Min(Math.Max(center.Latitude, -projection.MaxLatitude), projection.MaxLatitude);
+                            center.Latitude = Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude);
                             resetTransformCenter = true;
                         }
 
