@@ -136,7 +136,7 @@ namespace MapControl
             var interpolationDistance = lineDistance / interpolationCount;
             var latPoints = latSegments * interpolationCount;
 
-            var centerLon = Math.Floor(ParentMap.Center.Longitude / lineDistance) * lineDistance;
+            var centerLon = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
             var minLon = centerLon - lineDistance;
             var maxLon = centerLon + lineDistance;
             var lonRange = ParentMap.MapProjection.Type == MapProjectionType.TransverseCylindrical ? 15d : 180d;
