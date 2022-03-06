@@ -15,10 +15,10 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
-        public const string DefaultCrsId = "EPSG:3395";
+        private const double ConvergenceTolerance = 1e-6;
+        private const int MaxIterations = 10;
 
-        public static double ConvergenceTolerance { get; set; } = 1e-6;
-        public static int MaxIterations { get; set; } = 10;
+        public const string DefaultCrsId = "EPSG:3395";
 
         public WorldMercatorProjection()
         {
