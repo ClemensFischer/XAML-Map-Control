@@ -16,8 +16,8 @@ namespace MapControl.Projections
     /// </summary>
     public class PolarStereographicProjection : MapProjection
     {
-        public static double ConvergenceTolerance { get; set; } = 1e-6;
-        public static int MaxIterations { get; set; } = 10;
+        private const double ConvergenceTolerance = 1e-6;
+        private const int MaxIterations = 10;
 
         public double ScaleFactor { get; }
         public double FalseEasting { get; }
@@ -112,7 +112,7 @@ namespace MapControl.Projections
     }
 
     /// <summary>
-    /// Elliptical North Polar Stereographic Projection - EPSG:32661.
+    /// Universal Polar Stereographic North Projection - EPSG:32661.
     /// </summary>
     public class UpsNorthProjection : PolarStereographicProjection
     {
@@ -125,7 +125,7 @@ namespace MapControl.Projections
     }
 
     /// <summary>
-    /// Elliptical South Polar Stereographic Projection - EPSG:32761.
+    /// Universal Polar Stereographic South Projection - EPSG:32761.
     /// </summary>
     public class UpsSouthProjection : PolarStereographicProjection
     {
