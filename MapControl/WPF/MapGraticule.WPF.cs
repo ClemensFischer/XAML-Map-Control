@@ -137,20 +137,30 @@ namespace MapControl
             var latPoints = latSegments * interpolationCount;
 
             var centerLon = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
+            var westLimit = centerLon - 180d;
+            var eastLimit = centerLon + 180d;
+
+            if (ParentMap.MapProjection.Type == MapProjectionType.TransverseCylindrical)
+            {
+                westLimit = ParentMap.MapProjection.Center.Longitude - 15d;
+                eastLimit = ParentMap.MapProjection.Center.Longitude + 15d;
+                westLimit = Math.Floor(westLimit / lineDistance) * lineDistance;
+                eastLimit = Math.Ceiling(eastLimit / lineDistance) * lineDistance;
+            }
+
             var minLon = centerLon - lineDistance;
             var maxLon = centerLon + lineDistance;
-            var lonRange = ParentMap.MapProjection.Type == MapProjectionType.TransverseCylindrical ? 15d : 180d;
 
             if (DrawMeridian(path.Figures, centerLon, minLat, interpolationDistance, latPoints))
             {
                 while (DrawMeridian(path.Figures, minLon, minLat, interpolationDistance, latPoints) &&
-                    minLon > centerLon - lonRange)
+                    minLon > westLimit)
                 {
                     minLon -= lineDistance;
                 }
 
                 while (DrawMeridian(path.Figures, maxLon, minLat, interpolationDistance, latPoints) &&
-                    maxLon <= centerLon + lonRange)
+                    maxLon < eastLimit)
                 {
                     maxLon += lineDistance;
                 }

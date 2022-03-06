@@ -44,7 +44,7 @@ namespace MapControl
         public string CrsId { get; protected set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the projection center.
+        /// Gets or sets an optional projection center.
         /// </summary>
         public Location Center { get; set; } = new Location();
 

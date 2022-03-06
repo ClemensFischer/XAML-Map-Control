@@ -19,7 +19,6 @@ namespace MapControl.Projections
         public static double ConvergenceTolerance { get; set; } = 1e-6;
         public static int MaxIterations { get; set; } = 10;
 
-        public bool IsNorth { get; }
         public double ScaleFactor { get; }
         public double FalseEasting { get; }
         public double FalseNorthing { get; }
@@ -27,7 +26,7 @@ namespace MapControl.Projections
         public PolarStereographicProjection(string crsId, bool isNorth, double scaleFactor, double falseEasting, double falseNorthing)
         {
             CrsId = crsId;
-            IsNorth = isNorth;
+            Center = new Location(isNorth ? 90d : -90d, 0d);
             ScaleFactor = scaleFactor;
             FalseEasting = falseEasting;
             FalseNorthing = falseNorthing;
@@ -35,7 +34,7 @@ namespace MapControl.Projections
 
         public override Vector GetRelativeScale(Location location)
         {
-            var lat = (IsNorth ? location.Latitude : -location.Latitude) * Math.PI / 180d;
+            var lat = Math.Sign(Center.Latitude) * location.Latitude * Math.PI / 180d;
             var a = Wgs84EquatorialRadius;
             var e = Wgs84Eccentricity;
             var s = Math.Sqrt(Math.Pow(1 + e, 1 + e) * Math.Pow(1 - e, 1 - e));
@@ -53,7 +52,7 @@ namespace MapControl.Projections
             var lat = location.Latitude * Math.PI / 180d;
             var lon = location.Longitude * Math.PI / 180d;
 
-            if (IsNorth)
+            if (Center.Latitude > 0d)
             {
                 lon = Math.PI - lon;
             }
@@ -92,7 +91,7 @@ namespace MapControl.Projections
                 lat = newLat;
             }
 
-            if (IsNorth)
+            if (Center.Latitude > 0d)
             {
                 lon = Math.PI - lon;
             }
