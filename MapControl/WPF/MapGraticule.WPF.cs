@@ -168,9 +168,9 @@ namespace MapControl
 
             var lonSegments = (int)Math.Round(Math.Abs(maxLon - minLon) / lineDistance);
 
-            for (var s = minLat > -90d ? 0 : 1; s < latSegments; s++)
+            for (var i = 1; i < latSegments; i++)
             {
-                var lat = minLat + s * lineDistance;
+                var lat = minLat + i * lineDistance;
                 var lon = minLon;
                 var location = new Location(lat, lon);
                 var points = new List<Point>();
@@ -182,11 +182,11 @@ namespace MapControl
                     DrawLabel(drawingContext, typeface, pixelsPerDip, p, location, labelFormat);
                 }
 
-                for (int i = 0; i < lonSegments; i++)
+                for (int j = 0; j < lonSegments; j++)
                 {
-                    for (int j = 1; j <= interpolationCount; j++)
+                    for (int k = 1; k <= interpolationCount; k++)
                     {
-                        lon = minLon + i * lineDistance + j * interpolationDistance;
+                        lon = minLon + j * lineDistance + k * interpolationDistance;
                         location = new Location(lat, lon);
                         p = ParentMap.LocationToView(location);
 
