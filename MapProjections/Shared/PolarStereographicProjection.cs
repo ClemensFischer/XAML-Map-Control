@@ -19,14 +19,15 @@ namespace MapControl.Projections
         private const double ConvergenceTolerance = 1e-6;
         private const int MaxIterations = 10;
 
+        public bool IsNorth { get; }
         public double ScaleFactor { get; }
         public double FalseEasting { get; }
         public double FalseNorthing { get; }
 
-        public PolarStereographicProjection(string crsId, bool isNorth, double scaleFactor, double falseEasting, double falseNorthing)
+        public PolarStereographicProjection(bool isNorth, double scaleFactor, double falseEasting, double falseNorthing)
         {
-            CrsId = crsId;
-            Center = new Location(isNorth ? 90d : -90d, 0d);
+            Type = MapProjectionType.Azimuthal;
+            IsNorth = isNorth;
             ScaleFactor = scaleFactor;
             FalseEasting = falseEasting;
             FalseNorthing = falseNorthing;
@@ -34,7 +35,7 @@ namespace MapControl.Projections
 
         public override Vector GetRelativeScale(Location location)
         {
-            var lat = Math.Sign(Center.Latitude) * location.Latitude * Math.PI / 180d;
+            var lat = (IsNorth ? location.Latitude : -location.Latitude) * Math.PI / 180d;
             var a = Wgs84EquatorialRadius;
             var e = Wgs84Eccentricity;
             var s = Math.Sqrt(Math.Pow(1 + e, 1 + e) * Math.Pow(1 - e, 1 - e));
@@ -52,7 +53,7 @@ namespace MapControl.Projections
             var lat = location.Latitude * Math.PI / 180d;
             var lon = location.Longitude * Math.PI / 180d;
 
-            if (Center.Latitude > 0d)
+            if (IsNorth)
             {
                 lon = Math.PI - lon;
             }
@@ -91,7 +92,7 @@ namespace MapControl.Projections
                 lat = newLat;
             }
 
-            if (Center.Latitude > 0d)
+            if (IsNorth)
             {
                 lon = Math.PI - lon;
             }
@@ -119,8 +120,9 @@ namespace MapControl.Projections
         public const string DefaultCrsId = "EPSG:32661";
 
         public UpsNorthProjection()
-            : base(DefaultCrsId, true, 0.994, 2e6, 2e6)
+            : base(true, 0.994, 2e6, 2e6)
         {
+            CrsId = DefaultCrsId;
         }
     }
 
@@ -132,8 +134,9 @@ namespace MapControl.Projections
         public const string DefaultCrsId = "EPSG:32761";
 
         public UpsSouthProjection()
-            : base(DefaultCrsId, false, 0.994, 2e6, 2e6)
+            : base(false, 0.994, 2e6, 2e6)
         {
+            CrsId = DefaultCrsId;
         }
     }
 }

@@ -24,12 +24,14 @@ namespace MapControl.Projections
         public override Point LocationToMap(Location location)
         {
             UpdateZone();
+
             return base.LocationToMap(location);
         }
 
         public override Location MapToLocation(Point point)
         {
             UpdateZone();
+
             return base.MapToLocation(point);
         }
 

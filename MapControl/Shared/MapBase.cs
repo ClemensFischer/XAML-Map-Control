@@ -734,10 +734,7 @@ namespace MapControl
             var viewScale = ViewTransform.ZoomLevelToScale(ZoomLevel);
             var projection = MapProjection;
 
-            if (projection.Type == MapProjectionType.Azimuthal)
-            {
-                projection.Center = ProjectionCenter ?? Center;
-            }
+            projection.Center = ProjectionCenter ?? Center;
 
             var mapCenter = projection.LocationToMap(transformCenter ?? Center);
 
@@ -770,10 +767,7 @@ namespace MapControl
                         {
                             ResetTransformCenter();
 
-                            if (projection.Type == MapProjectionType.Azimuthal)
-                            {
-                                projection.Center = ProjectionCenter ?? Center;
-                            }
+                            projection.Center = ProjectionCenter ?? Center;
 
                             mapCenter = projection.LocationToMap(center);
 

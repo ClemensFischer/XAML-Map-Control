@@ -25,7 +25,6 @@ namespace MapControl.Projections
     public class GeoApiProjection : MapProjection
     {
         private ICoordinateSystem coordinateSystem;
-        private Location center;
         private double scaleFactor;
         private string bboxFormat;
 
@@ -100,10 +99,6 @@ namespace MapControl.Projections
                     {
                         Type = MapProjectionType.TransverseCylindrical;
                     }
-
-                    Center = new Location(
-                        centralParallel != null ? centralParallel.Value : 0d,
-                        centralMeridian != null ? centralMeridian.Value : 0d);
 
                     scaleFactor = 1d;
                     bboxFormat = "{0},{1},{2},{3}";
