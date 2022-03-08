@@ -117,6 +117,11 @@
                        local:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
         </Border>
 
+        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4"
+                Background="#AFFFFFFF" IsHitTestVisible="False">
+            <TextBlock x:Name="mouseLocation" FontFamily="Consolas" Margin="4,2" Visibility="Collapsed"/>
+        </Border>
+
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6">
             <tools:MapLayersMenuButton x:Name="mapLayersMenuButton"
                 Margin="2" Padding="8" ToolTipService.ToolTip="Map Layers and Overlays"
@@ -220,10 +225,5 @@
                 <FontIcon Glyph="&#xEBE6;"/>
             </Button>
         </StackPanel>
-
-        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4"
-                Background="#AFFFFFFF" IsHitTestVisible="False">
-            <TextBlock x:Name="mouseLocation" Margin="4,2" Visibility="Collapsed"/>
-        </Border>
     </Grid>
 </Window>
