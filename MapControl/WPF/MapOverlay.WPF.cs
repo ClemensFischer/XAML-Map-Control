@@ -57,11 +57,6 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty = Shape.StrokeMiterLimitProperty.AddOwner(
             typeof(MapOverlay), new FrameworkPropertyMetadata { AffectsRender = true });
 
-        static MapOverlay()
-        {
-            IsHitTestVisibleProperty.OverrideMetadata(typeof(MapOverlay), new FrameworkPropertyMetadata(false));
-        }
-
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
