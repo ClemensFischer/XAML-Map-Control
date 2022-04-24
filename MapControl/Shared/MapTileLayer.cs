@@ -26,9 +26,9 @@ namespace MapControl
     /// </summary>
     public class MapTileLayer : MapTileLayerBase
     {
-        public const int TileSize = 256;
+        private const int TileSize = 256;
 
-        public static readonly Point MapTopLeft = new Point(
+        private static readonly Point MapTopLeft = new Point(
             -180d * MapProjection.Wgs84MeterPerDegree, 180d * MapProjection.Wgs84MeterPerDegree);
 
         /// <summary>
@@ -52,6 +52,9 @@ namespace MapControl
 
         public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
             nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(19));
+
+        public static readonly DependencyProperty ZoomLevelOffsetProperty = DependencyProperty.Register(
+            nameof(ZoomLevelOffset), typeof(double), typeof(MapTileLayer), new PropertyMetadata(0d));
 
         public MapTileLayer()
             : this(new TileImageLoader())
@@ -83,6 +86,16 @@ namespace MapControl
         {
             get { return (int)GetValue(MaxZoomLevelProperty); }
             set { SetValue(MaxZoomLevelProperty, value); }
+        }
+
+        /// <summary>
+        /// Optional offset between the map zoom level and the topmost tile zoom level.
+        /// Default value is 0.
+        /// </summary>
+        public double ZoomLevelOffset
+        {
+            get { return (double)GetValue(ZoomLevelOffsetProperty); }
+            set { SetValue(ZoomLevelOffsetProperty, value); }
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -167,7 +180,7 @@ namespace MapControl
 
         private bool SetTileMatrix()
         {
-            var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel + 0.001); // avoid rounding issues
+            var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel - ZoomLevelOffset + 0.001); // avoid rounding issues
 
             var tileMatrixScale = ViewTransform.ZoomLevelToScale(tileMatrixZoomLevel);
 
