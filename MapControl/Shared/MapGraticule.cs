@@ -28,10 +28,20 @@ namespace MapControl
     {
         private class Label
         {
-            public string LatitudeText { get; set; }
-            public string LongitudeText { get; set; }
-            public Point Position { get; set; }
-            public double Rotation { get; set; }
+            public Label(string latText, string lonText, double x, double y, double rotation)
+            {
+                LatitudeText = latText;
+                LongitudeText = lonText;
+                X = x;
+                Y = y;
+                Rotation = rotation;
+            }
+
+            public string LatitudeText { get; }
+            public string LongitudeText { get; }
+            public double X { get; }
+            public double Y { get; }
+            public double Rotation { get; }
         }
 
         private const double LineInterpolationResolution = 2d;
@@ -96,7 +106,7 @@ namespace MapControl
                 labelFormat, hemisphere, seconds / 3600, seconds / 60 % 60, seconds % 60);
         }
 
-        private void AddLabel(ICollection<Label> labels, Point position, Location location, double? rotation = null)
+        private void AddLabel(ICollection<Label> labels, Location location, Point position, double? rotation = null)
         {
             if (MapProjection.IsValid(position) &&
                 position.X >= 0d && position.X <= ParentMap.RenderSize.Width &&
@@ -104,8 +114,9 @@ namespace MapControl
             {
                 if (!rotation.HasValue)
                 {
-                    var pos = ParentMap.LocationToView(new Location(
-                        location.Latitude, location.Longitude + 10d / PixelPerLongitudeDegree(location)));
+                    location.Longitude += 10d / PixelPerLongitudeDegree(location);
+
+                    var pos = ParentMap.LocationToView(location);
 
                     if (MapProjection.IsValid(pos))
                     {
@@ -115,68 +126,32 @@ namespace MapControl
 
                 if (rotation.HasValue)
                 {
-                    labels.Add(new Label
-                    {
-                        LatitudeText = GetLabelText(location.Latitude, "NS"),
-                        LongitudeText = GetLabelText(Location.NormalizeLongitude(location.Longitude), "EW"),
-                        Position = position,
-                        Rotation = rotation.Value
-                    });
+                    labels.Add(new Label(
+                        GetLabelText(location.Latitude, "NS"),
+                        GetLabelText(Location.NormalizeLongitude(location.Longitude), "EW"),
+                        position.X, position.Y, rotation.Value));
                 }
             }
         }
 
-        private void GetLatitudeRange(double lineDistance, ref double minLatitude, ref double maxLatitude)
+        private ICollection<Label> DrawGraticule(PathFigureCollection figures)
         {
-            var width = ParentMap.RenderSize.Width;
-            var height = ParentMap.RenderSize.Height;
-            var northPole = ParentMap.LocationToView(new Location(90d, 0d));
-            var southPole = ParentMap.LocationToView(new Location(-90d, 0d));
+            var labels = new List<Label>();
 
-            if (northPole.X >= 0d && northPole.Y >= 0d && northPole.X <= width && northPole.Y <= height)
+            figures.Clear();
+
+            SetLineDistance();
+
+            if (ParentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
             {
-                maxLatitude = 90d;
+                DrawCylindricalGraticule(figures, labels);
+            }
+            else
+            {
+                DrawGraticule(figures, labels);
             }
 
-            if (southPole.X >= 0d && southPole.Y >= 0d && southPole.X <= width && southPole.Y <= height)
-            {
-                minLatitude = -90d;
-            }
-
-            if (minLatitude > -90d || maxLatitude < 90d)
-            {
-                var locations = new Location[]
-                {
-                    ParentMap.ViewToLocation(new Point(0d, 0d)),
-                    ParentMap.ViewToLocation(new Point(width / 2d, 0d)),
-                    ParentMap.ViewToLocation(new Point(width, 0d)),
-                    ParentMap.ViewToLocation(new Point(width, height / 2d)),
-                    ParentMap.ViewToLocation(new Point(width, height)),
-                    ParentMap.ViewToLocation(new Point(width / 2d, height)),
-                    ParentMap.ViewToLocation(new Point(0d, height)),
-                    ParentMap.ViewToLocation(new Point(0d, height / 2)),
-                };
-
-                var latitudes = locations.Where(loc => loc != null).Select(loc => loc.Latitude);
-                var south = -90d;
-                var north = 90d;
-
-                if (latitudes.Distinct().Count() >= 2)
-                {
-                    south = latitudes.Min();
-                    north = latitudes.Max();
-                }
-
-                if (minLatitude > -90d)
-                {
-                    minLatitude = Math.Max(Math.Floor(south / lineDistance) * lineDistance, -90d);
-                }
-
-                if (maxLatitude < 90d)
-                {
-                    maxLatitude = Math.Min(Math.Ceiling(north / lineDistance) * lineDistance, 90d);
-                }
-            }
+            return labels;
         }
 
         private void DrawCylindricalGraticule(PathFigureCollection figures, ICollection<Label> labels)
@@ -205,16 +180,13 @@ namespace MapControl
                 {
                     figures.Add(CreateLineFigure(p1, p2));
                 }
-            }
 
-            for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
-            {
-                for (var lon = lonLabelStart; lon <= bounds.East; lon += lineDistance)
+                for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
                 {
                     var location = new Location(lat, lon);
                     var position = ParentMap.LocationToView(location);
 
-                    AddLabel(labels, position, location, ParentMap.ViewTransform.Rotation);
+                    AddLabel(labels, location, position, ParentMap.ViewTransform.Rotation);
                 }
             }
         }
@@ -274,7 +246,7 @@ namespace MapControl
                 if (MapProjection.IsValid(position))
                 {
                     points.Add(position);
-                    AddLabel(labels, position, location);
+                    AddLabel(labels, location, position);
                 }
 
                 for (int j = 0; j < lonSegments; j++)
@@ -291,7 +263,7 @@ namespace MapControl
                         }
                     }
 
-                    AddLabel(labels, position, location);
+                    AddLabel(labels, location, position);
                 }
 
                 if (points.Count >= 2)
@@ -327,6 +299,59 @@ namespace MapControl
             }
 
             return visible;
+        }
+
+        private void GetLatitudeRange(double lineDistance, ref double minLatitude, ref double maxLatitude)
+        {
+            var width = ParentMap.RenderSize.Width;
+            var height = ParentMap.RenderSize.Height;
+            var northPole = ParentMap.LocationToView(new Location(90d, 0d));
+            var southPole = ParentMap.LocationToView(new Location(-90d, 0d));
+
+            if (northPole.X >= 0d && northPole.Y >= 0d && northPole.X <= width && northPole.Y <= height)
+            {
+                maxLatitude = 90d;
+            }
+
+            if (southPole.X >= 0d && southPole.Y >= 0d && southPole.X <= width && southPole.Y <= height)
+            {
+                minLatitude = -90d;
+            }
+
+            if (minLatitude > -90d || maxLatitude < 90d)
+            {
+                var locations = new Location[]
+                {
+                    ParentMap.ViewToLocation(new Point(0d, 0d)),
+                    ParentMap.ViewToLocation(new Point(width / 2d, 0d)),
+                    ParentMap.ViewToLocation(new Point(width, 0d)),
+                    ParentMap.ViewToLocation(new Point(width, height / 2d)),
+                    ParentMap.ViewToLocation(new Point(width, height)),
+                    ParentMap.ViewToLocation(new Point(width / 2d, height)),
+                    ParentMap.ViewToLocation(new Point(0d, height)),
+                    ParentMap.ViewToLocation(new Point(0d, height / 2)),
+                };
+
+                var latitudes = locations.Where(loc => loc != null).Select(loc => loc.Latitude);
+                var south = -90d;
+                var north = 90d;
+
+                if (latitudes.Distinct().Count() >= 2)
+                {
+                    south = latitudes.Min();
+                    north = latitudes.Max();
+                }
+
+                if (minLatitude > -90d)
+                {
+                    minLatitude = Math.Max(Math.Floor(south / lineDistance) * lineDistance, -90d);
+                }
+
+                if (maxLatitude < 90d)
+                {
+                    maxLatitude = Math.Min(Math.Ceiling(north / lineDistance) * lineDistance, 90d);
+                }
+            }
         }
 
         private static PathFigure CreateLineFigure(Point p1, Point p2)

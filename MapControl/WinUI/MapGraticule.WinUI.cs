@@ -28,21 +28,7 @@ namespace MapControl
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            var labels = new List<Label>();
-            var pathFigures = ((PathGeometry)path.Data).Figures;
-            
-            pathFigures.Clear();
-
-            SetLineDistance();
-
-            if (ParentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
-            {
-                DrawCylindricalGraticule(pathFigures, labels);
-            }
-            else
-            {
-                DrawGraticule(pathFigures, labels);
-            }
+            var labels = DrawGraticule(((PathGeometry)path.Data).Figures);
 
             if (Children.Count == 0)
             {
@@ -89,7 +75,7 @@ namespace MapControl
 
                 matrix.Translate(StrokeThickness / 2d + 2d, -textBlock.DesiredSize.Height / 2d);
                 matrix.Rotate(label.Rotation);
-                matrix.Translate(label.Position.X, label.Position.Y);
+                matrix.Translate(label.X, label.Y);
 
                 ((MatrixTransform)textBlock.RenderTransform).Matrix = matrix;
 
@@ -104,7 +90,7 @@ namespace MapControl
             base.OnViewportChanged(e);
         }
 
-        private static PathFigure CreatePolylineFigure(ICollection<Point> points)
+        private static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
         {
             var figure = new PathFigure
             {
