@@ -5,7 +5,7 @@
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for WPF</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>7.2.0</Version>
+        <Version>7.2.1</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2022 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
