@@ -44,8 +44,8 @@ namespace MapControl
                 // Workaround for missing property value inheritance.
                 // Loaded and Unloaded handlers set and clear the ParentMap property value.
 
-                element.Loaded += (s, e) => GetParentMap(element);
-                element.Unloaded += (s, e) => element.ClearValue(ParentMapProperty);
+                element.Loaded += (s, e) => GetParentMap((FrameworkElement)s);
+                element.Unloaded += (s, e) => ((FrameworkElement)s).ClearValue(ParentMapProperty);
             }
         }
 
@@ -53,19 +53,17 @@ namespace MapControl
         {
             var parentMap = (MapBase)element.GetValue(ParentMapProperty);
 
-            if (parentMap == null && (parentMap = FindParentMap(element)) != null)
+            if (parentMap == null && VisualTreeHelper.GetParent(element) is FrameworkElement parentElement)
             {
-                element.SetValue(ParentMapProperty, parentMap);
+                parentMap = (parentElement as MapBase) ?? GetParentMap(parentElement);
+
+                if (parentMap != null)
+                {
+                    element.SetValue(ParentMapProperty, parentMap);
+                }
             }
 
             return parentMap;
-        }
-
-        private static MapBase FindParentMap(FrameworkElement element)
-        {
-            return VisualTreeHelper.GetParent(element) is FrameworkElement parent
-                ? ((parent as MapBase) ?? (MapBase)element.GetValue(ParentMapProperty) ?? FindParentMap(parent))
-                : null;
         }
 
         private static void SetViewPosition(FrameworkElement element, Point? viewPosition)

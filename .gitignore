@@ -1,3 +1,15 @@
 .vs/
 bin/
 obj/
+packages/
+Maps.*
+TestApps/
+Win2D/
+ChartServerLayer.cs
+TileLoader.cs
+MapControl_TestApps.sln
+*.user
+*.cache
+*.cmd
+*.nupkg
+*.txt

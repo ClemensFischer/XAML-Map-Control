@@ -8,11 +8,11 @@ using System.Linq;
 using System.Threading.Tasks;
 #if WINUI
 using Windows.Foundation;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -54,11 +54,7 @@ namespace MapControl
         public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
             nameof(MapForeground), typeof(Brush), typeof(MapImageLayer), new PropertyMetadata(null));
 
-#if WINUI
-        private readonly DispatcherQueueTimer updateTimer;
-#else
         private readonly DispatcherTimer updateTimer;
-#endif
         private bool updateInProgress;
 
         public MapImageLayer()
