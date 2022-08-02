@@ -53,7 +53,8 @@ namespace MapControl
         {
             var parentMap = (MapBase)element.GetValue(ParentMapProperty);
 
-            if (parentMap == null && VisualTreeHelper.GetParent(element) is FrameworkElement parentElement)
+            if (parentMap == null &&
+                VisualTreeHelper.GetParent(element) is FrameworkElement parentElement)
             {
                 parentMap = (parentElement as MapBase) ?? GetParentMap(parentElement);
 
