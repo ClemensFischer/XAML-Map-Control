@@ -160,7 +160,7 @@ namespace MapControl
 
                     urlTemplate = capabilitiesUrl.Substring(0, requestIndex)
                         + "Request=GetTile"
-                        + capabilitiesUrl.Substring(requestIndex + 23)
+                        + capabilitiesUrl.Substring(requestIndex + "Request=GetCapabilities".Length)
                         + "&Version=1.0.0"
                         + "&Layer=" + layerIdentifier
                         + "&Format=" + format
@@ -197,6 +197,16 @@ namespace MapControl
             if (string.IsNullOrEmpty(supportedCrs))
             {
                 throw new ArgumentException($"No ows:SupportedCRS element found in TileMatrixSet \"{identifier}\".");
+            }
+
+            if (supportedCrs.StartsWith("urn:")) // e.g. "urn:ogc:def:crs:EPSG:6.18:3857")
+            {
+                var urn = supportedCrs.Split(':');
+
+                if (urn.Length == 7 && urn[3] == "crs" && urn[4] == "EPSG")
+                {
+                    supportedCrs = "EPSG:" + urn[6];
+                }
             }
 
             var tileMatrixes = new List<WmtsTileMatrix>();
