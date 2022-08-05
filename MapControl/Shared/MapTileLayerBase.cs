@@ -61,8 +61,7 @@ namespace MapControl
             nameof(MapForeground), typeof(Brush), typeof(MapTileLayerBase), new PropertyMetadata(null));
 
         public static readonly DependencyProperty LoadingProgressProperty = DependencyProperty.Register(
-            nameof(LoadingProgress), typeof(double), typeof(MapTileLayerBase), new PropertyMetadata(1d,
-                (o, e) => { System.Diagnostics.Debug.WriteLine("LoadingProgress = {0:P0}", e.NewValue); }));
+            nameof(LoadingProgress), typeof(double), typeof(MapTileLayerBase), new PropertyMetadata(1d));
 
         private readonly DispatcherTimer updateTimer;
         private MapBase parentMap;

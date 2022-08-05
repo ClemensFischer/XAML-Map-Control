@@ -45,25 +45,25 @@ namespace MapControl
             
             path.SetBinding(Shape.FillProperty, new Binding
             {
-                Path = new PropertyPath("Background"),
+                Path = new PropertyPath(nameof(Background)),
                 Source = this
             });
 
             path.SetBinding(Shape.StrokeProperty, new Binding
             {
-                Path = new PropertyPath("BorderBrush"),
+                Path = new PropertyPath(nameof(BorderBrush)),
                 Source = this
             });
 
             path.SetBinding(Shape.StrokeThicknessProperty, new Binding
             {
-                Path = new PropertyPath("BorderThickness"),
+                Path = new PropertyPath(nameof(BorderWidth)),
                 Source = this
             });
 
             border.SetBinding(PaddingProperty, new Binding
             {
-                Path = new PropertyPath("Padding"),
+                Path = new PropertyPath(nameof(Padding)),
                 Source = this
             });
 

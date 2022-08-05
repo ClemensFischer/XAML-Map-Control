@@ -1,30 +1,25 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
 #if WINUI
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 #elif UWP
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
-#else
-using System.Windows;
-using System.Windows.Data;
 #endif
 
 namespace SampleApplication
 {
-    public class DoubleToVisibilityConverter : IValueConverter
+    public class DoubleTriggerConverter : IValueConverter
     {
+        public double Trigger { get; set; }
+        public object TriggerValue { get; set; }
+        public object DefaultValue { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (!(parameter is double p))
-            {
-                p = double.Parse(parameter.ToString());
-            }
+            var converter = TypeDescriptor.GetConverter(targetType);
 
-            //System.Diagnostics.Debug.WriteLine((double)value);
-
-            return (double)value != p ? Visibility.Visible : Visibility.Collapsed;
+            return (double)value == Trigger ? converter.ConvertFrom(TriggerValue) : converter.ConvertFrom(DefaultValue);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

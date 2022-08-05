@@ -80,8 +80,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
-            <local:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter"/>
         </Grid.Resources>
 
         <Grid.DataContext>
@@ -113,10 +111,28 @@
             </map:Pushpin>
         </map:Map>
 
-        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#BFFFFFFF">
-            <TextBlock Margin="2" FontSize="10"
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF">
+            <ProgressBar Width="100" Height="10" Margin="4,2" Maximum="1"
+                         Value="{Binding MapLayer.LoadingProgress, ElementName=map}">
+                <ProgressBar.IsIndeterminate>
+                    <Binding Path="Value" RelativeSource="{RelativeSource Self}">
+                        <Binding.Converter>
+                            <local:DoubleTriggerConverter Trigger="0" TriggerValue="true" DefaultValue="false"/>
+                        </Binding.Converter>
+                    </Binding>
+                </ProgressBar.IsIndeterminate>
+                <ProgressBar.Visibility>
+                    <Binding Path="Value" RelativeSource="{RelativeSource Self}">
+                        <Binding.Converter>
+                            <local:DoubleTriggerConverter Trigger="1" TriggerValue="Collapsed" DefaultValue="Visible"/>
+                        </Binding.Converter>
+                    </Binding>
+                </ProgressBar.Visibility>
+            </ProgressBar>
+
+            <TextBlock Margin="4,2" FontSize="10"
                        local:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
-        </Border>
+        </StackPanel>
 
         <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4"
                 Background="#AFFFFFFF" IsHitTestVisible="False">
@@ -216,8 +232,14 @@
                     Maximum="{Binding MaxZoomLevel, ElementName=map}"
                     Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
 
-            <Button Margin="2" Padding="8" ToolTipService.ToolTip="Reset Heading" Click="ResetHeadingButtonClick"
-                    Visibility="{Binding Heading, ElementName=map, Converter={StaticResource DoubleToVisibilityConverter}, ConverterParameter=0}">
+            <Button Margin="2" Padding="8" ToolTipService.ToolTip="Reset Heading" Click="ResetHeadingButtonClick">
+                <Button.Visibility>
+                    <Binding Path="Heading" ElementName="map">
+                        <Binding.Converter>
+                            <local:DoubleTriggerConverter Trigger="0" TriggerValue="Collapsed" DefaultValue="Visible"/>
+                        </Binding.Converter>
+                    </Binding>
+                </Button.Visibility>
                 <FontIcon Glyph="&#xEBE6;"/>
             </Button>
         </StackPanel>
