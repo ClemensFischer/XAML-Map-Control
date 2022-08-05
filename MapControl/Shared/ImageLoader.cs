@@ -29,7 +29,7 @@ namespace MapControl
         public static HttpClient HttpClient { get; set; } = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 
 
-        public static async Task<ImageSource> LoadImageAsync(Uri uri)
+        public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
         {
             ImageSource image = null;
 
@@ -41,7 +41,7 @@ namespace MapControl
                 }
                 else if (uri.Scheme == "http" || uri.Scheme == "https")
                 {
-                    var response = await GetHttpResponseAsync(uri);
+                    var response = await GetHttpResponseAsync(uri, progress);
 
                     if (response != null && response.Buffer != null)
                     {
@@ -73,9 +73,11 @@ namespace MapControl
             }
         }
 
-        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri)
+        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, IProgress<double> progress = null)
         {
             HttpResponse response = null;
+
+            progress?.Report(0d);
 
             try
             {
@@ -85,10 +87,12 @@ namespace MapControl
                     {
                         byte[] buffer = null;
 
+                        // check for possibly unavailable Bing Maps tile
+                        //
                         if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out IEnumerable<string> tileInfo) ||
                             !tileInfo.Contains("no-tile"))
                         {
-                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                            buffer = await ReadAsByteArrayAsync(responseMessage.Content, progress).ConfigureAwait(false);
                         }
 
                         response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
@@ -104,7 +108,39 @@ namespace MapControl
                 Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
             }
 
+            progress?.Report(1d);
+
             return response;
+        }
+
+        private static async Task<byte[]> ReadAsByteArrayAsync(HttpContent content, IProgress<double> progress)
+        {
+            if (progress == null || !content.Headers.ContentLength.HasValue)
+            {
+                return await content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            }
+
+            var length = (int)content.Headers.ContentLength.Value;
+            var buffer = new byte[length];
+
+            using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))
+            {
+                int offset = 0;
+                int read;
+
+                while (offset < length &&
+                    (read = await stream.ReadAsync(buffer, offset, length - offset).ConfigureAwait(false)) > 0)
+                {
+                    offset += read;
+
+                    if (offset < length) // 1.0 reported by caller
+                    {
+                        progress.Report((double)offset / length);
+                    }
+                }
+            }
+
+            return buffer;
         }
     }
 }

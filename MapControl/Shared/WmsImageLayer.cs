@@ -34,7 +34,14 @@ namespace MapControl
 
         public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
             nameof(Layers), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
+            new PropertyMetadata(null,
+                async (o, e) =>
+                {
+                    if (e.OldValue != null) // ignore initial property change from GetImageAsync
+                    {
+                        await ((WmsImageLayer)o).UpdateImageAsync();
+                    }
+                }));
 
         public static readonly DependencyProperty StylesProperty = DependencyProperty.Register(
             nameof(Styles), typeof(string), typeof(WmsImageLayer),
@@ -187,7 +194,7 @@ namespace MapControl
         /// <summary>
         /// Loads an ImageSource from the URL returned by GetMapRequestUri().
         /// </summary>
-        protected override async Task<ImageSource> GetImageAsync()
+        protected override async Task<ImageSource> GetImageAsync(IProgress<double> progress)
         {
             ImageSource image = null;
 
@@ -203,7 +210,7 @@ namespace MapControl
 
                 if (!string.IsNullOrEmpty(uri))
                 {
-                    image = await ImageLoader.LoadImageAsync(new Uri(uri));
+                    image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
                 }
             }
 

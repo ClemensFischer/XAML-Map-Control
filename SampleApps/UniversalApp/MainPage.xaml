@@ -80,6 +80,8 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
+            <local:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter"/>
         </Grid.Resources>
 
         <Grid.DataContext>
@@ -214,14 +216,8 @@
                     Maximum="{Binding MaxZoomLevel, ElementName=map}"
                     Value="{Binding TargetZoomLevel, ElementName=map, Mode=TwoWay}"/>
 
-            <Button Margin="2" Padding="8" ToolTipService.ToolTip="Reset Heading" Click="ResetHeadingButtonClick">
-                <Button.Visibility>
-                    <Binding Path="Heading" ElementName="map">
-                        <Binding.Converter>
-                            <local:HeadingToVisibilityConverter/>
-                        </Binding.Converter>
-                    </Binding>
-                </Button.Visibility>
+            <Button Margin="2" Padding="8" ToolTipService.ToolTip="Reset Heading" Click="ResetHeadingButtonClick"
+                    Visibility="{Binding Heading, ElementName=map, Converter={StaticResource DoubleToVisibilityConverter}, ConverterParameter=0}">
                 <FontIcon Glyph="&#xEBE6;"/>
             </Button>
         </StackPanel>

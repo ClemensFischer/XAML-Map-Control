@@ -2,6 +2,7 @@
 // © 2022 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace MapControl
             set { SetValue(ItemsSourceProperty, value); }
         }
 
-        protected override async Task<ImageSource> GetImageAsync()
+        protected override async Task<ImageSource> GetImageAsync(IProgress<double> progress)
         {
             ImageSource image = null;
             var projection = ParentMap?.MapProjection;

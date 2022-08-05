@@ -13,11 +13,18 @@ using System.Windows.Data;
 
 namespace SampleApplication
 {
-    public class HeadingToVisibilityConverter : IValueConverter
+    public class DoubleToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return (double)value != 0d ? Visibility.Visible : Visibility.Collapsed;
+            if (!(parameter is double p))
+            {
+                p = double.Parse(parameter.ToString());
+            }
+
+            //System.Diagnostics.Debug.WriteLine((double)value);
+
+            return (double)value != p ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

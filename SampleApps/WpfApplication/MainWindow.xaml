@@ -138,10 +138,26 @@
             <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
-        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF">
+            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center" Maximum="1"
+                         Value="{Binding MapLayer.LoadingProgress, ElementName=map}">
+                <ProgressBar.Style>
+                    <Style TargetType="ProgressBar">
+                        <Style.Triggers>
+                            <Trigger Property="Value" Value="0">
+                                <Setter Property="IsIndeterminate" Value="True"/>
+                            </Trigger>
+                            <Trigger Property="Value" Value="1">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ProgressBar.Style>
+            </ProgressBar>
+
             <TextBlock Margin="4,2" FontSize="10"
                        local:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
-        </Border>
+        </StackPanel>
 
         <local:OutlinedText
             x:Name="mouseLocation" Margin="4" FontFamily="Consolas"
@@ -191,13 +207,15 @@
 
             <Button Margin="2" Padding="8" ToolTip="Reset Heading" Click="ResetHeadingButtonClick"
                     FontSize="20" FontFamily="Segoe MDL2 Assets" Content="&#xEBE6;">
-                <Button.Visibility>
-                    <Binding Path="Heading" ElementName="map">
-                        <Binding.Converter>
-                            <local:HeadingToVisibilityConverter/>
-                        </Binding.Converter>
-                    </Binding>
-                </Button.Visibility>
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Heading, ElementName=map}" Value="0">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
             </Button>
         </StackPanel>
     </Grid>

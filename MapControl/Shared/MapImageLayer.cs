@@ -54,11 +54,17 @@ namespace MapControl
         public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
             nameof(MapForeground), typeof(Brush), typeof(MapImageLayer), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty LoadingProgressProperty = DependencyProperty.Register(
+            nameof(LoadingProgress), typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
+
+        private readonly Progress<double> imageProgress;
         private readonly DispatcherTimer updateTimer;
         private bool updateInProgress;
 
         public MapImageLayer()
         {
+            imageProgress = new Progress<double>(p => LoadingProgress = p);
+
             updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await UpdateImageAsync();
         }
@@ -120,11 +126,18 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets the progress of the ImageLoader as a double value between 0 and 1.
+        /// </summary>
+        public double LoadingProgress
+        {
+            get { return (double)GetValue(LoadingProgressProperty); }
+            private set { SetValue(LoadingProgressProperty, value); }
+        }
+
+        /// <summary>
         /// The current BoundingBox
         /// </summary>
         public BoundingBox BoundingBox { get; private set; }
-
-        protected abstract Task<ImageSource> GetImageAsync();
 
         protected override void SetParentMap(MapBase map)
         {
@@ -165,37 +178,42 @@ namespace MapControl
 
         protected async Task UpdateImageAsync()
         {
-            updateTimer.Stop();
-
-            if (updateInProgress)
+            if (updateInProgress) // update image on next tick
             {
-                updateTimer.Run(); // update image on next timer tick
+                updateTimer.Run(); // start timer if not running
             }
-            else if (ParentMap != null && ParentMap.RenderSize.Width > 0 && ParentMap.RenderSize.Height > 0)
+            else
             {
-                updateInProgress = true;
+                updateTimer.Stop();
 
-                UpdateBoundingBox();
-
-                ImageSource image = null;
-
-                if (BoundingBox != null)
+                if (ParentMap != null && ParentMap.RenderSize.Width > 0 && ParentMap.RenderSize.Height > 0)
                 {
-                    try
+                    updateInProgress = true;
+
+                    UpdateBoundingBox();
+
+                    ImageSource image = null;
+
+                    if (BoundingBox != null)
                     {
-                        image = await GetImageAsync();
+                        try
+                        {
+                            image = await GetImageAsync(imageProgress);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"MapImageLayer: {ex.Message}");
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"MapImageLayer: {ex.Message}");
-                    }
+
+                    SwapImages(image);
+
+                    updateInProgress = false;
                 }
-
-                SwapImages(image);
-
-                updateInProgress = false;
             }
         }
+
+        protected abstract Task<ImageSource> GetImageAsync(IProgress<double> progress);
 
         private void UpdateBoundingBox()
         {

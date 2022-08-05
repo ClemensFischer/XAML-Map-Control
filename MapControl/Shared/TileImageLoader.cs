@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl
@@ -18,6 +19,35 @@ namespace MapControl
     /// </summary>
     public partial class TileImageLoader : ITileImageLoader
     {
+        private class TileQueue : ConcurrentStack<Tile>
+        {
+            public TileQueue(IEnumerable<Tile> tiles)
+                : base(tiles.Where(tile => tile.Pending).Reverse())
+            {
+            }
+
+            public bool IsCanceled { get; private set; }
+
+            public bool TryDequeue(out Tile tile)
+            {
+                tile = null;
+
+                if (IsCanceled || !TryPop(out tile))
+                {
+                    return false;
+                }
+
+                tile.Pending = false;
+                return true;
+            }
+
+            public void Cancel()
+            {
+                IsCanceled = true;
+                Clear();
+            }
+        }
+
         /// <summary>
         /// Maximum number of parallel tile loading tasks. The default value is 4.
         /// </summary>
@@ -36,11 +66,18 @@ namespace MapControl
         public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
 
         /// <summary>
+        /// Reports tile loading process as double value between 0 and 1. 
+        /// </summary>
+        public IProgress<double> Progress { get; set; }
+
+        /// <summary>
         /// The current TileSource, passed to the most recent LoadTiles call.
         /// </summary>
         public TileSource TileSource { get; private set; }
 
-        private ConcurrentStack<Tile> pendingTiles;
+        private TileQueue pendingTiles;
+        private int progressTotal;
+        private int progressLoaded;
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection.
@@ -49,39 +86,47 @@ namespace MapControl
         /// </summary>
         public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
         {
-            pendingTiles?.Clear(); // stop processing the current queue
+            pendingTiles?.Cancel();
 
             TileSource = tileSource;
 
             if (tileSource != null)
             {
-                pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.Pending).Reverse());
+                pendingTiles = new TileQueue(tiles);
 
                 var numTasks = Math.Min(pendingTiles.Count, MaxLoadTasks);
 
                 if (numTasks > 0)
                 {
+                    if (Progress != null)
+                    {
+                        progressTotal = pendingTiles.Count;
+                        progressLoaded = 0;
+                        Progress.Report(0d);
+                    }
+
                     if (Cache == null || tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
                     {
                         cacheName = null; // no tile caching
                     }
 
-                    var tasks = Enumerable.Range(0, numTasks)
-                        .Select(_ => Task.Run(() => LoadPendingTiles(pendingTiles, tileSource, cacheName)));
-
-                    return Task.WhenAll(tasks);
+                    return Task.WhenAll(Enumerable.Range(0, numTasks).Select(
+                        _ => Task.Run(() => LoadPendingTiles(pendingTiles, tileSource, cacheName))));
                 }
+            }
+
+            if (Progress != null && progressLoaded < progressTotal)
+            {
+                Progress.Report(1d);
             }
 
             return Task.CompletedTask;
         }
 
-        private static async Task LoadPendingTiles(ConcurrentStack<Tile> pendingTiles, TileSource tileSource, string cacheName)
+        private async Task LoadPendingTiles(TileQueue tileQueue, TileSource tileSource, string cacheName)
         {
-            while (pendingTiles.TryPop(out var tile))
+            while (tileQueue.TryDequeue(out var tile))
             {
-                tile.Pending = false;
-
                 try
                 {
                     await LoadTile(tile, tileSource, cacheName).ConfigureAwait(false);
@@ -89,6 +134,13 @@ namespace MapControl
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.XIndex}/{tile.Y}: {ex.Message}");
+                }
+
+                if (Progress != null && !tileQueue.IsCanceled)
+                {
+                    Interlocked.Increment(ref progressLoaded);
+
+                    Progress.Report((double)progressLoaded / progressTotal);
                 }
             }
         }

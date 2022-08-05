@@ -25,6 +25,8 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
+        IProgress<double> Progress { get; set; }
+
         TileSource TileSource { get; }
 
         Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName);
@@ -58,13 +60,19 @@ namespace MapControl
         public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
             nameof(MapForeground), typeof(Brush), typeof(MapTileLayerBase), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty LoadingProgressProperty = DependencyProperty.Register(
+            nameof(LoadingProgress), typeof(double), typeof(MapTileLayerBase), new PropertyMetadata(1d,
+                (o, e) => { System.Diagnostics.Debug.WriteLine("LoadingProgress = {0:P0}", e.NewValue); }));
+
         private readonly DispatcherTimer updateTimer;
         private MapBase parentMap;
 
         protected MapTileLayerBase(ITileImageLoader tileImageLoader)
         {
             RenderTransform = new MatrixTransform();
+
             TileImageLoader = tileImageLoader;
+            TileImageLoader.Progress = new Progress<double>(p => LoadingProgress = p);
 
             updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await Update();
@@ -147,6 +155,15 @@ namespace MapControl
         {
             get { return (Brush)GetValue(MapForegroundProperty); }
             set { SetValue(MapForegroundProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets the progress of the TileImageLoader as a double value between 0 and 1.
+        /// </summary>
+        public double LoadingProgress
+        {
+            get { return (double)GetValue(LoadingProgressProperty); }
+            private set { SetValue(LoadingProgressProperty, value); }
         }
 
         public MapBase ParentMap
