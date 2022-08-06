@@ -138,9 +138,17 @@
             <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
+        <local:OutlinedText
+            x:Name="mouseLocation" Margin="4" FontFamily="Consolas"
+            Background="{Binding Background, ElementName=map}"
+            Foreground="{Binding Foreground, ElementName=map}"
+            HorizontalAlignment="Center" VerticalAlignment="Top"
+            IsHitTestVisible="False"/>
+
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF"
                     DataContext="{Binding MapLayer, ElementName=map}">
-            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center" Maximum="1" Value="{Binding LoadingProgress}">
+            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
+                         Maximum="1" Value="{Binding LoadingProgress}">
                 <ProgressBar.Style>
                     <Style TargetType="ProgressBar">
                         <Style.Triggers>
@@ -157,13 +165,6 @@
 
             <TextBlock Margin="4,2" FontSize="10" local:HyperlinkText.InlinesSource="{Binding Description}"/>
         </StackPanel>
-
-        <local:OutlinedText
-            x:Name="mouseLocation" Margin="4" FontFamily="Consolas"
-            Background="{Binding Background, ElementName=map}"
-            Foreground="{Binding Foreground, ElementName=map}"
-            HorizontalAlignment="Center" VerticalAlignment="Top"
-            IsHitTestVisible="False"/>
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6">
             <tools:MapLayersMenuButton x:Name="mapLayersMenuButton"

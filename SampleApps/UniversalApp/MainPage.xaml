@@ -111,9 +111,15 @@
             </map:Pushpin>
         </map:Map>
 
+        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4"
+                Background="#AFFFFFFF" IsHitTestVisible="False">
+            <TextBlock x:Name="mouseLocation" FontFamily="Consolas" Margin="4,2" Visibility="Collapsed"/>
+        </Border>
+
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF"
                     DataContext="{Binding MapLayer, ElementName=map}">
-            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center" Maximum="1" Value="{Binding LoadingProgress}">
+            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
+                         Maximum="1" Value="{Binding LoadingProgress}">
                 <ProgressBar.IsIndeterminate>
                     <Binding Path="Value" RelativeSource="{RelativeSource Self}">
                         <Binding.Converter>
@@ -132,11 +138,6 @@
 
             <TextBlock Margin="4,2" FontSize="10" local:HyperlinkText.InlinesSource="{Binding Description}"/>
         </StackPanel>
-
-        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4"
-                Background="#AFFFFFFF" IsHitTestVisible="False">
-            <TextBlock x:Name="mouseLocation" FontFamily="Consolas" Margin="4,2" Visibility="Collapsed"/>
-        </Border>
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6" Background="#7FFFFFFF">
             <tools:MapLayersMenuButton x:Name="mapLayersMenuButton"
