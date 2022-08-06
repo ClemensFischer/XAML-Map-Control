@@ -45,8 +45,8 @@ namespace MapControl
 
         public MapBase ParentMap
         {
-            get { return parentMap; }
-            set { SetParentMap(value); }
+            get => parentMap;
+            set => SetParentMap(value);
         }
 
         /// <summary>

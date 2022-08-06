@@ -80,8 +80,8 @@ namespace MapControl
 
         public UIElement Child
         {
-            get { return border.Child; }
-            set { border.Child = value; }
+            get => border.Child;
+            set => border.Child = value;
         }
 
         private void SetBorderMargin()

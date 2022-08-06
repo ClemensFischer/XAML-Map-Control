@@ -42,8 +42,8 @@ namespace MapControl
         /// </summary>
         public double MouseWheelZoomDelta
         {
-            get { return (double)GetValue(MouseWheelZoomDeltaProperty); }
-            set { SetValue(MouseWheelZoomDeltaProperty, value); }
+            get => (double)GetValue(MouseWheelZoomDeltaProperty);
+            set => SetValue(MouseWheelZoomDeltaProperty, value);
         }
 
         /// <summary>
@@ -51,8 +51,8 @@ namespace MapControl
         /// </summary>
         public ManipulationModes ManipulationMode
         {
-            get { return (ManipulationModes)GetValue(ManipulationModeProperty); }
-            set { SetValue(ManipulationModeProperty, value); }
+            get => (ManipulationModes)GetValue(ManipulationModeProperty);
+            set => SetValue(ManipulationModeProperty, value);
         }
 
         private void OnManipulationStarted(object sender, ManipulationStartedEventArgs e)

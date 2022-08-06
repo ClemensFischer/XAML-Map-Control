@@ -18,14 +18,11 @@ namespace MapControl
 
         public Geometry Data
         {
-            get { return (Geometry)GetValue(DataProperty); }
-            set { SetValue(DataProperty, value); }
+            get => (Geometry)GetValue(DataProperty);
+            set => SetValue(DataProperty, value);
         }
 
-        protected override Geometry DefiningGeometry
-        {
-            get { return Data; }
-        }
+        protected override Geometry DefiningGeometry => Data;
 
         #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
 

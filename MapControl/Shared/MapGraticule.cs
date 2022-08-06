@@ -57,8 +57,8 @@ namespace MapControl
         /// </summary>
         public double MinLineDistance
         {
-            get { return (double)GetValue(MinLineDistanceProperty); }
-            set { SetValue(MinLineDistanceProperty, value); }
+            get => (double)GetValue(MinLineDistanceProperty);
+            set => SetValue(MinLineDistanceProperty, value);
         }
 
         private void SetLineDistance()

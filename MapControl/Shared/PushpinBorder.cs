@@ -22,14 +22,14 @@ namespace MapControl
     {
         public Size ArrowSize
         {
-            get { return (Size)GetValue(ArrowSizeProperty); }
-            set { SetValue(ArrowSizeProperty, value); }
+            get => (Size)GetValue(ArrowSizeProperty);
+            set => SetValue(ArrowSizeProperty, value);
         }
 
         public double BorderWidth
         {
-            get { return (double)GetValue(BorderWidthProperty); }
-            set { SetValue(BorderWidthProperty, value); }
+            get => (double)GetValue(BorderWidthProperty);
+            set => SetValue(BorderWidthProperty, value);
         }
 
         protected virtual Geometry BuildGeometry()

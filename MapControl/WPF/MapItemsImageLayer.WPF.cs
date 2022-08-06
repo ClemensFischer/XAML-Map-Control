@@ -25,8 +25,8 @@ namespace MapControl
 
         public IEnumerable<IMapDrawingItem> ItemsSource
         {
-            get { return (IEnumerable<IMapDrawingItem>)GetValue(ItemsSourceProperty); }
-            set { SetValue(ItemsSourceProperty, value); }
+            get => (IEnumerable<IMapDrawingItem>)GetValue(ItemsSourceProperty);
+            set => SetValue(ItemsSourceProperty, value);
         }
 
         protected override async Task<ImageSource> GetImageAsync(IProgress<double> progress)

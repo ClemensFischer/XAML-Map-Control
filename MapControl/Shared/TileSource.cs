@@ -29,7 +29,7 @@ namespace MapControl
         /// </summary>
         public string UriFormat
         {
-            get { return uriFormat; }
+            get => uriFormat;
             set
             {
                 uriFormat = value?.Replace("{c}", "{s}"); // for backwards compatibility since 5.4.0

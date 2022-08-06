@@ -42,31 +42,31 @@ namespace MapControl
 
         public double South
         {
-            get { return south; }
-            set { south = Math.Min(Math.Max(value, -90d), 90d); }
+            get => south;
+            set => south = Math.Min(Math.Max(value, -90d), 90d);
         }
 
         public double North
         {
-            get { return north; }
-            set { north = Math.Min(Math.Max(value, -90d), 90d); }
+            get => north;
+            set => north = Math.Min(Math.Max(value, -90d), 90d);
         }
 
         public virtual double Width
         {
-            get { return East - West; }
+            get => East - West;
             protected set { }
         }
 
         public virtual double Height
         {
-            get { return North - South; }
+            get => North - South;
             protected set { }
         }
 
         public virtual Location Center
         {
-            get { return new Location((South + North) / 2d, (West + East) / 2d); }
+            get => new Location((South + North) / 2d, (West + East) / 2d);
             protected set { }
         }
 

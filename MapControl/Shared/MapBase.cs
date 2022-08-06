@@ -85,8 +85,8 @@ namespace MapControl
         /// </summary>
         public Brush Foreground
         {
-            get { return (Brush)GetValue(ForegroundProperty); }
-            set { SetValue(ForegroundProperty, value); }
+            get => (Brush)GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
         }
 
         /// <summary>
@@ -96,8 +96,8 @@ namespace MapControl
         /// </summary>
         public UIElement MapLayer
         {
-            get { return (UIElement)GetValue(MapLayerProperty); }
-            set { SetValue(MapLayerProperty, value); }
+            get => (UIElement)GetValue(MapLayerProperty);
+            set => SetValue(MapLayerProperty, value);
         }
 
         /// <summary>
@@ -105,8 +105,8 @@ namespace MapControl
         /// </summary>
         public MapProjection MapProjection
         {
-            get { return (MapProjection)GetValue(MapProjectionProperty); }
-            set { SetValue(MapProjectionProperty, value); }
+            get => (MapProjection)GetValue(MapProjectionProperty);
+            set => SetValue(MapProjectionProperty, value);
         }
 
         /// <summary>
@@ -115,8 +115,8 @@ namespace MapControl
         /// </summary>
         public Location ProjectionCenter
         {
-            get { return (Location)GetValue(ProjectionCenterProperty); }
-            set { SetValue(ProjectionCenterProperty, value); }
+            get => (Location)GetValue(ProjectionCenterProperty);
+            set => SetValue(ProjectionCenterProperty, value);
         }
 
         /// <summary>
@@ -124,8 +124,8 @@ namespace MapControl
         /// </summary>
         public Location Center
         {
-            get { return (Location)GetValue(CenterProperty); }
-            set { SetValue(CenterProperty, value); }
+            get => (Location)GetValue(CenterProperty);
+            set => SetValue(CenterProperty, value);
         }
 
         /// <summary>
@@ -133,8 +133,8 @@ namespace MapControl
         /// </summary>
         public Location TargetCenter
         {
-            get { return (Location)GetValue(TargetCenterProperty); }
-            set { SetValue(TargetCenterProperty, value); }
+            get => (Location)GetValue(TargetCenterProperty);
+            set => SetValue(TargetCenterProperty, value);
         }
 
         /// <summary>
@@ -144,8 +144,8 @@ namespace MapControl
         /// </summary>
         public double MinZoomLevel
         {
-            get { return (double)GetValue(MinZoomLevelProperty); }
-            set { SetValue(MinZoomLevelProperty, value); }
+            get => (double)GetValue(MinZoomLevelProperty);
+            set => SetValue(MinZoomLevelProperty, value);
         }
 
         /// <summary>
@@ -155,8 +155,8 @@ namespace MapControl
         /// </summary>
         public double MaxZoomLevel
         {
-            get { return (double)GetValue(MaxZoomLevelProperty); }
-            set { SetValue(MaxZoomLevelProperty, value); }
+            get => (double)GetValue(MaxZoomLevelProperty);
+            set => SetValue(MaxZoomLevelProperty, value);
         }
 
         /// <summary>
@@ -164,8 +164,8 @@ namespace MapControl
         /// </summary>
         public double ZoomLevel
         {
-            get { return (double)GetValue(ZoomLevelProperty); }
-            set { SetValue(ZoomLevelProperty, value); }
+            get => (double)GetValue(ZoomLevelProperty);
+            set => SetValue(ZoomLevelProperty, value);
         }
 
         /// <summary>
@@ -173,8 +173,8 @@ namespace MapControl
         /// </summary>
         public double TargetZoomLevel
         {
-            get { return (double)GetValue(TargetZoomLevelProperty); }
-            set { SetValue(TargetZoomLevelProperty, value); }
+            get => (double)GetValue(TargetZoomLevelProperty);
+            set => SetValue(TargetZoomLevelProperty, value);
         }
 
         /// <summary>
@@ -182,8 +182,8 @@ namespace MapControl
         /// </summary>
         public double Heading
         {
-            get { return (double)GetValue(HeadingProperty); }
-            set { SetValue(HeadingProperty, value); }
+            get => (double)GetValue(HeadingProperty);
+            set => SetValue(HeadingProperty, value);
         }
 
         /// <summary>
@@ -191,8 +191,8 @@ namespace MapControl
         /// </summary>
         public double TargetHeading
         {
-            get { return (double)GetValue(TargetHeadingProperty); }
-            set { SetValue(TargetHeadingProperty, value); }
+            get => (double)GetValue(TargetHeadingProperty);
+            set => SetValue(TargetHeadingProperty, value);
         }
 
         /// <summary>
@@ -201,8 +201,8 @@ namespace MapControl
         /// </summary>
         public TimeSpan AnimationDuration
         {
-            get { return (TimeSpan)GetValue(AnimationDurationProperty); }
-            set { SetValue(AnimationDurationProperty, value); }
+            get => (TimeSpan)GetValue(AnimationDurationProperty);
+            set => SetValue(AnimationDurationProperty, value);
         }
 
         /// <summary>
@@ -211,18 +211,15 @@ namespace MapControl
         /// </summary>
         public EasingFunctionBase AnimationEasingFunction
         {
-            get { return (EasingFunctionBase)GetValue(AnimationEasingFunctionProperty); }
-            set { SetValue(AnimationEasingFunctionProperty, value); }
+            get => (EasingFunctionBase)GetValue(AnimationEasingFunctionProperty);
+            set => SetValue(AnimationEasingFunctionProperty, value);
         }
 
         /// <summary>
         /// Gets the scaling factor from cartesian map coordinates to view coordinates,
         /// i.e. pixels per meter, as a read-only dependency property.
         /// </summary>
-        public double ViewScale
-        {
-            get { return (double)GetValue(ViewScaleProperty); }
-        }
+        public double ViewScale => (double)GetValue(ViewScaleProperty);
 
         /// <summary>
         /// Gets the ViewTransform instance that is used to transform between cartesian map coordinates

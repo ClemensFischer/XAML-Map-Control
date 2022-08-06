@@ -74,8 +74,8 @@ namespace MapControl
         /// </summary>
         public string Description
         {
-            get { return (string)GetValue(DescriptionProperty); }
-            set { SetValue(DescriptionProperty, value); }
+            get => (string)GetValue(DescriptionProperty);
+            set => SetValue(DescriptionProperty, value);
         }
 
         /// <summary>
@@ -85,8 +85,8 @@ namespace MapControl
         /// </summary>
         public double RelativeImageSize
         {
-            get { return (double)GetValue(RelativeImageSizeProperty); }
-            set { SetValue(RelativeImageSizeProperty, value); }
+            get => (double)GetValue(RelativeImageSizeProperty);
+            set => SetValue(RelativeImageSizeProperty, value);
         }
 
         /// <summary>
@@ -94,8 +94,8 @@ namespace MapControl
         /// </summary>
         public TimeSpan UpdateInterval
         {
-            get { return (TimeSpan)GetValue(UpdateIntervalProperty); }
-            set { SetValue(UpdateIntervalProperty, value); }
+            get => (TimeSpan)GetValue(UpdateIntervalProperty);
+            set => SetValue(UpdateIntervalProperty, value);
         }
 
         /// <summary>
@@ -103,8 +103,8 @@ namespace MapControl
         /// </summary>
         public bool UpdateWhileViewportChanging
         {
-            get { return (bool)GetValue(UpdateWhileViewportChangingProperty); }
-            set { SetValue(UpdateWhileViewportChangingProperty, value); }
+            get => (bool)GetValue(UpdateWhileViewportChangingProperty);
+            set => SetValue(UpdateWhileViewportChangingProperty, value);
         }
 
         /// <summary>
@@ -112,8 +112,8 @@ namespace MapControl
         /// </summary>
         public Brush MapBackground
         {
-            get { return (Brush)GetValue(MapBackgroundProperty); }
-            set { SetValue(MapBackgroundProperty, value); }
+            get => (Brush)GetValue(MapBackgroundProperty);
+            set => SetValue(MapBackgroundProperty, value);
         }
 
         /// <summary>
@@ -121,8 +121,8 @@ namespace MapControl
         /// </summary>
         public Brush MapForeground
         {
-            get { return (Brush)GetValue(MapForegroundProperty); }
-            set { SetValue(MapForegroundProperty, value); }
+            get => (Brush)GetValue(MapForegroundProperty);
+            set => SetValue(MapForegroundProperty, value);
         }
 
         /// <summary>
@@ -130,8 +130,8 @@ namespace MapControl
         /// </summary>
         public double LoadingProgress
         {
-            get { return (double)GetValue(LoadingProgressProperty); }
-            private set { SetValue(LoadingProgressProperty, value); }
+            get => (double)GetValue(LoadingProgressProperty);
+            private set => SetValue(LoadingProgressProperty, value);
         }
 
         /// <summary>

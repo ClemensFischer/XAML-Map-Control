@@ -36,8 +36,8 @@ namespace MapControl
         /// </summary>
         public bool AutoCollapse
         {
-            get { return (bool)GetValue(AutoCollapseProperty); }
-            set { SetValue(AutoCollapseProperty, value); }
+            get => (bool)GetValue(AutoCollapseProperty);
+            set => SetValue(AutoCollapseProperty, value);
         }
 
         /// <summary>
@@ -45,8 +45,8 @@ namespace MapControl
         /// </summary>
         public Location Location
         {
-            get { return (Location)GetValue(LocationProperty); }
-            set { SetValue(LocationProperty, value); }
+            get => (Location)GetValue(LocationProperty);
+            set => SetValue(LocationProperty, value);
         }
 
         protected override void OnApplyTemplate()

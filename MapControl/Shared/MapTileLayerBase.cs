@@ -88,8 +88,8 @@ namespace MapControl
         /// </summary>
         public TileSource TileSource
         {
-            get { return (TileSource)GetValue(TileSourceProperty); }
-            set { SetValue(TileSourceProperty, value); }
+            get => (TileSource)GetValue(TileSourceProperty);
+            set => SetValue(TileSourceProperty, value);
         }
 
         /// <summary>
@@ -97,8 +97,8 @@ namespace MapControl
         /// </summary>
         public string SourceName
         {
-            get { return (string)GetValue(SourceNameProperty); }
-            set { SetValue(SourceNameProperty, value); }
+            get => (string)GetValue(SourceNameProperty);
+            set => SetValue(SourceNameProperty, value);
         }
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace MapControl
         /// </summary>
         public string Description
         {
-            get { return (string)GetValue(DescriptionProperty); }
-            set { SetValue(DescriptionProperty, value); }
+            get => (string)GetValue(DescriptionProperty);
+            set => SetValue(DescriptionProperty, value);
         }
 
         /// <summary>
@@ -116,8 +116,8 @@ namespace MapControl
         /// </summary>
         public int MaxBackgroundLevels
         {
-            get { return (int)GetValue(MaxBackgroundLevelsProperty); }
-            set { SetValue(MaxBackgroundLevelsProperty, value); }
+            get => (int)GetValue(MaxBackgroundLevelsProperty);
+            set => SetValue(MaxBackgroundLevelsProperty, value);
         }
 
         /// <summary>
@@ -125,8 +125,8 @@ namespace MapControl
         /// </summary>
         public TimeSpan UpdateInterval
         {
-            get { return (TimeSpan)GetValue(UpdateIntervalProperty); }
-            set { SetValue(UpdateIntervalProperty, value); }
+            get => (TimeSpan)GetValue(UpdateIntervalProperty);
+            set => SetValue(UpdateIntervalProperty, value);
         }
 
         /// <summary>
@@ -134,8 +134,8 @@ namespace MapControl
         /// </summary>
         public bool UpdateWhileViewportChanging
         {
-            get { return (bool)GetValue(UpdateWhileViewportChangingProperty); }
-            set { SetValue(UpdateWhileViewportChangingProperty, value); }
+            get => (bool)GetValue(UpdateWhileViewportChangingProperty);
+            set => SetValue(UpdateWhileViewportChangingProperty, value);
         }
 
         /// <summary>
@@ -143,8 +143,8 @@ namespace MapControl
         /// </summary>
         public Brush MapBackground
         {
-            get { return (Brush)GetValue(MapBackgroundProperty); }
-            set { SetValue(MapBackgroundProperty, value); }
+            get => (Brush)GetValue(MapBackgroundProperty);
+            set => SetValue(MapBackgroundProperty, value);
         }
 
         /// <summary>
@@ -152,8 +152,8 @@ namespace MapControl
         /// </summary>
         public Brush MapForeground
         {
-            get { return (Brush)GetValue(MapForegroundProperty); }
-            set { SetValue(MapForegroundProperty, value); }
+            get => (Brush)GetValue(MapForegroundProperty);
+            set => SetValue(MapForegroundProperty, value);
         }
 
         /// <summary>
@@ -161,13 +161,13 @@ namespace MapControl
         /// </summary>
         public double LoadingProgress
         {
-            get { return (double)GetValue(LoadingProgressProperty); }
-            private set { SetValue(LoadingProgressProperty, value); }
+            get => (double)GetValue(LoadingProgressProperty);
+            private set => SetValue(LoadingProgressProperty, value);
         }
 
         public MapBase ParentMap
         {
-            get { return parentMap; }
+            get => parentMap;
             set
             {
                 if (parentMap != null)
@@ -186,15 +186,7 @@ namespace MapControl
             }
         }
 
-        protected bool IsBaseMapLayer
-        {
-            get
-            {
-                return parentMap != null
-                    && parentMap.Children.Count > 0
-                    && parentMap.Children[0] == this;
-            }
-        }
+        protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
         protected abstract void SetRenderTransform();
 

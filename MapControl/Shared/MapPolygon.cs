@@ -34,8 +34,8 @@ namespace MapControl
 #endif
         public IEnumerable<Location> Locations
         {
-            get { return (IEnumerable<Location>)GetValue(LocationsProperty); }
-            set { SetValue(LocationsProperty, value); }
+            get => (IEnumerable<Location>)GetValue(LocationsProperty);
+            set => SetValue(LocationsProperty, value);
         }
 
         public MapPolygon()

@@ -41,8 +41,8 @@ namespace MapControl
 
         public string SourcePath
         {
-            get { return (string)GetValue(SourcePathProperty); }
-            set { SetValue(SourcePathProperty, value); }
+            get => (string)GetValue(SourcePathProperty);
+            set => SetValue(SourcePathProperty, value);
         }
 
         public GeoImage()

@@ -22,92 +22,92 @@ namespace MapControl
     {
         public FontFamily FontFamily
         {
-            get { return (FontFamily)GetValue(FontFamilyProperty); }
-            set { SetValue(FontFamilyProperty, value); }
+            get => (FontFamily)GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
         }
 
         public double FontSize
         {
-            get { return (double)GetValue(FontSizeProperty); }
-            set { SetValue(FontSizeProperty, value); }
+            get => (double)GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
         }
 
         public FontStyle FontStyle
         {
-            get { return (FontStyle)GetValue(FontStyleProperty); }
-            set { SetValue(FontStyleProperty, value); }
+            get => (FontStyle)GetValue(FontStyleProperty);
+            set => SetValue(FontStyleProperty, value);
         }
 
         public FontStretch FontStretch
         {
-            get { return (FontStretch)GetValue(FontStretchProperty); }
-            set { SetValue(FontStretchProperty, value); }
+            get => (FontStretch)GetValue(FontStretchProperty);
+            set => SetValue(FontStretchProperty, value);
         }
 
         public FontWeight FontWeight
         {
-            get { return (FontWeight)GetValue(FontWeightProperty); }
-            set { SetValue(FontWeightProperty, value); }
+            get => (FontWeight)GetValue(FontWeightProperty);
+            set => SetValue(FontWeightProperty, value);
         }
 
         public Brush Foreground
         {
-            get { return (Brush)GetValue(ForegroundProperty); }
-            set { SetValue(ForegroundProperty, value); }
+            get => (Brush)GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
         }
 
         public Brush Stroke
         {
-            get { return (Brush)GetValue(StrokeProperty); }
-            set { SetValue(StrokeProperty, value); }
+            get => (Brush)GetValue(StrokeProperty);
+            set => SetValue(StrokeProperty, value);
         }
 
         public double StrokeThickness
         {
-            get { return (double)GetValue(StrokeThicknessProperty); }
-            set { SetValue(StrokeThicknessProperty, value); }
+            get => (double)GetValue(StrokeThicknessProperty);
+            set => SetValue(StrokeThicknessProperty, value);
         }
 
         public DoubleCollection StrokeDashArray
         {
-            get { return (DoubleCollection)GetValue(StrokeDashArrayProperty); }
-            set { SetValue(StrokeDashArrayProperty, value); }
+            get => (DoubleCollection)GetValue(StrokeDashArrayProperty);
+            set => SetValue(StrokeDashArrayProperty, value);
         }
 
         public double StrokeDashOffset
         {
-            get { return (double)GetValue(StrokeDashOffsetProperty); }
-            set { SetValue(StrokeDashOffsetProperty, value); }
+            get => (double)GetValue(StrokeDashOffsetProperty);
+            set => SetValue(StrokeDashOffsetProperty, value);
         }
 
         public PenLineCap StrokeDashCap
         {
-            get { return (PenLineCap)GetValue(StrokeDashCapProperty); }
-            set { SetValue(StrokeDashCapProperty, value); }
+            get => (PenLineCap)GetValue(StrokeDashCapProperty);
+            set => SetValue(StrokeDashCapProperty, value);
         }
 
         public PenLineCap StrokeStartLineCap
         {
-            get { return (PenLineCap)GetValue(StrokeStartLineCapProperty); }
-            set { SetValue(StrokeStartLineCapProperty, value); }
+            get => (PenLineCap)GetValue(StrokeStartLineCapProperty);
+            set => SetValue(StrokeStartLineCapProperty, value);
         }
 
         public PenLineCap StrokeEndLineCap
         {
-            get { return (PenLineCap)GetValue(StrokeEndLineCapProperty); }
-            set { SetValue(StrokeEndLineCapProperty, value); }
+            get => (PenLineCap)GetValue(StrokeEndLineCapProperty);
+            set => SetValue(StrokeEndLineCapProperty, value);
         }
 
         public PenLineJoin StrokeLineJoin
         {
-            get { return (PenLineJoin)GetValue(StrokeLineJoinProperty); }
-            set { SetValue(StrokeLineJoinProperty, value); }
+            get => (PenLineJoin)GetValue(StrokeLineJoinProperty);
+            set => SetValue(StrokeLineJoinProperty, value);
         }
 
         public double StrokeMiterLimit
         {
-            get { return (double)GetValue(StrokeMiterLimitProperty); }
-            set { SetValue(StrokeMiterLimitProperty, value); }
+            get => (double)GetValue(StrokeMiterLimitProperty);
+            set => SetValue(StrokeMiterLimitProperty, value);
         }
     }
 }

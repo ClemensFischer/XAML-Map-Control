@@ -34,18 +34,12 @@ namespace MapControl
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.
         /// </summary>
-        public static MapTileLayer OpenStreetMapTileLayer
+        public static MapTileLayer OpenStreetMapTileLayer => new MapTileLayer
         {
-            get
-            {
-                return new MapTileLayer
-                {
-                    TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
-                    SourceName = "OpenStreetMap",
-                    Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
-                };
-            }
-        }
+            TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
+            SourceName = "OpenStreetMap",
+            Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
+        };
 
         public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
             nameof(MinZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(0));
@@ -75,8 +69,8 @@ namespace MapControl
         /// </summary>
         public int MinZoomLevel
         {
-            get { return (int)GetValue(MinZoomLevelProperty); }
-            set { SetValue(MinZoomLevelProperty, value); }
+            get => (int)GetValue(MinZoomLevelProperty);
+            set => SetValue(MinZoomLevelProperty, value);
         }
 
         /// <summary>
@@ -84,8 +78,8 @@ namespace MapControl
         /// </summary>
         public int MaxZoomLevel
         {
-            get { return (int)GetValue(MaxZoomLevelProperty); }
-            set { SetValue(MaxZoomLevelProperty, value); }
+            get => (int)GetValue(MaxZoomLevelProperty);
+            set => SetValue(MaxZoomLevelProperty, value);
         }
 
         /// <summary>
@@ -94,8 +88,8 @@ namespace MapControl
         /// </summary>
         public double ZoomLevelOffset
         {
-            get { return (double)GetValue(ZoomLevelOffsetProperty); }
-            set { SetValue(ZoomLevelOffsetProperty, value); }
+            get => (double)GetValue(ZoomLevelOffsetProperty);
+            set => SetValue(ZoomLevelOffsetProperty, value);
         }
 
         protected override Size MeasureOverride(Size availableSize)

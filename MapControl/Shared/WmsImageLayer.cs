@@ -60,8 +60,8 @@ namespace MapControl
         /// </summary>
         public Uri ServiceUri
         {
-            get { return (Uri)GetValue(ServiceUriProperty); }
-            set { SetValue(ServiceUriProperty, value); }
+            get => (Uri)GetValue(ServiceUriProperty);
+            set => SetValue(ServiceUriProperty, value);
         }
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace MapControl
         /// </summary>
         public string Layers
         {
-            get { return (string)GetValue(LayersProperty); }
-            set { SetValue(LayersProperty, value); }
+            get => (string)GetValue(LayersProperty);
+            set => SetValue(LayersProperty, value);
         }
 
         /// <summary>
@@ -78,8 +78,8 @@ namespace MapControl
         /// </summary>
         public string Styles
         {
-            get { return (string)GetValue(StylesProperty); }
-            set { SetValue(StylesProperty, value); }
+            get => (string)GetValue(StylesProperty);
+            set => SetValue(StylesProperty, value);
         }
 
         /// <summary>

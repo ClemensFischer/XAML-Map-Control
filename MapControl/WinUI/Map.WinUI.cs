@@ -45,8 +45,8 @@ namespace MapControl
         /// </summary>
         public double MouseWheelZoomDelta
         {
-            get { return (double)GetValue(MouseWheelZoomDeltaProperty); }
-            set { SetValue(MouseWheelZoomDeltaProperty, value); }
+            get => (double)GetValue(MouseWheelZoomDeltaProperty);
+            set => SetValue(MouseWheelZoomDeltaProperty, value);
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)

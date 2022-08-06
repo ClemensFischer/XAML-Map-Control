@@ -36,13 +36,13 @@ namespace MapControl
         /// </summary>
         public Location Location
         {
-            get { return (Location)GetValue(LocationProperty); }
-            set { SetValue(LocationProperty, value); }
+            get => (Location)GetValue(LocationProperty);
+            set => SetValue(LocationProperty, value);
         }
 
         public MapBase ParentMap
         {
-            get { return parentMap; }
+            get => parentMap;
             set
             {
                 if (parentMap != null)

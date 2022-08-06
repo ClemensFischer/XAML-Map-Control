@@ -47,8 +47,8 @@ namespace MapControl
         /// </summary>
         public Uri CapabilitiesUri
         {
-            get { return (Uri)GetValue(CapabilitiesUriProperty); }
-            set { SetValue(CapabilitiesUriProperty, value); }
+            get => (Uri)GetValue(CapabilitiesUriProperty);
+            set => SetValue(CapabilitiesUriProperty, value);
         }
 
         /// <summary>
@@ -56,14 +56,11 @@ namespace MapControl
         /// </summary>
         public string LayerIdentifier
         {
-            get { return (string)GetValue(LayerIdentifierProperty); }
-            set { SetValue(LayerIdentifierProperty, value); }
+            get => (string)GetValue(LayerIdentifierProperty);
+            set => SetValue(LayerIdentifierProperty, value);
         }
 
-        public IEnumerable<WmtsTileMatrixLayer> ChildLayers
-        {
-            get { return Children.Cast<WmtsTileMatrixLayer>(); }
-        }
+        public IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
 
         public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = new Dictionary<string, WmtsTileMatrixSet>();
 

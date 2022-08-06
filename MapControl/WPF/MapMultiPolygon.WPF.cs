@@ -27,8 +27,8 @@ namespace MapControl
         /// </summary>
         public IEnumerable<IEnumerable<Location>> Polygons
         {
-            get { return (IEnumerable<IEnumerable<Location>>)GetValue(PolygonsProperty); }
-            set { SetValue(PolygonsProperty, value); }
+            get => (IEnumerable<IEnumerable<Location>>)GetValue(PolygonsProperty);
+            set => SetValue(PolygonsProperty, value);
         }
 
         public MapMultiPolygon()

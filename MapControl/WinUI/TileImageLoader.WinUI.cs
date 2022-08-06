@@ -25,10 +25,8 @@ namespace MapControl
         /// <summary>
         /// Default folder path where an IImageCache instance may save cached data, i.e. C:\ProgramData\MapControl\TileCache
         /// </summary>
-        public static string DefaultCacheFolder
-        {
-            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache"); }
-        }
+        public static string DefaultCacheFolder =>
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
 
         /// <summary>
         /// An IImageCache implementation used to cache tile images.

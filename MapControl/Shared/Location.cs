@@ -29,8 +29,8 @@ namespace MapControl
 
         public double Latitude
         {
-            get { return latitude; }
-            set { latitude = Math.Min(Math.Max(value, -90d), 90d); }
+            get => latitude;
+            set => latitude = Math.Min(Math.Max(value, -90d), 90d);
         }
 
         public double Longitude { get; set; }
