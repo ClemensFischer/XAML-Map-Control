@@ -34,8 +34,8 @@ namespace MapControl.MBTiles
 
         public string File
         {
-            get { return (string)GetValue(FileProperty); }
-            set { SetValue(FileProperty, value); }
+            get => (string)GetValue(FileProperty);
+            set => SetValue(FileProperty, value);
         }
 
         /// <summary>

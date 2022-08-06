@@ -50,8 +50,8 @@ namespace MapControl.UiTools
 
         public MapBase Map
         {
-            get { return (MapBase)GetValue(MapProperty); }
-            set { SetValue(MapProperty, value); }
+            get => (MapBase)GetValue(MapProperty);
+            set => SetValue(MapProperty, value);
         }
 
         public Collection<MapProjectionItem> MapProjections { get; } = new ObservableCollection<MapProjectionItem>();

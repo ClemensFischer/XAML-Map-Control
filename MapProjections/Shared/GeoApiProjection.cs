@@ -44,8 +44,8 @@ namespace MapControl.Projections
         /// </summary>
         public string CoordinateSystemWkt
         {
-            get { return CoordinateSystem?.WKT; }
-            protected set { CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value); }
+            get => CoordinateSystem?.WKT;
+            protected set => CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace MapControl.Projections
         /// </summary>
         public ICoordinateSystem CoordinateSystem
         {
-            get { return coordinateSystem; }
+            get => coordinateSystem;
             protected set
             {
                 coordinateSystem = value ?? throw new ArgumentNullException(nameof(value));

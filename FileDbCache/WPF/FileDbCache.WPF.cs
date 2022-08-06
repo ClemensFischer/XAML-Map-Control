@@ -12,20 +12,15 @@ namespace MapControl.Caching
 {
     public partial class FileDbCache : ObjectCache
     {
-        public override string Name
-        {
-            get { return string.Empty; }
-        }
+        public override string Name => string.Empty;
 
-        public override DefaultCacheCapabilities DefaultCacheCapabilities
-        {
-            get { return DefaultCacheCapabilities.AbsoluteExpirations | DefaultCacheCapabilities.SlidingExpirations; }
-        }
+        public override DefaultCacheCapabilities DefaultCacheCapabilities =>
+            DefaultCacheCapabilities.AbsoluteExpirations | DefaultCacheCapabilities.SlidingExpirations;
 
         public override object this[string key]
         {
-            get { return Get(key); }
-            set { Set(key, value, null); }
+            get => Get(key);
+            set => Set(key, value, null);
         }
 
         protected override IEnumerator<KeyValuePair<string, object>> GetEnumerator()
