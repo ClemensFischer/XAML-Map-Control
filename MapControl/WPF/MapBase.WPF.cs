@@ -42,11 +42,6 @@ namespace MapControl
                 0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 (o, e) => ((MapBase)o).TargetHeadingPropertyChanged((double)e.NewValue)));
 
-        private static readonly DependencyPropertyKey ViewScalePropertyKey = DependencyProperty.RegisterReadOnly(
-            nameof(ViewScale), typeof(double), typeof(MapBase), new PropertyMetadata(0d));
-
-        public static readonly DependencyProperty ViewScaleProperty = ViewScalePropertyKey.DependencyProperty;
-
         private static readonly DependencyProperty CenterPointProperty = DependencyProperty.Register(
             "CenterPoint", typeof(Point), typeof(MapBase), new PropertyMetadata(new Point(),
                 (o, e) =>
@@ -67,11 +62,6 @@ namespace MapControl
 
             ResetTransformCenter();
             UpdateTransform();
-        }
-
-        private void SetViewScale(double scale)
-        {
-            SetValue(ViewScalePropertyKey, scale);
         }
     }
 }
