@@ -42,7 +42,7 @@ namespace MapControl.Caching
         {
             try
             {
-                return Path.Combine(rootDirectory, Path.Combine(key.Split('/', ':', ';', ',')));
+                return Path.Combine(rootDirectory, Path.Combine(key.Split('/')));
             }
             catch (Exception ex)
             {

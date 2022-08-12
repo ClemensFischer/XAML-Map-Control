@@ -20,7 +20,7 @@ namespace MapControl
         public WmtsTileSource TileSource { get; private set; }
         public List<WmtsTileMatrixSet> TileMatrixSets { get; private set; }
 
-        public static async Task<WmtsCapabilities> ReadCapabilities(Uri capabilitiesUri, string layerIdentifier)
+        public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri capabilitiesUri, string layerIdentifier)
         {
             WmtsCapabilities capabilities;
 
@@ -142,7 +142,8 @@ namespace MapControl
             }
             else if (capabilitiesUrl != null)
             {
-                var requestIndex = capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase);
+                const string requestParam = "Request=GetCapabilities";
+                var requestIndex = capabilitiesUrl.IndexOf(requestParam, StringComparison.OrdinalIgnoreCase);
 
                 if (requestIndex > 0)
                 {
@@ -160,7 +161,7 @@ namespace MapControl
 
                     urlTemplate = capabilitiesUrl.Substring(0, requestIndex)
                         + "Request=GetTile"
-                        + capabilitiesUrl.Substring(requestIndex + "Request=GetCapabilities".Length)
+                        + capabilitiesUrl.Substring(requestIndex + requestParam.Length)
                         + "&Version=1.0.0"
                         + "&Layer=" + layerIdentifier
                         + "&Format=" + format
@@ -199,13 +200,15 @@ namespace MapControl
                 throw new ArgumentException($"No ows:SupportedCRS element found in TileMatrixSet \"{identifier}\".");
             }
 
-            if (supportedCrs.StartsWith("urn:")) // e.g. "urn:ogc:def:crs:EPSG:6.18:3857")
-            {
-                var urn = supportedCrs.Split(':');
+            const string urnPrefix = "urn:ogc:def:crs:EPSG:";
 
-                if (urn.Length == 7 && urn[3] == "crs" && urn[4] == "EPSG")
+            if (supportedCrs.StartsWith(urnPrefix)) // e.g. "urn:ogc:def:crs:EPSG:6.18:3857")
+            {
+                var crs = supportedCrs.Substring(urnPrefix.Length).Split(':');
+
+                if (crs.Length > 1)
                 {
-                    supportedCrs = "EPSG:" + urn[6];
+                    supportedCrs = "EPSG:" + crs[1];
                 }
             }
 

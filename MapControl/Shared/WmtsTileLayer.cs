@@ -174,12 +174,12 @@ namespace MapControl
 
                 if (!string.IsNullOrEmpty(cacheName))
                 {
-                    cacheName += "/" + tileMatrixSet.Identifier
-                        .Replace(':', '_')
-                        .Replace(';', '_')
-                        .Replace(',', '_')
-                        .Replace('/', '_')
-                        .Replace('\\', '_');
+                    if (!string.IsNullOrEmpty(LayerIdentifier))
+                    {
+                        cacheName += "/" + LayerIdentifier.Replace(':', '_');
+                    }
+
+                    cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
                 }
             }
 
@@ -192,7 +192,7 @@ namespace MapControl
             {
                 try
                 {
-                    var capabilities = await WmtsCapabilities.ReadCapabilities(CapabilitiesUri, LayerIdentifier);
+                    var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, LayerIdentifier);
 
                     foreach (var tileMatrixSet in capabilities.TileMatrixSets
                         .Where(s => !TileMatrixSets.ContainsKey(s.SupportedCrs)))
