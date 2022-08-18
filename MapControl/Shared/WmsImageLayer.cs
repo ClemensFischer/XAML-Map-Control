@@ -282,7 +282,7 @@ namespace MapControl
 
                 if (i >= 0)
                 {
-                    i += 7;
+                    i += "LAYERS=".Length;
                     var j = uri.IndexOf('&', i);
                     var layers = j >= i ? uri.Substring(i, j - i) : uri.Substring(i);
                     uri += "&QUERY_LAYERS=" + layers;
