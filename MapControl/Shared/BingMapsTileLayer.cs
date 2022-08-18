@@ -54,7 +54,7 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(ApiKey))
             {
-                var metadataUri = $"http://dev.virtualearth.net/REST/V1/Imagery/Metadata/{Mode}?output=xml&key={ApiKey}";
+                var metadataUri = $"https://dev.virtualearth.net/REST/V1/Imagery/Metadata/{Mode}?output=xml&key={ApiKey}";
 
                 try
                 {
