@@ -15,9 +15,8 @@ namespace MapControl
             Uri uri = null;
 
             if (UriFormat != null &&
-                TileMatrixSet != null &&
-                zoomLevel >= 0 &&
-                zoomLevel < TileMatrixSet.TileMatrixes.Count)
+                TileMatrixSet != null && TileMatrixSet.TileMatrixes.Count > zoomLevel &&
+                x >= 0 && y >= 0 && zoomLevel >= 0)
             {
                 uri = new Uri(UriFormat
                     .Replace("{TileMatrixSet}", TileMatrixSet.Identifier)

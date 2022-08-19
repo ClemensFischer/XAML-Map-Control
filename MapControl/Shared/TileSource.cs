@@ -32,7 +32,7 @@ namespace MapControl
             get => uriFormat;
             set
             {
-                uriFormat = value?.Replace("{c}", "{s}"); // for backwards compatibility since 5.4.0
+                uriFormat = value;
 
                 if (Subdomains == null && uriFormat != null && uriFormat.Contains("{s}"))
                 {
@@ -53,7 +53,7 @@ namespace MapControl
         {
             Uri uri = null;
 
-            if (UriFormat != null)
+            if (UriFormat != null && x >= 0 && y >= 0 && zoomLevel >= 0)
             {
                 var uriString = UriFormat
                     .Replace("{x}", x.ToString())
