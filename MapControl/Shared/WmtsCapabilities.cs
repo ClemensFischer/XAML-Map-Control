@@ -133,44 +133,36 @@ namespace MapControl
 
             if (resourceUrls.Any())
             {
-                var urlTemplates
-                    = resourceUrls.Contains(formatPng) ? resourceUrls[formatPng]
-                    : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]
-                    : resourceUrls.First();
+                var urlTemplates = resourceUrls.Contains(formatPng) ? resourceUrls[formatPng]
+                                 : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]
+                                 : resourceUrls.First();
 
                 urlTemplate = urlTemplates.First().Replace("{Style}", style);
             }
-            else if (capabilitiesUrl != null)
+            else if (capabilitiesUrl != null &&
+                capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                const string requestParam = "Request=GetCapabilities";
-                var requestIndex = capabilitiesUrl.IndexOf(requestParam, StringComparison.OrdinalIgnoreCase);
+                var formats = layerElement.Descendants(ns + "Format").Select(e => e.Value).ToList();
+                var format = formatPng;
 
-                if (requestIndex > 0)
+                if (formats.Count > 0)
                 {
-                    var formats = layerElement.Descendants(ns + "Format").Select(e => e.Value).ToList();
-
-                    if (formats.Count == 0)
-                    {
-                        throw new ArgumentException($"No Format element found in Layer \"{layerIdentifier}\".");
-                    }
-
-                    var format
-                        = formats.Contains(formatPng) ? formatPng
-                        : formats.Contains(formatJpg) ? formatJpg
-                        : formats[0];
-
-                    urlTemplate = capabilitiesUrl.Substring(0, requestIndex)
-                        + "Request=GetTile"
-                        + capabilitiesUrl.Substring(requestIndex + requestParam.Length)
-                        + "&Version=1.0.0"
-                        + "&Layer=" + layerIdentifier
-                        + "&Format=" + format
-                        + "&Style=" + style
-                        + "&TileMatrixSet={TileMatrixSet}"
-                        + "&TileMatrix={TileMatrix}"
-                        + "&TileCol={TileCol}"
-                        + "&TileRow={TileRow}";
+                    format = formats.Contains(formatPng) ? formatPng
+                           : formats.Contains(formatJpg) ? formatJpg
+                           : formats[0];
                 }
+
+                urlTemplate = capabilitiesUrl.Split('?')[0]
+                    + "?Service=WMTS"
+                    + "&Request=GetTile"
+                    + "&Version=1.0.0"
+                    + "&Layer=" + layerIdentifier
+                    + "&Style=" + style
+                    + "&Format=" + format
+                    + "&TileMatrixSet={TileMatrixSet}"
+                    + "&TileMatrix={TileMatrix}"
+                    + "&TileRow={TileRow}"
+                    + "&TileCol={TileCol}";
             }
 
             if (string.IsNullOrEmpty(urlTemplate))

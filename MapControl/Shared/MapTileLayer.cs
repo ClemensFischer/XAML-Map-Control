@@ -204,55 +204,57 @@ namespace MapControl
 
         private void UpdateTiles()
         {
-            var newTiles = new List<Tile>();
-            int maxZoomLevel;
+            var tiles = new List<Tile>();
 
-            if (TileSource != null &&
-                TileMatrix != null &&
-                (maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel)) >= MinZoomLevel)
+            if (TileSource != null && TileMatrix != null)
             {
-                var minZoomLevel = IsBaseMapLayer
-                    ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
-                    : maxZoomLevel;
+                var maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel);
 
-                for (var z = minZoomLevel; z <= maxZoomLevel; z++)
+                if (maxZoomLevel >= MinZoomLevel)
                 {
-                    var tileSize = 1 << (TileMatrix.ZoomLevel - z);
-                    var x1 = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
-                    var x2 = TileMatrix.XMax / tileSize;
-                    var y1 = Math.Max(TileMatrix.YMin / tileSize, 0);
-                    var y2 = Math.Min(TileMatrix.YMax / tileSize, (1 << z) - 1);
+                    var minZoomLevel = IsBaseMapLayer
+                        ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
+                        : maxZoomLevel;
 
-                    for (var y = y1; y <= y2; y++)
+                    for (var z = minZoomLevel; z <= maxZoomLevel; z++)
                     {
-                        for (var x = x1; x <= x2; x++)
+                        var tileSize = 1 << (TileMatrix.ZoomLevel - z);
+                        var x1 = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
+                        var x2 = TileMatrix.XMax / tileSize;
+                        var y1 = Math.Max(TileMatrix.YMin / tileSize, 0);
+                        var y2 = Math.Min(TileMatrix.YMax / tileSize, (1 << z) - 1);
+
+                        for (var y = y1; y <= y2; y++)
                         {
-                            var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
-
-                            if (tile == null)
+                            for (var x = x1; x <= x2; x++)
                             {
-                                tile = new Tile(z, x, y);
+                                var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
 
-                                var equivalentTile = Tiles.FirstOrDefault(
-                                    t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && !t.Pending);
-
-                                if (equivalentTile != null)
+                                if (tile == null)
                                 {
-                                    tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
-                                }
-                            }
+                                    tile = new Tile(z, x, y);
 
-                            newTiles.Add(tile);
+                                    var equivalentTile = Tiles.FirstOrDefault(
+                                        t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && !t.Pending);
+
+                                    if (equivalentTile != null)
+                                    {
+                                        tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
+                                    }
+                                }
+
+                                tiles.Add(tile);
+                            }
                         }
                     }
                 }
             }
 
-            Tiles = newTiles;
+            Tiles = tiles;
 
             Children.Clear();
 
-            foreach (var tile in Tiles)
+            foreach (var tile in tiles)
             {
                 Children.Add(tile.Image);
             }

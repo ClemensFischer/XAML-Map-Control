@@ -37,7 +37,7 @@ namespace MapControl
             new PropertyMetadata(null,
                 async (o, e) =>
                 {
-                    if (e.OldValue != null) // ignore initial property change from GetImageAsync
+                    if (e.OldValue != null) // ignore property change from GetImageAsync
                     {
                         await ((WmsImageLayer)o).UpdateImageAsync();
                     }
@@ -222,7 +222,12 @@ namespace MapControl
         /// </summary>
         protected virtual string GetCapabilitiesRequestUri()
         {
-            return GetRequestUri("GetCapabilities").Replace(" ", "%20");
+            return GetRequestUri(new Dictionary<string, string>
+            {
+                { "SERVICE", "WMS" },
+                { "VERSION", "1.3.0" },
+                { "REQUEST", "GetCapabilities" }
+            });
         }
 
         /// <summary>
@@ -230,40 +235,29 @@ namespace MapControl
         /// </summary>
         protected virtual string GetMapRequestUri()
         {
-            string uri = null;
             var projection = ParentMap?.MapProjection;
 
-            if (projection != null)
+            if (projection == null)
             {
-                uri = GetRequestUri("GetMap");
-
-                if (uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0 && Layers != null)
-                {
-                    uri += "&LAYERS=" + Layers;
-                }
-
-                if (uri.IndexOf("STYLES=", StringComparison.OrdinalIgnoreCase) < 0 && Styles != null)
-                {
-                    uri += "&STYLES=" + Styles;
-                }
-
-                if (uri.IndexOf("FORMAT=", StringComparison.OrdinalIgnoreCase) < 0)
-                {
-                    uri += "&FORMAT=image/png";
-                }
-
-                var mapRect = projection.BoundingBoxToRect(BoundingBox);
-                var viewScale = ParentMap.ViewTransform.Scale;
-
-                uri += "&" + GetCrsParam(projection);
-                uri += "&" + GetBboxParam(projection, mapRect);
-                uri += "&WIDTH=" + (int)Math.Round(viewScale * mapRect.Width);
-                uri += "&HEIGHT=" + (int)Math.Round(viewScale * mapRect.Height);
-
-                uri = uri.Replace(" ", "%20");
+                return null;
             }
 
-            return uri;
+            var mapRect = projection.BoundingBoxToRect(BoundingBox);
+            var viewScale = ParentMap.ViewTransform.Scale;
+
+            return GetRequestUri(new Dictionary<string, string>
+            {
+                { "SERVICE", "WMS" },
+                { "VERSION", "1.3.0" },
+                { "REQUEST", "GetMap" },
+                { "LAYERS", Layers ?? "" },
+                { "STYLES", Styles ?? "" },
+                { "FORMAT", "image/png" },
+                { "CRS", GetCrsValue(projection) },
+                { "BBOX", GetBboxValue(projection, mapRect) },
+                { "WIDTH", Math.Round(viewScale * mapRect.Width).ToString("F0") },
+                { "HEIGHT", Math.Round(viewScale * mapRect.Height).ToString("F0") }
+            });
         }
 
         /// <summary>
@@ -271,82 +265,72 @@ namespace MapControl
         /// </summary>
         protected virtual string GetFeatureInfoRequestUri(Point position, string format)
         {
-            string uri = null;
             var projection = ParentMap?.MapProjection;
 
-            if (projection != null)
+            if (projection == null)
             {
-                uri = GetRequestUri("GetFeatureInfo");
+                return null;
+            }
 
-                var i = uri.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase);
+            var mapRect = projection.BoundingBoxToRect(BoundingBox);
+            var viewRect = GetViewRect(mapRect);
+            var viewSize = ParentMap.RenderSize;
 
-                if (i >= 0)
+            var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);
+            transform.Rotate(-viewRect.Rotation);
+            transform.Translate(viewRect.Width / 2, viewRect.Height / 2);
+
+            var imagePos = transform.Transform(position);
+
+            var queryParameters = new Dictionary<string, string>
+            {
+                { "SERVICE", "WMS" },
+                { "VERSION", "1.3.0" },
+                { "REQUEST", "GetFeatureInfo" },
+                { "LAYERS", Layers ?? "" },
+                { "STYLES", Styles ?? "" },
+                { "FORMAT", "image/png" },
+                { "INFO_FORMAT", format },
+                { "CRS", GetCrsValue(projection) },
+                { "BBOX", GetBboxValue(projection, mapRect) },
+                { "WIDTH", Math.Round(viewRect.Width).ToString("F0") },
+                { "HEIGHT", Math.Round(viewRect.Height).ToString("F0") },
+                { "I", Math.Round(imagePos.X).ToString("F0") },
+                { "J", Math.Round(imagePos.Y).ToString("F0") }
+            };
+
+            return GetRequestUri(queryParameters) + "&QUERY_LAYERS=" + queryParameters["LAYERS"];
+        }
+
+        protected virtual string GetCrsValue(MapProjection projection)
+        {
+            return projection.GetCrsValue();
+        }
+
+        protected virtual string GetBboxValue(MapProjection projection, Rect mapRect)
+        {
+            return projection.GetBboxValue(mapRect);
+        }
+
+        protected string GetRequestUri(IDictionary<string, string> queryParameters)
+        {
+            var query = ServiceUri.Query;
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                foreach (var param in query.Substring(1).Split('&'))
                 {
-                    i += "LAYERS=".Length;
-                    var j = uri.IndexOf('&', i);
-                    var layers = j >= i ? uri.Substring(i, j - i) : uri.Substring(i);
-                    uri += "&QUERY_LAYERS=" + layers;
+                    var pair = param.Split('=');
+                    queryParameters[pair[0].ToUpper()] = pair.Length > 1 ? pair[1] : "";
                 }
-                else if (Layers != null)
-                {
-                    uri += "&LAYERS=" + Layers;
-                    uri += "&QUERY_LAYERS=" + Layers;
-                }
-
-                var mapRect = projection.BoundingBoxToRect(BoundingBox);
-                var viewRect = GetViewRect(mapRect);
-                var viewSize = ParentMap.RenderSize;
-
-                var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);
-                transform.Rotate(-viewRect.Rotation);
-                transform.Translate(viewRect.Width / 2, viewRect.Height / 2);
-
-                var imagePos = transform.Transform(position);
-
-                uri += "&" + GetCrsParam(projection);
-                uri += "&" + GetBboxParam(projection, mapRect);
-                uri += "&WIDTH=" + (int)Math.Round(viewRect.Width);
-                uri += "&HEIGHT=" + (int)Math.Round(viewRect.Height);
-                uri += "&I=" + (int)Math.Round(imagePos.X);
-                uri += "&J=" + (int)Math.Round(imagePos.Y);
-                uri += "&INFO_FORMAT=" + format;
-
-                uri = uri.Replace(" ", "%20");
             }
 
-            return uri;
-        }
+            var uri = ServiceUri.GetLeftPart(UriPartial.Path) + "?"
+                + string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
-        protected virtual string GetCrsParam(MapProjection projection)
-        {
-            return "CRS=" + projection.GetCrsValue();
-        }
+            Debug.WriteLine(uri);
 
-        protected virtual string GetBboxParam(MapProjection projection, Rect mapRect)
-        {
-            return "BBOX=" + projection.GetBboxValue(mapRect);
-        }
-
-        protected string GetRequestUri(string request)
-        {
-            var uri = ServiceUri.ToString();
-
-            if (!uri.EndsWith("?") && !uri.EndsWith("&"))
-            {
-                uri += !uri.Contains("?") ? "?" : "&";
-            }
-
-            if (uri.IndexOf("SERVICE=", StringComparison.OrdinalIgnoreCase) < 0)
-            {
-                uri += "SERVICE=WMS&";
-            }
-
-            if (uri.IndexOf("VERSION=", StringComparison.OrdinalIgnoreCase) < 0)
-            {
-                uri += "VERSION=1.3.0&";
-            }
-
-            return uri + "REQUEST=" + request;
+            return uri.Replace(" ", "%20");
         }
     }
 }

@@ -45,7 +45,7 @@ namespace MapControl
             nameof(Description), typeof(string), typeof(MapTileLayerBase), new PropertyMetadata(null));
 
         public static readonly DependencyProperty MaxBackgroundLevelsProperty = DependencyProperty.Register(
-            nameof(MaxBackgroundLevels), typeof(int), typeof(MapTileLayerBase), new PropertyMetadata(8));
+            nameof(MaxBackgroundLevels), typeof(int), typeof(MapTileLayerBase), new PropertyMetadata(5));
 
         public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
             nameof(UpdateInterval), typeof(TimeSpan), typeof(MapTileLayerBase),
@@ -111,7 +111,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Maximum number of background tile levels. Default value is 8.
+        /// Maximum number of background tile levels. Default value is 5.
         /// Only effective in a MapTileLayer or WmtsTileLayer that is the MapLayer of its ParentMap.
         /// </summary>
         public int MaxBackgroundLevels
