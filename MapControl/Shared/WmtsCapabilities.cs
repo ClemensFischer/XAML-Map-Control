@@ -14,6 +14,9 @@ using System.Windows;
 
 namespace MapControl
 {
+    /// <summary>
+    /// For reference see https://www.ogc.org/standards/wmts, 07-057r7_Web_Map_Tile_Service_Standard.pdf
+    /// </summary>
     public class WmtsCapabilities
     {
         public string LayerIdentifier { get; private set; }
@@ -142,6 +145,8 @@ namespace MapControl
             else if (capabilitiesUrl != null &&
                 capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase) >= 0)
             {
+                // no ResourceURL and GetCapabilities KVP request, use GetTile KVP request encoding
+
                 var formats = layerElement.Descendants(ns + "Format").Select(e => e.Value).ToList();
                 var format = formatPng;
 
