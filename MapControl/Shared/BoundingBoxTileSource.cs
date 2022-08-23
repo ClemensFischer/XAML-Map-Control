@@ -13,7 +13,7 @@ namespace MapControl
         {
             Uri uri = null;
 
-            if (UriFormat != null)
+            if (UriTemplate != null)
             {
                 var tileSize = 360d / (1 << zoomLevel); // tile width in degrees
                 var west = MapProjection.Wgs84MeterPerDegree * (x * tileSize - 180d);
@@ -21,14 +21,14 @@ namespace MapControl
                 var south = MapProjection.Wgs84MeterPerDegree * (180d - (y + 1) * tileSize);
                 var north = MapProjection.Wgs84MeterPerDegree * (180d - y * tileSize);
 
-                if (UriFormat.Contains("{bbox}"))
+                if (UriTemplate.Contains("{bbox}"))
                 {
-                    uri = new Uri(UriFormat.Replace("{bbox}",
+                    uri = new Uri(UriTemplate.Replace("{bbox}",
                         string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}", west, south, east, north)));
                 }
                 else
                 {
-                    uri = new Uri(UriFormat
+                    uri = new Uri(UriTemplate
                         .Replace("{west}", west.ToString("F2", CultureInfo.InvariantCulture))
                         .Replace("{south}", south.ToString("F2", CultureInfo.InvariantCulture))
                         .Replace("{east}", east.ToString("F2", CultureInfo.InvariantCulture))

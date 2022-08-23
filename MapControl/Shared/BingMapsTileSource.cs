@@ -12,8 +12,7 @@ namespace MapControl
         {
             Uri uri = null;
 
-            if (UriFormat != null && Subdomains != null && Subdomains.Length > 0 &&
-                x >= 0 && y >= 0 && zoomLevel > 0)
+            if (UriTemplate != null && Subdomains != null && Subdomains.Length > 0 && zoomLevel > 0)
             {
                 var subdomain = Subdomains[(x + y) % Subdomains.Length];
                 var quadkey = new char[zoomLevel];
@@ -23,7 +22,7 @@ namespace MapControl
                     quadkey[z] = (char)('0' + 2 * (y % 2) + (x % 2));
                 }
 
-                uri = new Uri(UriFormat
+                uri = new Uri(UriTemplate
                     .Replace("{subdomain}", subdomain)
                     .Replace("{quadkey}", new string(quadkey)));
             }

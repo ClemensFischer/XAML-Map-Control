@@ -106,7 +106,7 @@ namespace MapControl
 
                     TileSource = new BingMapsTileSource
                     {
-                        UriFormat = imageUrl.Replace("{culture}", Culture),
+                        UriTemplate = imageUrl.Replace("{culture}", Culture),
                         Subdomains = subdomains
                     };
                 }

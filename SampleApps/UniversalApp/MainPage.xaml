@@ -148,7 +148,7 @@
                         SourceName="OpenStreetMap"
                         Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="https://tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -157,7 +157,7 @@
                         SourceName="OpenStreetMap German"
                         Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -166,7 +166,7 @@
                         SourceName="OpenStreetMap French"
                         Description="© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -175,7 +175,7 @@
                         SourceName="OpenTopoMap"
                         Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="https://tile.opentopomap.org/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="https://tile.opentopomap.org/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -206,7 +206,7 @@
                     <tools:MapLayerItem Text="Seamarks">
                         <map:MapTileLayer SourceName="Seamarks" MinZoomLevel="9" MaxZoomLevel="18">
                             <map:MapTileLayer.TileSource>
-                                <map:TileSource UriFormat="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
+                                <map:TileSource UriTemplate="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
                             </map:MapTileLayer.TileSource>
                         </map:MapTileLayer>
                     </tools:MapLayerItem>

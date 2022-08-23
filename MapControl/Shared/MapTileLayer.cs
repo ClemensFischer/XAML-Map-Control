@@ -36,7 +36,7 @@ namespace MapControl
         /// </summary>
         public static MapTileLayer OpenStreetMapTileLayer => new MapTileLayer
         {
-            TileSource = new TileSource { UriFormat = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
+            TileSource = new TileSource { UriTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
             SourceName = "OpenStreetMap",
             Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
         };

@@ -56,7 +56,7 @@ namespace MapControl
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            return new TileSource { UriFormat = (string)value };
+            return new TileSource { UriTemplate = (string)value };
         }
     }
 }

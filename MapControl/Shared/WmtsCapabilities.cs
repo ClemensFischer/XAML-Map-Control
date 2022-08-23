@@ -6,8 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Xml.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 #if !WINUI && !UWP
 using System.Windows;
 #endif
@@ -19,6 +19,10 @@ namespace MapControl
     /// </summary>
     public class WmtsCapabilities
     {
+        private static readonly XNamespace ows = "http://www.opengis.net/ows/1.1";
+        private static readonly XNamespace wmts = "http://www.opengis.net/wmts/1.0";
+        private static readonly XNamespace xlink = "http://www.w3.org/1999/xlink";
+
         public string LayerIdentifier { get; private set; }
         public WmtsTileSource TileSource { get; private set; }
         public List<WmtsTileMatrixSet> TileMatrixSets { get; private set; }
@@ -44,10 +48,7 @@ namespace MapControl
 
         public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layerIdentifier, string capabilitiesUrl)
         {
-            XNamespace ns = capabilitiesElement.Name.Namespace;
-            XNamespace ows = "http://www.opengis.net/ows/1.1";
-
-            var contentsElement = capabilitiesElement.Element(ns + "Contents");
+            var contentsElement = capabilitiesElement.Element(wmts + "Contents");
 
             if (contentsElement == null)
             {
@@ -58,7 +59,7 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(layerIdentifier))
             {
-                layerElement = contentsElement.Descendants(ns + "Layer")
+                layerElement = contentsElement.Elements(wmts + "Layer")
                     .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == layerIdentifier);
 
                 if (layerElement == null)
@@ -68,7 +69,7 @@ namespace MapControl
             }
             else
             {
-                layerElement = capabilitiesElement.Descendants(ns + "Layer").FirstOrDefault();
+                layerElement = contentsElement.Elements(wmts + "Layer").FirstOrDefault();
 
                 if (layerElement == null)
                 {
@@ -78,34 +79,33 @@ namespace MapControl
                 layerIdentifier = layerElement.Element(ows + "Identifier")?.Value ?? "";
             }
 
-            var styleElement = layerElement.Descendants(ns + "Style")
+            var styleElement = layerElement.Elements(wmts + "Style")
                 .FirstOrDefault(e => e.Attribute("isDefault")?.Value == "true");
 
             if (styleElement == null)
             {
-                styleElement = layerElement.Descendants(ns + "Style").FirstOrDefault();
+                styleElement = layerElement.Elements(wmts + "Style").FirstOrDefault();
             }
 
-            var style = styleElement?.Element(ows + "Identifier")?.Value;
+            var styleIdentifier = styleElement?.Element(ows + "Identifier")?.Value;
 
-            if (string.IsNullOrEmpty(style))
+            if (string.IsNullOrEmpty(styleIdentifier))
             {
-                throw new ArgumentException($"No valid Style element found in Layer \"{layerIdentifier}\".");
+                throw new ArgumentException($"No Style element found in Layer \"{layerIdentifier}\".");
             }
 
-            var urlTemplate = ReadUrlTemplate(layerElement, layerIdentifier, style, capabilitiesUrl);
+            var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layerIdentifier, styleIdentifier, capabilitiesUrl);
 
             var tileMatrixSetIds = layerElement
-                .Descendants(ns + "TileMatrixSetLink")
-                .Select(e => e.Element(ns + "TileMatrixSet")?.Value)
-                .Where(id => !string.IsNullOrEmpty(id))
-                .ToList();
+                .Elements(wmts + "TileMatrixSetLink")
+                .Select(e => e.Element(wmts + "TileMatrixSet")?.Value)
+                .Where(id => !string.IsNullOrEmpty(id));
 
             var tileMatrixSets = new List<WmtsTileMatrixSet>();
 
             foreach (var tileMatrixSetId in tileMatrixSetIds)
             {
-                var tileMatrixSetElement = capabilitiesElement.Descendants(ns + "TileMatrixSet")
+                var tileMatrixSetElement = contentsElement.Elements(wmts + "TileMatrixSet")
                     .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == tileMatrixSetId);
 
                 if (tileMatrixSetElement == null)
@@ -119,19 +119,18 @@ namespace MapControl
             return new WmtsCapabilities
             {
                 LayerIdentifier = layerIdentifier,
-                TileSource = new WmtsTileSource { UriFormat = urlTemplate },
+                TileSource = new WmtsTileSource { UriTemplate = urlTemplate },
                 TileMatrixSets = tileMatrixSets
             };
         }
 
-        public static string ReadUrlTemplate(XElement layerElement, string layerIdentifier, string style, string capabilitiesUrl)
+        public static string ReadUrlTemplate(XElement capabilitiesElement, XElement layerElement, string layerIdentifier, string styleIdentifier, string capabilitiesUrl)
         {
-            XNamespace ns = layerElement.Name.Namespace;
             const string formatPng = "image/png";
             const string formatJpg = "image/jpeg";
             string urlTemplate = null;
 
-            var resourceUrls = layerElement.Descendants(ns + "ResourceURL")
+            var resourceUrls = layerElement.Elements(wmts + "ResourceURL")
                 .ToLookup(e => e.Attribute("format")?.Value ?? "", e => e.Attribute("template")?.Value ?? "");
 
             if (resourceUrls.Any())
@@ -140,39 +139,47 @@ namespace MapControl
                                  : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]
                                  : resourceUrls.First();
 
-                urlTemplate = urlTemplates.First().Replace("{Style}", style);
+                urlTemplate = urlTemplates.First().Replace("{Style}", styleIdentifier);
             }
-            else if (capabilitiesUrl != null &&
-                capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase) >= 0)
+            else
             {
-                // no ResourceURL and GetCapabilities KVP request, use GetTile KVP request encoding
+                var requestUrl = capabilitiesElement
+                    .Elements(ows + "OperationsMetadata")
+                    .Elements(ows + "Operation").Where(e => e.Attribute("name")?.Value == "GetTile")
+                    .Elements(ows + "DCP")
+                    .Elements(ows + "HTTP")
+                    .Elements(ows + "Get").Select(e => e.Attribute(xlink + "href")?.Value)
+                    .FirstOrDefault();
 
-                var formats = layerElement.Descendants(ns + "Format").Select(e => e.Value).ToList();
-                var format = formatPng;
-
-                if (formats.Count > 0)
+                if (requestUrl == null &&
+                    capabilitiesUrl != null &&
+                    capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    format = formats.Contains(formatPng) ? formatPng
-                           : formats.Contains(formatJpg) ? formatJpg
-                           : formats[0];
+                    requestUrl = capabilitiesUrl;
                 }
 
-                urlTemplate = capabilitiesUrl.Split('?')[0]
-                    + "?Service=WMTS"
-                    + "&Request=GetTile"
-                    + "&Version=1.0.0"
-                    + "&Layer=" + layerIdentifier
-                    + "&Style=" + style
-                    + "&Format=" + format
-                    + "&TileMatrixSet={TileMatrixSet}"
-                    + "&TileMatrix={TileMatrix}"
-                    + "&TileRow={TileRow}"
-                    + "&TileCol={TileCol}";
+                if (requestUrl != null)
+                {
+                    var formats = layerElement.Elements(wmts + "Format").Select(e => e.Value);
+                    var format = formats.Contains(formatPng) ? formatPng
+                               : formats.Contains(formatJpg) ? formatJpg
+                               : formats.FirstOrDefault();
+
+                    if (string.IsNullOrEmpty(format))
+                    {
+                        format = formatPng;
+                    }
+
+                    urlTemplate = requestUrl.Split('?')[0]
+                        + "?Service=WMTS&Request=GetTile&Version=1.0.0"
+                        + "&Layer=" + layerIdentifier + "&Style=" + styleIdentifier + "&Format=" + format
+                        + "&TileMatrixSet={TileMatrixSet}&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}";
+                }
             }
 
             if (string.IsNullOrEmpty(urlTemplate))
             {
-                throw new ArgumentException($"No valid ResourceURL element found in Layer \"{layerIdentifier}\".");
+                throw new ArgumentException($"No ResourceURL element in Layer \"{layerIdentifier}\" and no GetTile KVP Operation Metadata found.");
             }
 
             return urlTemplate;
@@ -180,21 +187,18 @@ namespace MapControl
 
         public static WmtsTileMatrixSet ReadTileMatrixSet(XElement tileMatrixSetElement)
         {
-            XNamespace ns = tileMatrixSetElement.Name.Namespace;
-            XNamespace ows = "http://www.opengis.net/ows/1.1";
-
             var identifier = tileMatrixSetElement.Element(ows + "Identifier")?.Value;
 
             if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("No ows:Identifier element found in TileMatrixSet.");
+                throw new ArgumentException("No Identifier element found in TileMatrixSet.");
             }
 
             var supportedCrs = tileMatrixSetElement.Element(ows + "SupportedCRS")?.Value;
 
             if (string.IsNullOrEmpty(supportedCrs))
             {
-                throw new ArgumentException($"No ows:SupportedCRS element found in TileMatrixSet \"{identifier}\".");
+                throw new ArgumentException($"No SupportedCRS element found in TileMatrixSet \"{identifier}\".");
             }
 
             const string urnPrefix = "urn:ogc:def:crs:EPSG:";
@@ -211,7 +215,7 @@ namespace MapControl
 
             var tileMatrixes = new List<WmtsTileMatrix>();
 
-            foreach (var tileMatrixElement in tileMatrixSetElement.Descendants(ns + "TileMatrix"))
+            foreach (var tileMatrixElement in tileMatrixSetElement.Elements(wmts + "TileMatrix"))
             {
                 tileMatrixes.Add(ReadTileMatrix(tileMatrixElement, supportedCrs));
             }
@@ -226,17 +230,14 @@ namespace MapControl
 
         public static WmtsTileMatrix ReadTileMatrix(XElement tileMatrixElement, string supportedCrs)
         {
-            XNamespace ns = tileMatrixElement.Name.Namespace;
-            XNamespace ows = "http://www.opengis.net/ows/1.1";
-
             var identifier = tileMatrixElement.Element(ows + "Identifier")?.Value;
 
             if (string.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentException("No ows:Identifier element found in TileMatrix.");
+                throw new ArgumentException("No Identifier element found in TileMatrix.");
             }
 
-            var valueString = tileMatrixElement.Element(ns + "ScaleDenominator")?.Value;
+            var valueString = tileMatrixElement.Element(wmts + "ScaleDenominator")?.Value;
 
             if (string.IsNullOrEmpty(valueString) ||
                 !double.TryParse(valueString, NumberStyles.Float, CultureInfo.InvariantCulture, out double scaleDenominator))
@@ -244,7 +245,7 @@ namespace MapControl
                 throw new ArgumentException($"No ScaleDenominator element found in TileMatrix \"{identifier}\".");
             }
 
-            valueString = tileMatrixElement.Element(ns + "TopLeftCorner")?.Value;
+            valueString = tileMatrixElement.Element(wmts + "TopLeftCorner")?.Value;
             string[] topLeftCornerStrings;
 
             if (string.IsNullOrEmpty(valueString) ||
@@ -255,28 +256,28 @@ namespace MapControl
                 throw new ArgumentException($"No TopLeftCorner element found in TileMatrix \"{identifier}\".");
             }
 
-            valueString = tileMatrixElement.Element(ns + "TileWidth")?.Value;
+            valueString = tileMatrixElement.Element(wmts + "TileWidth")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int tileWidth))
             {
                 throw new ArgumentException($"No TileWidth element found in TileMatrix \"{identifier}\".");
             }
 
-            valueString = tileMatrixElement.Element(ns + "TileHeight")?.Value;
+            valueString = tileMatrixElement.Element(wmts + "TileHeight")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int tileHeight))
             {
                 throw new ArgumentException($"No TileHeight element found in TileMatrix \"{identifier}\".");
             }
 
-            valueString = tileMatrixElement.Element(ns + "MatrixWidth")?.Value;
+            valueString = tileMatrixElement.Element(wmts + "MatrixWidth")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int matrixWidth))
             {
                 throw new ArgumentException($"No MatrixWidth element found in TileMatrix \"{identifier}\".");
             }
 
-            valueString = tileMatrixElement.Element(ns + "MatrixHeight")?.Value;
+            valueString = tileMatrixElement.Element(wmts + "MatrixHeight")?.Value;
 
             if (string.IsNullOrEmpty(valueString) || !int.TryParse(valueString, out int matrixHeight))
             {

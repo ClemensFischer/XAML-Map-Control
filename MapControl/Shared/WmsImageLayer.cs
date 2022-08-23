@@ -328,8 +328,6 @@ namespace MapControl
             var uri = ServiceUri.GetLeftPart(UriPartial.Path) + "?"
                 + string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
-            Debug.WriteLine(uri);
-
             return uri.Replace(" ", "%20");
         }
     }

@@ -22,19 +22,19 @@ namespace MapControl
 #endif
     public class TileSource
     {
-        private string uriFormat;
+        private string uriTemplate;
 
         /// <summary>
-        /// Gets or sets the format string to produce tile request Uris.
+        /// Gets or sets the template string for tile request Uris.
         /// </summary>
-        public string UriFormat
+        public string UriTemplate
         {
-            get => uriFormat;
+            get => uriTemplate;
             set
             {
-                uriFormat = value;
+                uriTemplate = value;
 
-                if (Subdomains == null && uriFormat != null && uriFormat.Contains("{s}"))
+                if (Subdomains == null && uriTemplate != null && uriTemplate.Contains("{s}"))
                 {
                     Subdomains = new string[] { "a", "b", "c" }; // default OpenStreetMap subdomains
                 }
@@ -53,9 +53,9 @@ namespace MapControl
         {
             Uri uri = null;
 
-            if (UriFormat != null && x >= 0 && y >= 0 && zoomLevel >= 0)
+            if (UriTemplate != null && x >= 0 && y >= 0 && zoomLevel >= 0)
             {
-                var uriString = UriFormat
+                var uriString = UriTemplate
                     .Replace("{x}", x.ToString())
                     .Replace("{y}", y.ToString())
                     .Replace("{z}", zoomLevel.ToString());

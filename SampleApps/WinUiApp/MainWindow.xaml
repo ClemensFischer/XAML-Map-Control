@@ -143,7 +143,7 @@
                 </ProgressBar.Visibility>
             </ProgressBar>
 
-            <TextBlock Margin="4,2" FontSize="10" local:HyperlinkText.InlinesSource="{Binding Description}"/>
+            <TextBlock Margin="4,1,4,3" FontSize="10" local:HyperlinkText.InlinesSource="{Binding Description}"/>
         </StackPanel>
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6">
@@ -155,7 +155,7 @@
                         SourceName="OpenStreetMap"
                         Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="https://tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -164,7 +164,7 @@
                         SourceName="OpenStreetMap German"
                         Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -173,7 +173,7 @@
                         SourceName="OpenStreetMap French"
                         Description="© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -182,7 +182,7 @@
                         SourceName="OpenTopoMap"
                         Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)">
                         <map:MapTileLayer.TileSource>
-                            <map:TileSource UriFormat="https://tile.opentopomap.org/{z}/{x}/{y}.png"/>
+                            <map:TileSource UriTemplate="https://tile.opentopomap.org/{z}/{x}/{y}.png"/>
                         </map:MapTileLayer.TileSource>
                     </map:MapTileLayer>
                 </tools:MapLayerItem>
@@ -190,12 +190,14 @@
                     <map:WmtsTileLayer
                         SourceName="TopPlusOpen"
                         Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)"
-                        CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"/>
+                        CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"
+                        LayerIdentifier="web_light_grau"/>
                 </tools:MapLayerItem>
                 <tools:MapLayerItem Text="TopPlusOpen WMS">
                     <map:WmsImageLayer
                         Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)"
-                        ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"/>
+                        ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"
+                        Layers="web_grau"/>
                 </tools:MapLayerItem>
                 <tools:MapLayerItem Text="OpenStreetMap WMS">
                     <map:WmsImageLayer
@@ -213,7 +215,7 @@
                     <tools:MapLayerItem Text="Seamarks">
                         <map:MapTileLayer SourceName="Seamarks" MinZoomLevel="9" MaxZoomLevel="18">
                             <map:MapTileLayer.TileSource>
-                                <map:TileSource UriFormat="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
+                                <map:TileSource UriTemplate="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
                             </map:MapTileLayer.TileSource>
                         </map:MapTileLayer>
                     </tools:MapLayerItem>

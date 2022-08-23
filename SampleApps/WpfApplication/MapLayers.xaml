@@ -24,7 +24,7 @@
         Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
     <map:MapTileLayer
         x:Key="Seamarks"
-        TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
+        TileSource="https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
         SourceName="Seamarks"
         MinZoomLevel="9"
         MaxZoomLevel="18"/>

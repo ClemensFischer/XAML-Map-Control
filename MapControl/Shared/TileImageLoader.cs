@@ -105,7 +105,7 @@ namespace MapControl
                         Progress.Report(0d);
                     }
 
-                    if (Cache == null || tileSource.UriFormat == null || !tileSource.UriFormat.StartsWith("http"))
+                    if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
                     {
                         cacheName = null; // no tile caching
                     }
