@@ -190,8 +190,7 @@
                     <map:WmtsTileLayer
                         SourceName="TopPlusOpen"
                         Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)"
-                        CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"
-                        LayerIdentifier="web_light_grau"/>
+                        CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"/>
                 </tools:MapLayerItem>
                 <tools:MapLayerItem Text="TopPlusOpen WMS">
                     <map:WmsImageLayer
