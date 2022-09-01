@@ -59,8 +59,9 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(layerIdentifier))
             {
-                layerElement = contentsElement.Elements(wmts + "Layer")
-                    .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == layerIdentifier);
+                layerElement = contentsElement
+                    .Elements(wmts + "Layer")
+                    .FirstOrDefault(layer => layer.Element(ows + "Identifier")?.Value == layerIdentifier);
 
                 if (layerElement == null)
                 {
@@ -69,7 +70,9 @@ namespace MapControl
             }
             else
             {
-                layerElement = contentsElement.Elements(wmts + "Layer").FirstOrDefault();
+                layerElement = contentsElement
+                    .Elements(wmts + "Layer")
+                    .FirstOrDefault();
 
                 if (layerElement == null)
                 {
@@ -79,12 +82,15 @@ namespace MapControl
                 layerIdentifier = layerElement.Element(ows + "Identifier")?.Value ?? "";
             }
 
-            var styleElement = layerElement.Elements(wmts + "Style")
-                .FirstOrDefault(e => e.Attribute("isDefault")?.Value == "true");
+            var styleElement = layerElement
+                .Elements(wmts + "Style")
+                .FirstOrDefault(style => style.Attribute("isDefault")?.Value == "true");
 
             if (styleElement == null)
             {
-                styleElement = layerElement.Elements(wmts + "Style").FirstOrDefault();
+                styleElement = layerElement
+                    .Elements(wmts + "Style")
+                    .FirstOrDefault();
             }
 
             var styleIdentifier = styleElement?.Element(ows + "Identifier")?.Value;
@@ -98,15 +104,16 @@ namespace MapControl
 
             var tileMatrixSetIds = layerElement
                 .Elements(wmts + "TileMatrixSetLink")
-                .Select(e => e.Element(wmts + "TileMatrixSet")?.Value)
-                .Where(id => !string.IsNullOrEmpty(id));
+                .Select(tmsl => tmsl.Element(wmts + "TileMatrixSet")?.Value)
+                .Where(val => !string.IsNullOrEmpty(val));
 
             var tileMatrixSets = new List<WmtsTileMatrixSet>();
 
             foreach (var tileMatrixSetId in tileMatrixSetIds)
             {
-                var tileMatrixSetElement = contentsElement.Elements(wmts + "TileMatrixSet")
-                    .FirstOrDefault(e => e.Element(ows + "Identifier")?.Value == tileMatrixSetId);
+                var tileMatrixSetElement = contentsElement
+                    .Elements(wmts + "TileMatrixSet")
+                    .FirstOrDefault(tms => tms.Element(ows + "Identifier")?.Value == tileMatrixSetId);
 
                 if (tileMatrixSetElement == null)
                 {
@@ -130,8 +137,13 @@ namespace MapControl
             const string formatJpg = "image/jpeg";
             string urlTemplate = null;
 
-            var resourceUrls = layerElement.Elements(wmts + "ResourceURL")
-                .ToLookup(e => e.Attribute("format")?.Value ?? "", e => e.Attribute("template")?.Value ?? "");
+            var resourceUrls = layerElement
+                .Elements(wmts + "ResourceURL")
+                .Where(res => res.Attribute("resourceType")?.Value == "tile" &&
+                              res.Attribute("format")?.Value != null &&
+                              res.Attribute("template")?.Value != null)
+                .ToLookup(res => res.Attribute("format").Value,
+                          res => res.Attribute("template").Value);
 
             if (resourceUrls.Any())
             {
@@ -143,24 +155,34 @@ namespace MapControl
             }
             else
             {
-                var requestUrl = capabilitiesElement
+                urlTemplate = capabilitiesElement
                     .Elements(ows + "OperationsMetadata")
-                    .Elements(ows + "Operation").Where(e => e.Attribute("name")?.Value == "GetTile")
+                    .Elements(ows + "Operation")
+                    .Where(op => op.Attribute("name")?.Value == "GetTile")
                     .Elements(ows + "DCP")
                     .Elements(ows + "HTTP")
-                    .Elements(ows + "Get").Select(e => e.Attribute(xlink + "href")?.Value)
+                    .Elements(ows + "Get")
+                    .Where(get => get.Elements(ows + "Constraint")
+                                     .Any(con => con.Attribute("name")?.Value == "GetEncoding" &&
+                                                 con.Element(ows + "AllowedValues")?.Element(ows + "Value")?.Value == "KVP"))
+                    .Select(get => get.Attribute(xlink + "href")?.Value)
+                    .Where(href => !string.IsNullOrEmpty(href))
+                    .Select(href => href.Split('?')[0])
                     .FirstOrDefault();
 
-                if (requestUrl == null &&
+                if (urlTemplate == null &&
                     capabilitiesUrl != null &&
                     capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    requestUrl = capabilitiesUrl;
+                    urlTemplate = capabilitiesUrl.Split('?')[0];
                 }
 
-                if (requestUrl != null)
+                if (urlTemplate != null)
                 {
-                    var formats = layerElement.Elements(wmts + "Format").Select(e => e.Value);
+                    var formats = layerElement
+                        .Elements(wmts + "Format")
+                        .Select(fmt => fmt.Value);
+
                     var format = formats.Contains(formatPng) ? formatPng
                                : formats.Contains(formatJpg) ? formatJpg
                                : formats.FirstOrDefault();
@@ -170,10 +192,16 @@ namespace MapControl
                         format = formatPng;
                     }
 
-                    urlTemplate = requestUrl.Split('?')[0]
-                        + "?Service=WMTS&Request=GetTile&Version=1.0.0"
-                        + "&Layer=" + layerIdentifier + "&Style=" + styleIdentifier + "&Format=" + format
-                        + "&TileMatrixSet={TileMatrixSet}&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}";
+                    urlTemplate += "?Service=WMTS"
+                        + "&Request=GetTile"
+                        + "&Version=1.0.0"
+                        + "&Layer=" + layerIdentifier
+                        + "&Style=" + styleIdentifier
+                        + "&Format=" + format
+                        + "&TileMatrixSet={TileMatrixSet}"
+                        + "&TileMatrix={TileMatrix}"
+                        + "&TileRow={TileRow}"
+                        + "&TileCol={TileCol}";
                 }
             }
 
