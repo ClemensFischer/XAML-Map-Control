@@ -195,8 +195,7 @@
                 <tools:MapLayerItem Text="TopPlusOpen WMS">
                     <map:WmsImageLayer
                         Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)"
-                        ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"
-                        Layers="web_grau"/>
+                        ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"/>
                 </tools:MapLayerItem>
                 <tools:MapLayerItem Text="OpenStreetMap WMS">
                     <map:WmsImageLayer
