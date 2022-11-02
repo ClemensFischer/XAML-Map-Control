@@ -216,6 +216,12 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets the scaling factor from cartesian map coordinates to view coordinates,
+        /// i.e. pixels per meter, as a read-only dependency property.
+        /// </summary>
+        public double ViewScale => (double)GetValue(ViewScaleProperty);
+
+        /// <summary>
         /// Gets the ViewTransform instance that is used to transform between cartesian map coordinates
         /// and view coordinates.
         /// </summary>
@@ -769,6 +775,8 @@ namespace MapControl
                         }
                     }
                 }
+
+                SetViewScale(ViewTransform.Scale);
 
                 OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, Center.Longitude - centerLongitude));
 
