@@ -68,9 +68,16 @@ namespace MapControl
 
         protected virtual void UpdateData()
         {
+#if !WINUI && !UWP
+            if (Data != null && Data.IsFrozen)
+            {
+                Data = Data.Clone(); 
+                return; // UpdateData called again from DataPropertyChanged callback
+            }
+#endif
             MapPanel.SetLocation(this, Location);
 
-            if (parentMap != null && Data != null && Location != null)
+            if (parentMap != null && Location != null && Data != null)
             {
                 var scale = parentMap.GetScale(Location);
                 var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);

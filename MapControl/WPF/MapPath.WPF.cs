@@ -14,7 +14,15 @@ namespace MapControl
 {
     public partial class MapPath : Shape, IWeakEventListener
     {
-        public static readonly DependencyProperty DataProperty = Path.DataProperty.AddOwner(typeof(MapPath));
+        public static readonly DependencyProperty DataProperty = Path.DataProperty.AddOwner(
+            typeof(MapPath), new PropertyMetadata(null,
+                (o, e) =>
+                {
+                    if (e.NewValue != e.OldValue) // Data is actually a new Geometry
+                    {
+                        ((MapPath)o).UpdateData();
+                    }
+                }));
 
         public Geometry Data
         {
