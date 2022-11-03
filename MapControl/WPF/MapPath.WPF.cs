@@ -15,14 +15,7 @@ namespace MapControl
     public partial class MapPath : Shape, IWeakEventListener
     {
         public static readonly DependencyProperty DataProperty = Path.DataProperty.AddOwner(
-            typeof(MapPath), new PropertyMetadata(null,
-                (o, e) =>
-                {
-                    if (e.NewValue != e.OldValue) // Data is actually a new Geometry
-                    {
-                        ((MapPath)o).UpdateData();
-                    }
-                }));
+            typeof(MapPath), new PropertyMetadata(null, DataPropertyChanged));
 
         public Geometry Data
         {
@@ -31,6 +24,25 @@ namespace MapControl
         }
 
         protected override Geometry DefiningGeometry => Data;
+
+        private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null && !ReferenceEquals(e.NewValue, e.OldValue)) // Data is actually a new Geometry
+            {
+                var path = (MapPath)obj;
+                var data = (Geometry)e.NewValue;
+
+                if (data.IsFrozen)
+                {
+                    path.Data = data.Clone(); // DataPropertyChanged called again
+                }
+                else
+                {
+                    data.Transform = new MatrixTransform();
+                    path.UpdateData();
+                }
+            }
+        }
 
         #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
 
