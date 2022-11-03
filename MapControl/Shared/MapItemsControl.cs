@@ -26,11 +26,6 @@ namespace MapControl
     /// </summary>
     public partial class MapItem : ListBoxItem
     {
-        public static readonly DependencyProperty LocationMemberPathProperty = DependencyProperty.Register(
-            nameof(LocationMemberPath), typeof(string), typeof(MapItem),
-            new PropertyMetadata(null, (o, e) => BindingOperations.SetBinding(
-                o, LocationProperty, new Binding { Path = new PropertyPath((string)e.NewValue) })));
-
         /// <summary>
         /// Gets/sets MapPanel.AutoCollapse.
         /// </summary>
@@ -48,15 +43,6 @@ namespace MapControl
             get => (Location)GetValue(LocationProperty);
             set => SetValue(LocationProperty, value);
         }
-
-        /// <summary>
-        /// Path to a source property for binding the Location property.
-        /// </summary>
-        public string LocationMemberPath
-        {
-            get => (string)GetValue(LocationMemberPathProperty);
-            set => SetValue(LocationMemberPathProperty, value);
-        }
     }
 
     /// <summary>
@@ -64,6 +50,18 @@ namespace MapControl
     /// </summary>
     public partial class MapItemsControl : ListBox
     {
+        public static readonly DependencyProperty LocationMemberPathProperty = DependencyProperty.Register(
+            nameof(LocationMemberPath), typeof(string), typeof(MapItemsControl), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Path to a source property for binding the Location property of MapItem containers.
+        /// </summary>
+        public string LocationMemberPath
+        {
+            get => (string)GetValue(LocationMemberPathProperty);
+            set => SetValue(LocationMemberPathProperty, value);
+        }
+
         protected override DependencyObject GetContainerForItemOverride()
         {
             return new MapItem();
@@ -72,6 +70,31 @@ namespace MapControl
         protected override bool IsItemItsOwnContainerOverride(object item)
         {
             return item is MapItem;
+        }
+
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
+        {
+            base.PrepareContainerForItemOverride(element, item);
+
+            if (LocationMemberPath != null && element is MapItem mapItem)
+            {
+                mapItem.SetBinding(MapItem.LocationProperty,
+                    new Binding
+                    {
+                        Path = new PropertyPath(LocationMemberPath),
+                        Source = item
+                    });
+            }
+        }
+
+        protected override void ClearContainerForItemOverride(DependencyObject element, object item)
+        {
+            base.ClearContainerForItemOverride(element, item);
+
+            if (LocationMemberPath != null && element is MapItem mapItem)
+            {
+                mapItem.ClearValue(MapItem.LocationProperty);
+            }
         }
 
         public void SelectItems(Predicate<object> predicate)
