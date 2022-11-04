@@ -109,16 +109,12 @@ namespace MapControl
         /// <summary>
         /// Returns the view position of a Location.
         /// </summary>
-        public Point? GetViewPosition(Location location)
+        public Point GetViewPosition(Location location)
         {
-            if (location == null)
-            {
-                return null;
-            }
-
             var position = parentMap.LocationToView(location);
 
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical && IsOutsideViewport(position))
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+                IsOutsideViewport(position))
             {
                 location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
 
@@ -144,9 +140,11 @@ namespace MapControl
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
 
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical && IsOutsideViewport(position))
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+                IsOutsideViewport(position))
             {
                 var location = parentMap.MapProjection.MapToLocation(center);
+
                 if (location != null)
                 {
                     location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
@@ -207,7 +205,13 @@ namespace MapControl
             {
                 foreach (var element in Children.OfType<FrameworkElement>())
                 {
-                    var position = GetViewPosition(GetLocation(element));
+                    Point? position = null;
+                    var location = GetLocation(element);
+                    
+                    if (location != null)
+                    {
+                        position = GetViewPosition(location);
+                    }
 
                     SetViewPosition(element, position);
 

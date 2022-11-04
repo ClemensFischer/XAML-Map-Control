@@ -197,7 +197,7 @@
                 </tools:MapLayerItem>
                 <tools:MapLayersMenuButton.MapOverlays>
                     <tools:MapLayerItem Text="Sample Image">
-                        <Image Source="10_535_330.jpg">
+                        <Image Source="10_535_330.jpg" Stretch="Fill">
                             <map:MapPanel.BoundingBox>
                                 <map:BoundingBox South="53.54031" West="8.08594" North="53.74871" East="8.43750"/>
                             </map:MapPanel.BoundingBox>

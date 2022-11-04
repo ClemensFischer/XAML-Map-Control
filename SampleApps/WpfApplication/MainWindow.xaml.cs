@@ -78,17 +78,7 @@ namespace SampleApplication
         {
             if (e.ClickCount == 2)
             {
-                //map.ZoomMap(e.GetPosition(map), Math.Floor(map.ZoomLevel + 1.5));
-                //map.ZoomToBounds(new BoundingBox(53, 7, 54, 9));
                 map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
-            }
-        }
-
-        private void MapMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 2)
-            {
-                //map.ZoomMap(e.GetPosition(map), Math.Ceiling(map.ZoomLevel - 1.5));
             }
         }
 

@@ -111,7 +111,6 @@
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11" MouseWheelZoomDelta="1"
                  Center="53.5,8.2"
                  MouseLeftButtonDown="MapMouseLeftButtonDown"
-                 MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
 
@@ -179,7 +178,8 @@
                 <tools:MapLayerItem Text="OpenStreetMap WMS" Layer="{StaticResource OpenStreetMapWMS}"/>
                 <tools:MapLayersMenuButton.MapOverlays>
                     <tools:MapLayerItem Text="Sample Image">
-                        <Image Source="10_535_330.jpg" map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
+                        <Image Source="10_535_330.jpg" Stretch="Fill"
+                               map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
                     </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Seamarks" Layer="{StaticResource Seamarks}"/>
                     <tools:MapLayerItem Text="Graticule">

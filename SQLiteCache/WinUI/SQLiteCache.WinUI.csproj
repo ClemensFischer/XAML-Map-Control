@@ -7,7 +7,7 @@
         <RootNamespace>MapControl.Caching</RootNamespace>
         <AssemblyTitle>XAML Map Control SQLiteCache Library for WinUI</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>7.3.0</Version>
+        <Version>7.3.1</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2022 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
