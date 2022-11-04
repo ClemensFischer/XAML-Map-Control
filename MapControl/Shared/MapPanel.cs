@@ -106,60 +106,6 @@ namespace MapControl
             return (Point?)element.GetValue(ViewPositionProperty);
         }
 
-        /// <summary>
-        /// Returns the view position of a Location.
-        /// </summary>
-        public Point GetViewPosition(Location location)
-        {
-            var position = parentMap.LocationToView(location);
-
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                IsOutsideViewport(position))
-            {
-                location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
-
-                position = parentMap.LocationToView(location);
-            }
-
-            return position;
-        }
-
-        /// <summary>
-        /// Returns the potentially rotated view rectangle of a BoundingBox.
-        /// </summary>
-        public ViewRect GetViewRect(BoundingBox boundingBox)
-        {
-            return GetViewRect(parentMap.MapProjection.BoundingBoxToRect(boundingBox));
-        }
-
-        /// <summary>
-        /// Returns the potentially rotated view rectangle of a map coordinate rectangle.
-        /// </summary>
-        public ViewRect GetViewRect(Rect rect)
-        {
-            var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-            var position = parentMap.ViewTransform.MapToView(center);
-
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                IsOutsideViewport(position))
-            {
-                var location = parentMap.MapProjection.MapToLocation(center);
-
-                if (location != null)
-                {
-                    location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
-                    position = parentMap.LocationToView(location);
-                }
-            }
-
-            var width = rect.Width * parentMap.ViewTransform.Scale;
-            var height = rect.Height * parentMap.ViewTransform.Scale;
-            var x = position.X - width / 2d;
-            var y = position.Y - height / 2d;
-
-            return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
-        }
-
         protected virtual void SetParentMap(MapBase map)
         {
             if (parentMap != null && parentMap != this)
@@ -205,8 +151,8 @@ namespace MapControl
             {
                 foreach (var element in Children.OfType<FrameworkElement>())
                 {
-                    Point? position = null;
                     var location = GetLocation(element);
+                    Point? position = null;
                     
                     if (location != null)
                     {
@@ -255,6 +201,51 @@ namespace MapControl
             }
 
             return finalSize;
+        }
+
+        protected Point GetViewPosition(Location location)
+        {
+            var position = parentMap.LocationToView(location);
+
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+                IsOutsideViewport(position))
+            {
+                location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
+
+                position = parentMap.LocationToView(location);
+            }
+
+            return position;
+        }
+
+        protected ViewRect GetViewRect(BoundingBox boundingBox)
+        {
+            return GetViewRect(parentMap.MapProjection.BoundingBoxToRect(boundingBox));
+        }
+
+        protected ViewRect GetViewRect(Rect rect)
+        {
+            var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+            var position = parentMap.ViewTransform.MapToView(center);
+
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+                IsOutsideViewport(position))
+            {
+                var location = parentMap.MapProjection.MapToLocation(center);
+
+                if (location != null)
+                {
+                    location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
+                    position = parentMap.LocationToView(location);
+                }
+            }
+
+            var width = rect.Width * parentMap.ViewTransform.Scale;
+            var height = rect.Height * parentMap.ViewTransform.Scale;
+            var x = position.X - width / 2d;
+            var y = position.Y - height / 2d;
+
+            return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
         }
 
         private bool IsOutsideViewport(Point point)
