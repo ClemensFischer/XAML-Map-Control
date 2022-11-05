@@ -57,18 +57,18 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Transforms a Location in geographic coordinates to a Point in cartesian map coordinates.
+        /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.
         /// </summary>
         public abstract Point LocationToMap(Location location);
 
         /// <summary>
-        /// Transforms a Point in cartesian map coordinates to a Location in geographic coordinates.
+        /// Transforms a Point in projected map coordinates to a Location in geographic coordinates.
         /// Returns null when the Point can not be transformed.
         /// </summary>
         public abstract Location MapToLocation(Point point);
 
         /// <summary>
-        /// Transforms a BoundingBox in geographic coordinates to a Rect in cartesian map coordinates.
+        /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates.
         /// </summary>
         public virtual Rect BoundingBoxToRect(BoundingBox boundingBox)
         {
@@ -78,7 +78,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Transforms a Rect in cartesian map coordinates to a BoundingBox in geographic coordinates.
+        /// Transforms a Rect in projected map coordinates to a BoundingBox in geographic coordinates.
         /// Returns null when the Rect can not be transformed.
         /// </summary>
         public virtual BoundingBox RectToBoundingBox(Rect rect)

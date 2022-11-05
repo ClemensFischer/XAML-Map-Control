@@ -67,9 +67,9 @@ namespace MapControl
             return parentMap;
         }
 
-        private static void SetViewPosition(FrameworkElement element, Point? viewPosition)
+        private static void SetViewPosition(FrameworkElement element, Point? position)
         {
-            element.SetValue(ViewPositionProperty, viewPosition);
+            element.SetValue(ViewPositionProperty, position);
         }
     }
 }

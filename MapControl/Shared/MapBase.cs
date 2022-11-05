@@ -216,20 +216,20 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates to view coordinates,
-        /// i.e. pixels per meter, as a read-only dependency property.
+        /// Gets the scaling factor from projected map coordinates to view coordinates,
+        /// i.e. pixels per meter.
         /// </summary>
         public double ViewScale => (double)GetValue(ViewScaleProperty);
 
         /// <summary>
-        /// Gets the ViewTransform instance that is used to transform between cartesian map coordinates
-        /// and view coordinates.
+        /// Gets the ViewTransform instance that is used to transform between projected
+        /// map coordinates and view coordinates.
         /// </summary>
         public ViewTransform ViewTransform { get; } = new ViewTransform();
 
         /// <summary>
-        /// Gets the horizontal and vertical scaling factors from cartesian map coordinates to view
-        /// coordinates at the specified location, i.e. pixels per meter.
+        /// Gets the map scale, i.e. the horizontal and vertical scaling factors from geographic
+        /// coordinates to view coordinates at the specified location, in pixels per meter.
         /// </summary>
         public Vector GetScale(Location location)
         {

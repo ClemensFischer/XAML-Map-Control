@@ -17,7 +17,7 @@ namespace MapControl
 {
     /// <summary>
     /// A path element with a Data property that holds a Geometry in view coordinates or
-    /// cartesian map coordinates that are relative to an origin Location.
+    /// projected map coordinates that are relative to an origin Location.
     /// </summary>
     public partial class MapPath : IMapElement
     {
@@ -29,7 +29,7 @@ namespace MapControl
 
         /// <summary>
         /// Gets or sets a Location that is used as
-        /// - either the origin point of a geometry specified in cartesian map units (meters)
+        /// - either the origin point of a geometry specified in projected map coordinates (meters)
         /// - or as an optional value to constrain the view position of MapPaths with multiple
         ///   Locations (like MapPolyline or MapPolygon) to the visible map viewport, as done
         ///   for elements where the MapPanel.Location property is set.

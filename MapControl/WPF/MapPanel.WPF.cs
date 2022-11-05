@@ -39,9 +39,9 @@ namespace MapControl
             return (MapBase)element.GetValue(ParentMapProperty);
         }
 
-        private static void SetViewPosition(FrameworkElement element, Point? viewPosition)
+        private static void SetViewPosition(FrameworkElement element, Point? position)
         {
-            element.SetValue(ViewPositionPropertyKey, viewPosition);
+            element.SetValue(ViewPositionPropertyKey, position);
         }
     }
 }

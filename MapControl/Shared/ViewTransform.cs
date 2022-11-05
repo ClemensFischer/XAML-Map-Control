@@ -17,7 +17,7 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Defines the transformation between cartesian map coordinates in meters
+    /// Defines the transformation between projected map coordinates in meters
     /// and view coordinates in pixels.
     /// </summary>
     public class ViewTransform
@@ -33,7 +33,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the scaling factor from cartesian map coordinates to view coordinates,
+        /// Gets the scaling factor from projected map coordinates to view coordinates,
         /// i.e. pixels per meter.
         /// </summary>
         public double Scale { get; private set; }
@@ -44,17 +44,17 @@ namespace MapControl
         public double Rotation { get; private set; }
 
         /// <summary>
-        /// Gets the transform matrix from cartesian map coordinates to view coordinates.
+        /// Gets the transform matrix from projected map coordinates to view coordinates.
         /// </summary>
         public Matrix MapToViewMatrix { get; private set; }
 
         /// <summary>
-        /// Gets the transform matrix from view coordinates to cartesian map coordinates.
+        /// Gets the transform matrix from view coordinates to projected map coordinates.
         /// </summary>
         public Matrix ViewToMapMatrix { get; private set; }
 
         /// <summary>
-        /// Transforms a Point from cartesian map coordinates to view coordinates.
+        /// Transforms a Point from projected map coordinates to view coordinates.
         /// </summary>
         public Point MapToView(Point point)
         {
@@ -62,7 +62,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Transforms a Point from view coordinates to cartesian map coordinates.
+        /// Transforms a Point from view coordinates to projected map coordinates.
         /// </summary>
         public Point ViewToMap(Point point)
         {
