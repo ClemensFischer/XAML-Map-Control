@@ -33,26 +33,40 @@
                                         <VisualState x:Name="Pressed"/>
                                         <VisualState x:Name="Selected">
                                             <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="0.75" Duration="0"/>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="SelectedUnfocused">
                                             <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="0.75" Duration="0"/>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="SelectedPointerOver">
                                             <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="0.75" Duration="0"/>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="SelectedPressed">
                                             <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetName="selectedPath" Storyboard.TargetProperty="Opacity" To="0.75" Duration="0"/>
+                                                <DoubleAnimation Storyboard.TargetName="selectedPath"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="0.75" Duration="0"/>
                                             </Storyboard>
                                         </VisualState>
                                     </VisualStateGroup>
                                 </VisualStateManager.VisualStateGroups>
+                                <Path Fill="Red" Opacity="0.4" IsHitTestVisible="False">
+                                    <Path.Data>
+                                        <EllipseGeometry RadiusX="20" RadiusY="20"
+                                                         Transform="{Binding MapTransform, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    </Path.Data>
+                                </Path>
                                 <Path x:Name="selectedPath" Fill="White" Opacity="0">
                                     <Path.Data>
                                         <EllipseGeometry RadiusX="12" RadiusY="12"/>

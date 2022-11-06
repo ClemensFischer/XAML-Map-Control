@@ -98,7 +98,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the position of an element with Location in view coordinates,
+        /// Gets the view position of an element with Location
         /// or null when the element has no Location.
         /// </summary>
         public static Point? GetViewPosition(FrameworkElement element)

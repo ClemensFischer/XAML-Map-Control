@@ -8,15 +8,19 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Media;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Markup;
+using System.Windows.Media;
 #endif
 
 namespace MapControl
@@ -42,6 +46,35 @@ namespace MapControl
         {
             get => (Location)GetValue(LocationProperty);
             set => SetValue(LocationProperty, value);
+        }
+
+        /// <summary>
+        /// Gets a Transform for scaling and rotating geometries
+        /// in map coordinates (meters) to view coordinates (pixels).
+        /// </summary>
+        public Transform MapTransform
+        {
+            get => mapTransform ?? (mapTransform = new MatrixTransform());
+        }
+
+        private MatrixTransform mapTransform;
+
+        protected override Size ArrangeOverride(Size bounds)
+        {
+            if (mapTransform != null) // property in use, e.g. as source of a Binding
+            {
+                var parentMap = (VisualTreeHelper.GetParent(this) as MapPanel)?.ParentMap;
+
+                if (parentMap != null && Location != null)
+                {
+                    var scale = parentMap.GetScale(Location);
+                    var matrix = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
+                    matrix.Rotate(parentMap.ViewTransform.Rotation);
+                    mapTransform.Matrix = matrix;
+                }
+            }
+
+            return base.ArrangeOverride(bounds);
         }
     }
 
