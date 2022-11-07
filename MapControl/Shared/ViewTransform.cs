@@ -34,7 +34,7 @@ namespace MapControl
 
         /// <summary>
         /// Gets the scaling factor from projected map coordinates to view coordinates,
-        /// i.e. pixels per meter.
+        /// as pixels per meter.
         /// </summary>
         public double Scale { get; private set; }
 

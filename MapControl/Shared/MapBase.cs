@@ -29,7 +29,7 @@ namespace MapControl
 
     /// <summary>
     /// The map control. Displays map content provided by one or more tile or image layers,
-    /// i.e. MapTileLayerBase or MapImageLayer instances.
+    /// such as MapTileLayerBase or MapImageLayer instances.
     /// The visible map area is defined by the Center and ZoomLevel properties.
     /// The map can be rotated by an angle that is given by the Heading property.
     /// MapBase can contain map overlay child elements like other MapPanels or MapItemsControls.
@@ -178,7 +178,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the map heading, i.e. a clockwise rotation angle in degrees.
+        /// Gets or sets the map heading, a counter-clockwise rotation angle in degrees.
         /// </summary>
         public double Heading
         {
@@ -217,7 +217,7 @@ namespace MapControl
 
         /// <summary>
         /// Gets the scaling factor from projected map coordinates to view coordinates,
-        /// i.e. pixels per meter.
+        /// as pixels per meter.
         /// </summary>
         public double ViewScale => (double)GetValue(ViewScaleProperty);
 
@@ -228,8 +228,8 @@ namespace MapControl
         public ViewTransform ViewTransform { get; } = new ViewTransform();
 
         /// <summary>
-        /// Gets the map scale, i.e. the horizontal and vertical scaling factors from geographic
-        /// coordinates to view coordinates at the specified location, in pixels per meter.
+        /// Gets the map scale as the horizontal and vertical scaling factors from geographic
+        /// coordinates to view coordinates at the specified location, as pixels per meter.
         /// </summary>
         public Vector GetScale(Location location)
         {
@@ -324,7 +324,7 @@ namespace MapControl
 
                 if (rotation != 0d)
                 {
-                    var heading = (((Heading + rotation) % 360d) + 360d) % 360d;
+                    var heading = (((Heading - rotation) % 360d) + 360d) % 360d;
 
                     SetValueInternal(HeadingProperty, heading);
                     SetValueInternal(TargetHeadingProperty, heading);
@@ -737,7 +737,7 @@ namespace MapControl
 
             if (MapProjection.IsValid(mapCenter))
             {
-                ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, Heading);
+                ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
 
                 if (transformCenter != null)
                 {
@@ -770,7 +770,7 @@ namespace MapControl
 
                             if (MapProjection.IsValid(mapCenter))
                             {
-                                ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, Heading);
+                                ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
                             }
                         }
                     }

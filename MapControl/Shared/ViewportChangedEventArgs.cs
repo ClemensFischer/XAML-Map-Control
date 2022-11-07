@@ -15,8 +15,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Indicates if the map projection has changed, i.e. if a MapTileLayer or MapImageLayer should
-        /// be updated immediately, or MapPath Data in projected map coordinates should be recalculated.
+        /// Indicates if the map projection has changed. Used to control when a MapTileLayer or MapImageLayer
+        /// should be updated immediately, or MapPath Data in projected map coordinates should be recalculated.
         /// </summary>
         public bool ProjectionChanged { get; }
 
