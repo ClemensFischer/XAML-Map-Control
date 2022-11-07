@@ -17,7 +17,8 @@ namespace MapControl
             nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
 
         public static readonly DependencyProperty ManipulationModeProperty = DependencyProperty.Register(
-            nameof(ManipulationMode), typeof(ManipulationModes), typeof(Map), new PropertyMetadata(ManipulationModes.All));
+            nameof(ManipulationMode), typeof(ManipulationModes), typeof(Map),
+            new PropertyMetadata(ManipulationModes.Scale | ManipulationModes.Translate));
 
         private Point? mousePosition;
 
