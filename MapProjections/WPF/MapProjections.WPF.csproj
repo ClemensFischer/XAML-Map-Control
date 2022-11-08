@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0-windows;net5.0-windows;netcoreapp3.1;net48;net462</TargetFrameworks>
+        <TargetFrameworks>net6.0-windows;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for WPF</AssemblyTitle>
