@@ -21,9 +21,10 @@ namespace MapControl
     public class Map : MapBase
     {
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
-            nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(1d));
+            nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(0.25));
 
         private Point? mousePosition;
+        private double mouseWheelDelta;
 
         public Map()
         {
@@ -32,16 +33,16 @@ namespace MapControl
                 | ManipulationModes.TranslateY
                 | ManipulationModes.TranslateInertia;
 
-            PointerWheelChanged += OnPointerWheelChanged;
+            ManipulationDelta += OnManipulationDelta;
             PointerPressed += OnPointerPressed;
             PointerReleased += OnPointerReleased;
             PointerMoved += OnPointerMoved;
-            ManipulationDelta += OnManipulationDelta;
+            PointerWheelChanged += OnPointerWheelChanged;
         }
 
         /// <summary>
-        /// Gets or sets the amount by which the ZoomLevel property changes during a MouseWheel event.
-        /// The default value is 1.
+        /// Gets or sets the amount by which the ZoomLevel property changes by a PointerWheelChanged event.
+        /// The default value is 0.25.
         /// </summary>
         public double MouseWheelZoomDelta
         {
@@ -49,14 +50,11 @@ namespace MapControl
             set => SetValue(MouseWheelZoomDeltaProperty, value);
         }
 
-        private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            if (!mousePosition.HasValue)
             {
-                var point = e.GetCurrentPoint(this);
-                var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * Math.Sign(point.Properties.MouseWheelDelta);
-
-                ZoomMap(point.Position, MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta));
+                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
             }
         }
 
@@ -95,11 +93,23 @@ namespace MapControl
             }
         }
 
-        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
-            if (!mousePosition.HasValue)
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
             {
-                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+                var point = e.GetCurrentPoint(this);
+
+                mouseWheelDelta += point.Properties.MouseWheelDelta / 120d; // standard mouse wheel delta
+
+                if (Math.Abs(mouseWheelDelta) >= 1d)
+                {
+                    // Zoom to integer multiple of MouseWheelZoomDelta.
+
+                    ZoomMap(point.Position,
+                        MouseWheelZoomDelta * Math.Round(TargetZoomLevel / MouseWheelZoomDelta + mouseWheelDelta));
+
+                    mouseWheelDelta = 0d;
+                }
             }
         }
     }
