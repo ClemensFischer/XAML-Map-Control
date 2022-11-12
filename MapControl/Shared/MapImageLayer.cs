@@ -141,15 +141,9 @@ namespace MapControl
 
         protected override void SetParentMap(MapBase map)
         {
-            if (map == null)
+            if (map != null)
             {
-                updateTimer.Stop();
-                ClearImages();
-                Children.Clear();
-            }
-            else if (Children.Count == 0)
-            {
-                for (int i = 0; i < 2; i++)
+                while (Children.Count < 2)
                 {
                     Children.Add(new Image
                     {
@@ -158,6 +152,12 @@ namespace MapControl
                         IsHitTestVisible = false // avoid touch capture issues
                     });
                 }
+            }
+            else
+            {
+                updateTimer.Stop();
+                ClearImages();
+                Children.Clear();
             }
 
             base.SetParentMap(map);
