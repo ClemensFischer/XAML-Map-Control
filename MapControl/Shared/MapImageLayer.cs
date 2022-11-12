@@ -149,8 +149,15 @@ namespace MapControl
             }
             else if (Children.Count == 0)
             {
-                Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
-                Children.Add(new Image { Opacity = 0d, Stretch = Stretch.Fill });
+                for (int i = 0; i < 2; i++)
+                {
+                    Children.Add(new Image
+                    {
+                        Opacity = 0d,
+                        Stretch = Stretch.Fill,
+                        IsHitTestVisible = false // avoid touch capture issues
+                    });
+                }
             }
 
             base.SetParentMap(map);

@@ -23,7 +23,6 @@ namespace MapControl
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
             nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(0.25));
 
-        private Point? mousePosition;
         private double mouseWheelDelta;
 
         public Map()
@@ -35,9 +34,6 @@ namespace MapControl
                 | ManipulationModes.TranslateInertia;
 
             ManipulationDelta += OnManipulationDelta;
-            PointerPressed += OnPointerPressed;
-            PointerReleased += OnPointerReleased;
-            PointerMoved += OnPointerMoved;
             PointerWheelChanged += OnPointerWheelChanged;
         }
 
@@ -53,45 +49,7 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (!mousePosition.HasValue)
-            {
-                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
-            }
-        }
-
-        private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
-                CapturePointer(e.Pointer))
-            {
-                mousePosition = e.GetCurrentPoint(this).Position;
-            }
-        }
-
-        private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
-        {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
-                mousePosition.HasValue)
-            {
-                mousePosition = null;
-                ReleasePointerCaptures();
-            }
-        }
-
-        private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
-        {
-            // Perform translation by explicit Mouse input because with Manipulation pointer capture is
-            // lost when Map content changes, e.g. when a MapTileLayer or WmsImageLayer loads new images.
-
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
-                mousePosition.HasValue)
-            {
-                Point position = e.GetCurrentPoint(this).Position;
-                var translation = position - mousePosition.Value;
-                mousePosition = position;
-
-                TranslateMap(translation);
-            }
+            TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)

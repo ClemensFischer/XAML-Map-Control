@@ -43,7 +43,12 @@ namespace MapControl
             }
         }
 
-        public Image Image { get; } = new Image { Opacity = 0d, Stretch = Stretch.Fill };
+        public Image Image { get; } = new Image
+        {
+            Opacity = 0d,
+            Stretch = Stretch.Fill,
+            IsHitTestVisible = false // avoid touch capture issues
+        };
 
         public bool Pending { get; set; } = true;
 
