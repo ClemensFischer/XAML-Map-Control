@@ -28,7 +28,8 @@ namespace MapControl
 
         public Map()
         {
-            ManipulationMode = ManipulationModes.Scale
+            ManipulationMode
+                = ManipulationModes.Scale
                 | ManipulationModes.TranslateX
                 | ManipulationModes.TranslateY
                 | ManipulationModes.TranslateInertia;
