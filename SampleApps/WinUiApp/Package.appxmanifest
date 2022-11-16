@@ -7,7 +7,7 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="a9035747-171b-446d-b7ab-ed75820b0cd4"
+    Name="XamlMapControl.WinUiApp"
     Publisher="CN=Clemens"
     Version="1.0.0.0" />
 
