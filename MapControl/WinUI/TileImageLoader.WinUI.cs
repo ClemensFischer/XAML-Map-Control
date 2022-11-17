@@ -71,7 +71,7 @@ namespace MapControl
             {
                 try
                 {
-                    tile.SetImage(await loadImageFunc());
+                    tile.SetImageSource(await loadImageFunc());
                     tcs.TrySetResult();
                 }
                 catch (Exception ex)

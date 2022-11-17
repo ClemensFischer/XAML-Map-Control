@@ -52,6 +52,13 @@ namespace MapControl
 
         public bool Pending { get; set; } = true;
 
+        public void SetImageSource(Tile tile)
+        {
+            Pending = false;
+            Image.Opacity = 1d;
+            Image.Source = tile.Image.Source;
+        }
+
         private void FadeIn()
         {
             Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation

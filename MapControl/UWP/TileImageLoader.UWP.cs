@@ -70,7 +70,7 @@ namespace MapControl
             {
                 try
                 {
-                    tile.SetImage(await loadImageFunc());
+                    tile.SetImageSource(await loadImageFunc());
                     tcs.TrySetResult(null);
                 }
                 catch (Exception ex)

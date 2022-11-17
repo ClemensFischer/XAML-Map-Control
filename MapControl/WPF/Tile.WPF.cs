@@ -11,11 +11,11 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public void SetImage(ImageSource image, bool fadeIn = true)
+        public void SetImageSource(ImageSource image)
         {
             Pending = false;
 
-            if (image != null && fadeIn && MapBase.ImageFadeDuration > TimeSpan.Zero)
+            if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
                 if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
                 {

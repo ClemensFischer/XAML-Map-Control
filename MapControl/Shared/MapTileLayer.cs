@@ -235,11 +235,11 @@ namespace MapControl
                                     tile = new Tile(z, x, y);
 
                                     var equivalentTile = Tiles.FirstOrDefault(
-                                        t => t.ZoomLevel == z && t.XIndex == tile.XIndex && t.Y == y && !t.Pending);
+                                        t => !t.Pending && t.ZoomLevel == z && t.Y == y && t.XIndex == tile.XIndex);
 
                                     if (equivalentTile != null)
                                     {
-                                        tile.SetImage(equivalentTile.Image.Source, false); // no fade-in animation
+                                        tile.SetImageSource(equivalentTile);
                                     }
                                 }
 
