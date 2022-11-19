@@ -70,10 +70,10 @@ namespace MapControl
         protected override Size MeasureOverride(Size availableSize)
         {
             var size = new Size();
+            double scale;
 
-            if (ParentMap != null)
+            if (ParentMap != null && (scale = ParentMap.GetScale(ParentMap.Center).X) > 0d)
             {
-                var scale = ParentMap.GetScale(ParentMap.Center).X;
                 var length = MinWidth / scale;
                 var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 
