@@ -82,7 +82,7 @@ namespace MapControl
 
             if (!tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, callback))
             {
-                tile.Pending = true;
+                tile.IsLoaded = false;
                 tcs.TrySetResult();
             }
 

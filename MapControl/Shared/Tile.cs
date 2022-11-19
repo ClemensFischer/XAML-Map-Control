@@ -51,11 +51,11 @@ namespace MapControl
             IsHitTestVisible = false // avoid touch capture issues
         };
 
-        public bool Pending { get; set; } = true;
+        public bool IsLoaded { get; set; }
 
         public void SetImageSource(ImageSource image, bool animateOpacity = true)
         {
-            Pending = false;
+            IsLoaded = true;
             Image.Source = image;
 
             if (image != null && animateOpacity && MapBase.ImageFadeDuration > TimeSpan.Zero)

@@ -22,7 +22,7 @@ namespace MapControl
         private class TileQueue : ConcurrentStack<Tile>
         {
             public TileQueue(IEnumerable<Tile> tiles)
-                : base(tiles.Where(tile => tile.Pending).Reverse())
+                : base(tiles.Where(tile => !tile.IsLoaded).Reverse())
             {
             }
 
@@ -37,7 +37,7 @@ namespace MapControl
                     return false;
                 }
 
-                tile.Pending = false;
+                tile.IsLoaded = true;
                 return true;
             }
 

@@ -235,7 +235,7 @@ namespace MapControl
                                     tile = new Tile(z, x, y);
 
                                     var equivalentTile = Tiles.FirstOrDefault(
-                                        t => !t.Pending && t.ZoomLevel == z && t.Y == y && t.XIndex == tile.XIndex);
+                                        t => t.IsLoaded && t.ZoomLevel == z && t.Y == y && t.XIndex == tile.XIndex);
 
                                     if (equivalentTile != null)
                                     {
