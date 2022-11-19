@@ -2,6 +2,7 @@
 // © 2022 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 #if WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -52,14 +53,22 @@ namespace MapControl
 
         public bool Pending { get; set; } = true;
 
-        public void SetImageSource(Tile tile)
+        public void SetImageSource(ImageSource image, bool animateOpacity = true)
         {
             Pending = false;
-            Image.Opacity = 1d;
-            Image.Source = tile.Image.Source;
+            Image.Source = image;
+
+            if (image != null && animateOpacity && MapBase.ImageFadeDuration > TimeSpan.Zero)
+            {
+                AnimateImageOpacity();
+            }
+            else
+            {
+                Image.Opacity = 1d;
+            }
         }
 
-        private void FadeIn()
+        private void BeginOpacityAnimation()
         {
             Image.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation
             {

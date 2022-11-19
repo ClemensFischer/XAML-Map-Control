@@ -239,7 +239,7 @@ namespace MapControl
 
                                     if (equivalentTile != null)
                                     {
-                                        tile.SetImageSource(equivalentTile);
+                                        tile.SetImageSource(equivalentTile.Image.Source, false);
                                     }
                                 }
 

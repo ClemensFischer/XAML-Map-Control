@@ -2,14 +2,11 @@
 // © 2022 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 #if WINUI
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 #else
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #endif
 
@@ -17,28 +14,17 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public void SetImageSource(ImageSource image)
+        private void AnimateImageOpacity()
         {
-            Pending = false;
-
-            if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+            if (Image.Source is BitmapImage bitmap && bitmap.UriSource != null)
             {
-                if (image is BitmapImage bitmap && bitmap.UriSource != null)
-                {
-                    bitmap.ImageOpened += BitmapImageOpened;
-                    bitmap.ImageFailed += BitmapImageFailed;
-                }
-                else
-                {
-                    FadeIn();
-                }
+                bitmap.ImageOpened += BitmapImageOpened;
+                bitmap.ImageFailed += BitmapImageFailed;
             }
             else
             {
-                Image.Opacity = 1d;
+                BeginOpacityAnimation();
             }
-
-            Image.Source = image;
         }
 
         private void BitmapImageOpened(object sender, RoutedEventArgs e)
@@ -48,7 +34,7 @@ namespace MapControl
             bitmap.ImageOpened -= BitmapImageOpened;
             bitmap.ImageFailed -= BitmapImageFailed;
 
-            FadeIn();
+            BeginOpacityAnimation();
         }
 
         private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
