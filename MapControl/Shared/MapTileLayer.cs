@@ -228,7 +228,7 @@ namespace MapControl
                         {
                             for (var x = x1; x <= x2; x++)
                             {
-                                var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.X == x && t.Y == y);
+                                var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.Y == y && t.X == x);
 
                                 if (tile == null)
                                 {
