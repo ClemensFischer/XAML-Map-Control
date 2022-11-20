@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace MapControl
 {
@@ -45,15 +46,13 @@ namespace MapControl
 
             if (buffer != null && buffer.Length > 0)
             {
-                var image = await ImageLoader.LoadImageAsync(buffer).ConfigureAwait(false);
-
-                await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImageSource(image));
+                await LoadTile(tile, () => ImageLoader.LoadImageAsync(buffer));
             }
         }
 
-        private static async Task LoadTile(Tile tile, TileSource tileSource)
+        private static async Task LoadTile(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
-            var image = await tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel).ConfigureAwait(false);
+            var image = await loadImageFunc().ConfigureAwait(false);
 
             await tile.Image.Dispatcher.InvokeAsync(() => tile.SetImageSource(image));
         }

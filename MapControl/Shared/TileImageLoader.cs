@@ -149,7 +149,7 @@ namespace MapControl
         {
             if (string.IsNullOrEmpty(cacheName))
             {
-                return LoadTile(tile, tileSource);
+                return LoadTile(tile, () => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
             }
 
             var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);

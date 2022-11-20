@@ -53,16 +53,11 @@ namespace MapControl
 
             if (buffer != null && buffer.Length > 0)
             {
-                await SetTileImage(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
+                await LoadTile(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
             }
         }
 
-        private static Task LoadTile(Tile tile, TileSource tileSource)
-        {
-            return SetTileImage(tile, () => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
-        }
-
-        private static async Task SetTileImage(Tile tile, Func<Task<ImageSource>> loadImageFunc)
+        private static async Task LoadTile(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource<object>();
 
