@@ -24,25 +24,19 @@ namespace MapControl
 {
     public partial class Tile
     {
-        public Tile(int zoomLevel, int x, int y)
+        public Tile(int zoomLevel, int x, int y, int columnCount)
         {
             ZoomLevel = zoomLevel;
             X = x;
             Y = y;
+            Column = ((x % columnCount) + columnCount) % columnCount;
         }
 
         public int ZoomLevel { get; }
         public int X { get; }
         public int Y { get; }
-
-        public int XIndex
-        {
-            get
-            {
-                var numTiles = 1 << ZoomLevel;
-                return ((X % numTiles) + numTiles) % numTiles;
-            }
-        }
+        public int Column { get; }
+        public int Row => Y;
 
         public Image Image { get; } = new Image
         {

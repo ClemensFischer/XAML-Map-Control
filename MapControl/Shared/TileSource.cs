@@ -49,20 +49,20 @@ namespace MapControl
         /// <summary>
         /// Gets the image Uri for the specified tile indices and zoom level.
         /// </summary>
-        public virtual Uri GetUri(int x, int y, int zoomLevel)
+        public virtual Uri GetUri(int column, int row, int zoomLevel)
         {
             Uri uri = null;
 
-            if (UriTemplate != null && x >= 0 && y >= 0 && zoomLevel >= 0)
+            if (UriTemplate != null && column >= 0 && row >= 0 && zoomLevel >= 0)
             {
                 var uriString = UriTemplate
-                    .Replace("{x}", x.ToString())
-                    .Replace("{y}", y.ToString())
+                    .Replace("{x}", column.ToString())
+                    .Replace("{y}", row.ToString())
                     .Replace("{z}", zoomLevel.ToString());
 
                 if (Subdomains != null && Subdomains.Length > 0)
                 {
-                    uriString = uriString.Replace("{s}", Subdomains[(x + y) % Subdomains.Length]);
+                    uriString = uriString.Replace("{s}", Subdomains[(column + row) % Subdomains.Length]);
                 }
 
                 uri = new Uri(uriString, UriKind.RelativeOrAbsolute);
@@ -72,11 +72,11 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Loads a tile ImageSource asynchronously from GetUri(x, y, zoomLevel).
+        /// Loads a tile ImageSource asynchronously from GetUri(column, row, zoomLevel).
         /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
+        public virtual Task<ImageSource> LoadImageAsync(int column, int row, int zoomLevel)
         {
-            var uri = GetUri(x, y, zoomLevel);
+            var uri = GetUri(column, row, zoomLevel);
 
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
@@ -84,9 +84,9 @@ namespace MapControl
 
     public class TmsTileSource : TileSource
     {
-        public override Uri GetUri(int x, int y, int zoomLevel)
+        public override Uri GetUri(int column, int row, int zoomLevel)
         {
-            return base.GetUri(x, (1 << zoomLevel) - 1 - y, zoomLevel);
+            return base.GetUri(column, (1 << zoomLevel) - 1 - row, zoomLevel);
         }
     }
 }

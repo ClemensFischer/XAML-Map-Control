@@ -3,8 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 #if WINUI
 using Windows.Foundation;
@@ -62,7 +60,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
+        public TileCollection Tiles { get; private set; } = new TileCollection();
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -110,6 +108,8 @@ namespace MapControl
             {
                 foreach (var tile in Tiles)
                 {
+                    // arrange tiles relative to XMin/YMin
+                    //
                     var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
                     var x = tileSize * tile.X - TileSize * TileMatrix.XMin;
                     var y = tileSize * tile.Y - TileSize * TileMatrix.YMin;
@@ -138,7 +138,7 @@ namespace MapControl
                 {
                     if (Tiles.Count > 0)
                     {
-                        Tiles = new List<Tile>(); // clear all
+                        Tiles = new TileCollection(); // clear all
                     }
                     update = true;
                 }
@@ -182,7 +182,7 @@ namespace MapControl
             //
             var bounds = ParentMap.ViewTransform.GetTileMatrixBounds(tileMatrixScale, MapTopLeft, ParentMap.RenderSize);
 
-            // tile column and row index bounds
+            // tile X and Y bounds
             //
             var xMin = (int)Math.Floor(bounds.X / TileSize);
             var yMin = (int)Math.Floor(bounds.Y / TileSize);
@@ -204,7 +204,7 @@ namespace MapControl
 
         private void UpdateTiles()
         {
-            var tiles = new List<Tile>();
+            var tiles = new TileCollection();
 
             if (TileSource != null && TileMatrix != null)
             {
@@ -218,32 +218,18 @@ namespace MapControl
 
                     for (var z = minZoomLevel; z <= maxZoomLevel; z++)
                     {
+                        var numTiles = 1 << z;
                         var tileSize = 1 << (TileMatrix.ZoomLevel - z);
                         var x1 = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
-                        var x2 = TileMatrix.XMax / tileSize;
+                        var x2 = TileMatrix.XMax / tileSize; // may be greater than numTiles-1
                         var y1 = Math.Max(TileMatrix.YMin / tileSize, 0);
-                        var y2 = Math.Min(TileMatrix.YMax / tileSize, (1 << z) - 1);
+                        var y2 = Math.Min(TileMatrix.YMax / tileSize, numTiles - 1);
 
                         for (var y = y1; y <= y2; y++)
                         {
                             for (var x = x1; x <= x2; x++)
                             {
-                                var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == z && t.Y == y && t.X == x);
-
-                                if (tile == null)
-                                {
-                                    tile = new Tile(z, x, y);
-
-                                    var equivalentTile = Tiles.FirstOrDefault(
-                                        t => t.IsLoaded && t.ZoomLevel == z && t.Y == y && t.XIndex == tile.XIndex);
-
-                                    if (equivalentTile != null)
-                                    {
-                                        tile.SetImageSource(equivalentTile.Image.Source, false);
-                                    }
-                                }
-
-                                tiles.Add(tile);
+                                tiles.Add(Tiles.GetTile(z, x, y, numTiles));
                             }
                         }
                     }

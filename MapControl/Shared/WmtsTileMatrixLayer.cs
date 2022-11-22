@@ -3,8 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 #if WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml.Controls;
@@ -39,7 +37,7 @@ namespace MapControl
         public int XMax { get; private set; }
         public int YMax { get; private set; }
 
-        public IReadOnlyCollection<Tile> Tiles { get; private set; } = new List<Tile>();
+        public TileCollection Tiles { get; private set; } = new TileCollection();
 
         public void SetRenderTransform(ViewTransform viewTransform)
         {
@@ -57,16 +55,26 @@ namespace MapControl
             //
             var bounds = viewTransform.GetTileMatrixBounds(TileMatrix.Scale, TileMatrix.TopLeft, viewSize);
 
-            // tile column and row index bounds
+            // tile X and Y bounds
             //
             var xMin = (int)Math.Floor(bounds.X / TileMatrix.TileWidth);
             var yMin = (int)Math.Floor(bounds.Y / TileMatrix.TileHeight);
             var xMax = (int)Math.Floor((bounds.X + bounds.Width) / TileMatrix.TileWidth);
             var yMax = (int)Math.Floor((bounds.Y + bounds.Height) / TileMatrix.TileHeight);
 
-            xMin = Math.Max(xMin, 0);
+            // total tile matrix width in meters
+            //
+            var totalWidth = TileMatrix.MatrixWidth * TileMatrix.TileWidth / TileMatrix.Scale;
+
+            if (Math.Abs(totalWidth - 360d * MapProjection.Wgs84MeterPerDegree) > 1d)
+            {
+                // no full longitudinal coverage, restrict x index
+                //
+                xMin = Math.Max(xMin, 0);
+                xMax = Math.Min(Math.Max(xMax, 0), TileMatrix.MatrixWidth - 1);
+            }
+
             yMin = Math.Max(yMin, 0);
-            xMax = Math.Min(Math.Max(xMax, 0), TileMatrix.MatrixWidth - 1);
             yMax = Math.Min(Math.Max(yMax, 0), TileMatrix.MatrixHeight - 1);
 
             if (XMin == xMin && YMin == yMin && XMax == xMax && YMax == yMax)
@@ -84,17 +92,17 @@ namespace MapControl
 
         public void UpdateTiles()
         {
-            var newTiles = new List<Tile>();
+            var tiles = new TileCollection();
 
             for (var y = YMin; y <= YMax; y++)
             {
                 for (var x = XMin; x <= XMax; x++)
                 {
-                    newTiles.Add(Tiles.FirstOrDefault(t => t.X == x && t.Y == y) ?? new Tile(ZoomLevel, x, y));
+                    tiles.Add(Tiles.GetTile(ZoomLevel, x, y, TileMatrix.MatrixWidth));
                 }
             }
 
-            Tiles = newTiles;
+            Tiles = tiles;
 
             Children.Clear();
 

@@ -8,18 +8,18 @@ namespace MapControl
 {
     public class BingMapsTileSource : TileSource
     {
-        public override Uri GetUri(int x, int y, int zoomLevel)
+        public override Uri GetUri(int column, int row, int zoomLevel)
         {
             Uri uri = null;
 
             if (UriTemplate != null && Subdomains != null && Subdomains.Length > 0 && zoomLevel > 0)
             {
-                var subdomain = Subdomains[(x + y) % Subdomains.Length];
+                var subdomain = Subdomains[(column + row) % Subdomains.Length];
                 var quadkey = new char[zoomLevel];
 
-                for (var z = zoomLevel - 1; z >= 0; z--, x /= 2, y /= 2)
+                for (var z = zoomLevel - 1; z >= 0; z--, column /= 2, row /= 2)
                 {
-                    quadkey[z] = (char)('0' + 2 * (y % 2) + (x % 2));
+                    quadkey[z] = (char)('0' + 2 * (row % 2) + (column % 2));
                 }
 
                 uri = new Uri(UriTemplate

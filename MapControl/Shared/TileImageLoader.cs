@@ -133,7 +133,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.XIndex}/{tile.Y}: {ex.Message}");
+                    Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
                 }
 
                 if (Progress != null && !tileQueue.IsCanceled)
@@ -149,10 +149,10 @@ namespace MapControl
         {
             if (string.IsNullOrEmpty(cacheName))
             {
-                return LoadTile(tile, () => tileSource.LoadImageAsync(tile.XIndex, tile.Y, tile.ZoomLevel));
+                return LoadTile(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
             }
 
-            var uri = tileSource.GetUri(tile.XIndex, tile.Y, tile.ZoomLevel);
+            var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
 
             if (uri != null)
             {
@@ -164,7 +164,7 @@ namespace MapControl
                 }
 
                 var cacheKey = string.Format(CultureInfo.InvariantCulture,
-                    "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.XIndex, tile.Y, extension);
+                    "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.Column, tile.Row, extension);
 
                 return LoadCachedTile(tile, uri, cacheKey);
             }
