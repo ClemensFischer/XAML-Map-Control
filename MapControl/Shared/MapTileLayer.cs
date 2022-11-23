@@ -136,10 +136,7 @@ namespace MapControl
             {
                 if (TileSource != TileImageLoader.TileSource)
                 {
-                    if (Tiles.Count > 0)
-                    {
-                        Tiles = new TileCollection(); // clear all
-                    }
+                    Tiles = new TileCollection(); // clear all
                     update = true;
                 }
 
