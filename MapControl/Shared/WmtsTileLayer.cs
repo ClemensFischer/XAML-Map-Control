@@ -94,14 +94,11 @@ namespace MapControl
                 return UpdateTiles(null);
             }
 
-            if (UpdateChildLayers(tileMatrixSet))
-            {
-                SetRenderTransform();
+            var updateTiles = UpdateChildLayers(tileMatrixSet);
 
-                return UpdateTiles(tileMatrixSet);
-            }
+            SetRenderTransform();
 
-            return Task.CompletedTask;
+            return updateTiles ? UpdateTiles(tileMatrixSet) : Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()

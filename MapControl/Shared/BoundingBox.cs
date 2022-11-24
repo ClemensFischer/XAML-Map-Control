@@ -30,12 +30,6 @@ namespace MapControl
             East = east;
         }
 
-        public BoundingBox(BoundingBox boundingBox, double longitudeOffset)
-            : this(boundingBox.South, boundingBox.West + longitudeOffset,
-                   boundingBox.North, boundingBox.East + longitudeOffset)
-        {
-        }
-
         public double West { get; set; }
 
         public double East { get; set; }

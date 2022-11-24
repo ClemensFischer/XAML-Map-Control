@@ -171,11 +171,11 @@ namespace MapControl
 
                 base.OnViewportChanged(e);
 
-                await UpdateImageAsync();
+                await UpdateImageAsync(); // update immediately
             }
             else
             {
-                AdjustBoundingBox(e.LongitudeOffset);
+                ValidateBoundingBox();
 
                 base.OnViewportChanged(e);
 
@@ -233,21 +233,30 @@ namespace MapControl
             BoundingBox = ParentMap.ViewRectToBoundingBox(rect);
         }
 
-        private void AdjustBoundingBox(double longitudeOffset)
+        private void ValidateBoundingBox()
         {
-            if (Math.Abs(longitudeOffset) > 180d && BoundingBox != null)
+            if (BoundingBox != null)
             {
-                var offset = 360d * Math.Sign(longitudeOffset);
+                var offset = ParentMap.Center.Longitude - BoundingBox.Center.Longitude;
 
-                BoundingBox = new BoundingBox(BoundingBox, offset);
-
-                foreach (var image in Children.OfType<Image>())
+                if (Math.Abs(offset) > 180d)
                 {
-                    var imageBoundingBox = GetBoundingBox(image);
+                    offset = 360d * Math.Sign(offset);
 
-                    if (imageBoundingBox != null)
+                    BoundingBox = new BoundingBox(
+                        BoundingBox.South, BoundingBox.West + offset,
+                        BoundingBox.North, BoundingBox.East + offset);
+
+                    foreach (var image in Children.OfType<Image>())
                     {
-                        SetBoundingBox(image, new BoundingBox(imageBoundingBox, offset));
+                        var imageBbox = GetBoundingBox(image);
+
+                        if (imageBbox != null)
+                        {
+                            SetBoundingBox(image, new BoundingBox(
+                                imageBbox.South, imageBbox.West + offset,
+                                imageBbox.North, imageBbox.East + offset));
+                        }
                     }
                 }
             }

@@ -201,9 +201,9 @@ namespace MapControl
 
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
-            if (Children.Count == 0 || e.ProjectionChanged || Math.Abs(e.LongitudeOffset) > 180d)
+            if (Children.Count == 0 || e.ProjectionChanged || e.TransformCenterChanged)
             {
-                await Update(); // update immediately when projection has changed or center has moved across 180° longitude
+                await Update(); // update immediately
             }
             else
             {

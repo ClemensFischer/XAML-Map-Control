@@ -8,22 +8,23 @@ namespace MapControl
 {
     public class ViewportChangedEventArgs : EventArgs
     {
-        public ViewportChangedEventArgs(bool projectionChanged = false, double longitudeOffset = 0d)
+        public ViewportChangedEventArgs(bool projectionChanged = false, bool transformCenterChanged = false)
         {
             ProjectionChanged = projectionChanged;
-            LongitudeOffset = longitudeOffset;
+            TransformCenterChanged = transformCenterChanged;
         }
 
         /// <summary>
-        /// Indicates if the map projection has changed. Used to control when a MapTileLayer or MapImageLayer
-        /// should be updated immediately, or MapPath Data in projected map coordinates should be recalculated.
+        /// Indicates that the map projection has changed. Used to control when
+        /// a MapTileLayer or a MapImageLayer should be updated immediately,
+        /// or MapPath Data in projected map coordinates should be recalculated.
         /// </summary>
         public bool ProjectionChanged { get; }
 
         /// <summary>
-        /// Offset of the map center longitude value from the previous viewport.
-        /// Used to detect if the map center has moved across 180° longitude.
+        /// Indicates that the view transform center has moved across the dateline.
+        /// Used to control when a MapTileLayer should be updated immediately.
         /// </summary>
-        public double LongitudeOffset { get; }
+        public bool TransformCenterChanged { get; }
     }
 }

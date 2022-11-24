@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 #if WINUI
 using Windows.Foundation;
@@ -125,11 +126,11 @@ namespace MapControl
 
         protected override Task UpdateTileLayer()
         {
-            var update = false;
+            var updateTiles = false;
 
             if (ParentMap == null || ParentMap.MapProjection.Type != MapProjectionType.WebMercator)
             {
-                update = TileMatrix != null;
+                updateTiles = TileMatrix != null;
                 TileMatrix = null;
             }
             else
@@ -137,36 +138,33 @@ namespace MapControl
                 if (TileSource != TileImageLoader.TileSource)
                 {
                     Tiles = new TileCollection(); // clear all
-                    update = true;
+                    updateTiles = true;
                 }
 
                 if (SetTileMatrix())
                 {
-                    SetRenderTransform();
-                    update = true;
+                    updateTiles = true;
                 }
+
+                SetRenderTransform();
             }
 
-            if (update)
-            {
-                UpdateTiles();
-
-                return TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
-            }
-
-            return Task.CompletedTask;
+            return updateTiles ? UpdateTiles() : Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()
         {
-            // tile matrix origin in pixels
-            //
-            var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
+            if (TileMatrix != null)
+            {
+                // tile matrix origin in pixels
+                //
+                var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
 
-            var tileMatrixScale = ViewTransform.ZoomLevelToScale(TileMatrix.ZoomLevel);
+                var tileMatrixScale = ViewTransform.ZoomLevelToScale(TileMatrix.ZoomLevel);
 
-            ((MatrixTransform)RenderTransform).Matrix =
-                ParentMap.ViewTransform.GetTileLayerTransform(tileMatrixScale, MapTopLeft, tileMatrixOrigin);
+                ((MatrixTransform)RenderTransform).Matrix =
+                    ParentMap.ViewTransform.GetTileLayerTransform(tileMatrixScale, MapTopLeft, tileMatrixOrigin);
+            }
         }
 
         private bool SetTileMatrix()
@@ -199,7 +197,7 @@ namespace MapControl
             return true;
         }
 
-        private void UpdateTiles()
+        private Task UpdateTiles()
         {
             var tiles = new TileCollection();
 
@@ -241,6 +239,8 @@ namespace MapControl
             {
                 Children.Add(tile.Image);
             }
+
+            return TileImageLoader.LoadTiles(tiles, TileSource, SourceName);
         }
     }
 }

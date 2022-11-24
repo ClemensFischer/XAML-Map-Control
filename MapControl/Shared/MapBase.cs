@@ -272,7 +272,8 @@ namespace MapControl
 
         /// <summary>
         /// Sets a temporary center point in view coordinates for scaling and rotation transformations.
-        /// This center point is automatically reset when the Center property is set by application code.
+        /// This center point is automatically reset when the Center property is set by application code
+        /// or by the methods TranslateMap, TransformMap, ZoomMap and ZoomToBounds.
         /// </summary>
         public void SetTransformCenter(Point center)
         {
@@ -728,6 +729,7 @@ namespace MapControl
 
         private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
         {
+            var transformCenterChanged = false;
             var viewScale = ViewTransform.ZoomLevelToScale(ZoomLevel);
             var projection = MapProjection;
 
@@ -762,6 +764,9 @@ namespace MapControl
 
                         if (resetTransformCenter)
                         {
+                            // check if transform center moved across the dateline
+                            transformCenterChanged = Math.Abs(center.Longitude - transformCenter.Longitude) > 180d;
+
                             ResetTransformCenter();
 
                             projection.Center = ProjectionCenter ?? Center;
@@ -778,9 +783,11 @@ namespace MapControl
 
                 SetViewScale(ViewTransform.Scale);
 
-                OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, Center.Longitude - centerLongitude));
-
+                // check if view center moved across the dateline
+                transformCenterChanged = transformCenterChanged || Math.Abs(Center.Longitude - centerLongitude) > 180d;
                 centerLongitude = Center.Longitude;
+
+                OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, transformCenterChanged));
             }
         }
 
