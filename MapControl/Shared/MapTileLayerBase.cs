@@ -201,7 +201,7 @@ namespace MapControl
 
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
-            if (Children.Count == 0 || e.ProjectionChanged || e.TransformCenterChanged)
+            if (e.TransformCenterChanged || e.ProjectionChanged || Children.Count == 0)
             {
                 await Update(); // update immediately
             }

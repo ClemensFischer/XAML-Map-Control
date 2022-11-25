@@ -165,29 +165,27 @@ namespace MapControl
 
         protected override async void OnViewportChanged(ViewportChangedEventArgs e)
         {
+            base.OnViewportChanged(e);
+
             if (e.ProjectionChanged)
             {
                 ClearImages();
-
-                base.OnViewportChanged(e);
 
                 await UpdateImageAsync(); // update immediately
             }
             else
             {
-                ValidateBoundingBox();
-
-                base.OnViewportChanged(e);
-
                 updateTimer.Run(!UpdateWhileViewportChanging);
             }
         }
 
         protected async Task UpdateImageAsync()
         {
-            if (updateInProgress) // update image on next tick
+            if (updateInProgress)
             {
-                updateTimer.Run(); // start timer if not running
+                // update image on next tick, start timer if not running
+                //
+                updateTimer.Run();
             }
             else
             {
@@ -231,35 +229,6 @@ namespace MapControl
             var rect = new Rect(x, y, width, height);
 
             BoundingBox = ParentMap.ViewRectToBoundingBox(rect);
-        }
-
-        private void ValidateBoundingBox()
-        {
-            if (BoundingBox != null)
-            {
-                var offset = ParentMap.Center.Longitude - BoundingBox.Center.Longitude;
-
-                if (Math.Abs(offset) > 180d)
-                {
-                    offset = 360d * Math.Sign(offset);
-
-                    BoundingBox = new BoundingBox(
-                        BoundingBox.South, BoundingBox.West + offset,
-                        BoundingBox.North, BoundingBox.East + offset);
-
-                    foreach (var image in Children.OfType<Image>())
-                    {
-                        var imageBbox = GetBoundingBox(image);
-
-                        if (imageBbox != null)
-                        {
-                            SetBoundingBox(image, new BoundingBox(
-                                imageBbox.South, imageBbox.West + offset,
-                                imageBbox.North, imageBbox.East + offset));
-                        }
-                    }
-                }
-            }
         }
 
         private void ClearImages()

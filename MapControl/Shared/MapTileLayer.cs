@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 #if WINUI
 using Windows.Foundation;
@@ -149,7 +148,14 @@ namespace MapControl
                 SetRenderTransform();
             }
 
-            return updateTiles ? UpdateTiles() : Task.CompletedTask;
+            if (updateTiles)
+            {
+                UpdateTiles();
+
+                return TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
+            }
+
+            return Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()
@@ -197,7 +203,7 @@ namespace MapControl
             return true;
         }
 
-        private Task UpdateTiles()
+        private void UpdateTiles()
         {
             var tiles = new TileCollection();
 
@@ -239,8 +245,6 @@ namespace MapControl
             {
                 Children.Add(tile.Image);
             }
-
-            return TileImageLoader.LoadTiles(tiles, TileSource, SourceName);
         }
     }
 }

@@ -21,21 +21,18 @@ namespace MapControl
 {
     public class WmtsTileMatrixLayer : Panel
     {
+        // zoomLevel is index of tileMatrix in a WmtsTileMatrixSet.TileMatrixes list
+        // 
         public WmtsTileMatrixLayer(WmtsTileMatrix tileMatrix, int zoomLevel)
         {
             RenderTransform = new MatrixTransform();
-            TileMatrix = tileMatrix;
-            ZoomLevel = zoomLevel;
+            WmtsTileMatrix = tileMatrix;
+            TileMatrix = new TileMatrix(zoomLevel, 1, 1, 0, 0);
         }
 
-        public WmtsTileMatrix TileMatrix { get; }
+        public WmtsTileMatrix WmtsTileMatrix { get; }
 
-        public int ZoomLevel { get; } // index of TileMatrix in WmtsTileMatrixSet.TileMatrixes
-
-        public int XMin { get; private set; }
-        public int YMin { get; private set; }
-        public int XMax { get; private set; }
-        public int YMax { get; private set; }
+        public TileMatrix TileMatrix { get; private set; }
 
         public TileCollection Tiles { get; private set; } = new TileCollection();
 
@@ -43,62 +40,57 @@ namespace MapControl
         {
             // tile matrix origin in pixels
             //
-            var tileMatrixOrigin = new Point(TileMatrix.TileWidth * XMin, TileMatrix.TileHeight * YMin);
+            var tileMatrixOrigin = new Point(WmtsTileMatrix.TileWidth * TileMatrix.XMin, WmtsTileMatrix.TileHeight * TileMatrix.YMin);
 
             ((MatrixTransform)RenderTransform).Matrix =
-                viewTransform.GetTileLayerTransform(TileMatrix.Scale, TileMatrix.TopLeft, tileMatrixOrigin);
+                viewTransform.GetTileLayerTransform(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, tileMatrixOrigin);
         }
 
-        public bool SetBounds(ViewTransform viewTransform, Size viewSize)
+        public bool UpdateTiles(ViewTransform viewTransform, Size viewSize)
         {
             // bounds in tile pixels from view size
             //
-            var bounds = viewTransform.GetTileMatrixBounds(TileMatrix.Scale, TileMatrix.TopLeft, viewSize);
+            var bounds = viewTransform.GetTileMatrixBounds(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, viewSize);
 
             // tile X and Y bounds
             //
-            var xMin = (int)Math.Floor(bounds.X / TileMatrix.TileWidth);
-            var yMin = (int)Math.Floor(bounds.Y / TileMatrix.TileHeight);
-            var xMax = (int)Math.Floor((bounds.X + bounds.Width) / TileMatrix.TileWidth);
-            var yMax = (int)Math.Floor((bounds.Y + bounds.Height) / TileMatrix.TileHeight);
+            var xMin = (int)Math.Floor(bounds.X / WmtsTileMatrix.TileWidth);
+            var yMin = (int)Math.Floor(bounds.Y / WmtsTileMatrix.TileHeight);
+            var xMax = (int)Math.Floor((bounds.X + bounds.Width) / WmtsTileMatrix.TileWidth);
+            var yMax = (int)Math.Floor((bounds.Y + bounds.Height) / WmtsTileMatrix.TileHeight);
 
             // total tile matrix width in meters
             //
-            var totalWidth = TileMatrix.MatrixWidth * TileMatrix.TileWidth / TileMatrix.Scale;
+            var totalWidth = WmtsTileMatrix.MatrixWidth * WmtsTileMatrix.TileWidth / WmtsTileMatrix.Scale;
 
             if (Math.Abs(totalWidth - 360d * MapProjection.Wgs84MeterPerDegree) > 1d)
             {
                 // no full longitudinal coverage, restrict x index
                 //
                 xMin = Math.Max(xMin, 0);
-                xMax = Math.Min(Math.Max(xMax, 0), TileMatrix.MatrixWidth - 1);
+                xMax = Math.Min(Math.Max(xMax, 0), WmtsTileMatrix.MatrixWidth - 1);
             }
 
             yMin = Math.Max(yMin, 0);
-            yMax = Math.Min(Math.Max(yMax, 0), TileMatrix.MatrixHeight - 1);
+            yMax = Math.Min(Math.Max(yMax, 0), WmtsTileMatrix.MatrixHeight - 1);
 
-            if (XMin == xMin && YMin == yMin && XMax == xMax && YMax == yMax)
+            if (TileMatrix.XMin == xMin && TileMatrix.YMin == yMin &&
+                TileMatrix.XMax == xMax && TileMatrix.YMax == yMax)
             {
+                // no change of the TileMatrix and the Tiles collection
+                //
                 return false;
             }
 
-            XMin = xMin;
-            YMin = yMin;
-            XMax = xMax;
-            YMax = yMax;
+            TileMatrix = new TileMatrix(TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax);
 
-            return true;
-        }
-
-        public void UpdateTiles()
-        {
             var tiles = new TileCollection();
 
-            for (var y = YMin; y <= YMax; y++)
+            for (var y = yMin; y <= yMax; y++)
             {
-                for (var x = XMin; x <= XMax; x++)
+                for (var x = xMin; x <= xMax; x++)
                 {
-                    tiles.Add(Tiles.GetTile(ZoomLevel, x, y, TileMatrix.MatrixWidth));
+                    tiles.Add(Tiles.GetTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth));
                 }
             }
 
@@ -106,10 +98,12 @@ namespace MapControl
 
             Children.Clear();
 
-            foreach (var tile in Tiles)
+            foreach (var tile in tiles)
             {
                 Children.Add(tile.Image);
             }
+
+            return true;
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -130,12 +124,12 @@ namespace MapControl
             {
                 // arrange tiles relative to XMin/YMin
                 //
-                var x = TileMatrix.TileWidth * (tile.X - XMin);
-                var y = TileMatrix.TileHeight * (tile.Y - YMin);
+                var x = WmtsTileMatrix.TileWidth * (tile.X - TileMatrix.XMin);
+                var y = WmtsTileMatrix.TileHeight * (tile.Y - TileMatrix.YMin);
 
-                tile.Image.Width = TileMatrix.TileWidth;
-                tile.Image.Height = TileMatrix.TileHeight;
-                tile.Image.Arrange(new Rect(x, y, TileMatrix.TileWidth, TileMatrix.TileHeight));
+                tile.Image.Width = WmtsTileMatrix.TileWidth;
+                tile.Image.Height = WmtsTileMatrix.TileHeight;
+                tile.Image.Arrange(new Rect(x, y, WmtsTileMatrix.TileWidth, WmtsTileMatrix.TileHeight));
             }
 
             return finalSize;

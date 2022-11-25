@@ -91,14 +91,15 @@ namespace MapControl
             {
                 Children.Clear();
 
-                return UpdateTiles(null);
+                return LoadTiles(null); // stop TileImageLoader
             }
 
-            var updateTiles = UpdateChildLayers(tileMatrixSet);
+            if (UpdateChildLayers(tileMatrixSet))
+            {
+                return LoadTiles(tileMatrixSet);
+            }
 
-            SetRenderTransform();
-
-            return updateTiles ? UpdateTiles(tileMatrixSet) : Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()
@@ -111,7 +112,6 @@ namespace MapControl
 
         private bool UpdateChildLayers(WmtsTileMatrixSet tileMatrixSet)
         {
-            var layersChanged = false;
             var maxScale = 1.001 * ParentMap.ViewTransform.Scale; // avoid rounding issues
 
             // show all WmtsTileMatrix layers with Scale <= maxScale, at least the first layer
@@ -129,41 +129,32 @@ namespace MapControl
                 currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - MaxBackgroundLevels - 1).ToList();
             }
 
-            var currentLayers = ChildLayers.Where(layer => currentMatrixes.Contains(layer.TileMatrix)).ToList();
+            var currentLayers = ChildLayers.Where(layer => currentMatrixes.Contains(layer.WmtsTileMatrix)).ToList();
+            var tilesChanged = false;
 
             Children.Clear();
 
             foreach (var tileMatrix in currentMatrixes)
             {
-                var layer = currentLayers.FirstOrDefault(l => l.TileMatrix == tileMatrix);
+                var layer = currentLayers.FirstOrDefault(l => l.WmtsTileMatrix == tileMatrix)
+                    ?? new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
 
-                if (layer == null)
+                if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.RenderSize))
                 {
-                    layer = new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
-                    layersChanged = true;
+                    tilesChanged = true;
                 }
 
-                if (layer.SetBounds(ParentMap.ViewTransform, ParentMap.RenderSize))
-                {
-                    layersChanged = true;
-                }
+                layer.SetRenderTransform(ParentMap.ViewTransform);
 
                 Children.Add(layer);
             }
 
-            return layersChanged;
+            return tilesChanged;
         }
 
-        private Task UpdateTiles(WmtsTileMatrixSet tileMatrixSet)
+        private Task LoadTiles(WmtsTileMatrixSet tileMatrixSet)
         {
-            var tiles = new List<Tile>();
             var cacheName = SourceName;
-
-            foreach (var layer in ChildLayers)
-            {
-                layer.UpdateTiles();
-                tiles.AddRange(layer.Tiles);
-            }
 
             if (tileMatrixSet != null && TileSource is WmtsTileSource tileSource)
             {
@@ -179,6 +170,8 @@ namespace MapControl
                     cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
                 }
             }
+
+            var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
 
             return TileImageLoader.LoadTiles(tiles, TileSource, cacheName);
         }
