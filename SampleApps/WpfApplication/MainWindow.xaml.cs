@@ -55,7 +55,7 @@ namespace SampleApplication
                 });
             }
 
-            AddChartServerLayer();
+            AddTestLayers();
 
             if (TileImageLoader.Cache is ImageFileCache cache)
             {
@@ -67,7 +67,7 @@ namespace SampleApplication
             }
         }
 
-        partial void AddChartServerLayer();
+        partial void AddTestLayers();
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {

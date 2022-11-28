@@ -73,10 +73,10 @@ namespace SampleApplication
                 });
             }
 
-            AddChartServerLayer();
+            AddTestLayers();
         }
 
-        partial void AddChartServerLayer();
+        partial void AddTestLayers();
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {
