@@ -235,14 +235,12 @@ namespace MapControl
         /// </summary>
         protected virtual string GetMapRequestUri()
         {
-            var projection = ParentMap?.MapProjection;
-
-            if (projection == null)
+            if (ParentMap?.MapProjection == null)
             {
                 return null;
             }
 
-            var mapRect = projection.BoundingBoxToRect(BoundingBox);
+            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(BoundingBox);
             var viewScale = ParentMap.ViewTransform.Scale;
 
             return GetRequestUri(new Dictionary<string, string>
@@ -253,8 +251,8 @@ namespace MapControl
                 { "LAYERS", Layers ?? "" },
                 { "STYLES", Styles ?? "" },
                 { "FORMAT", "image/png" },
-                { "CRS", GetCrsValue(projection) },
-                { "BBOX", GetBboxValue(projection, mapRect) },
+                { "CRS", GetCrsValue() },
+                { "BBOX", GetBboxValue(mapRect) },
                 { "WIDTH", Math.Round(viewScale * mapRect.Width).ToString("F0") },
                 { "HEIGHT", Math.Round(viewScale * mapRect.Height).ToString("F0") }
             });
@@ -265,14 +263,12 @@ namespace MapControl
         /// </summary>
         protected virtual string GetFeatureInfoRequestUri(Point position, string format)
         {
-            var projection = ParentMap?.MapProjection;
-
-            if (projection == null)
+            if (ParentMap?.MapProjection == null)
             {
                 return null;
             }
 
-            var mapRect = projection.BoundingBoxToRect(BoundingBox);
+            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(BoundingBox);
             var viewRect = GetViewRect(mapRect);
             var viewSize = ParentMap.RenderSize;
 
@@ -291,8 +287,8 @@ namespace MapControl
                 { "STYLES", Styles ?? "" },
                 { "FORMAT", "image/png" },
                 { "INFO_FORMAT", format },
-                { "CRS", GetCrsValue(projection) },
-                { "BBOX", GetBboxValue(projection, mapRect) },
+                { "CRS", GetCrsValue() },
+                { "BBOX", GetBboxValue(mapRect) },
                 { "WIDTH", Math.Round(viewRect.Width).ToString("F0") },
                 { "HEIGHT", Math.Round(viewRect.Height).ToString("F0") },
                 { "I", Math.Round(imagePos.X).ToString("F0") },
@@ -302,14 +298,14 @@ namespace MapControl
             return GetRequestUri(queryParameters) + "&QUERY_LAYERS=" + queryParameters["LAYERS"];
         }
 
-        protected virtual string GetCrsValue(MapProjection projection)
+        protected virtual string GetCrsValue()
         {
-            return projection.GetCrsValue();
+            return ParentMap.MapProjection.GetCrsValue();
         }
 
-        protected virtual string GetBboxValue(MapProjection projection, Rect mapRect)
+        protected virtual string GetBboxValue(Rect mapRect)
         {
-            return projection.GetBboxValue(mapRect);
+            return ParentMap.MapProjection.GetBboxValue(mapRect);
         }
 
         protected string GetRequestUri(IDictionary<string, string> queryParameters)
