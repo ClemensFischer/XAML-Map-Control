@@ -66,10 +66,12 @@ namespace MapControl
         {
             if (map != null)
             {
-                // If this.Forground is not explicitly set, bind it to map.Foreground
+                // If this.Forground is not explicitly set, bind it to map.Foreground.
+                //
                 this.SetBindingOnUnsetProperty(ForegroundProperty, map, MapBase.ForegroundProperty, nameof(Foreground));
 
-                // If this.Stroke is not explicitly set, bind it to this.Foreground
+                // If this.Stroke is not explicitly set, bind it to this.Foreground.
+                //
                 this.SetBindingOnUnsetProperty(StrokeProperty, this, ForegroundProperty, nameof(Foreground));
             }
 

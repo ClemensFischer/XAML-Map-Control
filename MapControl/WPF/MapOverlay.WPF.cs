@@ -61,7 +61,8 @@ namespace MapControl
         {
             base.OnInitialized(e);
 
-            // If this.Stroke is not explicitly set, bind it to this.Foreground
+            // If this.Stroke is not explicitly set, bind it to this.Foreground.
+            //
             this.SetBindingOnUnsetProperty(StrokeProperty, this, ForegroundProperty, nameof(Foreground));
         }
 

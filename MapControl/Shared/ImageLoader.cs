@@ -89,7 +89,7 @@ namespace MapControl
                     {
                         byte[] buffer = null;
 
-                        // check for possibly unavailable Bing Maps tile
+                        // Check for possibly unavailable Bing Maps tile.
                         //
                         if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out IEnumerable<string> tileInfo) ||
                             !tileInfo.Contains("no-tile"))

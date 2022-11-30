@@ -37,7 +37,9 @@ namespace MapControl
             new PropertyMetadata(null,
                 async (o, e) =>
                 {
-                    if (e.OldValue != null) // ignore property change from GetImageAsync
+                    // Ignore property change from GetImageAsync, when Layers was null.
+                    //
+                    if (e.OldValue != null)
                     {
                         await ((WmsImageLayer)o).UpdateImageAsync();
                     }
@@ -176,7 +178,9 @@ namespace MapControl
                 if (Layers == null &&
                     ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
                 {
-                    Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? ""; // get first Layer from Capabilities
+                    // Get first Layer from a GetCapabilities response.
+                    //
+                    Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
                 }
 
                 if (boundingBox.West >= -180d && boundingBox.East <= 180d ||

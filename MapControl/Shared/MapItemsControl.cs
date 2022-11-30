@@ -61,7 +61,9 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size bounds)
         {
-            if (mapTransform != null) // property in use, e.g. as source of a Binding
+            // If MapTransform is used, update its Matrix property.
+            //
+            if (mapTransform != null)
             {
                 var parentMap = (VisualTreeHelper.GetParent(this) as MapPanel)?.ParentMap;
 
@@ -184,7 +186,7 @@ namespace MapControl
 
             if (SelectionMode == SelectionMode.Single)
             {
-                // Single -> set only SelectedItem
+                // Single -> set only SelectedItem.
 
                 if (SelectedItem != item)
                 {
@@ -197,7 +199,7 @@ namespace MapControl
             }
             else if (SelectionMode == SelectionMode.Multiple || controlKey)
             {
-                // Multiple or Extended with Ctrl -> toggle item in SelectedItems
+                // Multiple or Extended with Ctrl -> toggle item in SelectedItems.
 
                 if (SelectedItems.Contains(item))
                 {
@@ -210,7 +212,7 @@ namespace MapControl
             }
             else if (shiftKey && SelectedItem != null)
             {
-                // Extended with Shift -> select items in view rectangle
+                // Extended with Shift -> select items in view rectangle.
 
                 var p1 = MapPanel.GetViewPosition(ContainerFromItem(SelectedItem));
                 var p2 = MapPanel.GetViewPosition(mapItem);
@@ -222,7 +224,7 @@ namespace MapControl
             }
             else if (SelectedItem != item)
             {
-                // Extended without Control or Shift -> set selected item
+                // Extended without Control or Shift -> set selected item.
 
                 SelectedItem = item;
             }

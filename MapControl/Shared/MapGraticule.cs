@@ -114,7 +114,7 @@ namespace MapControl
             {
                 if (!rotation.HasValue)
                 {
-                    // get rotation from second location with same latitude
+                    // Get rotation from second location with same latitude.
                     //
                     var pos = ParentMap.LocationToView(
                         new Location(location.Latitude, location.Longitude + 10d / PixelPerLongitudeDegree(location)));

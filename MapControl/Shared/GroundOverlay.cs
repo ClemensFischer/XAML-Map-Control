@@ -114,7 +114,8 @@ namespace MapControl
                     overlay.RenderTransform = new RotateTransform { Angle = -imageOverlay.LatLonBox.Rotation };
                     overlay.RenderTransformOrigin = new Point(0.5, 0.5);
 
-                    // additional Panel for map rotation, see MapPanel.ArrangeElementWithBoundingBox
+                    // Additional Panel for map rotation, see MapPanel.ArrangeElementWithBoundingBox.
+                    //
                     var panel = new Grid { UseLayoutRounding = false };
                     panel.Children.Add(overlay);
                     overlay = panel;

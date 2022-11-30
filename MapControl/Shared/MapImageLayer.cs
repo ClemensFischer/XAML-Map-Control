@@ -180,7 +180,7 @@ namespace MapControl
         {
             if (updateInProgress)
             {
-                // update image on next tick, start timer if not running
+                // Update image on next tick, start timer if not running.
                 //
                 updateTimer.Run();
             }

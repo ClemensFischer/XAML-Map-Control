@@ -21,8 +21,8 @@ namespace MapControl
 {
     public class WmtsTileMatrixLayer : Panel
     {
-        // zoomLevel is index of tileMatrix in a WmtsTileMatrixSet.TileMatrixes list
-        // 
+        // zoomLevel is index of tileMatrix in a WmtsTileMatrixSet.TileMatrixes list.
+        //
         public WmtsTileMatrixLayer(WmtsTileMatrix tileMatrix, int zoomLevel)
         {
             RenderTransform = new MatrixTransform();
@@ -38,7 +38,7 @@ namespace MapControl
 
         public void SetRenderTransform(ViewTransform viewTransform)
         {
-            // tile matrix origin in pixels
+            // Tile matrix origin in pixels.
             //
             var tileMatrixOrigin = new Point(WmtsTileMatrix.TileWidth * TileMatrix.XMin, WmtsTileMatrix.TileHeight * TileMatrix.YMin);
 
@@ -48,24 +48,24 @@ namespace MapControl
 
         public bool UpdateTiles(ViewTransform viewTransform, Size viewSize)
         {
-            // bounds in tile pixels from view size
+            // Bounds in tile pixels from view size.
             //
             var bounds = viewTransform.GetTileMatrixBounds(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, viewSize);
 
-            // tile X and Y bounds
+            // Tile X and Y bounds.
             //
             var xMin = (int)Math.Floor(bounds.X / WmtsTileMatrix.TileWidth);
             var yMin = (int)Math.Floor(bounds.Y / WmtsTileMatrix.TileHeight);
             var xMax = (int)Math.Floor((bounds.X + bounds.Width) / WmtsTileMatrix.TileWidth);
             var yMax = (int)Math.Floor((bounds.Y + bounds.Height) / WmtsTileMatrix.TileHeight);
 
-            // total tile matrix width in meters
+            // Total tile matrix width in meters.
             //
             var totalWidth = WmtsTileMatrix.MatrixWidth * WmtsTileMatrix.TileWidth / WmtsTileMatrix.Scale;
 
             if (Math.Abs(totalWidth - 360d * MapProjection.Wgs84MeterPerDegree) > 1d)
             {
-                // no full longitudinal coverage, restrict x index
+                // No full longitudinal coverage, restrict x index.
                 //
                 xMin = Math.Max(xMin, 0);
                 xMax = Math.Min(Math.Max(xMax, 0), WmtsTileMatrix.MatrixWidth - 1);
@@ -77,7 +77,7 @@ namespace MapControl
             if (TileMatrix.XMin == xMin && TileMatrix.YMin == yMin &&
                 TileMatrix.XMax == xMax && TileMatrix.YMax == yMax)
             {
-                // no change of the TileMatrix and the Tiles collection
+                // No change of the TileMatrix and the Tiles collection.
                 //
                 return false;
             }
@@ -122,7 +122,7 @@ namespace MapControl
         {
             foreach (var tile in Tiles)
             {
-                // arrange tiles relative to XMin/YMin
+                // Arrange tiles relative to XMin/YMin.
                 //
                 var x = WmtsTileMatrix.TileWidth * (tile.X - TileMatrix.XMin);
                 var y = WmtsTileMatrix.TileHeight * (tile.Y - TileMatrix.YMin);

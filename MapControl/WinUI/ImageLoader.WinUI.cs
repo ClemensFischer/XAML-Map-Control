@@ -40,7 +40,9 @@ namespace MapControl
         {
             using (var stream = new MemoryStream(buffer))
             {
-                return await LoadImageAsync(stream); // await before closing stream
+                // Must await method before closing the stream.
+                //
+                return await LoadImageAsync(stream);
             }
         }
 

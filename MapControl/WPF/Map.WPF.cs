@@ -101,7 +101,9 @@ namespace MapControl
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            mouseWheelDelta += e.Delta / 120d; // standard mouse wheel delta
+            // Standard mouse wheel delta value is 120.
+            //
+            mouseWheelDelta += e.Delta / 120d;
 
             if (Math.Abs(mouseWheelDelta) >= 1d)
             {

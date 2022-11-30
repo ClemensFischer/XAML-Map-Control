@@ -93,13 +93,13 @@ namespace MapControl
 
             transform.Rotate(Rotation);
 
-            // tile matrix origin in map coordinates
+            // Tile matrix origin in map coordinates.
             //
             var mapOrigin = new Point(
                 tileMatrixTopLeft.X + tileMatrixOrigin.X / tileMatrixScale,
                 tileMatrixTopLeft.Y - tileMatrixOrigin.Y / tileMatrixScale);
 
-            // tile matrix origin in view coordinates
+            // Tile matrix origin in view coordinates.
             //
             var viewOrigin = MapToView(mapOrigin);
 
@@ -115,17 +115,17 @@ namespace MapControl
 
             transform.Rotate(-Rotation);
 
-            // view origin in map coordinates
+            // View origin in map coordinates.
             //
             var origin = ViewToMap(new Point());
 
-            // translate origin to tile matrix origin in pixels
+            // Translate origin to tile matrix origin in pixels.
             //
             transform.Translate(
                 tileMatrixScale * (origin.X - tileMatrixTopLeft.X),
                 tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y));
 
-            // transform view bounds to tile pixel bounds
+            // Transform view bounds to tile pixel bounds.
             //
             return new MatrixTransform { Matrix = transform }
                 .TransformBounds(new Rect(0d, 0d, viewSize.Width, viewSize.Height));

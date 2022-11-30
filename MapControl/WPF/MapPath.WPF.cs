@@ -27,7 +27,9 @@ namespace MapControl
 
         private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (e.NewValue != null && !ReferenceEquals(e.NewValue, e.OldValue)) // Data is actually a new Geometry
+            // Check if Data is actually a new Geometry.
+            //
+            if (e.NewValue != null && !ReferenceEquals(e.NewValue, e.OldValue))
             {
                 var path = (MapPath)obj;
                 var data = (Geometry)e.NewValue;

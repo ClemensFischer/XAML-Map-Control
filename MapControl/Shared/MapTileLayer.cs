@@ -108,7 +108,7 @@ namespace MapControl
             {
                 foreach (var tile in Tiles)
                 {
-                    // arrange tiles relative to XMin/YMin
+                    // Arrange tiles relative to XMin/YMin.
                     //
                     var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
                     var x = tileSize * tile.X - TileSize * TileMatrix.XMin;
@@ -162,7 +162,7 @@ namespace MapControl
         {
             if (TileMatrix != null)
             {
-                // tile matrix origin in pixels
+                // Tile matrix origin in pixels.
                 //
                 var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
 
@@ -175,15 +175,17 @@ namespace MapControl
 
         private bool SetTileMatrix()
         {
-            var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel - ZoomLevelOffset + 0.001); // avoid rounding issues
+            // Add 0.001 to avoid rounding issues.
+            //
+            var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel - ZoomLevelOffset + 0.001);
 
             var tileMatrixScale = ViewTransform.ZoomLevelToScale(tileMatrixZoomLevel);
 
-            // bounds in tile pixels from view size
+            // Bounds in tile pixels from view size.
             //
             var bounds = ParentMap.ViewTransform.GetTileMatrixBounds(tileMatrixScale, MapTopLeft, ParentMap.RenderSize);
 
-            // tile X and Y bounds
+            // Tile X and Y bounds.
             //
             var xMin = (int)Math.Floor(bounds.X / TileSize);
             var yMin = (int)Math.Floor(bounds.Y / TileSize);

@@ -343,7 +343,9 @@ namespace MapControl
             }
             else
             {
-                TranslateMap(translation); // more precise
+                // More accurate than SetTransformCenter.
+                //
+                TranslateMap(translation);
             }
         }
 
@@ -764,7 +766,8 @@ namespace MapControl
 
                         if (resetTransformCenter)
                         {
-                            // check if transform center moved across the dateline
+                            // Check if transform center moved across the dateline.
+                            //
                             transformCenterChanged = Math.Abs(center.Longitude - transformCenter.Longitude) > 180d;
 
                             ResetTransformCenter();
@@ -783,7 +786,8 @@ namespace MapControl
 
                 SetViewScale(ViewTransform.Scale);
 
-                // check if view center moved across the dateline
+                // Check if view center moved across the dateline.
+                //
                 transformCenterChanged = transformCenterChanged || Math.Abs(Center.Longitude - centerLongitude) > 180d;
                 centerLongitude = Center.Longitude;
 

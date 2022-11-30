@@ -112,20 +112,26 @@ namespace MapControl
 
         private bool UpdateChildLayers(WmtsTileMatrixSet tileMatrixSet)
         {
-            var maxScale = 1.001 * ParentMap.ViewTransform.Scale; // avoid rounding issues
+            // Multiply scale by 1.001 to avoid rounding issues.
+            //
+            var maxScale = 1.001 * ParentMap.ViewTransform.Scale;
 
-            // show all WmtsTileMatrix layers with Scale <= maxScale, at least the first layer
+            // Show all WmtsTileMatrix layers with Scale <= maxScale, at least the first layer.
             //
             var currentMatrixes = tileMatrixSet.TileMatrixes
                 .Where((matrix, i) => i == 0 || matrix.Scale <= maxScale)
                 .ToList();
 
-            if (!IsBaseMapLayer) // show only the last layer
+            if (!IsBaseMapLayer)
             {
+                // Show only the last layer.
+                //
                 currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList();
             }
             else if (currentMatrixes.Count > MaxBackgroundLevels + 1)
             {
+                // Show not more than MaxBackgroundLevels + 1 layers.
+                //
                 currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - MaxBackgroundLevels - 1).ToList();
             }
 

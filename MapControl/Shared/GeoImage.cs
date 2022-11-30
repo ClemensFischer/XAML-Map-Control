@@ -94,7 +94,8 @@ namespace MapControl
 
                     image.RenderTransform = new RotateTransform { Angle = -rotation };
 
-                    // effective unrotated transform
+                    // Calculate effective unrotated transform.
+                    //
                     transform.M11 = Math.Sqrt(transform.M11 * transform.M11 + transform.M12 * transform.M12);
                     transform.M22 = -Math.Sqrt(transform.M22 * transform.M22 + transform.M21 * transform.M21);
                     transform.M12 = 0;

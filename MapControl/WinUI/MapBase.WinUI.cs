@@ -56,7 +56,8 @@ namespace MapControl
 
         public MapBase()
         {
-            // set Background by Style to enable resetting by ClearValue in MapLayerPropertyChanged
+            // Set Background by Style to enable resetting by ClearValue in MapLayerPropertyChanged.
+            //
             var style = new Style(typeof(MapBase));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.White)));
             Style = style;

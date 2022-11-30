@@ -58,7 +58,9 @@ namespace MapControl
             {
                 var point = e.GetCurrentPoint(this);
 
-                mouseWheelDelta += point.Properties.MouseWheelDelta / 120d; // standard mouse wheel delta
+                // Standard mouse wheel delta value is 120.
+                //
+                mouseWheelDelta += point.Properties.MouseWheelDelta / 120d;
 
                 if (Math.Abs(mouseWheelDelta) >= 1d)
                 {
