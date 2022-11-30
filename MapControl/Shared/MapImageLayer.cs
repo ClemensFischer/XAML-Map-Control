@@ -134,11 +134,6 @@ namespace MapControl
             private set => SetValue(LoadingProgressProperty, value);
         }
 
-        /// <summary>
-        /// The current BoundingBox
-        /// </summary>
-        public BoundingBox BoundingBox { get; private set; }
-
         protected override void SetParentMap(MapBase map)
         {
             if (map != null)
@@ -179,6 +174,8 @@ namespace MapControl
             }
         }
 
+        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress);
+
         protected async Task UpdateImageAsync()
         {
             if (updateInProgress)
@@ -190,45 +187,44 @@ namespace MapControl
             else
             {
                 updateTimer.Stop();
+                updateInProgress = true;
 
-                if (ParentMap != null && ParentMap.RenderSize.Width > 0 && ParentMap.RenderSize.Height > 0)
+                ImageSource image = null;
+                var boundingBox = GetImageBoundingBox();
+
+                if (boundingBox != null)
                 {
-                    updateInProgress = true;
-
-                    UpdateBoundingBox();
-
-                    ImageSource image = null;
-
-                    if (BoundingBox != null)
+                    try
                     {
-                        try
-                        {
-                            image = await GetImageAsync(imageProgress);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"MapImageLayer: {ex.Message}");
-                        }
+                        image = await GetImageAsync(boundingBox, imageProgress);
                     }
-
-                    SwapImages(image);
-
-                    updateInProgress = false;
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"MapImageLayer: {ex.Message}");
+                    }
                 }
+
+                SwapImages(image, boundingBox);
+
+                updateInProgress = false;
             }
         }
 
-        protected abstract Task<ImageSource> GetImageAsync(IProgress<double> progress);
-
-        private void UpdateBoundingBox()
+        protected BoundingBox GetImageBoundingBox()
         {
-            var width = ParentMap.RenderSize.Width * RelativeImageSize;
-            var height = ParentMap.RenderSize.Height * RelativeImageSize;
-            var x = (ParentMap.RenderSize.Width - width) / 2d;
-            var y = (ParentMap.RenderSize.Height - height) / 2d;
-            var rect = new Rect(x, y, width, height);
+            BoundingBox boundingBox = null;
 
-            BoundingBox = ParentMap.ViewRectToBoundingBox(rect);
+            if (ParentMap != null && ParentMap.RenderSize.Width > 0d && ParentMap.RenderSize.Height > 0d)
+            {
+                var width = ParentMap.RenderSize.Width * RelativeImageSize;
+                var height = ParentMap.RenderSize.Height * RelativeImageSize;
+                var x = (ParentMap.RenderSize.Width - width) / 2d;
+                var y = (ParentMap.RenderSize.Height - height) / 2d;
+
+                boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
+            }
+
+            return boundingBox;
         }
 
         private void ClearImages()
@@ -240,7 +236,7 @@ namespace MapControl
             }
         }
 
-        private void SwapImages(ImageSource image)
+        private void SwapImages(ImageSource image, BoundingBox boundingBox)
         {
             if (Children.Count >= 2)
             {
@@ -251,7 +247,7 @@ namespace MapControl
                 Children.Insert(1, topImage);
 
                 topImage.Source = image;
-                SetBoundingBox(topImage, BoundingBox);
+                SetBoundingBox(topImage, boundingBox);
 
                 topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
                 {

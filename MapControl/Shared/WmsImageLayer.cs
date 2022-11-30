@@ -135,43 +135,16 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Loads an XElement from the URL returned by GetFeatureInfoRequestUri().
-        /// </summary>
-        public async Task<XElement> GetFeatureInfoAsync(Point position)
-        {
-            XElement element = null;
-
-            if (ServiceUri != null)
-            {
-                var uri = GetFeatureInfoRequestUri(position, "text/xml");
-
-                if (!string.IsNullOrEmpty(uri))
-                {
-                    try
-                    {
-                        using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
-                        {
-                            element = XDocument.Load(stream).Root;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"WmsImageLayer: {uri}: {ex.Message}");
-                    }
-                }
-            }
-
-            return element;
-        }
-
-        /// <summary>
         /// Gets a response string from the URL returned by GetFeatureInfoRequestUri().
         /// </summary>
-        public async Task<string> GetFeatureInfoTextAsync(Point position, string format = "text/plain")
+        public async Task<string> GetFeatureInfoAsync(Point position, string format = "text/plain")
         {
             string response = null;
 
-            if (ServiceUri != null)
+            if (ServiceUri != null &&
+                ParentMap?.MapProjection != null &&
+                ParentMap.RenderSize.Width > 0d &&
+                ParentMap.RenderSize.Height > 0d)
             {
                 var uri = GetFeatureInfoRequestUri(position, format);
 
@@ -194,11 +167,11 @@ namespace MapControl
         /// <summary>
         /// Loads an ImageSource from the URL returned by GetMapRequestUri().
         /// </summary>
-        protected override async Task<ImageSource> GetImageAsync(IProgress<double> progress)
+        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress)
         {
             ImageSource image = null;
 
-            if (ServiceUri != null)
+            if (ServiceUri != null && ParentMap?.MapProjection != null)
             {
                 if (Layers == null &&
                     ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
@@ -206,11 +179,38 @@ namespace MapControl
                     Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? ""; // get first Layer from Capabilities
                 }
 
-                var uri = GetMapRequestUri();
-
-                if (!string.IsNullOrEmpty(uri))
+                if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
+                    ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
                 {
-                    image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
+                    var uri = CreateUri(GetMapRequestUri(boundingBox));
+
+                    if (uri != null)
+                    {
+                        image = await ImageLoader.LoadImageAsync(uri, progress);
+                    }
+                }
+                else
+                {
+                    BoundingBox bbox1, bbox2;
+
+                    if (boundingBox.West < -180d)
+                    {
+                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West + 360, boundingBox.North, 180d);
+                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East);
+                    }
+                    else
+                    {
+                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West, boundingBox.North, 180d);
+                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East - 360d);
+                    }
+
+                    var uri1 = CreateUri(GetMapRequestUri(bbox1));
+                    var uri2 = CreateUri(GetMapRequestUri(bbox2));
+
+                    if (uri1 != null && uri2 != null)
+                    {
+                        image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
+                    }
                 }
             }
 
@@ -233,14 +233,9 @@ namespace MapControl
         /// <summary>
         /// Returns a GetMap request URL string.
         /// </summary>
-        protected virtual string GetMapRequestUri()
+        protected virtual string GetMapRequestUri(BoundingBox boundingBox)
         {
-            if (ParentMap?.MapProjection == null)
-            {
-                return null;
-            }
-
-            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(BoundingBox);
+            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(boundingBox);
             var viewScale = ParentMap.ViewTransform.Scale;
 
             return GetRequestUri(new Dictionary<string, string>
@@ -263,14 +258,10 @@ namespace MapControl
         /// </summary>
         protected virtual string GetFeatureInfoRequestUri(Point position, string format)
         {
-            if (ParentMap?.MapProjection == null)
-            {
-                return null;
-            }
-
-            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(BoundingBox);
-            var viewRect = GetViewRect(mapRect);
             var viewSize = ParentMap.RenderSize;
+            var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, viewSize.Width, viewSize.Height));
+            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(boundingBox);
+            var viewRect = GetViewRect(mapRect);
 
             var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);
             transform.Rotate(-viewRect.Rotation);
@@ -325,6 +316,23 @@ namespace MapControl
                 + string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
             return uri.Replace(" ", "%20");
+        }
+
+        private static Uri CreateUri(string uri)
+        {
+            if (!string.IsNullOrEmpty(uri))
+            {
+                try
+                {
+                    return new Uri(uri, UriKind.RelativeOrAbsolute);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"WmsImageLayer: {uri}: {ex.Message}");
+                }
+            }
+
+            return null;
         }
     }
 }

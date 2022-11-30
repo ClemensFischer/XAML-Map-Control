@@ -29,7 +29,7 @@ namespace MapControl
             set => SetValue(ItemsSourceProperty, value);
         }
 
-        protected override async Task<ImageSource> GetImageAsync(IProgress<double> progress)
+        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress)
         {
             ImageSource image = null;
             var projection = ParentMap?.MapProjection;
@@ -37,17 +37,17 @@ namespace MapControl
 
             if (projection != null && items != null)
             {
-                image = await Task.Run(() => GetImage(projection, items));
+                image = await Task.Run(() => GetImage(projection, boundingBox, items));
             }
 
             return image;
         }
 
-        private DrawingImage GetImage(MapProjection projection, IEnumerable<IMapDrawingItem> items)
+        private DrawingImage GetImage(MapProjection projection, BoundingBox boundingBox, IEnumerable<IMapDrawingItem> items)
         {
             var scale = ParentMap.ViewTransform.Scale;
             var rotation = ParentMap.ViewTransform.Rotation;
-            var mapRect = projection.BoundingBoxToRect(BoundingBox);
+            var mapRect = projection.BoundingBoxToRect(boundingBox);
             var drawings = new DrawingGroup();
 
             foreach (var item in items)

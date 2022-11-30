@@ -33,6 +33,8 @@ namespace MapControl
         {
             ImageSource image = null;
 
+            progress?.Report(0d);
+
             try
             {
                 if (!uri.IsAbsoluteUri || uri.IsFile)
@@ -58,6 +60,8 @@ namespace MapControl
                 Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
             }
 
+            progress?.Report(1d);
+
             return image;
         }
 
@@ -76,8 +80,6 @@ namespace MapControl
         internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, IProgress<double> progress = null)
         {
             HttpResponse response = null;
-
-            progress?.Report(0d);
 
             try
             {
@@ -107,8 +109,6 @@ namespace MapControl
             {
                 Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
             }
-
-            progress?.Report(1d);
 
             return response;
         }
