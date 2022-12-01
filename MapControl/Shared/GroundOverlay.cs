@@ -242,11 +242,11 @@ namespace MapControl
 
         private static LatLonBox ReadLatLonBox(XmlElement element)
         {
-            double north = double.NaN;
-            double south = double.NaN;
-            double east = double.NaN;
-            double west = double.NaN;
-            double rotation = 0d;
+            var north = double.NaN;
+            var south = double.NaN;
+            var east = double.NaN;
+            var west = double.NaN;
+            var rotation = 0d;
 
             foreach (var childElement in element.ChildNodes.OfType<XmlElement>())
             {

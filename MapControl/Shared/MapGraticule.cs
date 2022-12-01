@@ -92,9 +92,7 @@ namespace MapControl
         {
             var hemisphere = hemispheres[0];
 
-            value = (value + 540d) % 360d - 180d;
-
-            if (value < -1e-8) // ~1mm
+            if (value < -1e-8) // ~1 mm
             {
                 value = -value;
                 hemisphere = hemispheres[1];

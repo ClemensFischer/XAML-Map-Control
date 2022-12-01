@@ -7,7 +7,7 @@ namespace MapControl
     /// <summary>
     /// Rotated rectangle used to arrange and rotate an element with a BoundingBox.
     /// </summary>
-    public struct ViewRect
+    public class ViewRect
     {
         public ViewRect(double x, double y, double width, double height, double rotation)
         {

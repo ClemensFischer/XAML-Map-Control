@@ -390,11 +390,11 @@ namespace MapControl
 
             if (offset > 180d)
             {
-                longitude = Center.Longitude - 360d + offset % 360d;
+                longitude = Center.Longitude + (offset % 360d) - 360d;
             }
             else if (offset < -180d)
             {
-                longitude = Center.Longitude + 360d + offset % 360d;
+                longitude = Center.Longitude + (offset % 360d) + 360d;
             }
 
             return longitude;

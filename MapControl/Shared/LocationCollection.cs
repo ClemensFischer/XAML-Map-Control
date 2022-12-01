@@ -50,9 +50,14 @@ namespace MapControl
             Add(new Location(latitude, longitude));
         }
 
-        public static LocationCollection Parse(string s)
+        public static LocationCollection Parse(string locations)
         {
-            var strings = s.Split(new char[] { ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            if (string.IsNullOrEmpty(locations))
+            {
+                return new LocationCollection();
+            }
+
+            var strings = locations.Split(new char[] { ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
             return new LocationCollection(strings.Select(l => Location.Parse(l)));
         }

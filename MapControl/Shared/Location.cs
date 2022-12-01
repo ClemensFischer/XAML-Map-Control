@@ -57,42 +57,33 @@ namespace MapControl
             return string.Format(CultureInfo.InvariantCulture, "{0:F5},{1:F5}", Latitude, Longitude);
         }
 
-        public static Location Parse(string locationString)
+        public static Location Parse(string location)
         {
-            Location location = null;
+            string[] values = null;
 
-            if (!string.IsNullOrEmpty(locationString))
+            if (!string.IsNullOrEmpty(location))
             {
-                var values = locationString.Split(new char[] { ',' });
-
-                if (values.Length != 2)
-                {
-                    throw new FormatException("Location string must be a comma-separated pair of double values.");
-                }
-
-                location = new Location(
-                    double.Parse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    double.Parse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture));
+                values = location.Split(new char[] { ',' });
             }
 
-            return location;
+            if (values?.Length != 2)
+            {
+                throw new FormatException("Location string must be a comma-separated pair of floating point numbers.");
+            }
+
+            return new Location(
+                double.Parse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture),
+                double.Parse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
-        /// Normalizes a longitude to a value in the interval [-180 .. 180].
+        /// Normalizes a longitude to a value in the interval [-180 .. 180).
         /// </summary>
         public static double NormalizeLongitude(double longitude)
         {
-            if (longitude < -180d)
-            {
-                longitude = ((longitude + 180d) % 360d) + 180d;
-            }
-            else if (longitude > 180d)
-            {
-                longitude = ((longitude - 180d) % 360d) - 180d;
-            }
+            var x = (longitude + 180d) % 360d;
 
-            return longitude;
+            return x < 0d ? x + 180d : x - 180d;
         }
 
         /// <summary>

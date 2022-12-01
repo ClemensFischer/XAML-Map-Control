@@ -15,8 +15,8 @@ namespace MapControl
 #endif
     public class BoundingBox
     {
-        private double south;
-        private double north;
+        private double south = double.NaN;
+        private double north = double.NaN;
 
         public BoundingBox()
         {
@@ -30,9 +30,8 @@ namespace MapControl
             East = east;
         }
 
-        public double West { get; set; }
-
-        public double East { get; set; }
+        public double West { get; set; } = double.NaN;
+        public double East { get; set; } = double.NaN;
 
         public double South
         {
@@ -64,11 +63,16 @@ namespace MapControl
             protected set { }
         }
 
-        public static BoundingBox Parse(string s)
+        public static BoundingBox Parse(string boundingBox)
         {
-            var values = s.Split(new char[] { ',' });
+            string[] values = null;
 
-            if (values.Length != 4)
+            if (!string.IsNullOrEmpty(boundingBox))
+            {
+                values = boundingBox.Split(new char[] { ',' });
+            }
+
+            if (values?.Length != 4)
             {
                 throw new FormatException("BoundingBox string must be a comma-separated list of four floating point numbers.");
             }

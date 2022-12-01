@@ -211,7 +211,6 @@ namespace MapControl
                 IsOutsideViewport(position))
             {
                 location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
-
                 position = parentMap.LocationToView(location);
             }
 

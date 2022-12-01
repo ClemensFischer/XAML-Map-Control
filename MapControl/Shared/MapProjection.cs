@@ -58,6 +58,7 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.
+        /// Returns new Point(double.NaN, double.NaN) when the Location can not be transformed.
         /// </summary>
         public abstract Point LocationToMap(Location location);
 
