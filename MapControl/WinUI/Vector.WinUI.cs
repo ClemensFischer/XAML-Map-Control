@@ -70,9 +70,9 @@ namespace MapControl
             return !(v1 == v2);
         }
 
-        public override bool Equals(object o)
+        public override bool Equals(object obj)
         {
-            return o is Vector && this == (Vector)o;
+            return obj is Vector v && this == v;
         }
 
         public override int GetHashCode()

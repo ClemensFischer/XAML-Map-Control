@@ -4,9 +4,9 @@
 
 using System;
 #if WINUI
+using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using Windows.Foundation;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;

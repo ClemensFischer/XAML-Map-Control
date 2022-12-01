@@ -9,11 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 #if WINUI
-using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif UWP
-using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else

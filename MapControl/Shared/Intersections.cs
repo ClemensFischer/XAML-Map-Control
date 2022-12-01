@@ -3,9 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINUI || UWP
-using Windows.Foundation;
-#else
+#if !WINUI && !UWP
 using System.Windows;
 #endif
 
@@ -50,30 +48,30 @@ namespace MapControl
                 return true;
             }
 
-            var topLeft = new Point(rect.Left, rect.Top);
-            var topRight = new Point(rect.Right, rect.Top);
-            var bottomLeft = new Point(rect.Left, rect.Bottom);
-            var bottomRight = new Point(rect.Right, rect.Bottom);
+            var topLeft = new Point(rect.X, rect.Y);
+            var topRight = new Point(rect.X + rect.Width, rect.Y);
+            var bottomLeft = new Point(rect.X, rect.Y + rect.Height);
+            var bottomRight = new Point(rect.X + rect.Width, rect.Y + rect.Height);
             var numIntersections = 0;
 
-            if (GetIntersection(ref p1, ref p2, topLeft, bottomLeft, p => p.X <= rect.Left)) // left edge
+            if (GetIntersection(ref p1, ref p2, topLeft, bottomLeft, p => p.X <= rect.X)) // left edge
             {
                 numIntersections++;
             }
 
-            if (GetIntersection(ref p1, ref p2, topLeft, topRight, p => p.Y <= rect.Top)) // top edge
-            {
-                numIntersections++;
-            }
-
-            if (numIntersections < 2 &&
-                GetIntersection(ref p1, ref p2, topRight, bottomRight, p => p.X >= rect.Right)) // right edge
+            if (GetIntersection(ref p1, ref p2, topLeft, topRight, p => p.Y <= rect.Y)) // top edge
             {
                 numIntersections++;
             }
 
             if (numIntersections < 2 &&
-                GetIntersection(ref p1, ref p2, bottomLeft, bottomRight, p => p.Y >= rect.Bottom)) // bottom edge
+                GetIntersection(ref p1, ref p2, topRight, bottomRight, p => p.X >= rect.X + rect.Width)) // right edge
+            {
+                numIntersections++;
+            }
+
+            if (numIntersections < 2 &&
+                GetIntersection(ref p1, ref p2, bottomLeft, bottomRight, p => p.Y >= rect.Y + rect.Height)) // bottom edge
             {
                 numIntersections++;
             }

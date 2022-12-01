@@ -5,7 +5,7 @@
 namespace MapControl
 {
     /// <summary>
-    /// Replaces Windows.Foundation.Point to achieve necessary floating point precision.
+    /// Replaces Windows.Foundation.Point for double floating point precision.
     /// </summary>
     public struct Point
     {
@@ -63,9 +63,9 @@ namespace MapControl
             return !(p1 == p2);
         }
 
-        public override bool Equals(object o)
+        public override bool Equals(object obj)
         {
-            return o is Point && this == (Point)o;
+            return obj is Point p && this == p;
         }
 
         public override int GetHashCode()

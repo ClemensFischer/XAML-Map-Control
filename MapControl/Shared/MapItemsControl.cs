@@ -52,10 +52,7 @@ namespace MapControl
         /// Gets a Transform for scaling and rotating geometries
         /// in map coordinates (meters) to view coordinates (pixels).
         /// </summary>
-        public Transform MapTransform
-        {
-            get => mapTransform ?? (mapTransform = new MatrixTransform());
-        }
+        public Transform MapTransform => mapTransform ?? (mapTransform = new MatrixTransform());
 
         private MatrixTransform mapTransform;
 
