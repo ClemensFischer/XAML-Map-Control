@@ -6,14 +6,14 @@ namespace MapControl
 {
     public struct Vector
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-
         public Vector(double x, double y)
         {
             X = x;
             Y = y;
         }
+
+        public double X { get; set; }
+        public double Y { get; set; }
 
         public static implicit operator Windows.Foundation.Point(Vector v)
         {

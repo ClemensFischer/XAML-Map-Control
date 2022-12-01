@@ -16,13 +16,6 @@ namespace MapControl
     /// </summary>
     public struct Matrix
     {
-        public double M11 { get; set; }
-        public double M12 { get; set; }
-        public double M21 { get; set; }
-        public double M22 { get; set; }
-        public double OffsetX { get; set; }
-        public double OffsetY { get; set; }
-
         public Matrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)
         {
             M11 = m11;
@@ -32,6 +25,13 @@ namespace MapControl
             OffsetX = offsetX;
             OffsetY = offsetY;
         }
+
+        public double M11 { get; set; }
+        public double M12 { get; set; }
+        public double M21 { get; set; }
+        public double M22 { get; set; }
+        public double OffsetX { get; set; }
+        public double OffsetY { get; set; }
 
         public static implicit operator XamlMedia.Matrix(Matrix m)
         {

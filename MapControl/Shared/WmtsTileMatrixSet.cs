@@ -10,10 +10,6 @@ namespace MapControl
 {
     public class WmtsTileMatrixSet
     {
-        public string Identifier { get; }
-        public string SupportedCrs { get; }
-        public IList<WmtsTileMatrix> TileMatrixes { get; }
-
         public WmtsTileMatrixSet(string identifier, string supportedCrs, IEnumerable<WmtsTileMatrix> tileMatrixes)
         {
             if (string.IsNullOrEmpty(identifier))
@@ -35,5 +31,9 @@ namespace MapControl
             SupportedCrs = supportedCrs;
             TileMatrixes = tileMatrixes.OrderBy(m => m.Scale).ToList();
         }
+
+        public string Identifier { get; }
+        public string SupportedCrs { get; }
+        public IList<WmtsTileMatrix> TileMatrixes { get; }
     }
 }
