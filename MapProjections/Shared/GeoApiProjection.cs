@@ -116,7 +116,7 @@ namespace MapControl.Projections
 
         public IMathTransform MapToLocationTransform { get; private set; }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             if (LocationToMapTransform == null)
             {
@@ -125,6 +125,11 @@ namespace MapControl.Projections
 
             var coordinate = LocationToMapTransform.Transform(
                 new Coordinate(location.Longitude, location.Latitude));
+
+            if (coordinate == null)
+            {
+                return null;
+            }
 
             return new Point(coordinate.X * scaleFactor, coordinate.Y * scaleFactor);
         }
@@ -142,7 +147,7 @@ namespace MapControl.Projections
             return new Location(coordinate.Y, coordinate.X);
         }
 
-        public override string GetBboxValue(Rect rect)
+        public override string GetBboxValue(MapRect rect)
         {
             return string.Format(CultureInfo.InvariantCulture, bboxFormat,
                 rect.X / scaleFactor, rect.Y / scaleFactor,

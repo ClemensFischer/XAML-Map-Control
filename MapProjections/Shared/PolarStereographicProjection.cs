@@ -33,7 +33,7 @@ namespace MapControl.Projections
             FalseNorthing = falseNorthing;
         }
 
-        public override Vector GetRelativeScale(Location location)
+        public override Scale GetRelativeScale(Location location)
         {
             var lat = (IsNorth ? location.Latitude : -location.Latitude) * Math.PI / 180d;
             var a = Wgs84EquatorialRadius;
@@ -45,10 +45,10 @@ namespace MapControl.Projections
             var m = Math.Cos(lat) / Math.Sqrt(1d - eSinLat * eSinLat);
             var k = rho / (a * m);
 
-            return new Vector(k, k);
+            return new Scale(k, k);
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             var lat = location.Latitude * Math.PI / 180d;
             var lon = location.Longitude * Math.PI / 180d;

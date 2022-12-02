@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using ProjNet.CoordinateSystems;
+using System;
 using System.Windows;
 
 namespace MapControl.Projections
@@ -21,7 +22,7 @@ namespace MapControl.Projections
 
         public bool UseZoneCrsId { get; set; }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             UpdateZone();
 
@@ -39,7 +40,7 @@ namespace MapControl.Projections
         {
             var north = Center.Latitude >= 0d;
             var lon = Location.NormalizeLongitude(Center.Longitude);
-            var zone = (int)(lon + 180d) / 6 + 1;
+            var zone = (int)Math.Floor(lon / 6d) + 31;
 
             if (ZoneNumber != zone || ZoneIsNorth != north)
             {

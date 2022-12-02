@@ -21,11 +21,11 @@ namespace MapControl.Projections
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;
         }
 
-        public override Vector GetRelativeScale(Location location)
+        public override Scale GetRelativeScale(Location location)
         {
             var k = 1d / Math.Cos(location.Latitude * Math.PI / 180d); // p.44 (7-3)
 
-            return new Vector(k, k);
+            return new Scale(k, k);
         }
     }
 }
