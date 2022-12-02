@@ -19,7 +19,6 @@ using Windows.UI.Xaml.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Markup;
 using System.Windows.Media;
 #endif
 
