@@ -65,7 +65,7 @@ namespace MapControl
         private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
         {
             TransformMap(e.ManipulationOrigin,
-                e.DeltaManipulation.Translation,
+                (Point)e.DeltaManipulation.Translation,
                 e.DeltaManipulation.Rotation,
                 e.DeltaManipulation.Scale.LengthSquared / 2d);
         }
@@ -95,7 +95,7 @@ namespace MapControl
                 var translation = position - mousePosition.Value;
                 mousePosition = position;
 
-                TranslateMap(translation);
+                TranslateMap((Point)translation);
             }
         }
 

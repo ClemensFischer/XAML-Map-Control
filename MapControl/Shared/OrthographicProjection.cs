@@ -22,7 +22,7 @@ namespace MapControl
             CrsId = DefaultCrsId;
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             if (location.Equals(Center))
             {
@@ -35,7 +35,7 @@ namespace MapControl
 
             if (Math.Abs(lat - lat0) > Math.PI / 2d || Math.Abs(dLon) > Math.PI / 2d)
             {
-                return new Point(double.NaN, double.NaN);
+                return null;
             }
 
             return new Point(

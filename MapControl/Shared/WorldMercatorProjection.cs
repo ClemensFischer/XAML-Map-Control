@@ -26,16 +26,16 @@ namespace MapControl
             CrsId = DefaultCrsId;
         }
 
-        public override Vector GetRelativeScale(Location location)
+        public override Scale GetRelativeScale(Location location)
         {
             var lat = location.Latitude * Math.PI / 180d;
             var eSinLat = Wgs84Eccentricity * Math.Sin(lat);
             var k = Math.Sqrt(1d - eSinLat * eSinLat) / Math.Cos(lat); // p.44 (7-8)
 
-            return new Vector(k, k);
+            return new Scale(k, k);
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             return new Point(
                 Wgs84MeterPerDegree * location.Longitude,

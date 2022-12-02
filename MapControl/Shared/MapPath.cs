@@ -95,10 +95,11 @@ namespace MapControl
 
             if (location != null && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
             {
-                var pos = parentMap.LocationToView(location);
+                var point = parentMap.LocationToView(location);
 
-                if (pos.X < 0d || pos.X > parentMap.RenderSize.Width ||
-                    pos.Y < 0d || pos.Y > parentMap.RenderSize.Height)
+                if (point.HasValue &&
+                    (point.Value.X < 0d || point.Value.X > parentMap.RenderSize.Width ||
+                     point.Value.Y < 0d || point.Value.Y > parentMap.RenderSize.Height))
                 {
                     longitudeOffset = parentMap.ConstrainedLongitude(location.Longitude) - location.Longitude;
                 }
@@ -107,7 +108,7 @@ namespace MapControl
             return longitudeOffset;
         }
 
-        protected Point LocationToMap(Location location, double longitudeOffset)
+        protected Point? LocationToMap(Location location, double longitudeOffset)
         {
             if (longitudeOffset != 0d)
             {
@@ -116,21 +117,24 @@ namespace MapControl
 
             var point = parentMap.MapProjection.LocationToMap(location);
 
-            if (point.Y == double.PositiveInfinity)
+            if (point.HasValue && double.IsInfinity(point.Value.Y))
             {
-                point.Y = 1e9;
-            }
-            else if (point.X == double.NegativeInfinity)
-            {
-                point.Y = -1e9;
+                point = null;
             }
 
             return point;
         }
 
-        protected Point LocationToView(Location location, double longitudeOffset)
+        protected Point? LocationToView(Location location, double longitudeOffset)
         {
-            return parentMap.ViewTransform.MapToView(LocationToMap(location, longitudeOffset));
+            var point = LocationToMap(location, longitudeOffset);
+
+            if (!point.HasValue)
+            {
+                return null;
+            }
+
+            return parentMap.ViewTransform.MapToView(point.Value);
         }
 
         #endregion

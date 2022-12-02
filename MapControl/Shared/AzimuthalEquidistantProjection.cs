@@ -20,7 +20,7 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             if (location.Equals(Center))
             {

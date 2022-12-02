@@ -28,31 +28,6 @@ namespace MapControl
             return new Point(p.X, p.Y);
         }
 
-        public static explicit operator Point(Vector v)
-        {
-            return new Point(v.X, v.Y);
-        }
-
-        public static Point operator -(Point p)
-        {
-            return new Point(-p.X, -p.Y);
-        }
-
-        public static Point operator +(Point p, Vector v)
-        {
-            return new Point(p.X + v.X, p.Y + v.Y);
-        }
-
-        public static Point operator -(Point p, Vector v)
-        {
-            return new Point(p.X - v.X, p.Y - v.Y);
-        }
-
-        public static Vector operator -(Point p1, Point p2)
-        {
-            return new Vector(p1.X - p2.X, p1.Y - p2.Y);
-        }
-
         public static bool operator ==(Point p1, Point p2)
         {
             return p1.X == p2.X && p1.Y == p2.Y;

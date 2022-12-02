@@ -19,22 +19,34 @@ namespace MapControl
             Type = MapProjectionType.Azimuthal;
         }
 
-        public override Rect BoundingBoxToRect(BoundingBox boundingBox)
+        public override MapRect BoundingBoxToMapRect(BoundingBox boundingBox)
         {
             var center = LocationToMap(boundingBox.Center);
+
+            if (!center.HasValue)
+            {
+                return null;
+            }
+
             var width = boundingBox.Width * Wgs84MeterPerDegree;
             var height = boundingBox.Height * Wgs84MeterPerDegree;
 
-            return new Rect(center.X - width / 2d, center.Y - height / 2d, width, height);
+            return new MapRect(center.Value.X - width / 2d, center.Value.Y - height / 2d, width, height);
         }
 
-        public override BoundingBox RectToBoundingBox(Rect rect)
+        public override BoundingBox MapRectToBoundingBox(MapRect rect)
         {
             var center = MapToLocation(new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d));
+
+            if (center == null)
+            {
+                return null;
+            }
+
             var width = rect.Width / Wgs84MeterPerDegree;
             var height = rect.Height / Wgs84MeterPerDegree;
 
-            return center != null ? new CenteredBoundingBox(center, width, height) : null;
+            return new CenteredBoundingBox(center, width, height);
         }
 
         /// <summary>

@@ -128,6 +128,9 @@
     <Compile Include="..\Shared\MapProjectionFactory.cs">
       <Link>MapProjectionFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapRect.cs">
+      <Link>MapRect.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapScale.cs">
       <Link>MapScale.cs</Link>
     </Compile>
@@ -142,6 +145,9 @@
     </Compile>
     <Compile Include="..\Shared\PushpinBorder.cs">
       <Link>PushpinBorder.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Scale.cs">
+      <Link>Scale.cs</Link>
     </Compile>
     <Compile Include="..\Shared\StereographicProjection.cs">
       <Link>StereographicProjection.cs</Link>
@@ -242,14 +248,8 @@
     <Compile Include="..\WinUI\PushpinBorder.WinUI.cs">
       <Link>PushpinBorder.WinUI.cs</Link>
     </Compile>
-    <Compile Include="..\WinUI\Rect.WinUI.cs">
-      <Link>Rect.WinUI.cs</Link>
-    </Compile>
     <Compile Include="..\WinUI\Tile.WinUI.cs">
       <Link>Tile.WinUI.cs</Link>
-    </Compile>
-    <Compile Include="..\WinUI\Vector.WinUI.cs">
-      <Link>Vector.WinUI.cs</Link>
     </Compile>
     <Compile Include="..\WPF\Timer.WPF.cs">
       <Link>Timer.WPF.cs</Link>

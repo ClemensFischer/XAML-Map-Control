@@ -23,14 +23,14 @@ namespace MapControl
             CrsId = DefaultCrsId;
         }
 
-        public override Vector GetRelativeScale(Location location)
+        public override Scale GetRelativeScale(Location location)
         {
             var k = 1d / Math.Cos(location.Latitude * Math.PI / 180d); // p.44 (7-3)
 
-            return new Vector(k, k);
+            return new Scale(k, k);
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             return new Point(
                 Wgs84MeterPerDegree * location.Longitude,

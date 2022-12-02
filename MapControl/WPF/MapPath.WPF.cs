@@ -73,7 +73,11 @@ namespace MapControl
         {
             if (locations.Count() >= 2)
             {
-                var points = locations.Select(location => LocationToView(location, longitudeOffset));
+                var points = locations
+                    .Select(location => LocationToView(location, longitudeOffset))
+                    .Where(point => point.HasValue)
+                    .Select(point => point.Value);
+
                 var figure = new PathFigure
                 {
                     StartPoint = points.First(),

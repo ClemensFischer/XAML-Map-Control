@@ -7,9 +7,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 #if WINUI
+using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif UWP
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -104,8 +106,7 @@ namespace MapControl
 
         private void AddLabel(ICollection<Label> labels, Location location, Point position, double? rotation = null)
         {
-            if (MapProjection.IsValid(position) &&
-                position.X >= 0d && position.X <= ParentMap.RenderSize.Width &&
+            if (position.X >= 0d && position.X <= ParentMap.RenderSize.Width &&
                 position.Y >= 0d && position.Y <= ParentMap.RenderSize.Height)
             {
                 if (!rotation.HasValue)
@@ -115,9 +116,9 @@ namespace MapControl
                     var pos = ParentMap.LocationToView(
                         new Location(location.Latitude, location.Longitude + 10d / PixelPerLongitudeDegree(location)));
 
-                    if (MapProjection.IsValid(pos))
+                    if (pos.HasValue)
                     {
-                        rotation = Math.Atan2(pos.Y - position.Y, pos.X - position.X) * 180d / Math.PI;
+                        rotation = Math.Atan2(pos.Value.Y - position.Y, pos.Value.X - position.X) * 180d / Math.PI;
                     }
                 }
 
@@ -162,9 +163,9 @@ namespace MapControl
                 var p1 = ParentMap.LocationToView(new Location(lat, bounds.West));
                 var p2 = ParentMap.LocationToView(new Location(lat, bounds.East));
 
-                if (MapProjection.IsValid(p1) && MapProjection.IsValid(p2))
+                if (p1.HasValue && p2.HasValue)
                 {
-                    figures.Add(CreateLineFigure(p1, p2));
+                    figures.Add(CreateLineFigure(p1.Value, p2.Value));
                 }
             }
 
@@ -173,9 +174,9 @@ namespace MapControl
                 var p1 = ParentMap.LocationToView(new Location(bounds.South, lon));
                 var p2 = ParentMap.LocationToView(new Location(bounds.North, lon));
 
-                if (MapProjection.IsValid(p1) && MapProjection.IsValid(p2))
+                if (p1.HasValue && p2.HasValue)
                 {
-                    figures.Add(CreateLineFigure(p1, p2));
+                    figures.Add(CreateLineFigure(p1.Value, p2.Value));
                 }
 
                 for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
@@ -183,7 +184,10 @@ namespace MapControl
                     var location = new Location(lat, lon);
                     var position = ParentMap.LocationToView(location);
 
-                    AddLabel(labels, location, position, ParentMap.ViewTransform.Rotation);
+                    if (position.HasValue)
+                    {
+                        AddLabel(labels, location, position.Value, ParentMap.ViewTransform.Rotation);
+                    }
                 }
             }
         }
@@ -240,10 +244,10 @@ namespace MapControl
                 var points = new List<Point>();
                 var position = ParentMap.LocationToView(location);
 
-                if (MapProjection.IsValid(position))
+                if (position.HasValue)
                 {
-                    points.Add(position);
-                    AddLabel(labels, location, position);
+                    points.Add(position.Value);
+                    AddLabel(labels, location, position.Value);
                 }
 
                 for (int j = 0; j < lonSegments; j++)
@@ -254,13 +258,16 @@ namespace MapControl
                         location = new Location(lat, lon);
                         position = ParentMap.LocationToView(location);
 
-                        if (MapProjection.IsValid(position))
+                        if (position.HasValue)
                         {
-                            points.Add(position);
+                            points.Add(position.Value);
                         }
                     }
 
-                    AddLabel(labels, location, position);
+                    if (position.HasValue)
+                    {
+                        AddLabel(labels, location, position.Value);
+                    }
                 }
 
                 if (points.Count >= 2)
@@ -280,13 +287,13 @@ namespace MapControl
             {
                 var p = ParentMap.LocationToView(new Location(startLatitude + i * deltaLatitude, longitude));
 
-                if (MapProjection.IsValid(p))
+                if (p.HasValue)
                 {
                     visible = visible ||
-                        p.X >= 0d && p.X <= ParentMap.RenderSize.Width &&
-                        p.Y >= 0d && p.Y <= ParentMap.RenderSize.Height;
+                        p.Value.X >= 0d && p.Value.X <= ParentMap.RenderSize.Width &&
+                        p.Value.Y >= 0d && p.Value.Y <= ParentMap.RenderSize.Height;
 
-                    points.Add(p);
+                    points.Add(p.Value);
                 }
             }
 
@@ -305,12 +312,16 @@ namespace MapControl
             var northPole = ParentMap.LocationToView(new Location(90d, 0d));
             var southPole = ParentMap.LocationToView(new Location(-90d, 0d));
 
-            if (northPole.X >= 0d && northPole.Y >= 0d && northPole.X <= width && northPole.Y <= height)
+            if (northPole.HasValue &&
+                northPole.Value.X >= 0d && northPole.Value.X <= width &&
+                northPole.Value.Y >= 0d && northPole.Value.Y <= height)
             {
                 maxLatitude = 90d;
             }
 
-            if (southPole.X >= 0d && southPole.Y >= 0d && southPole.X <= width && southPole.Y <= height)
+            if (southPole.HasValue &&
+                southPole.Value.X >= 0d && southPole.Value.X <= width &&
+                southPole.Value.Y >= 0d && southPole.Value.Y <= height)
             {
                 minLatitude = -90d;
             }

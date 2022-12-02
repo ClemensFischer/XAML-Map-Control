@@ -4,10 +4,12 @@
 
 using System;
 #if WINUI
+using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 #elif UWP
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -229,7 +231,7 @@ namespace MapControl
         /// Gets the map scale as the horizontal and vertical scaling factors from geographic
         /// coordinates to view coordinates at the specified location, as pixels per meter.
         /// </summary>
-        public Vector GetScale(Location location)
+        public Scale GetScale(Location location)
         {
             return ViewTransform.Scale * MapProjection.GetRelativeScale(location);
         }
@@ -237,9 +239,16 @@ namespace MapControl
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in view coordinates.
         /// </summary>
-        public Point LocationToView(Location location)
+        public Point? LocationToView(Location location)
         {
-            return ViewTransform.MapToView(MapProjection.LocationToMap(location));
+            var point = MapProjection.LocationToMap(location);
+
+            if (!point.HasValue)
+            {
+                return null;
+            }
+
+            return ViewTransform.MapToView(point.Value);
         }
 
         /// <summary>
@@ -265,7 +274,7 @@ namespace MapControl
             var y1 = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
             var y2 = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
 
-            return MapProjection.RectToBoundingBox(new Rect(x1, y1, x2 - x1, y2 - y1));
+            return MapProjection.MapRectToBoundingBox(new MapRect(x1, y1, x2 - x1, y2 - y1));
         }
 
         /// <summary>
@@ -291,7 +300,7 @@ namespace MapControl
         /// <summary>
         /// Changes the Center property according to the specified translation in view coordinates.
         /// </summary>
-        public void TranslateMap(Vector translation)
+        public void TranslateMap(Point translation)
         {
             if (transformCenter != null)
             {
@@ -301,7 +310,8 @@ namespace MapControl
 
             if (translation.X != 0d || translation.Y != 0d)
             {
-                var center = ViewToLocation(viewCenter - translation);
+                var center = ViewToLocation(new Point(viewCenter.X - translation.X, viewCenter.Y - translation.Y));
+
                 if (center != null)
                 {
                     Center = center;
@@ -314,12 +324,14 @@ namespace MapControl
         /// view coordinate translation, rotation and scale delta values. Rotation and scaling
         /// is performed relative to the specified center point in view coordinates.
         /// </summary>
-        public void TransformMap(Point center, Vector translation, double rotation, double scale)
+        public void TransformMap(Point center, Point translation, double rotation, double scale)
         {
             if (rotation != 0d || scale != 1d)
             {
                 SetTransformCenter(center);
-                viewCenter += translation;
+
+                viewCenter.X += translation.X;
+                viewCenter.Y += translation.Y;
 
                 if (rotation != 0d)
                 {
@@ -368,7 +380,7 @@ namespace MapControl
         /// </summary>
         public void ZoomToBounds(BoundingBox boundingBox)
         {
-            var rect = MapProjection.BoundingBoxToRect(boundingBox);
+            var rect = MapProjection.BoundingBoxToMapRect(boundingBox);
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var targetCenter = MapProjection.MapToLocation(center);
 
@@ -737,9 +749,9 @@ namespace MapControl
 
             var mapCenter = projection.LocationToMap(transformCenter ?? Center);
 
-            if (MapProjection.IsValid(mapCenter))
+            if (mapCenter.HasValue)
             {
-                ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
+                ViewTransform.SetTransform(mapCenter.Value, viewCenter, viewScale, -Heading);
 
                 if (transformCenter != null)
                 {
@@ -774,9 +786,9 @@ namespace MapControl
 
                             mapCenter = projection.LocationToMap(center);
 
-                            if (MapProjection.IsValid(mapCenter))
+                            if (mapCenter.HasValue)
                             {
-                                ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
+                                ViewTransform.SetTransform(mapCenter.Value, viewCenter, viewScale, -Heading);
                             }
                         }
                     }

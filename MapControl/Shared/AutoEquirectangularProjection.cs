@@ -24,7 +24,7 @@ namespace MapControl
             CrsId = DefaultCrsId;
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             return new Point(
                 Wgs84MeterPerDegree * (location.Longitude - Center.Longitude) * Math.Cos(Center.Latitude * Math.PI / 180d),

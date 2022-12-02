@@ -203,12 +203,13 @@ namespace MapControl
             return finalSize;
         }
 
-        protected Point GetViewPosition(Location location)
+        protected Point? GetViewPosition(Location location)
         {
             var position = parentMap.LocationToView(location);
 
             if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                IsOutsideViewport(position))
+                position.HasValue &&
+                IsOutsideViewport(position.Value))
             {
                 location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
                 position = parentMap.LocationToView(location);
@@ -219,10 +220,10 @@ namespace MapControl
 
         protected ViewRect GetViewRect(BoundingBox boundingBox)
         {
-            return GetViewRect(parentMap.MapProjection.BoundingBoxToRect(boundingBox));
+            return GetViewRect(parentMap.MapProjection.BoundingBoxToMapRect(boundingBox));
         }
 
-        protected ViewRect GetViewRect(Rect rect)
+        protected ViewRect GetViewRect(MapRect rect)
         {
             var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
@@ -235,7 +236,12 @@ namespace MapControl
                 if (location != null)
                 {
                     location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
-                    position = parentMap.LocationToView(location);
+                    var pos = parentMap.LocationToView(location);
+
+                    if (pos.HasValue)
+                    {
+                        position = pos.Value;
+                    }
                 }
             }
 

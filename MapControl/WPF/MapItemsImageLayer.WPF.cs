@@ -15,7 +15,7 @@ namespace MapControl
     {
         IEnumerable<Location> Locations { get; }
 
-        Drawing GetDrawing(IList<Point> positions, double scale, double rotation);
+        Drawing GetDrawing(IList<Point> points, double scale, double rotation);
     }
 
     public class MapItemsImageLayer : MapImageLayer
@@ -47,23 +47,27 @@ namespace MapControl
         {
             var scale = ParentMap.ViewTransform.Scale;
             var rotation = ParentMap.ViewTransform.Rotation;
-            var mapRect = projection.BoundingBoxToRect(boundingBox);
+            var mapRect = projection.BoundingBoxToMapRect(boundingBox);
             var drawings = new DrawingGroup();
 
             foreach (var item in items)
             {
-                var positions = item.Locations.Select(l => projection.LocationToMap(l)).ToList();
+                var points = item.Locations
+                    .Select(location => projection.LocationToMap(location))
+                    .Where(point => point.HasValue)
+                    .Select(point => point.Value)
+                    .ToList();
 
-                if (positions.Any(p => mapRect.Contains(p)))
+                if (points.Any(point => mapRect.Contains(point)))
                 {
-                    for (int i = 0; i < positions.Count; i++)
+                    for (int i = 0; i < points.Count; i++)
                     {
-                        positions[i] = new Point(
-                            scale * (positions[i].X - mapRect.X),
-                            scale * (mapRect.Height + mapRect.Y - positions[i].Y));
+                        points[i] = new Point(
+                            scale * (points[i].X - mapRect.X),
+                            scale * (mapRect.Height + mapRect.Y - points[i].Y));
                     }
 
-                    drawings.Children.Add(item.GetDrawing(positions, scale, rotation));
+                    drawings.Children.Add(item.GetDrawing(points, scale, rotation));
                 }
             }
 

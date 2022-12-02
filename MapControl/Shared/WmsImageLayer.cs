@@ -9,9 +9,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 #if WINUI
+using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif UWP
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -237,7 +239,7 @@ namespace MapControl
         /// </summary>
         protected virtual string GetMapRequestUri(BoundingBox boundingBox)
         {
-            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(boundingBox);
+            var mapRect = ParentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
             var viewScale = ParentMap.ViewTransform.Scale;
 
             return GetRequestUri(new Dictionary<string, string>
@@ -262,7 +264,7 @@ namespace MapControl
         {
             var viewSize = ParentMap.RenderSize;
             var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, viewSize.Width, viewSize.Height));
-            var mapRect = ParentMap.MapProjection.BoundingBoxToRect(boundingBox);
+            var mapRect = ParentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
             var viewRect = GetViewRect(mapRect);
 
             var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);
@@ -296,7 +298,7 @@ namespace MapControl
             return ParentMap.MapProjection.GetCrsValue();
         }
 
-        protected virtual string GetBboxValue(Rect mapRect)
+        protected virtual string GetBboxValue(MapRect mapRect)
         {
             return ParentMap.MapProjection.GetBboxValue(mapRect);
         }

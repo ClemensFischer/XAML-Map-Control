@@ -22,7 +22,7 @@ namespace MapControl
             CrsId = DefaultCrsId;
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             if (location.Equals(Center))
             {

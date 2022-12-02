@@ -49,16 +49,16 @@ namespace MapControl
         /// <summary>
         /// Gets the relative map scale at the specified Location.
         /// </summary>
-        public virtual Vector GetRelativeScale(Location location)
+        public virtual Scale GetRelativeScale(Location location)
         {
-            return new Vector(1d, 1d);
+            return new Scale(1d, 1d);
         }
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.
-        /// Returns new Point(double.NaN, double.NaN) when the Location can not be transformed.
+        /// Returns null when the Location can not be transformed.
         /// </summary>
-        public abstract Point LocationToMap(Location location);
+        public abstract Point? LocationToMap(Location location);
 
         /// <summary>
         /// Transforms a Point in projected map coordinates to a Location in geographic coordinates.
@@ -67,20 +67,22 @@ namespace MapControl
         public abstract Location MapToLocation(Point point);
 
         /// <summary>
-        /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates.
+        /// Transforms a BoundingBox in geographic coordinates to a MapRect in projected map coordinates.
+        /// Returns null when the BoundingBox can not be transformed.
         /// </summary>
-        public virtual Rect BoundingBoxToRect(BoundingBox boundingBox)
+        public virtual MapRect BoundingBoxToMapRect(BoundingBox boundingBox)
         {
-            return new Rect(
-                LocationToMap(new Location(boundingBox.South, boundingBox.West)),
-                LocationToMap(new Location(boundingBox.North, boundingBox.East)));
+            var p1 = LocationToMap(new Location(boundingBox.South, boundingBox.West));
+            var p2 = LocationToMap(new Location(boundingBox.North, boundingBox.East));
+
+            return p1.HasValue && p2.HasValue ? new MapRect(p1.Value, p2.Value) : null;
         }
 
         /// <summary>
-        /// Transforms a Rect in projected map coordinates to a BoundingBox in geographic coordinates.
-        /// Returns null when the Rect can not be transformed.
+        /// Transforms a MapRect in projected map coordinates to a BoundingBox in geographic coordinates.
+        /// Returns null when the MapRect can not be transformed.
         /// </summary>
-        public virtual BoundingBox RectToBoundingBox(Rect rect)
+        public virtual BoundingBox MapRectToBoundingBox(MapRect rect)
         {
             var sw = MapToLocation(new Point(rect.X, rect.Y));
             var ne = MapToLocation(new Point(rect.X + rect.Width, rect.Y + rect.Height));
@@ -103,30 +105,10 @@ namespace MapControl
         /// <summary>
         /// Gets the BBOX parameter value for a WMS GetMap request.
         /// </summary>
-        public virtual string GetBboxValue(Rect rect)
+        public virtual string GetBboxValue(MapRect rect)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 "{0},{1},{2},{3}", rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height));
-        }
-
-        /// <summary>
-        /// Checks if the X and Y values of a Point are neither NaN nor Infinity.
-        /// </summary>
-        public static bool IsValid(Point point)
-        {
-            return !double.IsNaN(point.X) && !double.IsInfinity(point.X) &&
-                   !double.IsNaN(point.Y) && !double.IsInfinity(point.Y);
-        }
-
-        /// <summary>
-        /// Checks if the X, Y, Width and Height values of a Rect are neither NaN nor Infinity.
-        /// </summary>
-        public static bool IsValid(Rect rect)
-        {
-            return !double.IsNaN(rect.X) && !double.IsInfinity(rect.X) &&
-                   !double.IsNaN(rect.Y) && !double.IsInfinity(rect.Y) &&
-                   !double.IsNaN(rect.Width) && !double.IsInfinity(rect.Width) &&
-                   !double.IsNaN(rect.Height) && !double.IsInfinity(rect.Height);
         }
     }
 }

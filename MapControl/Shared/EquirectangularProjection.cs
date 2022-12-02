@@ -25,14 +25,14 @@ namespace MapControl
             CrsId = DefaultCrsId;
         }
 
-        public override Vector GetRelativeScale(Location location)
+        public override Scale GetRelativeScale(Location location)
         {
-            return new Vector(
+            return new Scale(
                 1d / Math.Cos(location.Latitude * Math.PI / 180d),
                 1d);
         }
 
-        public override Point LocationToMap(Location location)
+        public override Point? LocationToMap(Location location)
         {
             return new Point(
                 Wgs84MeterPerDegree * location.Longitude,
@@ -46,7 +46,7 @@ namespace MapControl
                 point.X / Wgs84MeterPerDegree);
         }
 
-        public override string GetBboxValue(Rect rect)
+        public override string GetBboxValue(MapRect rect)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 CrsId == "CRS:84" ? "{0},{1},{2},{3}" : "{1},{0},{3},{2}",

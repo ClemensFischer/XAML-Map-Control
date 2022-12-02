@@ -100,7 +100,7 @@ namespace MapControl
                     transform.M21 = 0;
                 }
 
-                var rect = new Rect(
+                var rect = new MapRect(
                     transform.Transform(new Point()),
                     transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight)));
 

@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using Windows.Foundation;
 #if WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -50,7 +51,10 @@ namespace MapControl
         {
             if (locations.Count() >= 2)
             {
-                var points = locations.Select(location => LocationToView(location, longitudeOffset));
+                var points = locations
+                    .Select(location => LocationToView(location, longitudeOffset))
+                    .Where(point => point.HasValue)
+                    .Select(point => point.Value);
 
                 if (closed)
                 {
