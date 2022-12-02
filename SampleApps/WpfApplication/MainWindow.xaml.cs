@@ -2,6 +2,7 @@
 using MapControl.Caching;
 using MapControl.UiTools;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -72,6 +73,14 @@ namespace SampleApplication
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {
             map.TargetHeading = 0d;
+        }
+
+        private async void MapMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (map.MapLayer is WmsImageLayer wmsLayer)
+            {
+                Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
+            }
         }
 
         private void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

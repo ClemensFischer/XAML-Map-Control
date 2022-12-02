@@ -117,6 +117,7 @@
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11"
                  Center="53.5,8.2" ManipulationMode="All"
                  MouseLeftButtonDown="MapMouseLeftButtonDown"
+                 MouseRightButtonDown="MapMouseRightButtonDown"
                  MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
 
