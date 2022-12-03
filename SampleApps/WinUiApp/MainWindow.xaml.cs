@@ -2,10 +2,12 @@
 using MapControl.Caching;
 using MapControl.UiTools;
 using Microsoft.UI;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -98,6 +100,20 @@ namespace SampleApplication
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {
             map.TargetHeading = 0d;
+        }
+
+        private async void MapPointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (map.MapLayer is WmsImageLayer wmsLayer &&
+                e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                PointerPoint point = e.GetCurrentPoint(map);
+
+                if (point.Properties.IsRightButtonPressed)
+                {
+                    Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(point.Position));
+                }
+            }
         }
 
         private void MapPointerMoved(object sender, PointerRoutedEventArgs e)

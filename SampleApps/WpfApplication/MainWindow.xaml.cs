@@ -75,19 +75,19 @@ namespace SampleApplication
             map.TargetHeading = 0d;
         }
 
-        private async void MapMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (map.MapLayer is WmsImageLayer wmsLayer)
-            {
-                Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
-            }
-        }
-
         private void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
             {
                 map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+            }
+        }
+
+        private async void MapMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (map.MapLayer is WmsImageLayer wmsLayer)
+            {
+                Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
             }
         }
 

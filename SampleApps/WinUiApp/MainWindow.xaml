@@ -107,6 +107,7 @@
 
         <map:Map x:Name="map" ManipulationMode="All"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11"
+                 PointerPressed="MapPointerPressed"
                  PointerMoved="MapPointerMoved"
                  PointerExited="MapPointerExited">
             <map:Map.Center>
