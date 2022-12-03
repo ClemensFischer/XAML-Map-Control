@@ -72,7 +72,7 @@ namespace MapControl
         public void SetTransform(Point mapCenter, Point viewCenter, double scale, double rotation)
         {
             Scale = scale;
-            Rotation = rotation;
+            Rotation = ((rotation % 360d) + 360d) % 360d;
 
             var transform = new Matrix(Scale, 0d, 0d, -Scale, -Scale * mapCenter.X, Scale * mapCenter.Y);
 

@@ -2,6 +2,7 @@
 // © 2022 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using ABI.Microsoft.UI.Xaml.Media;
 using System;
 #if WINUI
 using XamlMedia = Microsoft.UI.Xaml.Media;
@@ -40,7 +41,7 @@ namespace MapControl
 
         public Point Transform(Point p)
         {
-            return new Point(M11 * p.X + M12 * p.Y + OffsetX, M21 * p.X + M22 * p.Y + OffsetY);
+            return new Point(M11 * p.X + M21 * p.Y + OffsetX, M12 * p.X + M22 * p.Y + OffsetY);
         }
 
         public void Translate(double x, double y)
@@ -57,6 +58,8 @@ namespace MapControl
             {
                 var cos = Math.Cos(angle);
                 var sin = Math.Sin(angle);
+
+                // Multiply(new Matrix(cos, sin, -sin, cos, 0d, 0d));
 
                 SetMatrix(
                     cos * M11 - sin * M12,
@@ -81,6 +84,17 @@ namespace MapControl
                 invDet * M22, invDet * -M12, invDet * -M21, invDet * M11,
                 invDet * (M21 * OffsetY - M22 * OffsetX),
                 invDet * (M12 * OffsetX - M11 * OffsetY));
+        }
+
+        public void Multiply(Matrix m)
+        {
+            SetMatrix(
+                M11 * m.M11 + M12 * m.M21,
+                M11 * m.M12 + M12 * m.M22,
+                M21 * m.M11 + M22 * m.M21,
+                M21 * m.M12 + M22 * m.M22,
+                OffsetX * m.M11 + OffsetY * m.M21 + m.OffsetX,
+                OffsetX * m.M12 + OffsetY * m.M22 + m.OffsetY);
         }
 
         private void SetMatrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)
