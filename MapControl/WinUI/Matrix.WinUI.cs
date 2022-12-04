@@ -2,18 +2,17 @@
 // © 2022 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using ABI.Microsoft.UI.Xaml.Media;
 using System;
 #if WINUI
-using XamlMedia = Microsoft.UI.Xaml.Media;
+using WindowsUI = Microsoft.UI;
 #else
-using XamlMedia = Windows.UI.Xaml.Media;
+using WindowsUI = Windows.UI;
 #endif
 
 namespace MapControl
 {
     /// <summary>
-    /// Replaces Windows.UI.Xaml.Media.Matrix to achieve necessary floating point precision.
+    /// Replaces Windows.UI.Xaml.Media.Matrix for double floating point precision.
     /// </summary>
     public struct Matrix
     {
@@ -34,14 +33,21 @@ namespace MapControl
         public double OffsetX { get; set; }
         public double OffsetY { get; set; }
 
-        public static implicit operator XamlMedia.Matrix(Matrix m)
+        public static implicit operator WindowsUI.Xaml.Media.Matrix(Matrix m)
         {
-            return new XamlMedia.Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
+            return new WindowsUI.Xaml.Media.Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
+        }
+
+        public static implicit operator Matrix(WindowsUI.Xaml.Media.Matrix m)
+        {
+            return new Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
         }
 
         public Point Transform(Point p)
         {
-            return new Point(M11 * p.X + M21 * p.Y + OffsetX, M12 * p.X + M22 * p.Y + OffsetY);
+            return new Point(
+                M11 * p.X + M21 * p.Y + OffsetX,
+                M12 * p.X + M22 * p.Y + OffsetY);
         }
 
         public void Translate(double x, double y)

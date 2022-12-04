@@ -10,7 +10,7 @@ using System.Windows;
 namespace MapControl
 {
     /// <summary>
-    /// Map rectangle with double floating point precision, unlike Windows.Foundation.Rect does.
+    /// Map rectangle with double floating point precision, in contrast to Windows.Foundation.Rect.
     /// Used by MapProjection to convert geodetic bounding boxes to/from projected map coordinates.
     /// </summary>
     public class MapRect
