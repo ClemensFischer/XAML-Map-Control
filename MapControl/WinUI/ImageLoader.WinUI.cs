@@ -50,9 +50,11 @@ namespace MapControl
         {
             ImageSource image = null;
 
+            path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+
             if (File.Exists(path))
             {
-                var file = await StorageFile.GetFileFromPathAsync(Path.GetFullPath(path));
+                var file = await StorageFile.GetFileFromPathAsync(path);
 
                 using (var stream = await file.OpenReadAsync())
                 {
