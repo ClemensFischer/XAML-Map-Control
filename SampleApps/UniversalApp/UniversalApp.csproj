@@ -69,6 +69,9 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="..\Shared\etna.kml">
+      <Link>etna.kml</Link>
+    </Content>
     <None Include="UniversalApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

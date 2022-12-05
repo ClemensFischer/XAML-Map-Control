@@ -217,6 +217,9 @@
                             </map:MapPanel.BoundingBox>
                         </Image>
                     </tools:MapLayerItem>
+                    <tools:MapLayerItem Text="Mount Etna KML">
+                        <map:GroundOverlay SourcePath="etna.kml"/>
+                    </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Seamarks">
                         <map:MapTileLayer SourceName="Seamarks" MinZoomLevel="9" MaxZoomLevel="18">
                             <map:MapTileLayer.TileSource>
