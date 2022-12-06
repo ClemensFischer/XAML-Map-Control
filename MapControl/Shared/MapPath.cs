@@ -117,9 +117,16 @@ namespace MapControl
 
             var point = parentMap.MapProjection.LocationToMap(location);
 
-            if (point.HasValue && double.IsInfinity(point.Value.Y))
+            if (point.HasValue)
             {
-                point = null;
+                if (point.Value.Y == double.PositiveInfinity)
+                {
+                    point = new Point(point.Value.X, 1e9);
+                }
+                else if (point.Value.Y == double.NegativeInfinity)
+                {
+                    point = new Point(point.Value.X, -1e9);
+                }
             }
 
             return point;
