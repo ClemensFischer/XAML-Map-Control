@@ -174,7 +174,7 @@ namespace MapControl
 
         private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFileAsync(string docFilePath)
         {
-            docFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, docFilePath);
+            docFilePath = FilePath.GetFullPath(docFilePath);
 
             var docUri = new Uri(docFilePath);
 

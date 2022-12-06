@@ -20,8 +20,7 @@ namespace MapControl
     {
         public static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(string sourcePath)
         {
-            var file = await StorageFile.GetFileFromPathAsync(
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, sourcePath));
+            var file = await StorageFile.GetFileFromPathAsync(FilePath.GetFullPath(sourcePath));
 
             using (var stream = await file.OpenReadAsync())
             {

@@ -71,6 +71,9 @@
     <Compile Include="..\Shared\EquirectangularProjection.cs">
       <Link>EquirectangularProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\FilePath.cs">
+      <Link>FilePath.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\GeoImage.cs">
       <Link>GeoImage.cs</Link>
     </Compile>

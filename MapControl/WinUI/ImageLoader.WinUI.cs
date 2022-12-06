@@ -50,7 +50,7 @@ namespace MapControl
         {
             ImageSource image = null;
 
-            path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+            path = FilePath.GetFullPath(path);
 
             if (File.Exists(path))
             {
