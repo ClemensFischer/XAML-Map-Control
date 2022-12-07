@@ -72,10 +72,33 @@ namespace MapControl
         /// </summary>
         public virtual MapRect BoundingBoxToMapRect(BoundingBox boundingBox)
         {
-            var p1 = LocationToMap(new Location(boundingBox.South, boundingBox.West));
-            var p2 = LocationToMap(new Location(boundingBox.North, boundingBox.East));
+            if (!double.IsNaN(boundingBox.South) && !double.IsNaN(boundingBox.West) &&
+                !double.IsNaN(boundingBox.North) && !double.IsNaN(boundingBox.East))
+            {
+                var p1 = LocationToMap(new Location(boundingBox.South, boundingBox.West));
+                var p2 = LocationToMap(new Location(boundingBox.North, boundingBox.East));
 
-            return p1.HasValue && p2.HasValue ? new MapRect(p1.Value, p2.Value) : null;
+                if (p1.HasValue && p2.HasValue)
+                {
+                    return new MapRect(p1.Value, p2.Value);
+                }
+            }
+            else if (boundingBox.Center != null)
+            {
+                var center = LocationToMap(boundingBox.Center);
+
+                if (center.HasValue)
+                {
+                    var width = boundingBox.Width * Wgs84MeterPerDegree;
+                    var height = boundingBox.Height * Wgs84MeterPerDegree;
+                    var x = center.Value.X - width / 2d;
+                    var y = center.Value.Y - height / 2d;
+
+                    return new MapRect(x, y, x + width, y + height);
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -84,10 +107,12 @@ namespace MapControl
         /// </summary>
         public virtual BoundingBox MapRectToBoundingBox(MapRect mapRect)
         {
-            var sw = MapToLocation(new Point(mapRect.XMin, mapRect.YMin));
-            var ne = MapToLocation(new Point(mapRect.XMax, mapRect.YMax));
+            var southWest = MapToLocation(new Point(mapRect.XMin, mapRect.YMin));
+            var northEast = MapToLocation(new Point(mapRect.XMax, mapRect.YMax));
 
-            return sw != null && ne != null ? new BoundingBox(sw, ne) : null;
+            return southWest != null && northEast != null
+                ? new BoundingBox(southWest, northEast)
+                : null;
         }
 
         /// <summary>

@@ -39,9 +39,6 @@ namespace MapControl
         {
         }
 
-        public double West { get; set; }
-        public double East { get; set; }
-
         public double South
         {
             get => south;
@@ -54,20 +51,16 @@ namespace MapControl
             set => north = Math.Min(Math.Max(value, -90d), 90d);
         }
 
-        public virtual double Width
-        {
-            get => East - West;
-        }
+        public double West { get; set; }
+        public double East { get; set; }
 
-        public virtual double Height
-        {
-            get => North - South;
-        }
+        public virtual double Width => East - West;
+        public virtual double Height => North - South;
 
-        public virtual Location Center
-        {
-            get => new Location((South + North) / 2d, (West + East) / 2d);
-        }
+        public virtual Location Center =>
+            double.IsNaN(South) || double.IsNaN(North) || double.IsNaN(West) || double.IsNaN(East)
+            ? null
+            : new Location((South + North) / 2d, (West + East) / 2d);
 
         public static BoundingBox Parse(string boundingBox)
         {

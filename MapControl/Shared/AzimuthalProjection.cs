@@ -3,9 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if !WINUI && !UWP
-using System.Windows;
-#endif
 
 namespace MapControl
 {
@@ -17,23 +14,6 @@ namespace MapControl
         protected AzimuthalProjection()
         {
             Type = MapProjectionType.Azimuthal;
-        }
-
-        public override MapRect BoundingBoxToMapRect(BoundingBox boundingBox)
-        {
-            var center = LocationToMap(boundingBox.Center);
-
-            if (!center.HasValue)
-            {
-                return null;
-            }
-
-            var width = boundingBox.Width * Wgs84MeterPerDegree;
-            var height = boundingBox.Height * Wgs84MeterPerDegree;
-            var x = center.Value.X - width / 2d;
-            var y = center.Value.Y - height / 2d;
-
-            return new MapRect(x, y, x + width, y + height);
         }
 
         public override BoundingBox MapRectToBoundingBox(MapRect mapRect)
