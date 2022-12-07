@@ -46,12 +46,14 @@ namespace MapControl
                 point.X / Wgs84MeterPerDegree);
         }
 
-        public override string GetBboxValue(MapRect rect)
+        public override string GetBboxValue(MapRect mapRect)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 CrsId == "CRS:84" ? "{0},{1},{2},{3}" : "{1},{0},{3},{2}",
-                rect.X / Wgs84MeterPerDegree, rect.Y / Wgs84MeterPerDegree,
-                (rect.X + rect.Width) / Wgs84MeterPerDegree, (rect.Y + rect.Height) / Wgs84MeterPerDegree);
+                mapRect.XMin / Wgs84MeterPerDegree,
+                mapRect.YMin / Wgs84MeterPerDegree,
+                mapRect.XMax / Wgs84MeterPerDegree,
+                mapRect.YMax / Wgs84MeterPerDegree);
         }
     }
 }

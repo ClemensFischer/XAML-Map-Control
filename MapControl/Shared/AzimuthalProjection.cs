@@ -30,21 +30,23 @@ namespace MapControl
 
             var width = boundingBox.Width * Wgs84MeterPerDegree;
             var height = boundingBox.Height * Wgs84MeterPerDegree;
+            var x = center.Value.X - width / 2d;
+            var y = center.Value.Y - height / 2d;
 
-            return new MapRect(center.Value.X - width / 2d, center.Value.Y - height / 2d, width, height);
+            return new MapRect(x, y, x + width, y + height);
         }
 
-        public override BoundingBox MapRectToBoundingBox(MapRect rect)
+        public override BoundingBox MapRectToBoundingBox(MapRect mapRect)
         {
-            var center = MapToLocation(new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d));
+            var center = MapToLocation(mapRect.Center);
 
             if (center == null)
             {
                 return null;
             }
 
-            var width = rect.Width / Wgs84MeterPerDegree;
-            var height = rect.Height / Wgs84MeterPerDegree;
+            var width = mapRect.Width / Wgs84MeterPerDegree;
+            var height = mapRect.Height / Wgs84MeterPerDegree;
 
             return new CenteredBoundingBox(center, width, height);
         }

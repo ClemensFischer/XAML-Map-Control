@@ -82,14 +82,12 @@ namespace MapControl
         /// Transforms a MapRect in projected map coordinates to a BoundingBox in geographic coordinates.
         /// Returns null when the MapRect can not be transformed.
         /// </summary>
-        public virtual BoundingBox MapRectToBoundingBox(MapRect rect)
+        public virtual BoundingBox MapRectToBoundingBox(MapRect mapRect)
         {
-            var sw = MapToLocation(new Point(rect.X, rect.Y));
-            var ne = MapToLocation(new Point(rect.X + rect.Width, rect.Y + rect.Height));
+            var sw = MapToLocation(new Point(mapRect.XMin, mapRect.YMin));
+            var ne = MapToLocation(new Point(mapRect.XMax, mapRect.YMax));
 
-            return sw != null && ne != null
-                ? new BoundingBox(sw.Latitude, sw.Longitude, ne.Latitude, ne.Longitude)
-                : null;
+            return sw != null && ne != null ? new BoundingBox(sw, ne) : null;
         }
 
         /// <summary>
@@ -105,10 +103,17 @@ namespace MapControl
         /// <summary>
         /// Gets the BBOX parameter value for a WMS GetMap request.
         /// </summary>
-        public virtual string GetBboxValue(MapRect rect)
+        public virtual string GetBboxValue(MapRect mapRect)
         {
-            return string.Format(CultureInfo.InvariantCulture,
-                "{0},{1},{2},{3}", rect.X, rect.Y, (rect.X + rect.Width), (rect.Y + rect.Height));
+            // Truncate bounding box to 1 cm precision.
+            //
+            const double p = 0.01;
+
+            return string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3}",
+                p * Math.Ceiling(mapRect.XMin / p),
+                p * Math.Ceiling(mapRect.YMin / p),
+                p * Math.Floor(mapRect.XMax / p),
+                p * Math.Floor(mapRect.YMax / p));
         }
     }
 }

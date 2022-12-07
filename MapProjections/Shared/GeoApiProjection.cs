@@ -150,8 +150,10 @@ namespace MapControl.Projections
         public override string GetBboxValue(MapRect rect)
         {
             return string.Format(CultureInfo.InvariantCulture, bboxFormat,
-                rect.X / scaleFactor, rect.Y / scaleFactor,
-                (rect.X + rect.Width) / scaleFactor, (rect.Y + rect.Height) / scaleFactor);
+                rect.XMin / scaleFactor,
+                rect.YMin / scaleFactor,
+                rect.XMax / scaleFactor,
+                rect.YMax / scaleFactor);
         }
     }
 }

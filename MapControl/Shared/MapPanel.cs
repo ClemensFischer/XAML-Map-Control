@@ -223,15 +223,14 @@ namespace MapControl
             return GetViewRect(parentMap.MapProjection.BoundingBoxToMapRect(boundingBox));
         }
 
-        protected ViewRect GetViewRect(MapRect rect)
+        protected ViewRect GetViewRect(MapRect mapRect)
         {
-            var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-            var position = parentMap.ViewTransform.MapToView(center);
+            var position = parentMap.ViewTransform.MapToView(mapRect.Center);
 
             if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
                 IsOutsideViewport(position))
             {
-                var location = parentMap.MapProjection.MapToLocation(center);
+                var location = parentMap.MapProjection.MapToLocation(mapRect.Center);
 
                 if (location != null)
                 {
@@ -245,8 +244,8 @@ namespace MapControl
                 }
             }
 
-            var width = rect.Width * parentMap.ViewTransform.Scale;
-            var height = rect.Height * parentMap.ViewTransform.Scale;
+            var width = mapRect.Width * parentMap.ViewTransform.Scale;
+            var height = mapRect.Height * parentMap.ViewTransform.Scale;
             var x = position.X - width / 2d;
             var y = position.Y - height / 2d;
 

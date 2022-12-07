@@ -15,31 +15,29 @@ namespace MapControl
     /// </summary>
     public class MapRect
     {
-        public MapRect(double x, double y, double width, double height)
+        public MapRect(double x1, double y1, double x2, double y2)
         {
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
+            XMin = Math.Min(x1, x2);
+            YMin = Math.Min(y1, y2);
+            XMax = Math.Max(x1, x2);
+            YMax = Math.Max(y1, y2);
         }
 
-        public MapRect(Point p1, Point p2)
+        public MapRect(Point point1, Point point2)
+            : this(point1.X, point1.Y, point2.X, point2.Y)
         {
-            X = Math.Min(p1.X, p2.X);
-            Y = Math.Min(p1.Y, p2.Y);
-            Width = Math.Max(p1.X, p2.X) - X;
-            Height = Math.Max(p1.Y, p2.Y) - Y;
         }
 
-        public double X { get; }
-        public double Y { get; }
-        public double Width { get; }
-        public double Height { get; }
+        public double XMin { get; }
+        public double YMin { get; }
+        public double XMax { get; }
+        public double YMax { get; }
 
-        public bool Contains(Point p)
-        {
-            return p.X >= X && p.X <= X + Width
-                && p.Y >= Y && p.Y <= Y + Height;
-        }
+        public double Width => XMax - XMin;
+        public double Height => YMax - YMin;
+
+        public Point Center => new Point((XMin + XMax) / 2d, (YMin + YMax) / 2d);
+
+        public bool Contains(Point p) => p.X >= XMin && p.X <= XMax && p.Y >= YMin && p.Y <= YMax;
     }
 }

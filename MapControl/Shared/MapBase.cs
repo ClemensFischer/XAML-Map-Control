@@ -270,11 +270,11 @@ namespace MapControl
             var p4 = ViewTransform.ViewToMap(new Point(rect.X + rect.Width, rect.Y + rect.Height));
 
             var x1 = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
-            var x2 = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
             var y1 = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
+            var x2 = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
             var y2 = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
 
-            return MapProjection.MapRectToBoundingBox(new MapRect(x1, y1, x2 - x1, y2 - y1));
+            return MapProjection.MapRectToBoundingBox(new MapRect(x1, y1, x2, y2));
         }
 
         /// <summary>
@@ -380,13 +380,12 @@ namespace MapControl
         /// </summary>
         public void ZoomToBounds(BoundingBox boundingBox)
         {
-            var rect = MapProjection.BoundingBoxToMapRect(boundingBox);
-            var center = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-            var targetCenter = MapProjection.MapToLocation(center);
+            var mapRect = MapProjection.BoundingBoxToMapRect(boundingBox);
+            var targetCenter = MapProjection.MapToLocation(mapRect.Center);
 
             if (targetCenter != null)
             {
-                var scale = Math.Min(RenderSize.Width / rect.Width, RenderSize.Height / rect.Height);
+                var scale = Math.Min(RenderSize.Width / mapRect.Width, RenderSize.Height / mapRect.Height);
 
                 TargetZoomLevel = ViewTransform.ScaleToZoomLevel(scale);
                 TargetCenter = targetCenter;

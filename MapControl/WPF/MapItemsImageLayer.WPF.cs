@@ -63,8 +63,8 @@ namespace MapControl
                     for (int i = 0; i < points.Count; i++)
                     {
                         points[i] = new Point(
-                            scale * (points[i].X - mapRect.X),
-                            scale * (mapRect.Height + mapRect.Y - points[i].Y));
+                            scale * (points[i].X - mapRect.XMin),
+                            scale * (mapRect.YMax - points[i].Y));
                     }
 
                     drawings.Children.Add(item.GetDrawing(points, scale, rotation));

@@ -100,11 +100,10 @@ namespace MapControl
                     transform.M21 = 0;
                 }
 
-                var rect = new MapRect(
-                    transform.Transform(new Point()),
-                    transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight)));
+                var p1 = transform.Transform(new Point());
+                var p2 = transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight));
 
-                boundingBox = new BoundingBox(rect.Y, rect.X, rect.Y + rect.Height, rect.X + rect.Width);
+                boundingBox = new BoundingBox(p1.Y, p1.X, p2.Y, p2.X); // Y=Latitude, X=Longitude
             }
 
             Content = image;

@@ -15,23 +15,32 @@ namespace MapControl
 #endif
     public class BoundingBox
     {
-        private double south = double.NaN;
-        private double north = double.NaN;
+        private double south;
+        private double north;
 
         public BoundingBox()
         {
+            south = double.NaN;
+            north = double.NaN;
+            West = double.NaN;
+            East = double.NaN;
         }
 
-        public BoundingBox(double south, double west, double north, double east)
+        public BoundingBox(double latitude1, double longitude1, double latitude2, double longitude2)
         {
-            South = south;
-            West = west;
-            North = north;
-            East = east;
+            South = Math.Min(latitude1, latitude2);
+            North = Math.Max(latitude1, latitude2);
+            West = Math.Min(longitude1, longitude2);
+            East = Math.Max(longitude1, longitude2);
         }
 
-        public double West { get; set; } = double.NaN;
-        public double East { get; set; } = double.NaN;
+        public BoundingBox(Location location1, Location location2)
+            : this(location1.Latitude, location1.Longitude, location2.Latitude, location2.Longitude)
+        {
+        }
+
+        public double West { get; set; }
+        public double East { get; set; }
 
         public double South
         {
