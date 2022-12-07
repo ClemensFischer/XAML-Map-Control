@@ -57,19 +57,16 @@ namespace MapControl
         public virtual double Width
         {
             get => East - West;
-            protected set { }
         }
 
         public virtual double Height
         {
             get => North - South;
-            protected set { }
         }
 
         public virtual Location Center
         {
             get => new Location((South + North) / 2d, (West + East) / 2d);
-            protected set { }
         }
 
         public static BoundingBox Parse(string boundingBox)
