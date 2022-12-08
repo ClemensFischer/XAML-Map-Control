@@ -58,9 +58,9 @@ namespace MapControl
         public virtual double Height => North - South;
 
         public virtual Location Center =>
-            double.IsNaN(South) || double.IsNaN(North) || double.IsNaN(West) || double.IsNaN(East)
-            ? null
-            : new Location((South + North) / 2d, (West + East) / 2d);
+            HasValidBounds ? new Location((South + North) / 2d, (West + East) / 2d) : null;
+
+        public virtual bool HasValidBounds => South < North && West < East;
 
         public static BoundingBox Parse(string boundingBox)
         {

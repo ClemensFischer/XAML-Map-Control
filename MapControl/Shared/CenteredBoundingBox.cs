@@ -19,6 +19,7 @@ namespace MapControl
             height = Math.Max(h, 0d);
         }
 
+        public override bool HasValidBounds => false;
         public override Location Center => center;
         public override double Width => width;
         public override double Height => height;

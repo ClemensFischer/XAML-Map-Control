@@ -74,8 +74,7 @@ namespace MapControl
         {
             MapRect mapRect = null;
 
-            if (!double.IsNaN(boundingBox.South) && !double.IsNaN(boundingBox.West) &&
-                !double.IsNaN(boundingBox.North) && !double.IsNaN(boundingBox.East))
+            if (boundingBox.HasValidBounds)
             {
                 var p1 = LocationToMap(new Location(boundingBox.South, boundingBox.West));
                 var p2 = LocationToMap(new Location(boundingBox.North, boundingBox.East));
@@ -87,6 +86,8 @@ namespace MapControl
             }
             else if (boundingBox.Center != null)
             {
+                // boundingBox is a CenteredBoundingBox
+                //
                 var center = LocationToMap(boundingBox.Center);
 
                 if (center.HasValue)
