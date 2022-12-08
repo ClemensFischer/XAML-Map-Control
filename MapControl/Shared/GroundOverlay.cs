@@ -213,7 +213,7 @@ namespace MapControl
                             imagePath = ReadImagePath(childElement);
                             break;
                         case "drawOrder":
-                            int.TryParse(childElement.InnerText.Trim(), out zIndex);
+                            zIndex = int.Parse(childElement.InnerText.Trim());
                             break;
                     }
                 }
@@ -255,26 +255,29 @@ namespace MapControl
                 switch (childElement.LocalName)
                 {
                     case "north":
-                        double.TryParse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out north);
+                        north = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
                         break;
                     case "south":
-                        double.TryParse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out south);
+                        south = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
                         break;
                     case "east":
-                        double.TryParse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out east);
+                        east = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
                         break;
                     case "west":
-                        double.TryParse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out west);
+                        west = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
                         break;
                     case "rotation":
-                        double.TryParse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out rotation);
+                        rotation = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
                         break;
                 }
             }
 
-            return !double.IsNaN(north) && !double.IsNaN(south) && !double.IsNaN(east) && !double.IsNaN(west)
-                ? new LatLonBox(south, west, north, east, rotation)
-                : null;
+            if (north <= south || east <= west)
+            {
+                throw new FormatException("Invalid LatLonBox");
+            }
+
+            return new LatLonBox(south, west, north, east, rotation);
         }
     }
 }
