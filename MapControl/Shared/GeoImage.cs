@@ -102,8 +102,11 @@ namespace MapControl
 
                 var p1 = transform.Transform(new Point());
                 var p2 = transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight));
+                var mapRect = new MapRect(p1, p2);
 
-                boundingBox = new BoundingBox(p1.Y, p1.X, p2.Y, p2.X); // Y=Latitude, X=Longitude
+                // TODO: boundingBox = MapProjection.MapRectToBoundingBox(mapRect);
+
+                boundingBox = new BoundingBox(mapRect.YMin, mapRect.XMin, mapRect.YMax, mapRect.XMax);
             }
 
             Content = image;
