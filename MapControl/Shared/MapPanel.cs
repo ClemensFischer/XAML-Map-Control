@@ -220,7 +220,9 @@ namespace MapControl
 
         protected ViewRect GetViewRect(BoundingBox boundingBox)
         {
-            return GetViewRect(parentMap.MapProjection.BoundingBoxToMapRect(boundingBox));
+            var mapRect = parentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
+
+            return mapRect != null ? GetViewRect(mapRect) : null;
         }
 
         protected ViewRect GetViewRect(MapRect mapRect)
