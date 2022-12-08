@@ -20,15 +20,9 @@ namespace MapControl
         {
             var center = MapToLocation(mapRect.Center);
 
-            if (center == null)
-            {
-                return null;
-            }
-
-            var width = mapRect.Width / Wgs84MeterPerDegree;
-            var height = mapRect.Height / Wgs84MeterPerDegree;
-
-            return new CenteredBoundingBox(center, width, height);
+            return center != null
+                ? new CenteredBoundingBox(center, mapRect.Width / Wgs84MeterPerDegree, mapRect.Height / Wgs84MeterPerDegree)
+                : null;
         }
 
         /// <summary>

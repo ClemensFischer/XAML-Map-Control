@@ -72,6 +72,8 @@ namespace MapControl
         /// </summary>
         public virtual MapRect BoundingBoxToMapRect(BoundingBox boundingBox)
         {
+            MapRect mapRect = null;
+
             if (!double.IsNaN(boundingBox.South) && !double.IsNaN(boundingBox.West) &&
                 !double.IsNaN(boundingBox.North) && !double.IsNaN(boundingBox.East))
             {
@@ -80,7 +82,7 @@ namespace MapControl
 
                 if (p1.HasValue && p2.HasValue)
                 {
-                    return new MapRect(p1.Value, p2.Value);
+                    mapRect = new MapRect(p1.Value, p2.Value);
                 }
             }
             else if (boundingBox.Center != null)
@@ -94,11 +96,11 @@ namespace MapControl
                     var x = center.Value.X - width / 2d;
                     var y = center.Value.Y - height / 2d;
 
-                    return new MapRect(x, y, x + width, y + height);
+                    mapRect = new MapRect(x, y, x + width, y + height);
                 }
             }
 
-            return null;
+            return mapRect;
         }
 
         /// <summary>
