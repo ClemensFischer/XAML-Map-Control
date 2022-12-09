@@ -13,12 +13,13 @@ namespace MapControl
 {
     public partial class GeoImage
     {
-        private static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(string sourcePath)
+        private static async Task<GeoBitmap> ReadGeoTiff(string sourcePath)
         {
             return await Task.Run(() =>
             {
                 BitmapSource bitmap;
                 Matrix transform;
+                MapProjection projection = null;
 
                 using (var stream = File.OpenRead(sourcePath))
                 {
@@ -27,12 +28,12 @@ namespace MapControl
 
                 var metadata = (BitmapMetadata)bitmap.Metadata;
 
-                if (metadata.GetQuery(PixelScaleQuery) is double[] pixelScale && pixelScale.Length == 3 &&
-                    metadata.GetQuery(TiePointQuery) is double[] tiePoint && tiePoint.Length >= 6)
+                if (metadata.GetQuery(QueryString(ModelPixelScaleTag)) is double[] pixelScale && pixelScale.Length == 3 &&
+                    metadata.GetQuery(QueryString(ModelTiePointTag)) is double[] tiePoint && tiePoint.Length >= 6)
                 {
                     transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
-                else if (metadata.GetQuery(TransformQuery) is double[] tform && tform.Length == 16)
+                else if (metadata.GetQuery(QueryString(ModelTransformationTag)) is double[] tform && tform.Length == 16)
                 {
                     transform = new Matrix(tform[0], tform[1], tform[4], tform[5], tform[3], tform[7]);
                 }
@@ -41,12 +42,17 @@ namespace MapControl
                     throw new ArgumentException($"No coordinate transformation found in {sourcePath}.");
                 }
 
-                if (metadata.GetQuery(NoDataQuery) is string noData && int.TryParse(noData, out int noDataValue))
+                if (metadata.GetQuery(QueryString(GeoKeyDirectoryTag)) is short[] geoKeyDirectory)
+                {
+                    projection = GetProjection(sourcePath, geoKeyDirectory);
+                }
+
+                if (metadata.GetQuery(QueryString(NoDataTag)) is string noData && int.TryParse(noData, out int noDataValue))
                 {
                     bitmap = ConvertTransparentPixel(bitmap, noDataValue);
                 }
 
-                return new Tuple<BitmapSource, Matrix>(bitmap, transform);
+                return new GeoBitmap(bitmap, transform, projection);
             });
         }
 

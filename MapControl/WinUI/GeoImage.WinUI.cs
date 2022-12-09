@@ -3,8 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -18,7 +16,7 @@ namespace MapControl
 {
     public partial class GeoImage
     {
-        public static async Task<Tuple<BitmapSource, Matrix>> ReadGeoTiff(string sourcePath)
+        private static async Task<GeoBitmap> ReadGeoTiff(string sourcePath)
         {
             var file = await StorageFile.GetFileFromPathAsync(FilePath.GetFullPath(sourcePath));
 
@@ -26,6 +24,7 @@ namespace MapControl
             {
                 WriteableBitmap bitmap;
                 Matrix transform;
+                MapProjection projection = null;
 
                 var decoder = await BitmapDecoder.CreateAsync(stream);
 
@@ -35,31 +34,45 @@ namespace MapControl
                     swbmp.CopyToBuffer(bitmap.PixelBuffer);
                 }
 
-                var query = new List<string>
-                {
-                    PixelScaleQuery, TiePointQuery, TransformQuery, NoDataQuery
-                };
+                var geoKeyDirectoryQuery = QueryString(GeoKeyDirectoryTag);
+                var pixelScaleQuery = QueryString(ModelPixelScaleTag);
+                var tiePointQuery = QueryString(ModelTiePointTag);
+                var transformationQuery = QueryString(ModelTransformationTag);
+                var metadata = await decoder.BitmapProperties.GetPropertiesAsync(
+                    new string[]
+                    {
+                        pixelScaleQuery,
+                        tiePointQuery,
+                        transformationQuery,
+                        geoKeyDirectoryQuery
+                    });
 
-                var metadata = await decoder.BitmapProperties.GetPropertiesAsync(query);
-
-                if (metadata.TryGetValue(PixelScaleQuery, out BitmapTypedValue pixelScaleValue) &&
+                if (metadata.TryGetValue(pixelScaleQuery, out BitmapTypedValue pixelScaleValue) &&
                     pixelScaleValue.Value is double[] pixelScale && pixelScale.Length == 3 &&
-                    metadata.TryGetValue(TiePointQuery, out BitmapTypedValue tiePointValue) &&
+                    metadata.TryGetValue(tiePointQuery, out BitmapTypedValue tiePointValue) &&
                     tiePointValue.Value is double[] tiePoint && tiePoint.Length >= 6)
                 {
                     transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
-                else if (metadata.TryGetValue(TransformQuery, out BitmapTypedValue tformValue) &&
-                         tformValue.Value is double[] tform && tform.Length == 16)
+                else if (metadata.TryGetValue(transformationQuery, out BitmapTypedValue transformValue) &&
+                         transformValue.Value is double[] transformValues && transformValues.Length == 16)
                 {
-                    transform = new Matrix(tform[0], tform[1], tform[4], tform[5], tform[3], tform[7]);
+                    transform = new Matrix(transformValues[0], transformValues[1],
+                                           transformValues[4], transformValues[5],
+                                           transformValues[3], transformValues[7]);
                 }
                 else
                 {
                     throw new ArgumentException($"No coordinate transformation found in {sourcePath}.");
                 }
 
-                return new Tuple<BitmapSource, Matrix>(bitmap, transform);
+                if (metadata.TryGetValue(geoKeyDirectoryQuery, out BitmapTypedValue geoKeyDirValue) &&
+                    geoKeyDirValue.Value is short[] geoKeyDirectory)
+                {
+                    projection = GetProjection(sourcePath, geoKeyDirectory);
+                }
+
+                return new GeoBitmap(bitmap, transform, projection);
             }
         }
     }

@@ -28,25 +28,43 @@ namespace MapControl
 {
     public partial class GeoImage : ContentControl
     {
-        private const string PixelScaleQuery = "/ifd/{ushort=33550}";
-        private const string TiePointQuery = "/ifd/{ushort=33922}";
-        private const string TransformQuery = "/ifd/{ushort=34264}";
-        private const string NoDataQuery = "/ifd/{ushort=42113}";
+        private class GeoBitmap
+        {
+            public GeoBitmap(BitmapSource bitmap, Matrix transform, MapProjection projection = null)
+            {
+                Bitmap = bitmap;
+                Transform = transform;
+                Projection = projection;
+            }
+
+            public BitmapSource Bitmap { get; }
+            public Matrix Transform { get; }
+            public MapProjection Projection { get; }
+        }
+
+        private const ushort ProjectedCRSGeoKey = 3072;
+        private const ushort GeoKeyDirectoryTag = 34735;
+        private const ushort ModelPixelScaleTag = 33550;
+        private const ushort ModelTiePointTag = 33922;
+        private const ushort ModelTransformationTag = 34264;
+        private const ushort NoDataTag = 42113;
+
+        private static string QueryString(ushort tag) => $"/ifd/{{ushort={tag}}}";
 
         public static readonly DependencyProperty SourcePathProperty = DependencyProperty.Register(
             nameof(SourcePath), typeof(string), typeof(GeoImage),
             new PropertyMetadata(null, async (o, e) => await ((GeoImage)o).SourcePathPropertyChanged((string)e.NewValue)));
 
-        public string SourcePath
-        {
-            get => (string)GetValue(SourcePathProperty);
-            set => SetValue(SourcePathProperty, value);
-        }
-
         public GeoImage()
         {
             HorizontalContentAlignment = HorizontalAlignment.Stretch;
             VerticalContentAlignment = VerticalAlignment.Stretch;
+        }
+
+        public string SourcePath
+        {
+            get => (string)GetValue(SourcePathProperty);
+            set => SetValue(SourcePathProperty, value);
         }
 
         private async Task SourcePathPropertyChanged(string sourcePath)
@@ -56,7 +74,7 @@ namespace MapControl
 
             if (sourcePath != null)
             {
-                Tuple<BitmapSource, Matrix> geoBitmap = null;
+                GeoBitmap geoBitmap = null;
 
                 var ext = Path.GetExtension(sourcePath);
 
@@ -77,14 +95,13 @@ namespace MapControl
                     geoBitmap = await ReadGeoTiff(sourcePath);
                 }
 
-                var bitmap = geoBitmap.Item1;
-                var transform = geoBitmap.Item2;
-
                 image = new Image
                 {
-                    Source = bitmap,
+                    Source = geoBitmap.Bitmap,
                     Stretch = Stretch.Fill
                 };
+
+                var transform = geoBitmap.Transform;
 
                 if (transform.M12 != 0 || transform.M21 != 0)
                 {
@@ -101,12 +118,17 @@ namespace MapControl
                 }
 
                 var p1 = transform.Transform(new Point());
-                var p2 = transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight));
+                var p2 = transform.Transform(new Point(geoBitmap.Bitmap.PixelWidth, geoBitmap.Bitmap.PixelHeight));
                 var mapRect = new MapRect(p1, p2);
 
-                // TODO: boundingBox = MapProjection.MapRectToBoundingBox(mapRect);
-
-                boundingBox = new BoundingBox(mapRect.YMin, mapRect.XMin, mapRect.YMax, mapRect.XMax);
+                if (geoBitmap.Projection != null)
+                {
+                    boundingBox = geoBitmap.Projection.MapRectToBoundingBox(mapRect);
+                }
+                else
+                {
+                    boundingBox = new BoundingBox(mapRect.YMin, mapRect.XMin, mapRect.YMax, mapRect.XMax);
+                }
             }
 
             Content = image;
@@ -114,7 +136,7 @@ namespace MapControl
             MapPanel.SetBoundingBox(this, boundingBox);
         }
 
-        private static async Task<Tuple<BitmapSource, Matrix>> ReadWorldFileImage(string sourcePath, string worldFilePath)
+        private static async Task<GeoBitmap> ReadWorldFileImage(string sourcePath, string worldFilePath)
         {
             var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
 
@@ -146,7 +168,27 @@ namespace MapControl
                     parameters[5]); // line 6: F or OffsetY
             });
 
-            return new Tuple<BitmapSource, Matrix>(bitmap, transform);
+            return new GeoBitmap(bitmap, transform);
+        }
+
+        private static MapProjection GetProjection(string sourcePath, short[] geoKeyDirectory)
+        {
+            MapProjection projection = null;
+
+            for (int i = 4; i < geoKeyDirectory.Length - 3; i += 4)
+            {
+                if (geoKeyDirectory[i] == ProjectedCRSGeoKey && geoKeyDirectory[i + 1] == 0)
+                {
+                    var crsId = $"EPSG:{geoKeyDirectory[i + 3]}";
+
+                    projection = MapProjection.Factory.GetProjection(crsId) ??
+                        throw new ArgumentException($"Can not create projection {crsId} in {sourcePath}.");
+
+                    break;
+                }
+            }
+
+            return projection;
         }
     }
 }
