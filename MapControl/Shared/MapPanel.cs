@@ -185,7 +185,12 @@ namespace MapControl
 
                             if (boundingBox != null)
                             {
-                                ArrangeElement(element, GetViewRect(boundingBox));
+                                var viewRect = GetViewRect(boundingBox);
+
+                                if (viewRect != null)
+                                {
+                                    ArrangeElement(element, viewRect);
+                                }
                             }
                             else
                             {
