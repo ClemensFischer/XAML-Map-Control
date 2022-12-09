@@ -48,14 +48,17 @@ namespace MapControl
                     });
 
                 if (metadata.TryGetValue(pixelScaleQuery, out BitmapTypedValue pixelScaleValue) &&
-                    pixelScaleValue.Value is double[] pixelScale && pixelScale.Length == 3 &&
+                    pixelScaleValue.Value is double[] pixelScale &&
+                    pixelScale.Length == 3 &&
                     metadata.TryGetValue(tiePointQuery, out BitmapTypedValue tiePointValue) &&
-                    tiePointValue.Value is double[] tiePoint && tiePoint.Length >= 6)
+                    tiePointValue.Value is double[] tiePoint &&
+                    tiePoint.Length >= 6)
                 {
                     transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
                 else if (metadata.TryGetValue(transformationQuery, out BitmapTypedValue transformValue) &&
-                         transformValue.Value is double[] transformValues && transformValues.Length == 16)
+                         transformValue.Value is double[] transformValues &&
+                         transformValues.Length == 16)
                 {
                     transform = new Matrix(transformValues[0], transformValues[1],
                                            transformValues[4], transformValues[5],

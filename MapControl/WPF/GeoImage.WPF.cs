@@ -28,14 +28,19 @@ namespace MapControl
 
                 var metadata = (BitmapMetadata)bitmap.Metadata;
 
-                if (metadata.GetQuery(QueryString(ModelPixelScaleTag)) is double[] pixelScale && pixelScale.Length == 3 &&
-                    metadata.GetQuery(QueryString(ModelTiePointTag)) is double[] tiePoint && tiePoint.Length >= 6)
+                if (metadata.GetQuery(QueryString(ModelPixelScaleTag)) is double[] pixelScale &&
+                    pixelScale.Length == 3 &&
+                    metadata.GetQuery(QueryString(ModelTiePointTag)) is double[] tiePoint &&
+                    tiePoint.Length >= 6)
                 {
                     transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
-                else if (metadata.GetQuery(QueryString(ModelTransformationTag)) is double[] tform && tform.Length == 16)
+                else if (metadata.GetQuery(QueryString(ModelTransformationTag)) is double[] transformValues &&
+                         transformValues.Length == 16)
                 {
-                    transform = new Matrix(tform[0], tform[1], tform[4], tform[5], tform[3], tform[7]);
+                    transform = new Matrix(transformValues[0], transformValues[1],
+                                           transformValues[4], transformValues[5],
+                                           transformValues[3], transformValues[7]);
                 }
                 else
                 {
@@ -47,7 +52,8 @@ namespace MapControl
                     projection = GetProjection(sourcePath, geoKeyDirectory);
                 }
 
-                if (metadata.GetQuery(QueryString(NoDataTag)) is string noData && int.TryParse(noData, out int noDataValue))
+                if (metadata.GetQuery(QueryString(NoDataTag)) is string noData &&
+                    int.TryParse(noData, out int noDataValue))
                 {
                     bitmap = ConvertTransparentPixel(bitmap, noDataValue);
                 }
