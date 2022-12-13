@@ -15,6 +15,8 @@ namespace MapControl
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
+        public const double DefaultScaleFactor = 0.9996;
+
         public TransverseMercatorProjection()
         {
             Type = MapProjectionType.TransverseCylindrical;
@@ -22,7 +24,7 @@ namespace MapControl
 
         public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
         public double Flattening { get; set; } = Wgs84Flattening;
-        public double ScaleFactor { get; set; } = 0.9996;
+        public double ScaleFactor { get; set; } = DefaultScaleFactor;
         public double CentralMeridian { get; set; }
         public double FalseEasting { get; set; }
         public double FalseNorthing { get; set; }

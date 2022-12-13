@@ -16,32 +16,57 @@ namespace MapControl
         public const int FirstZoneEpsgCode = 25800 + FirstZone;
         public const int LastZoneEpsgCode = 25800 + LastZone;
 
-        private int zone;
+        public int Zone { get; }
 
         public Etrs89UtmProjection(int zone)
         {
-            Zone = zone;
-        }
-
-        public int Zone
-        {
-            get => zone;
-            set
+            if (zone < FirstZone || zone > LastZone)
             {
-                if (value < FirstZone || value > LastZone)
-                {
-                    throw new ArgumentException($"Invalid ETRS89 UTM zone {value}.", nameof(value));
-                }
-
-                zone = value;
-                CrsId = $"EPSG:{zone - FirstZone + FirstZoneEpsgCode}";
-                EquatorialRadius = 6378137d;
-                Flattening = 1 / 298.257222101; // GRS 1980
-                ScaleFactor = 0.9996;
-                CentralMeridian = zone * 6d - 183d;
-                FalseEasting = 5e5;
-                FalseNorthing = 0d;
+                throw new ArgumentException($"Invalid ETRS89 UTM zone {zone}.", nameof(zone));
             }
+
+            Zone = zone;
+            CrsId = $"EPSG:{Zone - FirstZone + FirstZoneEpsgCode}";
+
+            // GRS 1980
+            EquatorialRadius = 6378137d;
+            Flattening = 1d / 298.257222101;
+            ScaleFactor = DefaultScaleFactor;
+            CentralMeridian = Zone * 6d - 183d;
+            FalseEasting = 5e5;
+            FalseNorthing = 0d;
+        }
+    }
+
+    /// <summary>
+    /// NAD27 UTM Projection with zone number.
+    /// </summary>
+    public class Nad27UtmProjection : TransverseMercatorProjection
+    {
+        public const int FirstZone = 1;
+        public const int LastZone = 22;
+        public const int FirstZoneEpsgCode = 26700 + FirstZone;
+        public const int LastZoneEpsgCode = 26700 + LastZone;
+
+        public int Zone { get; }
+
+        public Nad27UtmProjection(int zone)
+        {
+            if (zone < FirstZone || zone > LastZone)
+            {
+                throw new ArgumentException($"Invalid NAD27 UTM zone {zone}.", nameof(zone));
+            }
+
+            Zone = zone;
+            CrsId = $"EPSG:{Zone - FirstZone + FirstZoneEpsgCode}";
+
+            // Clarke 1866
+            EquatorialRadius = 6378206.4;
+            Flattening = 1d / 294.978698213898;
+            ScaleFactor = DefaultScaleFactor;
+            CentralMeridian = Zone * 6d - 183d;
+            FalseEasting = 5e5;
+            FalseNorthing = 0d;
         }
     }
 
@@ -57,6 +82,9 @@ namespace MapControl
         public const int FirstZoneSouthEpsgCode = 32700 + FirstZone;
         public const int LastZoneSouthEpsgCode = 32700 + LastZone;
 
+        public int Zone { get; private set; }
+        public bool IsNorth { get; private set; }
+
         protected Wgs84UtmProjection()
         {
         }
@@ -66,10 +94,7 @@ namespace MapControl
             SetZone(zone, north);
         }
 
-        public int Zone { get; private set; }
-        public bool IsNorth { get; private set; }
-
-        public void SetZone(int zone, bool north, string crsId = null)
+        protected void SetZone(int zone, bool north, string crsId = null)
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -81,7 +106,9 @@ namespace MapControl
             Zone = zone;
             IsNorth = north;
             CrsId = crsId ?? $"EPSG:{epsgCode}";
-            ScaleFactor = 0.9996;
+            EquatorialRadius = Wgs84EquatorialRadius;
+            Flattening = 1d / Wgs84Flattening;
+            ScaleFactor = DefaultScaleFactor;
             CentralMeridian = Zone * 6d - 183d;
             FalseEasting = 5e5;
             FalseNorthing = IsNorth ? 0d : 1e7;
