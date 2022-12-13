@@ -179,10 +179,10 @@ namespace MapControl
             {
                 if (geoKeyDirectory[i] == ProjectedCRSGeoKey && geoKeyDirectory[i + 1] == 0)
                 {
-                    var crsId = $"EPSG:{geoKeyDirectory[i + 3]}";
+                    int epsgCode = geoKeyDirectory[i + 3];
 
-                    projection = MapProjection.Factory.GetProjection(crsId) ??
-                        throw new ArgumentException($"Can not create projection {crsId} in {sourcePath}.");
+                    projection = MapProjection.Factory.GetProjection(epsgCode) ??
+                        throw new ArgumentException($"Can not create projection EPSG:{epsgCode} in {sourcePath}.");
 
                     break;
                 }

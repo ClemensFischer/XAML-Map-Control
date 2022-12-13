@@ -142,8 +142,8 @@ namespace MapControl
 
             foreach (var tileMatrix in currentMatrixes)
             {
-                var layer = currentLayers.FirstOrDefault(l => l.WmtsTileMatrix == tileMatrix)
-                    ?? new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
+                var layer = currentLayers.FirstOrDefault(l => l.WmtsTileMatrix == tileMatrix) ??
+                            new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
 
                 if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.RenderSize))
                 {

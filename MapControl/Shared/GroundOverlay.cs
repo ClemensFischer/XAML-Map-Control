@@ -131,8 +131,8 @@ namespace MapControl
         {
             using (var archive = await Task.Run(() => ZipFile.OpenRead(archiveFilePath)))
             {
-                var docEntry = await Task.Run(() => archive.GetEntry("doc.kml")
-                            ?? archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")));
+                var docEntry = await Task.Run(() => archive.GetEntry("doc.kml") ??
+                               archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")));
 
                 if (docEntry == null)
                 {

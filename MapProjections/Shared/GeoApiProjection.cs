@@ -72,8 +72,8 @@ namespace MapControl.Projections
                 }
                 else
                 {
-                    var projection = coordinateSystem.Projection
-                        ?? throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
+                    var projection = coordinateSystem.Projection ??
+                        throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
 
                     var centralMeridian = projection.GetParameter("central_meridian") ?? projection.GetParameter("longitude_of_origin");
                     var centralParallel = projection.GetParameter("central_parallel") ?? projection.GetParameter("latitude_of_origin");
