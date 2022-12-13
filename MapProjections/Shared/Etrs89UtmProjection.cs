@@ -15,8 +15,8 @@ namespace MapControl.Projections
                 throw new ArgumentException($"Invalid UTM zone {zone}.", nameof(zone));
             }
 
-            const string wktFormat
-                = "PROJCS[\"ETRS89 / UTM zone {0}N\","
+            CoordinateSystemWkt
+                = $"PROJCS[\"ETRS89 / UTM zone {zone}N\","
                 + "GEOGCS[\"ETRS89\","
                 + "DATUM[\"European_Terrestrial_Reference_System_1989\","
                 + "SPHEROID[\"GRS 1980\",6378137,298.257222101,"
@@ -30,7 +30,7 @@ namespace MapControl.Projections
                 + "AUTHORITY[\"EPSG\",\"4258\"]],"
                 + "PROJECTION[\"Transverse_Mercator\"],"
                 + "PARAMETER[\"latitude_of_origin\",0],"
-                + "PARAMETER[\"central_meridian\",{1}],"
+                + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
@@ -38,9 +38,7 @@ namespace MapControl.Projections
                 + "AUTHORITY[\"EPSG\",\"9001\"]],"
                 + "AXIS[\"Easting\",EAST],"
                 + "AXIS[\"Northing\",NORTH],"
-                + "AUTHORITY[\"EPSG\",\"258{0}\"]]";
-
-            CoordinateSystemWkt = string.Format(wktFormat, zone, 6 * zone - 183);
+                + $"AUTHORITY[\"EPSG\",\"258{zone}\"]]";
         }
     }
 }

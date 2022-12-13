@@ -3,9 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if !UWP
-using System.Windows;
-#endif
 
 namespace MapControl.Projections
 {

@@ -15,7 +15,8 @@ namespace MapControl
     /// </summary>
     public class WebMercatorProjection : MapProjection
     {
-        public const string DefaultCrsId = "EPSG:3857";
+        public const int DefaultEpsgCode = 3857;
+        public static readonly string DefaultCrsId = $"EPSG:{DefaultEpsgCode}";
 
         public WebMercatorProjection()
         {

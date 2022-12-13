@@ -15,10 +15,8 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
-        private const double ConvergenceTolerance = 1e-6;
-        private const int MaxIterations = 10;
-
-        public const string DefaultCrsId = "EPSG:3395";
+        public const int DefaultEpsgCode = 3395;
+        public static readonly string DefaultCrsId = $"EPSG:{DefaultEpsgCode}";
 
         public WorldMercatorProjection()
         {
@@ -62,31 +60,33 @@ namespace MapControl
             }
 
             var lat = latitude * Math.PI / 180d;
+            var eSinLat = Wgs84Eccentricity * Math.Sin(lat);
+            var f = Math.Pow((1d - eSinLat) / (1d + eSinLat), Wgs84Eccentricity / 2d);
 
-            return Math.Log(Math.Tan(lat / 2d + Math.PI / 4d) * ConformalFactor(lat)) * 180d / Math.PI; // p.44 (7-7)
+            return Math.Log(Math.Tan(lat / 2d + Math.PI / 4d) * f) * 180d / Math.PI; // p.44 (7-7)
         }
 
         public static double YToLatitude(double y)
         {
             var t = Math.Exp(-y * Math.PI / 180d); // p.44 (7-10)
-            var lat = Math.PI / 2d - 2d * Math.Atan(t); // p.44 (7-11)
-            var relChange = 1d;
 
-            for (var i = 0; i < MaxIterations && relChange > ConvergenceTolerance; i++)
-            {
-                var newLat = Math.PI / 2d - 2d * Math.Atan(t * ConformalFactor(lat)); // p.44 (7-9)
-                relChange = Math.Abs(1d - newLat / lat);
-                lat = newLat;
-            }
-
-            return lat * 180d / Math.PI;
+            return LatitudeFromSeriesApproximation(Wgs84Eccentricity, t) * 180d / Math.PI;
         }
 
-        private static double ConformalFactor(double lat)
+        internal static double LatitudeFromSeriesApproximation(double e, double t)
         {
-            var eSinLat = Wgs84Eccentricity * Math.Sin(lat);
+            var e_2 = e * e;
+            var e_4 = e_2 * e_2;
+            var e_6 = e_2 * e_4;
+            var e_8 = e_2 * e_6;
 
-            return Math.Pow((1d - eSinLat) / (1d + eSinLat), Wgs84Eccentricity / 2d);
+            var lat = Math.PI / 2d - 2d * Math.Atan(t); // p.45 (7-13)
+
+            return lat
+                + (e_2 / 2d + 5d * e_4 / 24d + e_6 / 12d + 13d * e_8 / 360d) * Math.Sin(2d * lat)
+                + (7d * e_4 / 48d + 29d * e_6 / 240d + 811d * e_8 / 11520d) * Math.Sin(4d * lat)
+                + (7d * e_6 / 120d + 81d * e_8 / 1120d) * Math.Sin(6d * lat)
+                + (4279d * e_8 / 161280d) * Math.Sin(8d * lat); // p.45 (3-5)
         }
     }
 }

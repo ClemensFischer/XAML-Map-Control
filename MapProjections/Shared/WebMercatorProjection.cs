@@ -4,9 +4,6 @@
 
 using ProjNet.CoordinateSystems;
 using System;
-#if !UWP
-using System.Windows;
-#endif
 
 namespace MapControl.Projections
 {

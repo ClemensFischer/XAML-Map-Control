@@ -146,6 +146,9 @@
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\PolarStereographicProjection.cs">
+      <Link>PolarStereographicProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\PushpinBorder.cs">
       <Link>PushpinBorder.cs</Link>
     </Compile>
@@ -169,6 +172,12 @@
     </Compile>
     <Compile Include="..\Shared\TileSource.cs">
       <Link>TileSource.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\TransverseMercatorProjection.cs">
+      <Link>TransverseMercatorProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\UtmProjection.cs">
+      <Link>UtmProjection.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ViewportChangedEventArgs.cs">
       <Link>ViewportChangedEventArgs.cs</Link>

@@ -17,7 +17,8 @@ namespace MapControl
     /// </summary>
     public class EquirectangularProjection : MapProjection
     {
-        public const string DefaultCrsId = "EPSG:4326";
+        public const int DefaultEpsgCode = 4326;
+        public static readonly string DefaultCrsId = $"EPSG:{DefaultEpsgCode}";
 
         public EquirectangularProjection()
         {

@@ -44,15 +44,12 @@ namespace MapControl
         /// <summary>
         /// Gets or sets an optional projection center.
         /// </summary>
-        public Location Center { get; set; } = new Location();
+        public virtual Location Center { get; set; } = new Location();
 
         /// <summary>
         /// Gets the relative map scale at the specified Location.
         /// </summary>
-        public virtual Scale GetRelativeScale(Location location)
-        {
-            return new Scale(1d, 1d);
-        }
+        public virtual Scale GetRelativeScale(Location location) => new Scale(1d, 1d);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.
@@ -137,11 +134,15 @@ namespace MapControl
             //
             const double p = 0.01;
 
-            return string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3}",
+            var bbox = string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}",
                 p * Math.Ceiling(mapRect.XMin / p),
                 p * Math.Ceiling(mapRect.YMin / p),
                 p * Math.Floor(mapRect.XMax / p),
                 p * Math.Floor(mapRect.YMax / p));
+
+            System.Diagnostics.Debug.WriteLine(bbox);
+
+            return bbox;
         }
     }
 }
