@@ -7,36 +7,34 @@ using System;
 namespace MapControl.Projections
 {
     /// <summary>
-    /// ED50 UTM Projection with zone number.
+    /// NAD83 UTM Projection with zone number.
     /// </summary>
-    public class Ed50UtmProjection : GeoApiProjection
+    public class Nad83UtmProjection : GeoApiProjection
     {
-        public const int FirstZone = 28;
-        public const int LastZone = 38;
-        public const int FirstZoneEpsgCode = 23000 + FirstZone;
-        public const int LastZoneEpsgCode = 23000 + LastZone;
+        public const int FirstZone = 1;
+        public const int LastZone = 23;
+        public const int FirstZoneEpsgCode = 26900 + FirstZone;
+        public const int LastZoneEpsgCode = 26900 + LastZone;
 
         public int Zone { get; }
 
-        public Ed50UtmProjection(int zone)
+        public Nad83UtmProjection(int zone)
         {
             if (zone < FirstZone || zone > LastZone)
             {
-                throw new ArgumentException($"Invalid ED50 UTM zone {zone}.", nameof(zone));
+                throw new ArgumentException($"Invalid NAD83 UTM zone {zone}.", nameof(zone));
             }
 
             Zone = zone;
             CoordinateSystemWkt
-                = $"PROJCS[\"ED50 / UTM zone {zone}N\","
-                + "GEOGCS[\"ED50\","
-                + "DATUM[\"European_Datum_1950\","
-                + "SPHEROID[\"International 1924\",6378388,297,"
-                + "AUTHORITY[\"EPSG\",\"7022\"]],"
-                + "TOWGS84[-87,-98,-121,0,0,0,0],"
-                + "AUTHORITY[\"EPSG\",\"6230\"]],"
+                = $"PROJCS[\"NAD83 / UTM zone {zone}N\","
+                + "GEOGCS[\"NAD83\","
+                + "DATUM[\"North_American_Datum_1983\","
+                + "SPHEROID[\"GRS 1980\",6378137,298.257222101],"
+                + "TOWGS84[0,0,0,0,0,0,0]],"
                 + "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"
                 + "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],"
-                + "AUTHORITY[\"EPSG\",\"4230\"]],"
+                + "AUTHORITY[\"EPSG\",\"4269\"]],"
                 + "PROJECTION[\"Transverse_Mercator\"],"
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
@@ -46,7 +44,7 @@ namespace MapControl.Projections
                 + "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],"
                 + "AXIS[\"Easting\",EAST],"
                 + "AXIS[\"Northing\",NORTH],"
-                + $"AUTHORITY[\"EPSG\",\"230{zone}\"]]";
+                + $"AUTHORITY[\"EPSG\",\"269{zone}\"]]";
         }
     }
 }

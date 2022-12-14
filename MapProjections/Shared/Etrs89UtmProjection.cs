@@ -6,15 +6,26 @@ using System;
 
 namespace MapControl.Projections
 {
+    /// <summary>
+    /// ETRS89 UTM Projection with zone number.
+    /// </summary>
     public class Etrs89UtmProjection : GeoApiProjection
     {
+        public const int FirstZone = 28;
+        public const int LastZone = 38;
+        public const int FirstZoneEpsgCode = 25800 + FirstZone;
+        public const int LastZoneEpsgCode = 25800 + LastZone;
+
+        public int Zone { get; }
+
         public Etrs89UtmProjection(int zone)
         {
-            if (zone < 28 || zone > 38)
+            if (zone < FirstZone || zone > LastZone)
             {
-                throw new ArgumentException($"Invalid UTM zone {zone}.", nameof(zone));
+                throw new ArgumentException($"Invalid ETRS89 UTM zone {zone}.", nameof(zone));
             }
 
+            Zone = zone;
             CoordinateSystemWkt
                 = $"PROJCS[\"ETRS89 / UTM zone {zone}N\","
                 + "GEOGCS[\"ETRS89\","
@@ -23,10 +34,8 @@ namespace MapControl.Projections
                 + "AUTHORITY[\"EPSG\",\"7019\"]],"
                 + "TOWGS84[0,0,0,0,0,0,0],"
                 + "AUTHORITY[\"EPSG\",\"6258\"]],"
-                + "PRIMEM[\"Greenwich\",0,"
-                + "AUTHORITY[\"EPSG\",\"8901\"]],"
-                + "UNIT[\"degree\",0.0174532925199433,"
-                + "AUTHORITY[\"EPSG\",\"9122\"]],"
+                + "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"
+                + "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],"
                 + "AUTHORITY[\"EPSG\",\"4258\"]],"
                 + "PROJECTION[\"Transverse_Mercator\"],"
                 + "PARAMETER[\"latitude_of_origin\",0],"
@@ -34,8 +43,7 @@ namespace MapControl.Projections
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
-                + "UNIT[\"metre\",1,"
-                + "AUTHORITY[\"EPSG\",\"9001\"]],"
+                + "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],"
                 + "AXIS[\"Easting\",EAST],"
                 + "AXIS[\"Northing\",NORTH],"
                 + $"AUTHORITY[\"EPSG\",\"258{zone}\"]]";

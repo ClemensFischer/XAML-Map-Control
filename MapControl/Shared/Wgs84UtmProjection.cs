@@ -7,70 +7,6 @@ using System;
 namespace MapControl
 {
     /// <summary>
-    /// ETRS89 UTM Projection with zone number.
-    /// </summary>
-    public class Etrs89UtmProjection : TransverseMercatorProjection
-    {
-        public const int FirstZone = 28;
-        public const int LastZone = 38;
-        public const int FirstZoneEpsgCode = 25800 + FirstZone;
-        public const int LastZoneEpsgCode = 25800 + LastZone;
-
-        public int Zone { get; }
-
-        public Etrs89UtmProjection(int zone)
-        {
-            if (zone < FirstZone || zone > LastZone)
-            {
-                throw new ArgumentException($"Invalid ETRS89 UTM zone {zone}.", nameof(zone));
-            }
-
-            Zone = zone;
-            CrsId = $"EPSG:{Zone - FirstZone + FirstZoneEpsgCode}";
-
-            // GRS 1980
-            EquatorialRadius = 6378137d;
-            Flattening = 1d / 298.257222101;
-            ScaleFactor = DefaultScaleFactor;
-            CentralMeridian = Zone * 6d - 183d;
-            FalseEasting = 5e5;
-            FalseNorthing = 0d;
-        }
-    }
-
-    /// <summary>
-    /// NAD27 UTM Projection with zone number.
-    /// </summary>
-    public class Nad27UtmProjection : TransverseMercatorProjection
-    {
-        public const int FirstZone = 1;
-        public const int LastZone = 22;
-        public const int FirstZoneEpsgCode = 26700 + FirstZone;
-        public const int LastZoneEpsgCode = 26700 + LastZone;
-
-        public int Zone { get; }
-
-        public Nad27UtmProjection(int zone)
-        {
-            if (zone < FirstZone || zone > LastZone)
-            {
-                throw new ArgumentException($"Invalid NAD27 UTM zone {zone}.", nameof(zone));
-            }
-
-            Zone = zone;
-            CrsId = $"EPSG:{Zone - FirstZone + FirstZoneEpsgCode}";
-
-            // Clarke 1866
-            EquatorialRadius = 6378206.4;
-            Flattening = 1d / 294.978698213898;
-            ScaleFactor = DefaultScaleFactor;
-            CentralMeridian = Zone * 6d - 183d;
-            FalseEasting = 5e5;
-            FalseNorthing = 0d;
-        }
-    }
-
-    /// <summary>
     /// WGS84 UTM Projection with zone number and north/south flag.
     /// </summary>
     public class Wgs84UtmProjection : TransverseMercatorProjection
@@ -107,7 +43,7 @@ namespace MapControl
             IsNorth = north;
             CrsId = crsId ?? $"EPSG:{epsgCode}";
             EquatorialRadius = Wgs84EquatorialRadius;
-            Flattening = 1d / Wgs84Flattening;
+            Flattening = Wgs84Flattening;
             ScaleFactor = DefaultScaleFactor;
             CentralMeridian = Zone * 6d - 183d;
             FalseEasting = 5e5;

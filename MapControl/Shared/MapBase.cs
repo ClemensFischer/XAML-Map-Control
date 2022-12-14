@@ -381,15 +381,19 @@ namespace MapControl
         public void ZoomToBounds(BoundingBox boundingBox)
         {
             var mapRect = MapProjection.BoundingBoxToMapRect(boundingBox);
-            var targetCenter = MapProjection.MapToLocation(mapRect.Center);
 
-            if (targetCenter != null)
+            if (mapRect != null)
             {
-                var scale = Math.Min(RenderSize.Width / mapRect.Width, RenderSize.Height / mapRect.Height);
+                var targetCenter = MapProjection.MapToLocation(mapRect.Center);
 
-                TargetZoomLevel = ViewTransform.ScaleToZoomLevel(scale);
-                TargetCenter = targetCenter;
-                TargetHeading = 0d;
+                if (targetCenter != null)
+                {
+                    var scale = Math.Min(RenderSize.Width / mapRect.Width, RenderSize.Height / mapRect.Height);
+
+                    TargetZoomLevel = ViewTransform.ScaleToZoomLevel(scale);
+                    TargetCenter = targetCenter;
+                    TargetHeading = 0d;
+                }
             }
         }
 

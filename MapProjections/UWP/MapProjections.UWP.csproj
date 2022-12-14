@@ -55,9 +55,6 @@
     <Compile Include="..\Shared\WebMercatorProjection.cs">
       <Link>WebMercatorProjection.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\Wgs84AutoUtmProjection.cs">
-      <Link>Wgs84AutoUtmProjection.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\Wgs84UtmProjection.cs">
       <Link>Wgs84UtmProjection.cs</Link>
     </Compile>

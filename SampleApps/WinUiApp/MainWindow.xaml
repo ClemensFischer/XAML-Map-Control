@@ -218,6 +218,19 @@
                         ServiceUri="http://ows.terrestris.de/osm/service"/>
                 </tools:MapLayerItem>
                 <tools:MapLayersMenuButton.MapOverlays>
+                    <tools:MapLayerItem Text="Graticule">
+                        <map:MapGraticule Opacity="0.7"/>
+                    </tools:MapLayerItem>
+                    <tools:MapLayerItem Text="Scale">
+                        <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    </tools:MapLayerItem>
+                    <tools:MapLayerItem Text="Seamarks">
+                        <map:MapTileLayer SourceName="Seamarks" MinZoomLevel="9" MaxZoomLevel="18">
+                            <map:MapTileLayer.TileSource>
+                                <map:TileSource UriTemplate="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
+                            </map:MapTileLayer.TileSource>
+                        </map:MapTileLayer>
+                    </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Sample Image">
                         <Image Source="10_535_330.jpg" Stretch="Fill">
                             <map:MapPanel.BoundingBox>
@@ -228,18 +241,8 @@
                     <tools:MapLayerItem Text="Mount Etna KML">
                         <map:GroundOverlay SourcePath="etna.kml"/>
                     </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Seamarks">
-                        <map:MapTileLayer SourceName="Seamarks" MinZoomLevel="9" MaxZoomLevel="18">
-                            <map:MapTileLayer.TileSource>
-                                <map:TileSource UriTemplate="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"/>
-                            </map:MapTileLayer.TileSource>
-                        </map:MapTileLayer>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Graticule">
-                        <map:MapGraticule Opacity="0.7"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Scale">
-                        <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <tools:MapLayerItem Text="Chicago GeoTIFF">
+                        <map:GeoImage SourcePath="UTM2GTIF.tiff"/>
                     </tools:MapLayerItem>
                 </tools:MapLayersMenuButton.MapOverlays>
             </tools:MapLayersMenuButton>
@@ -249,6 +252,8 @@
                 Map="{Binding ElementName=map}">
                 <tools:MapProjectionItem Text="Web Mercator" Projection="EPSG:3857"/>
                 <tools:MapProjectionItem Text="Equirectangular" Projection="EPSG:4326"/>
+                <tools:MapProjectionItem Text="ETRS89 / UTM zone 32N" Projection="EPSG:25832"/>
+                <tools:MapProjectionItem Text="WGS84 / Auto UTM" Projection="AUTO2:42001"/>
             </tools:MapProjectionsMenuButton>
 
             <Slider Orientation="Vertical" Margin="4,8" Height="100"

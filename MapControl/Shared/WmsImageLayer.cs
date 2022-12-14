@@ -240,6 +240,12 @@ namespace MapControl
         protected virtual string GetMapRequestUri(BoundingBox boundingBox)
         {
             var mapRect = ParentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
+
+            if (mapRect == null)
+            {
+                return null;
+            }
+
             var viewScale = ParentMap.ViewTransform.Scale;
 
             return GetRequestUri(new Dictionary<string, string>
@@ -265,6 +271,12 @@ namespace MapControl
             var viewSize = ParentMap.RenderSize;
             var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, viewSize.Width, viewSize.Height));
             var mapRect = ParentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
+
+            if (mapRect == null)
+            {
+                return null;
+            }
+
             var viewRect = GetViewRect(mapRect);
 
             var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);

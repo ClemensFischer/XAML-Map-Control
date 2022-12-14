@@ -37,17 +37,21 @@ namespace MapControl
 
             if (projection != null && items != null)
             {
-                image = await Task.Run(() => GetImage(projection, boundingBox, items));
+                var mapRect = projection.BoundingBoxToMapRect(boundingBox);
+
+                if (mapRect != null)
+                {
+                    image = await Task.Run(() => GetImage(projection, mapRect, items));
+                }
             }
 
             return image;
         }
 
-        private DrawingImage GetImage(MapProjection projection, BoundingBox boundingBox, IEnumerable<IMapDrawingItem> items)
+        private DrawingImage GetImage(MapProjection projection, MapRect mapRect, IEnumerable<IMapDrawingItem> items)
         {
             var scale = ParentMap.ViewTransform.Scale;
             var rotation = ParentMap.ViewTransform.Rotation;
-            var mapRect = projection.BoundingBoxToMapRect(boundingBox);
             var drawings = new DrawingGroup();
 
             foreach (var item in items)

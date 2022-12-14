@@ -40,6 +40,10 @@ namespace MapControl
                     projection = new Nad27UtmProjection(epsgCode % 100);
                     break;
 
+                case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
+                    projection = new Nad83UtmProjection(epsgCode % 100);
+                    break;
+
                 case var c when c >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && c <= Wgs84UtmProjection.LastZoneNorthEpsgCode:
                     projection = new Wgs84UtmProjection(epsgCode % 100, true);
                     break;

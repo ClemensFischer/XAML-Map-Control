@@ -78,6 +78,9 @@
     <Content Include="..\Shared\10_535_330.jpg">
       <Link>10_535_330.jpg</Link>
     </Content>
+    <Content Include="..\Shared\UTM2GTIF.tiff">
+      <Link>UTM2GTIF.tiff</Link>
+    </Content>
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

@@ -134,15 +134,11 @@ namespace MapControl
             //
             const double p = 0.01;
 
-            var bbox = string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}",
+            return string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}",
                 p * Math.Ceiling(mapRect.XMin / p),
                 p * Math.Ceiling(mapRect.YMin / p),
                 p * Math.Floor(mapRect.XMax / p),
                 p * Math.Floor(mapRect.YMax / p));
-
-            System.Diagnostics.Debug.WriteLine(bbox);
-
-            return bbox;
         }
     }
 }

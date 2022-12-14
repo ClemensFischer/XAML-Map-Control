@@ -8,17 +8,6 @@ namespace MapControl.Projections
 {
     public class GeoApiProjectionFactory : MapProjectionFactory
     {
-        private const int WorldMercator = 3395;
-        private const int WebMercator = 3857;
-        private const int Ed50UtmFirst = 23028;
-        private const int Ed50UtmLast = 23038;
-        private const int Etrs89UtmFirst = 25828;
-        private const int Etrs89UtmLast = 25838;
-        private const int Wgs84UtmNorthFirst = 32601;
-        private const int Wgs84UtmNorthLast = 32660;
-        private const int Wgs84UtmSouthFirst = 32701;
-        private const int Wgs84UtmSouthLast = 32760;
-
         public Dictionary<int, string> CoordinateSystemWkts { get; } = new Dictionary<int, string>();
 
         public override MapProjection GetProjection(int epsgCode)
@@ -33,27 +22,35 @@ namespace MapControl.Projections
             {
                 switch (epsgCode)
                 {
-                    case WorldMercator:
+                    case WorldMercatorProjection.DefaultEpsgCode:
                         projection = new WorldMercatorProjection();
                         break;
 
-                    case WebMercator:
+                    case WebMercatorProjection.DefaultEpsgCode:
                         projection = new WebMercatorProjection();
                         break;
 
-                    case int c when c >= Ed50UtmFirst && c <= Ed50UtmLast:
+                    case int c when c >= Ed50UtmProjection.FirstZoneEpsgCode && c <= Ed50UtmProjection.LastZoneEpsgCode:
                         projection = new Ed50UtmProjection(epsgCode % 100);
                         break;
 
-                    case int c when c >= Etrs89UtmFirst && c <= Etrs89UtmLast:
+                    case var c when c >= Etrs89UtmProjection.FirstZoneEpsgCode && c <= Etrs89UtmProjection.LastZoneEpsgCode:
                         projection = new Etrs89UtmProjection(epsgCode % 100);
                         break;
 
-                    case int c when c >= Wgs84UtmNorthFirst && c <= Wgs84UtmNorthLast:
+                    case var c when c >= Nad27UtmProjection.FirstZoneEpsgCode && c <= Nad27UtmProjection.LastZoneEpsgCode:
+                        projection = new Nad27UtmProjection(epsgCode % 100);
+                        break;
+
+                    case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
+                        projection = new Nad83UtmProjection(epsgCode % 100);
+                        break;
+
+                    case var c when c >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && c <= Wgs84UtmProjection.LastZoneNorthEpsgCode:
                         projection = new Wgs84UtmProjection(epsgCode % 100, true);
                         break;
 
-                    case int c when c >= Wgs84UtmSouthFirst && c <= Wgs84UtmSouthLast:
+                    case var c when c >= Wgs84UtmProjection.FirstZoneSouthEpsgCode && c <= Wgs84UtmProjection.LastZoneSouthEpsgCode:
                         projection = new Wgs84UtmProjection(epsgCode % 100, false);
                         break;
 

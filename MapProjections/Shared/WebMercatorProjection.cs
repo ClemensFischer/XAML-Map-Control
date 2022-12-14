@@ -13,6 +13,8 @@ namespace MapControl.Projections
     /// </summary>
     public class WebMercatorProjection : GeoApiProjection
     {
+        public const int DefaultEpsgCode = 3857;
+
         public WebMercatorProjection()
         {
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;

@@ -12,6 +12,8 @@ namespace MapControl.Projections
     /// </summary>
     public class WorldMercatorProjection : GeoApiProjection
     {
+        public const int DefaultEpsgCode = 3395;
+
         public WorldMercatorProjection()
         {
             CoordinateSystemWkt
