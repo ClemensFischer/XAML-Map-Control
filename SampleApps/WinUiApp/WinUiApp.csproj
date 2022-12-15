@@ -26,7 +26,6 @@
     <ItemGroup>
         <Content Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg" />
         <Content Include="..\Shared\etna.kml" Link="etna.kml" />
-        <Content Include="..\Shared\UTM2GTIF.tiff" Link="UTM2GTIF.tiff" />
         <Content Include="Assets\SplashScreen.scale-200.png" />
         <Content Include="Assets\LockScreenLogo.scale-200.png" />
         <Content Include="Assets\Square150x150Logo.scale-200.png" />

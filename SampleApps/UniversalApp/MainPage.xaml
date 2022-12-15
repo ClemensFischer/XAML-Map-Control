@@ -233,9 +233,6 @@
                     <tools:MapLayerItem Text="Mount Etna KML">
                         <map:GroundOverlay SourcePath="etna.kml"/>
                     </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Chicago GeoTIFF">
-                        <map:GeoImage SourcePath="UTM2GTIF.tiff"/>
-                    </tools:MapLayerItem>
                 </tools:MapLayersMenuButton.MapOverlays>
             </tools:MapLayersMenuButton>
 
