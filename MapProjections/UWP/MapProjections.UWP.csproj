@@ -52,6 +52,12 @@
     <Compile Include="..\Shared\GeoApiProjectionFactory.cs">
       <Link>GeoApiProjectionFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Nad27UtmProjection.cs">
+      <Link>Nad27UtmProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Nad83UtmProjection.cs">
+      <Link>Nad83UtmProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\WebMercatorProjection.cs">
       <Link>WebMercatorProjection.cs</Link>
     </Compile>
