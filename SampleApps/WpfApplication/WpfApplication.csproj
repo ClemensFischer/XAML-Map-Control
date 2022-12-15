@@ -32,9 +32,6 @@
         <Content Include="..\Shared\etna.kml" Link="etna.kml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Content Include="..\Shared\UTM2GTIF.tiff" Link="UTM2GTIF.tiff">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='net48'">
