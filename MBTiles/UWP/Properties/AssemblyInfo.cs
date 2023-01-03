@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("XAML Map Control MBTiles Library for UWP")]
 [assembly: AssemblyProduct("XAML Map Control")]
 [assembly: AssemblyCompany("Clemens Fischer")]
-[assembly: AssemblyCopyright("Copyright © 2022 Clemens Fischer")]
+[assembly: AssemblyCopyright("Copyright © 2023 Clemens Fischer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyVersion("8.0.0")]
 [assembly: AssemblyFileVersion("8.0.0")]

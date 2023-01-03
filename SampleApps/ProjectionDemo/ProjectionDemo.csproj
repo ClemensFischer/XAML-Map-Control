@@ -8,7 +8,7 @@
 		<Product>XAML Map Control</Product>
 		<Version>8.0.0</Version>
         <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2022 Clemens Fischer</Copyright>
+        <Copyright>Copyright © 2023 Clemens Fischer</Copyright>
     </PropertyGroup>
 
     <ItemGroup>
