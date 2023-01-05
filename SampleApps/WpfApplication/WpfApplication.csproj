@@ -38,10 +38,4 @@
         <Reference Include="System.Net.Http" />
         <Reference Include="System.Runtime.Caching" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="..\Shared\TileLoader.cs">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </Compile>
-    </ItemGroup>
 </Project>

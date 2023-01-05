@@ -2,7 +2,6 @@
 using MapControl.Caching;
 using MapControl.UiTools;
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -87,7 +86,7 @@ namespace SampleApplication
         {
             if (map.MapLayer is WmsImageLayer wmsLayer)
             {
-                Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
+                System.Diagnostics.Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
             }
         }
 
@@ -118,15 +117,18 @@ namespace SampleApplication
                     "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
                     latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
                     lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
+                mouseLocation.Visibility = Visibility.Visible;
             }
             else
             {
+                mouseLocation.Visibility = Visibility.Collapsed;
                 mouseLocation.Text = string.Empty;
             }
         }
 
         private void MapMouseLeave(object sender, MouseEventArgs e)
         {
+            mouseLocation.Visibility = Visibility.Collapsed;
             mouseLocation.Text = string.Empty;
         }
 

@@ -70,8 +70,7 @@
                                     </Path.Data>
                                 </Path>
                                 <Grid Canvas.Left="15" Canvas.Top="-8">
-                                    <local:OutlinedText Margin="1" OutlineThickness="1.5" Text="{Binding Name}"
-                                                        Background="{Binding Background, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
+                                    <TextBlock Margin="2,0" Text="{Binding Name}"/>
                                 </Grid>
                             </Canvas>
                         </ControlTemplate>
@@ -144,12 +143,14 @@
             <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
-        <local:OutlinedText
-            x:Name="mouseLocation" Margin="4" FontFamily="Consolas"
-            Background="{Binding Background, ElementName=map}"
-            Foreground="{Binding Foreground, ElementName=map}"
-            HorizontalAlignment="Center" VerticalAlignment="Top"
-            IsHitTestVisible="False"/>
+        <TextBlock x:Name="mouseLocation"
+                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4" Padding="4,2"
+                   FontFamily="Consolas" IsHitTestVisible="False" Visibility="Collapsed"
+                   Foreground="{Binding Foreground, ElementName=map}">
+            <TextBlock.Background>
+                <SolidColorBrush Color="{Binding Background.Color, ElementName=map}" Opacity="0.5"/>
+            </TextBlock.Background>
+        </TextBlock>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF"
                     DataContext="{Binding MapLayer, ElementName=map}">
