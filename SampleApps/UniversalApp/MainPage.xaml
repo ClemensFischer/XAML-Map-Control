@@ -125,9 +125,12 @@
             </map:Pushpin>
         </map:Map>
 
-        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4"
-                Background="#AFFFFFFF" IsHitTestVisible="False">
-            <TextBlock x:Name="mouseLocation" FontFamily="Consolas" Margin="4,2" Visibility="Collapsed"/>
+        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4" IsHitTestVisible="False">
+            <Border.Background>
+                <SolidColorBrush Color="{Binding Background.Color, ElementName=map}" Opacity="0.5"/>
+            </Border.Background>
+            <TextBlock x:Name="mouseLocation" Foreground="{Binding Foreground, ElementName=map}"
+                       FontFamily="Consolas" Margin="4,2" Visibility="Collapsed"/>
         </Border>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF"
