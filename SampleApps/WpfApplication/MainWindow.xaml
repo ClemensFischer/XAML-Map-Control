@@ -117,8 +117,14 @@
                  Center="53.5,8.2" ManipulationMode="All"
                  MouseLeftButtonDown="MapMouseLeftButtonDown"
                  MouseRightButtonDown="MapMouseRightButtonDown"
-                 MouseMove="MapMouseMove" MouseLeave="MapMouseLeave"
+                 MouseRightButtonUp="MapMouseRightButtonUp"
+                 MouseMove="MapMouseMove"
+                 MouseLeave="MapMouseLeave"
                  ManipulationInertiaStarting="MapManipulationInertiaStarting">
+
+            <map:MapPolyline x:Name="measurementLine" Visibility="Collapsed"
+                             Stroke="{Binding Foreground, ElementName=map}"
+                             StrokeThickness="2" StrokeDashArray="1,1"/>
 
             <map:MapItemsControl ItemsSource="{Binding Polylines}"/>
 

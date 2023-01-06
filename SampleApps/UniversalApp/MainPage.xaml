@@ -100,11 +100,17 @@
 
         <map:Map x:Name="map" ManipulationMode="All"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11"
+                 PointerPressed="MapPointerPressed"
+                 PointerReleased="MapPointerReleased"
                  PointerMoved="MapPointerMoved"
                  PointerExited="MapPointerExited">
             <map:Map.Center>
                 <map:Location Latitude="53.5" Longitude="8.2"/>
             </map:Map.Center>
+
+            <map:MapPolyline x:Name="measurementLine" Visibility="Collapsed"
+                             Stroke="{Binding Foreground, ElementName=map}"
+                             StrokeThickness="2" StrokeDashArray="1,1"/>
 
             <map:MapItemsControl ItemsSource="{Binding Polylines}"
                                  ItemTemplate="{StaticResource PolylineItemTemplate}"/>
