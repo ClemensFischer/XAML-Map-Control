@@ -23,6 +23,7 @@ namespace MapControl
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
             nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(0.25));
 
+        private bool manipulationEnabled;
         private double mouseWheelDelta;
 
         public Map()
@@ -34,6 +35,8 @@ namespace MapControl
                 | ManipulationModes.TranslateInertia;
 
             ManipulationDelta += OnManipulationDelta;
+            PointerPressed += OnPointerPressed;
+            PointerReleased += OnPointerReleased;
             PointerWheelChanged += OnPointerWheelChanged;
         }
 
@@ -49,7 +52,21 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+            if (manipulationEnabled)
+            {
+                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+            }
+        }
+
+        private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            manipulationEnabled = e.Pointer.PointerDeviceType != PointerDeviceType.Mouse ||
+                                  e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
+        }
+
+        private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            manipulationEnabled = false;
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
