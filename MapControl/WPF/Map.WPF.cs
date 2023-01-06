@@ -92,10 +92,10 @@ namespace MapControl
             if (mousePosition.HasValue)
             {
                 var position = e.GetPosition(this);
-                var translation = position - mousePosition.Value;
+                var translation = new Point(position.X - mousePosition.Value.X, position.Y - mousePosition.Value.Y);
                 mousePosition = position;
 
-                TranslateMap((Point)translation);
+                TranslateMap(translation);
             }
         }
 
