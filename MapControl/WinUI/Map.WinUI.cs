@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using Windows.System;
 #if WINUI
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
@@ -61,6 +62,7 @@ namespace MapControl
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
         {
             manipulationEnabled = e.Pointer.PointerDeviceType != PointerDeviceType.Mouse ||
+                                  e.KeyModifiers == VirtualKeyModifiers.None &&
                                   e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
         }
 

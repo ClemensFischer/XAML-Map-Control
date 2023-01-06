@@ -72,7 +72,7 @@ namespace MapControl
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (CaptureMouse())
+            if (Keyboard.Modifiers == ModifierKeys.None && CaptureMouse())
             {
                 mousePosition = e.GetPosition(this);
             }
