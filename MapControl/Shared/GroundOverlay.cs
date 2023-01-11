@@ -129,10 +129,10 @@ namespace MapControl
 
         private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFilePath)
         {
-            using (var archive = await Task.Run(() => ZipFile.OpenRead(archiveFilePath)))
+            using (var archive = ZipFile.OpenRead(archiveFilePath))
             {
-                var docEntry = await Task.Run(() => archive.GetEntry("doc.kml") ??
-                               archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")));
+                var docEntry = archive.GetEntry("doc.kml") ??
+                               archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml"));
 
                 if (docEntry == null)
                 {
@@ -153,7 +153,7 @@ namespace MapControl
 
                 foreach (var imageOverlay in imageOverlays)
                 {
-                    var imageEntry = await Task.Run(() => archive.GetEntry(imageOverlay.ImagePath));
+                    var imageEntry = archive.GetEntry(imageOverlay.ImagePath);
 
                     if (imageEntry != null)
                     {
