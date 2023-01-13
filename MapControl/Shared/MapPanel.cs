@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 #if WINUI
 using Windows.Foundation;
@@ -37,8 +36,13 @@ namespace MapControl
     /// </summary>
     public partial class MapPanel : Panel, IMapElement
     {
-        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.RegisterAttached(
-            "AutoCollapse", typeof(bool), typeof(MapPanel), new PropertyMetadata(false));
+        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            if (obj is IMapElement mapElement)
+            {
+                mapElement.ParentMap = e.NewValue as MapBase;
+            }
+        }
 
         private MapBase parentMap;
 
@@ -47,6 +51,9 @@ namespace MapControl
             get => parentMap;
             set => SetParentMap(value);
         }
+
+        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.RegisterAttached(
+            "AutoCollapse", typeof(bool), typeof(MapPanel), new PropertyMetadata(false));
 
         /// <summary>
         /// Gets a value that controls whether an element's Visibility is automatically
@@ -152,12 +159,7 @@ namespace MapControl
                 foreach (var element in Children.OfType<FrameworkElement>())
                 {
                     var location = GetLocation(element);
-                    Point? position = null;
-
-                    if (location != null)
-                    {
-                        position = GetViewPosition(location);
-                    }
+                    var position = location != null ? GetViewPosition(location) : null;
 
                     SetViewPosition(element, position);
 
@@ -201,7 +203,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected Point? GetViewPosition(Location location)
+        protected virtual Point? GetViewPosition(Location location)
         {
             var position = parentMap.LocationToView(location);
 
@@ -252,34 +254,25 @@ namespace MapControl
             return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
         }
 
-        private bool IsOutsideViewport(Point point)
+        protected bool IsOutsideViewport(Point point)
         {
             return point.X < 0d || point.X > parentMap.RenderSize.Width
                 || point.Y < 0d || point.Y > parentMap.RenderSize.Height;
         }
 
-        private static void ArrangeElement(FrameworkElement element, ViewRect rect)
-        {
-            element.Width = rect.Width;
-            element.Height = rect.Height;
-
-            ArrangeElement(element, new Rect(rect.X, rect.Y, rect.Width, rect.Height));
-
-            if (element.RenderTransform is RotateTransform rotateTransform)
-            {
-                rotateTransform.Angle = rect.Rotation;
-            }
-            else if (rect.Rotation != 0d)
-            {
-                rotateTransform = new RotateTransform { Angle = rect.Rotation };
-                element.RenderTransform = rotateTransform;
-                element.RenderTransformOrigin = new Point(0.5, 0.5);
-            }
-        }
-
         private static void ArrangeElement(FrameworkElement element, Point position)
         {
-            var rect = new Rect(position, element.DesiredSize);
+            var rect = new Rect(position.X, position.Y, 0d, 0d);
+
+            if (element.DesiredSize.Width >= 0d && element.DesiredSize.Width < double.PositiveInfinity)
+            {
+                rect.Width = element.DesiredSize.Width;
+            }
+
+            if (element.DesiredSize.Height >= 0d && element.DesiredSize.Height < double.PositiveInfinity)
+            {
+                rect.Height = element.DesiredSize.Height;
+            }
 
             switch (element.HorizontalAlignment)
             {
@@ -314,7 +307,17 @@ namespace MapControl
 
         private static void ArrangeElement(FrameworkElement element, Size parentSize)
         {
-            var rect = new Rect(new Point(), element.DesiredSize);
+            var rect = new Rect();
+
+            if (element.DesiredSize.Width >= 0d && element.DesiredSize.Width < double.PositiveInfinity)
+            {
+                rect.Width = element.DesiredSize.Width;
+            }
+
+            if (element.DesiredSize.Height >= 0d && element.DesiredSize.Height < double.PositiveInfinity)
+            {
+                rect.Height = element.DesiredSize.Height;
+            }
 
             switch (element.HorizontalAlignment)
             {
@@ -355,6 +358,25 @@ namespace MapControl
             ArrangeElement(element, rect);
         }
 
+        private static void ArrangeElement(FrameworkElement element, ViewRect rect)
+        {
+            element.Width = rect.Width;
+            element.Height = rect.Height;
+
+            ArrangeElement(element, new Rect(rect.X, rect.Y, rect.Width, rect.Height));
+
+            if (element.RenderTransform is RotateTransform rotateTransform)
+            {
+                rotateTransform.Angle = rect.Rotation;
+            }
+            else if (rect.Rotation != 0d)
+            {
+                rotateTransform = new RotateTransform { Angle = rect.Rotation };
+                element.RenderTransform = rotateTransform;
+                element.RenderTransformOrigin = new Point(0.5, 0.5);
+            }
+        }
+
         private static void ArrangeElement(FrameworkElement element, Rect rect)
         {
             if (element.UseLayoutRounding)
@@ -365,22 +387,7 @@ namespace MapControl
                 rect.Height = Math.Round(rect.Height);
             }
 
-            try
-            {
-                element.Arrange(rect);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"MapPanel.ArrangeElement: {ex.Message}");
-            }
-        }
-
-        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            if (obj is IMapElement mapElement)
-            {
-                mapElement.ParentMap = e.NewValue as MapBase;
-            }
+            element.Arrange(rect);
         }
     }
 }
