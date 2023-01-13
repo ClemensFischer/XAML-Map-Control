@@ -173,34 +173,27 @@ namespace MapControl
                         }
                     }
 
-                    try
+                    if (position.HasValue)
                     {
-                        if (position.HasValue)
+                        ArrangeElement(element, position.Value);
+                    }
+                    else
+                    {
+                        var boundingBox = GetBoundingBox(element);
+
+                        if (boundingBox != null)
                         {
-                            ArrangeElement(element, position.Value);
+                            var viewRect = GetViewRect(boundingBox);
+
+                            if (viewRect != null)
+                            {
+                                ArrangeElement(element, viewRect);
+                            }
                         }
                         else
                         {
-                            var boundingBox = GetBoundingBox(element);
-
-                            if (boundingBox != null)
-                            {
-                                var viewRect = GetViewRect(boundingBox);
-
-                                if (viewRect != null)
-                                {
-                                    ArrangeElement(element, viewRect);
-                                }
-                            }
-                            else
-                            {
-                                ArrangeElement(element, finalSize);
-                            }
+                            ArrangeElement(element, finalSize);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"MapPanel.ArrangeElement: {ex.Message}");
                     }
                 }
             }
@@ -372,7 +365,14 @@ namespace MapControl
                 rect.Height = Math.Round(rect.Height);
             }
 
-            element.Arrange(rect);
+            try
+            {
+                element.Arrange(rect);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MapPanel.ArrangeElement: {ex.Message}");
+            }
         }
 
         private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
