@@ -104,6 +104,9 @@
     <Compile Include="..\Shared\MapBase.cs">
       <Link>MapBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapBorderPanel.cs">
+      <Link>MapBorderPanel.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapGraticule.cs">
       <Link>MapGraticule.cs</Link>
     </Compile>

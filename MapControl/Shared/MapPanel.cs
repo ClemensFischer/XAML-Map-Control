@@ -105,8 +105,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the view position of an element with Location
-        /// or null when the element has no Location.
+        /// Gets the view position of an element with Location.
         /// </summary>
         public static Point? GetViewPosition(FrameworkElement element)
         {
@@ -161,7 +160,7 @@ namespace MapControl
                     var location = GetLocation(element);
                     var position = location != null ? GetViewPosition(location) : null;
 
-                    SetViewPosition(element, position);
+                    SetViewPosition(element, ref position);
 
                     if (GetAutoCollapse(element))
                     {
@@ -203,7 +202,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected virtual Point? GetViewPosition(Location location)
+        protected Point? GetViewPosition(Location location)
         {
             var position = parentMap.LocationToView(location);
 

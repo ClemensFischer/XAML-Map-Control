@@ -39,7 +39,12 @@ namespace MapControl
             return (MapBase)element.GetValue(ParentMapProperty);
         }
 
-        private static void SetViewPosition(FrameworkElement element, Point? position)
+        /// <summary>
+        /// Sets the attached ViewPosition property of an element. The method is called during
+        /// ArrangeOverride and may be overridden to modify the actual view position value.
+        /// An overridden method should call this method to set the attached property.
+        /// </summary>
+        protected virtual void SetViewPosition(FrameworkElement element, ref Point? position)
         {
             element.SetValue(ViewPositionPropertyKey, position);
         }
