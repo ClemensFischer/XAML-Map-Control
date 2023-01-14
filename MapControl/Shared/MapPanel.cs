@@ -254,7 +254,7 @@ namespace MapControl
             return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
         }
 
-        protected bool IsOutsideViewport(Point point)
+        private bool IsOutsideViewport(Point point)
         {
             return point.X < 0d || point.X > parentMap.RenderSize.Width
                 || point.Y < 0d || point.Y > parentMap.RenderSize.Height;
