@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0-windows;net48;net462</TargetFrameworks>
+        <TargetFrameworks>net7.0-windows;net6.0-windows;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl.Caching</RootNamespace>
         <AssemblyTitle>XAML Map Control FileDbCache Library for WPF</AssemblyTitle>
@@ -24,7 +24,7 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)'=='net6.0-windows'">
+    <ItemGroup Condition="'$(TargetFramework)'=='net7.0-windows' or '$(TargetFramework)'=='net6.0-windows'">
         <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
         <PackageReference Include="FileDb.Standard" Version="7.4.4" />
     </ItemGroup>
