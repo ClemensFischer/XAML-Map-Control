@@ -57,7 +57,10 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size bounds)
         {
-            // If MapTransform is used, update its Matrix property.
+            var size = base.ArrangeOverride(bounds);
+
+            // If the MapTransform property is used, update its Matrix property
+            // (after calling base.ArrangeOverride to avoid rendering issues).
             //
             if (mapTransform != null)
             {
@@ -72,7 +75,7 @@ namespace MapControl
                 }
             }
 
-            return base.ArrangeOverride(bounds);
+            return size;
         }
     }
 
