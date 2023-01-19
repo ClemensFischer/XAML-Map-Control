@@ -8,77 +8,19 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Media;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media;
 #endif
 
 namespace MapControl
 {
-    /// <summary>
-    /// Container class for an item in a MapItemsControl.
-    /// </summary>
-    public partial class MapItem : ListBoxItem
-    {
-        /// <summary>
-        /// Gets/sets MapPanel.AutoCollapse.
-        /// </summary>
-        public bool AutoCollapse
-        {
-            get => (bool)GetValue(AutoCollapseProperty);
-            set => SetValue(AutoCollapseProperty, value);
-        }
-
-        /// <summary>
-        /// Gets/sets MapPanel.Location.
-        /// </summary>
-        public Location Location
-        {
-            get => (Location)GetValue(LocationProperty);
-            set => SetValue(LocationProperty, value);
-        }
-
-        /// <summary>
-        /// Gets a Transform for scaling and rotating geometries
-        /// in map coordinates (meters) to view coordinates (pixels).
-        /// </summary>
-        public Transform MapTransform => mapTransform ?? (mapTransform = new MatrixTransform());
-
-        private MatrixTransform mapTransform;
-
-        protected override Size ArrangeOverride(Size bounds)
-        {
-            var size = base.ArrangeOverride(bounds);
-
-            // If the MapTransform property is used, update its Matrix property
-            // (after calling base.ArrangeOverride to avoid rendering issues).
-            //
-            if (mapTransform != null)
-            {
-                var parentMap = (VisualTreeHelper.GetParent(this) as MapPanel)?.ParentMap;
-
-                if (parentMap != null && Location != null)
-                {
-                    var scale = parentMap.GetScale(Location);
-                    var matrix = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
-                    matrix.Rotate(parentMap.ViewTransform.Rotation);
-                    mapTransform.Matrix = matrix;
-                }
-            }
-
-            return size;
-        }
-    }
-
     /// <summary>
     /// Manages a collection of selectable items on a Map.
     /// </summary>

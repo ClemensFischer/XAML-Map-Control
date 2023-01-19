@@ -237,6 +237,18 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets a transform Matrix for scaling and rotating objects that are anchored
+        /// at a Location from map coordinates (i.e. meters) to view coordinates.
+        /// </summary>
+        public Matrix GetMapTransform(Location location)
+        {
+            var scale = GetScale(location);
+            var matrix = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
+            matrix.Rotate(ViewTransform.Rotation);
+            return matrix;
+        }
+
+        /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in view coordinates.
         /// </summary>
         public Point? LocationToView(Location location)

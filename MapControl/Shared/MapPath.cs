@@ -40,6 +40,9 @@ namespace MapControl
             set => SetValue(LocationProperty, value);
         }
 
+        /// <summary>
+        /// Implements IMapElement.ParentMap.
+        /// </summary>
         public MapBase ParentMap
         {
             get => parentMap;
@@ -72,9 +75,7 @@ namespace MapControl
 
             if (parentMap != null && Location != null && Data != null)
             {
-                var scale = parentMap.GetScale(Location);
-                var matrix = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
-                matrix.Rotate(parentMap.ViewTransform.Rotation);
+                var matrix = parentMap.GetMapTransform(Location);
 
                 if (Data.Transform is MatrixTransform transform)
                 {

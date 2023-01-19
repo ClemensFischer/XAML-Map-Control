@@ -165,6 +165,9 @@ namespace MapControl
             private set => SetValue(LoadingProgressProperty, value);
         }
 
+        /// <summary>
+        /// Implements IMapElement.ParentMap.
+        /// </summary>
         public MapBase ParentMap
         {
             get => parentMap;

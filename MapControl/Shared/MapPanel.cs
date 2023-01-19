@@ -46,6 +46,9 @@ namespace MapControl
 
         private MapBase parentMap;
 
+        /// <summary>
+        /// Implements IMapElement.ParentMap.
+        /// </summary>
         public MapBase ParentMap
         {
             get => parentMap;

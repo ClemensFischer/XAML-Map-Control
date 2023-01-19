@@ -113,6 +113,9 @@
     <Compile Include="..\Shared\MapImageLayer.cs">
       <Link>MapImageLayer.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapItem.cs">
+      <Link>MapItem.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapItemsControl.cs">
       <Link>MapItemsControl.cs</Link>
     </Compile>
@@ -247,6 +250,9 @@
     </Compile>
     <Compile Include="..\WinUI\MapGraticule.WinUI.cs">
       <Link>MapGraticule.WinUI.cs</Link>
+    </Compile>
+    <Compile Include="..\WinUI\MapItem.WinUI.cs">
+      <Link>MapItem.WinUI.cs</Link>
     </Compile>
     <Compile Include="..\WinUI\MapItemsControl.WinUI.cs">
       <Link>MapItemsControl.WinUI.cs</Link>
