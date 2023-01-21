@@ -48,12 +48,20 @@
                                         </VisualState>
                                     </VisualStateGroup>
                                 </VisualStateManager.VisualStateGroups>
+                                <!-- Path with transformed Geometry -->
                                 <Path Fill="Red" Opacity="0.4" IsHitTestVisible="False">
                                     <Path.Data>
                                         <EllipseGeometry RadiusX="20" RadiusY="20"
                                                          Transform="{Binding MapTransform, RelativeSource={RelativeSource TemplatedParent}}"/>
                                     </Path.Data>
                                 </Path>
+                                <!-- MapPath with Location -->
+                                <map:MapPath Stroke="Green" StrokeThickness="2" IsHitTestVisible="False"
+                                             Location="{TemplateBinding Location}">
+                                    <map:MapPath.Data>
+                                        <EllipseGeometry RadiusX="20" RadiusY="20"/>
+                                    </map:MapPath.Data>
+                                </map:MapPath>
                                 <Path x:Name="selectedPath" Fill="White" Opacity="0">
                                     <Path.Data>
                                         <EllipseGeometry RadiusX="12" RadiusY="12"/>

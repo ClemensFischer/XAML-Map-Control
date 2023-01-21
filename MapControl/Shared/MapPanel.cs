@@ -264,17 +264,7 @@ namespace MapControl
 
         private static void ArrangeElement(FrameworkElement element, Point position)
         {
-            var rect = new Rect(position.X, position.Y, 0d, 0d);
-
-            if (element.DesiredSize.Width >= 0d && element.DesiredSize.Width < double.PositiveInfinity)
-            {
-                rect.Width = element.DesiredSize.Width;
-            }
-
-            if (element.DesiredSize.Height >= 0d && element.DesiredSize.Height < double.PositiveInfinity)
-            {
-                rect.Height = element.DesiredSize.Height;
-            }
+            var rect = new Rect(position, GetDesiredSize(element));
 
             switch (element.HorizontalAlignment)
             {
@@ -309,17 +299,7 @@ namespace MapControl
 
         private static void ArrangeElement(FrameworkElement element, Size parentSize)
         {
-            var rect = new Rect();
-
-            if (element.DesiredSize.Width >= 0d && element.DesiredSize.Width < double.PositiveInfinity)
-            {
-                rect.Width = element.DesiredSize.Width;
-            }
-
-            if (element.DesiredSize.Height >= 0d && element.DesiredSize.Height < double.PositiveInfinity)
-            {
-                rect.Height = element.DesiredSize.Height;
-            }
+            var rect = new Rect(new Point(), GetDesiredSize(element));
 
             switch (element.HorizontalAlignment)
             {
@@ -390,6 +370,26 @@ namespace MapControl
             }
 
             element.Arrange(rect);
+        }
+
+        internal static Size GetDesiredSize(UIElement element)
+        {
+            var width = 0d;
+            var height = 0d;
+
+            if (element.DesiredSize.Width >= 0d &&
+                element.DesiredSize.Width < double.PositiveInfinity)
+            {
+                width = element.DesiredSize.Width;
+            }
+
+            if (element.DesiredSize.Height >= 0d &&
+                element.DesiredSize.Height < double.PositiveInfinity)
+            {
+                height = element.DesiredSize.Height;
+            }
+
+            return new Size(width, height);
         }
     }
 }
