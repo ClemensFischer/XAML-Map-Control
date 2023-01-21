@@ -37,9 +37,9 @@ namespace MapControl
             {
                 var x = Canvas.GetLeft(element);
                 var y = Canvas.GetTop(element);
-                var p = new Point(double.IsNaN(x) ? 0d : x, double.IsNaN(y) ? 0d : y);
+                var size = MapPanel.GetDesiredSize(element);
 
-                element.Arrange(new Rect(p, MapPanel.GetDesiredSize(element)));
+                element.Arrange(new Rect(x, y, size.Width, size.Height));
             }
 
             return finalSize;

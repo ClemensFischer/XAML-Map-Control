@@ -264,7 +264,8 @@ namespace MapControl
 
         private static void ArrangeElement(FrameworkElement element, Point position)
         {
-            var rect = new Rect(position, GetDesiredSize(element));
+            var size = GetDesiredSize(element);
+            var rect = new Rect(position.X, position.Y, size.Width, size.Height);
 
             switch (element.HorizontalAlignment)
             {
@@ -299,7 +300,8 @@ namespace MapControl
 
         private static void ArrangeElement(FrameworkElement element, Size parentSize)
         {
-            var rect = new Rect(new Point(), GetDesiredSize(element));
+            var size = GetDesiredSize(element);
+            var rect = new Rect(0d, 0d, size.Width, size.Height);
 
             switch (element.HorizontalAlignment)
             {
