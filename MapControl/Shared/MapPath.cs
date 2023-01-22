@@ -71,8 +71,6 @@ namespace MapControl
 
         protected virtual void UpdateData()
         {
-            MapPanel.SetLocation(this, Location);
-
             if (parentMap != null && Location != null && Data != null)
             {
                 var matrix = parentMap.GetMapTransform(Location);
@@ -86,6 +84,8 @@ namespace MapControl
                     Data.Transform = new MatrixTransform { Matrix = matrix };
                 }
             }
+
+            MapPanel.SetLocation(this, Location);
         }
 
         #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon

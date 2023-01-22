@@ -230,9 +230,6 @@
     <Compile Include="..\WinUI\Animatable.WinUI.cs">
       <Link>Animatable.WinUI.cs</Link>
     </Compile>
-    <Compile Include="..\WinUI\CanvasPanel.cs">
-      <Link>CanvasPanel.cs</Link>
-    </Compile>
     <Compile Include="..\WinUI\GeoImage.WinUI.cs">
       <Link>GeoImage.WinUI.cs</Link>
     </Compile>

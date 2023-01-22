@@ -24,7 +24,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="map:MapItem">
-                            <map:CanvasPanel>
+                            <Grid>
                                 <VisualStateManager.VisualStateGroups>
                                     <VisualStateGroup x:Name="CommonStates">
                                         <VisualState x:Name="Normal"/>
@@ -68,7 +68,7 @@
                                                          Transform="{Binding MapTransform, RelativeSource={RelativeSource TemplatedParent}}"/>
                                     </Path.Data>
                                 </Path>
-                                <!-- MapPath with Location, requires CanvasPanel parent to avoid clipping -->
+                                <!-- MapPath with Location -->
                                 <map:MapPath Stroke="Green" StrokeThickness="2" IsHitTestVisible="False"
                                              Location="{TemplateBinding Location}">
                                     <map:MapPath.Data>
@@ -85,10 +85,8 @@
                                         <EllipseGeometry RadiusX="8" RadiusY="8"/>
                                     </Path.Data>
                                 </Path>
-                                <Grid Canvas.Left="15" Canvas.Top="-8">
-                                    <TextBlock Margin="2,0,2,0" Text="{Binding Name}"/>
-                                </Grid>
-                            </map:CanvasPanel>
+                                <TextBlock Margin="16,-9,0,0" Text="{Binding Name}"/>
+                            </Grid>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
