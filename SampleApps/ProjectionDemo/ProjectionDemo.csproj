@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0-windows</TargetFramework>
+        <TargetFramework>net7.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
 		<RootNamespace>ProjectionDemo</RootNamespace>
 		<AssemblyTitle>XAML Map Control Projection Demo Application</AssemblyTitle>
@@ -13,7 +13,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
-        <ProjectReference Include="..\..\MapProjections\WPF\MapProjections.WPF.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,11 +1,9 @@
 ﻿using MapControl;
-using MapControl.Projections;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Net.Http;
 using System.Windows;
 using System.Windows.Input;
 
@@ -13,19 +11,17 @@ namespace ProjectionDemo
 {
     public partial class MainWindow : Window
     {
-        private readonly HttpClient httpClient = new HttpClient();
-        private readonly ViewModel viewModel = new ViewModel();
+        private readonly ViewModel viewModel = new();
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.Projections.Add(new MapControl.Projections.WebMercatorProjection());
-
-            viewModel.Projections.Add(new GeoApiProjection(await httpClient.GetStringAsync("https://epsg.io/25832.wkt"))); // ETRS89 / UTM zone 32N
+            viewModel.Projections.Add(new WebMercatorProjection());
+            viewModel.Projections.Add(new Etrs89UtmProjection(32));
 
             viewModel.Layers.Add(
                 "OpenStreetMap WMS",
@@ -70,7 +66,7 @@ namespace ProjectionDemo
     {
         private MapProjection currentProjection;
         private IMapLayer currentLayer;
-        private Location pushpinLocation = new Location();
+        private Location pushpinLocation = new();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
