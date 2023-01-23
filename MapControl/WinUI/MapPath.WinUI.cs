@@ -25,7 +25,19 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
-#region Methods used only by derived classes MapPolyline and MapPolygon
+        private void SetMapTransform(Matrix matrix)
+        {
+            if (Data.Transform is MatrixTransform transform)
+            {
+                transform.Matrix = matrix;
+            }
+            else
+            {
+                Data.Transform = new MatrixTransform { Matrix = matrix };
+            }
+        }
+
+        #region Methods used only by derived classes MapPolyline and MapPolygon
 
         protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
         {

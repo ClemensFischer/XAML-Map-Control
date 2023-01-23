@@ -4,13 +4,10 @@
 
 #if WINUI
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
 #elif UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
-using System.Windows.Media;
 #endif
 
 namespace MapControl
@@ -30,7 +27,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets a Location that is used as
         /// - either the origin point of a geometry specified in projected map coordinates (meters)
-        /// - or as an optional value to constrain the view position of MapPaths with multiple
+        /// - or as an optional anchor point to constrain the view position of MapPaths with multiple
         ///   Locations (like MapPolyline or MapPolygon) to the visible map viewport, as done
         ///   for elements where the MapPanel.Location property is set.
         /// </summary>
@@ -73,16 +70,7 @@ namespace MapControl
         {
             if (parentMap != null && Location != null && Data != null)
             {
-                var matrix = parentMap.GetMapTransform(Location);
-
-                if (Data.Transform is MatrixTransform transform)
-                {
-                    transform.Matrix = matrix;
-                }
-                else
-                {
-                    Data.Transform = new MatrixTransform { Matrix = matrix };
-                }
+                SetMapTransform(parentMap.GetMapTransform(Location));
             }
 
             MapPanel.SetLocation(this, Location);

@@ -40,9 +40,20 @@ namespace MapControl
                 }
                 else
                 {
-                    data.Transform = new MatrixTransform();
                     path.UpdateData();
                 }
+            }
+        }
+
+        private void SetMapTransform(Matrix matrix)
+        {
+            if (Data.Transform is MatrixTransform transform && !transform.IsFrozen)
+            {
+                transform.Matrix = matrix;
+            }
+            else
+            {
+                Data.Transform = new MatrixTransform(matrix);
             }
         }
 
