@@ -25,6 +25,11 @@ namespace MapControl
 
         protected override Geometry DefiningGeometry => Data;
 
+        protected override Geometry GetLayoutClip(Size layoutSlotSize)
+        {
+            return ClipToBounds ? base.GetLayoutClip(layoutSlotSize) : null;
+        }
+
         private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             // Check if Data is actually a new Geometry.
