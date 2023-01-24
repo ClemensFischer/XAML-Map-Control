@@ -22,6 +22,7 @@ namespace MapControl
     {
         public MapPath()
         {
+            Stretch = Stretch.None;
             MapPanel.InitMapElement(this);
         }
 
@@ -81,7 +82,7 @@ namespace MapControl
                     {
                         StartPoint = points.First(),
                         IsClosed = closed,
-                        IsFilled = closed
+                        IsFilled = true
                     };
 
                     figure.Segments.Add(segment);
@@ -114,7 +115,7 @@ namespace MapControl
                                 {
                                     StartPoint = p1,
                                     IsClosed = false,
-                                    IsFilled = false
+                                    IsFilled = true
                                 };
 
                                 segment = new PolyLineSegment();

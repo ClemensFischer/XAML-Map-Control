@@ -14,6 +14,11 @@ namespace MapControl
 {
     public partial class MapPath : Shape, IWeakEventListener
     {
+        public MapPath()
+        {
+            Stretch = Stretch.None;
+        }
+
         public static readonly DependencyProperty DataProperty = Path.DataProperty.AddOwner(
             typeof(MapPath), new PropertyMetadata(null, DataPropertyChanged));
 
@@ -24,11 +29,6 @@ namespace MapControl
         }
 
         protected override Geometry DefiningGeometry => Data;
-
-        protected override Geometry GetLayoutClip(Size layoutSlotSize)
-        {
-            return ClipToBounds ? base.GetLayoutClip(layoutSlotSize) : null;
-        }
 
         private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
@@ -98,7 +98,7 @@ namespace MapControl
                 {
                     StartPoint = points.First(),
                     IsClosed = closed,
-                    IsFilled = closed
+                    IsFilled = true
                 };
 
                 figure.Segments.Add(new PolyLineSegment(points.Skip(1), true));

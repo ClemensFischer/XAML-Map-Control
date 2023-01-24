@@ -26,6 +26,10 @@ namespace MapControl
             nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolygon),
             new PropertyMetadata(null, (o, e) => ((MapPolygon)o).DataCollectionPropertyChanged(e)));
 
+        public static readonly DependencyProperty FillRuleProperty = DependencyProperty.Register(
+            nameof(FillRule), typeof(FillRule), typeof(MapPolygon),
+            new PropertyMetadata(FillRule.EvenOdd, (o, e) => ((PathGeometry)((MapPolygon)o).Data).FillRule = (FillRule)e.NewValue));
+
         /// <summary>
         /// Gets or sets the Locations that define the polygon points.
         /// </summary>
@@ -36,6 +40,12 @@ namespace MapControl
         {
             get => (IEnumerable<Location>)GetValue(LocationsProperty);
             set => SetValue(LocationsProperty, value);
+        }
+
+        public FillRule FillRule
+        {
+            get => (FillRule)GetValue(FillRuleProperty);
+            set => SetValue(FillRuleProperty, value);
         }
 
         public MapPolygon()
