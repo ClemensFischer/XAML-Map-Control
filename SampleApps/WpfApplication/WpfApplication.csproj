@@ -6,7 +6,7 @@
         <RootNamespace>SampleApplication</RootNamespace>
         <AssemblyTitle>XAML Map Control WPF Sample Application</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>8.1.0</Version>
+        <Version>8.2.0</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2023 Clemens Fischer</Copyright>
         <DefineConstants></DefineConstants>

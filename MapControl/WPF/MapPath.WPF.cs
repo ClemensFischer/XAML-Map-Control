@@ -32,12 +32,13 @@ namespace MapControl
 
         private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            // Check if Data is actually a new Geometry.
+            var data = (Geometry)e.NewValue;
+
+            // Check if data is actually a new Geometry.
             //
-            if (e.NewValue != null && !ReferenceEquals(e.NewValue, e.OldValue))
+            if (data != null && !ReferenceEquals(data, e.OldValue))
             {
                 var path = (MapPath)obj;
-                var data = (Geometry)e.NewValue;
 
                 if (data.IsFrozen)
                 {

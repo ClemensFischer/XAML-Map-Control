@@ -6,7 +6,7 @@
         <RootNamespace>MapControl.MBTiles</RootNamespace>
         <AssemblyTitle>XAML Map Control MBTiles Library for WinUI</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>8.1.0</Version>
+        <Version>8.2.0</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2023 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
