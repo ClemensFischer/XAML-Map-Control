@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
-using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -55,15 +54,7 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            var pathFigures = ((PathGeometry)Data).Figures;
-            pathFigures.Clear();
-
-            if (ParentMap != null && Locations != null)
-            {
-                var longitudeOffset = GetLongitudeOffset(Location ?? Locations.FirstOrDefault());
-
-                AddPolylineLocations(pathFigures, Locations, longitudeOffset, true);
-            }
+            ((PathGeometry)Data).Figures = GetPolylineFigures(Locations, true);
         }
     }
 }

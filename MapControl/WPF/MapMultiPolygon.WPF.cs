@@ -48,18 +48,7 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            var pathFigures = ((PathGeometry)Data).Figures;
-            pathFigures.Clear();
-
-            if (ParentMap != null && Polygons != null)
-            {
-                var longitudeOffset = GetLongitudeOffset(Location);
-
-                foreach (var polygon in Polygons)
-                {
-                    AddPolylineLocations(pathFigures, polygon, longitudeOffset, true);
-                }
-            }
+            ((PathGeometry)Data).Figures = GetMultiPolygonFigures(Polygons);
         }
     }
 }

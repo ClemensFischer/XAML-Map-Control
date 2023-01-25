@@ -2,12 +2,18 @@
 // Copyright © 2023 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System.Collections.Generic;
+using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 #elif UWP
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 #else
 using System.Windows;
+using System.Windows.Media;
 #endif
 
 namespace MapControl
@@ -78,25 +84,6 @@ namespace MapControl
 
         #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
 
-        protected double GetLongitudeOffset(Location location)
-        {
-            var longitudeOffset = 0d;
-
-            if (location != null && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
-            {
-                var point = parentMap.LocationToView(location);
-
-                if (point.HasValue &&
-                    (point.Value.X < 0d || point.Value.X > parentMap.RenderSize.Width ||
-                     point.Value.Y < 0d || point.Value.Y > parentMap.RenderSize.Height))
-                {
-                    longitudeOffset = parentMap.ConstrainedLongitude(location.Longitude) - location.Longitude;
-                }
-            }
-
-            return longitudeOffset;
-        }
-
         protected Point? LocationToMap(Location location, double longitudeOffset)
         {
             if (longitudeOffset != 0d)
@@ -131,6 +118,56 @@ namespace MapControl
             }
 
             return parentMap.ViewTransform.MapToView(point.Value);
+        }
+
+        protected double GetLongitudeOffset(Location location)
+        {
+            var longitudeOffset = 0d;
+
+            if (location != null && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
+            {
+                var point = parentMap.LocationToView(location);
+
+                if (point.HasValue &&
+                    (point.Value.X < 0d || point.Value.X > parentMap.RenderSize.Width ||
+                     point.Value.Y < 0d || point.Value.Y > parentMap.RenderSize.Height))
+                {
+                    longitudeOffset = parentMap.ConstrainedLongitude(location.Longitude) - location.Longitude;
+                }
+            }
+
+            return longitudeOffset;
+        }
+
+        protected PathFigureCollection GetPolylineFigures(IEnumerable<Location> locations, bool closed)
+        {
+            var pathFigures = new PathFigureCollection();
+
+            if (parentMap != null && locations != null)
+            {
+                var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
+
+                AddPolylineLocations(pathFigures, locations, longitudeOffset, closed);
+            }
+
+            return pathFigures;
+        }
+
+        protected PathFigureCollection GetMultiPolygonFigures(IEnumerable<IEnumerable<Location>> polygons)
+        {
+            var pathFigures = new PathFigureCollection();
+
+            if (parentMap != null && polygons != null)
+            {
+                var longitudeOffset = GetLongitudeOffset(Location);
+
+                foreach (var polygon in polygons)
+                {
+                    AddPolylineLocations(pathFigures, polygon, longitudeOffset, true);
+                }
+            }
+
+            return pathFigures;
         }
 
         #endregion
