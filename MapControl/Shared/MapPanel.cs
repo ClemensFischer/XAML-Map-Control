@@ -169,7 +169,7 @@ namespace MapControl
                     {
                         if (position.HasValue && IsOutsideViewport(position.Value))
                         {
-                            element.SetValue(VisibilityProperty, Visibility.Collapsed);
+                            element.Visibility = Visibility.Collapsed;
                         }
                         else
                         {
