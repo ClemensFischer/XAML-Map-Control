@@ -28,8 +28,11 @@ namespace MapControl
             nameof(CapabilitiesUri), typeof(Uri), typeof(WmtsTileLayer),
             new PropertyMetadata(null, (o, e) => ((WmtsTileLayer)o).TileMatrixSets.Clear()));
 
-        public static readonly DependencyProperty LayerIdentifierProperty = DependencyProperty.Register(
-            nameof(LayerIdentifier), typeof(string), typeof(WmtsTileLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty LayerProperty = DependencyProperty.Register(
+            nameof(Layer), typeof(string), typeof(WmtsTileLayer), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty PreferredTileMatrixSetsProperty = DependencyProperty.Register(
+            nameof(PreferredTileMatrixSets), typeof(string[]), typeof(WmtsTileLayer), new PropertyMetadata(null));
 
         public WmtsTileLayer()
             : this(new TileImageLoader())
@@ -52,12 +55,22 @@ namespace MapControl
         }
 
         /// <summary>
-        /// The ows:Identifier of the Layer that should be displayed. If not set, the first Layer is displayed.
+        /// The Identifier of the Layer that should be displayed. If not set, the first Layer is displayed.
         /// </summary>
-        public string LayerIdentifier
+        public string Layer
         {
-            get => (string)GetValue(LayerIdentifierProperty);
-            set => SetValue(LayerIdentifierProperty, value);
+            get => (string)GetValue(LayerProperty);
+            set => SetValue(LayerProperty, value);
+        }
+
+        /// <summary>
+        /// In case there are TileMatrixSets with identical SupportedCRS values,
+        /// the ones with Identifiers contained in this collection take precedence.
+        /// </summary>
+        public string[] PreferredTileMatrixSets
+        {
+            get => (string[])GetValue(PreferredTileMatrixSetsProperty);
+            set => SetValue(PreferredTileMatrixSetsProperty, value);
         }
 
         public IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
@@ -168,9 +181,9 @@ namespace MapControl
 
                 if (!string.IsNullOrEmpty(cacheName))
                 {
-                    if (!string.IsNullOrEmpty(LayerIdentifier))
+                    if (!string.IsNullOrEmpty(Layer))
                     {
-                        cacheName += "/" + LayerIdentifier.Replace(':', '_');
+                        cacheName += "/" + Layer.Replace(':', '_');
                     }
 
                     cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
@@ -184,19 +197,22 @@ namespace MapControl
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
+            Loaded -= OnLoaded;
+
             if (TileMatrixSets.Count == 0 && CapabilitiesUri != null)
             {
                 try
                 {
-                    var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, LayerIdentifier);
+                    var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
 
                     foreach (var tileMatrixSet in capabilities.TileMatrixSets
-                        .Where(s => !TileMatrixSets.ContainsKey(s.SupportedCrs)))
+                        .Where(s => !TileMatrixSets.ContainsKey(s.SupportedCrs) ||
+                                    PreferredTileMatrixSets != null && PreferredTileMatrixSets.Contains(s.Identifier)))
                     {
-                        TileMatrixSets.Add(tileMatrixSet.SupportedCrs, tileMatrixSet);
+                        TileMatrixSets[tileMatrixSet.SupportedCrs] = tileMatrixSet;
                     }
 
-                    LayerIdentifier = capabilities.LayerIdentifier;
+                    Layer = capabilities.Layer;
                     TileSource = capabilities.TileSource;
                 }
                 catch (Exception ex)

@@ -23,11 +23,11 @@ namespace MapControl
         private static readonly XNamespace wmts = "http://www.opengis.net/wmts/1.0";
         private static readonly XNamespace xlink = "http://www.w3.org/1999/xlink";
 
-        public string LayerIdentifier { get; private set; }
+        public string Layer { get; private set; }
         public WmtsTileSource TileSource { get; private set; }
         public List<WmtsTileMatrixSet> TileMatrixSets { get; private set; }
 
-        public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri capabilitiesUri, string layerIdentifier)
+        public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri capabilitiesUri, string layer)
         {
             WmtsCapabilities capabilities;
 
@@ -35,18 +35,18 @@ namespace MapControl
             {
                 using (var stream = await ImageLoader.HttpClient.GetStreamAsync(capabilitiesUri))
                 {
-                    capabilities = ReadCapabilities(XDocument.Load(stream).Root, layerIdentifier, capabilitiesUri.ToString());
+                    capabilities = ReadCapabilities(XDocument.Load(stream).Root, layer, capabilitiesUri.ToString());
                 }
             }
             else
             {
-                capabilities = ReadCapabilities(XDocument.Load(capabilitiesUri.ToString()).Root, layerIdentifier, null);
+                capabilities = ReadCapabilities(XDocument.Load(capabilitiesUri.ToString()).Root, layer, null);
             }
 
             return capabilities;
         }
 
-        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layerIdentifier, string capabilitiesUrl)
+        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layer, string capabilitiesUrl)
         {
             var contentsElement = capabilitiesElement.Element(wmts + "Contents");
 
@@ -57,15 +57,15 @@ namespace MapControl
 
             XElement layerElement;
 
-            if (!string.IsNullOrEmpty(layerIdentifier))
+            if (!string.IsNullOrEmpty(layer))
             {
                 layerElement = contentsElement
                     .Elements(wmts + "Layer")
-                    .FirstOrDefault(layer => layer.Element(ows + "Identifier")?.Value == layerIdentifier);
+                    .FirstOrDefault(l => l.Element(ows + "Identifier")?.Value == layer);
 
                 if (layerElement == null)
                 {
-                    throw new ArgumentException($"Layer element \"{layerIdentifier}\" not found.");
+                    throw new ArgumentException($"Layer element \"{layer}\" not found.");
                 }
             }
             else
@@ -79,12 +79,12 @@ namespace MapControl
                     throw new ArgumentException("No Layer element found.");
                 }
 
-                layerIdentifier = layerElement.Element(ows + "Identifier")?.Value ?? "";
+                layer = layerElement.Element(ows + "Identifier")?.Value ?? "";
             }
 
             var styleElement = layerElement
                 .Elements(wmts + "Style")
-                .FirstOrDefault(style => style.Attribute("isDefault")?.Value == "true");
+                .FirstOrDefault(s => s.Attribute("isDefault")?.Value == "true");
 
             if (styleElement == null)
             {
@@ -93,19 +93,19 @@ namespace MapControl
                     .FirstOrDefault();
             }
 
-            var styleIdentifier = styleElement?.Element(ows + "Identifier")?.Value;
+            var style = styleElement?.Element(ows + "Identifier")?.Value;
 
-            if (string.IsNullOrEmpty(styleIdentifier))
+            if (string.IsNullOrEmpty(style))
             {
-                throw new ArgumentException($"No Style element found in Layer \"{layerIdentifier}\".");
+                throw new ArgumentException($"No Style element found in Layer \"{layer}\".");
             }
 
-            var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layerIdentifier, styleIdentifier, capabilitiesUrl);
+            var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layer, style, capabilitiesUrl);
 
             var tileMatrixSetIds = layerElement
                 .Elements(wmts + "TileMatrixSetLink")
-                .Select(tmsl => tmsl.Element(wmts + "TileMatrixSet")?.Value)
-                .Where(val => !string.IsNullOrEmpty(val));
+                .Select(l => l.Element(wmts + "TileMatrixSet")?.Value)
+                .Where(v => !string.IsNullOrEmpty(v));
 
             var tileMatrixSets = new List<WmtsTileMatrixSet>();
 
@@ -113,11 +113,11 @@ namespace MapControl
             {
                 var tileMatrixSetElement = contentsElement
                     .Elements(wmts + "TileMatrixSet")
-                    .FirstOrDefault(tms => tms.Element(ows + "Identifier")?.Value == tileMatrixSetId);
+                    .FirstOrDefault(s => s.Element(ows + "Identifier")?.Value == tileMatrixSetId);
 
                 if (tileMatrixSetElement == null)
                 {
-                    throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layerIdentifier}\".");
+                    throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layer}\".");
                 }
 
                 tileMatrixSets.Add(ReadTileMatrixSet(tileMatrixSetElement));
@@ -125,13 +125,13 @@ namespace MapControl
 
             return new WmtsCapabilities
             {
-                LayerIdentifier = layerIdentifier,
+                Layer = layer,
                 TileSource = new WmtsTileSource { UriTemplate = urlTemplate },
                 TileMatrixSets = tileMatrixSets
             };
         }
 
-        public static string ReadUrlTemplate(XElement capabilitiesElement, XElement layerElement, string layerIdentifier, string styleIdentifier, string capabilitiesUrl)
+        public static string ReadUrlTemplate(XElement capabilitiesElement, XElement layerElement, string layer, string style, string capabilitiesUrl)
         {
             const string formatPng = "image/png";
             const string formatJpg = "image/jpeg";
@@ -139,11 +139,11 @@ namespace MapControl
 
             var resourceUrls = layerElement
                 .Elements(wmts + "ResourceURL")
-                .Where(res => res.Attribute("resourceType")?.Value == "tile" &&
-                              res.Attribute("format")?.Value != null &&
-                              res.Attribute("template")?.Value != null)
-                .ToLookup(res => res.Attribute("format").Value,
-                          res => res.Attribute("template").Value);
+                .Where(r => r.Attribute("resourceType")?.Value == "tile" &&
+                            r.Attribute("format")?.Value != null &&
+                            r.Attribute("template")?.Value != null)
+                .ToLookup(r => r.Attribute("format").Value,
+                          r => r.Attribute("template").Value);
 
             if (resourceUrls.Any())
             {
@@ -151,23 +151,23 @@ namespace MapControl
                                  : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]
                                  : resourceUrls.First();
 
-                urlTemplate = urlTemplates.First().Replace("{Style}", styleIdentifier);
+                urlTemplate = urlTemplates.First().Replace("{Style}", style);
             }
             else
             {
                 urlTemplate = capabilitiesElement
                     .Elements(ows + "OperationsMetadata")
                     .Elements(ows + "Operation")
-                    .Where(op => op.Attribute("name")?.Value == "GetTile")
+                    .Where(o => o.Attribute("name")?.Value == "GetTile")
                     .Elements(ows + "DCP")
                     .Elements(ows + "HTTP")
                     .Elements(ows + "Get")
-                    .Where(get => get.Elements(ows + "Constraint")
-                                     .Any(con => con.Attribute("name")?.Value == "GetEncoding" &&
-                                                 con.Element(ows + "AllowedValues")?.Element(ows + "Value")?.Value == "KVP"))
-                    .Select(get => get.Attribute(xlink + "href")?.Value)
-                    .Where(href => !string.IsNullOrEmpty(href))
-                    .Select(href => href.Split('?')[0])
+                    .Where(g => g.Elements(ows + "Constraint")
+                                 .Any(con => con.Attribute("name")?.Value == "GetEncoding" &&
+                                             con.Element(ows + "AllowedValues")?.Element(ows + "Value")?.Value == "KVP"))
+                    .Select(g => g.Attribute(xlink + "href")?.Value)
+                    .Where(h => !string.IsNullOrEmpty(h))
+                    .Select(h => h.Split('?')[0])
                     .FirstOrDefault();
 
                 if (urlTemplate == null &&
@@ -181,7 +181,7 @@ namespace MapControl
                 {
                     var formats = layerElement
                         .Elements(wmts + "Format")
-                        .Select(fmt => fmt.Value);
+                        .Select(f => f.Value);
 
                     var format = formats.Contains(formatPng) ? formatPng
                                : formats.Contains(formatJpg) ? formatJpg
@@ -195,8 +195,8 @@ namespace MapControl
                     urlTemplate += "?Service=WMTS"
                         + "&Request=GetTile"
                         + "&Version=1.0.0"
-                        + "&Layer=" + layerIdentifier
-                        + "&Style=" + styleIdentifier
+                        + "&Layer=" + layer
+                        + "&Style=" + style
                         + "&Format=" + format
                         + "&TileMatrixSet={TileMatrixSet}"
                         + "&TileMatrix={TileMatrix}"
@@ -207,7 +207,7 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(urlTemplate))
             {
-                throw new ArgumentException($"No ResourceURL element in Layer \"{layerIdentifier}\" and no GetTile KVP Operation Metadata found.");
+                throw new ArgumentException($"No ResourceURL element in Layer \"{layer}\" and no GetTile KVP Operation Metadata found.");
             }
 
             return urlTemplate;
