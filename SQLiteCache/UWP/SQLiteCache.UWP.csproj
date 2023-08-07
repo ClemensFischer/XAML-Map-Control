@@ -54,7 +54,7 @@
       <Version>6.2.14</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite.Core">
-      <Version>1.0.117</Version>
+      <Version>1.0.118</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

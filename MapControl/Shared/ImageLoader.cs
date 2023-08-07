@@ -94,7 +94,16 @@ namespace MapControl
                         if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out IEnumerable<string> tileInfo) ||
                             !tileInfo.Contains("no-tile"))
                         {
-                            buffer = await ReadAsByteArrayAsync(responseMessage.Content, progress).ConfigureAwait(false);
+                            var content = responseMessage.Content;
+
+                            if (progress != null && content.Headers.ContentLength.HasValue)
+                            {
+                                buffer = await ReadAsByteArrayAsync(content, progress).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                buffer = await content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                            }
                         }
 
                         response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
@@ -115,11 +124,6 @@ namespace MapControl
 
         private static async Task<byte[]> ReadAsByteArrayAsync(HttpContent content, IProgress<double> progress)
         {
-            if (progress == null || !content.Headers.ContentLength.HasValue)
-            {
-                return await content.ReadAsByteArrayAsync().ConfigureAwait(false);
-            }
-
             var length = (int)content.Headers.ContentLength.Value;
             var buffer = new byte[length];
 
