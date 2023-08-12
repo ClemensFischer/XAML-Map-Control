@@ -22,7 +22,7 @@ namespace MapControl
         private class TileQueue : ConcurrentStack<Tile>
         {
             public TileQueue(IEnumerable<Tile> tiles)
-                : base(tiles.Where(tile => !tile.IsLoaded).Reverse())
+                : base(tiles.Where(tile => tile.IsPending).Reverse())
             {
             }
 
@@ -30,14 +30,13 @@ namespace MapControl
 
             public bool TryDequeue(out Tile tile)
             {
-                tile = null;
-
                 if (IsCanceled || !TryPop(out tile))
                 {
+                    tile = null;
                     return false;
                 }
 
-                tile.IsLoaded = true;
+                tile.IsPending = false;
                 return true;
             }
 
@@ -65,84 +64,66 @@ namespace MapControl
         /// </summary>
         public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
 
-        /// <summary>
-        /// Reports tile loading process as double value between 0 and 1. 
-        /// </summary>
-        public IProgress<double> Progress { get; set; }
-
-        /// <summary>
-        /// The current TileSource, passed to the most recent LoadTiles call.
-        /// </summary>
-        public TileSource TileSource { get; private set; }
-
-        private TileQueue unloadedTiles;
-        private int progressTotal;
-        private int progressLoaded;
+        private TileQueue pendingTiles;
 
         /// <summary>
         /// Loads all unloaded tiles from the tiles collection.
         /// If tileSource.UriFormat starts with "http" and cacheName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache - if that is not null.
         /// </summary>
-        public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
+        public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            unloadedTiles?.Cancel();
+            pendingTiles?.Cancel();
 
-            TileSource = tileSource;
-
-            if (tileSource != null)
+            if (tiles != null && tileSource != null)
             {
-                unloadedTiles = new TileQueue(tiles);
+                pendingTiles = new TileQueue(tiles);
 
-                var numTasks = Math.Min(unloadedTiles.Count, MaxLoadTasks);
+                var numTasks = Math.Min(pendingTiles.Count, MaxLoadTasks);
 
                 if (numTasks > 0)
                 {
-                    if (Progress != null)
-                    {
-                        progressTotal = unloadedTiles.Count;
-                        progressLoaded = 0;
-                        Progress.Report(0d);
-                    }
-
                     if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
                     {
                         cacheName = null; // no tile caching
                     }
 
-                    return Task.WhenAll(Enumerable.Range(0, numTasks).Select(
-                        _ => Task.Run(() => LoadPendingTiles(unloadedTiles, tileSource, cacheName))));
-                }
-            }
+                    var progressLoaded = 0;
+                    var progressTotal = 0;
 
-            if (Progress != null && progressLoaded < progressTotal)
-            {
-                Progress.Report(1d);
+                    if (progress != null)
+                    {
+                        progressTotal = pendingTiles.Count;
+                        progress.Report(0d);
+                    }
+
+                    async Task LoadPendingTiles()
+                    {
+                        while (pendingTiles.TryDequeue(out var tile))
+                        {
+                            try
+                            {
+                                await LoadTile(tile, tileSource, cacheName).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
+                            }
+
+                            if (progress != null && !pendingTiles.IsCanceled)
+                            {
+                                Interlocked.Increment(ref progressLoaded);
+
+                                progress.Report((double)progressLoaded / progressTotal);
+                            }
+                        }
+                    }
+
+                    return Task.WhenAll(Enumerable.Range(0, numTasks).Select(_ => Task.Run(LoadPendingTiles)));
+                }
             }
 
             return Task.CompletedTask;
-        }
-
-        private async Task LoadPendingTiles(TileQueue tileQueue, TileSource tileSource, string cacheName)
-        {
-            while (tileQueue.TryDequeue(out var tile))
-            {
-                try
-                {
-                    await LoadTile(tile, tileSource, cacheName).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
-                }
-
-                if (Progress != null && !tileQueue.IsCanceled)
-                {
-                    Interlocked.Increment(ref progressLoaded);
-
-                    Progress.Report((double)progressLoaded / progressTotal);
-                }
-            }
         }
 
         private static Task LoadTile(Tile tile, TileSource tileSource, string cacheName)

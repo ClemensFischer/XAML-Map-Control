@@ -97,14 +97,16 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override Task UpdateTileLayer()
+        protected override Task UpdateTileLayer(bool tileSourceChanged)
         {
+            // tileSourceChanged is ignored here because it is always false.
+
             if (ParentMap == null ||
                 !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
             {
                 Children.Clear();
 
-                return LoadTiles(null); // stop TileImageLoader
+                return LoadTiles(null, null); // stop TileImageLoader
             }
 
             if (UpdateChildLayers(tileMatrixSet))
@@ -192,7 +194,7 @@ namespace MapControl
 
             var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
 
-            return TileImageLoader.LoadTiles(tiles, TileSource, cacheName);
+            return LoadTiles(tiles, cacheName);
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)

@@ -123,7 +123,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override Task UpdateTileLayer()
+        protected override Task UpdateTileLayer(bool tileSourceChanged)
         {
             var updateTiles = false;
 
@@ -134,7 +134,7 @@ namespace MapControl
             }
             else
             {
-                if (TileSource != TileImageLoader.TileSource)
+                if (tileSourceChanged)
                 {
                     Tiles = new TileCollection(); // clear all
                     updateTiles = true;
@@ -152,7 +152,7 @@ namespace MapControl
             {
                 UpdateTiles();
 
-                return TileImageLoader.LoadTiles(Tiles, TileSource, SourceName);
+                return LoadTiles(Tiles, SourceName);
             }
 
             return Task.CompletedTask;

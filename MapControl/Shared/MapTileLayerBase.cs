@@ -25,18 +25,14 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        IProgress<double> Progress { get; set; }
-
-        TileSource TileSource { get; }
-
-        Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName);
+        Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
     }
 
     public abstract class MapTileLayerBase : Panel, IMapLayer
     {
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
             nameof(TileSource), typeof(TileSource), typeof(MapTileLayerBase),
-            new PropertyMetadata(null, async (o, e) => await ((MapTileLayerBase)o).Update()));
+            new PropertyMetadata(null, async (o, e) => await ((MapTileLayerBase)o).Update(true)));
 
         public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
             nameof(SourceName), typeof(string), typeof(MapTileLayerBase), new PropertyMetadata(null));
@@ -63,6 +59,7 @@ namespace MapControl
         public static readonly DependencyProperty LoadingProgressProperty = DependencyProperty.Register(
             nameof(LoadingProgress), typeof(double), typeof(MapTileLayerBase), new PropertyMetadata(1d));
 
+        private readonly IProgress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
         private MapBase parentMap;
 
@@ -71,10 +68,11 @@ namespace MapControl
             RenderTransform = new MatrixTransform();
 
             TileImageLoader = tileImageLoader;
-            TileImageLoader.Progress = new Progress<double>(p => LoadingProgress = p);
+
+            loadingProgress = new Progress<double>(p => LoadingProgress = p);
 
             updateTimer = this.CreateTimer(UpdateInterval);
-            updateTimer.Tick += async (s, e) => await Update();
+            updateTimer.Tick += async (s, e) => await Update(false);
 
 #if WINUI || UWP
             MapPanel.InitMapElement(this);
@@ -193,20 +191,25 @@ namespace MapControl
 
         protected abstract void SetRenderTransform();
 
-        protected abstract Task UpdateTileLayer();
+        protected abstract Task UpdateTileLayer(bool tileSourceChanged);
 
-        private Task Update()
+        protected Task LoadTiles(IEnumerable<Tile> tiles, string cacheName)
+        {
+            return TileImageLoader.LoadTiles(tiles, TileSource, cacheName, loadingProgress);
+        }
+
+        private Task Update(bool tileSourceChanged)
         {
             updateTimer.Stop();
 
-            return UpdateTileLayer();
+            return UpdateTileLayer(tileSourceChanged);
         }
 
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (e.TransformCenterChanged || e.ProjectionChanged || Children.Count == 0)
             {
-                await Update(); // update immediately
+                await Update(false); // update immediately
             }
             else
             {

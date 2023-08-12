@@ -46,7 +46,7 @@ namespace MapControl
 
             if (buffer != null && buffer.Length > 0)
             {
-                await LoadTile(tile, () => ImageLoader.LoadImageAsync(buffer));
+                await LoadTile(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
             }
         }
 

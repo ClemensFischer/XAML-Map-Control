@@ -75,11 +75,7 @@ namespace MapControl
                 }
             }
 
-            if (!tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, callback))
-            {
-                tile.IsLoaded = false;
-                tcs.TrySetResult();
-            }
+            tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, callback);
 
             return tcs.Task;
         }

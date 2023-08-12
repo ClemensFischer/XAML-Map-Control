@@ -21,7 +21,7 @@ namespace MapControl
                 tile = new Tile(zoomLevel, x, y, columnCount);
 
                 var equivalentTile = this.FirstOrDefault(
-                    t => t.IsLoaded && t.ZoomLevel == tile.ZoomLevel && t.Column == tile.Column && t.Row == tile.Row);
+                    t => t.Image.Source != null && t.ZoomLevel == tile.ZoomLevel && t.Column == tile.Column && t.Row == tile.Row);
 
                 if (equivalentTile != null)
                 {
