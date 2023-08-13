@@ -97,7 +97,7 @@ namespace MapControl
                         progress.Report(0d);
                     }
 
-                    async Task LoadPendingTiles()
+                    async Task LoadTiles()
                     {
                         while (pendingTiles.TryDequeue(out var tile))
                         {
@@ -119,7 +119,7 @@ namespace MapControl
                         }
                     }
 
-                    return Task.WhenAll(Enumerable.Range(0, numTasks).Select(_ => Task.Run(LoadPendingTiles)));
+                    return Task.WhenAll(Enumerable.Range(0, numTasks).Select(_ => Task.Run(LoadTiles)));
                 }
             }
 
