@@ -177,7 +177,7 @@ namespace MapControl
         {
             var cacheName = SourceName;
 
-            if (tileMatrixSet != null && TileSource is WmtsTileSource tileSource)
+            if (TileSource is WmtsTileSource tileSource)
             {
                 tileSource.TileMatrixSet = tileMatrixSet;
 

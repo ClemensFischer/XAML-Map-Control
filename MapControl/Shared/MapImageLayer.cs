@@ -57,13 +57,13 @@ namespace MapControl
         public static readonly DependencyProperty LoadingProgressProperty = DependencyProperty.Register(
             nameof(LoadingProgress), typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
 
-        private readonly Progress<double> imageProgress;
+        private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
         private bool updateInProgress;
 
         public MapImageLayer()
         {
-            imageProgress = new Progress<double>(p => LoadingProgress = p);
+            loadingProgress = new Progress<double>(p => LoadingProgress = p);
 
             updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await UpdateImageAsync();
@@ -196,7 +196,7 @@ namespace MapControl
                 {
                     try
                     {
-                        image = await GetImageAsync(boundingBox, imageProgress);
+                        image = await GetImageAsync(boundingBox, loadingProgress);
                     }
                     catch (Exception ex)
                     {
