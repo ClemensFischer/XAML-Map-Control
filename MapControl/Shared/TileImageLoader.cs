@@ -82,10 +82,14 @@ namespace MapControl
 
                     var tileQueue = pendingTiles; // pendingTiles may change while LoadTilesFromQueue() is running
 
+                    progress?.Report(0d);
+
                     async Task LoadTilesFromQueue()
                     {
                         while (tileQueue.TryDequeue(out var tile))
                         {
+                            progress?.Report((double)(tileCount - tileQueue.Count) / tileCount);
+
                             try
                             {
                                 await LoadTile(tile, tileSource, cacheName).ConfigureAwait(false);
@@ -94,12 +98,8 @@ namespace MapControl
                             {
                                 Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
                             }
-
-                            progress?.Report((double)(tileCount - tileQueue.Count) / tileCount);
                         }
                     }
-
-                    progress?.Report(0d);
 
                     return Task.WhenAll(Enumerable.Range(0, taskCount).Select(_ => Task.Run(LoadTilesFromQueue)));
                 }
