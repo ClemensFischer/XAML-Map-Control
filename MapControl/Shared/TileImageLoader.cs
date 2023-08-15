@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl
@@ -26,31 +25,23 @@ namespace MapControl
             {
             }
 
-            public bool IsCanceled { get; private set; }
-
             public bool TryDequeue(out Tile tile)
             {
-                if (IsCanceled || !TryPop(out tile))
+                if (TryPop(out tile))
                 {
-                    tile = null;
-                    return false;
+                    tile.IsPending = false;
+                    return true;
                 }
 
-                tile.IsPending = false;
-                return true;
-            }
-
-            public void Cancel()
-            {
-                IsCanceled = true;
-                Clear();
+                tile = null;
+                return false;
             }
         }
 
         /// <summary>
         /// Maximum number of parallel tile loading tasks. The default value is 4.
         /// </summary>
-        public static int MaxLoadTasks { get; set; } = 4;
+        public static int MaxLoadTasks { get; set; } = 1;
 
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
@@ -73,33 +64,29 @@ namespace MapControl
         /// </summary>
         public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            pendingTiles?.Cancel();
+            pendingTiles?.Clear();
 
             if (tiles != null && tileSource != null)
             {
                 pendingTiles = new TileQueue(tiles);
 
-                var numTasks = Math.Min(pendingTiles.Count, MaxLoadTasks);
+                var tileCount = pendingTiles.Count;
+                var taskCount = Math.Min(tileCount, MaxLoadTasks);
 
-                if (numTasks > 0)
+                if (taskCount > 0)
                 {
                     if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
                     {
                         cacheName = null; // no tile caching
                     }
 
-                    var progressLoaded = 0;
-                    var progressTotal = 0;
+                    progress?.Report(0d);
 
-                    if (progress != null)
-                    {
-                        progressTotal = pendingTiles.Count;
-                        progress.Report(0d);
-                    }
+                    var tileQueue = pendingTiles; // pendingTiles may change while LoadTilesFromQueue() is running
 
-                    async Task LoadTiles()
+                    async Task LoadTilesFromQueue()
                     {
-                        while (pendingTiles.TryDequeue(out var tile))
+                        while (tileQueue.TryDequeue(out var tile))
                         {
                             try
                             {
@@ -110,16 +97,11 @@ namespace MapControl
                                 Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
                             }
 
-                            if (progress != null && !pendingTiles.IsCanceled)
-                            {
-                                Interlocked.Increment(ref progressLoaded);
-
-                                progress.Report((double)progressLoaded / progressTotal);
-                            }
+                            progress?.Report((double)(tileCount - tileQueue.Count) / tileCount);
                         }
                     }
 
-                    return Task.WhenAll(Enumerable.Range(0, numTasks).Select(_ => Task.Run(LoadTiles)));
+                    return Task.WhenAll(Enumerable.Range(0, taskCount).Select(_ => Task.Run(LoadTilesFromQueue)));
                 }
             }
 
