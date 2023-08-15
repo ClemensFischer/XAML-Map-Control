@@ -80,8 +80,6 @@ namespace MapControl
                         cacheName = null; // no tile caching
                     }
 
-                    progress?.Report(0d);
-
                     var tileQueue = pendingTiles; // pendingTiles may change while LoadTilesFromQueue() is running
 
                     async Task LoadTilesFromQueue()
@@ -100,6 +98,8 @@ namespace MapControl
                             progress?.Report((double)(tileCount - tileQueue.Count) / tileCount);
                         }
                     }
+
+                    progress?.Report(0d);
 
                     return Task.WhenAll(Enumerable.Range(0, taskCount).Select(_ => Task.Run(LoadTilesFromQueue)));
                 }
