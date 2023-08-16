@@ -58,7 +58,7 @@ namespace MapControl
         private TileQueue pendingTiles;
 
         /// <summary>
-        /// Loads all unloaded tiles from the tiles collection.
+        /// Loads all pending tiles from the tiles collection.
         /// If tileSource.UriFormat starts with "http" and cacheName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache - if that is not null.
         /// </summary>
@@ -80,9 +80,10 @@ namespace MapControl
                         cacheName = null; // no tile caching
                     }
 
-                    var tileQueue = pendingTiles; // pendingTiles may change while LoadTilesFromQueue() is running
-
                     progress?.Report(0d);
+
+                    var tileQueue = pendingTiles; // pendingTiles may change while tasks are running
+                    var tasks = new Task[taskCount];
 
                     async Task LoadTilesFromQueue()
                     {
@@ -101,7 +102,12 @@ namespace MapControl
                         }
                     }
 
-                    return Task.WhenAll(Enumerable.Range(0, taskCount).Select(_ => Task.Run(LoadTilesFromQueue)));
+                    for (int i = 0; i < taskCount; i++)
+                    {
+                        tasks[i] = Task.Run(LoadTilesFromQueue);
+                    }
+
+                    return Task.WhenAll(tasks);
                 }
             }
 
