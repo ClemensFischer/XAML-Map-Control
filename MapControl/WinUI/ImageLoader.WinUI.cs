@@ -24,10 +24,20 @@ namespace MapControl
     {
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
+            // WinUI BitmapImage produces visual artifacts with Bing Maps Aerial (or all JPEG?)
+            // images in a tile raster, where thin white lines may appear as gaps between tiles
+#if WINUI
+            var image = new SoftwareBitmapSource();
+            var decoder = await BitmapDecoder.CreateAsync(stream);
+
+            using (var bitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+            {
+                await image.SetBitmapAsync(bitmap);
+            }
+#else
             var image = new BitmapImage();
-
             await image.SetSourceAsync(stream);
-
+#endif
             return image;
         }
 
@@ -40,7 +50,7 @@ namespace MapControl
         {
             using (var stream = new MemoryStream(buffer))
             {
-                // Must await method before closing the stream.
+                // Method call must be awaited before closing the stream.
                 //
                 return await LoadImageAsync(stream);
             }
