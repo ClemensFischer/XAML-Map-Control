@@ -22,6 +22,8 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
+        private static readonly BitmapTransform defaultBitmapTransform = new BitmapTransform();
+
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
             // WinUI BitmapImage produces visual artifacts with Bing Maps Aerial (or all JPEG?)
@@ -30,7 +32,12 @@ namespace MapControl
             var image = new SoftwareBitmapSource();
             var decoder = await BitmapDecoder.CreateAsync(stream);
 
-            using (var bitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+            using (var bitmap = await decoder.GetSoftwareBitmapAsync(
+                BitmapPixelFormat.Bgra8,
+                BitmapAlphaMode.Premultiplied,
+                defaultBitmapTransform,
+                ExifOrientationMode.IgnoreExifOrientation,
+                ColorManagementMode.DoNotColorManage))
             {
                 await image.SetBitmapAsync(bitmap);
             }
@@ -50,8 +57,6 @@ namespace MapControl
         {
             using (var stream = new MemoryStream(buffer))
             {
-                // Method call must be awaited before closing the stream.
-                //
                 return await LoadImageAsync(stream);
             }
         }
@@ -121,7 +126,7 @@ namespace MapControl
             var pixelData = await decoder.GetPixelDataAsync(
                 BitmapPixelFormat.Bgra8,
                 BitmapAlphaMode.Straight,
-                new BitmapTransform(),
+                defaultBitmapTransform,
                 ExifOrientationMode.IgnoreExifOrientation,
                 ColorManagementMode.DoNotColorManage);
 
