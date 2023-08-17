@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -22,30 +21,29 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        private static readonly BitmapTransform defaultBitmapTransform = new BitmapTransform();
+        public static async Task<WriteableBitmap> LoadImageAsync(BitmapDecoder decoder)
+        {
+            var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
+            var pixelData = await decoder.GetPixelDataAsync(
+                BitmapPixelFormat.Bgra8, BitmapAlphaMode.Straight, new BitmapTransform(),
+                ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
+            var pixels = pixelData.DetachPixelData();
+
+            using (var pixelStream = image.PixelBuffer.AsStream())
+            {
+                await pixelStream.WriteAsync(pixels, 0, pixels.Length);
+            }
+
+            return image;
+        }
 
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
             // WinUI BitmapImage produces visual artifacts with Bing Maps Aerial (or all JPEG?)
-            // images in a tile raster, where thin white lines may appear as gaps between tiles
-#if WINUI
-            var image = new SoftwareBitmapSource();
-            var decoder = await BitmapDecoder.CreateAsync(stream);
+            // images in a tile raster, where thin white lines may appear as gaps between tiles.
+            // Alternatives are SoftwareBitmapSource or WriteableBitmap.
 
-            using (var bitmap = await decoder.GetSoftwareBitmapAsync(
-                BitmapPixelFormat.Bgra8,
-                BitmapAlphaMode.Premultiplied,
-                defaultBitmapTransform,
-                ExifOrientationMode.IgnoreExifOrientation,
-                ColorManagementMode.DoNotColorManage))
-            {
-                await image.SetBitmapAsync(bitmap);
-            }
-#else
-            var image = new BitmapImage();
-            await image.SetSourceAsync(stream);
-#endif
-            return image;
+            return await LoadImageAsync(await BitmapDecoder.CreateAsync(stream));
         }
 
         public static Task<ImageSource> LoadImageAsync(Stream stream)
@@ -80,68 +78,7 @@ namespace MapControl
             return image;
         }
 
-        public static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri, IProgress<double> progress = null)
-        {
-            WriteableBitmap image = null;
-
-            progress?.Report(0d);
-
-            try
-            {
-                if (!uri.IsAbsoluteUri || uri.IsFile)
-                {
-                    var file = await StorageFile.GetFileFromPathAsync(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
-
-                    using (var stream = await file.OpenReadAsync())
-                    {
-                        image = await LoadWriteableBitmapAsync(stream);
-                    }
-                }
-                else if (uri.Scheme == "http" || uri.Scheme == "https")
-                {
-                    var response = await GetHttpResponseAsync(uri, progress);
-
-                    if (response != null && response.Buffer != null)
-                    {
-                        using (var stream = new MemoryStream(response.Buffer))
-                        {
-                            image = await LoadWriteableBitmapAsync(stream.AsRandomAccessStream());
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
-            }
-
-            progress?.Report(1d);
-
-            return image;
-        }
-
-        public static async Task<WriteableBitmap> LoadWriteableBitmapAsync(IRandomAccessStream stream)
-        {
-            var decoder = await BitmapDecoder.CreateAsync(stream);
-            var pixelData = await decoder.GetPixelDataAsync(
-                BitmapPixelFormat.Bgra8,
-                BitmapAlphaMode.Straight,
-                defaultBitmapTransform,
-                ExifOrientationMode.IgnoreExifOrientation,
-                ColorManagementMode.DoNotColorManage);
-
-            var pixels = pixelData.DetachPixelData();
-            var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
-
-            using (var pixelStream = image.PixelBuffer.AsStream())
-            {
-                await pixelStream.WriteAsync(pixels, 0, pixels.Length);
-            }
-
-            return image;
-        }
-
-        internal static async Task<WriteableBitmap> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
+        internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
             WriteableBitmap image = null;
             IProgress<double> progress1 = null;
@@ -155,21 +92,18 @@ namespace MapControl
                 progress2 = new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); });
             }
 
-            var images = await Task.WhenAll(
-                LoadWriteableBitmapAsync(uri1, progress1),
-                LoadWriteableBitmapAsync(uri2, progress2));
+            var images = await Task.WhenAll(LoadImageAsync(uri1, progress1), LoadImageAsync(uri2, progress2));
+            var image1 = (WriteableBitmap)images[0];
+            var image2 = (WriteableBitmap)images[1];
 
-            if (images.Length == 2 &&
-                images[0] != null &&
-                images[1] != null &&
-                images[0].PixelHeight == images[1].PixelHeight)
+            if (image1.PixelHeight == image2.PixelHeight)
             {
-                var width = images[0].PixelWidth + images[1].PixelWidth;
-                var height = images[1].PixelHeight;
-                var stride1 = images[0].PixelWidth * 4;
-                var stride2 = images[1].PixelWidth * 4;
-                var buffer1 = images[0].PixelBuffer.ToArray();
-                var buffer2 = images[1].PixelBuffer.ToArray();
+                var width = image1.PixelWidth + image2.PixelWidth;
+                var height = image2.PixelHeight;
+                var stride1 = image1.PixelWidth * 4;
+                var stride2 = image2.PixelWidth * 4;
+                var buffer1 = image1.PixelBuffer.ToArray();
+                var buffer2 = image2.PixelBuffer.ToArray();
 
                 image = new WriteableBitmap(width, height);
 

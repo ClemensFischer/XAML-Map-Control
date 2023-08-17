@@ -6,11 +6,6 @@ using System;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
-#if WINUI
-using Microsoft.UI.Xaml.Media.Imaging;
-#else
-using Windows.UI.Xaml.Media.Imaging;
-#endif
 
 namespace MapControl
 {
@@ -22,17 +17,11 @@ namespace MapControl
 
             using (var stream = await file.OpenReadAsync())
             {
-                WriteableBitmap bitmap;
                 Matrix transform;
                 MapProjection projection = null;
 
                 var decoder = await BitmapDecoder.CreateAsync(stream);
-
-                using (var swbmp = await decoder.GetSoftwareBitmapAsync())
-                {
-                    bitmap = new WriteableBitmap(swbmp.PixelWidth, swbmp.PixelHeight);
-                    swbmp.CopyToBuffer(bitmap.PixelBuffer);
-                }
+                var bitmap = await ImageLoader.LoadImageAsync(decoder);
 
                 var geoKeyDirectoryQuery = QueryString(GeoKeyDirectoryTag);
                 var pixelScaleQuery = QueryString(ModelPixelScaleTag);
