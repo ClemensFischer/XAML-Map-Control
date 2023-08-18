@@ -99,22 +99,21 @@ namespace MapControl
                 images[1] is WriteableBitmap image2 &&
                 image1.PixelHeight == image2.PixelHeight)
             {
-                var width = image1.PixelWidth + image2.PixelWidth;
-                var height = image2.PixelHeight;
-                var stride1 = image1.PixelWidth * 4;
-                var stride2 = image2.PixelWidth * 4;
-                var buffer1 = image1.PixelBuffer.ToArray();
-                var buffer2 = image2.PixelBuffer.ToArray();
+                var buffer1 = image1.PixelBuffer;
+                var buffer2 = image2.PixelBuffer;
+                var stride1 = (uint)image1.PixelWidth * 4;
+                var stride2 = (uint)image2.PixelWidth * 4;
+                var stride = stride1 + stride2;
+                var height = image1.PixelHeight;
 
-                image = new WriteableBitmap(width, height);
+                image = new WriteableBitmap(image1.PixelWidth + image2.PixelWidth, height);
 
-                using (var pixelStream = image.PixelBuffer.AsStream())
+                var buffer = image.PixelBuffer;
+
+                for (uint y = 0; y < height; y++)
                 {
-                    for (var y = 0; y < height; y++)
-                    {
-                        await pixelStream.WriteAsync(buffer1, y * stride1, stride1);
-                        await pixelStream.WriteAsync(buffer2, y * stride2, stride2);
-                    }
+                    buffer1.CopyTo(y * stride1, buffer, y * stride, stride1);
+                    buffer2.CopyTo(y * stride2, buffer, y * stride + stride1, stride2);
                 }
             }
 
