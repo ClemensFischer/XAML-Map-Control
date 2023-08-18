@@ -25,7 +25,7 @@ namespace MapControl
         {
             var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
             var pixelData = await decoder.GetPixelDataAsync(
-                BitmapPixelFormat.Bgra8, BitmapAlphaMode.Straight, new BitmapTransform(),
+                BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
                 ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
             var pixels = pixelData.DetachPixelData();
 
@@ -110,10 +110,10 @@ namespace MapControl
 
                 using (var pixelStream = image.PixelBuffer.AsStream())
                 {
-                    for (var i = 0; i < height; i++)
+                    for (var y = 0; y < height; y++)
                     {
-                        await pixelStream.WriteAsync(buffer1, i * stride1, stride1);
-                        await pixelStream.WriteAsync(buffer2, i * stride2, stride2);
+                        await pixelStream.WriteAsync(buffer1, y * stride1, stride1);
+                        await pixelStream.WriteAsync(buffer2, y * stride2, stride2);
                     }
                 }
             }
