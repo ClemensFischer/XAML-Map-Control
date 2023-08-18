@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -12,20 +13,22 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
+        public static ImageSource LoadImage(Stream stream)
         {
-            return Task.Run(() => LoadImage(stream));
+            var image = new BitmapImage();
+
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.StreamSource = stream;
+            image.EndInit();
+            image.Freeze();
+
+            return image;
         }
 
-        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            return Task.Run(() =>
-            {
-                using (var stream = new MemoryStream(buffer))
-                {
-                    return LoadImage(stream);
-                }
-            });
+            return Task.FromResult(LoadImage(stream));
         }
 
         public static Task<ImageSource> LoadImageAsync(string path)
@@ -44,22 +47,9 @@ namespace MapControl
             });
         }
 
-        private static ImageSource LoadImage(Stream stream)
-        {
-            var bitmapImage = new BitmapImage();
-
-            bitmapImage.BeginInit();
-            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-            bitmapImage.StreamSource = stream;
-            bitmapImage.EndInit();
-            bitmapImage.Freeze();
-
-            return bitmapImage;
-        }
-
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
-            ImageSource image = null;
+            WriteableBitmap image = null;
             IProgress<double> progress1 = null;
             IProgress<double> progress2 = null;
 
@@ -81,25 +71,21 @@ namespace MapControl
                 image1.Format.BitsPerPixel % 8 == 0)
             {
                 var format = image1.Format;
-                var width = image1.PixelWidth + image2.PixelWidth;
                 var height = image1.PixelHeight;
-                var stride1 = image1.PixelWidth * format.BitsPerPixel / 8;
-                var stride2 = image2.PixelWidth * format.BitsPerPixel / 8;
+                var width1 = image1.PixelWidth;
+                var width2 = image2.PixelWidth;
+                var stride1 = width1 * format.BitsPerPixel / 8;
+                var stride2 = width2 * format.BitsPerPixel / 8;
                 var buffer1 = new byte[stride1 * height];
                 var buffer2 = new byte[stride2 * height];
-                var stride = stride1 + stride2;
-                var buffer = new byte[stride * height];
 
                 image1.CopyPixels(buffer1, stride1, 0);
                 image2.CopyPixels(buffer2, stride2, 0);
 
-                for (var i = 0; i < height; i++)
-                {
-                    Array.Copy(buffer1, i * stride1, buffer, i * stride, stride1);
-                    Array.Copy(buffer2, i * stride2, buffer, i * stride + stride1, stride2);
-                }
-
-                image = BitmapSource.Create(width, height, 96, 96, format, null, buffer, stride);
+                image = new WriteableBitmap(width1 + width2, height, 96, 96, format, null);
+                image.WritePixels(new Int32Rect(0, 0, width1, height), buffer1, stride1, 0);
+                image.WritePixels(new Int32Rect(width1, 0, width2, height), buffer2, stride2, 0);
+                image.Freeze();
             }
 
             return image;
