@@ -93,10 +93,11 @@ namespace MapControl
             }
 
             var images = await Task.WhenAll(LoadImageAsync(uri1, progress1), LoadImageAsync(uri2, progress2));
-            var image1 = (WriteableBitmap)images[0];
-            var image2 = (WriteableBitmap)images[1];
 
-            if (image1.PixelHeight == image2.PixelHeight)
+            if (images.Length == 2 &&
+                images[0] is WriteableBitmap image1 &&
+                images[1] is WriteableBitmap image2 &&
+                image1.PixelHeight == image2.PixelHeight)
             {
                 var width = image1.PixelWidth + image2.PixelWidth;
                 var height = image2.PixelHeight;
