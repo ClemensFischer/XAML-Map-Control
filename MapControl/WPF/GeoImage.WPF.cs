@@ -13,7 +13,7 @@ namespace MapControl
 {
     public partial class GeoImage
     {
-        private static async Task<GeoBitmap> ReadGeoTiff(string sourcePath)
+        private static async Task<GeoBitmap> ReadGeoTiffAsync(string sourcePath)
         {
             return await Task.Run(() =>
             {

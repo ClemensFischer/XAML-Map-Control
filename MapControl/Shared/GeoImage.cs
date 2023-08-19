@@ -86,13 +86,13 @@ namespace MapControl
 
                     if (File.Exists(worldFilePath))
                     {
-                        geoBitmap = await ReadWorldFileImage(sourcePath, worldFilePath);
+                        geoBitmap = await ReadWorldFileImageAsync(sourcePath, worldFilePath);
                     }
                 }
 
                 if (geoBitmap == null)
                 {
-                    geoBitmap = await ReadGeoTiff(sourcePath);
+                    geoBitmap = await ReadGeoTiffAsync(sourcePath);
                 }
 
                 image = new Image
@@ -136,7 +136,7 @@ namespace MapControl
             MapPanel.SetBoundingBox(this, boundingBox);
         }
 
-        private static async Task<GeoBitmap> ReadWorldFileImage(string sourcePath, string worldFilePath)
+        private static async Task<GeoBitmap> ReadWorldFileImageAsync(string sourcePath, string worldFilePath)
         {
             var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
 

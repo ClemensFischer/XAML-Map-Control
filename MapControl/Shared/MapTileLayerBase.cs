@@ -25,7 +25,7 @@ namespace MapControl
 {
     public interface ITileImageLoader
     {
-        Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
+        Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
     }
 
     public abstract class MapTileLayerBase : Panel, IMapLayer
@@ -195,7 +195,7 @@ namespace MapControl
 
         protected Task LoadTiles(IEnumerable<Tile> tiles, string cacheName)
         {
-            return TileImageLoader.LoadTiles(tiles, TileSource, cacheName, loadingProgress);
+            return TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress);
         }
 
         private Task Update(bool tileSourceChanged)

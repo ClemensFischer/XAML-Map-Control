@@ -33,7 +33,7 @@ namespace MapControl
         public static Caching.IImageCache Cache { get; set; }
 
 
-        private static async Task LoadCachedTile(Tile tile, Uri uri, string cacheKey)
+        private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheKey)
         {
             var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
             var buffer = cacheItem?.Item1;
@@ -53,11 +53,11 @@ namespace MapControl
 
             if (buffer != null && buffer.Length > 0)
             {
-                await LoadTile(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
+                await LoadTileAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
             }
         }
 
-        private static async Task LoadTile(Tile tile, Func<Task<ImageSource>> loadImageFunc)
+        private static async Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource<object>();
 

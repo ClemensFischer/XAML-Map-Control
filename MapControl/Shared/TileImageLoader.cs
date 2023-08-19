@@ -62,7 +62,7 @@ namespace MapControl
         /// If tileSource.UriFormat starts with "http" and cacheName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache - if that is not null.
         /// </summary>
-        public Task LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
+        public Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
             pendingTiles?.Clear();
 
@@ -85,7 +85,7 @@ namespace MapControl
                     var tileQueue = pendingTiles; // pendingTiles may change while tasks are running
                     var tasks = new Task[taskCount];
 
-                    async Task LoadTilesFromQueue()
+                    async Task LoadTilesFromQueueAsync()
                     {
                         while (tileQueue.TryDequeue(out var tile))
                         {
@@ -93,7 +93,7 @@ namespace MapControl
 
                             try
                             {
-                                await LoadTile(tile, tileSource, cacheName).ConfigureAwait(false);
+                                await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
                             }
                             catch (Exception ex)
                             {
@@ -104,7 +104,7 @@ namespace MapControl
 
                     for (int i = 0; i < taskCount; i++)
                     {
-                        tasks[i] = Task.Run(LoadTilesFromQueue);
+                        tasks[i] = Task.Run(LoadTilesFromQueueAsync);
                     }
 
                     return Task.WhenAll(tasks);
@@ -114,11 +114,11 @@ namespace MapControl
             return Task.CompletedTask;
         }
 
-        private static Task LoadTile(Tile tile, TileSource tileSource, string cacheName)
+        private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
             if (string.IsNullOrEmpty(cacheName))
             {
-                return LoadTile(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
+                return LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
             }
 
             var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
@@ -135,7 +135,7 @@ namespace MapControl
                 var cacheKey = string.Format(CultureInfo.InvariantCulture,
                     "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.Column, tile.Row, extension);
 
-                return LoadCachedTile(tile, uri, cacheKey);
+                return LoadCachedTileAsync(tile, uri, cacheKey);
             }
 
             return Task.CompletedTask;

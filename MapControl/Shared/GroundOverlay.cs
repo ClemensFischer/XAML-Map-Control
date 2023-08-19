@@ -56,8 +56,7 @@ namespace MapControl
         }
 
         public static readonly DependencyProperty SourcePathProperty = DependencyProperty.Register(
-            nameof(SourcePath), typeof(string), typeof(GroundOverlay),
-            new PropertyMetadata(null, async (o, e) => await ((GroundOverlay)o).SourcePathPropertyChanged((string)e.NewValue)));
+            nameof(SourcePath), typeof(string), typeof(GroundOverlay), new PropertyMetadata(null, SourcePathPropertyChanged));
 
         public string SourcePath
         {
@@ -65,8 +64,10 @@ namespace MapControl
             set => SetValue(SourcePathProperty, value);
         }
 
-        private async Task SourcePathPropertyChanged(string sourcePath)
+        private static async void SourcePathPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
+            var groundOverlay = (GroundOverlay)obj;
+            var sourcePath = (string)e.NewValue;
             IEnumerable<ImageOverlay> imageOverlays = null;
 
             if (!string.IsNullOrEmpty(sourcePath))
@@ -90,11 +91,11 @@ namespace MapControl
                 }
             }
 
-            Children.Clear();
+            groundOverlay.Children.Clear();
 
             if (imageOverlays != null)
             {
-                AddImageOverlays(imageOverlays);
+                groundOverlay.AddImageOverlays(imageOverlays);
             }
         }
 
