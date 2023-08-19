@@ -27,13 +27,8 @@ namespace MapControl
             var pixelData = await decoder.GetPixelDataAsync(
                 BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
                 ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
-            var pixels = pixelData.DetachPixelData();
 
-            using (var pixelStream = image.PixelBuffer.AsStream())
-            {
-                await pixelStream.WriteAsync(pixels, 0, pixels.Length);
-            }
-
+            pixelData.DetachPixelData().CopyTo(image.PixelBuffer);
             return image;
         }
 
@@ -49,6 +44,22 @@ namespace MapControl
         public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
             return LoadImageAsync(stream.AsRandomAccessStream());
+        }
+
+        public static async Task<ImageSource> LoadImageAsync(IBuffer buffer)
+        {
+            using (var stream = new InMemoryRandomAccessStream())
+            {
+                await stream.WriteAsync(buffer);
+                stream.Seek(0);
+
+                return await LoadImageAsync(stream);
+            }
+        }
+
+        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        {
+            return LoadImageAsync(buffer.AsBuffer());
         }
 
         public static async Task<ImageSource> LoadImageAsync(string path)

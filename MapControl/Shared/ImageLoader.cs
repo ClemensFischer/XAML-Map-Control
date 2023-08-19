@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -64,14 +63,6 @@ namespace MapControl
             progress?.Report(1d);
 
             return image;
-        }
-
-        public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            using (var stream = new MemoryStream(buffer))
-            {
-                return await LoadImageAsync(stream);
-            }
         }
 
         internal class HttpResponse
