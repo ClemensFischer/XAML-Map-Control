@@ -31,14 +31,6 @@ namespace MapControl
             return Task.FromResult(LoadImage(stream));
         }
 
-        public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            using (var stream = new MemoryStream(buffer))
-            {
-                return await LoadImageAsync(stream);
-            }
-        }
-
         public static Task<ImageSource> LoadImageAsync(string path)
         {
             return Task.Run(() =>

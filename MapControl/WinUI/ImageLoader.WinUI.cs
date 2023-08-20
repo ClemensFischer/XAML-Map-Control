@@ -21,32 +21,35 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static async Task<ImageSource> LoadImageAsync(BitmapDecoder decoder)
+#if false
+        public static async Task<SoftwareBitmapSource> LoadImageAsync(BitmapDecoder decoder)
         {
-#if USE_SOFTWAREBITMAP
             var image = new SoftwareBitmapSource();
             var bitmap = await decoder.GetSoftwareBitmapAsync(
                 BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
                 ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
 
             await image.SetBitmapAsync(bitmap);
+            return image;
+        }
 #else
+        public static async Task<WriteableBitmap> LoadImageAsync(BitmapDecoder decoder)
+        {
             var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
             var pixelData = await decoder.GetPixelDataAsync(
                 BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
                 ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
 
             pixelData.DetachPixelData().CopyTo(image.PixelBuffer);
-#endif
             return image;
         }
-
+#endif
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
             // WinUI BitmapImage produces visual artifacts with Bing Maps Aerial (or all JPEG?)
             // images in a tile raster, where thin white lines may appear as gaps between tiles.
             // Alternatives are SoftwareBitmapSource or WriteableBitmap.
-#if USE_BITMAPIMAGE
+#if false
             var image = new BitmapImage();
             await image.SetSourceAsync(stream);
             return image;
@@ -58,22 +61,6 @@ namespace MapControl
         public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
             return LoadImageAsync(stream.AsRandomAccessStream());
-        }
-
-        public static async Task<ImageSource> LoadImageAsync(IBuffer buffer)
-        {
-            using (var stream = new InMemoryRandomAccessStream())
-            {
-                await stream.WriteAsync(buffer);
-                stream.Seek(0);
-
-                return await LoadImageAsync(stream);
-            }
-        }
-
-        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            return LoadImageAsync(buffer.AsBuffer());
         }
 
         public static async Task<ImageSource> LoadImageAsync(string path)
