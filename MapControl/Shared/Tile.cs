@@ -40,26 +40,22 @@ namespace MapControl
 
         public Image Image { get; } = new Image
         {
-            Opacity = 0d,
             Stretch = Stretch.Fill,
             IsHitTestVisible = false // avoid touch capture issues
         };
 
         public bool IsPending { get; set; } = true;
 
-        public void SetImageSource(ImageSource image, bool animateOpacity = true)
+        public void SetImageSource(ImageSource image)
         {
             IsPending = false;
-            Image.Source = image;
 
-            if (image != null && animateOpacity && MapBase.ImageFadeDuration > TimeSpan.Zero)
+            if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
-                AnimateImageOpacity();
+                AnimateImageOpacity(image);
             }
-            else
-            {
-                Image.Opacity = 1d;
-            }
+
+            Image.Source = image;
         }
 
         private void BeginOpacityAnimation()

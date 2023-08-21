@@ -25,7 +25,8 @@ namespace MapControl
 
                 if (equivalentTile != null)
                 {
-                    tile.SetImageSource(equivalentTile.Image.Source, false); // no opacity animation
+                    tile.IsPending = false;
+                    tile.Image.Source = equivalentTile.Image.Source; // no opacity animation
                 }
             }
 

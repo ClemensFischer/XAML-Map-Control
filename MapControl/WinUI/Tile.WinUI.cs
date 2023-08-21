@@ -4,9 +4,11 @@
 
 #if WINUI
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 #else
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #endif
 
@@ -14,9 +16,9 @@ namespace MapControl
 {
     public partial class Tile
     {
-        private void AnimateImageOpacity()
+        private void AnimateImageOpacity(ImageSource image)
         {
-            if (Image.Source is BitmapImage bitmap && bitmap.UriSource != null)
+            if (image is BitmapImage bitmap && bitmap.UriSource != null)
             {
                 bitmap.ImageOpened += BitmapImageOpened;
                 bitmap.ImageFailed += BitmapImageFailed;
