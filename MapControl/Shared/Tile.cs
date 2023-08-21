@@ -67,8 +67,6 @@ namespace MapControl
                 Duration = MapBase.ImageFadeDuration,
                 FillBehavior = FillBehavior.Stop
             });
-
-            Image.Opacity = 1d;
         }
     }
 }
