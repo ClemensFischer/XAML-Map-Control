@@ -4,11 +4,9 @@
 
 #if WINUI
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 #else
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #endif
 
