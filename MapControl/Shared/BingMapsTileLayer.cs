@@ -30,12 +30,6 @@ namespace MapControl
         }
 
         public BingMapsTileLayer()
-            : this(new TileImageLoader())
-        {
-        }
-
-        public BingMapsTileLayer(ITileImageLoader tileImageLoader)
-            : base(tileImageLoader)
         {
             MinZoomLevel = 1;
             MaxZoomLevel = 21;

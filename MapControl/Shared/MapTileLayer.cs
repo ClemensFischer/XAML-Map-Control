@@ -48,16 +48,6 @@ namespace MapControl
         public static readonly DependencyProperty ZoomLevelOffsetProperty = DependencyProperty.Register(
             nameof(ZoomLevelOffset), typeof(double), typeof(MapTileLayer), new PropertyMetadata(0d));
 
-        public MapTileLayer()
-            : this(new TileImageLoader())
-        {
-        }
-
-        public MapTileLayer(ITileImageLoader tileImageLoader)
-            : base(tileImageLoader)
-        {
-        }
-
         public TileMatrix TileMatrix { get; private set; }
 
         public TileCollection Tiles { get; private set; } = new TileCollection();

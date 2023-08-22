@@ -16,9 +16,9 @@ namespace MapControl
 {
     public partial class Tile
     {
-        private void AnimateImageOpacity(ImageSource image)
+        private void AnimateImageOpacity()
         {
-            if (image is BitmapImage bitmap && bitmap.UriSource != null)
+            if (Image.Source is BitmapImage bitmap && bitmap.UriSource != null)
             {
                 bitmap.ImageOpened += BitmapImageOpened;
                 bitmap.ImageFailed += BitmapImageFailed;

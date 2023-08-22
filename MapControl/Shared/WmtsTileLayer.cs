@@ -35,12 +35,6 @@ namespace MapControl
             nameof(PreferredTileMatrixSets), typeof(string[]), typeof(WmtsTileLayer), new PropertyMetadata(null));
 
         public WmtsTileLayer()
-            : this(new TileImageLoader())
-        {
-        }
-
-        public WmtsTileLayer(ITileImageLoader tileImageLoader)
-            : base(tileImageLoader)
         {
             Loaded += OnLoaded;
         }

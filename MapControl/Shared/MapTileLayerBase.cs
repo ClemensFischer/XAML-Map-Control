@@ -61,13 +61,12 @@ namespace MapControl
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
+        private ITileImageLoader tileImageLoader;
         private MapBase parentMap;
 
-        protected MapTileLayerBase(ITileImageLoader tileImageLoader)
+        protected MapTileLayerBase()
         {
             RenderTransform = new MatrixTransform();
-
-            TileImageLoader = tileImageLoader;
 
             loadingProgress = new Progress<double>(p => LoadingProgress = p);
 
@@ -79,7 +78,11 @@ namespace MapControl
 #endif
         }
 
-        public ITileImageLoader TileImageLoader { get; }
+        public ITileImageLoader TileImageLoader
+        {
+            get => tileImageLoader ?? (tileImageLoader = new TileImageLoader());
+            set => tileImageLoader = value;
+        }
 
         /// <summary>
         /// Provides map tile URIs or images.

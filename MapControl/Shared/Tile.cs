@@ -49,13 +49,12 @@ namespace MapControl
         public void SetImageSource(ImageSource image)
         {
             IsPending = false;
+            Image.Source = image;
 
             if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
-                AnimateImageOpacity(image);
+                AnimateImageOpacity();
             }
-
-            Image.Source = image;
         }
 
         private void BeginOpacityAnimation()
