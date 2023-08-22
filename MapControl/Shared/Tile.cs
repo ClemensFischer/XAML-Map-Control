@@ -64,7 +64,6 @@ namespace MapControl
                 new DoubleAnimation
                 {
                     From = 0d,
-                    To = 1d,
                     Duration = MapBase.ImageFadeDuration,
                     FillBehavior = FillBehavior.Stop
                 });
