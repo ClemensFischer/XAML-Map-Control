@@ -16,8 +16,6 @@ namespace SampleApplication
     {
         static MainWindow()
         {
-            ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
-
             TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
