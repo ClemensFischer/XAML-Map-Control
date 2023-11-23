@@ -22,16 +22,6 @@ namespace MapControl.MBTiles
             nameof(File), typeof(string), typeof(MBTileLayer),
             new PropertyMetadata(null, async (o, e) => await ((MBTileLayer)o).FilePropertyChanged((string)e.NewValue)));
 
-        public MBTileLayer()
-            : this(new TileImageLoader())
-        {
-        }
-
-        public MBTileLayer(ITileImageLoader tileImageLoader)
-            : base(tileImageLoader)
-        {
-        }
-
         public string File
         {
             get => (string)GetValue(FileProperty);

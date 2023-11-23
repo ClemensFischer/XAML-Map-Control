@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net7.0-windows;net6.0-windows;net48;net462</TargetFrameworks>
+        <TargetFrameworks>net8.0-windows;net7.0-windows;net6.0-windows;net48;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for WPF</AssemblyTitle>
@@ -24,8 +24,8 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)'=='net7.0-windows' or '$(TargetFramework)'=='net6.0-windows'">
-        <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
+    <ItemGroup Condition="'$(TargetFramework)'=='net8.0-windows' or '$(TargetFramework)'=='net7.0-windows' or '$(TargetFramework)'=='net6.0-windows'">
+        <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='net48' or '$(TargetFramework)'=='net462'">
