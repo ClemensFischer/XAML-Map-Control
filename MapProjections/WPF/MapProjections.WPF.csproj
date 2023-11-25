@@ -24,7 +24,7 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)'=='net48' or '$(TargetFramework)'=='net462'">
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`2468`))'=='net'">
         <Reference Include="System.Net.Http" />
     </ItemGroup>
 
