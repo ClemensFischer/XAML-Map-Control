@@ -167,14 +167,8 @@ namespace MapControl
 
                     if (GetAutoCollapse(element))
                     {
-                        if (position.HasValue && IsOutsideViewport(position.Value))
-                        {
-                            element.Visibility = Visibility.Collapsed;
-                        }
-                        else
-                        {
-                            element.ClearValue(VisibilityProperty);
-                        }
+                        element.Visibility = position.HasValue && IsOutsideViewport(position.Value)
+                            ? Visibility.Collapsed : Visibility.Visible;
                     }
 
                     if (position.HasValue)
