@@ -48,7 +48,9 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            ((PathGeometry)Data).Figures = GetMultiPolygonFigures(Polygons);
+            var figures = ((PathGeometry)Data).Figures;
+            figures.Clear();
+            AddMultiPolygonPoints(figures, Polygons);
         }
     }
 }

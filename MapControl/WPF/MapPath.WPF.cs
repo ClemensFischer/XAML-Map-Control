@@ -86,7 +86,7 @@ namespace MapControl
             return true;
         }
 
-        protected void AddPolylineLocations(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        protected void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             if (locations.Count() >= 2)
             {

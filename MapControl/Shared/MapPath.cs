@@ -139,35 +139,27 @@ namespace MapControl
             return longitudeOffset;
         }
 
-        protected PathFigureCollection GetPolylineFigures(IEnumerable<Location> locations, bool closed)
+        protected void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, bool closed)
         {
-            var pathFigures = new PathFigureCollection();
-
             if (parentMap != null && locations != null)
             {
                 var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
 
-                AddPolylineLocations(pathFigures, locations, longitudeOffset, closed);
+                AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
             }
-
-            return pathFigures;
         }
 
-        protected PathFigureCollection GetMultiPolygonFigures(IEnumerable<IEnumerable<Location>> polygons)
+        protected void AddMultiPolygonPoints(PathFigureCollection pathFigures, IEnumerable<IEnumerable<Location>> polygons)
         {
-            var pathFigures = new PathFigureCollection();
-
             if (parentMap != null && polygons != null)
             {
                 var longitudeOffset = GetLongitudeOffset(Location);
 
                 foreach (var polygon in polygons)
                 {
-                    AddPolylineLocations(pathFigures, polygon, longitudeOffset, true);
+                    AddPolylinePoints(pathFigures, polygon, longitudeOffset, true);
                 }
             }
-
-            return pathFigures;
         }
 
         #endregion

@@ -54,7 +54,9 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            ((PathGeometry)Data).Figures = GetPolylineFigures(Locations, false);
+            var figures = ((PathGeometry)Data).Figures;
+            figures.Clear();
+            AddPolylinePoints(figures, Locations, false);
         }
     }
 }
