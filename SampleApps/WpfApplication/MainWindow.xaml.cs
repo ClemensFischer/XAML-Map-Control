@@ -19,7 +19,6 @@ namespace SampleApplication
             TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = null;
 
             var bingMapsApiKeyPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "BingMapsApiKey.txt");

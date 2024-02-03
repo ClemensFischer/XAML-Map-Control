@@ -10,16 +10,6 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
-    namespace Caching
-    {
-        public interface IImageCache
-        {
-            Task<Tuple<byte[], DateTime>> GetAsync(string key);
-
-            Task SetAsync(string key, byte[] buffer, DateTime expiration);
-        }
-    }
-
     public partial class TileImageLoader
     {
         /// <summary>
@@ -28,35 +18,6 @@ namespace MapControl
         public static string DefaultCacheFolder =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
 
-        /// <summary>
-        /// An IImageCache implementation used to cache tile images.
-        /// </summary>
-        public static Caching.IImageCache Cache { get; set; }
-
-
-        private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheKey)
-        {
-            var cacheItem = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
-            var buffer = cacheItem?.Item1;
-
-            if (cacheItem == null || cacheItem.Item2 < DateTime.UtcNow)
-            {
-                var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
-
-                if (response != null) // download succeeded
-                {
-                    buffer = response.Buffer; // may be null or empty when no tile available, but still be cached
-
-                    await Cache.SetAsync(cacheKey, buffer, GetExpiration(response.MaxAge)).ConfigureAwait(false);
-                }
-            }
-            //else System.Diagnostics.Debug.WriteLine($"Cached: {cacheKey}");
-
-            if (buffer != null && buffer.Length > 0)
-            {
-                await LoadTileAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
-            }
-        }
 
         private static Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {

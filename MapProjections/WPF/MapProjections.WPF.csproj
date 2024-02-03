@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net8.0-windows;net7.0-windows;net6.0-windows;net48;net462</TargetFrameworks>
+        <TargetFrameworks>net6.0-windows;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for WPF</AssemblyTitle>
@@ -24,7 +24,7 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`2468`))'=='net'">
+    <ItemGroup Condition="'$(TargetFramework)'=='net462'">
         <Reference Include="System.Net.Http" />
     </ItemGroup>
 

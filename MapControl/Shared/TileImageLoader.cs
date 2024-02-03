@@ -2,6 +2,7 @@
 // Copyright © 2023 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -39,9 +40,9 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Maximum number of parallel tile loading tasks. The default value is 4.
+        /// An IDistributedCache implementation used to cache tile images.
         /// </summary>
-        public static int MaxLoadTasks { get; set; } = 4;
+        public static IDistributedCache Cache { get; set; }
 
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
@@ -54,6 +55,12 @@ namespace MapControl
         /// that exceeds this value is ignored. The default value is ten days.
         /// </summary>
         public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
+
+        /// <summary>
+        /// Maximum number of parallel tile loading tasks. The default value is 4.
+        /// </summary>
+        public static int MaxLoadTasks { get; set; } = 4;
+
 
         private TileQueue pendingTiles;
 
@@ -125,34 +132,55 @@ namespace MapControl
 
             if (uri != null)
             {
-                var extension = Path.GetExtension(uri.LocalPath);
-
-                if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
-                {
-                    extension = ".jpg";
-                }
-
-                var cacheKey = string.Format(CultureInfo.InvariantCulture,
-                    "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.Column, tile.Row, extension);
-
-                return LoadCachedTileAsync(tile, uri, cacheKey);
+                return LoadCachedTileAsync(tile, uri, cacheName);
             }
 
             return Task.CompletedTask;
         }
 
-        private static DateTime GetExpiration(TimeSpan? maxAge)
+        private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheName)
         {
-            if (!maxAge.HasValue)
+            var extension = Path.GetExtension(uri.LocalPath);
+
+            if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
             {
-                maxAge = DefaultCacheExpiration;
-            }
-            else if (maxAge.Value > MaxCacheExpiration)
-            {
-                maxAge = MaxCacheExpiration;
+                extension = ".jpg";
             }
 
-            return DateTime.UtcNow.Add(maxAge.Value);
+            var cacheKey = string.Format(CultureInfo.InvariantCulture,
+                "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.Column, tile.Row, extension);
+
+            var buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
+
+            if (buffer == null)
+            {
+                var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
+
+                if (response != null) // download succeeded
+                {
+                    buffer = response.Buffer ?? Array.Empty<byte>(); // may be empty when no tile available, but still be cached
+
+                    var maxAge = response.MaxAge ?? DefaultCacheExpiration;
+
+                    if (maxAge > MaxCacheExpiration)
+                    {
+                        maxAge = MaxCacheExpiration;
+                    }
+
+                    var cacheOptions = new DistributedCacheEntryOptions
+                    {
+                        AbsoluteExpiration = DateTimeOffset.UtcNow.Add(maxAge)
+                    };
+
+                    await Cache.SetAsync(cacheKey, buffer, cacheOptions).ConfigureAwait(false);
+                }
+            }
+            //else System.Diagnostics.Debug.WriteLine($"Cached: {cacheKey}");
+
+            if (buffer != null && buffer.Length > 0)
+            {
+                await LoadTileAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
+            }
         }
     }
 }

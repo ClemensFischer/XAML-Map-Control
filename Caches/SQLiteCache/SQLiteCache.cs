@@ -1,0 +1,245 @@
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// Copyright © 2024 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using Microsoft.Extensions.Caching.Distributed;
+using System;
+using System.Data.Common;
+using System.Data.SQLite;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace MapControl.Caching
+{
+    /// <summary>
+    /// IDistributedCache implementation based on SQLite.
+    /// </summary>
+    public class SQLiteCache : IDistributedCache, IDisposable
+    {
+        private readonly SQLiteConnection connection;
+
+        public SQLiteCache(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
+            }
+
+            if (string.IsNullOrEmpty(Path.GetExtension(path)))
+            {
+                path = Path.Combine(path, "TileCache.sqlite");
+            }
+
+            var connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(path));
+            connection.Open();
+
+            using (var command = new SQLiteCommand("create table if not exists items (key text primary key, expiration integer, buffer blob)", connection))
+            {
+                command.ExecuteNonQuery();
+            }
+
+            Debug.WriteLine($"SQLiteCache: Opened database {path}");
+
+            Clean();
+        }
+
+        public void Dispose()
+        {
+            connection.Dispose();
+        }
+
+        public byte[] Get(string key)
+        {
+            byte[] value = null;
+
+            try
+            {
+                using (var command = GetItemCommand(key))
+                {
+                    var reader = command.ExecuteReader();
+
+                    if (reader.Read() && !ReadValue(reader, ref value))
+                    {
+                        Remove(key);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SQLiteCache.Get({key}): {ex.Message}");
+            }
+
+            return value;
+        }
+
+        public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
+        {
+            byte[] value = null;
+
+            try
+            {
+                using (var command = GetItemCommand(key))
+                {
+                    var reader = await command.ExecuteReaderAsync(token);
+
+                    if (await reader.ReadAsync() && !ReadValue(reader, ref value))
+                    {
+                        await RemoveAsync(key);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SQLiteCache.GetAsync({key}): {ex.Message}");
+            }
+
+            return value;
+        }
+
+        public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
+        {
+            try
+            {
+                using (var command = SetItemCommand(key, value, options))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SQLiteCache.Set({key}): {ex.Message}");
+            }
+        }
+
+        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
+        {
+            try
+            {
+                using (var command = SetItemCommand(key, value, options))
+                {
+                    await command.ExecuteNonQueryAsync(token);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SQLiteCache.SetAsync({key}): {ex.Message}");
+            }
+        }
+
+        public void Refresh(string key)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task RefreshAsync(string key, CancellationToken token = default)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Remove(string key)
+        {
+            try
+            {
+                using (var command = RemoveItemCommand(key))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SQLiteCache.Remove({key}): {ex.Message}");
+            }
+        }
+
+        public async Task RemoveAsync(string key, CancellationToken token = default)
+        {
+            try
+            {
+                using (var command = RemoveItemCommand(key))
+                {
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SQLiteCache.RemoveAsync({key}): {ex.Message}");
+            }
+        }
+
+        public void Clean()
+        {
+            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
+            {
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
+                command.ExecuteNonQuery();
+            }
+#if DEBUG
+            using (var command = new SQLiteCommand("select changes()", connection))
+            {
+                var deleted = (long)command.ExecuteScalar();
+                if (deleted > 0)
+                {
+                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
+                }
+            }
+#endif
+        }
+
+        private SQLiteCommand GetItemCommand(string key)
+        {
+            var command = new SQLiteCommand("select expiration, buffer from items where key = @key", connection);
+            command.Parameters.AddWithValue("@key", key);
+            return command;
+        }
+
+        private SQLiteCommand RemoveItemCommand(string key)
+        {
+            var command = new SQLiteCommand("delete from items where key = @key", connection);
+            command.Parameters.AddWithValue("@key", key);
+            return command;
+        }
+
+        private SQLiteCommand SetItemCommand(string key, byte[] buffer, DistributedCacheEntryOptions options)
+        {
+            DateTimeOffset expiration;
+
+            if (options.AbsoluteExpiration.HasValue)
+            {
+                expiration = options.AbsoluteExpiration.Value;
+            }
+            else if (options.AbsoluteExpirationRelativeToNow.HasValue)
+            {
+                expiration = DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow.Value);
+            }
+            else if (options.SlidingExpiration.HasValue)
+            {
+                expiration = DateTimeOffset.UtcNow.Add(options.SlidingExpiration.Value);
+            }
+            else
+            {
+                expiration = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(1));
+            }
+
+            var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
+            command.Parameters.AddWithValue("@key", key);
+            command.Parameters.AddWithValue("@exp", expiration.Ticks);
+            command.Parameters.AddWithValue("@buf", buffer ?? new byte[0]);
+            return command;
+        }
+
+        private bool ReadValue(DbDataReader reader, ref byte[] value)
+        {
+            var expiration = new DateTimeOffset((long)reader["expiration"], TimeSpan.Zero);
+
+            if (expiration <= DateTimeOffset.UtcNow)
+            {
+                return false;
+            }
+
+            value = (byte[])reader["buffer"];
+            return true;
+        }
+    }
+}

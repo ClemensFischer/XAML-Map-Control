@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net8.0-windows10.0.17763.0;net7.0-windows10.0.17763.0;net6.0-windows10.0.17763.0</TargetFrameworks>
+        <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <UseRidGraph>true</UseRidGraph>
         <UseWinUI>true</UseWinUI>
@@ -29,5 +29,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231219000" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     </ItemGroup>
 </Project>
