@@ -5,9 +5,9 @@
         <RootNamespace>MapControl.MBTiles</RootNamespace>
         <AssemblyTitle>XAML Map Control MBTiles Library for WPF</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>8.3.0</Version>
+        <Version>9.0.0</Version>
         <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2023 Clemens Fischer</Copyright>
+        <Copyright>Copyright © 2024 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
