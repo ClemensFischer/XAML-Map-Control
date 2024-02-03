@@ -7,7 +7,7 @@
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for WinUI</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>9.0.0</Version>
+        <Version>9.0.1</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2024 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
@@ -30,5 +30,6 @@
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231219000" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     </ItemGroup>
 </Project>

@@ -3,6 +3,8 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -41,8 +43,9 @@ namespace MapControl
 
         /// <summary>
         /// An IDistributedCache implementation used to cache tile images.
+        /// The default value is a MemoryDistributedCache instance.
         /// </summary>
-        public static IDistributedCache Cache { get; set; }
+        public static IDistributedCache Cache { get; set; } = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
 
         /// <summary>
         /// Default expiration time for cached tile images. Used when no expiration time
