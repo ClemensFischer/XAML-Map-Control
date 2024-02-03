@@ -32,7 +32,7 @@ namespace MapControl.Caching
                 path = Path.Combine(path, "TileCache.sqlite");
             }
 
-            var connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(path));
+            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(path));
             connection.Open();
 
             using (var command = new SQLiteCommand("create table if not exists items (key text primary key, expiration integer, buffer blob)", connection))

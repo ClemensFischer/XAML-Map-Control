@@ -1,6 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <RootNamespace>MapControl.Caching</RootNamespace>
+        <AssemblyTitle>XAML Map Control FileDbCache Library</AssemblyTitle>
+        <Product>XAML Map Control</Product>
+        <Version>9.0.0</Version>
+        <Authors>Clemens Fischer</Authors>
+        <Copyright>Copyright © 2024 Clemens Fischer</Copyright>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
+        <DelaySign>false</DelaySign>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.FileDbCache</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
