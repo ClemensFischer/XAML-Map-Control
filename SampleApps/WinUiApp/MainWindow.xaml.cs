@@ -20,7 +20,7 @@ namespace SampleApplication
     {
         static MainWindow()
         {
-            TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
 

@@ -172,13 +172,13 @@ namespace MapControl
 
                     var cacheOptions = new DistributedCacheEntryOptions
                     {
-                        AbsoluteExpiration = DateTimeOffset.UtcNow.Add(maxAge)
+                        AbsoluteExpirationRelativeToNow = maxAge
                     };
 
                     await Cache.SetAsync(cacheKey, buffer, cacheOptions).ConfigureAwait(false);
                 }
             }
-            //else System.Diagnostics.Debug.WriteLine($"Cached: {cacheKey}");
+            //else System.Diagnostics.Debug.WriteLine($"Cached: {cacheKey} - {buffer.Length} bytes");
 
             if (buffer != null && buffer.Length > 0)
             {
