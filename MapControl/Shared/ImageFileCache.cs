@@ -22,7 +22,8 @@ namespace MapControl.Caching
     /// </summary>
     public partial class ImageFileCache : IDistributedCache
     {
-        private static readonly byte[] expirationTag = Encoding.ASCII.GetBytes("EXPIRES:");
+        private static readonly byte[] expirationTagBytes = Encoding.ASCII.GetBytes("EXPIRES:");
+        private static readonly long expirationTagLong = BitConverter.ToInt64(expirationTagBytes, 0);
 
         private readonly IDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
         private readonly string rootDirectory;
@@ -144,10 +145,10 @@ namespace MapControl.Caching
 
                             if (expiration.HasValue)
                             {
-                                var expirationBytes = BitConverter.GetBytes(expiration.Value.Ticks);
+                                var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
 
-                                Write(stream, expirationTag);
-                                Write(stream, expirationBytes);
+                                Write(stream, expirationTagBytes);
+                                Write(stream, expirationValueBytes);
                             }
                         }
 
@@ -183,10 +184,10 @@ namespace MapControl.Caching
 
                             if (expiration.HasValue)
                             {
-                                var expirationBytes = BitConverter.GetBytes(expiration.Value.Ticks);
+                                var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
 
-                                await WriteAsync(stream, expirationTag).ConfigureAwait(false);
-                                await WriteAsync(stream, expirationBytes).ConfigureAwait(false);
+                                await WriteAsync(stream, expirationTagBytes).ConfigureAwait(false);
+                                await WriteAsync(stream, expirationValueBytes).ConfigureAwait(false);
                             }
                         }
 
@@ -374,7 +375,7 @@ namespace MapControl.Caching
             DateTimeOffset? expiration = null;
 
             if (buffer.Length >= 16 &&
-                Enumerable.SequenceEqual(buffer.Skip(buffer.Length - 16).Take(8), expirationTag))
+                BitConverter.ToInt64(buffer, buffer.Length - 16) == expirationTagLong)
             {
                 var expirationTicks = BitConverter.ToInt64(buffer, buffer.Length - 8);
 
