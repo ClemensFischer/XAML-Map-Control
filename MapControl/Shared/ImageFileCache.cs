@@ -3,10 +3,14 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,10 +20,11 @@ namespace MapControl.Caching
     /// <summary>
     /// IDistributedCache implementation based on local image files.
     /// </summary>
-    public class ImageFileCache : IDistributedCache
+    public partial class ImageFileCache : IDistributedCache
     {
-        private const string expiresTag = "EXPIRES:";
+        private static readonly byte[] expirationTag = Encoding.ASCII.GetBytes("EXPIRES:");
 
+        private readonly IDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
         private readonly string rootDirectory;
 
         public ImageFileCache(string directory)
@@ -41,21 +46,38 @@ namespace MapControl.Caching
 
         public byte[] Get(string key)
         {
-            byte[] buffer = null;
-            var path = GetPath(key);
+            var buffer = memoryCache.Get(key);
 
-            try
+            if (buffer == null)
             {
-                if (path != null && File.Exists(path))
+                var path = GetPath(key);
+
+                try
                 {
-                    buffer = File.ReadAllBytes(path);
+                    if (path != null && File.Exists(path))
+                    {
+                        buffer = File.ReadAllBytes(path);
 
-                    CheckExpiration(path, ref buffer);
+                        var expiration = ReadExpiration(ref buffer);
+
+                        if (expiration.HasValue)
+                        {
+                            if (expiration.Value > DateTimeOffset.UtcNow)
+                            {
+                                memoryCache.Set(key, buffer, new DistributedCacheEntryOptions { AbsoluteExpiration = expiration });
+                            }
+                            else
+                            {
+                                File.Delete(path);
+                                buffer = null;
+                            }
+                        }
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
+                }
             }
 
             return buffer;
@@ -63,32 +85,38 @@ namespace MapControl.Caching
 
         public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
         {
-            byte[] buffer = null;
-            var path = GetPath(key);
+            var buffer = await memoryCache.GetAsync(key, token).ConfigureAwait(false);
 
-            try
+            if (buffer == null && !token.IsCancellationRequested)
             {
-                if (path != null && File.Exists(path))
+                var path = GetPath(key);
+
+                try
                 {
-#if NETFRAMEWORK
-                    using (var stream = File.OpenRead(path))
+                    if (path != null && File.Exists(path))
                     {
-                        buffer = new byte[stream.Length];
-                        var offset = 0;
-                        while (offset < buffer.Length)
+                        buffer = await ReadAllBytesAsync(path).ConfigureAwait(false);
+
+                        var expiration = ReadExpiration(ref buffer);
+
+                        if (expiration.HasValue)
                         {
-                            offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, token).ConfigureAwait(false);
+                            if (expiration.Value > DateTimeOffset.UtcNow)
+                            {
+                                await memoryCache.SetAsync(key, buffer, new DistributedCacheEntryOptions { AbsoluteExpiration = expiration }, token).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                File.Delete(path);
+                                buffer = null;
+                            }
                         }
                     }
-#else
-                    buffer = await File.ReadAllBytesAsync(path, token).ConfigureAwait(false);
-#endif
-                    CheckExpiration(path, ref buffer);
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
+                }
             }
 
             return buffer;
@@ -98,28 +126,37 @@ namespace MapControl.Caching
         {
             var path = GetPath(key);
 
-            if (path != null && buffer != null && buffer.Length > 0)
+            if (path != null && buffer != null)
             {
-                try
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                memoryCache.Set(key, buffer, options); // buffer may be empty
 
-                    using (var stream = File.Create(path))
+                if (buffer.Length > 0)
+                {
+                    try
                     {
-                        stream.Write(buffer, 0, buffer.Length);
+                        Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                        var expiration = GetExpiration(options);
-
-                        if (expiration.HasValue)
+                        using (var stream = File.Create(path))
                         {
-                            stream.Write(Encoding.ASCII.GetBytes(expiresTag), 0, 8);
-                            stream.Write(BitConverter.GetBytes(expiration.Value.Ticks), 0, 8);
+                            Write(stream, buffer);
+
+                            var expiration = GetExpiration(options);
+
+                            if (expiration.HasValue)
+                            {
+                                var expirationBytes = BitConverter.GetBytes(expiration.Value.Ticks);
+
+                                Write(stream, expirationTag);
+                                Write(stream, expirationBytes);
+                            }
                         }
+
+                        SetAccessControl(path);
                     }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
+                    }
                 }
             }
         }
@@ -128,23 +165,32 @@ namespace MapControl.Caching
         {
             var path = GetPath(key);
 
-            if (path != null && buffer != null && buffer.Length > 0)
+            if (path != null && buffer != null)
             {
                 try
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false); // buffer may be empty
 
-                    using (var stream = File.Create(path))
+                    if (buffer.Length > 0 && !token.IsCancellationRequested)
                     {
-                        await stream.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                        Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                        var expiration = GetExpiration(options);
-
-                        if (expiration.HasValue)
+                        using (var stream = File.Create(path))
                         {
-                            await stream.WriteAsync(Encoding.ASCII.GetBytes(expiresTag), 0, 8).ConfigureAwait(false);
-                            await stream.WriteAsync(BitConverter.GetBytes(expiration.Value.Ticks), 0, 8).ConfigureAwait(false);
+                            await WriteAsync(stream, buffer).ConfigureAwait(false);
+
+                            var expiration = GetExpiration(options);
+
+                            if (expiration.HasValue)
+                            {
+                                var expirationBytes = BitConverter.GetBytes(expiration.Value.Ticks);
+
+                                await WriteAsync(stream, expirationTag).ConfigureAwait(false);
+                                await WriteAsync(stream, expirationBytes).ConfigureAwait(false);
+                            }
                         }
+
+                        SetAccessControl(path);
                     }
                 }
                 catch (Exception ex)
@@ -156,16 +202,18 @@ namespace MapControl.Caching
 
         public void Refresh(string key)
         {
-            throw new NotSupportedException();
+            memoryCache.Refresh(key);
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
-            throw new NotSupportedException();
+            return memoryCache.RefreshAsync(key, token);
         }
 
         public void Remove(string key)
         {
+            memoryCache.Remove(key);
+
             var path = GetPath(key);
 
             try
@@ -287,17 +335,6 @@ namespace MapControl.Caching
             return expiration;
         }
 
-        private static void CheckExpiration(string path, ref byte[] buffer)
-        {
-            var expiration = ReadExpiration(ref buffer);
-
-            if (expiration.HasValue && expiration.Value <= DateTimeOffset.UtcNow)
-            {
-                File.Delete(path);
-                buffer = null;
-            }
-        }
-
         private static DateTimeOffset? ReadExpiration(FileInfo file)
         {
             DateTimeOffset? expiration = null;
@@ -337,12 +374,50 @@ namespace MapControl.Caching
             DateTimeOffset? expiration = null;
 
             if (buffer.Length >= 16 &&
-                Encoding.ASCII.GetString(buffer, buffer.Length - 16, 8) == expiresTag)
+                Enumerable.SequenceEqual(buffer.Skip(buffer.Length - 16).Take(8), expirationTag))
             {
-                expiration = new DateTimeOffset(BitConverter.ToInt64(buffer, buffer.Length - 8), TimeSpan.Zero);
+                var expirationTicks = BitConverter.ToInt64(buffer, buffer.Length - 8);
+
+                expiration = new DateTimeOffset(expirationTicks, TimeSpan.Zero);
             }
 
             return expiration;
         }
+
+#if NETFRAMEWORK
+        private static async Task<byte[]> ReadAllBytesAsync(string path)
+        {
+            using (var stream = File.OpenRead(path))
+            {
+                var buffer = new byte[stream.Length];
+                var offset = 0;
+                while (offset < buffer.Length)
+                {
+                    offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset).ConfigureAwait(false);
+                }
+                return buffer;
+            }
+        }
+#else
+        private static Task<byte[]> ReadAllBytesAsync(string path) => File.ReadAllBytesAsync(path);
+#endif
+        private static void Write(Stream stream, byte[] bytes) => stream.Write(bytes, 0, bytes.Length);
+
+        private static Task WriteAsync(Stream stream, byte[] bytes) => stream.WriteAsync(bytes, 0, bytes.Length);
+
+        static partial void SetAccessControl(string path);
+#if !UWP
+        static partial void SetAccessControl(string path)
+        {
+            var fileInfo = new FileInfo(path);
+            var fileSecurity = fileInfo.GetAccessControl();
+            var fullControlRule = new FileSystemAccessRule(
+                new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
+                FileSystemRights.FullControl, AccessControlType.Allow);
+
+            fileSecurity.AddAccessRule(fullControlRule);
+            fileInfo.SetAccessControl(fileSecurity);
+        }
+#endif
     }
 }
