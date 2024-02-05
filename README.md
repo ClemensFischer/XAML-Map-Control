@@ -30,15 +30,17 @@ which define the currently displayed map viewport.
 
 ---
 
-The library allows to use an implementation of Microsoft.Extensions.Caching.Distributed.IDistributedCache for caching map tile bitmaps.
+The **TileImageLoader** class uses an implementation of
+[IDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache?view=dotnet-plat-ext-8.0)
+for optional caching of map tile bitmaps.
 
 Map Control comes with three such implementations:
-* ImageFileCache, an implementation that stores each cached map tile as a single image file,
+* ImageFileCache, an IDistributedCache implementation that stores each cached map tile as a single image file,
 in the original file format delivered by the map provider (typically PNG or JPG). ImageFileCache is part of
 the MapControl library.
-* FileDbCache, an implementation based on [EzTools FileDb](https://github.com/eztools-software/FileDb),
+* FileDbCache, an IDistributedCache implementation based on [EzTools FileDb](https://github.com/eztools-software/FileDb),
 a simple, file based No-SQL database, in a separate library FileDbCache.
-* SQLiteCache, an implementation based on [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki),
+* SQLiteCache, an IDistributedCache implementation based on [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki),
 in a separate library SQLiteCache.
 
 If you want to try the sample application with persistent caching, uncomment the appropriate TileImageLoader.Cache
