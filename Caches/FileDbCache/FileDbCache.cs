@@ -83,10 +83,7 @@ namespace MapControl.Caching
 
         public byte[] Get(string key)
         {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
-            }
+            CheckArgument(key);
 
             byte[] value = null;
 
@@ -116,20 +113,7 @@ namespace MapControl.Caching
 
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
-            }
-
-            if (value == null)
-            {
-                throw new ArgumentNullException($"The {nameof(value)} argument must not be null.", nameof(value));
-            }
-
-            if (options == null)
-            {
-                throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
-            }
+            CheckArguments(key, value, options);
 
             DateTime expiration;
 
@@ -176,14 +160,12 @@ namespace MapControl.Caching
 
         public void Refresh(string key)
         {
+            CheckArgument(key);
         }
 
         public void Remove(string key)
         {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
-            }
+            CheckArgument(key);
 
             try
             {
@@ -216,6 +198,29 @@ namespace MapControl.Caching
         {
             Remove(key);
             return Task.CompletedTask;
+        }
+
+        private static void CheckArgument(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
+            }
+        }
+
+        private static void CheckArguments(string key, byte[] value, DistributedCacheEntryOptions options)
+        {
+            CheckArgument(key);
+
+            if (value == null)
+            {
+                throw new ArgumentNullException($"The {nameof(value)} argument must not be null.", nameof(value));
+            }
+
+            if (options == null)
+            {
+                throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
+            }
         }
     }
 }
