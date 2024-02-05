@@ -37,12 +37,11 @@ for optional caching of map tile bitmaps. By default, the cache is a
 instance with all default options.
 
 Map Control provides three IDistributedCache implementations for persistent caching:
-* ImageFileCache, an IDistributedCache implementation that stores each cached map tile as a single image file,
-in the original file format delivered by the map provider (typically PNG or JPG). ImageFileCache is part of
-the MapControl library.
-* FileDbCache, an IDistributedCache implementation based on [EzTools FileDb](https://github.com/eztools-software/FileDb),
-a simple, file based No-SQL database, in a separate library FileDbCache.
-* SQLiteCache, an IDistributedCache implementation based on [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki),
+* ImageFileCache, an implementation that stores each cached map tile as a single image file,
+in the original file format delivered by the map provider (typically PNG or JPG). ImageFileCache is part of the MapControl library.
+* FileDbCache, based on [EzTools FileDb](https://github.com/eztools-software/FileDb),
+a simple file based No-SQL database, in a separate library FileDbCache.
+* SQLiteCache, based on [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki),
 in a separate library SQLiteCache.
 
 If you want to try the sample application with persistent caching, uncomment the appropriate TileImageLoader.Cache
