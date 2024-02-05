@@ -93,13 +93,13 @@ namespace MapControl.Caching
         {
             var buffer = await memoryCache.GetAsync(key, token).ConfigureAwait(false);
 
-            if (buffer == null && !token.IsCancellationRequested)
+            if (buffer == null)
             {
                 var path = GetPath(key);
 
                 try
                 {
-                    if (path != null && File.Exists(path))
+                    if (path != null && File.Exists(path) && !token.IsCancellationRequested)
                     {
                         buffer = await ReadAllBytesAsync(path).ConfigureAwait(false);
 
