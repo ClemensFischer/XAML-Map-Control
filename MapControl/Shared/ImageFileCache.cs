@@ -135,74 +135,68 @@ namespace MapControl.Caching
 
         public void Set(string key, byte[] buffer, DistributedCacheEntryOptions options)
         {
+            memoryCache.Set(key, buffer, options);
+
             var path = GetPath(key);
 
-            if (path != null && buffer != null)
+            if (path != null && buffer?.Length > 0)
             {
-                memoryCache.Set(key, buffer, options); // buffer may be empty
-
-                if (buffer.Length > 0)
+                try
                 {
-                    try
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                        using (var stream = File.Create(path))
+                    using (var stream = File.Create(path))
+                    {
+                        Write(stream, buffer);
+
+                        var expiration = GetExpiration(options);
+
+                        if (expiration.HasValue)
                         {
-                            Write(stream, buffer);
+                            var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
 
-                            var expiration = GetExpiration(options);
-
-                            if (expiration.HasValue)
-                            {
-                                var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
-
-                                Write(stream, expirationTagBytes);
-                                Write(stream, expirationValueBytes);
-                            }
+                            Write(stream, expirationTagBytes);
+                            Write(stream, expirationValueBytes);
                         }
+                    }
 
-                        SetAccessControl(path);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
-                    }
+                    SetAccessControl(path);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
                 }
             }
         }
 
         public async Task SetAsync(string key, byte[] buffer, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
+            await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
+
             var path = GetPath(key);
 
-            if (path != null && buffer != null)
+            if (path != null && buffer?.Length > 0 && !token.IsCancellationRequested)
             {
                 try
                 {
-                    await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false); // buffer may be empty
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                    if (buffer.Length > 0 && !token.IsCancellationRequested)
+                    using (var stream = File.Create(path))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(path));
+                        await WriteAsync(stream, buffer).ConfigureAwait(false);
 
-                        using (var stream = File.Create(path))
+                        var expiration = GetExpiration(options);
+
+                        if (expiration.HasValue)
                         {
-                            await WriteAsync(stream, buffer).ConfigureAwait(false);
+                            var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
 
-                            var expiration = GetExpiration(options);
-
-                            if (expiration.HasValue)
-                            {
-                                var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
-
-                                await WriteAsync(stream, expirationTagBytes).ConfigureAwait(false);
-                                await WriteAsync(stream, expirationValueBytes).ConfigureAwait(false);
-                            }
+                            await WriteAsync(stream, expirationTagBytes).ConfigureAwait(false);
+                            await WriteAsync(stream, expirationValueBytes).ConfigureAwait(false);
                         }
-
-                        SetAccessControl(path);
                     }
+
+                    SetAccessControl(path);
                 }
                 catch (Exception ex)
                 {
@@ -238,13 +232,25 @@ namespace MapControl.Caching
             {
                 Debug.WriteLine($"ImageFileCache: Failed deleting {path}: {ex.Message}");
             }
-
         }
 
-        public Task RemoveAsync(string key, CancellationToken token = default)
+        public async Task RemoveAsync(string key, CancellationToken token = default)
         {
-            Remove(key);
-            return Task.CompletedTask;
+            await memoryCache.RemoveAsync(key, token);
+
+            var path = GetPath(key);
+
+            try
+            {
+                if (path != null && File.Exists(path) && !token.IsCancellationRequested)
+                {
+                    File.Delete(path);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ImageFileCache: Failed deleting {path}: {ex.Message}");
+            }
         }
 
         private string GetPath(string key)
