@@ -24,7 +24,7 @@ namespace MapControl.Caching
         {
             if (string.IsNullOrEmpty(path))
             {
-                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
+                throw new ArgumentException($"The {nameof(path)} argument must not be null or empty.", nameof(path));
             }
 
             if (string.IsNullOrEmpty(Path.GetExtension(path)))
@@ -50,8 +50,29 @@ namespace MapControl.Caching
             connection.Dispose();
         }
 
+        public void Clean()
+        {
+            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
+            {
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
+                command.ExecuteNonQuery();
+            }
+#if DEBUG
+            using (var command = new SQLiteCommand("select changes()", connection))
+            {
+                var deleted = (long)command.ExecuteScalar();
+                if (deleted > 0)
+                {
+                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
+                }
+            }
+#endif
+        }
+
         public byte[] Get(string key)
         {
+            CheckArgument(key);
+
             byte[] value = null;
 
             try
@@ -76,6 +97,8 @@ namespace MapControl.Caching
 
         public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
         {
+            CheckArgument(key);
+
             byte[] value = null;
 
             try
@@ -84,7 +107,7 @@ namespace MapControl.Caching
                 {
                     var reader = await command.ExecuteReaderAsync(token);
 
-                    if (await reader.ReadAsync() && !ReadValue(reader, ref value))
+                    if (await reader.ReadAsync(token) && !ReadValue(reader, ref value))
                     {
                         await RemoveAsync(key);
                     }
@@ -100,6 +123,8 @@ namespace MapControl.Caching
 
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
+            CheckArguments(key, value, options);
+
             try
             {
                 using (var command = SetItemCommand(key, value, options))
@@ -115,6 +140,8 @@ namespace MapControl.Caching
 
         public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
+            CheckArguments(key, value, options);
+
             try
             {
                 using (var command = SetItemCommand(key, value, options))
@@ -130,16 +157,20 @@ namespace MapControl.Caching
 
         public void Refresh(string key)
         {
-            throw new NotSupportedException();
+            CheckArgument(key);
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
-            throw new NotSupportedException();
+            CheckArgument(key);
+
+            return Task.CompletedTask;
         }
 
         public void Remove(string key)
         {
+            CheckArgument(key);
+
             try
             {
                 using (var command = RemoveItemCommand(key))
@@ -155,6 +186,8 @@ namespace MapControl.Caching
 
         public async Task RemoveAsync(string key, CancellationToken token = default)
         {
+            CheckArgument(key);
+
             try
             {
                 using (var command = RemoveItemCommand(key))
@@ -166,25 +199,6 @@ namespace MapControl.Caching
             {
                 Debug.WriteLine($"SQLiteCache.RemoveAsync({key}): {ex.Message}");
             }
-        }
-
-        public void Clean()
-        {
-            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
-            {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
-                command.ExecuteNonQuery();
-            }
-#if DEBUG
-            using (var command = new SQLiteCommand("select changes()", connection))
-            {
-                var deleted = (long)command.ExecuteScalar();
-                if (deleted > 0)
-                {
-                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
-                }
-            }
-#endif
         }
 
         private SQLiteCommand GetItemCommand(string key)
@@ -225,11 +239,11 @@ namespace MapControl.Caching
             var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
             command.Parameters.AddWithValue("@key", key);
             command.Parameters.AddWithValue("@exp", expiration.Ticks);
-            command.Parameters.AddWithValue("@buf", buffer ?? new byte[0]);
+            command.Parameters.AddWithValue("@buf", buffer);
             return command;
         }
 
-        private bool ReadValue(DbDataReader reader, ref byte[] value)
+        private static bool ReadValue(DbDataReader reader, ref byte[] value)
         {
             var expiration = new DateTimeOffset((long)reader["expiration"], TimeSpan.Zero);
 
@@ -240,6 +254,29 @@ namespace MapControl.Caching
 
             value = (byte[])reader["buffer"];
             return true;
+        }
+
+        private static void CheckArgument(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
+            }
+        }
+
+        private static void CheckArguments(string key, byte[] value, DistributedCacheEntryOptions options)
+        {
+            CheckArgument(key);
+
+            if (value == null)
+            {
+                throw new ArgumentNullException($"The {nameof(value)} argument must not be null.", nameof(value));
+            }
+
+            if (options == null)
+            {
+                throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
+            }
         }
     }
 }
