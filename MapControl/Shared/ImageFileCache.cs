@@ -32,7 +32,7 @@ namespace MapControl.Caching
         {
             if (string.IsNullOrEmpty(directory))
             {
-                throw new ArgumentException("The directory argument must not be null or empty.", nameof(directory));
+                throw new ArgumentException($"The {nameof(directory)} argument must not be null or empty.", nameof(directory));
             }
 
             rootDirectory = directory;
@@ -40,7 +40,7 @@ namespace MapControl.Caching
             Debug.WriteLine($"Created ImageFileCache in {rootDirectory}");
         }
 
-        public Task Clean()
+        public Task CleanAsync()
         {
             return Task.Factory.StartNew(CleanRootDirectory, TaskCreationOptions.LongRunning);
         }

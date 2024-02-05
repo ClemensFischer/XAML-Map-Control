@@ -94,7 +94,7 @@ namespace SampleApplication
             Activated -= WindowActivated;
 
             await Task.Delay(2000);
-            await ((ImageFileCache)TileImageLoader.Cache).Clean();
+            await ((ImageFileCache)TileImageLoader.Cache).CleanAsync();
         }
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
