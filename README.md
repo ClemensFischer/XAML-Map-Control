@@ -33,7 +33,7 @@ which define the currently displayed map viewport.
 The **TileImageLoader** class uses
 [IDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache?view=dotnet-plat-ext-8.0)
 for optional caching of map tile bitmaps. By default, the cache is a
-[MemoryDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.memorydistributedcache?view=dotnet-plat-ext-8.0).
+[MemoryDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.memorydistributedcache?view=dotnet-plat-ext-8.0)
 instance with all default options.
 
 Map Control provides three IDistributedCache implementations for persistent caching:
