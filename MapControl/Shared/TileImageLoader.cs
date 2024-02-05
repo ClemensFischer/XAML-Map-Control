@@ -159,9 +159,9 @@ namespace MapControl
             {
                 var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
-                if (response != null) // download succeeded
+                if (response != null)
                 {
-                    buffer = response.Buffer ?? Array.Empty<byte>(); // may be empty when no tile available, but still be cached
+                    buffer = response.Buffer ?? Array.Empty<byte>(); // cache even if null, when no tile available
 
                     var maxAge = response.MaxAge ?? DefaultCacheExpiration;
 
