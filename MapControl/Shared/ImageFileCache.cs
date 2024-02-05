@@ -65,7 +65,12 @@ namespace MapControl.Caching
                         {
                             if (expiration.Value > DateTimeOffset.UtcNow)
                             {
-                                memoryCache.Set(key, buffer, new DistributedCacheEntryOptions { AbsoluteExpiration = expiration });
+                                var cacheOptions = new DistributedCacheEntryOptions
+                                {
+                                    AbsoluteExpiration = expiration
+                                };
+
+                                memoryCache.Set(key, buffer, cacheOptions);
                             }
                             else
                             {
@@ -104,7 +109,12 @@ namespace MapControl.Caching
                         {
                             if (expiration.Value > DateTimeOffset.UtcNow)
                             {
-                                await memoryCache.SetAsync(key, buffer, new DistributedCacheEntryOptions { AbsoluteExpiration = expiration }, token).ConfigureAwait(false);
+                                var cacheOptions = new DistributedCacheEntryOptions
+                                {
+                                    AbsoluteExpiration = expiration
+                                };
+
+                                await memoryCache.SetAsync(key, buffer, cacheOptions, token).ConfigureAwait(false);
                             }
                             else
                             {
