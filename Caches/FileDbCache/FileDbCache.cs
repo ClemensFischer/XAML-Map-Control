@@ -28,7 +28,7 @@ namespace MapControl.Caching
         {
             if (string.IsNullOrEmpty(path))
             {
-                throw new ArgumentException("The path argument must not be null or empty.", nameof(path));
+                throw new ArgumentException($"The {nameof(path)} argument must not be null or empty.", nameof(path));
             }
 
             if (string.IsNullOrEmpty(Path.GetExtension(path)))
@@ -70,8 +70,24 @@ namespace MapControl.Caching
             fileDb.Dispose();
         }
 
+        public void Clean()
+        {
+            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+
+            if (deleted > 0)
+            {
+                Debug.WriteLine($"FileDbCache: Deleted {deleted} expired items");
+                fileDb.Clean();
+            }
+        }
+
         public byte[] Get(string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
+            }
+
             byte[] value = null;
 
             try
@@ -98,13 +114,23 @@ namespace MapControl.Caching
             return value;
         }
 
-        public Task<byte[]> GetAsync(string key, CancellationToken token = default)
-        {
-            return Task.FromResult(Get(key));
-        }
-
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
+            }
+
+            if (value == null)
+            {
+                throw new ArgumentNullException($"The {nameof(value)} argument must not be null.", nameof(value));
+            }
+
+            if (options == null)
+            {
+                throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
+            }
+
             DateTime expiration;
 
             if (options.AbsoluteExpiration.HasValue)
@@ -126,7 +152,7 @@ namespace MapControl.Caching
 
             var fieldValues = new FieldValues(3)
             {
-                { valueField, value ?? new byte[0] },
+                { valueField, value },
                 { expiresField, expiration }
             };
 
@@ -148,24 +174,17 @@ namespace MapControl.Caching
             }
         }
 
-        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
-        {
-            Set(key, value, options);
-            return Task.CompletedTask;
-        }
-
         public void Refresh(string key)
         {
-            throw new NotSupportedException();
-        }
-
-        public Task RefreshAsync(string key, CancellationToken token = default)
-        {
-            throw new NotSupportedException();
         }
 
         public void Remove(string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
+            }
+
             try
             {
                 fileDb.DeleteRecordByKey(key);
@@ -176,21 +195,27 @@ namespace MapControl.Caching
             }
         }
 
+        public Task<byte[]> GetAsync(string key, CancellationToken token = default)
+        {
+            return Task.FromResult(Get(key));
+        }
+
+        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
+        {
+            Set(key, value, options);
+            return Task.CompletedTask;
+        }
+
+        public Task RefreshAsync(string key, CancellationToken token = default)
+        {
+            Refresh(key);
+            return Task.CompletedTask;
+        }
+
         public Task RemoveAsync(string key, CancellationToken token = default)
         {
             Remove(key);
             return Task.CompletedTask;
-        }
-
-        public void Clean()
-        {
-            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
-
-            if (deleted > 0)
-            {
-                Debug.WriteLine($"FileDbCache: Deleted {deleted} expired items");
-                fileDb.Clean();
-            }
         }
     }
 }
