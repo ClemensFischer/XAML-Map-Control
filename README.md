@@ -36,7 +36,7 @@ for optional caching of map tile bitmaps. By default, the cache is a
 [MemoryDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.memorydistributedcache?view=dotnet-plat-ext-8.0)
 instance with all default options.
 
-Map Control provides three IDistributedCache implementations for persistent caching:
+Map Control provides three minimal IDistributedCache implementations for persistent caching:
 * ImageFileCache, an implementation that stores each cached map tile as a single image file,
 in the original file format delivered by the map provider (typically PNG or JPG). ImageFileCache is part of the MapControl library.
 * FileDbCache, based on [EzTools FileDb](https://github.com/eztools-software/FileDb),
@@ -44,9 +44,13 @@ a simple file based No-SQL database, in a separate library FileDbCache.
 * SQLiteCache, based on [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki),
 in a separate library SQLiteCache.
 
-If you want to try the sample application with persistent caching, uncomment the appropriate TileImageLoader.Cache
-setting in the sample application's MainWindow.xaml.cs file. Please note that some map providers may not allow
-persistent caching of their map data.
+You can of course also use a full-featured cache like
+[RedisCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.stackexchangeredis.rediscache?view=dotnet-plat-ext-3.1&viewFallbackFrom=dotnet-plat-ext-8.0).
+
+To try the sample application with persistent caching, add an appropriate package reference to its Visual Studio project
+and uncomment the respective TileImageLoader.Cache assignment in MainWindow.xaml.cs.
+
+Please note that some map providers may not allow persistent caching of their map data.
 
 ---
 
