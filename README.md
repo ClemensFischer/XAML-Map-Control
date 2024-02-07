@@ -31,9 +31,9 @@ which define the currently displayed map viewport.
 ---
 
 The **TileImageLoader** class uses
-[IDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache?view=dotnet-plat-ext-8.0)
+[IDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache)
 for optional caching of map tile bitmaps. By default, the cache is a
-[MemoryDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.memorydistributedcache?view=dotnet-plat-ext-8.0)
+[MemoryDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.memorydistributedcache)
 instance with all default options.
 
 Map Control provides three minimal IDistributedCache implementations for persistent caching:
@@ -45,7 +45,7 @@ a simple file based No-SQL database, in a separate library FileDbCache.
 in a separate library SQLiteCache.
 
 You can of course also use a full-featured cache like
-[RedisCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.stackexchangeredis.rediscache?view=dotnet-plat-ext-3.1&viewFallbackFrom=dotnet-plat-ext-8.0).
+[RedisCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.stackexchangeredis.rediscache).
 
 To try the sample application with persistent caching, add an appropriate package reference to its Visual Studio project
 and uncomment the respective TileImageLoader.Cache assignment in MainWindow.xaml.cs.
