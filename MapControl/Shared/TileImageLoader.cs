@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl
@@ -101,14 +102,7 @@ namespace MapControl
                         {
                             progress?.Report((double)(tileCount - tileQueue.Count) / tileCount);
 
-                            try
-                            {
-                                await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
-                            }
+                            await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
                         }
                     }
 
@@ -126,16 +120,23 @@ namespace MapControl
 
         private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
-            if (string.IsNullOrEmpty(cacheName))
+            try
             {
-                return LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
+                if (string.IsNullOrEmpty(cacheName))
+                {
+                    return LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
+                }
+
+                var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
+
+                if (uri != null)
+                {
+                    return LoadCachedTileAsync(tile, uri, cacheName);
+                }
             }
-
-            var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
-
-            if (uri != null)
+            catch (Exception ex)
             {
-                return LoadCachedTileAsync(tile, uri, cacheName);
+                Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
             }
 
             return Task.CompletedTask;
@@ -153,7 +154,16 @@ namespace MapControl
             var cacheKey = string.Format(CultureInfo.InvariantCulture,
                 "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.Column, tile.Row, extension);
 
-            var buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
+            byte[] buffer = null;
+
+            try
+            {
+                buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"TileImageLoader: {cacheKey}: {ex.Message}");
+            }
 
             if (buffer == null)
             {
@@ -178,7 +188,7 @@ namespace MapControl
                     await Cache.SetAsync(cacheKey, buffer, cacheOptions).ConfigureAwait(false);
                 }
             }
-            //else System.Diagnostics.Debug.WriteLine($"Cached: {cacheKey} - {buffer.Length} bytes");
+            //else Debug.WriteLine($"Cached: {cacheKey} - {buffer.Length} bytes");
 
             if (buffer != null && buffer.Length > 0)
             {
