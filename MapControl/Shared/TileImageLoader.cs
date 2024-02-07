@@ -146,7 +146,7 @@ namespace MapControl
         {
             var extension = Path.GetExtension(uri.LocalPath);
 
-            if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+            if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
             {
                 extension = ".jpg";
             }
