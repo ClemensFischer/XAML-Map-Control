@@ -12,8 +12,7 @@ namespace MapControl
     public partial class TileImageLoader
     {
         /// <summary>
-        /// Default folder path where an IImageCache instance may save cached data,
-        /// i.e. Windows.Storage.ApplicationData.Current.TemporaryFolder.Path.
+        /// Default folder where the Cache instance may save data.
         /// </summary>
         public static string DefaultCacheFolder => Windows.Storage.ApplicationData.Current.TemporaryFolder.Path;
 
