@@ -161,7 +161,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"TileImageLoader: {cacheKey}: {ex.Message}");
+                Debug.WriteLine($"TileImageLoader.Cache.GetAsync: {cacheKey}: {ex.Message}");
             }
 
             if (buffer == null)
@@ -184,7 +184,14 @@ namespace MapControl
                         AbsoluteExpirationRelativeToNow = maxAge
                     };
 
-                    await Cache.SetAsync(cacheKey, buffer, cacheOptions).ConfigureAwait(false);
+                    try
+                    {
+                        await Cache.SetAsync(cacheKey, buffer, cacheOptions).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"TileImageLoader.Cache.SetAsync: {cacheKey}: {ex.Message}");
+                    }
                 }
             }
             //else Debug.WriteLine($"Cached: {cacheKey} - {buffer.Length} bytes");
