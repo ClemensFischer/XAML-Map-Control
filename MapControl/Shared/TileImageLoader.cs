@@ -153,16 +153,7 @@ namespace MapControl
             var cacheKey = string.Format(CultureInfo.InvariantCulture,
                 "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.Column, tile.Row, extension);
 
-            byte[] buffer = null;
-
-            try
-            {
-                buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"TileImageLoader.Cache.GetAsync: {cacheKey}: {ex.Message}");
-            }
+            var buffer = await ReadCacheAsync(cacheKey).ConfigureAwait(false);
 
             if (buffer == null)
             {
@@ -170,28 +161,9 @@ namespace MapControl
 
                 if (response != null)
                 {
-                    buffer = response.Buffer ?? Array.Empty<byte>(); // cache even if null, when no tile available
+                    buffer = response.Buffer;
 
-                    var maxAge = response.MaxAge ?? DefaultCacheExpiration;
-
-                    if (maxAge > MaxCacheExpiration)
-                    {
-                        maxAge = MaxCacheExpiration;
-                    }
-
-                    var cacheOptions = new DistributedCacheEntryOptions
-                    {
-                        AbsoluteExpirationRelativeToNow = maxAge
-                    };
-
-                    try
-                    {
-                        await Cache.SetAsync(cacheKey, buffer, cacheOptions).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"TileImageLoader.Cache.SetAsync: {cacheKey}: {ex.Message}");
-                    }
+                    await WriteCacheAsync(cacheKey, buffer, response.MaxAge).ConfigureAwait(false);
                 }
             }
             //else Debug.WriteLine($"Cached: {cacheKey} - {buffer.Length} bytes");
@@ -199,6 +171,43 @@ namespace MapControl
             if (buffer != null && buffer.Length > 0)
             {
                 await LoadTileAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
+            }
+        }
+
+        private static Task<byte[]> ReadCacheAsync(string cacheKey)
+        {
+            try
+            {
+                return Cache.GetAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"TileImageLoader.Cache.GetAsync: {cacheKey}: {ex.Message}");
+                return Task.FromResult<byte[]>(null);
+            }
+        }
+
+        private static Task WriteCacheAsync(string cacheKey, byte[] buffer, TimeSpan? expiration)
+        {
+            if (!expiration.HasValue)
+            {
+                expiration = DefaultCacheExpiration;
+            }
+            else if (expiration > MaxCacheExpiration)
+            {
+                expiration = MaxCacheExpiration;
+            }
+
+            try
+            {
+                return Cache.SetAsync(cacheKey,
+                    buffer ?? Array.Empty<byte>(), // cache even if null, when no tile available
+                    new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"TileImageLoader.Cache.SetAsync: {cacheKey}: {ex.Message}");
+                return Task.CompletedTask;
             }
         }
     }
