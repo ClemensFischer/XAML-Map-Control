@@ -1,12 +1,10 @@
 ﻿using MapControl;
-using MapControl.Caching;
 using MapControl.UiTools;
 using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -19,6 +17,11 @@ namespace SampleApplication
             //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new RedisCache(Options.Create(new RedisCacheOptions
+            //{
+            //    Configuration = "localhost:6379",
+            //    InstanceName = "MapTileCache/"
+            //}));
 
             var bingMapsApiKeyPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "BingMapsApiKey.txt");
@@ -55,15 +58,6 @@ namespace SampleApplication
             }
 
             AddTestLayers();
-
-            if (TileImageLoader.Cache is ImageFileCache cache)
-            {
-                Loaded += async (s, e) =>
-                {
-                    await Task.Delay(2000);
-                    await cache.CleanAsync();
-                };
-            }
         }
 
         partial void AddTestLayers();

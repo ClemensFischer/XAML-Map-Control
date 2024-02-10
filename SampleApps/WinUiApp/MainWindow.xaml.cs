@@ -1,5 +1,4 @@
 ﻿using MapControl;
-using MapControl.Caching;
 using MapControl.UiTools;
 using Microsoft.UI;
 using Microsoft.UI.Input;
@@ -11,7 +10,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.System;
 
 namespace SampleApplication
@@ -20,9 +18,14 @@ namespace SampleApplication
     {
         static MainWindow()
         {
-            //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new RedisCache(Options.Create(new RedisCacheOptions
+            //{
+            //    Configuration = "localhost:6379",
+            //    InstanceName = "MapTileCache/"
+            //}));
 
             var bingMapsApiKeyPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "BingMapsApiKey.txt");
@@ -80,22 +83,9 @@ namespace SampleApplication
             }
 
             AddTestLayers();
-
-            if (TileImageLoader.Cache is ImageFileCache)
-            {
-                Activated += WindowActivated;
-            }
         }
 
         partial void AddTestLayers();
-
-        private async void WindowActivated(object sender, WindowActivatedEventArgs e)
-        {
-            Activated -= WindowActivated;
-
-            await Task.Delay(2000);
-            await ((ImageFileCache)TileImageLoader.Cache).CleanAsync();
-        }
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {
