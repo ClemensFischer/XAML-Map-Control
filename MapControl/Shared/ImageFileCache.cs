@@ -38,11 +38,8 @@ namespace MapControl.Caching
             rootDirectory = directory;
 
             Debug.WriteLine($"Created ImageFileCache in {rootDirectory}");
-        }
 
-        public Task CleanAsync()
-        {
-            return Task.Factory.StartNew(CleanRootDirectory, TaskCreationOptions.LongRunning);
+            ThreadPool.QueueUserWorkItem(o => Clean());
         }
 
         public byte[] Get(string key)
@@ -253,21 +250,7 @@ namespace MapControl.Caching
             }
         }
 
-        private string GetPath(string key)
-        {
-            try
-            {
-                return Path.Combine(rootDirectory, Path.Combine(key.Split('/')));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ImageFileCache: Invalid key {rootDirectory}/{key}: {ex.Message}");
-            }
-
-            return null;
-        }
-
-        private void CleanRootDirectory()
+        public void Clean()
         {
             try
             {
@@ -285,6 +268,25 @@ namespace MapControl.Caching
             {
                 Debug.WriteLine($"ImageFileCache: Failed enumerating directories in {rootDirectory}: {ex.Message}");
             }
+        }
+
+        public Task CleanAsync()
+        {
+            return Task.Factory.StartNew(Clean, TaskCreationOptions.LongRunning);
+        }
+
+        private string GetPath(string key)
+        {
+            try
+            {
+                return Path.Combine(rootDirectory, Path.Combine(key.Split('/')));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ImageFileCache: Invalid key {rootDirectory}/{key}: {ex.Message}");
+            }
+
+            return null;
         }
 
         private static int CleanDirectory(DirectoryInfo directory)

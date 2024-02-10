@@ -70,17 +70,6 @@ namespace MapControl.Caching
             fileDb.Dispose();
         }
 
-        public void Clean()
-        {
-            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
-
-            if (deleted > 0)
-            {
-                Debug.WriteLine($"FileDbCache: Deleted {deleted} expired items");
-                fileDb.Clean();
-            }
-        }
-
         public byte[] Get(string key)
         {
             CheckArgument(key);
@@ -177,6 +166,17 @@ namespace MapControl.Caching
             }
         }
 
+        public void Clean()
+        {
+            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+
+            if (deleted > 0)
+            {
+                Debug.WriteLine($"FileDbCache: Deleted {deleted} expired items");
+                fileDb.Clean();
+            }
+        }
+
         public Task<byte[]> GetAsync(string key, CancellationToken token = default)
         {
             return Task.FromResult(Get(key));
@@ -197,6 +197,12 @@ namespace MapControl.Caching
         public Task RemoveAsync(string key, CancellationToken token = default)
         {
             Remove(key);
+            return Task.CompletedTask;
+        }
+
+        public Task CleanAsync()
+        {
+            Clean();
             return Task.CompletedTask;
         }
 

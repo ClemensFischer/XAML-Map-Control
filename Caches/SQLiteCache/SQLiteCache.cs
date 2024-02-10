@@ -50,25 +50,6 @@ namespace MapControl.Caching
             connection.Dispose();
         }
 
-        public void Clean()
-        {
-            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
-            {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
-                command.ExecuteNonQuery();
-            }
-#if DEBUG
-            using (var command = new SQLiteCommand("select changes()", connection))
-            {
-                var deleted = (long)command.ExecuteScalar();
-                if (deleted > 0)
-                {
-                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
-                }
-            }
-#endif
-        }
-
         public byte[] Get(string key)
         {
             CheckArgument(key);
@@ -199,6 +180,44 @@ namespace MapControl.Caching
             {
                 Debug.WriteLine($"SQLiteCache.RemoveAsync({key}): {ex.Message}");
             }
+        }
+
+        public void Clean()
+        {
+            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
+            {
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
+                command.ExecuteNonQuery();
+            }
+#if DEBUG
+            using (var command = new SQLiteCommand("select changes()", connection))
+            {
+                var deleted = (long)command.ExecuteScalar();
+                if (deleted > 0)
+                {
+                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
+                }
+            }
+#endif
+        }
+
+        public async Task CleanAsync()
+        {
+            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
+            {
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
+                await command.ExecuteNonQueryAsync();
+            }
+#if DEBUG
+            using (var command = new SQLiteCommand("select changes()", connection))
+            {
+                var deleted = (long)await command.ExecuteScalarAsync();
+                if (deleted > 0)
+                {
+                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
+                }
+            }
+#endif
         }
 
         private SQLiteCommand GetItemCommand(string key)
