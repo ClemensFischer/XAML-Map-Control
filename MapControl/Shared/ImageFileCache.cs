@@ -37,7 +37,7 @@ namespace MapControl.Caching
 
             rootDirectory = directory;
 
-            Debug.WriteLine($"Created ImageFileCache in {rootDirectory}");
+            Debug.WriteLine($"ImageFileCache: {rootDirectory}");
 
             ThreadPool.QueueUserWorkItem(o => Clean());
         }
@@ -252,21 +252,11 @@ namespace MapControl.Caching
 
         public void Clean()
         {
-            try
-            {
-                foreach (var dir in new DirectoryInfo(rootDirectory).EnumerateDirectories())
-                {
-                    var deletedFileCount = CleanDirectory(dir);
+            var deletedFileCount = CleanDirectory(new DirectoryInfo(rootDirectory));
 
-                    if (deletedFileCount > 0)
-                    {
-                        Debug.WriteLine($"ImageFileCache: Cleaned {deletedFileCount} files in {dir}");
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (deletedFileCount > 0)
             {
-                Debug.WriteLine($"ImageFileCache: Failed enumerating directories in {rootDirectory}: {ex.Message}");
+                Debug.WriteLine($"ImageFileCache: Deleted {deletedFileCount} expired files.");
             }
         }
 
@@ -283,7 +273,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageFileCache: Invalid key {rootDirectory}/{key}: {ex.Message}");
+                Debug.WriteLine($"ImageFileCache: Invalid key {key}: {ex.Message}");
             }
 
             return null;
