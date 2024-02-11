@@ -22,8 +22,7 @@ namespace MapControl.Caching
     /// </summary>
     public partial class ImageFileCache : IDistributedCache
     {
-        private static readonly byte[] expirationTagBytes = Encoding.ASCII.GetBytes("EXPIRES:");
-        private static readonly long expirationTagLong = BitConverter.ToInt64(expirationTagBytes, 0);
+        private static readonly byte[] expirationTag = Encoding.ASCII.GetBytes("EXPIRES:");
 
         private readonly IDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
         private readonly string rootDirectory;
@@ -56,24 +55,9 @@ namespace MapControl.Caching
                     {
                         buffer = File.ReadAllBytes(path);
 
-                        var expiration = ReadExpiration(ref buffer);
-
-                        if (expiration.HasValue)
+                        if (CheckExpiration(ref buffer, out DistributedCacheEntryOptions options))
                         {
-                            if (expiration.Value > DateTimeOffset.UtcNow)
-                            {
-                                var options = new DistributedCacheEntryOptions
-                                {
-                                    AbsoluteExpiration = expiration
-                                };
-
-                                memoryCache.Set(key, buffer, options);
-                            }
-                            else
-                            {
-                                File.Delete(path);
-                                buffer = null;
-                            }
+                            memoryCache.Set(key, buffer, options);
                         }
                     }
                 }
@@ -100,24 +84,9 @@ namespace MapControl.Caching
                     {
                         buffer = await ReadAllBytesAsync(path).ConfigureAwait(false);
 
-                        var expiration = ReadExpiration(ref buffer);
-
-                        if (expiration.HasValue)
+                        if (CheckExpiration(ref buffer, out DistributedCacheEntryOptions options))
                         {
-                            if (expiration.Value > DateTimeOffset.UtcNow)
-                            {
-                                var options = new DistributedCacheEntryOptions
-                                {
-                                    AbsoluteExpiration = expiration
-                                };
-
-                                await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                File.Delete(path);
-                                buffer = null;
-                            }
+                            await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
                         }
                     }
                 }
@@ -146,14 +115,9 @@ namespace MapControl.Caching
                     {
                         Write(stream, buffer);
 
-                        var expiration = GetExpiration(options);
-
-                        if (expiration.HasValue)
+                        if (GetExpirationBytes(options, out byte[] expiration))
                         {
-                            var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
-
-                            Write(stream, expirationTagBytes);
-                            Write(stream, expirationValueBytes);
+                            Write(stream, expiration);
                         }
                     }
 
@@ -182,14 +146,9 @@ namespace MapControl.Caching
                     {
                         await WriteAsync(stream, buffer).ConfigureAwait(false);
 
-                        var expiration = GetExpiration(options);
-
-                        if (expiration.HasValue)
+                        if (GetExpirationBytes(options, out byte[] expiration))
                         {
-                            var expirationValueBytes = BitConverter.GetBytes(expiration.Value.Ticks);
-
-                            await WriteAsync(stream, expirationTagBytes).ConfigureAwait(false);
-                            await WriteAsync(stream, expirationValueBytes).ConfigureAwait(false);
+                            await WriteAsync(stream, expiration).ConfigureAwait(false);
                         }
                     }
 
@@ -306,91 +265,96 @@ namespace MapControl.Caching
         {
             var deletedFileCount = 0;
 
-            try
+            if (file.Length > 16)
             {
-                var expiration = ReadExpiration(file);
-
-                if (expiration.HasValue && expiration.Value <= DateTimeOffset.UtcNow)
+                try
                 {
-                    file.Delete();
-                    deletedFileCount = 1;
+                    var hasExpired = false;
+                    var buffer = new byte[16];
+
+                    using (var stream = file.OpenRead())
+                    {
+                        stream.Seek(-16, SeekOrigin.End);
+                        hasExpired = stream.Read(buffer, 0, 16) == 16
+                            && GetExpirationTicks(buffer, out long expiration)
+                            && expiration <= DateTimeOffset.UtcNow.Ticks;
+                    }
+
+                    if (hasExpired)
+                    {
+                        file.Delete();
+                        deletedFileCount = 1;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ImageFileCache: Failed cleaning {file.FullName}: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ImageFileCache: Failed cleaning {file.FullName}: {ex.Message}");
+                }
             }
 
             return deletedFileCount;
         }
 
-        private static DateTimeOffset? GetExpiration(DistributedCacheEntryOptions options)
+        private static bool CheckExpiration(ref byte[] buffer, out DistributedCacheEntryOptions options)
         {
-            DateTimeOffset? expiration = null;
+            if (GetExpirationTicks(buffer, out long expiration))
+            {
+                if (expiration > DateTimeOffset.UtcNow.Ticks)
+                {
+                    Array.Resize(ref buffer, buffer.Length - 16);
+
+                    options = new DistributedCacheEntryOptions
+                    {
+                        AbsoluteExpiration = new DateTimeOffset(expiration, TimeSpan.Zero)
+                    };
+
+                    return true;
+                }
+
+                buffer = null; // buffer has expired
+            }
+
+            options = null;
+            return false;
+        }
+
+        private static bool GetExpirationTicks(byte[] buffer, out long expirationTicks)
+        {
+            if (buffer.Length >= 16 &&
+                expirationTag.SequenceEqual(buffer.Skip(buffer.Length - 16).Take(8)))
+            {
+                expirationTicks = BitConverter.ToInt64(buffer, buffer.Length - 8);
+                return true;
+            }
+
+            expirationTicks = 0;
+            return false;
+        }
+
+        private static bool GetExpirationBytes(DistributedCacheEntryOptions options, out byte[] expirationBytes)
+        {
+            long expirationTicks;
 
             if (options.AbsoluteExpiration.HasValue)
             {
-                expiration = options.AbsoluteExpiration.Value;
+                expirationTicks = options.AbsoluteExpiration.Value.Ticks;
             }
             else if (options.AbsoluteExpirationRelativeToNow.HasValue)
             {
-                expiration = DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow.Value);
+                expirationTicks = DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow.Value).Ticks;
             }
             else if (options.SlidingExpiration.HasValue)
             {
-                expiration = DateTimeOffset.UtcNow.Add(options.SlidingExpiration.Value);
+                expirationTicks = DateTimeOffset.UtcNow.Add(options.SlidingExpiration.Value).Ticks;
             }
-
-            return expiration;
-        }
-
-        private static DateTimeOffset? ReadExpiration(FileInfo file)
-        {
-            DateTimeOffset? expiration = null;
-
-            if (file.Length > 16)
+            else
             {
-                var buffer = new byte[16];
-
-                using (var stream = file.OpenRead())
-                {
-                    stream.Seek(-16, SeekOrigin.End);
-
-                    if (stream.Read(buffer, 0, 16) == 16)
-                    {
-                        expiration = ReadExpiration(buffer);
-                    }
-                }
+                expirationBytes = null;
+                return false;
             }
 
-            return expiration;
-        }
-
-        private static DateTimeOffset? ReadExpiration(ref byte[] buffer)
-        {
-            var expiration = ReadExpiration(buffer);
-
-            if (expiration.HasValue)
-            {
-                Array.Resize(ref buffer, buffer.Length - 16);
-            }
-
-            return expiration;
-        }
-
-        private static DateTimeOffset? ReadExpiration(byte[] buffer)
-        {
-            DateTimeOffset? expiration = null;
-
-            if (buffer.Length >= 16 &&
-                BitConverter.ToInt64(buffer, buffer.Length - 16) == expirationTagLong)
-            {
-                var expirationTicks = BitConverter.ToInt64(buffer, buffer.Length - 8);
-
-                expiration = new DateTimeOffset(expirationTicks, TimeSpan.Zero);
-            }
-
-            return expiration;
+            expirationBytes = expirationTag.Concat(BitConverter.GetBytes(expirationTicks)).ToArray();
+            return true;
         }
 
 #if NETFRAMEWORK
