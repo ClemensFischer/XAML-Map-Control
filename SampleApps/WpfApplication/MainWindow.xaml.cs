@@ -14,9 +14,9 @@ namespace SampleApplication
     {
         static MainWindow()
         {
-            //TileImageLoader.Cache = new ImageFileCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new FileDbCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new SQLiteCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new RedisCache(Options.Create(new RedisCacheOptions
             //{
             //    Configuration = "localhost:6379",
