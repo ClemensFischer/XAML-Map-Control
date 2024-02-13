@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
 
@@ -14,7 +15,7 @@ namespace MapControl
         /// <summary>
         /// Default folder where the Cache instance may save data.
         /// </summary>
-        public static string DefaultCacheFolder => Windows.Storage.ApplicationData.Current.TemporaryFolder.Path;
+        public static string DefaultCacheFolder => ApplicationData.Current.TemporaryFolder.Path;
 
 
         private static async Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
