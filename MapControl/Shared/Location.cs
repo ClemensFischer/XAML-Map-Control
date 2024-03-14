@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace MapControl
@@ -107,7 +108,8 @@ namespace MapControl
             var cosLon12 = Math.Cos(lon2 - lon1);
             var a = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
             var b = cosLat2 * sinLon12;
-            var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12);
+            var c = sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12;
+            var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), c);
 
             return earthRadius * s12;
         }
