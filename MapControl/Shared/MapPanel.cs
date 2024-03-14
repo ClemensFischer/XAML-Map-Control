@@ -207,8 +207,8 @@ namespace MapControl
                 position.HasValue &&
                 IsOutsideViewport(position.Value))
             {
-                location = new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude));
-                position = parentMap.LocationToView(location);
+                position = parentMap.LocationToView(
+                    new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude)));
             }
 
             return position;
