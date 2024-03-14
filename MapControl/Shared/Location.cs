@@ -15,8 +15,6 @@ namespace MapControl
 #endif
     public class Location : IEquatable<Location>
     {
-        private double latitude;
-
         public Location()
         {
         }
@@ -26,6 +24,8 @@ namespace MapControl
             Latitude = latitude;
             Longitude = longitude;
         }
+
+        private double latitude;
 
         public double Latitude
         {
