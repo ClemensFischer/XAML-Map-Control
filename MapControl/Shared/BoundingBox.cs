@@ -11,7 +11,7 @@ namespace MapControl
     /// A geographic bounding box with south and north latitude and west and east longitude values in degrees.
     /// </summary>
 #if WINUI || UWP
-    [Windows.Foundation.Metadata.CreateFromString(MethodName = "MapControl.BoundingBox.Parse")]
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
 #else
     [System.ComponentModel.TypeConverter(typeof(BoundingBoxConverter))]
 #endif

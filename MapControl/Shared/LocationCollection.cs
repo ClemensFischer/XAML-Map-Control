@@ -13,7 +13,7 @@ namespace MapControl
     /// and calculation of great circle and rhumb line locations.
     /// </summary>
 #if WINUI || UWP
-    [Windows.Foundation.Metadata.CreateFromString(MethodName = "MapControl.LocationCollection.Parse")]
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
 #else
     [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif

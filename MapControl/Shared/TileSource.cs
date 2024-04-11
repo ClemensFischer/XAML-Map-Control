@@ -18,7 +18,7 @@ namespace MapControl
     /// Provides the download Uri or ImageSource of map tiles.
     /// </summary>
 #if WINUI || UWP
-    [Windows.Foundation.Metadata.CreateFromString(MethodName = "MapControl.TileSource.Parse")]
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
 #else
     [System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]
 #endif
