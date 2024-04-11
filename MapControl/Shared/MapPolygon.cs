@@ -32,7 +32,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the Locations that define the polygon points.
         /// </summary>
-#if !UWP
+#if !WINUI && !UWP
         [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
         public IEnumerable<Location> Locations
