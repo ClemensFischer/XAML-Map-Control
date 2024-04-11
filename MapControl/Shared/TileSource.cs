@@ -17,7 +17,9 @@ namespace MapControl
     /// <summary>
     /// Provides the download Uri or ImageSource of map tiles.
     /// </summary>
-#if !UWP
+#if WINUI || UWP
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "MapControl.TileSource.Parse")]
+#else
     [System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]
 #endif
     public class TileSource
@@ -80,6 +82,11 @@ namespace MapControl
             var uri = GetUri(column, row, zoomLevel);
 
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
+        }
+
+        public static TileSource Parse(string uriTemplate)
+        {
+            return new TileSource { UriTemplate = uriTemplate };
         }
     }
 

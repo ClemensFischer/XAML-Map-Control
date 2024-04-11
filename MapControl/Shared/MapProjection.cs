@@ -71,7 +71,7 @@ namespace MapControl
         {
             MapRect mapRect = null;
 
-            if (boundingBox.HasValidBounds)
+            if (boundingBox.South < boundingBox.North && boundingBox.West < boundingBox.East)
             {
                 var p1 = LocationToMap(new Location(boundingBox.South, boundingBox.West));
                 var p2 = LocationToMap(new Location(boundingBox.North, boundingBox.East));

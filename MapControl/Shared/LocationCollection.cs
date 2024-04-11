@@ -12,7 +12,9 @@ namespace MapControl
     /// A collection of Locations with support for string parsing
     /// and calculation of great circle and rhumb line locations.
     /// </summary>
-#if !UWP
+#if WINUI || UWP
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "MapControl.LocationCollection.Parse")]
+#else
     [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
     public class LocationCollection : List<Location>

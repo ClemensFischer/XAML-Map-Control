@@ -10,26 +10,21 @@ namespace MapControl
     /// <summary>
     /// A geographic bounding box with south and north latitude and west and east longitude values in degrees.
     /// </summary>
-#if !UWP
+#if WINUI || UWP
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "MapControl.BoundingBox.Parse")]
+#else
     [System.ComponentModel.TypeConverter(typeof(BoundingBoxConverter))]
 #endif
     public class BoundingBox
     {
-        private double south;
-        private double north;
-
         public BoundingBox()
         {
-            south = double.NaN;
-            north = double.NaN;
-            West = double.NaN;
-            East = double.NaN;
         }
 
         public BoundingBox(double latitude1, double longitude1, double latitude2, double longitude2)
         {
-            South = Math.Min(latitude1, latitude2);
-            North = Math.Max(latitude1, latitude2);
+            South = Math.Min(Math.Max(Math.Min(latitude1, latitude2), -90d), 90d);
+            North = Math.Min(Math.Max(Math.Max(latitude1, latitude2), -90d), 90d);
             West = Math.Min(longitude1, longitude2);
             East = Math.Max(longitude1, longitude2);
         }
@@ -39,28 +34,15 @@ namespace MapControl
         {
         }
 
-        public double South
-        {
-            get => south;
-            set => south = Math.Min(Math.Max(value, -90d), 90d);
-        }
-
-        public double North
-        {
-            get => north;
-            set => north = Math.Min(Math.Max(value, -90d), 90d);
-        }
-
-        public double West { get; set; }
-        public double East { get; set; }
+        public double South { get; }
+        public double North { get; }
+        public double West { get; }
+        public double East { get; }
 
         public virtual double Width => East - West;
         public virtual double Height => North - South;
 
-        public virtual Location Center =>
-            HasValidBounds ? new Location((South + North) / 2d, (West + East) / 2d) : null;
-
-        public virtual bool HasValidBounds => South < North && West < East;
+        public virtual Location Center => new Location((South + North) / 2d, (West + East) / 2d);
 
         public static BoundingBox Parse(string boundingBox)
         {
