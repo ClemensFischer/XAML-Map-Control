@@ -52,6 +52,10 @@ namespace MapControl
             Add(new Location(latitude, longitude));
         }
 
+        /// <summary>
+        /// Creates a LocationCollection instance from a string containing a sequence
+        /// of Location strings that are separated by a spaces or semicolons.
+        /// </summary>
         public static LocationCollection Parse(string locations)
         {
             if (string.IsNullOrEmpty(locations))

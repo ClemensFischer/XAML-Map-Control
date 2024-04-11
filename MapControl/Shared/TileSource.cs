@@ -84,6 +84,9 @@ namespace MapControl
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
 
+        /// <summary>
+        /// Creates a TileSource instance from an Uri template string.
+        /// </summary>
         public static TileSource Parse(string uriTemplate)
         {
             return new TileSource { UriTemplate = uriTemplate };

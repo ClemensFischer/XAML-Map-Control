@@ -44,6 +44,9 @@ namespace MapControl
 
         public virtual Location Center => new Location((South + North) / 2d, (West + East) / 2d);
 
+        /// <summary>
+        /// Creates a BoundingBox instance from a string containing a comma-separated sequence of four floating point numbers.
+        /// </summary>
         public static BoundingBox Parse(string boundingBox)
         {
             string[] values = null;
@@ -55,7 +58,7 @@ namespace MapControl
 
             if (values?.Length != 4)
             {
-                throw new FormatException("BoundingBox string must be a comma-separated list of four floating point numbers.");
+                throw new FormatException("BoundingBox string must contain a comma-separated sequence of four floating point numbers.");
             }
 
             return new BoundingBox(

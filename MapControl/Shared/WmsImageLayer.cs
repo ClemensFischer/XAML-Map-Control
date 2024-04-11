@@ -67,7 +67,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Comma-separated list of Layer names to be displayed. If not set, the first Layer is displayed.
+        /// Comma-separated sequence of Layer names to be displayed. If not set, the first Layer is displayed.
         /// </summary>
         public string Layers
         {
@@ -76,7 +76,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Comma-separated list of requested styles. Default is an empty string.
+        /// Comma-separated sequence of requested styles. Default is an empty string.
         /// </summary>
         public string Styles
         {

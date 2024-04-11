@@ -52,6 +52,9 @@ namespace MapControl
             return string.Format(CultureInfo.InvariantCulture, "{0:F5},{1:F5}", Latitude, Longitude);
         }
 
+        /// <summary>
+        /// Creates a Location instance from a string containing a comma-separated pair of floating point numbers.
+        /// </summary>
         public static Location Parse(string location)
         {
             string[] values = null;
@@ -63,7 +66,7 @@ namespace MapControl
 
             if (values?.Length != 2)
             {
-                throw new FormatException("Location string must be a comma-separated pair of floating point numbers.");
+                throw new FormatException("Location string must contain a comma-separated pair of floating point numbers.");
             }
 
             return new Location(
