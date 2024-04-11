@@ -232,8 +232,8 @@ namespace MapControl
 
                 if (location != null)
                 {
-                    location.Longitude = parentMap.ConstrainedLongitude(location.Longitude);
-                    var pos = parentMap.LocationToView(location);
+                    var pos = parentMap.LocationToView(
+                        new Location(location.Latitude, parentMap.ConstrainedLongitude(location.Longitude)));
 
                     if (pos.HasValue)
                     {

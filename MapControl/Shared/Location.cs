@@ -10,7 +10,9 @@ namespace MapControl
     /// <summary>
     /// A geographic location with latitude and longitude values in degrees.
     /// </summary>
-#if !UWP
+#if WINUI || UWP
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "MapControl.Location.Parse")]
+#else
     [System.ComponentModel.TypeConverter(typeof(LocationConverter))]
 #endif
     public class Location : IEquatable<Location>
@@ -21,19 +23,12 @@ namespace MapControl
 
         public Location(double latitude, double longitude)
         {
-            Latitude = latitude;
+            Latitude = Math.Min(Math.Max(latitude, -90d), 90d);
             Longitude = longitude;
         }
 
-        private double latitude;
-
-        public double Latitude
-        {
-            get => latitude;
-            set => latitude = Math.Min(Math.Max(value, -90d), 90d);
-        }
-
-        public double Longitude { get; set; }
+        public double Latitude { get; }
+        public double Longitude { get; }
 
         public bool Equals(Location location)
         {

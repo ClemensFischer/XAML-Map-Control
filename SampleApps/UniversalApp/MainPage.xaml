@@ -97,14 +97,12 @@
         </Grid.DataContext>
 
         <map:Map x:Name="map" ManipulationMode="All"
+                 Center="53.5,8.2"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11"
                  PointerPressed="MapPointerPressed"
                  PointerReleased="MapPointerReleased"
                  PointerMoved="MapPointerMoved"
                  PointerExited="MapPointerExited">
-            <map:Map.Center>
-                <map:Location Latitude="53.5" Longitude="8.2"/>
-            </map:Map.Center>
 
             <map:MapPolyline x:Name="measurementLine" Visibility="Collapsed"
                              Stroke="{Binding Foreground, ElementName=map}"
@@ -122,11 +120,7 @@
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"
                                  LocationMemberPath="Location"/>
 
-            <map:Pushpin AutoCollapse="True" Content="N 53°30' E 8°12'">
-                <map:Pushpin.Location>
-                    <map:Location Latitude="53.5" Longitude="8.2"/>
-                </map:Pushpin.Location>
-            </map:Pushpin>
+            <map:Pushpin Location="53.5,8.2" AutoCollapse="True" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
         <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4" IsHitTestVisible="False">

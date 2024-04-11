@@ -774,13 +774,16 @@ namespace MapControl
 
                     if (center != null)
                     {
-                        center.Longitude = Location.NormalizeLongitude(center.Longitude);
+                        var centerLatitude = center.Latitude;
+                        var centerLongitude = Location.NormalizeLongitude(center.Longitude);
 
-                        if (center.Latitude < -maxLatitude || center.Latitude > maxLatitude)
+                        if (centerLatitude < -maxLatitude || centerLatitude > maxLatitude)
                         {
-                            center.Latitude = Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude);
+                            centerLatitude = Math.Min(Math.Max(centerLatitude, -maxLatitude), maxLatitude);
                             resetTransformCenter = true;
                         }
+
+                        center = new Location(centerLatitude, centerLongitude);
 
                         SetValueInternal(CenterProperty, center);
 
