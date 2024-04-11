@@ -21,11 +21,6 @@ namespace SampleApplication
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new RedisCache(Options.Create(new RedisCacheOptions
-            //{
-            //    Configuration = "localhost:6379",
-            //    InstanceName = "MapTileCache/"
-            //}));
 
             var bingMapsApiKeyPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "BingMapsApiKey.txt");
