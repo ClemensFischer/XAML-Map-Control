@@ -11,7 +11,7 @@ namespace MapControl
 {
     /// <summary>
     /// Map rectangle with double floating point precision, in contrast to Windows.Foundation.Rect.
-    /// Used by MapProjection to convert geodetic bounding boxes to/from projected map coordinates.
+    /// Used by MapProjection when converting geographic bounding boxes to/from projected map coordinates.
     /// </summary>
     public class MapRect
     {

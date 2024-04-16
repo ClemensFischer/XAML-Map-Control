@@ -150,8 +150,7 @@ namespace MapControl
                 extension = ".jpg";
             }
 
-            var cacheKey = string.Format(CultureInfo.InvariantCulture,
-                "{0}/{1}/{2}/{3}{4}", cacheName, tile.ZoomLevel, tile.Column, tile.Row, extension);
+            var cacheKey = $"{cacheName}/{tile.ZoomLevel}/{tile.Column}/{tile.Row}{extension}";
 
             var buffer = await ReadCacheAsync(cacheKey).ConfigureAwait(false);
 

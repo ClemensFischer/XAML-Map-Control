@@ -99,8 +99,8 @@ namespace MapControl
                 line.Measure(size);
 
                 label.Text = length >= 1000d
-                    ? string.Format(CultureInfo.InvariantCulture, "{0:0} km", length / 1000d)
-                    : string.Format(CultureInfo.InvariantCulture, "{0:0} m", length);
+                    ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
+                    : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
                 label.Width = size.Width;
                 label.Height = size.Height;
                 label.Measure(size);

@@ -76,7 +76,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the geodetic Location of an element.
+        /// Gets the Location of an element.
         /// </summary>
         public static Location GetLocation(FrameworkElement element)
         {
@@ -84,7 +84,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets the geodetic Location of an element.
+        /// Sets the Location of an element.
         /// </summary>
         public static void SetLocation(FrameworkElement element, Location value)
         {
