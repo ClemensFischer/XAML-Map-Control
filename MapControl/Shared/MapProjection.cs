@@ -130,15 +130,14 @@ namespace MapControl
         /// </summary>
         public virtual string GetBboxValue(MapRect mapRect)
         {
-            // Truncate bounding box to 1 cm precision.
+            // Truncate values for seamless stitching of two WMS images at 180° longitude,
+            // as done in WmsImageLayer.GetImageAsync.
             //
-            const double p = 0.01;
-
             return string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}",
-                p * Math.Ceiling(mapRect.XMin / p),
-                p * Math.Ceiling(mapRect.YMin / p),
-                p * Math.Floor(mapRect.XMax / p),
-                p * Math.Floor(mapRect.YMax / p));
+                0.01 * Math.Ceiling(100d * mapRect.XMin),
+                0.01 * Math.Ceiling(100d * mapRect.YMin),
+                0.01 * Math.Floor(100d * mapRect.XMax),
+                0.01 * Math.Floor(100d * mapRect.YMax));
         }
     }
 }

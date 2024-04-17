@@ -22,7 +22,7 @@ namespace MapControl
         public bool ProjectionChanged { get; }
 
         /// <summary>
-        /// Indicates that the view transform center has moved across the dateline.
+        /// Indicates that the view transform center has moved across 180° longitude.
         /// Used to control when a MapTileLayer should be updated immediately.
         /// </summary>
         public bool TransformCenterChanged { get; }

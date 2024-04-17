@@ -8,7 +8,6 @@ using GeoAPI.Geometries;
 using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
 using System;
-using System.Globalization;
 #if !WINUI && !UWP
 using System.Windows;
 #endif
@@ -126,12 +125,6 @@ namespace MapControl.Projections
             var coordinate = MapToLocationTransform.Transform(new Coordinate(point.X, point.Y));
 
             return new Location(coordinate.Y, coordinate.X);
-        }
-
-        public override string GetBboxValue(MapRect rect)
-        {
-            return string.Format(CultureInfo.InvariantCulture,
-                "{0},{1},{2},{3}", rect.XMin, rect.YMin, rect.XMax, rect.YMax);
         }
     }
 }

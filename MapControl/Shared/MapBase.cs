@@ -794,7 +794,7 @@ namespace MapControl
 
                         if (resetTransformCenter)
                         {
-                            // Check if transform center moved across the dateline.
+                            // Check if transform center has moved across 180° longitude.
                             //
                             transformCenterChanged = Math.Abs(center.Longitude - transformCenter.Longitude) > 180d;
 
@@ -814,7 +814,7 @@ namespace MapControl
 
                 SetViewScale(ViewTransform.Scale);
 
-                // Check if view center moved across the dateline.
+                // Check if view center has moved across 180° longitude.
                 //
                 transformCenterChanged = transformCenterChanged || Math.Abs(Center.Longitude - centerLongitude) > 180d;
                 centerLongitude = Center.Longitude;
