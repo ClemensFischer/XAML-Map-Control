@@ -49,7 +49,7 @@ namespace MapControl
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0:F6},{1:F6}", Latitude, Longitude);
+            return string.Format(CultureInfo.InvariantCulture, "{0},{1}", Latitude, Longitude);
         }
 
         /// <summary>
