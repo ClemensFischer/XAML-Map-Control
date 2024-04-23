@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace SampleApplication
 {
@@ -41,19 +42,38 @@ namespace SampleApplication
                 mapLayersMenuButton.MapLayers.Add(new MapLayerItem
                 {
                     Text = "Bing Maps Road",
-                    Layer = (UIElement)Resources["BingMapsRoad"]
+                    Layer = new BingMapsTileLayer
+                    {
+                        Mode = BingMapsTileLayer.MapMode.Road,
+                        SourceName = "Bing Maps Road",
+                        Description = "© [Microsoft](http://www.bing.com/maps/)"
+                    }
                 });
 
                 mapLayersMenuButton.MapLayers.Add(new MapLayerItem
                 {
                     Text = "Bing Maps Aerial",
-                    Layer = (UIElement)Resources["BingMapsAerial"]
+                    Layer = new BingMapsTileLayer
+                    {
+                        Mode = BingMapsTileLayer.MapMode.Aerial,
+                        SourceName = "Bing Maps Aerial",
+                        Description = "© [Microsoft](http://www.bing.com/maps/)",
+                        MapForeground = Brushes.White,
+                        MapBackground = Brushes.Black
+                    }
                 });
 
                 mapLayersMenuButton.MapLayers.Add(new MapLayerItem
                 {
                     Text = "Bing Maps Aerial with Labels",
-                    Layer = (UIElement)Resources["BingMapsHybrid"]
+                    Layer = new BingMapsTileLayer
+                    {
+                        Mode = BingMapsTileLayer.MapMode.AerialWithLabels,
+                        SourceName = "Bing Maps Hybrid",
+                        Description = "© [Microsoft](http://www.bing.com/maps/)",
+                        MapForeground = Brushes.White,
+                        MapBackground = Brushes.Black
+                    }
                 });
             }
 

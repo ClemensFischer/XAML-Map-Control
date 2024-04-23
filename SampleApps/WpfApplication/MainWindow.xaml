@@ -9,10 +9,6 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="MapLayers.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-
             <DataTemplate DataType="{x:Type local:PolylineItem}">
                 <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
             </DataTemplate>
@@ -189,13 +185,46 @@
             <tools:MapLayersMenuButton x:Name="mapLayersMenuButton"
                 Margin="2" ToolTip="Map Layers and Overlays"
                 Map="{Binding ElementName=map}">
-                <tools:MapLayerItem Text="OpenStreetMap" Layer="{StaticResource OpenStreetMap}"/>
-                <tools:MapLayerItem Text="OpenStreetMap German" Layer="{StaticResource OpenStreetMapGerman}"/>
-                <tools:MapLayerItem Text="OpenStreetMap French" Layer="{StaticResource OpenStreetMapFrench}"/>
-                <tools:MapLayerItem Text="OpenTopoMap" Layer="{StaticResource OpenTopoMap}"/>
-                <tools:MapLayerItem Text="TopPlusOpen WMTS" Layer="{StaticResource TopPlusOpenWMTS}"/>
-                <tools:MapLayerItem Text="TopPlusOpen WMS" Layer="{StaticResource TopPlusOpenWMS}"/>
-                <tools:MapLayerItem Text="OpenStreetMap WMS" Layer="{StaticResource OpenStreetMapWMS}"/>
+                <tools:MapLayerItem Text="OpenStreetMap">
+                    <map:MapTileLayer
+                        TileSource="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        SourceName="OpenStreetMap"
+                        Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenStreetMap German">
+                    <map:MapTileLayer
+                        TileSource="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"
+                        SourceName="OpenStreetMap German"
+                        Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenStreetMap French">
+                    <map:MapTileLayer
+                        TileSource="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
+                        SourceName="OpenStreetMap French"
+                        Description="© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenTopoMap">
+                    <map:MapTileLayer
+                        TileSource="https://tile.opentopomap.org/{z}/{x}/{y}.png"
+                        SourceName="OpenTopoMap"
+                        Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="TopPlusOpen WMTS">
+                    <map:WmtsTileLayer
+                        CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"
+                        SourceName="TopPlusOpen"
+                        Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="TopPlusOpen WMS">
+                    <map:WmsImageLayer
+                        ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"
+                        Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenStreetMap WMS">
+                    <map:WmsImageLayer
+                        ServiceUri="http://ows.terrestris.de/osm/service"
+                        Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
                 <tools:MapLayersMenuButton.MapOverlays>
                     <tools:MapLayerItem Text="Graticule">
                         <map:MapGraticule Opacity="0.7"/>
@@ -203,7 +232,12 @@
                     <tools:MapLayerItem Text="Scale">
                         <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                     </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Seamarks" Layer="{StaticResource Seamarks}"/>
+                    <tools:MapLayerItem Text="Seamarks">
+                        <map:MapTileLayer
+                            TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
+                            SourceName="Seamarks"
+                            MinZoomLevel="9" MaxZoomLevel="18"/>
+                    </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Sample Image">
                         <Image Source="10_535_330.jpg" Stretch="Fill"
                                map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
