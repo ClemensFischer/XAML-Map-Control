@@ -425,6 +425,58 @@ namespace MapControl
             return longitude;
         }
 
+        private void SetValueInternal(DependencyProperty property, object value)
+        {
+            internalPropertyChange = true;
+
+            SetValue(property, value);
+
+            internalPropertyChange = false;
+        }
+
+        private void AdjustCenterProperty(DependencyProperty property, ref Location center)
+        {
+            var c = center;
+
+            if (center == null)
+            {
+                center = new Location();
+            }
+            else if (
+                center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
+                center.Longitude < -180d || center.Longitude > 180d)
+            {
+                center = new Location(
+                    Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude),
+                    Location.NormalizeLongitude(center.Longitude));
+            }
+
+            if (center != c)
+            {
+                SetValueInternal(property, center);
+            }
+        }
+
+        private void AdjustZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
+        {
+            if (zoomLevel < MinZoomLevel || zoomLevel > MaxZoomLevel)
+            {
+                zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
+
+                SetValueInternal(property, zoomLevel);
+            }
+        }
+
+        private void AdjustHeadingProperty(DependencyProperty property, ref double heading)
+        {
+            if (heading < 0d || heading > 360d)
+            {
+                heading = ((heading % 360d) + 360d) % 360d;
+
+                SetValueInternal(property, heading);
+            }
+        }
+
         private void MapLayerPropertyChanged(UIElement oldLayer, UIElement newLayer)
         {
             if (oldLayer != null)
@@ -487,29 +539,6 @@ namespace MapControl
         {
             ResetTransformCenter();
             UpdateTransform();
-        }
-
-        private void AdjustCenterProperty(DependencyProperty property, ref Location center)
-        {
-            var c = center;
-
-            if (center == null)
-            {
-                center = new Location();
-            }
-            else if (
-                center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
-                center.Longitude < -180d || center.Longitude > 180d)
-            {
-                center = new Location(
-                    Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude),
-                    Location.NormalizeLongitude(center.Longitude));
-            }
-
-            if (center != c)
-            {
-                SetValueInternal(property, center);
-            }
         }
 
         private void CenterPropertyChanged(Location center)
@@ -604,16 +633,6 @@ namespace MapControl
             }
         }
 
-        private void AdjustZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
-        {
-            if (zoomLevel < MinZoomLevel || zoomLevel > MaxZoomLevel)
-            {
-                zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
-
-                SetValueInternal(property, zoomLevel);
-            }
-        }
-
         private void ZoomLevelPropertyChanged(double zoomLevel)
         {
             if (!internalPropertyChange)
@@ -666,16 +685,6 @@ namespace MapControl
                 zoomLevelAnimation = null;
 
                 this.BeginAnimation(ZoomLevelProperty, null);
-            }
-        }
-
-        private void AdjustHeadingProperty(DependencyProperty property, ref double heading)
-        {
-            if (heading < 0d || heading > 360d)
-            {
-                heading = ((heading % 360d) + 360d) % 360d;
-
-                SetValueInternal(property, heading);
             }
         }
 
@@ -743,15 +752,6 @@ namespace MapControl
 
                 this.BeginAnimation(HeadingProperty, null);
             }
-        }
-
-        private void SetValueInternal(DependencyProperty property, object value)
-        {
-            internalPropertyChange = true;
-
-            SetValue(property, value);
-
-            internalPropertyChange = false;
         }
 
         private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
