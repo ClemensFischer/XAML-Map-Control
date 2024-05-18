@@ -75,7 +75,6 @@ namespace MapControl
             Rotation = ((rotation % 360d) + 360d) % 360d;
 
             var transform = new Matrix(Scale, 0d, 0d, -Scale, -Scale * mapCenter.X, Scale * mapCenter.Y);
-
             transform.Rotate(Rotation);
             transform.Translate(viewCenter.X, viewCenter.Y);
 
@@ -88,11 +87,6 @@ namespace MapControl
 
         public Matrix GetTileLayerTransform(double tileMatrixScale, Point tileMatrixTopLeft, Point tileMatrixOrigin)
         {
-            var transformScale = Scale / tileMatrixScale;
-            var transform = new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d);
-
-            transform.Rotate(Rotation);
-
             // Tile matrix origin in map coordinates.
             //
             var mapOrigin = new Point(
@@ -103,6 +97,10 @@ namespace MapControl
             //
             var viewOrigin = MapToView(mapOrigin);
 
+            var transformScale = Scale / tileMatrixScale;
+
+            var transform = new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d);
+            transform.Rotate(Rotation);
             transform.Translate(viewOrigin.X, viewOrigin.Y);
 
             return transform;
@@ -110,14 +108,14 @@ namespace MapControl
 
         public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, Size viewSize)
         {
-            var transformScale = tileMatrixScale / Scale;
-            var transform = new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d);
-
-            transform.Rotate(-Rotation);
-
             // View origin in map coordinates.
             //
             var origin = ViewToMap(new Point());
+
+            var transformScale = tileMatrixScale / Scale;
+
+            var transform = new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d);
+            transform.Rotate(-Rotation);
 
             // Translate origin to tile matrix origin in pixels.
             //
