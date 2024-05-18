@@ -20,7 +20,7 @@ using System.Windows.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Displays web mercator map tiles.
+    /// Displays a standard Web Mercator map tile grid, e.g. an OpenStreetMap tile grid.
     /// </summary>
     public class MapTileLayer : MapTileLayerBase
     {
