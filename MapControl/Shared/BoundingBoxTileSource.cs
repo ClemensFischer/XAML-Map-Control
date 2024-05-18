@@ -13,14 +13,14 @@ namespace MapControl
     {
         public override Uri GetUri(int column, int row, int zoomLevel)
         {
-            GetBounds(column, row, zoomLevel, out double west, out double south, out double east, out double north);
+            GetTileBounds(column, row, zoomLevel, out double west, out double south, out double east, out double north);
 
             return GetUri(west, south, east, north);
         }
 
         public override Task<ImageSource> LoadImageAsync(int column, int row, int zoomLevel)
         {
-            GetBounds(column, row, zoomLevel, out double west, out double south, out double east, out double north);
+            GetTileBounds(column, row, zoomLevel, out double west, out double south, out double east, out double north);
 
             return LoadImageAsync(west, south, east, north);
         }
@@ -51,7 +51,11 @@ namespace MapControl
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
 
-        protected void GetBounds(int column, int row, int zoomLevel, out double west, out double south, out double east, out double north)
+        /// <summary>
+        /// Gets the bounding box in meters of a standard Web Mercator tile, specified by grid column and row indices and zoom level.
+        /// </summary>
+        public static void GetTileBounds(int column, int row, int zoomLevel,
+            out double west, out double south, out double east, out double north)
         {
             var tileSize = 360d / (1 << zoomLevel); // tile size in degrees
 
