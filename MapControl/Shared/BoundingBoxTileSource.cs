@@ -5,7 +5,13 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+#if WINUI
+using Microsoft.UI.Xaml.Media;
+#elif UWP
+using Windows.UI.Xaml.Media;
+#else
 using System.Windows.Media;
+#endif
 
 namespace MapControl
 {
@@ -52,7 +58,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the bounding box in meters of a standard Web Mercator tile, specified by grid column and row indices and zoom level.
+        /// Gets the bounding box in meters of a standard Web Mercator tile,
+        /// specified by grid column and row indices and zoom level.
         /// </summary>
         public static void GetTileBounds(int column, int row, int zoomLevel,
             out double west, out double south, out double east, out double north)
