@@ -30,7 +30,7 @@
       <Compile Include="..\Shared\ViewportChangedEventArgs.cs" Link="ViewportChangedEventArgs.cs" />
       <Compile Include="..\Shared\ViewRect.cs" Link="ViewRect.cs" />
       <Compile Include="..\Shared\WebMercatorProjection.cs" Link="WebMercatorProjection.cs" />
-      <Compile Include="..\WPF\TypeConverters.cs" Link="TypeConverters.cs" />
+      <Compile Include="..\WPF\TypeConverters.WPF.cs" Link="TypeConverters.WPF.cs" />
     </ItemGroup>
 
     <ItemGroup>
