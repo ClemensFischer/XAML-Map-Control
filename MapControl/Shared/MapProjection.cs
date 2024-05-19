@@ -29,8 +29,6 @@ namespace MapControl
         public const double Wgs84Flattening = 1d / 298.257223563;
         public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
 
-        public static MapProjectionFactory Factory { get; set; } = new MapProjectionFactory();
-
         /// <summary>
         /// Gets the type of the projection.
         /// </summary>
@@ -49,7 +47,7 @@ namespace MapControl
         /// <summary>
         /// Gets the relative map scale at the specified Location.
         /// </summary>
-        public virtual Scale GetRelativeScale(Location location) => new Scale(1d, 1d);
+        public virtual Point GetRelativeScale(Location location) => new Point(1d, 1d);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.
@@ -64,12 +62,12 @@ namespace MapControl
         public abstract Location MapToLocation(Point point);
 
         /// <summary>
-        /// Transforms a BoundingBox in geographic coordinates to a MapRect in projected map coordinates.
+        /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates.
         /// Returns null when the BoundingBox can not be transformed.
         /// </summary>
-        public virtual MapRect BoundingBoxToMapRect(BoundingBox boundingBox)
+        public virtual Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
-            MapRect mapRect = null;
+            Rect? rect = null;
 
             if (boundingBox.South < boundingBox.North && boundingBox.West < boundingBox.East)
             {
@@ -78,7 +76,7 @@ namespace MapControl
 
                 if (p1.HasValue && p2.HasValue)
                 {
-                    mapRect = new MapRect(p1.Value, p2.Value);
+                    rect = new Rect(p1.Value, p2.Value);
                 }
             }
             else if (boundingBox.Center != null)
@@ -94,21 +92,21 @@ namespace MapControl
                     var x = center.Value.X - width / 2d;
                     var y = center.Value.Y - height / 2d;
 
-                    mapRect = new MapRect(x, y, x + width, y + height);
+                    rect = new Rect(x, y, width, height);
                 }
             }
 
-            return mapRect;
+            return rect;
         }
 
         /// <summary>
-        /// Transforms a MapRect in projected map coordinates to a BoundingBox in geographic coordinates.
+        /// Transforms a Rect in projected map coordinates to a BoundingBox in geographic coordinates.
         /// Returns null when the MapRect can not be transformed.
         /// </summary>
-        public virtual BoundingBox MapRectToBoundingBox(MapRect mapRect)
+        public virtual BoundingBox MapToBoundingBox(Rect rect)
         {
-            var southWest = MapToLocation(new Point(mapRect.XMin, mapRect.YMin));
-            var northEast = MapToLocation(new Point(mapRect.XMax, mapRect.YMax));
+            var southWest = MapToLocation(new Point(rect.X, rect.Y));
+            var northEast = MapToLocation(new Point(rect.X + rect.Width, rect.Y + rect.Height));
 
             return southWest != null && northEast != null
                 ? new BoundingBox(southWest, northEast)
@@ -128,16 +126,16 @@ namespace MapControl
         /// <summary>
         /// Gets the BBOX parameter value for a WMS GetMap request.
         /// </summary>
-        public virtual string GetBboxValue(MapRect mapRect)
+        public virtual string GetBboxValue(Rect rect)
         {
             // Truncate values for seamless stitching of two WMS images at 180° longitude,
             // as done in WmsImageLayer.GetImageAsync.
             //
             return string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}",
-                0.01 * Math.Ceiling(100d * mapRect.XMin),
-                0.01 * Math.Ceiling(100d * mapRect.YMin),
-                0.01 * Math.Floor(100d * mapRect.XMax),
-                0.01 * Math.Floor(100d * mapRect.YMax));
+                0.01 * Math.Ceiling(100d * rect.X),
+                0.01 * Math.Ceiling(100d * rect.Y),
+                0.01 * Math.Floor(100d * (rect.X + rect.Width)),
+                0.01 * Math.Floor(100d * (rect.Y + rect.Height)));
         }
     }
 }

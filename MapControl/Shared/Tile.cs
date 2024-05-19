@@ -3,21 +3,19 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINUI
-using Microsoft.UI.Xaml;
+#if AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using ImageSource = Avalonia.Media.IImage;
+#elif WINUI
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
 #elif UWP
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 #else
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 #endif
 
 namespace MapControl
@@ -55,17 +53,6 @@ namespace MapControl
             {
                 AnimateImageOpacity();
             }
-        }
-
-        private void BeginOpacityAnimation()
-        {
-            Image.BeginAnimation(UIElement.OpacityProperty,
-                new DoubleAnimation
-                {
-                    From = 0d,
-                    Duration = MapBase.ImageFadeDuration,
-                    FillBehavior = FillBehavior.Stop
-                });
         }
     }
 }

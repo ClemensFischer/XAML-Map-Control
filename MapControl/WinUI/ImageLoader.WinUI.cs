@@ -21,6 +21,11 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
+        public static ImageSource LoadImage(Uri uri)
+        {
+            return new BitmapImage(uri);
+        }
+
         public static async Task<WriteableBitmap> LoadImageAsync(BitmapDecoder decoder)
         {
             var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);

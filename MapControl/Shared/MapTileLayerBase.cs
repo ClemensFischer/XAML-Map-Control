@@ -23,11 +23,6 @@ using System.Windows.Threading;
 
 namespace MapControl
 {
-    public interface ITileImageLoader
-    {
-        Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
-    }
-
     public abstract class MapTileLayerBase : Panel, IMapLayer
     {
         public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(

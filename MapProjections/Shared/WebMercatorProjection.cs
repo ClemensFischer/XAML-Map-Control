@@ -4,6 +4,9 @@
 
 using ProjNet.CoordinateSystems;
 using System;
+#if !WINUI && !UWP
+using System.Windows;
+#endif
 
 namespace MapControl.Projections
 {
@@ -20,11 +23,11 @@ namespace MapControl.Projections
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;
         }
 
-        public override Scale GetRelativeScale(Location location)
+        public override Point GetRelativeScale(Location location)
         {
             var k = 1d / Math.Cos(location.Latitude * Math.PI / 180d); // p.44 (7-3)
 
-            return new Scale(k, k);
+            return new Point(k, k);
         }
     }
 }

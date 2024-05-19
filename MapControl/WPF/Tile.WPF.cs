@@ -3,14 +3,27 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
     public partial class Tile
     {
+        private void BeginOpacityAnimation()
+        {
+            Image.BeginAnimation(UIElement.OpacityProperty,
+                new DoubleAnimation
+                {
+                    From = 0d,
+                    Duration = MapBase.ImageFadeDuration,
+                    FillBehavior = FillBehavior.Stop
+                });
+        }
+
         private void AnimateImageOpacity()
         {
             if (Image.Source is BitmapSource bitmap && bitmap.IsDownloading && !bitmap.IsFrozen)

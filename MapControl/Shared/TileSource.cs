@@ -4,7 +4,9 @@
 
 using System;
 using System.Threading.Tasks;
-#if WINUI
+#if AVALONIA
+using ImageSource = Avalonia.Media.IImage;
+#elif WINUI
 using Microsoft.UI.Xaml.Media;
 #elif UWP
 using Windows.UI.Xaml.Media;

@@ -183,9 +183,9 @@ namespace MapControl
                         {
                             var viewRect = GetViewRect(boundingBox);
 
-                            if (viewRect != null)
+                            if (viewRect.HasValue)
                             {
-                                ArrangeElement(element, viewRect);
+                                ArrangeElement(element, viewRect.Value);
                             }
                         }
                         else
@@ -214,21 +214,27 @@ namespace MapControl
             return position;
         }
 
-        protected ViewRect GetViewRect(BoundingBox boundingBox)
+        protected ViewRect? GetViewRect(BoundingBox boundingBox)
         {
-            var mapRect = parentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
+            var rect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            return mapRect != null ? GetViewRect(mapRect) : null;
+            if (!rect.HasValue)
+            {
+                return null;
+            }
+
+            return GetViewRect(rect.Value);
         }
 
-        protected ViewRect GetViewRect(MapRect mapRect)
+        protected ViewRect GetViewRect(Rect rect)
         {
-            var position = parentMap.ViewTransform.MapToView(mapRect.Center);
+            var rectCenter = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+            var position = parentMap.ViewTransform.MapToView(rectCenter);
 
             if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
                 IsOutsideViewport(position))
             {
-                var location = parentMap.MapProjection.MapToLocation(mapRect.Center);
+                var location = parentMap.MapProjection.MapToLocation(rectCenter);
 
                 if (location != null)
                 {
@@ -242,8 +248,8 @@ namespace MapControl
                 }
             }
 
-            var width = mapRect.Width * parentMap.ViewTransform.Scale;
-            var height = mapRect.Height * parentMap.ViewTransform.Scale;
+            var width = rect.Width * parentMap.ViewTransform.Scale;
+            var height = rect.Height * parentMap.ViewTransform.Scale;
             var x = position.X - width / 2d;
             var y = position.Y - height / 2d;
 
@@ -259,16 +265,17 @@ namespace MapControl
         private static void ArrangeElement(FrameworkElement element, Point position)
         {
             var size = GetDesiredSize(element);
-            var rect = new Rect(position.X, position.Y, size.Width, size.Height);
+            var x = position.X;
+            var y = position.Y;
 
             switch (element.HorizontalAlignment)
             {
                 case HorizontalAlignment.Center:
-                    rect.X -= rect.Width / 2d;
+                    x -= size.Width / 2d;
                     break;
 
                 case HorizontalAlignment.Right:
-                    rect.X -= rect.Width;
+                    x -= size.Width;
                     break;
 
                 default:
@@ -278,37 +285,40 @@ namespace MapControl
             switch (element.VerticalAlignment)
             {
                 case VerticalAlignment.Center:
-                    rect.Y -= rect.Height / 2d;
+                    y -= size.Height / 2d;
                     break;
 
                 case VerticalAlignment.Bottom:
-                    rect.Y -= rect.Height;
+                    y -= size.Height;
                     break;
 
                 default:
                     break;
             }
 
-            ArrangeElement(element, rect);
+            ArrangeElement(element, new Rect(x, y, size.Width, size.Height));
         }
 
         private static void ArrangeElement(FrameworkElement element, Size parentSize)
         {
             var size = GetDesiredSize(element);
-            var rect = new Rect(0d, 0d, size.Width, size.Height);
+            var x = 0d;
+            var y = 0d;
+            var width = size.Width;
+            var height = size.Height;
 
             switch (element.HorizontalAlignment)
             {
                 case HorizontalAlignment.Center:
-                    rect.X = (parentSize.Width - rect.Width) / 2d;
+                    x = (parentSize.Width - size.Width) / 2d;
                     break;
 
                 case HorizontalAlignment.Right:
-                    rect.X = parentSize.Width - rect.Width;
+                    x = parentSize.Width - size.Width;
                     break;
 
                 case HorizontalAlignment.Stretch:
-                    rect.Width = parentSize.Width;
+                    width = parentSize.Width;
                     break;
 
                 default:
@@ -318,30 +328,30 @@ namespace MapControl
             switch (element.VerticalAlignment)
             {
                 case VerticalAlignment.Center:
-                    rect.Y = (parentSize.Height - rect.Height) / 2d;
+                    y = (parentSize.Height - size.Height) / 2d;
                     break;
 
                 case VerticalAlignment.Bottom:
-                    rect.Y = parentSize.Height - rect.Height;
+                    y = parentSize.Height - size.Height;
                     break;
 
                 case VerticalAlignment.Stretch:
-                    rect.Height = parentSize.Height;
+                    height = parentSize.Height;
                     break;
 
                 default:
                     break;
             }
 
-            ArrangeElement(element, rect);
+            ArrangeElement(element, new Rect(x, y, width, height));
         }
 
         private static void ArrangeElement(FrameworkElement element, ViewRect rect)
         {
-            element.Width = rect.Width;
-            element.Height = rect.Height;
+            element.Width = rect.Rect.Width;
+            element.Height = rect.Rect.Height;
 
-            ArrangeElement(element, new Rect(rect.X, rect.Y, rect.Width, rect.Height));
+            ArrangeElement(element, rect.Rect);
 
             if (element.RenderTransform is RotateTransform rotateTransform)
             {
@@ -359,10 +369,7 @@ namespace MapControl
         {
             if (element.UseLayoutRounding)
             {
-                rect.X = Math.Round(rect.X);
-                rect.Y = Math.Round(rect.Y);
-                rect.Width = Math.Round(rect.Width);
-                rect.Height = Math.Round(rect.Height);
+                rect = new Rect(Math.Round(rect.X), Math.Round(rect.Y), Math.Round(rect.Width), Math.Round(rect.Height));
             }
 
             element.Arrange(rect);

@@ -6,6 +6,14 @@ namespace MapControl
 {
     public class MapProjectionFactory
     {
+        private static MapProjectionFactory instance;
+
+        public static MapProjectionFactory Instance
+        {
+            get => instance ?? (instance = new MapProjectionFactory());
+            set => instance = value;
+        }
+
         public virtual MapProjection GetProjection(int epsgCode)
         {
             MapProjection projection = null;

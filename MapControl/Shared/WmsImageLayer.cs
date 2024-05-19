@@ -239,9 +239,9 @@ namespace MapControl
         /// </summary>
         protected virtual string GetMapRequestUri(BoundingBox boundingBox)
         {
-            var mapRect = ParentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
+            var rect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (mapRect == null)
+            if (!rect.HasValue)
             {
                 return null;
             }
@@ -257,9 +257,9 @@ namespace MapControl
                 { "STYLES", Styles ?? "" },
                 { "FORMAT", "image/png" },
                 { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(mapRect) },
-                { "WIDTH", Math.Round(viewScale * mapRect.Width).ToString("F0") },
-                { "HEIGHT", Math.Round(viewScale * mapRect.Height).ToString("F0") }
+                { "BBOX", GetBboxValue(rect.Value) },
+                { "WIDTH", Math.Round(viewScale * rect.Value.Width).ToString("F0") },
+                { "HEIGHT", Math.Round(viewScale * rect.Value.Height).ToString("F0") }
             });
         }
 
@@ -270,18 +270,18 @@ namespace MapControl
         {
             var viewSize = ParentMap.RenderSize;
             var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, viewSize.Width, viewSize.Height));
-            var mapRect = ParentMap.MapProjection.BoundingBoxToMapRect(boundingBox);
+            var rect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (mapRect == null)
+            if (!rect.HasValue)
             {
                 return null;
             }
 
-            var viewRect = GetViewRect(mapRect);
+            var viewRect = GetViewRect(rect.Value);
 
-            var transform = new Matrix(1, 0, 0, 1, -viewSize.Width / 2, -viewSize.Height / 2);
+            var transform = new Matrix(1d, 0d, 0d, 1d, -viewSize.Width / 2d, -viewSize.Height / 2d);
             transform.Rotate(-viewRect.Rotation);
-            transform.Translate(viewRect.Width / 2, viewRect.Height / 2);
+            transform.Translate(viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
 
             var imagePos = transform.Transform(position);
 
@@ -295,9 +295,9 @@ namespace MapControl
                 { "FORMAT", "image/png" },
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(mapRect) },
-                { "WIDTH", Math.Round(viewRect.Width).ToString("F0") },
-                { "HEIGHT", Math.Round(viewRect.Height).ToString("F0") },
+                { "BBOX", GetBboxValue(rect.Value) },
+                { "WIDTH", Math.Round(viewRect.Rect.Width).ToString("F0") },
+                { "HEIGHT", Math.Round(viewRect.Rect.Height).ToString("F0") },
                 { "I", Math.Round(imagePos.X).ToString("F0") },
                 { "J", Math.Round(imagePos.Y).ToString("F0") }
             };
@@ -310,9 +310,9 @@ namespace MapControl
             return ParentMap.MapProjection.GetCrsValue();
         }
 
-        protected virtual string GetBboxValue(MapRect mapRect)
+        protected virtual string GetBboxValue(Rect rect)
         {
-            return ParentMap.MapProjection.GetBboxValue(mapRect);
+            return ParentMap.MapProjection.GetBboxValue(rect);
         }
 
         protected string GetRequestUri(IDictionary<string, string> queryParameters)

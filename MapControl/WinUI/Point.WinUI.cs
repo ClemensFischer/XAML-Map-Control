@@ -7,7 +7,7 @@ namespace MapControl
     /// <summary>
     /// Replaces Windows.Foundation.Point for double floating point precision.
     /// </summary>
-    public struct Point
+    public readonly struct Point
     {
         public Point(double x, double y)
         {
@@ -15,8 +15,8 @@ namespace MapControl
             Y = y;
         }
 
-        public double X { get; set; }
-        public double Y { get; set; }
+        public double X { get; }
+        public double Y { get; }
 
         public static implicit operator Windows.Foundation.Point(Point p)
         {

@@ -37,18 +37,18 @@ namespace MapControl
 
             if (projection != null && items != null)
             {
-                var mapRect = projection.BoundingBoxToMapRect(boundingBox);
+                var rect = projection.BoundingBoxToMap(boundingBox);
 
-                if (mapRect != null)
+                if (rect.HasValue)
                 {
-                    image = await Task.Run(() => GetImage(projection, mapRect, items));
+                    image = await Task.Run(() => GetImage(projection, rect.Value, items));
                 }
             }
 
             return image;
         }
 
-        private DrawingImage GetImage(MapProjection projection, MapRect mapRect, IEnumerable<IMapDrawingItem> items)
+        private DrawingImage GetImage(MapProjection projection, Rect rect, IEnumerable<IMapDrawingItem> items)
         {
             var scale = ParentMap.ViewTransform.Scale;
             var rotation = ParentMap.ViewTransform.Rotation;
@@ -62,13 +62,13 @@ namespace MapControl
                     .Select(point => point.Value)
                     .ToList();
 
-                if (points.Any(point => mapRect.Contains(point)))
+                if (points.Any(point => rect.Contains(point)))
                 {
                     for (int i = 0; i < points.Count; i++)
                     {
                         points[i] = new Point(
-                            scale * (points[i].X - mapRect.XMin),
-                            scale * (mapRect.YMax - points[i].Y));
+                            scale * (points[i].X - rect.X),
+                            scale * ((rect.Y + rect.Height) - points[i].Y));
                     }
 
                     drawings.Children.Add(item.GetDrawing(points, scale, rotation));
@@ -79,7 +79,7 @@ namespace MapControl
             {
                 Drawing = drawings,
                 ViewboxUnits = BrushMappingMode.Absolute,
-                Viewbox = new Rect(0, 0, scale * mapRect.Width, scale * mapRect.Height),
+                Viewbox = new Rect(0, 0, scale * rect.Width, scale * rect.Height),
             };
 
             var drawing = new GeometryDrawing(

@@ -231,9 +231,11 @@ namespace MapControl
         /// Gets the map scale as the horizontal and vertical scaling factors from geographic
         /// coordinates to view coordinates at the specified location, as pixels per meter.
         /// </summary>
-        public Scale GetScale(Location location)
+        public Point GetScale(Location location)
         {
-            return ViewTransform.Scale * MapProjection.GetRelativeScale(location);
+            var relativeScale = MapProjection.GetRelativeScale(location);
+
+            return new Point(ViewTransform.Scale * relativeScale.X, ViewTransform.Scale * relativeScale.Y);
         }
 
         /// <summary>
@@ -286,7 +288,7 @@ namespace MapControl
             var x2 = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
             var y2 = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
 
-            return MapProjection.MapRectToBoundingBox(new MapRect(x1, y1, x2, y2));
+            return MapProjection.MapToBoundingBox(new Rect(x1, y1, x2 - x1, y2 - y1));
         }
 
         /// <summary>
@@ -342,8 +344,7 @@ namespace MapControl
             {
                 SetTransformCenter(center);
 
-                viewCenter.X += translation.X;
-                viewCenter.Y += translation.Y;
+                viewCenter = new Point(viewCenter.X + translation.X, viewCenter.Y + translation.Y);
 
                 if (rotation != 0d)
                 {
@@ -392,15 +393,16 @@ namespace MapControl
         /// </summary>
         public void ZoomToBounds(BoundingBox boundingBox)
         {
-            var mapRect = MapProjection.BoundingBoxToMapRect(boundingBox);
+            var rect = MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (mapRect != null)
+            if (rect.HasValue)
             {
-                var targetCenter = MapProjection.MapToLocation(mapRect.Center);
+                var rectCenter = new Point(rect.Value.X + rect.Value.Width / 2d, rect.Value.Y + rect.Value.Height / 2d);
+                var targetCenter = MapProjection.MapToLocation(rectCenter);
 
                 if (targetCenter != null)
                 {
-                    var scale = Math.Min(RenderSize.Width / mapRect.Width, RenderSize.Height / mapRect.Height);
+                    var scale = Math.Min(RenderSize.Width / rect.Value.Width, RenderSize.Height / rect.Value.Height);
 
                     TargetZoomLevel = ViewTransform.ScaleToZoomLevel(scale);
                     TargetCenter = targetCenter;

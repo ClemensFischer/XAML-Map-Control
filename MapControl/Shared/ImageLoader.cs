@@ -9,15 +9,14 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-#if WINUI
+#if AVALONIA
+using ImageSource = Avalonia.Media.IImage;
+#elif WINUI
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 #elif UWP
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 #else
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 #endif
 
 namespace MapControl
@@ -43,11 +42,7 @@ namespace MapControl
 
             try
             {
-                if (!uri.IsAbsoluteUri || uri.IsFile)
-                {
-                    image = await LoadImageAsync(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
-                }
-                else if (uri.Scheme == "http" || uri.Scheme == "https")
+                if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
                 {
                     var response = await GetHttpResponseAsync(uri, progress);
 
@@ -56,9 +51,13 @@ namespace MapControl
                         image = await LoadImageAsync(response.Buffer);
                     }
                 }
+                else if (uri.IsFile || !uri.IsAbsoluteUri)
+                {
+                    image = await LoadImageAsync(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
+                }
                 else
                 {
-                    image = new BitmapImage(uri);
+                    image = LoadImage(uri);
                 }
             }
             catch (Exception ex)

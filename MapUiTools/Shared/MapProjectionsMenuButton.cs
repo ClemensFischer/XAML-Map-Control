@@ -89,7 +89,7 @@ namespace MapControl.UiTools
             if (selectedProjection != projection)
             {
                 selectedProjection = projection;
-                Map.MapProjection = MapProjection.Factory.GetProjection(selectedProjection);
+                Map.MapProjection = MapProjectionFactory.Instance.GetProjection(selectedProjection);
             }
 
             UpdateCheckedStates();

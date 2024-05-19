@@ -3,6 +3,9 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+#if !WINUI && !UWP
+using System.Windows;
+#endif
 
 namespace MapControl
 {
@@ -16,12 +19,13 @@ namespace MapControl
             Type = MapProjectionType.Azimuthal;
         }
 
-        public override BoundingBox MapRectToBoundingBox(MapRect mapRect)
+        public override BoundingBox MapToBoundingBox(Rect rect)
         {
-            var center = MapToLocation(mapRect.Center);
+            var rectCenter = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+            var center = MapToLocation(rectCenter);
 
             return center != null
-                ? new CenteredBoundingBox(center, mapRect.Width / Wgs84MeterPerDegree, mapRect.Height / Wgs84MeterPerDegree)
+                ? new CenteredBoundingBox(center, rect.Width / Wgs84MeterPerDegree, rect.Height / Wgs84MeterPerDegree)
                 : null;
         }
 

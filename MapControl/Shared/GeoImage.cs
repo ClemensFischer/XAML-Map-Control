@@ -119,15 +119,15 @@ namespace MapControl
 
                 var p1 = transform.Transform(new Point());
                 var p2 = transform.Transform(new Point(geoBitmap.Bitmap.PixelWidth, geoBitmap.Bitmap.PixelHeight));
-                var mapRect = new MapRect(p1, p2);
+                var rect = new Rect(p1, p2);
 
                 if (geoBitmap.Projection != null)
                 {
-                    boundingBox = geoBitmap.Projection.MapRectToBoundingBox(mapRect);
+                    boundingBox = geoBitmap.Projection.MapToBoundingBox(rect);
                 }
                 else
                 {
-                    boundingBox = new BoundingBox(mapRect.YMin, mapRect.XMin, mapRect.YMax, mapRect.XMax);
+                    boundingBox = new BoundingBox(rect.Y, rect.X, rect.Y + rect.Height, rect.X + rect.Width);
                 }
             }
 
@@ -181,7 +181,7 @@ namespace MapControl
                 {
                     int epsgCode = geoKeyDirectory[i + 3];
 
-                    projection = MapProjection.Factory.GetProjection(epsgCode) ??
+                    projection = MapProjectionFactory.Instance.GetProjection(epsgCode) ??
                         throw new ArgumentException($"Can not create projection EPSG:{epsgCode} in {sourcePath}.");
 
                     break;

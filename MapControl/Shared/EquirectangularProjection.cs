@@ -26,9 +26,9 @@ namespace MapControl
             CrsId = DefaultCrsId;
         }
 
-        public override Scale GetRelativeScale(Location location)
+        public override Point GetRelativeScale(Location location)
         {
-            return new Scale(
+            return new Point(
                 1d / Math.Cos(location.Latitude * Math.PI / 180d),
                 1d);
         }
@@ -47,14 +47,14 @@ namespace MapControl
                 point.X / Wgs84MeterPerDegree);
         }
 
-        public override string GetBboxValue(MapRect mapRect)
+        public override string GetBboxValue(Rect rect)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 CrsId == "CRS:84" ? "{0},{1},{2},{3}" : "{1},{0},{3},{2}",
-                mapRect.XMin / Wgs84MeterPerDegree,
-                mapRect.YMin / Wgs84MeterPerDegree,
-                mapRect.XMax / Wgs84MeterPerDegree,
-                mapRect.YMax / Wgs84MeterPerDegree);
+                rect.X / Wgs84MeterPerDegree,
+                rect.Y / Wgs84MeterPerDegree,
+                (rect.X + rect.Width) / Wgs84MeterPerDegree,
+                (rect.Y + rect.Height) / Wgs84MeterPerDegree);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace MapControl
         public double FalseNorthing { get; set; } = 2e6;
         public bool IsNorth { get; set; }
 
-        public override Scale GetRelativeScale(Location location)
+        public override Point GetRelativeScale(Location location)
         {
             var lat = location.Latitude * Math.PI / 180d;
 
@@ -48,7 +48,7 @@ namespace MapControl
             var m = Math.Cos(lat) / Math.Sqrt(1d - eSinLat * eSinLat); // p.160 (14-15)
             var k = r / (EquatorialRadius * m); // p.161 (21-32)
 
-            return new Scale(k, k);
+            return new Point(k, k);
         }
 
         public override Point? LocationToMap(Location location)

@@ -9,7 +9,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +18,11 @@ namespace MapControl
     /// <summary>
     /// Loads and optionally caches map tile images for a MapTileLayer.
     /// </summary>
+    public interface ITileImageLoader
+    {
+        Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
+    }
+
     public partial class TileImageLoader : ITileImageLoader
     {
         private class TileQueue : ConcurrentStack<Tile>

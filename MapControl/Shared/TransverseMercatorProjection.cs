@@ -29,7 +29,7 @@ namespace MapControl
         public double FalseEasting { get; set; }
         public double FalseNorthing { get; set; }
 
-        public override Scale GetRelativeScale(Location location)
+        public override Point GetRelativeScale(Location location)
         {
             var k = ScaleFactor;
 
@@ -58,7 +58,7 @@ namespace MapControl
                     + (61d - 148d * T + 16d * T_2) * A_6 / 720d); // p.61 (8-11)
             }
 
-            return new Scale(k, k);
+            return new Point(k, k);
         }
 
         public override Point? LocationToMap(Location location)
