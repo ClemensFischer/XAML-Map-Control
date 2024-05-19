@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using Avalonia.Input;
-using System;
 using System.Threading;
 
 namespace MapControl
@@ -41,7 +40,7 @@ namespace MapControl
 
             if (cancellationTokenSource != null)
             {
-                cancellationTokenSource?.Cancel();
+                cancellationTokenSource.Cancel();
                 targetZoomLevel += delta;
             }
             else
