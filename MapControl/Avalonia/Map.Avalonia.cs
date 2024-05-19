@@ -22,6 +22,9 @@ namespace MapControl
         public Map()
         {
             PointerWheelChanged += OnPointerWheelChanged;
+            PointerPressed += OnPointerPressed;
+            PointerReleased += OnPointerReleased;
+            PointerMoved += OnPointerMoved;
         }
 
         /// <summary>
@@ -56,10 +59,8 @@ namespace MapControl
             cancellationTokenSource = null;
         }
 
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        private void OnPointerPressed(object sender, PointerPressedEventArgs e)
         {
-            base.OnPointerPressed(e);
-
             var point = e.GetCurrentPoint(this);
 
             if (point.Properties.IsLeftButtonPressed)
@@ -69,10 +70,8 @@ namespace MapControl
             }
         }
 
-        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        private void OnPointerReleased(object sender, PointerReleasedEventArgs e)
         {
-            base.OnPointerReleased(e);
-
             if (mousePosition.HasValue)
             {
                 e.Pointer.Capture(null);
@@ -80,10 +79,8 @@ namespace MapControl
             }
         }
 
-        protected override void OnPointerMoved(PointerEventArgs e)
+        private void OnPointerMoved(object sender, PointerEventArgs e)
         {
-            base.OnPointerMoved(e);
-
             if (mousePosition.HasValue)
             {
                 var position = e.GetPosition(this);
