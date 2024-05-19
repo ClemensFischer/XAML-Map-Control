@@ -138,9 +138,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the minimum value of the ZoomLevel and TargetZommLevel properties.
-        /// Must be greater than or equal to zero and less than or equal to MaxZoomLevel.
-        /// The default value is 1.
+        /// Gets or sets the minimum value of the ZoomLevel and TargetZoomLevel properties.
+        /// Must not be less than zero or greater than MaxZoomLevel. The default value is 1.
         /// </summary>
         public double MinZoomLevel
         {
@@ -149,9 +148,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the maximum value of the ZoomLevel and TargetZommLevel properties.
-        /// Must be greater than or equal to MinZoomLevel and less than or equal to 22.
-        /// The default value is 20.
+        /// Gets or sets the maximum value of the ZoomLevel and TargetZoomLevel properties.
+        /// Must not be less than MinZoomLevel. The default value is 20.
         /// </summary>
         public double MaxZoomLevel
         {
@@ -245,9 +243,11 @@ namespace MapControl
         public Matrix GetMapTransform(Location location)
         {
             var scale = GetScale(location);
-            var matrix = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
-            matrix.Rotate(ViewTransform.Rotation);
-            return matrix;
+
+            var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
+            transform.Rotate(ViewTransform.Rotation);
+
+            return transform;
         }
 
         /// <summary>

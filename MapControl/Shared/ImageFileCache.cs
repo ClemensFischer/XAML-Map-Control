@@ -9,8 +9,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +22,7 @@ namespace MapControl.Caching
     {
         private static readonly byte[] expirationTag = Encoding.ASCII.GetBytes("EXPIRES:");
 
-        private readonly IDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+        private readonly MemoryDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
         private readonly string rootDirectory;
 
         public ImageFileCache(string directory)
@@ -379,14 +377,16 @@ namespace MapControl.Caching
         private static Task WriteAsync(Stream stream, byte[] bytes) => stream.WriteAsync(bytes, 0, bytes.Length);
 
         static partial void SetAccessControl(string path);
-#if !UWP
+#if !UWP && !AVALONIA
         static partial void SetAccessControl(string path)
         {
             var fileInfo = new FileInfo(path);
             var fileSecurity = fileInfo.GetAccessControl();
-            var fullControlRule = new FileSystemAccessRule(
-                new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
-                FileSystemRights.FullControl, AccessControlType.Allow);
+            var fullControlRule = new System.Security.AccessControl.FileSystemAccessRule(
+                new System.Security.Principal.SecurityIdentifier(
+                    System.Security.Principal.WellKnownSidType.BuiltinUsersSid, null),
+                System.Security.AccessControl.FileSystemRights.FullControl,
+                System.Security.AccessControl.AccessControlType.Allow);
 
             fileSecurity.AddAccessRule(fullControlRule);
             fileInfo.SetAccessControl(fileSecurity);
