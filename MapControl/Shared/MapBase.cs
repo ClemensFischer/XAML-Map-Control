@@ -427,58 +427,6 @@ namespace MapControl
             return longitude;
         }
 
-        private void SetValueInternal(DependencyProperty property, object value)
-        {
-            internalPropertyChange = true;
-
-            SetValue(property, value);
-
-            internalPropertyChange = false;
-        }
-
-        private void AdjustCenterProperty(DependencyProperty property, ref Location center)
-        {
-            var c = center;
-
-            if (center == null)
-            {
-                center = new Location();
-            }
-            else if (
-                center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
-                center.Longitude < -180d || center.Longitude > 180d)
-            {
-                center = new Location(
-                    Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude),
-                    Location.NormalizeLongitude(center.Longitude));
-            }
-
-            if (center != c)
-            {
-                SetValueInternal(property, center);
-            }
-        }
-
-        private void AdjustZoomLevelProperty(DependencyProperty property, ref double zoomLevel)
-        {
-            if (zoomLevel < MinZoomLevel || zoomLevel > MaxZoomLevel)
-            {
-                zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
-
-                SetValueInternal(property, zoomLevel);
-            }
-        }
-
-        private void AdjustHeadingProperty(DependencyProperty property, ref double heading)
-        {
-            if (heading < 0d || heading > 360d)
-            {
-                heading = ((heading % 360d) + 360d) % 360d;
-
-                SetValueInternal(property, heading);
-            }
-        }
-
         private void MapLayerPropertyChanged(UIElement oldLayer, UIElement newLayer)
         {
             if (oldLayer != null)
@@ -528,8 +476,7 @@ namespace MapControl
                 {
                     maxLatitude = maxLocation.Latitude;
 
-                    var center = Center;
-                    AdjustCenterProperty(CenterProperty, ref center);
+                    CoerceCenterProperty(CenterProperty, Center);
                 }
             }
 
@@ -543,11 +490,37 @@ namespace MapControl
             UpdateTransform();
         }
 
+        private Location CoerceCenterProperty(DependencyProperty property, Location center)
+        {
+            var c = center;
+
+            if (center == null)
+            {
+                center = new Location();
+            }
+            else if (
+                center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
+                center.Longitude < -180d || center.Longitude > 180d)
+            {
+                center = new Location(
+                    Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude),
+                    Location.NormalizeLongitude(center.Longitude));
+            }
+
+            if (center != c)
+            {
+                SetValueInternal(property, center);
+            }
+
+            return center;
+        }
+
         private void CenterPropertyChanged(Location center)
         {
             if (!internalPropertyChange)
             {
-                AdjustCenterProperty(CenterProperty, ref center);
+                center = CoerceCenterProperty(CenterProperty, center);
+
                 UpdateTransform();
 
                 if (centerAnimation == null)
@@ -561,7 +534,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                AdjustCenterProperty(TargetCenterProperty, ref targetCenter);
+                targetCenter = CoerceCenterProperty(TargetCenterProperty, targetCenter);
 
                 if (!targetCenter.Equals(Center))
                 {
@@ -635,11 +608,24 @@ namespace MapControl
             }
         }
 
+        private double CoerceZoomLevelProperty(DependencyProperty property, double zoomLevel)
+        {
+            if (zoomLevel < MinZoomLevel || zoomLevel > MaxZoomLevel)
+            {
+                zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
+
+                SetValueInternal(property, zoomLevel);
+            }
+
+            return zoomLevel;
+        }
+
         private void ZoomLevelPropertyChanged(double zoomLevel)
         {
             if (!internalPropertyChange)
             {
-                AdjustZoomLevelProperty(ZoomLevelProperty, ref zoomLevel);
+                zoomLevel = CoerceZoomLevelProperty(ZoomLevelProperty, zoomLevel);
+
                 UpdateTransform();
 
                 if (zoomLevelAnimation == null)
@@ -653,7 +639,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                AdjustZoomLevelProperty(TargetZoomLevelProperty, ref targetZoomLevel);
+                targetZoomLevel = CoerceZoomLevelProperty(TargetZoomLevelProperty, targetZoomLevel);
 
                 if (targetZoomLevel != ZoomLevel)
                 {
@@ -690,11 +676,24 @@ namespace MapControl
             }
         }
 
+        private double CoerceHeadingProperty(DependencyProperty property, double heading)
+        {
+            if (heading < 0d || heading > 360d)
+            {
+                heading = ((heading % 360d) + 360d) % 360d;
+
+                SetValueInternal(property, heading);
+            }
+
+            return heading;
+        }
+
         private void HeadingPropertyChanged(double heading)
         {
             if (!internalPropertyChange)
             {
-                AdjustHeadingProperty(HeadingProperty, ref heading);
+                heading = CoerceHeadingProperty(HeadingProperty, heading);
+
                 UpdateTransform();
 
                 if (headingAnimation == null)
@@ -708,7 +707,7 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
-                AdjustHeadingProperty(TargetHeadingProperty, ref targetHeading);
+                targetHeading = CoerceHeadingProperty(TargetHeadingProperty, targetHeading);
 
                 if (targetHeading != Heading)
                 {
@@ -754,6 +753,15 @@ namespace MapControl
 
                 this.BeginAnimation(HeadingProperty, null);
             }
+        }
+
+        private void SetValueInternal(DependencyProperty property, object value)
+        {
+            internalPropertyChange = true;
+
+            SetValue(property, value);
+
+            internalPropertyChange = false;
         }
 
         private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
