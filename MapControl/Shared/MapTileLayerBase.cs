@@ -5,7 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-#if WINUI
+#if AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Threading;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+#elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -23,36 +28,35 @@ using System.Windows.Threading;
 
 namespace MapControl
 {
-    public abstract class MapTileLayerBase : Panel, IMapLayer
+    public abstract partial class MapTileLayerBase : Panel, IMapLayer
     {
-        public static readonly DependencyProperty TileSourceProperty = DependencyProperty.Register(
-            nameof(TileSource), typeof(TileSource), typeof(MapTileLayerBase),
-            new PropertyMetadata(null, async (o, e) => await ((MapTileLayerBase)o).Update(true)));
+        public static readonly DependencyProperty TileSourceProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null, false,
+                async (obj, oldVale, newValue) => await obj.Update(true));
 
-        public static readonly DependencyProperty SourceNameProperty = DependencyProperty.Register(
-            nameof(SourceName), typeof(string), typeof(MapTileLayerBase), new PropertyMetadata(null));
+        public static readonly DependencyProperty SourceNameProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, string>(nameof(SourceName));
 
-        public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
-            nameof(Description), typeof(string), typeof(MapTileLayerBase), new PropertyMetadata(null));
+        public static readonly DependencyProperty DescriptionProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, string>(nameof(Description));
 
-        public static readonly DependencyProperty MaxBackgroundLevelsProperty = DependencyProperty.Register(
-            nameof(MaxBackgroundLevels), typeof(int), typeof(MapTileLayerBase), new PropertyMetadata(5));
+        public static readonly DependencyProperty MaxBackgroundLevelsProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, int>(nameof(MaxBackgroundLevels), 5);
 
-        public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
-            nameof(UpdateInterval), typeof(TimeSpan), typeof(MapTileLayerBase),
-            new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapTileLayerBase)o).updateTimer.Interval = (TimeSpan)e.NewValue));
+        public static readonly DependencyProperty UpdateIntervalProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2));
 
-        public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
-            nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapTileLayerBase), new PropertyMetadata(false));
+        public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, bool>(nameof(UpdateWhileViewportChanging));
 
-        public static readonly DependencyProperty MapBackgroundProperty = DependencyProperty.Register(
-            nameof(MapBackground), typeof(Brush), typeof(MapTileLayerBase), new PropertyMetadata(null));
+        public static readonly DependencyProperty MapBackgroundProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, Brush>(nameof(MapBackground));
 
-        public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
-            nameof(MapForeground), typeof(Brush), typeof(MapTileLayerBase), new PropertyMetadata(null));
+        public static readonly DependencyProperty MapForegroundProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, Brush>(nameof(MapForeground));
 
-        public static readonly DependencyProperty LoadingProgressProperty = DependencyProperty.Register(
-            nameof(LoadingProgress), typeof(double), typeof(MapTileLayerBase), new PropertyMetadata(1d));
+        public static readonly DependencyProperty LoadingProgressProperty =
+            DependencyPropertyHelper.Register<MapTileLayerBase, double>(nameof(LoadingProgress), 1d);
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
@@ -61,9 +65,9 @@ namespace MapControl
 
         protected MapTileLayerBase()
         {
-            RenderTransform = new MatrixTransform();
+            MapPanel.SetRenderTransform(this, new MatrixTransform());
 
-            loadingProgress = new Progress<double>(p => LoadingProgress = p);
+            loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await Update(false);
@@ -155,11 +159,7 @@ namespace MapControl
         /// <summary>
         /// Gets the progress of the TileImageLoader as a double value between 0 and 1.
         /// </summary>
-        public double LoadingProgress
-        {
-            get => (double)GetValue(LoadingProgressProperty);
-            private set => SetValue(LoadingProgressProperty, value);
-        }
+        public double LoadingProgress => (double)GetValue(LoadingProgressProperty);
 
         /// <summary>
         /// Implements IMapElement.ParentMap.

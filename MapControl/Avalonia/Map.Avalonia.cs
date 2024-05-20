@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using Avalonia.Input;
-using System.Threading;
 
 namespace MapControl
 {
@@ -16,16 +15,6 @@ namespace MapControl
             = AvaloniaProperty.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
         private Point? mousePosition;
-        private double targetZoomLevel;
-        private CancellationTokenSource cancellationTokenSource;
-
-        public Map()
-        {
-            PointerWheelChanged += OnPointerWheelChanged;
-            PointerPressed += OnPointerPressed;
-            PointerReleased += OnPointerReleased;
-            PointerMoved += OnPointerMoved;
-        }
 
         /// <summary>
         /// Gets or sets the amount by which the ZoomLevel property changes by a MouseWheel event.
@@ -37,30 +26,17 @@ namespace MapControl
             set => SetValue(MouseWheelZoomDeltaProperty, value);
         }
 
-        private async void OnPointerWheelChanged(object sender, PointerWheelEventArgs e)
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            var delta = MouseWheelZoomDelta * e.Delta.Y;
+            base.OnPointerWheelChanged(e);
 
-            if (cancellationTokenSource != null)
-            {
-                cancellationTokenSource.Cancel();
-                targetZoomLevel += delta;
-            }
-            else
-            {
-                targetZoomLevel = ZoomLevel + delta;
-            }
-
-            cancellationTokenSource = new CancellationTokenSource();
-
-            await ZoomMap(e.GetPosition(this), targetZoomLevel, cancellationTokenSource.Token);
-
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = null;
+            ZoomMap(e.GetPosition(this), TargetZoomLevel + MouseWheelZoomDelta * e.Delta.Y);
         }
 
-        private void OnPointerPressed(object sender, PointerPressedEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
+            base.OnPointerPressed(e);
+
             var point = e.GetCurrentPoint(this);
 
             if (point.Properties.IsLeftButtonPressed)
@@ -70,8 +46,10 @@ namespace MapControl
             }
         }
 
-        private void OnPointerReleased(object sender, PointerReleasedEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
+            base.OnPointerReleased(e);
+
             if (mousePosition.HasValue)
             {
                 e.Pointer.Capture(null);
@@ -79,8 +57,10 @@ namespace MapControl
             }
         }
 
-        private void OnPointerMoved(object sender, PointerEventArgs e)
+        protected override void OnPointerMoved(PointerEventArgs e)
         {
+            base.OnPointerMoved(e);
+
             if (mousePosition.HasValue)
             {
                 var position = e.GetPosition(this);

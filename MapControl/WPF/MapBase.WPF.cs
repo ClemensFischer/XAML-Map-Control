@@ -3,15 +3,11 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
-using System.Windows.Controls;
 
 namespace MapControl
 {
     public partial class MapBase
     {
-        public static readonly DependencyProperty ForegroundProperty =
-            Control.ForegroundProperty.AddOwner(typeof(MapBase));
-
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
             nameof(Center), typeof(Location), typeof(MapBase), new FrameworkPropertyMetadata(
                 new Location(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,

@@ -3,8 +3,14 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Linq;
-#if WINUI
+#if AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using FrameworkElement = Avalonia.Controls.Control;
+using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
+using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
+#elif WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -20,6 +26,10 @@ using System.Windows.Controls;
 using System.Windows.Media;
 #endif
 
+/// <summary>
+/// Arranges child elements on a Map at positions specified by the attached property Location,
+/// or in rectangles specified by the attached property BoundingBox.
+/// </summary>
 namespace MapControl
 {
     /// <summary>
@@ -30,19 +40,31 @@ namespace MapControl
         MapBase ParentMap { get; set; }
     }
 
-    /// <summary>
-    /// Arranges child elements on a Map at positions specified by the attached property Location,
-    /// or in rectangles specified by the attached property BoundingBox.
-    /// </summary>
     public partial class MapPanel : Panel, IMapElement
     {
-        private static void ParentMapPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            if (obj is IMapElement mapElement)
-            {
-                mapElement.ParentMap = e.NewValue as MapBase;
-            }
-        }
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, bool>("AutoCollapse");
+
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location", null, false,
+                (obj, oldVale, newValue) => (obj.Parent as MapPanel)?.InvalidateArrange());
+
+        public static readonly DependencyProperty BoundingBoxProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null, false,
+                (obj, oldVale, newValue) => (obj.Parent as MapPanel)?.InvalidateArrange());
+
+        private static readonly DependencyProperty ViewPositionProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, Point?>("ViewPosition");
+
+        private static readonly DependencyProperty ParentMapProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, MapBase>("ParentMap", null, true,
+                (obj, oldVale, newValue) =>
+                {
+                    if (obj is IMapElement mapElement)
+                    {
+                        mapElement.ParentMap = newValue;
+                    }
+                });
 
         private MapBase parentMap;
 
@@ -54,9 +76,6 @@ namespace MapControl
             get => parentMap;
             set => SetParentMap(value);
         }
-
-        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.RegisterAttached(
-            "AutoCollapse", typeof(bool), typeof(MapPanel), new PropertyMetadata(false));
 
         /// <summary>
         /// Gets a value that controls whether an element's Visibility is automatically
@@ -115,6 +134,16 @@ namespace MapControl
             return (Point?)element.GetValue(ViewPositionProperty);
         }
 
+        /// <summary>
+        /// Sets the attached ViewPosition property of an element. The method is called during
+        /// ArrangeOverride and may be overridden to modify the actual view position value.
+        /// An overridden method should call this method to set the attached property.
+        /// </summary>
+        protected virtual void SetViewPosition(FrameworkElement element, ref Point? position)
+        {
+            element.SetValue(ViewPositionProperty, position);
+        }
+
         protected virtual void SetParentMap(MapBase map)
         {
             if (parentMap != null && parentMap != this)
@@ -146,7 +175,7 @@ namespace MapControl
         {
             availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-            foreach (var element in Children.OfType<FrameworkElement>())
+            foreach (var element in ChildElements)
             {
                 element.Measure(availableSize);
             }
@@ -158,7 +187,7 @@ namespace MapControl
         {
             if (parentMap != null)
             {
-                foreach (var element in Children.OfType<FrameworkElement>())
+                foreach (var element in ChildElements)
                 {
                     var location = GetLocation(element);
                     var position = location != null ? GetViewPosition(location) : null;
@@ -167,8 +196,7 @@ namespace MapControl
 
                     if (GetAutoCollapse(element))
                     {
-                        element.Visibility = position.HasValue && IsOutsideViewport(position.Value)
-                            ? Visibility.Collapsed : Visibility.Visible;
+                        SetVisible(element, !(position.HasValue && IsOutsideViewport(position.Value)));
                     }
 
                     if (position.HasValue)
@@ -230,11 +258,11 @@ namespace MapControl
         {
             var rectCenter = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(rectCenter);
+            var projection = parentMap.MapProjection;
 
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                IsOutsideViewport(position))
+            if (projection.Type <= MapProjectionType.NormalCylindrical && IsOutsideViewport(position))
             {
-                var location = parentMap.MapProjection.MapToLocation(rectCenter);
+                var location = projection.MapToLocation(rectCenter);
 
                 if (location != null)
                 {
@@ -359,9 +387,7 @@ namespace MapControl
             }
             else if (rect.Rotation != 0d)
             {
-                rotateTransform = new RotateTransform { Angle = rect.Rotation };
-                element.RenderTransform = rotateTransform;
-                element.RenderTransformOrigin = new Point(0.5, 0.5);
+                SetRenderTransform(element, new RotateTransform { Angle = rect.Rotation }, 0.5, 0.5);
             }
         }
 
@@ -375,7 +401,7 @@ namespace MapControl
             element.Arrange(rect);
         }
 
-        internal static Size GetDesiredSize(UIElement element)
+        internal static Size GetDesiredSize(FrameworkElement element)
         {
             var width = 0d;
             var height = 0d;

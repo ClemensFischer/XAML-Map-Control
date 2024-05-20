@@ -4,7 +4,10 @@
 
 using System;
 using System.Threading.Tasks;
-#if WINUI
+#if AVALONIA
+using Avalonia.Media;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+#elif WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -24,6 +27,15 @@ namespace MapControl
     /// </summary>
     public class MapTileLayer : MapTileLayerBase
     {
+        public static readonly DependencyProperty MinZoomLevelProperty =
+            DependencyPropertyHelper.Register<MapTileLayer, int>(nameof(MinZoomLevel), 0);
+
+        public static readonly DependencyProperty MaxZoomLevelProperty =
+            DependencyPropertyHelper.Register<MapTileLayer, int>(nameof(MaxZoomLevel), 19);
+
+        public static readonly DependencyProperty ZoomLevelOffsetProperty =
+            DependencyPropertyHelper.Register<MapTileLayer, double>(nameof(ZoomLevelOffset), 0d);
+
         private const int TileSize = 256;
 
         private static readonly Point MapTopLeft = new Point(
@@ -38,15 +50,6 @@ namespace MapControl
             SourceName = "OpenStreetMap",
             Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
         };
-
-        public static readonly DependencyProperty MinZoomLevelProperty = DependencyProperty.Register(
-            nameof(MinZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(0));
-
-        public static readonly DependencyProperty MaxZoomLevelProperty = DependencyProperty.Register(
-            nameof(MaxZoomLevel), typeof(int), typeof(MapTileLayer), new PropertyMetadata(19));
-
-        public static readonly DependencyProperty ZoomLevelOffsetProperty = DependencyProperty.Register(
-            nameof(ZoomLevelOffset), typeof(double), typeof(MapTileLayer), new PropertyMetadata(0d));
 
         public TileMatrix TileMatrix { get; private set; }
 

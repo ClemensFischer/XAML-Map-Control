@@ -2,7 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 using System.IO;
 
 namespace MapControl
@@ -12,7 +11,7 @@ namespace MapControl
         public static string GetFullPath(string path)
         {
 #if NET6_0_OR_GREATER
-            return Path.GetFullPath(path, AppDomain.CurrentDomain.BaseDirectory);
+            return Path.GetFullPath(path, System.AppDomain.CurrentDomain.BaseDirectory);
 #else
             return Path.GetFullPath(path);
 #endif

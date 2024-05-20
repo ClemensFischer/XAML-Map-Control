@@ -16,9 +16,6 @@ namespace MapControl
 {
     public partial class MapBase
     {
-        public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
-            nameof(Foreground), typeof(Brush), typeof(MapBase), new PropertyMetadata(new SolidColorBrush(Colors.Black)));
-
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
             nameof(Center), typeof(Location), typeof(MapBase),
             new PropertyMetadata(new Location(), (o, e) => ((MapBase)o).CenterPropertyChanged((Location)e.NewValue)));

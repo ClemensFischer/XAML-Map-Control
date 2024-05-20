@@ -3,10 +3,11 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if UWP
+#if AVALONIA
+using Avalonia.Threading;
+#elif UWP
 using Windows.UI.Xaml;
 #else
-using System.Windows;
 using System.Windows.Threading;
 #endif
 
@@ -14,14 +15,9 @@ namespace MapControl
 {
     internal static class Timer
     {
-        public static DispatcherTimer CreateTimer(this DependencyObject obj, TimeSpan interval)
+        public static DispatcherTimer CreateTimer(this object _, TimeSpan interval)
         {
-            var timer = new DispatcherTimer
-            {
-                Interval = interval
-            };
-
-            return timer;
+            return new DispatcherTimer { Interval = interval };
         }
 
         public static void Run(this DispatcherTimer timer, bool restart = false)

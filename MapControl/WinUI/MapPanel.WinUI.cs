@@ -2,6 +2,8 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System.Collections.Generic;
+using System.Linq;
 #if WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -14,20 +16,6 @@ namespace MapControl
 {
     public partial class MapPanel
     {
-        public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached(
-            "Location", typeof(Location), typeof(MapPanel),
-            new PropertyMetadata(null, (o, e) => (((FrameworkElement)o).Parent as MapPanel)?.InvalidateArrange()));
-
-        public static readonly DependencyProperty BoundingBoxProperty = DependencyProperty.RegisterAttached(
-            "BoundingBox", typeof(BoundingBox), typeof(MapPanel),
-            new PropertyMetadata(null, (o, e) => (((FrameworkElement)o).Parent as MapPanel)?.InvalidateArrange()));
-
-        public static readonly DependencyProperty ParentMapProperty = DependencyProperty.RegisterAttached(
-            "ParentMap", typeof(MapBase), typeof(MapPanel), new PropertyMetadata(null, ParentMapPropertyChanged));
-
-        private static readonly DependencyProperty ViewPositionProperty = DependencyProperty.RegisterAttached(
-            "ViewPosition", typeof(Point?), typeof(MapPanel), new PropertyMetadata(null));
-
         public MapPanel()
         {
             InitMapElement(this);
@@ -53,6 +41,8 @@ namespace MapControl
         {
             var parentMap = (MapBase)element.GetValue(ParentMapProperty);
 
+            // Traverse visual tree because of missing property value inheritance.
+
             if (parentMap == null &&
                 VisualTreeHelper.GetParent(element) is FrameworkElement parentElement)
             {
@@ -67,14 +57,17 @@ namespace MapControl
             return parentMap;
         }
 
-        /// <summary>
-        /// Sets the attached ViewPosition property of an element. The method is called during
-        /// ArrangeOverride and may be overridden to modify the actual view position value.
-        /// An overridden method should call this method to set the attached property.
-        /// </summary>
-        protected virtual void SetViewPosition(FrameworkElement element, ref Point? position)
+        public static void SetRenderTransform(FrameworkElement element, Transform transform, double originX = 0d, double originY = 0d)
         {
-            element.SetValue(ViewPositionProperty, position);
+            element.RenderTransform = transform;
+            element.RenderTransformOrigin = new Point(originX, originY);
+        }
+
+        private IEnumerable<FrameworkElement> ChildElements => Children.OfType<FrameworkElement>();
+
+        private static void SetVisible(FrameworkElement element, bool visible)
+        {
+            element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }
