@@ -15,27 +15,32 @@
         <PackageId>XAML.MapControl</PackageId>
         <DefineConstants>AVALONIA</DefineConstants>
     </PropertyGroup>
+
     <ItemGroup>
-      <Compile Include="..\Shared\BoundingBox.cs" Link="BoundingBox.cs" />
-      <Compile Include="..\Shared\ImageFileCache.cs" Link="ImageFileCache.cs" />
-      <Compile Include="..\Shared\ImageLoader.cs" Link="ImageLoader.cs" />
-      <Compile Include="..\Shared\Location.cs" Link="Location.cs" />
-      <Compile Include="..\Shared\LocationCollection.cs" Link="LocationCollection.cs" />
-      <Compile Include="..\Shared\MapBaseCommon.cs" Link="MapBaseCommon.cs" />
-      <Compile Include="..\Shared\MapPanel.cs" Link="MapPanel.cs" />
-      <Compile Include="..\Shared\MapProjection.cs" Link="MapProjection.cs" />
-      <Compile Include="..\Shared\MapTileLayer.cs" Link="MapTileLayer.cs" />
-      <Compile Include="..\Shared\MapTileLayerBase.cs" Link="MapTileLayerBase.cs" />
-      <Compile Include="..\Shared\Tile.cs" Link="Tile.cs" />
-      <Compile Include="..\Shared\TileCollection.cs" Link="TileCollection.cs" />
-      <Compile Include="..\Shared\TileImageLoader.cs" Link="TileImageLoader.cs" />
-      <Compile Include="..\Shared\TileMatrix.cs" Link="TileMatrix.cs" />
-      <Compile Include="..\Shared\TileSource.cs" Link="TileSource.cs" />
-      <Compile Include="..\Shared\ViewportChangedEventArgs.cs" Link="ViewportChangedEventArgs.cs" />
-      <Compile Include="..\Shared\ViewRect.cs" Link="ViewRect.cs" />
-      <Compile Include="..\Shared\WebMercatorProjection.cs" Link="WebMercatorProjection.cs" />
-      <Compile Include="..\WPF\Timer.WPF.cs" Link="Timer.WPF.cs" />
-      <Compile Include="..\WPF\TypeConverters.WPF.cs" Link="TypeConverters.WPF.cs" />
+        <Compile Include="..\Shared\BoundingBox.cs" Link="BoundingBox.cs" />
+        <Compile Include="..\Shared\ImageFileCache.cs" Link="ImageFileCache.cs" />
+        <Compile Include="..\Shared\ImageLoader.cs" Link="ImageLoader.cs" />
+        <Compile Include="..\Shared\Location.cs" Link="Location.cs" />
+        <Compile Include="..\Shared\LocationCollection.cs" Link="LocationCollection.cs" />
+        <Compile Include="..\Shared\MapBaseCommon.cs" Link="MapBaseCommon.cs" />
+        <Compile Include="..\Shared\MapPanel.cs" Link="MapPanel.cs" />
+        <Compile Include="..\Shared\MapProjection.cs" Link="MapProjection.cs" />
+        <Compile Include="..\Shared\MapTileLayer.cs" Link="MapTileLayer.cs" />
+        <Compile Include="..\Shared\MapTileLayerBase.cs" Link="MapTileLayerBase.cs" />
+        <Compile Include="..\Shared\Tile.cs" Link="Tile.cs" />
+        <Compile Include="..\Shared\TileCollection.cs" Link="TileCollection.cs" />
+        <Compile Include="..\Shared\TileImageLoader.cs" Link="TileImageLoader.cs" />
+        <Compile Include="..\Shared\TileMatrix.cs" Link="TileMatrix.cs" />
+        <Compile Include="..\Shared\TileSource.cs" Link="TileSource.cs" />
+        <Compile Include="..\Shared\ViewportChangedEventArgs.cs" Link="ViewportChangedEventArgs.cs" />
+        <Compile Include="..\Shared\ViewRect.cs" Link="ViewRect.cs" />
+        <Compile Include="..\Shared\WebMercatorProjection.cs" Link="WebMercatorProjection.cs" />
+        <Compile Include="..\WPF\Timer.WPF.cs" Link="Timer.WPF.cs" />
+        <Compile Include="..\WPF\TypeConverters.WPF.cs" Link="TypeConverters.WPF.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\MapControl.snk" Link="MapControl.snk" />
     </ItemGroup>
 
     <ItemGroup>

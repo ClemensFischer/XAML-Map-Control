@@ -59,10 +59,15 @@ namespace MapControl
 
         static MapBase()
         {
+            Animation.RegisterCustomAnimator<Location, LocationAnimator>();
+
             ClipToBoundsProperty.OverrideDefaultValue(typeof(MapBase), true);
 
             CenterProperty.Changed.AddClassHandler<MapBase, Location>(
                 (map, args) => map.CenterPropertyChanged(args.NewValue.Value));
+
+            TargetCenterProperty.Changed.AddClassHandler<MapBase, Location>(
+                async (map, args) => await map.TargetCenterPropertyChanged(args.NewValue.Value));
 
             ZoomLevelProperty.Changed.AddClassHandler<MapBase, double>(
                 (map, args) => map.ZoomLevelPropertyChanged(args.NewValue.Value));
@@ -161,6 +166,41 @@ namespace MapControl
             if (!internalPropertyChange)
             {
                 UpdateTransform();
+
+                if (centerAnimation == null)
+                {
+                    SetValueInternal(TargetCenterProperty, center);
+                }
+            }
+        }
+
+        private async Task TargetCenterPropertyChanged(Location targetCenter)
+        {
+            if (!internalPropertyChange && !targetCenter.Equals(Center))
+            {
+                centerCts?.Cancel();
+
+                centerAnimation = new Animation
+                {
+                    FillMode = FillMode.Forward,
+                    Duration = AnimationDuration,
+                    Children =
+                    {
+                        new KeyFrame
+                        {
+                            KeyTime = AnimationDuration,
+                            Setters = { new Setter(CenterProperty, new Location(targetCenter.Latitude, ConstrainedLongitude(targetCenter.Longitude))) }
+                        }
+                    }
+                };
+
+                centerCts = new CancellationTokenSource();
+
+                await centerAnimation.RunAsync(this, centerCts.Token);
+
+                centerCts.Dispose();
+                centerCts = null;
+                centerAnimation = null;
             }
         }
 
