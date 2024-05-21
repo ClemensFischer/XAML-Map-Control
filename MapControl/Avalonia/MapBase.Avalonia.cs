@@ -54,7 +54,7 @@ namespace MapControl
                 (map, value) => map.CoerceHeadingProperty(value));
 
         public static readonly DirectProperty<MapBase, double> ViewScaleProperty =
-            DependencyPropertyHelper.RegisterReadOnly<MapBase, double>(nameof(ViewScale), map => map.ViewScale);
+            AvaloniaProperty.RegisterDirect<MapBase, double>(nameof(ViewScale), map => map.ViewScale);
 
         private CancellationTokenSource centerCts;
         private CancellationTokenSource zoomLevelCts;

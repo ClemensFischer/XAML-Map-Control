@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml;
 #else
 using Windows.UI.Xaml;
 #endif
+
 #pragma warning disable IDE0060 // Remove unused parameter
 
 namespace MapControl
@@ -43,5 +44,3 @@ namespace MapControl
         }
     }
 }
-
-#pragma warning restore IDE0060

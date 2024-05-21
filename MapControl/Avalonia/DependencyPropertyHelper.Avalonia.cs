@@ -2,9 +2,10 @@
 using Avalonia.Controls;
 using System;
 
+#pragma warning disable AVP1001 // The same AvaloniaProperty should not be registered twice
+
 namespace MapControl
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("AvaloniaProperty", "AVP1001")]
     public static class DependencyPropertyHelper
     {
         public static StyledProperty<TValue> Register<TOwner, TValue>(
@@ -42,14 +43,6 @@ namespace MapControl
             }
 
             return property;
-        }
-
-        public static DirectProperty<TOwner, TValue> RegisterReadOnly<TOwner, TValue>(
-            string name,
-            Func<TOwner, TValue> getter)
-            where TOwner : AvaloniaObject
-        {
-            return AvaloniaProperty.RegisterDirect(name, getter);
         }
     }
 }
