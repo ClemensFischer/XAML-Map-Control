@@ -363,7 +363,7 @@ namespace MapControl
             }
         }
 
-        public void BeginAnimation(string property, Timeline animation)
+        private void BeginAnimation(string property, Timeline animation)
         {
             Storyboard.SetTarget(animation, this);
             Storyboard.SetTargetProperty(animation, property);
