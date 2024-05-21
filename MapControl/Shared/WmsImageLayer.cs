@@ -39,8 +39,8 @@ namespace MapControl
             DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null, false,
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
-        public static readonly DependencyProperty LayersProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(Layers), null, false,
+        public static readonly DependencyProperty WmsLayersProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsLayers), null, false,
                 async (layer, oldValue, newValue) =>
                 {
                     // Ignore property change from GetImageAsync, when Layers was null.
@@ -51,8 +51,8 @@ namespace MapControl
                     }
                 });
 
-        public static readonly DependencyProperty StylesProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(Styles), string.Empty, false,
+        public static readonly DependencyProperty WmsStylesProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsStyles), string.Empty, false,
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
         public WmsImageLayer()
@@ -73,21 +73,21 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Comma-separated sequence of Layer names to be displayed. If not set, the first Layer is displayed.
+        /// Comma-separated sequence of WMS Layer names to be displayed. If not set, the first Layer is displayed.
         /// </summary>
-        public string Layers
+        public string WmsLayers
         {
-            get => (string)GetValue(LayersProperty);
-            set => SetValue(LayersProperty, value);
+            get => (string)GetValue(WmsLayersProperty);
+            set => SetValue(WmsLayersProperty, value);
         }
 
         /// <summary>
-        /// Comma-separated sequence of requested styles. Default is an empty string.
+        /// Comma-separated sequence of requested WMS Styles. Default is an empty string.
         /// </summary>
-        public string Styles
+        public string WmsStyles
         {
-            get => (string)GetValue(StylesProperty);
-            set => SetValue(StylesProperty, value);
+            get => (string)GetValue(WmsStylesProperty);
+            set => SetValue(WmsStylesProperty, value);
         }
 
         /// <summary>
@@ -181,12 +181,12 @@ namespace MapControl
 
             if (ServiceUri != null && ParentMap?.MapProjection != null)
             {
-                if (Layers == null &&
+                if (WmsLayers == null &&
                     ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
                 {
                     // Get first Layer from a GetCapabilities response.
                     //
-                    Layers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
+                    WmsLayers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
                 }
 
                 if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
@@ -259,8 +259,8 @@ namespace MapControl
                 { "SERVICE", "WMS" },
                 { "VERSION", "1.3.0" },
                 { "REQUEST", "GetMap" },
-                { "LAYERS", Layers ?? "" },
-                { "STYLES", Styles ?? "" },
+                { "LAYERS", WmsLayers ?? "" },
+                { "STYLES", WmsStyles ?? "" },
                 { "FORMAT", "image/png" },
                 { "CRS", GetCrsValue() },
                 { "BBOX", GetBboxValue(rect.Value) },
@@ -301,8 +301,8 @@ namespace MapControl
                 { "SERVICE", "WMS" },
                 { "VERSION", "1.3.0" },
                 { "REQUEST", "GetFeatureInfo" },
-                { "LAYERS", Layers ?? "" },
-                { "STYLES", Styles ?? "" },
+                { "LAYERS", WmsLayers ?? "" },
+                { "STYLES", WmsStyles ?? "" },
                 { "FORMAT", "image/png" },
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
