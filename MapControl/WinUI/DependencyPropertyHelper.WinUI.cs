@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml;
 #else
 using Windows.UI.Xaml;
 #endif
+#pragma warning disable IDE0060 // Remove unused parameter
 
 namespace MapControl
 {
@@ -16,7 +17,7 @@ namespace MapControl
         public static DependencyProperty Register<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
-            bool bindTwoWayByDefault = false,
+            bool bindTwoWayByDefault = false, // unused in WinUI/UWP
             Action<TOwner, TValue, TValue> changed = null)
             where TOwner : DependencyObject
         {
@@ -30,7 +31,7 @@ namespace MapControl
         public static DependencyProperty RegisterAttached<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
-            bool inherits = false,
+            bool inherits = false, // unused in WinUI/UWP
             Action<FrameworkElement, TValue, TValue> changed = null)
             where TOwner : DependencyObject
         {
@@ -42,3 +43,5 @@ namespace MapControl
         }
     }
 }
+
+#pragma warning restore IDE0060

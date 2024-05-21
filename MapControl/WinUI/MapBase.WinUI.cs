@@ -57,6 +57,12 @@ namespace MapControl
         public static readonly DependencyProperty ViewScaleProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(ViewScale), 0d);
 
+        private static readonly DependencyProperty AnimatedCenterProperty =
+            DependencyPropertyHelper.Register<MapBase, Windows.Foundation.Point>(nameof(AnimatedCenter),
+                new Windows.Foundation.Point(), false, (map, oldValue, newValue) => map.Center = new Location(newValue.Y, newValue.X));
+
+        private Windows.Foundation.Point AnimatedCenter => (Windows.Foundation.Point)GetValue(AnimatedCenterProperty);
+
         private PointAnimation centerAnimation;
         private DoubleAnimation zoomLevelAnimation;
         private DoubleAnimation headingAnimation;
@@ -138,12 +144,6 @@ namespace MapControl
             }
         }
 
-#pragma warning disable IDE0052 // Remove unread private members
-        private static readonly DependencyProperty CenterPointProperty =
-            DependencyPropertyHelper.Register<MapBase, Windows.Foundation.Point>("CenterPoint",
-                new Windows.Foundation.Point(), false, (map, oldValue, newValue) => map.Center = new Location(newValue.Y, newValue.X));
-#pragma warning restore IDE0052
-
         private void TargetCenterPropertyChanged(Location value)
         {
             if (!internalPropertyChange)
@@ -173,7 +173,7 @@ namespace MapControl
 
                     centerAnimation.Completed += CenterAnimationCompleted;
 
-                    this.BeginAnimation("CenterPoint", centerAnimation);
+                    this.BeginAnimation(nameof(AnimatedCenter), centerAnimation);
                 }
             }
         }
