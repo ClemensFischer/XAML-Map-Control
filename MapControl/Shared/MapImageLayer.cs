@@ -17,19 +17,16 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
 using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 #else
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Threading;
 #endif
 
@@ -209,7 +206,7 @@ namespace MapControl
                     }
                 }
 
-                SwapImages(image, boundingBox);
+                await SwapImages(image, boundingBox);
 
                 updateInProgress = false;
             }
@@ -241,7 +238,7 @@ namespace MapControl
             }
         }
 
-        private void SwapImages(ImageSource image, BoundingBox boundingBox)
+        private async Task SwapImages(ImageSource image, BoundingBox boundingBox)
         {
             if (Children.Count >= 2)
             {
@@ -254,21 +251,7 @@ namespace MapControl
                 topImage.Source = image;
                 SetBoundingBox(topImage, boundingBox);
 
-#if AVALONIA
-#else
-                topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
-                {
-                    To = 1d,
-                    Duration = MapBase.ImageFadeDuration
-                });
-
-                bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
-                {
-                    To = 0d,
-                    BeginTime = MapBase.ImageFadeDuration,
-                    Duration = TimeSpan.Zero
-                });
-#endif
+                await OpacityHelper.SwapOpacities(topImage, bottomImage);
             }
         }
     }

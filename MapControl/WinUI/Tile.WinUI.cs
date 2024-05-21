@@ -18,7 +18,7 @@ namespace MapControl
     {
         private void BeginOpacityAnimation()
         {
-            Image.BeginAnimation(UIElement.OpacityProperty,
+            OpacityHelper.BeginOpacityAnimation(Image,
                 new DoubleAnimation
                 {
                     From = 0d,

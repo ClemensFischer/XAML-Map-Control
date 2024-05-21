@@ -221,9 +221,6 @@
     <Compile Include="..\Shared\WorldMercatorProjection.cs">
       <Link>WorldMercatorProjection.cs</Link>
     </Compile>
-    <Compile Include="..\WinUI\Animatable.WinUI.cs">
-      <Link>Animatable.WinUI.cs</Link>
-    </Compile>
     <Compile Include="..\WinUI\DependencyPropertyHelper.WinUI.cs">
       <Link>DependencyPropertyHelper.WinUI.cs</Link>
     </Compile>
@@ -262,6 +259,9 @@
     </Compile>
     <Compile Include="..\WinUI\Matrix.WinUI.cs">
       <Link>Matrix.WinUI.cs</Link>
+    </Compile>
+    <Compile Include="..\WinUI\OpacityHelper.WinUI.cs">
+      <Link>OpacityHelper.WinUI.cs</Link>
     </Compile>
     <Compile Include="..\WinUI\Point.WinUI.cs">
       <Link>Point.WinUI.cs</Link>

@@ -175,7 +175,7 @@ namespace MapControl
 
                     centerAnimation.Completed += CenterAnimationCompleted;
 
-                    this.BeginAnimation(nameof(AnimatedCenter), centerAnimation);
+                    BeginAnimation(nameof(AnimatedCenter), centerAnimation);
                 }
             }
         }
@@ -270,7 +270,7 @@ namespace MapControl
 
                     zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
 
-                    this.BeginAnimation(nameof(ZoomLevel), zoomLevelAnimation);
+                    BeginAnimation(nameof(ZoomLevel), zoomLevelAnimation);
                 }
             }
         }
@@ -346,7 +346,7 @@ namespace MapControl
 
                     headingAnimation.Completed += HeadingAnimationCompleted;
 
-                    this.BeginAnimation(nameof(Heading), headingAnimation);
+                    BeginAnimation(nameof(Heading), headingAnimation);
                 }
             }
         }
@@ -361,6 +361,16 @@ namespace MapControl
                 headingAnimation.Completed -= HeadingAnimationCompleted;
                 headingAnimation = null;
             }
+        }
+
+        public void BeginAnimation(string property, Timeline animation)
+        {
+            Storyboard.SetTarget(animation, this);
+            Storyboard.SetTargetProperty(animation, property);
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+            storyboard.Begin();
         }
     }
 }
