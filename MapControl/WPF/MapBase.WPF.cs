@@ -140,7 +140,8 @@ namespace MapControl
                 {
                     To = new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude)),
                     Duration = AnimationDuration,
-                    EasingFunction = AnimationEasingFunction
+                    EasingFunction = AnimationEasingFunction,
+                    FillBehavior = FillBehavior.Stop
                 };
 
                 centerAnimation.Completed += CenterAnimationCompleted;
@@ -205,7 +206,8 @@ namespace MapControl
                 {
                     To = targetZoomLevel,
                     Duration = AnimationDuration,
-                    EasingFunction = AnimationEasingFunction
+                    EasingFunction = AnimationEasingFunction,
+                    FillBehavior = FillBehavior.Stop
                 };
 
                 zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
@@ -265,7 +267,8 @@ namespace MapControl
                 {
                     By = delta,
                     Duration = AnimationDuration,
-                    EasingFunction = AnimationEasingFunction
+                    EasingFunction = AnimationEasingFunction,
+                    FillBehavior = FillBehavior.Stop
                 };
 
                 headingAnimation.Completed += HeadingAnimationCompleted;
