@@ -4,6 +4,7 @@
 
 global using Avalonia;
 using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Styling;
 using System.Threading;
@@ -13,6 +14,9 @@ namespace MapControl
 {
     public partial class MapBase
     {
+        public static readonly StyledProperty<Easing> AnimationEasingProperty =
+            DependencyPropertyHelper.Register<MapBase, Easing>(nameof(AnimationEasing), new QuadraticEaseOut());
+
         public static readonly StyledProperty<Location> CenterProperty =
             DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(), true,
                 (map, oldValue, newValue) => map.CenterPropertyChanged(newValue),
@@ -86,6 +90,16 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets or sets the Easing of the Center, ZoomLevel and Heading animations.
+        /// The default value is a QuadraticEaseOut.
+        /// </summary>
+        public Easing AnimationEasing
+        {
+            get => GetValue(AnimationEasingProperty);
+            set => SetValue(AnimationEasingProperty, value);
+        }
+
+        /// <summary>
         /// Gets the scaling factor from projected map coordinates to view coordinates,
         /// as pixels per meter.
         /// </summary>
@@ -134,6 +148,7 @@ namespace MapControl
                 {
                     FillMode = FillMode.Forward,
                     Duration = AnimationDuration,
+                    Easing = AnimationEasing,
                     Children =
                     {
                         new KeyFrame
@@ -193,6 +208,7 @@ namespace MapControl
                 {
                     FillMode = FillMode.Forward,
                     Duration = AnimationDuration,
+                    Easing = AnimationEasing,
                     Children =
                     {
                         new KeyFrame
@@ -254,6 +270,7 @@ namespace MapControl
                 {
                     FillMode = FillMode.Forward,
                     Duration = AnimationDuration,
+                    Easing = AnimationEasing,
                     Children =
                     {
                         new KeyFrame
