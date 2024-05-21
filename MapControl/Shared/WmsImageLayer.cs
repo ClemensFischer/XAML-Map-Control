@@ -84,7 +84,7 @@ namespace MapControl
         /// <summary>
         /// Comma-separated sequence of requested styles. Default is an empty string.
         /// </summary>
-        public new string Styles
+        public string Styles
         {
             get => (string)GetValue(StylesProperty);
             set => SetValue(StylesProperty, value);
