@@ -4,8 +4,6 @@
 
 using System;
 #if AVALONIA
-using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Media;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 using UIElement = Avalonia.Controls.Control;
