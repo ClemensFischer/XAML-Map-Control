@@ -7,6 +7,7 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Styling;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -121,8 +122,8 @@ namespace MapControl
         {
             var scale = GetScale(location);
 
-            return new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d)
-                .Append(Matrix.CreateRotation(ViewTransform.Rotation));
+            return Matrix.CreateScale(scale.X, scale.Y)
+                * Matrix.CreateRotation(ViewTransform.Rotation * Math.PI / 180d);
         }
 
         private void CenterPropertyChanged(Location center)

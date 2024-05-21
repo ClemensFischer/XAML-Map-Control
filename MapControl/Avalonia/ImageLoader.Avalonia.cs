@@ -41,5 +41,10 @@ namespace MapControl
                 return LoadImage(stream);
             });
         }
+
+        internal static Task<IImage> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
+        {
+            return Task.FromResult<IImage>(null);
+        }
     }
 }

@@ -40,6 +40,7 @@ namespace MapControl
         {
             var animation = new Animation
             {
+                FillMode = FillMode.Forward,
                 Duration = MapBase.ImageFadeDuration,
                 Children =
                 {

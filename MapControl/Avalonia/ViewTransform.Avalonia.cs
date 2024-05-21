@@ -64,9 +64,11 @@ namespace MapControl
             Scale = scale;
             Rotation = ((rotation % 360d) + 360d) % 360d;
 
-            MapToViewMatrix = new Matrix(Scale, 0d, 0d, -Scale, -Scale * mapCenter.X, Scale * mapCenter.Y)
-                .Append(Matrix.CreateRotation(Rotation * Math.PI / 180d))
-                .Append(Matrix.CreateTranslation(viewCenter.X, viewCenter.Y));
+            MapToViewMatrix
+                = Matrix.CreateTranslation(-mapCenter.X, -mapCenter.Y)
+                * Matrix.CreateScale(scale, -scale)
+                * Matrix.CreateRotation(Rotation * Math.PI / 180d)
+                * Matrix.CreateTranslation(viewCenter.X, viewCenter.Y);
 
             ViewToMapMatrix = MapToViewMatrix.Invert();
         }
@@ -85,9 +87,9 @@ namespace MapControl
 
             var transformScale = Scale / tileMatrixScale;
 
-            return new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d)
-                .Append(Matrix.CreateRotation(Rotation * Math.PI / 180d))
-                .Append(Matrix.CreateTranslation(viewOrigin.X, viewOrigin.Y));
+            return Matrix.CreateScale(transformScale, transformScale)
+                * Matrix.CreateRotation(Rotation * Math.PI / 180d)
+                * Matrix.CreateTranslation(viewOrigin.X, viewOrigin.Y);
         }
 
         public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, Size viewSize)
@@ -98,14 +100,15 @@ namespace MapControl
 
             var transformScale = tileMatrixScale / Scale;
 
-            var transform = new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d)
-                .Append(Matrix.CreateRotation(-Rotation * Math.PI / 180d));
+            var transform
+                = Matrix.CreateScale(transformScale, transformScale)
+                * Matrix.CreateRotation(-Rotation * Math.PI / 180d);
 
             // Translate origin to tile matrix origin in pixels.
             //
-            transform = transform.Append(Matrix.CreateTranslation(
+            transform *= Matrix.CreateTranslation(
                 tileMatrixScale * (origin.X - tileMatrixTopLeft.X),
-                tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y)));
+                tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y));
 
             // Transform view bounds to tile pixel bounds.
             //

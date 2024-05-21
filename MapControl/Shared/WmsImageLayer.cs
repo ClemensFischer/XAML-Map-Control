@@ -8,7 +8,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-#if WINUI
+#if AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Threading;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using FrameworkElement = Avalonia.Controls.Control;
+using ImageSource = Avalonia.Media.IImage;
+#elif WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -28,26 +35,25 @@ namespace MapControl
     /// </summary>
     public partial class WmsImageLayer : MapImageLayer
     {
-        public static readonly DependencyProperty ServiceUriProperty = DependencyProperty.Register(
-            nameof(ServiceUri), typeof(Uri), typeof(WmsImageLayer),
-            new PropertyMetadata(null, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
+        public static readonly DependencyProperty ServiceUriProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null, false,
+                async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
-        public static readonly DependencyProperty LayersProperty = DependencyProperty.Register(
-            nameof(Layers), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(null,
-                async (o, e) =>
+        public static readonly DependencyProperty LayersProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(Layers), null, false,
+                async (layer, oldValue, newValue) =>
                 {
                     // Ignore property change from GetImageAsync, when Layers was null.
                     //
-                    if (e.OldValue != null)
+                    if (oldValue != null)
                     {
-                        await ((WmsImageLayer)o).UpdateImageAsync();
+                        await layer.UpdateImageAsync();
                     }
-                }));
+                });
 
-        public static readonly DependencyProperty StylesProperty = DependencyProperty.Register(
-            nameof(Styles), typeof(string), typeof(WmsImageLayer),
-            new PropertyMetadata(string.Empty, async (o, e) => await ((WmsImageLayer)o).UpdateImageAsync()));
+        public static readonly DependencyProperty StylesProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(Styles), string.Empty, false,
+                async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
         public WmsImageLayer()
         {
@@ -78,7 +84,7 @@ namespace MapControl
         /// <summary>
         /// Comma-separated sequence of requested styles. Default is an empty string.
         /// </summary>
-        public string Styles
+        public new string Styles
         {
             get => (string)GetValue(StylesProperty);
             set => SetValue(StylesProperty, value);
@@ -278,11 +284,16 @@ namespace MapControl
             }
 
             var viewRect = GetViewRect(rect.Value);
-
+#if AVALONIA
+            var transform
+                = Matrix.CreateTranslation(-viewSize.Width / 2d, -viewSize.Height / 2d)
+                * Matrix.CreateRotation(-viewRect.Rotation * Math.PI / 180d)
+                * Matrix.CreateTranslation(viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
+#else
             var transform = new Matrix(1d, 0d, 0d, 1d, -viewSize.Width / 2d, -viewSize.Height / 2d);
             transform.Rotate(-viewRect.Rotation);
             transform.Translate(viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
-
+#endif
             var imagePos = transform.Transform(position);
 
             var queryParameters = new Dictionary<string, string>

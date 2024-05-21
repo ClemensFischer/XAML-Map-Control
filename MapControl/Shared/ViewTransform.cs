@@ -74,7 +74,7 @@ namespace MapControl
             Scale = scale;
             Rotation = ((rotation % 360d) + 360d) % 360d;
 
-            var transform = new Matrix(Scale, 0d, 0d, -Scale, -Scale * mapCenter.X, Scale * mapCenter.Y);
+            var transform = new Matrix(scale, 0d, 0d, -scale, -scale * mapCenter.X, scale * mapCenter.Y);
             transform.Rotate(Rotation);
             transform.Translate(viewCenter.X, viewCenter.Y);
 
