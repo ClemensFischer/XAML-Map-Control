@@ -11,8 +11,8 @@ namespace MapControl
     /// </summary>
     public class Map : MapBase
     {
-        public static readonly StyledProperty<double> MouseWheelZoomDeltaProperty
-            = AvaloniaProperty.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
+        public static readonly StyledProperty<double> MouseWheelZoomDeltaProperty =
+            DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
         private Point? mousePosition;
 

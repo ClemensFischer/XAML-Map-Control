@@ -10,6 +10,7 @@ namespace MapControl
     {
         public override Location Interpolate(double progress, Location oldValue, Location newValue)
         {
+            System.Diagnostics.Debug.WriteLine(progress);
             return new Location(
                 (1d - progress) * oldValue.Latitude + progress * newValue.Latitude,
                 (1d - progress) * oldValue.Longitude + progress * newValue.Longitude);

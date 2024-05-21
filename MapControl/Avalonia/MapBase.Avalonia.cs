@@ -5,9 +5,7 @@
 global using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Styling;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,40 +13,48 @@ namespace MapControl
 {
     public partial class MapBase
     {
-        public static readonly StyledProperty<Location> CenterProperty
-            = AvaloniaProperty.Register<MapBase, Location>(nameof(Center), new Location(), false,
-                BindingMode.TwoWay, null, (map, center) => ((MapBase)map).CoerceCenterProperty(center));
+        public static readonly StyledProperty<Location> CenterProperty =
+            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(), true,
+                (map, oldValue, newValue) => map.CenterPropertyChanged(newValue),
+                (map, value) => map.CoerceCenterProperty(value));
 
-        public static readonly StyledProperty<Location> TargetCenterProperty
-            = AvaloniaProperty.Register<MapBase, Location>(nameof(TargetCenter), new Location(), false,
-                BindingMode.TwoWay, null, (map, center) => ((MapBase)map).CoerceCenterProperty(center));
+        public static readonly StyledProperty<Location> TargetCenterProperty =
+           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(), true,
+                async (map, oldValue, newValue) => await map.TargetCenterPropertyChanged(newValue),
+                (map, value) => map.CoerceCenterProperty(value));
 
-        public static readonly StyledProperty<double> MinZoomLevelProperty
-            = AvaloniaProperty.Register<MapBase, double>(nameof(MinZoomLevel), 1d, false,
-                BindingMode.OneWay, null, (map, minZoomLevel) => ((MapBase)map).CoerceMinZoomLevelProperty(minZoomLevel));
+        public static readonly StyledProperty<double> MinZoomLevelProperty =
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(MinZoomLevel), 1d, false,
+                (map, oldValue, newValue) => map.MinZoomLevelPropertyChanged(newValue),
+                (map, value) => map.CoerceMinZoomLevelProperty(value));
 
-        public static readonly StyledProperty<double> MaxZoomLevelProperty
-            = AvaloniaProperty.Register<MapBase, double>(nameof(MaxZoomLevel), 20d, false,
-                BindingMode.OneWay, null, (map, maxZoomLevel) => ((MapBase)map).CoerceMaxZoomLevelProperty(maxZoomLevel));
+        public static readonly StyledProperty<double> MaxZoomLevelProperty =
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(MaxZoomLevel), 20d, false,
+                (map, oldValue, newValue) => map.MaxZoomLevelPropertyChanged(newValue),
+                (map, value) => map.CoerceMinZoomLevelProperty(value));
 
-        public static readonly StyledProperty<double> ZoomLevelProperty
-            = AvaloniaProperty.Register<MapBase, double>(nameof(ZoomLevel), 1d, false,
-                BindingMode.TwoWay, null, (map, zoomLevel) => ((MapBase)map).CoerceZoomLevelProperty(zoomLevel));
+        public static readonly StyledProperty<double> ZoomLevelProperty =
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d, true,
+                (map, oldValue, newValue) => map.ZoomLevelPropertyChanged(newValue),
+                (map, value) => map.CoerceZoomLevelProperty(value));
 
-        public static readonly StyledProperty<double> TargetZoomLevelProperty
-            = AvaloniaProperty.Register<MapBase, double>(nameof(TargetZoomLevel), 1d, false,
-                BindingMode.TwoWay, null, (map, zoomLevel) => ((MapBase)map).CoerceZoomLevelProperty(zoomLevel));
+        public static readonly StyledProperty<double> TargetZoomLevelProperty =
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), 1d, true,
+                async (map, oldValue, newValue) => await map.TargetZoomLevelPropertyChanged(newValue),
+                (map, value) => map.CoerceZoomLevelProperty(value));
 
-        public static readonly StyledProperty<double> HeadingProperty
-            = AvaloniaProperty.Register<MapBase, double>(nameof(Heading), 0d, false,
-                BindingMode.TwoWay, null, (map, heading) => CoerceHeadingProperty(heading));
+        public static readonly StyledProperty<double> HeadingProperty =
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(Heading), 0d, true,
+                (map, oldValue, newValue) => map.HeadingPropertyChanged(newValue),
+                (map, value) => map.CoerceHeadingProperty(value));
 
-        public static readonly StyledProperty<double> TargetHeadingProperty
-            = AvaloniaProperty.Register<MapBase, double>(nameof(TargetHeading), 0d, false,
-                BindingMode.TwoWay, null, (map, heading) => CoerceHeadingProperty(heading));
+        public static readonly StyledProperty<double> TargetHeadingProperty =
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetHeading), 0d, true,
+                async (map, oldValue, newValue) => await map.TargetHeadingPropertyChanged(newValue),
+                (map, value) => map.CoerceHeadingProperty(value));
 
-        public static readonly DirectProperty<MapBase, double> ViewScaleProperty
-            = AvaloniaProperty.RegisterDirect<MapBase, double>(nameof(ViewScale), map => map.ViewScale);
+        public static readonly DirectProperty<MapBase, double> ViewScaleProperty =
+            DependencyPropertyHelper.RegisterReadOnly<MapBase, double>(nameof(ViewScale), map => map.ViewScale);
 
         private CancellationTokenSource centerCts;
         private CancellationTokenSource zoomLevelCts;
@@ -59,27 +65,9 @@ namespace MapControl
 
         static MapBase()
         {
-            Animation.RegisterCustomAnimator<Location, LocationAnimator>();
-
             ClipToBoundsProperty.OverrideDefaultValue(typeof(MapBase), true);
 
-            CenterProperty.Changed.AddClassHandler<MapBase, Location>(
-                (map, args) => map.CenterPropertyChanged(args.NewValue.Value));
-
-            TargetCenterProperty.Changed.AddClassHandler<MapBase, Location>(
-                async (map, args) => await map.TargetCenterPropertyChanged(args.NewValue.Value));
-
-            ZoomLevelProperty.Changed.AddClassHandler<MapBase, double>(
-                (map, args) => map.ZoomLevelPropertyChanged(args.NewValue.Value));
-
-            TargetZoomLevelProperty.Changed.AddClassHandler<MapBase, double>(
-                async (map, args) => await map.TargetZoomLevelPropertyChanged(args.NewValue.Value));
-
-            HeadingProperty.Changed.AddClassHandler<MapBase, double>(
-                (map, args) => map.HeadingPropertyChanged(args.NewValue.Value));
-
-            TargetHeadingProperty.Changed.AddClassHandler<MapBase, double>(
-                async (map, args) => await map.TargetHeadingPropertyChanged(args.NewValue.Value));
+            Animation.RegisterCustomAnimator<Location, LocationAnimator>();
         }
 
         public MapBase()
@@ -121,44 +109,6 @@ namespace MapControl
 
             return new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d)
                 .Append(Matrix.CreateRotation(ViewTransform.Rotation));
-        }
-
-        private void MapProjectionPropertyChanged(MapProjection projection)
-        {
-            maxLatitude = 90d;
-
-            if (projection.Type <= MapProjectionType.NormalCylindrical)
-            {
-                var maxLocation = projection.MapToLocation(new Point(0d, 180d * MapProjection.Wgs84MeterPerDegree));
-
-                if (maxLocation != null && maxLocation.Latitude < 90d)
-                {
-                    maxLatitude = maxLocation.Latitude;
-
-                    Center = CoerceCenterProperty(Center);
-                }
-            }
-
-            ResetTransformCenter();
-            UpdateTransform(false, true);
-        }
-
-        private Location CoerceCenterProperty(Location center)
-        {
-            if (center == null)
-            {
-                center = new Location();
-            }
-            else if (
-                center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
-                center.Longitude < -180d || center.Longitude > 180d)
-            {
-                center = new Location(
-                    Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude),
-                    Location.NormalizeLongitude(center.Longitude));
-            }
-
-            return center;
         }
 
         private void CenterPropertyChanged(Location center)
@@ -204,19 +154,20 @@ namespace MapControl
             }
         }
 
-        private double CoerceMinZoomLevelProperty(double minZoomLevel)
+        private void MinZoomLevelPropertyChanged(double minZoomLevel)
         {
-            return Math.Min(Math.Max(minZoomLevel, 0d), MaxZoomLevel);
+            if (ZoomLevel < minZoomLevel)
+            {
+                ZoomLevel = minZoomLevel;
+            }
         }
 
-        private double CoerceMaxZoomLevelProperty(double maxZoomLevel)
+        private void MaxZoomLevelPropertyChanged(double maxZoomLevel)
         {
-            return Math.Max(maxZoomLevel, MinZoomLevel);
-        }
-
-        private double CoerceZoomLevelProperty(double zoomLevel)
-        {
-            return Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
+            if (ZoomLevel > maxZoomLevel)
+            {
+                ZoomLevel = maxZoomLevel;
+            }
         }
 
         private void ZoomLevelPropertyChanged(double zoomLevel)
@@ -256,15 +207,15 @@ namespace MapControl
 
                 await zoomLevelAnimation.RunAsync(this, zoomLevelCts.Token);
 
+                if (!zoomLevelCts.IsCancellationRequested)
+                {
+                    UpdateTransform(true);
+                }
+
                 zoomLevelCts.Dispose();
                 zoomLevelCts = null;
                 zoomLevelAnimation = null;
             }
-        }
-
-        private static double CoerceHeadingProperty(double heading)
-        {
-            return ((heading % 360d) + 360d) % 360d;
         }
 
         private void HeadingPropertyChanged(double heading)

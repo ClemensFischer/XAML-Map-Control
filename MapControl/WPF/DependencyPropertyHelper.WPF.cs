@@ -3,13 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINUI
-using Microsoft.UI.Xaml;
-#elif UWP
-using Windows.UI.Xaml;
-#else
 using System.Windows;
-#endif
 
 namespace MapControl
 {
@@ -19,26 +13,26 @@ namespace MapControl
             string name,
             TValue defaultValue = default,
             bool bindTwoWayByDefault = false,
-            Action<TOwner, TValue, TValue> propertyChanged = null)
+            Action<TOwner, TValue, TValue> changed = null,
+            Func<TOwner, TValue, TValue> coerce = null)
             where TOwner : DependencyObject
         {
-#if WINUI || UWP
-            var metadata = propertyChanged != null
-                ? new PropertyMetadata(defaultValue, (o, e) => propertyChanged((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue))
-                : new PropertyMetadata(defaultValue);
-
-#else
             var metadata = new FrameworkPropertyMetadata
             {
                 DefaultValue = defaultValue,
                 BindsTwoWayByDefault = bindTwoWayByDefault
             };
 
-            if (propertyChanged != null)
+            if (changed != null)
             {
-                metadata.PropertyChangedCallback = (o, e) => propertyChanged((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue);
+                metadata.PropertyChangedCallback = (o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue);
             }
-#endif
+
+            if (coerce != null)
+            {
+                metadata.CoerceValueCallback = (o, v) => coerce((TOwner)o, (TValue)v);
+            }
+
             return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
         }
 
@@ -46,26 +40,29 @@ namespace MapControl
             string name,
             TValue defaultValue = default,
             bool inherits = false,
-            Action<FrameworkElement, TValue, TValue> propertyChanged = null)
+            Action<FrameworkElement, TValue, TValue> changed = null)
             where TOwner : DependencyObject
         {
-#if WINUI || UWP
-            var metadata = propertyChanged != null
-                ? new PropertyMetadata(defaultValue, (o, e) => propertyChanged((FrameworkElement)o, (TValue)e.OldValue, (TValue)e.NewValue))
-                : new PropertyMetadata(defaultValue);
-#else
             var metadata = new FrameworkPropertyMetadata
             {
                 DefaultValue = defaultValue,
                 Inherits = inherits
             };
 
-            if (propertyChanged != null)
+            if (changed != null)
             {
-                metadata.PropertyChangedCallback = (o, e) => propertyChanged((FrameworkElement)o, (TValue)e.OldValue, (TValue)e.NewValue);
+                metadata.PropertyChangedCallback = (o, e) => changed((FrameworkElement)o, (TValue)e.OldValue, (TValue)e.NewValue);
             }
-#endif
+
             return DependencyProperty.RegisterAttached(name, typeof(TValue), typeof(TOwner), metadata);
+        }
+
+        public static DependencyPropertyKey RegisterReadOnly<TOwner, TValue>(
+            string name,
+            TValue defaultValue = default)
+            where TOwner : DependencyObject
+        {
+            return DependencyProperty.RegisterReadOnly(name, typeof(TValue), typeof(TOwner), new PropertyMetadata(defaultValue));
         }
     }
 }

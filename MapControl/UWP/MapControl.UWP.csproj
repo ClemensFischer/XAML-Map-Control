@@ -68,9 +68,6 @@
     <Compile Include="..\Shared\CenteredBoundingBox.cs">
       <Link>CenteredBoundingBox.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\DependencyPropertyHelper.cs">
-      <Link>DependencyPropertyHelper.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\EquirectangularProjection.cs">
       <Link>EquirectangularProjection.cs</Link>
     </Compile>
@@ -106,9 +103,6 @@
     </Compile>
     <Compile Include="..\Shared\MapBase.cs">
       <Link>MapBase.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\MapBaseCommon.cs">
-      <Link>MapBaseCommon.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapBorderPanel.cs">
       <Link>MapBorderPanel.cs</Link>
@@ -229,6 +223,9 @@
     </Compile>
     <Compile Include="..\WinUI\Animatable.WinUI.cs">
       <Link>Animatable.WinUI.cs</Link>
+    </Compile>
+    <Compile Include="..\WinUI\DependencyPropertyHelper.WinUI.cs">
+      <Link>DependencyPropertyHelper.WinUI.cs</Link>
     </Compile>
     <Compile Include="..\WinUI\GeoImage.WinUI.cs">
       <Link>GeoImage.WinUI.cs</Link>

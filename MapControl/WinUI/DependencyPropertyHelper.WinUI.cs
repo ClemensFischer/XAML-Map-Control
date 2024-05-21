@@ -1,0 +1,44 @@
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// Copyright © 2024 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
+using System;
+#if WINUI
+using Microsoft.UI.Xaml;
+#else
+using Windows.UI.Xaml;
+#endif
+
+namespace MapControl
+{
+    public static class DependencyPropertyHelper
+    {
+        public static DependencyProperty Register<TOwner, TValue>(
+            string name,
+            TValue defaultValue = default,
+            bool bindTwoWayByDefault = false,
+            Action<TOwner, TValue, TValue> changed = null)
+            where TOwner : DependencyObject
+        {
+            var metadata = changed != null
+                ? new PropertyMetadata(defaultValue, (o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue))
+                : new PropertyMetadata(defaultValue);
+
+            return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
+        }
+
+        public static DependencyProperty RegisterAttached<TOwner, TValue>(
+            string name,
+            TValue defaultValue = default,
+            bool inherits = false,
+            Action<FrameworkElement, TValue, TValue> changed = null)
+            where TOwner : DependencyObject
+        {
+            var metadata = changed != null
+                ? new PropertyMetadata(defaultValue, (o, e) => changed((FrameworkElement)o, (TValue)e.OldValue, (TValue)e.NewValue))
+                : new PropertyMetadata(defaultValue);
+
+            return DependencyProperty.RegisterAttached(name, typeof(TValue), typeof(TOwner), metadata);
+        }
+    }
+}

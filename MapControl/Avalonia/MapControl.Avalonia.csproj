@@ -22,7 +22,7 @@
         <Compile Include="..\Shared\ImageLoader.cs" Link="ImageLoader.cs" />
         <Compile Include="..\Shared\Location.cs" Link="Location.cs" />
         <Compile Include="..\Shared\LocationCollection.cs" Link="LocationCollection.cs" />
-        <Compile Include="..\Shared\MapBaseCommon.cs" Link="MapBaseCommon.cs" />
+        <Compile Include="..\Shared\MapBase.cs" Link="MapBase.cs" />
         <Compile Include="..\Shared\MapPanel.cs" Link="MapPanel.cs" />
         <Compile Include="..\Shared\MapProjection.cs" Link="MapProjection.cs" />
         <Compile Include="..\Shared\MapTileLayer.cs" Link="MapTileLayer.cs" />

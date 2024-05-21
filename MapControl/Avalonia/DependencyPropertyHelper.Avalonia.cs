@@ -7,41 +7,49 @@ namespace MapControl
     [System.Diagnostics.CodeAnalysis.SuppressMessage("AvaloniaProperty", "AVP1001")]
     public static class DependencyPropertyHelper
     {
-        public static AvaloniaProperty Register<TOwner, TValue>(
+        public static StyledProperty<TValue> Register<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
             bool bindTwoWayByDefault = false,
-            Action<TOwner, TValue, TValue> propertyChanged = null)
+            Action<TOwner, TValue, TValue> changed = null,
+            Func<TOwner, TValue, TValue> coerce = null)
             where TOwner : AvaloniaObject
         {
-            StyledProperty<TValue> property = AvaloniaProperty.Register<TOwner, TValue>(name, defaultValue, false,
-                bindTwoWayByDefault ? Avalonia.Data.BindingMode.TwoWay : Avalonia.Data.BindingMode.OneWay);
+            var property = AvaloniaProperty.Register<TOwner, TValue>(name, defaultValue, false,
+                bindTwoWayByDefault ? Avalonia.Data.BindingMode.TwoWay : Avalonia.Data.BindingMode.OneWay, null,
+                coerce != null ? ((obj, value) => coerce((TOwner)obj, value)) : null);
 
-            if (propertyChanged != null)
+            if (changed != null)
             {
-                property.Changed.AddClassHandler<TOwner, TValue>(
-                    (o, e) => propertyChanged(o, e.OldValue.Value, e.NewValue.Value));
+                property.Changed.AddClassHandler<TOwner, TValue>((o, e) => changed(o, e.OldValue.Value, e.NewValue.Value));
             }
 
             return property;
         }
 
-        public static AvaloniaProperty RegisterAttached<TOwner, TValue>(
+        public static AttachedProperty<TValue> RegisterAttached<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
             bool inherits = false,
-            Action<Control, TValue, TValue> propertyChanged = null)
+            Action<Control, TValue, TValue> changed = null)
             where TOwner : AvaloniaObject
         {
-            AttachedProperty<TValue> property = AvaloniaProperty.RegisterAttached<TOwner, Control, TValue>(name, defaultValue, inherits);
+            var property = AvaloniaProperty.RegisterAttached<TOwner, Control, TValue>(name, defaultValue, inherits);
 
-            if (propertyChanged != null)
+            if (changed != null)
             {
-                property.Changed.AddClassHandler<Control, TValue>(
-                    (o, e) => propertyChanged(o, e.OldValue.Value, e.NewValue.Value));
+                property.Changed.AddClassHandler<Control, TValue>((o, e) => changed(o, e.OldValue.Value, e.NewValue.Value));
             }
 
             return property;
+        }
+
+        public static DirectProperty<TOwner, TValue> RegisterReadOnly<TOwner, TValue>(
+            string name,
+            Func<TOwner, TValue> getter)
+            where TOwner : AvaloniaObject
+        {
+            return AvaloniaProperty.RegisterDirect(name, getter);
         }
     }
 }
