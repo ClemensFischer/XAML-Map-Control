@@ -372,7 +372,7 @@ namespace MapControl
             }
         }
 
-        internal double ConstrainedLongitude(double longitude)
+        internal double CoerceLongitude(double longitude)
         {
             var offset = longitude - Center.Longitude;
 

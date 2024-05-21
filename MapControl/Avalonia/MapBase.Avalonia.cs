@@ -142,6 +142,8 @@ namespace MapControl
         {
             if (!internalPropertyChange && !targetCenter.Equals(Center))
             {
+                ResetTransformCenter();
+
                 centerCts?.Cancel();
 
                 centerAnimation = new Animation
@@ -154,7 +156,7 @@ namespace MapControl
                         new KeyFrame
                         {
                             KeyTime = AnimationDuration,
-                            Setters = { new Setter(CenterProperty, new Location(targetCenter.Latitude, ConstrainedLongitude(targetCenter.Longitude))) }
+                            Setters = { new Setter(CenterProperty, new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude))) }
                         }
                     }
                 };
@@ -162,6 +164,11 @@ namespace MapControl
                 centerCts = new CancellationTokenSource();
 
                 await centerAnimation.RunAsync(this, centerCts.Token);
+
+                if (!centerCts.IsCancellationRequested)
+                {
+                    UpdateTransform();
+                }
 
                 centerCts.Dispose();
                 centerCts = null;
@@ -225,7 +232,7 @@ namespace MapControl
 
                 if (!zoomLevelCts.IsCancellationRequested)
                 {
-                    UpdateTransform(true);
+                    UpdateTransform(true); // reset transform center
                 }
 
                 zoomLevelCts.Dispose();
@@ -284,6 +291,11 @@ namespace MapControl
                 headingCts = new CancellationTokenSource();
 
                 await headingAnimation.RunAsync(this, headingCts.Token);
+
+                if (!headingCts.IsCancellationRequested)
+                {
+                    UpdateTransform();
+                }
 
                 headingCts.Dispose();
                 headingCts = null;

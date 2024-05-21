@@ -148,6 +148,8 @@ namespace MapControl
         {
             if (!internalPropertyChange)
             {
+                ResetTransformCenter();
+
                 var targetCenter = CoerceCenterProperty(value);
 
                 if (!targetCenter.Equals(value))
@@ -165,7 +167,7 @@ namespace MapControl
                     centerAnimation = new PointAnimation
                     {
                         From = new Windows.Foundation.Point(Center.Longitude, Center.Latitude),
-                        To = new Windows.Foundation.Point(ConstrainedLongitude(targetCenter.Longitude), targetCenter.Latitude),
+                        To = new Windows.Foundation.Point(CoerceLongitude(targetCenter.Longitude), targetCenter.Latitude),
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction,
                         EnableDependentAnimation = true

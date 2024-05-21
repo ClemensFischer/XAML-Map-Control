@@ -6,7 +6,13 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-#if WINUI
+#if AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Threading;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using ImageSource = Avalonia.Media.IImage;
+#elif WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -35,27 +41,27 @@ namespace MapControl
     /// </summary>
     public abstract class MapImageLayer : MapPanel, IMapLayer
     {
-        public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
-            nameof(Description), typeof(string), typeof(MapImageLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty DescriptionProperty =
+            DependencyPropertyHelper.Register<MapImageLayer, string>(nameof(Description));
 
-        public static readonly DependencyProperty RelativeImageSizeProperty = DependencyProperty.Register(
-            nameof(RelativeImageSize), typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
+        public static readonly DependencyProperty RelativeImageSizeProperty =
+            DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(RelativeImageSize), 1d);
 
-        public static readonly DependencyProperty UpdateIntervalProperty = DependencyProperty.Register(
-            nameof(UpdateInterval), typeof(TimeSpan), typeof(MapImageLayer),
-            new PropertyMetadata(TimeSpan.FromSeconds(0.2), (o, e) => ((MapImageLayer)o).updateTimer.Interval = (TimeSpan)e.NewValue));
+        public static readonly DependencyProperty UpdateIntervalProperty =
+            DependencyPropertyHelper.Register<MapImageLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
+                false, (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
 
-        public static readonly DependencyProperty UpdateWhileViewportChangingProperty = DependencyProperty.Register(
-            nameof(UpdateWhileViewportChanging), typeof(bool), typeof(MapImageLayer), new PropertyMetadata(false));
+        public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
+            DependencyPropertyHelper.Register<MapImageLayer, bool>(nameof(UpdateWhileViewportChanging));
 
-        public static readonly DependencyProperty MapBackgroundProperty = DependencyProperty.Register(
-            nameof(MapBackground), typeof(Brush), typeof(MapImageLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty MapBackgroundProperty =
+            DependencyPropertyHelper.Register<MapImageLayer, Brush>(nameof(MapBackground));
 
-        public static readonly DependencyProperty MapForegroundProperty = DependencyProperty.Register(
-            nameof(MapForeground), typeof(Brush), typeof(MapImageLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty MapForegroundProperty =
+            DependencyPropertyHelper.Register<MapImageLayer, Brush>(nameof(MapForeground));
 
-        public static readonly DependencyProperty LoadingProgressProperty = DependencyProperty.Register(
-            nameof(LoadingProgress), typeof(double), typeof(MapImageLayer), new PropertyMetadata(1d));
+        public static readonly DependencyProperty LoadingProgressProperty =
+            DependencyPropertyHelper.Register<MapImageLayer, double>( nameof(LoadingProgress), 1d);
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
@@ -63,7 +69,7 @@ namespace MapControl
 
         public MapImageLayer()
         {
-            loadingProgress = new Progress<double>(p => LoadingProgress = p);
+            loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await UpdateImageAsync();
@@ -131,7 +137,6 @@ namespace MapControl
         public double LoadingProgress
         {
             get => (double)GetValue(LoadingProgressProperty);
-            private set => SetValue(LoadingProgressProperty, value);
         }
 
         protected override void SetParentMap(MapBase map)
@@ -249,6 +254,8 @@ namespace MapControl
                 topImage.Source = image;
                 SetBoundingBox(topImage, boundingBox);
 
+#if AVALONIA
+#else
                 topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
                 {
                     To = 1d,
@@ -261,6 +268,7 @@ namespace MapControl
                     BeginTime = MapBase.ImageFadeDuration,
                     Duration = TimeSpan.Zero
                 });
+#endif
             }
         }
     }

@@ -129,6 +129,8 @@ namespace MapControl
         {
             if (!internalPropertyChange && !targetCenter.Equals(Center))
             {
+                ResetTransformCenter();
+
                 if (centerAnimation != null)
                 {
                     centerAnimation.Completed -= CenterAnimationCompleted;
@@ -136,7 +138,7 @@ namespace MapControl
 
                 centerAnimation = new LocationAnimation
                 {
-                    To = new Location(targetCenter.Latitude, ConstrainedLongitude(targetCenter.Longitude)),
+                    To = new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude)),
                     Duration = AnimationDuration,
                     EasingFunction = AnimationEasingFunction
                 };

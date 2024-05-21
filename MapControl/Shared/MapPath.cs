@@ -132,7 +132,7 @@ namespace MapControl
                     (point.Value.X < 0d || point.Value.X > parentMap.RenderSize.Width ||
                      point.Value.Y < 0d || point.Value.Y > parentMap.RenderSize.Height))
                 {
-                    longitudeOffset = parentMap.ConstrainedLongitude(location.Longitude) - location.Longitude;
+                    longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
                 }
             }
 
