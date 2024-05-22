@@ -77,19 +77,9 @@ namespace MapControl
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
+            var images = await LoadImagesAsync(uri1, uri2, progress);
+
             WriteableBitmap image = null;
-            IProgress<double> progress1 = null;
-            IProgress<double> progress2 = null;
-
-            if (progress != null)
-            {
-                var p1 = 0d;
-                var p2 = 0d;
-                progress1 = new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); });
-                progress2 = new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); });
-            }
-
-            var images = await Task.WhenAll(LoadImageAsync(uri1, progress1), LoadImageAsync(uri2, progress2));
 
             if (images.Length == 2 &&
                 images[0] is WriteableBitmap image1 &&

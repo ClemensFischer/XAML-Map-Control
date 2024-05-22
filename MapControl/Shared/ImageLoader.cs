@@ -159,5 +159,21 @@ namespace MapControl
 
             return buffer;
         }
+
+        private static Task<ImageSource[]> LoadImagesAsync(Uri uri1, Uri uri2, IProgress<double> progress)
+        {
+            IProgress<double> progress1 = null;
+            IProgress<double> progress2 = null;
+
+            if (progress != null)
+            {
+                var p1 = 0d;
+                var p2 = 0d;
+                progress1 = new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); });
+                progress2 = new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); });
+            }
+
+            return Task.WhenAll(LoadImageAsync(uri1, progress1), LoadImageAsync(uri2, progress2));
+        }
     }
 }

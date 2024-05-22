@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>disable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for Avalonia UI</AssemblyTitle>
         <Product>XAML Map Control</Product>
