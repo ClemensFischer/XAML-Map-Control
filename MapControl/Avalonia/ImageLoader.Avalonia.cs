@@ -54,28 +54,26 @@ namespace MapControl
                 images[1] is Bitmap image2 &&
                 image1.PixelSize.Height == image2.PixelSize.Height &&
                 image1.Format.HasValue &&
-                image2.Format.HasValue &&
-                image1.Format.Value == image2.Format.Value &&
+                image1.Format == image2.Format &&
                 image1.AlphaFormat.HasValue &&
-                image2.AlphaFormat.HasValue &&
-                image1.AlphaFormat.Value == image2.AlphaFormat.Value)
+                image1.AlphaFormat == image2.AlphaFormat)
             {
                 var bpp = image1.Format.Value == PixelFormat.Rgb565 ? 2 : 4;
-                var size = new PixelSize(image1.PixelSize.Width + image2.PixelSize.Width, image1.PixelSize.Height);
-                var stride1 = image1.PixelSize.Width * bpp;
-                var stride = size.Width * bpp;
-                var buffer = new byte[stride * size.Height];
+                var pixelSize = new PixelSize(image1.PixelSize.Width + image2.PixelSize.Width, image1.PixelSize.Height);
+                var stride1 = bpp * image1.PixelSize.Width;
+                var stride = bpp * pixelSize.Width;
+                var bufferSize = stride * pixelSize.Height;
 
                 unsafe
                 {
-                    fixed (byte* ptr = buffer)
+                    fixed (byte* ptr = new byte[stride * pixelSize.Height])
                     {
-                        var p = (nint)ptr;
+                        var buffer = (nint)ptr;
 
-                        image1.CopyPixels(new PixelRect(image1.PixelSize), p, buffer.Length, stride);
-                        image2.CopyPixels(new PixelRect(image2.PixelSize), p + stride1, buffer.Length, stride);
+                        image1.CopyPixels(new PixelRect(image1.PixelSize), buffer, bufferSize, stride);
+                        image2.CopyPixels(new PixelRect(image2.PixelSize), buffer + stride1, bufferSize, stride);
 
-                        image = new WriteableBitmap(image1.Format.Value, image1.AlphaFormat.Value, p, size, image1.Dpi, stride);
+                        image = new WriteableBitmap(image1.Format.Value, image1.AlphaFormat.Value, buffer, pixelSize, image1.Dpi, stride);
                     }
                 }
             }
