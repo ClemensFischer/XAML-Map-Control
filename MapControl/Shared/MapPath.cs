@@ -4,16 +4,15 @@
 
 using System.Collections.Generic;
 using System.Linq;
-#if WINUI
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
+#if WPF
+using System.Windows;
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows;
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 #endif
 
 namespace MapControl

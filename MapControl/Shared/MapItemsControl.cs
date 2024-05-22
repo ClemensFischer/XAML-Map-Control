@@ -3,20 +3,18 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINUI
-using Windows.Foundation;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Data;
-#elif UWP
-using Windows.Foundation;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-#else
+#if WPF
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+#elif UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 #endif
 
 namespace MapControl

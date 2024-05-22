@@ -6,23 +6,23 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-#if WINUI
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Markup;
+#if WPF
+using System.Windows;
+using System.Windows.Markup;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
-#else
-using System.Windows;
-using System.Windows.Markup;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Markup;
 #endif
 
 namespace MapControl.UiTools
 {
-#if WINUI || UWP
-    [ContentProperty(Name = nameof(Layer))]
-#else
+#if WPF
     [ContentProperty(nameof(Layer))]
+#else
+    [ContentProperty(Name = nameof(Layer))]
 #endif
     public class MapLayerItem
     {
@@ -33,10 +33,10 @@ namespace MapControl.UiTools
         public UIElement GetLayer() => Layer ?? (Layer = LayerFactory?.Invoke());
     }
 
-#if WINUI || UWP
-    [ContentProperty(Name = nameof(MapLayers))]
-#else
+#if WPF
     [ContentProperty(nameof(MapLayers))]
+#else
+    [ContentProperty(Name = nameof(MapLayers))]
 #endif
     public class MapLayersMenuButton : MenuButton
     {

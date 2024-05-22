@@ -6,28 +6,26 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-#if AVALONIA
+#if WPF
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Threading;
+#elif UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
+#elif AVALONIA
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 using ImageSource = Avalonia.Media.IImage;
-#elif WINUI
-using Windows.Foundation;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
-#elif UWP
-using Windows.Foundation;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-#else
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Threading;
 #endif
 
 namespace MapControl

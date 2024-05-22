@@ -4,14 +4,14 @@
 
 using System;
 using Windows.System;
-#if WINUI
-using Microsoft.UI.Input;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Input;
-#else
+#if UWP
 using Windows.Devices.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
+#else
+using Microsoft.UI.Input;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Input;
 #endif
 
 namespace MapControl

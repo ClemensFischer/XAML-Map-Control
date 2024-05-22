@@ -3,15 +3,15 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
-#if WINUI
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows;
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows;
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 #endif
 
 namespace MapControl
@@ -32,7 +32,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the Locations that define the polygon points.
         /// </summary>
-#if !WINUI && !UWP
+#if WPF
         [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
         public IEnumerable<Location> Locations

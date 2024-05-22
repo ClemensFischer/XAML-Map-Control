@@ -8,18 +8,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-#if AVALONIA
-using DependencyProperty = Avalonia.AvaloniaProperty;
-using ImageSource = Avalonia.Media.IImage;
-#elif WINUI
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows;
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows;
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl

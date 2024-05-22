@@ -4,12 +4,12 @@
 
 using System;
 using System.Threading.Tasks;
-#if WINUI
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media.Animation;
-#else
+#if UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
+#else
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media.Animation;
 #endif
 
 namespace MapControl

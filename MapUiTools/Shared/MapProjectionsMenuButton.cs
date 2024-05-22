@@ -5,23 +5,23 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-#if WINUI
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Markup;
+#if WPF
+using System.Windows;
+using System.Windows.Markup;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
-#else
-using System.Windows;
-using System.Windows.Markup;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Markup;
 #endif
 
 namespace MapControl.UiTools
 {
-#if WINUI || UWP
-    [ContentProperty(Name = nameof(Projection))]
-#else
+#if WPF
     [ContentProperty(nameof(Projection))]
+#else
+    [ContentProperty(Name = nameof(Projection))]
 #endif
     public class MapProjectionItem
     {
@@ -29,10 +29,10 @@ namespace MapControl.UiTools
         public string Projection { get; set; }
     }
 
-#if WINUI || UWP
-    [ContentProperty(Name = nameof(MapProjections))]
-#else
+#if WPF
     [ContentProperty(nameof(MapProjections))]
+#else
+    [ContentProperty(Name = nameof(MapProjections))]
 #endif
     public class MapProjectionsMenuButton : MenuButton
     {

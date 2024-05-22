@@ -11,7 +11,7 @@
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <DelaySign>false</DelaySign>
-        <DefineConstants></DefineConstants>
+        <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

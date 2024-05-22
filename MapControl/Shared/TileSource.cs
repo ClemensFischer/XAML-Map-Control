@@ -4,14 +4,14 @@
 
 using System;
 using System.Threading.Tasks;
-#if AVALONIA
-using ImageSource = Avalonia.Media.IImage;
-#elif WINUI
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl
@@ -19,7 +19,7 @@ namespace MapControl
     /// <summary>
     /// Provides the download Uri or ImageSource of map tiles.
     /// </summary>
-#if WINUI || UWP
+#if UWP || WINUI
     [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
 #else
     [System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]

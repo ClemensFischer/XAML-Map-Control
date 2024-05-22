@@ -2,15 +2,14 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if WINUI
+using Windows.UI.Text;
+#if UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
+#else
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using Windows.UI.Text;
-#else
-using Windows.UI.Text;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 #endif
 
 namespace MapControl

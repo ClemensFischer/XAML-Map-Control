@@ -11,18 +11,18 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-#if WINUI
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 #endif
 
 namespace MapControl

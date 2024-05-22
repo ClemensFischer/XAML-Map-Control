@@ -4,20 +4,20 @@
 
 using System;
 using System.Threading.Tasks;
-#if AVALONIA
-using Avalonia.Media;
-using DependencyProperty = Avalonia.AvaloniaProperty;
-#elif WINUI
-using Windows.Foundation;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows;
+using System.Windows.Media;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows;
-using System.Windows.Media;
+#elif WINUI
+using Windows.Foundation;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using Avalonia.Media;
+using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
 namespace MapControl

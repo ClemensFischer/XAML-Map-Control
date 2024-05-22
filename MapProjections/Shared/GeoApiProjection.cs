@@ -8,7 +8,7 @@ using GeoAPI.Geometries;
 using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
 using System;
-#if !WINUI && !UWP
+#if WPF
 using System.Windows;
 #endif
 

@@ -3,10 +3,10 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if WINUI
-using WindowsUI = Microsoft.UI;
-#else
+#if UWP
 using WindowsUI = Windows.UI;
+#else
+using WindowsUI = Microsoft.UI;
 #endif
 
 namespace MapControl

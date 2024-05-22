@@ -9,14 +9,14 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-#if AVALONIA
-using ImageSource = Avalonia.Media.IImage;
-#elif WINUI
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl

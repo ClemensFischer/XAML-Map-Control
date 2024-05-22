@@ -10,7 +10,7 @@ namespace MapControl
     /// <summary>
     /// A geographic location with latitude and longitude values in degrees.
     /// </summary>
-#if WINUI || UWP
+#if UWP || WINUI
     [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
 #else
     [System.ComponentModel.TypeConverter(typeof(LocationConverter))]

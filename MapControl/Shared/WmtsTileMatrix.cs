@@ -2,7 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-#if !WINUI && !UWP
+#if WPF
 using System.Windows;
 #endif
 

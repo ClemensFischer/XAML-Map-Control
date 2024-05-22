@@ -5,14 +5,14 @@
 using Windows.Foundation;
 using System.Collections.Generic;
 using System.Linq;
-#if WINUI
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
-#else
+#if UWP
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
+#else
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 #endif
 
 namespace MapControl

@@ -13,7 +13,7 @@
         <DelaySign>false</DelaySign>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
-        <DefineConstants></DefineConstants>
+        <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

@@ -4,7 +4,7 @@
 
 using System;
 using System.Globalization;
-#if !WINUI && !UWP
+#if WPF
 using System.Windows;
 #endif
 

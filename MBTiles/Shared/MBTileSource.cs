@@ -5,12 +5,12 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-#if WINUI
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Media;
 #endif
 
 namespace MapControl.MBTiles

@@ -3,12 +3,12 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if AVALONIA
-using Avalonia.Threading;
+#if WPF
+using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Xaml;
-#else
-using System.Windows.Threading;
+#elif AVALONIA
+using Avalonia.Threading;
 #endif
 
 namespace MapControl

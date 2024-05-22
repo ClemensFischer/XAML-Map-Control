@@ -3,19 +3,19 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-#if AVALONIA
-using Avalonia.Controls;
-using Avalonia.Media;
-using ImageSource = Avalonia.Media.IImage;
-#elif WINUI
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
+#if WPF
+using System.Windows.Controls;
+using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-#else
-using System.Windows.Controls;
-using System.Windows.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl

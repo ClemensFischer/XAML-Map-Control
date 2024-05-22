@@ -7,14 +7,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-#if WINUI
-using Windows.Foundation;
-using Microsoft.UI.Xaml;
+#if WPF
+using System.Windows;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
-#else
-using System.Windows;
+#elif WINUI
+using Windows.Foundation;
+using Microsoft.UI.Xaml;
 #endif
 
 namespace MapControl

@@ -4,23 +4,23 @@
 
 using System;
 using System.Globalization;
-#if WINUI
-using Windows.Foundation;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
+#if WPF
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
-#else
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
+#elif WINUI
+using Windows.Foundation;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 #endif
 
 namespace MapControl
@@ -56,7 +56,7 @@ namespace MapControl
             line.SetBinding(Shape.StrokeProperty, this.GetOrCreateBinding(StrokeProperty, nameof(Stroke)));
             line.SetBinding(Shape.StrokeThicknessProperty, this.GetOrCreateBinding(StrokeThicknessProperty, nameof(StrokeThickness)));
 
-#if WINUI || UWP
+#if UWP || WINUI
             label.SetBinding(TextBlock.ForegroundProperty, this.GetOrCreateBinding(ForegroundProperty, nameof(Foreground)));
 #endif
         }
