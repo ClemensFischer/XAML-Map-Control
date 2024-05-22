@@ -23,6 +23,12 @@ using Windows.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using FrameworkElement = Avalonia.Controls.Control;
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl
@@ -55,8 +61,9 @@ namespace MapControl
             public ImageSource ImageSource { get; set; }
         }
 
-        public static readonly DependencyProperty SourcePathProperty = DependencyProperty.Register(
-            nameof(SourcePath), typeof(string), typeof(GroundOverlay), new PropertyMetadata(null, SourcePathPropertyChanged));
+        public static readonly DependencyProperty SourcePathProperty =
+            DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null, false,
+                async (overlay, oldValue, newValue) => await overlay.SourcePathPropertyChanged(newValue));
 
         public string SourcePath
         {
@@ -64,10 +71,8 @@ namespace MapControl
             set => SetValue(SourcePathProperty, value);
         }
 
-        private static async void SourcePathPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        private async Task SourcePathPropertyChanged(string sourcePath)
         {
-            var groundOverlay = (GroundOverlay)obj;
-            var sourcePath = (string)e.NewValue;
             IEnumerable<ImageOverlay> imageOverlays = null;
 
             if (!string.IsNullOrEmpty(sourcePath))
@@ -91,11 +96,11 @@ namespace MapControl
                 }
             }
 
-            groundOverlay.Children.Clear();
+            Children.Clear();
 
             if (imageOverlays != null)
             {
-                groundOverlay.AddImageOverlays(imageOverlays);
+                AddImageOverlays(imageOverlays);
             }
         }
 
@@ -111,8 +116,7 @@ namespace MapControl
 
                 if (imageOverlay.LatLonBox.Rotation != 0d)
                 {
-                    overlay.RenderTransform = new RotateTransform { Angle = -imageOverlay.LatLonBox.Rotation };
-                    overlay.RenderTransformOrigin = new Point(0.5, 0.5);
+                    SetRenderTransform(overlay, new RotateTransform { Angle = -imageOverlay.LatLonBox.Rotation }, 0.5, 0.5);
 
                     // Additional Panel for map rotation, see MapPanel.ArrangeElement(FrameworkElement, ViewRect).
                     //
@@ -122,7 +126,7 @@ namespace MapControl
                 }
 
                 SetBoundingBox(overlay, imageOverlay.LatLonBox);
-                Canvas.SetZIndex(overlay, imageOverlay.ZIndex);
+                overlay.SetValue(Canvas.ZIndexProperty, imageOverlay.ZIndex);
                 Children.Add(overlay);
             }
         }
