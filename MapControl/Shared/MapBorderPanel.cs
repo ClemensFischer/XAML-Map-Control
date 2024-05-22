@@ -8,6 +8,9 @@ using System.Windows;
 using Windows.UI.Xaml;
 #elif WINUI
 using Microsoft.UI.Xaml;
+#elif AVALONIA
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using FrameworkElement = Avalonia.Controls.Control;
 #endif
 
 namespace MapControl
@@ -20,11 +23,11 @@ namespace MapControl
     /// </summary>
     public class MapBorderPanel : MapPanel
     {
-        public static readonly DependencyProperty BorderWidthProperty = DependencyProperty.Register(
-            nameof(BorderWidth), typeof(double), typeof(MapBorderPanel), null);
+        public static readonly DependencyProperty BorderWidthProperty =
+            DependencyPropertyHelper.Register<MapBorderPanel, double>(nameof(BorderWidth));
 
-        public static readonly DependencyProperty OnBorderProperty = DependencyProperty.RegisterAttached(
-            "OnBorder", typeof(bool), typeof(MapBorderPanel), null);
+        public static readonly DependencyProperty OnBorderProperty =
+            DependencyPropertyHelper.RegisterAttached<MapBorderPanel, bool>("OnBorder");
 
         public double BorderWidth
         {

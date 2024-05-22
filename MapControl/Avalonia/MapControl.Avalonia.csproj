@@ -24,7 +24,6 @@
     <ItemGroup>
         <Compile Remove="..\Shared\BindingHelper.cs" />
         <Compile Remove="..\Shared\GeoImage.cs" />
-        <Compile Remove="..\Shared\MapBorderPanel.cs" />
         <Compile Remove="..\Shared\MapGraticule.cs" />
         <Compile Remove="..\Shared\MapItem.cs" />
         <Compile Remove="..\Shared\MapItemsControl.cs" />
