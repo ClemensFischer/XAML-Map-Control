@@ -92,20 +92,10 @@ namespace MapControl
         /// Gets the scaling factor from projected map coordinates to view coordinates,
         /// as pixels per meter.
         /// </summary>
-        public double ViewScale => (double)GetValue(ViewScaleProperty);
-
-        /// <summary>
-        /// Gets a transform Matrix for scaling and rotating objects that are anchored
-        /// at a Location from map coordinates (i.e. meters) to view coordinates.
-        /// </summary>
-        public Matrix GetMapTransform(Location location)
+        public double ViewScale
         {
-            var scale = GetScale(location);
-
-            var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
-            transform.Rotate(ViewTransform.Rotation);
-
-            return transform;
+            get => (double)GetValue(ViewScaleProperty);
+            private set => SetValue(ViewScaleProperty, value);
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -117,11 +107,6 @@ namespace MapControl
 
             ResetTransformCenter();
             UpdateTransform();
-        }
-
-        private void SetViewScale(double scale)
-        {
-            SetValue(ViewScaleProperty, scale);
         }
 
         private void CenterPropertyChanged(Location value)

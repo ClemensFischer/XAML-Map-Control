@@ -198,14 +198,21 @@ namespace MapControl
         public ViewTransform ViewTransform { get; } = new ViewTransform();
 
         /// <summary>
-        /// Gets the map scale as the horizontal and vertical scaling factors from geographic
-        /// coordinates to view coordinates at the specified location, as pixels per meter.
+        /// Gets the map scale as horizontal and vertical scaling factors from meters to
+        /// view coordinates at the specified location.
         /// </summary>
         public Point GetScale(Location location)
         {
-            var relativeScale = MapProjection.GetRelativeScale(location);
+            return ViewTransform.GetMapScale(MapProjection.GetRelativeScale(location));
+        }
 
-            return new Point(ViewTransform.Scale * relativeScale.X, ViewTransform.Scale * relativeScale.Y);
+        /// <summary>
+        /// Gets a transform Matrix from meters to view coordinates for scaling and rotating
+        /// objects that are anchored at a Location.
+        /// </summary>
+        public Matrix GetMapTransform(Location location)
+        {
+            return ViewTransform.GetMapTransform(MapProjection.GetRelativeScale(location));
         }
 
         /// <summary>
@@ -554,7 +561,7 @@ namespace MapControl
                     }
                 }
 
-                SetViewScale(ViewTransform.Scale);
+                ViewScale = ViewTransform.Scale;
 
                 // Check if view center has moved across 180° longitude.
                 //

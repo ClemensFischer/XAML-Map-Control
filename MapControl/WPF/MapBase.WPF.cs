@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace MapControl
@@ -32,7 +31,7 @@ namespace MapControl
         public static readonly DependencyProperty MaxZoomLevelProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(MaxZoomLevel), 20d, false,
                 (map, oldValue, newValue) => map.MaxZoomLevelPropertyChanged(newValue),
-                (map, value) => map.CoerceMinZoomLevelProperty(value));
+                (map, value) => map.CoerceMaxZoomLevelProperty(value));
 
         public static readonly DependencyProperty ZoomLevelProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d, true,
@@ -83,20 +82,10 @@ namespace MapControl
         /// Gets the scaling factor from projected map coordinates to view coordinates,
         /// as pixels per meter.
         /// </summary>
-        public double ViewScale => (double)GetValue(ViewScaleProperty);
-
-        /// <summary>
-        /// Gets a transform Matrix for scaling and rotating objects that are anchored
-        /// at a Location from map coordinates (i.e. meters) to view coordinates.
-        /// </summary>
-        public Matrix GetMapTransform(Location location)
+        public double ViewScale
         {
-            var scale = GetScale(location);
-
-            var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
-            transform.Rotate(ViewTransform.Rotation);
-
-            return transform;
+            get => (double)GetValue(ViewScaleProperty);
+            private set => SetValue(ViewScalePropertyKey, value);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -105,11 +94,6 @@ namespace MapControl
 
             ResetTransformCenter();
             UpdateTransform();
-        }
-
-        private void SetViewScale(double scale)
-        {
-            SetValue(ViewScalePropertyKey, scale);
         }
 
         private void CenterPropertyChanged(Location center)

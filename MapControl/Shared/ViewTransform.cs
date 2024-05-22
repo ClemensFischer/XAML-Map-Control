@@ -54,21 +54,10 @@ namespace MapControl
         public Matrix ViewToMapMatrix { get; private set; }
 
         /// <summary>
-        /// Transforms a Point from projected map coordinates to view coordinates.
+        /// Initializes a ViewTransform from a map center point in projected coordinates,
+        /// a view conter point, a scaling factor from projected coordinates to view coordinates
+        /// and a rotation angle in degrees.
         /// </summary>
-        public Point MapToView(Point point)
-        {
-            return MapToViewMatrix.Transform(point);
-        }
-
-        /// <summary>
-        /// Transforms a Point from view coordinates to projected map coordinates.
-        /// </summary>
-        public Point ViewToMap(Point point)
-        {
-            return ViewToMapMatrix.Transform(point);
-        }
-
         public void SetTransform(Point mapCenter, Point viewCenter, double scale, double rotation)
         {
             Scale = scale;
@@ -85,6 +74,46 @@ namespace MapControl
             ViewToMapMatrix = transform;
         }
 
+        /// <summary>
+        /// Transforms a Point from projected map coordinates to view coordinates.
+        /// </summary>
+        public Point MapToView(Point point)
+        {
+            return MapToViewMatrix.Transform(point);
+        }
+
+        /// <summary>
+        /// Transforms a Point from view coordinates to projected map coordinates.
+        /// </summary>
+        public Point ViewToMap(Point point)
+        {
+            return ViewToMapMatrix.Transform(point);
+        }
+
+        /// <summary>
+        /// Gets scaling factors from meters to view coordinates for a relative map scale.
+        /// </summary>
+        public Point GetMapScale(Point relativeScale)
+        {
+            return new Point(Scale * relativeScale.X, Scale * relativeScale.Y);
+        }
+
+        /// <summary>
+        /// Gets a transform Matrix from meters to view coordinates for a relative map scale.
+        /// </summary>
+        public Matrix GetMapTransform(Point relativeScale)
+        {
+            var scale = GetMapScale(relativeScale);
+
+            var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
+            transform.Rotate(Rotation);
+
+            return transform;
+        }
+
+        /// <summary>
+        /// Gets the transform Matrix for the RenderTranform of a MapTileLayer.
+        /// </summary>
         public Matrix GetTileLayerTransform(double tileMatrixScale, Point tileMatrixTopLeft, Point tileMatrixOrigin)
         {
             // Tile matrix origin in map coordinates.
@@ -106,6 +135,9 @@ namespace MapControl
             return transform;
         }
 
+        /// <summary>
+        /// Gets the index bounds of a tile matrix.
+        /// </summary>
         public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, Size viewSize)
         {
             // View origin in map coordinates.
@@ -127,6 +159,18 @@ namespace MapControl
             //
             return new MatrixTransform { Matrix = transform }
                 .TransformBounds(new Rect(0d, 0d, viewSize.Width, viewSize.Height));
+        }
+
+        internal static Matrix CreateTransformMatrix(
+            double translation1X, double translation1Y,
+            double rotation,
+            double translation2X, double translation2Y)
+        {
+            var transform = new Matrix(1d, 0d, 0d, 1d, translation1X, translation1Y);
+            transform.Rotate(rotation);
+            transform.Translate(translation2X, translation2Y);
+
+            return transform;
         }
     }
 }

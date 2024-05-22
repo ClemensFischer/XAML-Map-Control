@@ -7,7 +7,6 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Styling;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +35,7 @@ namespace MapControl
         public static readonly StyledProperty<double> MaxZoomLevelProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(MaxZoomLevel), 20d, false,
                 (map, oldValue, newValue) => map.MaxZoomLevelPropertyChanged(newValue),
-                (map, value) => map.CoerceMinZoomLevelProperty(value));
+                (map, value) => map.CoerceMaxZoomLevelProperty(value));
 
         public static readonly StyledProperty<double> ZoomLevelProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d, true,
@@ -106,24 +105,8 @@ namespace MapControl
         /// </summary>
         public double ViewScale
         {
-            get => ViewTransform.Scale;
-        }
-
-        private void SetViewScale(double viewScale)
-        {
-            RaisePropertyChanged(ViewScaleProperty, double.NaN, viewScale);
-        }
-
-        /// <summary>
-        /// Gets a transform Matrix for scaling and rotating objects that are anchored
-        /// at a Location from map coordinates (i.e. meters) to view coordinates.
-        /// </summary>
-        public Matrix GetMapTransform(Location location)
-        {
-            var scale = GetScale(location);
-
-            return Matrix.CreateScale(scale.X, scale.Y)
-                * Matrix.CreateRotation(ViewTransform.Rotation * Math.PI / 180d);
+            get => (double)GetValue(ViewScaleProperty);
+            private set => RaisePropertyChanged(ViewScaleProperty, double.NaN, value);
         }
 
         private void CenterPropertyChanged(Location center)

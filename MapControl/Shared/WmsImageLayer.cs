@@ -9,18 +9,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 #if AVALONIA
-using Avalonia.Controls;
-using Avalonia.Media;
-using Avalonia.Threading;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 using FrameworkElement = Avalonia.Controls.Control;
 using ImageSource = Avalonia.Media.IImage;
 #elif WINUI
-using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif UWP
-using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -284,16 +279,12 @@ namespace MapControl
             }
 
             var viewRect = GetViewRect(rect.Value);
-#if AVALONIA
-            var transform
-                = Matrix.CreateTranslation(-viewSize.Width / 2d, -viewSize.Height / 2d)
-                * Matrix.CreateRotation(-viewRect.Rotation * Math.PI / 180d)
-                * Matrix.CreateTranslation(viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
-#else
-            var transform = new Matrix(1d, 0d, 0d, 1d, -viewSize.Width / 2d, -viewSize.Height / 2d);
-            transform.Rotate(-viewRect.Rotation);
-            transform.Translate(viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
-#endif
+
+            var transform = ViewTransform.CreateTransformMatrix(
+                -viewSize.Width / 2d, -viewSize.Height / 2d,
+                -viewRect.Rotation,
+                viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
+
             var imagePos = transform.Transform(position);
 
             var queryParameters = new Dictionary<string, string>
