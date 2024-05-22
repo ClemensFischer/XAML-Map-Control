@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 #if AVALONIA
 using DependencyProperty = Avalonia.AvaloniaProperty;
-using FrameworkElement = Avalonia.Controls.Control;
 using ImageSource = Avalonia.Media.IImage;
 #elif WINUI
 using Microsoft.UI.Xaml;
@@ -38,7 +37,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsLayers), null, false,
                 async (layer, oldValue, newValue) =>
                 {
-                    // Ignore property change from GetImageAsync, when Layers was null.
+                    // Ignore property change from GetImageAsync when Layers was null.
                     //
                     if (oldValue != null)
                     {
@@ -49,14 +48,6 @@ namespace MapControl
         public static readonly DependencyProperty WmsStylesProperty =
             DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsStyles), string.Empty, false,
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
-
-        public WmsImageLayer()
-        {
-            foreach (FrameworkElement child in Children)
-            {
-                child.UseLayoutRounding = true;
-            }
-        }
 
         /// <summary>
         /// The base request URL. 

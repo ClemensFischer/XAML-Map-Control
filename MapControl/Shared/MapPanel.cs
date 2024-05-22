@@ -324,7 +324,7 @@ namespace MapControl
                     break;
             }
 
-            ArrangeElement(element, new Rect(x, y, size.Width, size.Height));
+            element.Arrange(new Rect(x, y, size.Width, size.Height));
         }
 
         private static void ArrangeElement(FrameworkElement element, Size parentSize)
@@ -371,7 +371,7 @@ namespace MapControl
                     break;
             }
 
-            ArrangeElement(element, new Rect(x, y, width, height));
+            element.Arrange(new Rect(x, y, width, height));
         }
 
         private static void ArrangeElement(FrameworkElement element, ViewRect rect)
@@ -379,7 +379,7 @@ namespace MapControl
             element.Width = rect.Rect.Width;
             element.Height = rect.Rect.Height;
 
-            ArrangeElement(element, rect.Rect);
+            element.Arrange(rect.Rect);
 
             if (element.RenderTransform is RotateTransform rotateTransform)
             {
@@ -389,16 +389,6 @@ namespace MapControl
             {
                 SetRenderTransform(element, new RotateTransform { Angle = rect.Rotation }, 0.5, 0.5);
             }
-        }
-
-        private static void ArrangeElement(FrameworkElement element, Rect rect)
-        {
-            if (element.UseLayoutRounding)
-            {
-                rect = new Rect(Math.Round(rect.X), Math.Round(rect.Y), Math.Round(rect.Width), Math.Round(rect.Height));
-            }
-
-            element.Arrange(rect);
         }
 
         internal static Size GetDesiredSize(FrameworkElement element)

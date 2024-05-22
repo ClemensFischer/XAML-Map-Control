@@ -28,7 +28,7 @@ namespace MapControl
             element.RenderTransformOrigin = new RelativePoint(originX, originY, RelativeUnit.Relative);
         }
 
-        private Controls ChildElements => Children;
+        protected Controls ChildElements => Children;
 
         private static void SetVisible(Control element, bool visible)
         {

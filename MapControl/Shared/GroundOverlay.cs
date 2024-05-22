@@ -106,8 +106,7 @@ namespace MapControl
                 FrameworkElement overlay = new Image
                 {
                     Source = imageOverlay.ImageSource,
-                    Stretch = Stretch.Fill,
-                    UseLayoutRounding = false
+                    Stretch = Stretch.Fill
                 };
 
                 if (imageOverlay.LatLonBox.Rotation != 0d)
@@ -115,9 +114,9 @@ namespace MapControl
                     overlay.RenderTransform = new RotateTransform { Angle = -imageOverlay.LatLonBox.Rotation };
                     overlay.RenderTransformOrigin = new Point(0.5, 0.5);
 
-                    // Additional Panel for map rotation, see MapPanel.ArrangeElementWithBoundingBox.
+                    // Additional Panel for map rotation, see MapPanel.ArrangeElement(FrameworkElement, ViewRect).
                     //
-                    var panel = new Grid { UseLayoutRounding = false };
+                    var panel = new Grid();
                     panel.Children.Add(overlay);
                     overlay = panel;
                 }
