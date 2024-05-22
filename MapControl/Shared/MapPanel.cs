@@ -2,6 +2,8 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
+using System.Diagnostics;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -188,37 +190,13 @@ namespace MapControl
             {
                 foreach (var element in ChildElements)
                 {
-                    var location = GetLocation(element);
-                    var position = location != null ? GetViewPosition(location) : null;
-
-                    SetViewPosition(element, ref position);
-
-                    if (GetAutoCollapse(element))
+                    try
                     {
-                        SetVisible(element, !(position.HasValue && IsOutsideViewport(position.Value)));
+                        ArrangeChildElement(element, finalSize);
                     }
-
-                    if (position.HasValue)
+                    catch (Exception ex)
                     {
-                        ArrangeElement(element, position.Value);
-                    }
-                    else
-                    {
-                        var boundingBox = GetBoundingBox(element);
-
-                        if (boundingBox != null)
-                        {
-                            var viewRect = GetViewRect(boundingBox);
-
-                            if (viewRect.HasValue)
-                            {
-                                ArrangeElement(element, viewRect.Value);
-                            }
-                        }
-                        else
-                        {
-                            ArrangeElement(element, finalSize);
-                        }
+                        Debug.WriteLine($"MapPanel.ArrangeOverride: {element}: {ex.Message}");
                     }
                 }
             }
@@ -289,6 +267,42 @@ namespace MapControl
                 || point.Y < 0d || point.Y > parentMap.RenderSize.Height;
         }
 
+        private void ArrangeChildElement(FrameworkElement element, Size panelSize)
+        {
+            var location = GetLocation(element);
+            var position = location != null ? GetViewPosition(location) : null;
+
+            SetViewPosition(element, ref position);
+
+            if (GetAutoCollapse(element))
+            {
+                SetVisible(element, !(position.HasValue && IsOutsideViewport(position.Value)));
+            }
+
+            if (position.HasValue)
+            {
+                ArrangeElement(element, position.Value);
+            }
+            else
+            {
+                var boundingBox = GetBoundingBox(element);
+
+                if (boundingBox != null)
+                {
+                    var viewRect = GetViewRect(boundingBox);
+
+                    if (viewRect.HasValue)
+                    {
+                        ArrangeElement(element, viewRect.Value);
+                    }
+                }
+                else
+                {
+                    ArrangeElement(element, panelSize);
+                }
+            }
+        }
+
         private static void ArrangeElement(FrameworkElement element, Point position)
         {
             var size = GetDesiredSize(element);
@@ -326,7 +340,7 @@ namespace MapControl
             element.Arrange(new Rect(x, y, size.Width, size.Height));
         }
 
-        private static void ArrangeElement(FrameworkElement element, Size parentSize)
+        private static void ArrangeElement(FrameworkElement element, Size panelSize)
         {
             var size = GetDesiredSize(element);
             var x = 0d;
@@ -337,15 +351,15 @@ namespace MapControl
             switch (element.HorizontalAlignment)
             {
                 case HorizontalAlignment.Center:
-                    x = (parentSize.Width - size.Width) / 2d;
+                    x = (panelSize.Width - size.Width) / 2d;
                     break;
 
                 case HorizontalAlignment.Right:
-                    x = parentSize.Width - size.Width;
+                    x = panelSize.Width - size.Width;
                     break;
 
                 case HorizontalAlignment.Stretch:
-                    width = parentSize.Width;
+                    width = panelSize.Width;
                     break;
 
                 default:
@@ -355,15 +369,15 @@ namespace MapControl
             switch (element.VerticalAlignment)
             {
                 case VerticalAlignment.Center:
-                    y = (parentSize.Height - size.Height) / 2d;
+                    y = (panelSize.Height - size.Height) / 2d;
                     break;
 
                 case VerticalAlignment.Bottom:
-                    y = parentSize.Height - size.Height;
+                    y = panelSize.Height - size.Height;
                     break;
 
                 case VerticalAlignment.Stretch:
-                    height = parentSize.Height;
+                    height = panelSize.Height;
                     break;
 
                 default:
