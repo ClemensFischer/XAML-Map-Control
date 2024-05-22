@@ -4,18 +4,20 @@
 
 using System;
 #if WPF
+using System.Windows;
 using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Xaml;
 #elif AVALONIA
 using Avalonia.Threading;
+using DependencyObject = Avalonia.AvaloniaObject;
 #endif
 
 namespace MapControl
 {
     internal static class Timer
     {
-        public static DispatcherTimer CreateTimer(this object _, TimeSpan interval)
+        public static DispatcherTimer CreateTimer(this DependencyObject _, TimeSpan interval)
         {
             return new DispatcherTimer { Interval = interval };
         }
