@@ -17,34 +17,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\Shared\BoundingBox.cs" Link="BoundingBox.cs" />
-        <Compile Include="..\Shared\ImageFileCache.cs" Link="ImageFileCache.cs" />
-        <Compile Include="..\Shared\ImageLoader.cs" Link="ImageLoader.cs" />
-        <Compile Include="..\Shared\Location.cs" Link="Location.cs" />
-        <Compile Include="..\Shared\LocationCollection.cs" Link="LocationCollection.cs" />
-        <Compile Include="..\Shared\MapBase.cs" Link="MapBase.cs" />
-        <Compile Include="..\Shared\MapImageLayer.cs" Link="MapImageLayer.cs" />
-        <Compile Include="..\Shared\MapPanel.cs" Link="MapPanel.cs" />
-        <Compile Include="..\Shared\MapProjection.cs" Link="MapProjection.cs" />
-        <Compile Include="..\Shared\MapTileLayer.cs" Link="MapTileLayer.cs" />
-        <Compile Include="..\Shared\MapTileLayerBase.cs" Link="MapTileLayerBase.cs" />
-        <Compile Include="..\Shared\Tile.cs" Link="Tile.cs" />
-        <Compile Include="..\Shared\TileCollection.cs" Link="TileCollection.cs" />
-        <Compile Include="..\Shared\TileImageLoader.cs" Link="TileImageLoader.cs" />
-        <Compile Include="..\Shared\TileMatrix.cs" Link="TileMatrix.cs" />
-        <Compile Include="..\Shared\TileSource.cs" Link="TileSource.cs" />
-        <Compile Include="..\Shared\ViewportChangedEventArgs.cs" Link="ViewportChangedEventArgs.cs" />
-        <Compile Include="..\Shared\ViewRect.cs" Link="ViewRect.cs" />
-        <Compile Include="..\Shared\WebMercatorProjection.cs" Link="WebMercatorProjection.cs" />
-        <Compile Include="..\Shared\WmsImageLayer.cs" Link="WmsImageLayer.cs" />
-        <Compile Include="..\Shared\WmtsCapabilities.cs" Link="WmtsCapabilities.cs" />
-        <Compile Include="..\Shared\WmtsTileLayer.cs" Link="WmtsTileLayer.cs" />
-        <Compile Include="..\Shared\WmtsTileMatrix.cs" Link="WmtsTileMatrix.cs" />
-        <Compile Include="..\Shared\WmtsTileMatrixLayer.cs" Link="WmtsTileMatrixLayer.cs" />
-        <Compile Include="..\Shared\WmtsTileMatrixSet.cs" Link="WmtsTileMatrixSet.cs" />
-        <Compile Include="..\Shared\WmtsTileSource.cs" Link="WmtsTileSource.cs" />
-        <Compile Include="..\WPF\Timer.WPF.cs" Link="Timer.WPF.cs" />
-        <Compile Include="..\WPF\TypeConverters.WPF.cs" Link="TypeConverters.WPF.cs" />
+        <Compile Include="..\Shared\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="..\Shared\BindingHelper.cs" />
+        <Compile Remove="..\Shared\GeoImage.cs" />
+        <Compile Remove="..\Shared\GroundOverlay.cs" />
+        <Compile Remove="..\Shared\MapBorderPanel.cs" />
+        <Compile Remove="..\Shared\MapGraticule.cs" />
+        <Compile Remove="..\Shared\MapItem.cs" />
+        <Compile Remove="..\Shared\MapItemsControl.cs" />
+        <Compile Remove="..\Shared\MapOverlay.cs" />
+        <Compile Remove="..\Shared\MapPath.cs" />
+        <Compile Remove="..\Shared\MapPolyline.cs" />
+        <Compile Remove="..\Shared\MapPolygon.cs" />
+        <Compile Remove="..\Shared\MapScale.cs" />
+        <Compile Remove="..\Shared\PushpinBorder.cs" />
+        <Compile Remove="..\Shared\ViewTransform.cs" />
     </ItemGroup>
 
     <ItemGroup>
