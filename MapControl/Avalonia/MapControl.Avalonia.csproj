@@ -37,6 +37,12 @@
         <Compile Include="..\Shared\ViewRect.cs" Link="ViewRect.cs" />
         <Compile Include="..\Shared\WebMercatorProjection.cs" Link="WebMercatorProjection.cs" />
         <Compile Include="..\Shared\WmsImageLayer.cs" Link="WmsImageLayer.cs" />
+        <Compile Include="..\Shared\WmtsCapabilities.cs" Link="WmtsCapabilities.cs" />
+        <Compile Include="..\Shared\WmtsTileLayer.cs" Link="WmtsTileLayer.cs" />
+        <Compile Include="..\Shared\WmtsTileMatrix.cs" Link="WmtsTileMatrix.cs" />
+        <Compile Include="..\Shared\WmtsTileMatrixLayer.cs" Link="WmtsTileMatrixLayer.cs" />
+        <Compile Include="..\Shared\WmtsTileMatrixSet.cs" Link="WmtsTileMatrixSet.cs" />
+        <Compile Include="..\Shared\WmtsTileSource.cs" Link="WmtsTileSource.cs" />
         <Compile Include="..\WPF\Timer.WPF.cs" Link="Timer.WPF.cs" />
         <Compile Include="..\WPF\TypeConverters.WPF.cs" Link="TypeConverters.WPF.cs" />
     </ItemGroup>

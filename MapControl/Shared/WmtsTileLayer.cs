@@ -2,6 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using Avalonia.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +16,8 @@ using Windows.UI.Xaml;
 #elif WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
+#elif AVALONIA
+using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
 namespace MapControl
@@ -24,15 +27,15 @@ namespace MapControl
     /// </summary>
     public class WmtsTileLayer : MapTileLayerBase
     {
-        public static readonly DependencyProperty CapabilitiesUriProperty = DependencyProperty.Register(
-            nameof(CapabilitiesUri), typeof(Uri), typeof(WmtsTileLayer),
-            new PropertyMetadata(null, (o, e) => ((WmtsTileLayer)o).TileMatrixSets.Clear()));
+        public static readonly DependencyProperty CapabilitiesUriProperty =
+            DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri), null, false,
+                (layer, oldValue, newValue) => layer.TileMatrixSets.Clear());
 
-        public static readonly DependencyProperty LayerProperty = DependencyProperty.Register(
-            nameof(Layer), typeof(string), typeof(WmtsTileLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty LayerProperty =
+            DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(Layer));
 
-        public static readonly DependencyProperty PreferredTileMatrixSetsProperty = DependencyProperty.Register(
-            nameof(PreferredTileMatrixSets), typeof(string[]), typeof(WmtsTileLayer), new PropertyMetadata(null));
+        public static readonly DependencyProperty PreferredTileMatrixSetsProperty =
+            DependencyPropertyHelper.Register<WmtsTileLayer, string[]>(nameof(PreferredTileMatrixSets));
 
         public WmtsTileLayer()
         {

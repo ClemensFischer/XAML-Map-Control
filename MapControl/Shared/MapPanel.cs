@@ -46,20 +46,20 @@ namespace MapControl
 
         public static readonly DependencyProperty LocationProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location", null, false,
-                (obj, oldVale, newValue) => (obj.Parent as MapPanel)?.InvalidateArrange());
+                (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
 
         public static readonly DependencyProperty BoundingBoxProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null, false,
-                (obj, oldVale, newValue) => (obj.Parent as MapPanel)?.InvalidateArrange());
+                (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
 
         private static readonly DependencyProperty ViewPositionProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, Point?>("ViewPosition");
 
         private static readonly DependencyProperty ParentMapProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, MapBase>("ParentMap", null, true,
-                (obj, oldVale, newValue) =>
+                (element, oldValue, newValue) =>
                 {
-                    if (obj is IMapElement mapElement)
+                    if (element is IMapElement mapElement)
                     {
                         mapElement.ParentMap = newValue;
                     }

@@ -32,7 +32,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null, false,
-                async (obj, oldVale, newValue) => await obj.Update(true));
+                async (layer, oldValue, newValue) => await layer.Update(true));
 
         public static readonly DependencyProperty SourceNameProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, string>(nameof(SourceName));
