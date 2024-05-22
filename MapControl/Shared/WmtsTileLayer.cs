@@ -2,7 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,6 +16,7 @@ using Windows.UI.Xaml;
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 #elif AVALONIA
+using Avalonia.Interactivity;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
