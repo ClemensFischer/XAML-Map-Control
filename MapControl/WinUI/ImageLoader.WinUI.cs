@@ -34,6 +34,7 @@ namespace MapControl
                 ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
 
             pixelData.DetachPixelData().CopyTo(image.PixelBuffer);
+
             return image;
         }
 
@@ -42,13 +43,12 @@ namespace MapControl
             // WinUI BitmapImage produces visual artifacts with Bing Maps Aerial (or all JPEG?)
             // images in a tile raster, where thin white lines may appear as gaps between tiles.
             // Alternatives are SoftwareBitmapSource or WriteableBitmap.
-#if false
-            var image = new BitmapImage();
-            await image.SetSourceAsync(stream);
-            return image;
-#else
+            //
+            // var image = new BitmapImage();
+            // await image.SetSourceAsync(stream);
+            // return image;
+
             return await LoadImageAsync(await BitmapDecoder.CreateAsync(stream));
-#endif
         }
 
         public static Task<ImageSource> LoadImageAsync(Stream stream)
