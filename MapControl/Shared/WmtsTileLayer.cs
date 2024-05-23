@@ -28,7 +28,7 @@ namespace MapControl
     public class WmtsTileLayer : MapTileLayerBase
     {
         public static readonly DependencyProperty CapabilitiesUriProperty =
-            DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri), null, false,
+            DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri), null,
                 (layer, oldValue, newValue) => layer.TileMatrixSets.Clear());
 
         public static readonly DependencyProperty LayerProperty =

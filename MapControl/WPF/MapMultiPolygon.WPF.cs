@@ -19,11 +19,11 @@ namespace MapControl
     public class MapMultiPolygon : MapPath
     {
         public static readonly DependencyProperty PolygonsProperty =
-            DependencyPropertyHelper.Register<MapMultiPolygon, IEnumerable<IEnumerable<Location>>>(nameof(Polygons), null, false,
+            DependencyPropertyHelper.Register<MapMultiPolygon, IEnumerable<IEnumerable<Location>>>(nameof(Polygons), null,
                 (polygon, oldValue, newValue) => polygon.DataCollectionPropertyChanged(oldValue, newValue));
 
         public static readonly DependencyProperty FillRuleProperty =
-            DependencyPropertyHelper.Register<MapMultiPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd, false,
+            DependencyPropertyHelper.Register<MapMultiPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,
                 (polygon, oldValue, newValue) => ((PathGeometry)polygon.Data).FillRule = newValue);
 
         /// <summary>

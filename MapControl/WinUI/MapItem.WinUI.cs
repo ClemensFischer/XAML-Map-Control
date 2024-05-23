@@ -18,11 +18,11 @@ namespace MapControl
     public partial class MapItem
     {
         public static readonly DependencyProperty AutoCollapseProperty =
-            DependencyPropertyHelper.Register<MapItem, bool>(nameof(AutoCollapse), false, false,
+            DependencyPropertyHelper.Register<MapItem, bool>(nameof(AutoCollapse), false,
                 (item, oldValue, newValue) => MapPanel.SetAutoCollapse(item, newValue));
 
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.Register<MapItem, Location>(nameof(Location), null, false,
+            DependencyPropertyHelper.Register<MapItem, Location>(nameof(Location), null,
                 (item, oldValue, newValue) => item.LocationPropertyChanged(newValue));
 
         private void LocationPropertyChanged(Location location)

@@ -22,11 +22,11 @@ namespace MapControl
     public class MapPolygon : MapPath
     {
         public static readonly DependencyProperty LocationsProperty =
-            DependencyPropertyHelper.Register<MapPolygon, IEnumerable<Location>>(nameof(Locations), null, false,
+            DependencyPropertyHelper.Register<MapPolygon, IEnumerable<Location>>(nameof(Locations), null,
                 (polygon, oldValue, newValue) => polygon.DataCollectionPropertyChanged(oldValue, newValue));
 
         public static readonly DependencyProperty FillRuleProperty =
-            DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd, false,
+            DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,
                 (polygon, oldValue, newValue) => ((PathGeometry)polygon.Data).FillRule = newValue);
 
         /// <summary>

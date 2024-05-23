@@ -18,44 +18,50 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, Easing>(nameof(AnimationEasing), new QuadraticEaseOut());
 
         public static readonly StyledProperty<Location> CenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(), true,
+            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(),
                 (map, oldValue, newValue) => map.CenterPropertyChanged(newValue),
-                (map, value) => map.CoerceCenterProperty(value));
+                (map, value) => map.CoerceCenterProperty(value),
+                true);
 
         public static readonly StyledProperty<Location> TargetCenterProperty =
-           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(), true,
+           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(),
                 async (map, oldValue, newValue) => await map.TargetCenterPropertyChanged(newValue),
-                (map, value) => map.CoerceCenterProperty(value));
+                (map, value) => map.CoerceCenterProperty(value),
+                true);
 
         public static readonly StyledProperty<double> MinZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(MinZoomLevel), 1d, false,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(MinZoomLevel), 1d,
                 (map, oldValue, newValue) => map.MinZoomLevelPropertyChanged(newValue),
                 (map, value) => map.CoerceMinZoomLevelProperty(value));
 
         public static readonly StyledProperty<double> MaxZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(MaxZoomLevel), 20d, false,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(MaxZoomLevel), 20d,
                 (map, oldValue, newValue) => map.MaxZoomLevelPropertyChanged(newValue),
                 (map, value) => map.CoerceMaxZoomLevelProperty(value));
 
         public static readonly StyledProperty<double> ZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d,
                 (map, oldValue, newValue) => map.ZoomLevelPropertyChanged(newValue),
-                (map, value) => map.CoerceZoomLevelProperty(value));
+                (map, value) => map.CoerceZoomLevelProperty(value),
+                true);
 
         public static readonly StyledProperty<double> TargetZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), 1d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), 1d,
                 async (map, oldValue, newValue) => await map.TargetZoomLevelPropertyChanged(newValue),
-                (map, value) => map.CoerceZoomLevelProperty(value));
+                (map, value) => map.CoerceZoomLevelProperty(value),
+                true);
 
         public static readonly StyledProperty<double> HeadingProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(Heading), 0d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(Heading), 0d,
                 (map, oldValue, newValue) => map.HeadingPropertyChanged(newValue),
-                (map, value) => map.CoerceHeadingProperty(value));
+                (map, value) => map.CoerceHeadingProperty(value),
+                true);
 
         public static readonly StyledProperty<double> TargetHeadingProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetHeading), 0d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetHeading), 0d,
                 async (map, oldValue, newValue) => await map.TargetHeadingPropertyChanged(newValue),
-                (map, value) => map.CoerceHeadingProperty(value));
+                (map, value) => map.CoerceHeadingProperty(value),
+                true);
 
         public static readonly DirectProperty<MapBase, double> ViewScaleProperty =
             AvaloniaProperty.RegisterDirect<MapBase, double>(nameof(ViewScale), map => map.ViewTransform.Scale);

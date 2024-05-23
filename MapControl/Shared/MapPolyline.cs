@@ -22,11 +22,11 @@ namespace MapControl
     public class MapPolyline : MapPath
     {
         public static readonly DependencyProperty LocationsProperty =
-            DependencyPropertyHelper.Register<MapPolyline, IEnumerable<Location>>(nameof(Locations), null, false,
+            DependencyPropertyHelper.Register<MapPolyline, IEnumerable<Location>>(nameof(Locations), null,
                 (polyline, oldValue, newValue) => polyline.DataCollectionPropertyChanged(oldValue, newValue));
 
         public static readonly DependencyProperty FillRuleProperty =
-            DependencyPropertyHelper.Register<MapPolyline, FillRule>(nameof(FillRule), FillRule.EvenOdd, false,
+            DependencyPropertyHelper.Register<MapPolyline, FillRule>(nameof(FillRule), FillRule.EvenOdd,
                 (polyline, oldValue, newValue) => ((PathGeometry)polyline.Data).FillRule = newValue);
 
         /// <summary>

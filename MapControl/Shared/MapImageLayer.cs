@@ -44,7 +44,7 @@ namespace MapControl
 
         public static readonly DependencyProperty UpdateIntervalProperty =
             DependencyPropertyHelper.Register<MapImageLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
-                false, (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
+                (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
             DependencyPropertyHelper.Register<MapImageLayer, bool>(nameof(UpdateWhileViewportChanging));

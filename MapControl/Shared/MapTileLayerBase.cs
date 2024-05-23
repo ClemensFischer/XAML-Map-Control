@@ -31,7 +31,7 @@ namespace MapControl
     public abstract partial class MapTileLayerBase : Panel, IMapLayer
     {
         public static readonly DependencyProperty TileSourceProperty =
-            DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null, false,
+            DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null,
                 async (layer, oldValue, newValue) => await layer.Update(true));
 
         public static readonly DependencyProperty SourceNameProperty =

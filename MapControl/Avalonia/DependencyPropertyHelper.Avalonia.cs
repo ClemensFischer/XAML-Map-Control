@@ -11,9 +11,9 @@ namespace MapControl
         public static StyledProperty<TValue> Register<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
-            bool bindTwoWayByDefault = false,
             Action<TOwner, TValue, TValue> changed = null,
-            Func<TOwner, TValue, TValue> coerce = null)
+            Func<TOwner, TValue, TValue> coerce = null,
+            bool bindTwoWayByDefault = false)
             where TOwner : AvaloniaObject
         {
             var property = AvaloniaProperty.Register<TOwner, TValue>(name, defaultValue, false,

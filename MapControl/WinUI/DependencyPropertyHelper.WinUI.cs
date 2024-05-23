@@ -18,7 +18,6 @@ namespace MapControl
         public static DependencyProperty Register<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
-            bool bindTwoWayByDefault = false, // unused in WinUI/UWP
             Action<TOwner, TValue, TValue> changed = null)
             where TOwner : DependencyObject
         {

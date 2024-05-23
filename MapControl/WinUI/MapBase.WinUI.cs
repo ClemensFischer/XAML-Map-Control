@@ -23,43 +23,43 @@ namespace MapControl
                 new QuadraticEase { EasingMode = EasingMode.EaseOut });
 
         public static readonly DependencyProperty CenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(), true,
+            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(),
                 (map, oldValue, newValue) => map.CenterPropertyChanged(newValue));
 
         public static readonly DependencyProperty TargetCenterProperty =
-           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(), true,
+           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(),
                 (map, oldValue, newValue) => map.TargetCenterPropertyChanged(newValue));
 
         public static readonly DependencyProperty MinZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(MinZoomLevel), 1d, false,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(MinZoomLevel), 1d,
                 (map, oldValue, newValue) => map.MinZoomLevelPropertyChanged(newValue));
 
         public static readonly DependencyProperty MaxZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(MaxZoomLevel), 20d, false,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(MaxZoomLevel), 20d,
                 (map, oldValue, newValue) => map.MaxZoomLevelPropertyChanged(newValue));
 
         public static readonly DependencyProperty ZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d,
                 (map, oldValue, newValue) => map.ZoomLevelPropertyChanged(newValue));
 
         public static readonly DependencyProperty TargetZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), 1d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), 1d,
                 (map, oldValue, newValue) => map.TargetZoomLevelPropertyChanged(newValue));
 
         public static readonly DependencyProperty HeadingProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(Heading), 0d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(Heading), 0d,
                 (map, oldValue, newValue) => map.HeadingPropertyChanged(newValue));
 
         public static readonly DependencyProperty TargetHeadingProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetHeading), 0d, true,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetHeading), 0d,
                 (map, oldValue, newValue) => map.TargetHeadingPropertyChanged(newValue));
 
         public static readonly DependencyProperty ViewScaleProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(ViewScale), 0d);
 
         private static readonly DependencyProperty AnimatedCenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Windows.Foundation.Point>(nameof(AnimatedCenter),
-                new Windows.Foundation.Point(), false, (map, oldValue, newValue) => map.Center = new Location(newValue.Y, newValue.X));
+            DependencyPropertyHelper.Register<MapBase, Windows.Foundation.Point>(nameof(AnimatedCenter), new Windows.Foundation.Point(),
+                (map, oldValue, newValue) => map.Center = new Location(newValue.Y, newValue.X));
 
         private Windows.Foundation.Point AnimatedCenter => (Windows.Foundation.Point)GetValue(AnimatedCenterProperty);
 

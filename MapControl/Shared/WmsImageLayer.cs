@@ -30,11 +30,15 @@ namespace MapControl
     public partial class WmsImageLayer : MapImageLayer
     {
         public static readonly DependencyProperty ServiceUriProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null, false,
+            DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null,
+                async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
+
+        public static readonly DependencyProperty WmsStylesProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsStyles), string.Empty,
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
         public static readonly DependencyProperty WmsLayersProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsLayers), null, false,
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsLayers), null,
                 async (layer, oldValue, newValue) =>
                 {
                     // Ignore property change from GetImageAsync when Layers was null.
@@ -44,10 +48,6 @@ namespace MapControl
                         await layer.UpdateImageAsync();
                     }
                 });
-
-        public static readonly DependencyProperty WmsStylesProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsStyles), string.Empty, false,
-                async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
         /// <summary>
         /// The base request URL. 
@@ -59,21 +59,21 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Comma-separated sequence of WMS Layer names to be displayed. If not set, the first Layer is displayed.
-        /// </summary>
-        public string WmsLayers
-        {
-            get => (string)GetValue(WmsLayersProperty);
-            set => SetValue(WmsLayersProperty, value);
-        }
-
-        /// <summary>
         /// Comma-separated sequence of requested WMS Styles. Default is an empty string.
         /// </summary>
         public string WmsStyles
         {
             get => (string)GetValue(WmsStylesProperty);
             set => SetValue(WmsStylesProperty, value);
+        }
+
+        /// <summary>
+        /// Comma-separated sequence of WMS Layer names to be displayed. If not set, the first Layer is displayed.
+        /// </summary>
+        public string WmsLayers
+        {
+            get => (string)GetValue(WmsLayersProperty);
+            set => SetValue(WmsLayersProperty, value);
         }
 
         /// <summary>

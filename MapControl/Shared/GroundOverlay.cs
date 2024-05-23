@@ -62,7 +62,7 @@ namespace MapControl
         }
 
         public static readonly DependencyProperty SourcePathProperty =
-            DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null, false,
+            DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,
                 async (overlay, oldValue, newValue) => await overlay.SourcePathPropertyChanged(newValue));
 
         public string SourcePath

@@ -46,15 +46,15 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, TimeSpan>(nameof(AnimationDuration), TimeSpan.FromSeconds(0.3));
 
         public static readonly DependencyProperty MapLayerProperty =
-            DependencyPropertyHelper.Register<MapBase, UIElement>(nameof(MapLayer), null, false,
+            DependencyPropertyHelper.Register<MapBase, UIElement>(nameof(MapLayer), null,
                 (map, oldValue, newValue) => map.MapLayerPropertyChanged(oldValue, newValue));
 
         public static readonly DependencyProperty MapProjectionProperty =
-            DependencyPropertyHelper.Register<MapBase, MapProjection>(nameof(MapProjection), new WebMercatorProjection(), false,
+            DependencyPropertyHelper.Register<MapBase, MapProjection>(nameof(MapProjection), new WebMercatorProjection(),
                 (map, oldValue, newValue) => map.MapProjectionPropertyChanged(newValue));
 
         public static readonly DependencyProperty ProjectionCenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Location>(nameof(ProjectionCenter), null, false,
+            DependencyPropertyHelper.Register<MapBase, Location>(nameof(ProjectionCenter), null,
                 (map, oldValue, newValue) => map.ProjectionCenterPropertyChanged());
 
         private Location transformCenter;

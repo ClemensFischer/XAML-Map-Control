@@ -25,11 +25,11 @@ namespace MapControl
     public partial class PushpinBorder : UserControl
     {
         public static readonly DependencyProperty ArrowSizeProperty =
-            DependencyPropertyHelper.Register<PushpinBorder, Size>(nameof(ArrowSize), new Size(10d, 20d), false,
+            DependencyPropertyHelper.Register<PushpinBorder, Size>(nameof(ArrowSize), new Size(10d, 20d),
                 (border, oldValue, newValue) => border.SetBorderMargin());
 
         public static readonly DependencyProperty BorderWidthProperty =
-            DependencyPropertyHelper.Register<PushpinBorder, double>(nameof(BorderWidth), 0d, false,
+            DependencyPropertyHelper.Register<PushpinBorder, double>(nameof(BorderWidth), 0d,
                 (border, oldValue, newValue) => border.SetBorderMargin());
 
         private readonly Border border = new Border();
