@@ -48,8 +48,8 @@ namespace MapControl
         public static DependencyProperty RegisterAttached<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
-            bool inherits = false,
-            Action<FrameworkElement, TValue, TValue> changed = null)
+            Action<FrameworkElement, TValue, TValue> changed = null,
+            bool inherits = false)
             where TOwner : DependencyObject
         {
             var metadata = new FrameworkPropertyMetadata

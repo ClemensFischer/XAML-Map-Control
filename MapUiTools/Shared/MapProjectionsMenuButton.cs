@@ -45,7 +45,7 @@ namespace MapControl.UiTools
         }
 
         public static readonly DependencyProperty MapProperty =
-            DependencyPropertyHelper.Register<MapProjectionsMenuButton, MapBase>(nameof(Map), null, false,
+            DependencyPropertyHelper.Register<MapProjectionsMenuButton, MapBase>(nameof(Map), null,
                 (button, oldValue, newValue) => button.InitializeMenu());
 
         public MapBase Map

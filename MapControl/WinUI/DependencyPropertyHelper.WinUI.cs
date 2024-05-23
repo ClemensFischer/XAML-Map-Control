@@ -31,8 +31,8 @@ namespace MapControl
         public static DependencyProperty RegisterAttached<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
-            bool inherits = false, // unused in WinUI/UWP
-            Action<FrameworkElement, TValue, TValue> changed = null)
+            Action<FrameworkElement, TValue, TValue> changed = null,
+            bool inherits = false) // unused in WinUI/UWP
             where TOwner : DependencyObject
         {
             var metadata = changed != null

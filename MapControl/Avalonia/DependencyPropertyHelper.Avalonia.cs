@@ -31,8 +31,8 @@ namespace MapControl
         public static AttachedProperty<TValue> RegisterAttached<TOwner, TValue>(
             string name,
             TValue defaultValue = default,
-            bool inherits = false,
-            Action<Control, TValue, TValue> changed = null)
+            Action<Control, TValue, TValue> changed = null,
+            bool inherits = false)
             where TOwner : AvaloniaObject
         {
             var property = AvaloniaProperty.RegisterAttached<TOwner, Control, TValue>(name, defaultValue, inherits);

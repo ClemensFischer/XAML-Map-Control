@@ -47,25 +47,27 @@ namespace MapControl
             DependencyPropertyHelper.RegisterAttached<MapPanel, bool>("AutoCollapse");
 
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location", null, false,
+            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location", null,
                 (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
 
         public static readonly DependencyProperty BoundingBoxProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null, false,
+            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null,
                 (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
 
         private static readonly DependencyProperty ViewPositionProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, Point?>("ViewPosition");
 
         private static readonly DependencyProperty ParentMapProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, MapBase>("ParentMap", null, true,
-                (element, oldValue, newValue) =>
-                {
-                    if (element is IMapElement mapElement)
-                    {
-                        mapElement.ParentMap = newValue;
-                    }
-                });
+            DependencyPropertyHelper.RegisterAttached<MapPanel, MapBase>("ParentMap", null,
+                (element, oldValue, newValue) => SetParentMap(element, newValue), true);
+
+        private static void SetParentMap(FrameworkElement element, MapBase parentMap)
+        {
+            if (element is IMapElement mapElement)
+            {
+                mapElement.ParentMap = parentMap;
+            }
+        }
 
         private MapBase parentMap;
 
