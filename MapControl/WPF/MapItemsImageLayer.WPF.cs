@@ -20,8 +20,8 @@ namespace MapControl
 
     public class MapItemsImageLayer : MapImageLayer
     {
-        public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(
-            nameof(ItemsSource), typeof(IEnumerable<IMapDrawingItem>), typeof(MapItemsImageLayer));
+        public static readonly DependencyProperty ItemsSourceProperty =
+            DependencyPropertyHelper.Register<MapItemsImageLayer, IEnumerable<IMapDrawingItem>>(nameof(ItemsSource));
 
         public IEnumerable<IMapDrawingItem> ItemsSource
         {

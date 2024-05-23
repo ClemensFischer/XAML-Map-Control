@@ -24,13 +24,13 @@ namespace MapControl
     [ContentProperty(Name = "Child")]
     public partial class PushpinBorder : UserControl
     {
-        public static readonly DependencyProperty ArrowSizeProperty = DependencyProperty.Register(
-            nameof(ArrowSize), typeof(Size), typeof(PushpinBorder),
-            new PropertyMetadata(new Size(10d, 20d), (o, e) => ((PushpinBorder)o).SetBorderMargin()));
+        public static readonly DependencyProperty ArrowSizeProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, Size>(nameof(ArrowSize), new Size(10d, 20d), false,
+                (border, oldValue, newValue) => border.SetBorderMargin());
 
-        public static readonly DependencyProperty BorderWidthProperty = DependencyProperty.Register(
-            nameof(BorderWidth), typeof(double), typeof(PushpinBorder),
-            new PropertyMetadata(0d, (o, e) => ((PushpinBorder)o).SetBorderMargin()));
+        public static readonly DependencyProperty BorderWidthProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, double>(nameof(BorderWidth), 0d, false,
+                (border, oldValue, newValue) => border.SetBorderMargin());
 
         private readonly Border border = new Border();
 

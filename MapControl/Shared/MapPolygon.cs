@@ -21,13 +21,13 @@ namespace MapControl
     /// </summary>
     public class MapPolygon : MapPath
     {
-        public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolygon),
-            new PropertyMetadata(null, (o, e) => ((MapPolygon)o).DataCollectionPropertyChanged(e)));
+        public static readonly DependencyProperty LocationsProperty =
+            DependencyPropertyHelper.Register<MapPolygon, IEnumerable<Location>>(nameof(Locations), null, false,
+                (polygon, oldValue, newValue) => polygon.DataCollectionPropertyChanged(oldValue, newValue));
 
-        public static readonly DependencyProperty FillRuleProperty = DependencyProperty.Register(
-            nameof(FillRule), typeof(FillRule), typeof(MapPolygon),
-            new PropertyMetadata(FillRule.EvenOdd, (o, e) => ((PathGeometry)((MapPolygon)o).Data).FillRule = (FillRule)e.NewValue));
+        public static readonly DependencyProperty FillRuleProperty =
+            DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd, false,
+                (polygon, oldValue, newValue) => ((PathGeometry)polygon.Data).FillRule = newValue);
 
         /// <summary>
         /// Gets or sets the Locations that define the polygon points.

@@ -30,8 +30,8 @@ namespace MapControl
     /// </summary>
     public class MapScale : MapOverlay
     {
-        public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register(
-            nameof(Padding), typeof(Thickness), typeof(MapScale), new PropertyMetadata(new Thickness(4)));
+        public static readonly DependencyProperty PaddingProperty =
+            DependencyPropertyHelper.Register<MapScale, Thickness>(nameof(Padding), new Thickness(4));
 
         private readonly Polyline line = new Polyline();
 

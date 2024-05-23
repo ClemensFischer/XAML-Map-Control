@@ -24,8 +24,8 @@ namespace MapControl
     /// </summary>
     public partial class MapItemsControl : ListBox
     {
-        public static readonly DependencyProperty LocationMemberPathProperty = DependencyProperty.Register(
-            nameof(LocationMemberPath), typeof(string), typeof(MapItemsControl), new PropertyMetadata(null));
+        public static readonly DependencyProperty LocationMemberPathProperty =
+            DependencyPropertyHelper.Register<MapItemsControl, string>(nameof(LocationMemberPath));
 
         /// <summary>
         /// Path to a source property for binding the Location property of MapItem containers.

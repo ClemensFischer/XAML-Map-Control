@@ -23,9 +23,9 @@ namespace MapControl
     /// </summary>
     public partial class MapPath : IMapElement
     {
-        public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
-            nameof(Location), typeof(Location), typeof(MapPath),
-            new PropertyMetadata(null, (o, e) => ((MapPath)o).UpdateData()));
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.Register<MapPath, Location>(nameof(Location), null, false, 
+                (path, oldValue, newValue) => path.UpdateData());
 
         private MapBase parentMap;
 

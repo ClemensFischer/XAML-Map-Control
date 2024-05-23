@@ -44,9 +44,9 @@ namespace MapControl.UiTools
             ((INotifyCollectionChanged)MapProjections).CollectionChanged += (s, e) => InitializeMenu();
         }
 
-        public static readonly DependencyProperty MapProperty = DependencyProperty.Register(
-            nameof(Map), typeof(MapBase), typeof(MapProjectionsMenuButton),
-            new PropertyMetadata(null, (o, e) => ((MapProjectionsMenuButton)o).InitializeMenu()));
+        public static readonly DependencyProperty MapProperty =
+            DependencyPropertyHelper.Register<MapProjectionsMenuButton, MapBase>(nameof(Map), null, false,
+                (button, oldValue, newValue) => button.InitializeMenu());
 
         public MapBase Map
         {

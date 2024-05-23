@@ -2,6 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -39,14 +40,14 @@ namespace MapControl
 
         #region Methods used only by derived classes MapPolyline and MapPolygon
 
-        protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
+        protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
         {
-            if (e.OldValue is INotifyCollectionChanged oldCollection)
+            if (oldValue is INotifyCollectionChanged oldCollection)
             {
                 oldCollection.CollectionChanged -= DataCollectionChanged;
             }
 
-            if (e.NewValue is INotifyCollectionChanged newCollection)
+            if (newValue is INotifyCollectionChanged newCollection)
             {
                 newCollection.CollectionChanged += DataCollectionChanged;
             }

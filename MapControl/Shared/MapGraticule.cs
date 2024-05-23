@@ -44,8 +44,8 @@ namespace MapControl
 
         private const double LineInterpolationResolution = 2d;
 
-        public static readonly DependencyProperty MinLineDistanceProperty = DependencyProperty.Register(
-            nameof(MinLineDistance), typeof(double), typeof(MapGraticule), new PropertyMetadata(150d));
+        public static readonly DependencyProperty MinLineDistanceProperty =
+            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(MinLineDistance), 150d);
 
         private double lineDistance;
         private string labelFormat;

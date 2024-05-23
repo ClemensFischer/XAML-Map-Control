@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -19,8 +20,9 @@ namespace MapControl
             Stretch = Stretch.None;
         }
 
-        public static readonly DependencyProperty DataProperty = Path.DataProperty.AddOwner(
-            typeof(MapPath), new PropertyMetadata(null, DataPropertyChanged));
+        public static readonly DependencyProperty DataProperty =
+            DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty,
+                (path, oldValue, newValue) => path.DataPropertyChanged(oldValue, newValue));
 
         public Geometry Data
         {
@@ -30,23 +32,19 @@ namespace MapControl
 
         protected override Geometry DefiningGeometry => Data;
 
-        private static void DataPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        private void DataPropertyChanged(Geometry oldData, Geometry newData)
         {
-            var data = (Geometry)e.NewValue;
-
             // Check if data is actually a new Geometry.
             //
-            if (data != null && !ReferenceEquals(data, e.OldValue))
+            if (newData != null && !ReferenceEquals(newData, oldData))
             {
-                var path = (MapPath)obj;
-
-                if (data.IsFrozen)
+                if (newData.IsFrozen)
                 {
-                    path.Data = data.Clone(); // DataPropertyChanged called again
+                    Data = newData.Clone(); // DataPropertyChanged called again
                 }
                 else
                 {
-                    path.UpdateData();
+                    UpdateData();
                 }
             }
         }
@@ -65,14 +63,14 @@ namespace MapControl
 
         #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
 
-        protected void DataCollectionPropertyChanged(DependencyPropertyChangedEventArgs e)
+        protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
         {
-            if (e.OldValue is INotifyCollectionChanged oldCollection)
+            if (oldValue is INotifyCollectionChanged oldCollection)
             {
                 CollectionChangedEventManager.RemoveListener(oldCollection, this);
             }
 
-            if (e.NewValue is INotifyCollectionChanged newCollection)
+            if (newValue is INotifyCollectionChanged newCollection)
             {
                 CollectionChangedEventManager.AddListener(newCollection, this);
             }

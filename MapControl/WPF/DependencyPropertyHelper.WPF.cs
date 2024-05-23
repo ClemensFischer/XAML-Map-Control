@@ -11,6 +11,15 @@ namespace MapControl
     {
         public static DependencyProperty Register<TOwner, TValue>(
             string name,
+            TValue defaultValue,
+            FrameworkPropertyMetadataOptions options)
+            where TOwner : DependencyObject
+        {
+            return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), new FrameworkPropertyMetadata(defaultValue, options));
+        }
+
+        public static DependencyProperty Register<TOwner, TValue>(
+            string name,
             TValue defaultValue = default,
             bool bindTwoWayByDefault = false,
             Action<TOwner, TValue, TValue> changed = null,
@@ -63,6 +72,36 @@ namespace MapControl
             where TOwner : DependencyObject
         {
             return DependencyProperty.RegisterReadOnly(name, typeof(TValue), typeof(TOwner), new PropertyMetadata(defaultValue));
+        }
+
+        public static DependencyProperty AddOwner<TOwner>(
+            DependencyProperty property,
+            FrameworkPropertyMetadataOptions options = FrameworkPropertyMetadataOptions.None)
+            where TOwner : DependencyObject
+        {
+            FrameworkPropertyMetadata metadata = null;
+
+            if (options != FrameworkPropertyMetadataOptions.None)
+            {
+                metadata = new FrameworkPropertyMetadata(property.DefaultMetadata.DefaultValue, options);
+            }
+
+            return property.AddOwner(typeof(TOwner), metadata);
+        }
+
+        public static DependencyProperty AddOwner<TOwner, TValue>(
+            DependencyProperty property,
+            Action<TOwner, TValue, TValue> changed)
+            where TOwner : DependencyObject
+        {
+            FrameworkPropertyMetadata metadata = null;
+
+            if (changed != null)
+            {
+                metadata = new FrameworkPropertyMetadata((o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue));
+            }
+
+            return property.AddOwner(typeof(TOwner), metadata);
         }
     }
 }

@@ -17,13 +17,13 @@ namespace MapControl
     /// </summary>
     public class MapContentControl : ContentControl
     {
-        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.Register(
-            nameof(AutoCollapse), typeof(bool), typeof(MapContentControl),
-            new PropertyMetadata(false, (o, e) => MapPanel.SetAutoCollapse((MapContentControl)o, (bool)e.NewValue)));
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.Register<MapContentControl, bool>(nameof(AutoCollapse), false, false,
+                (control, oldValue, newValue) => MapPanel.SetAutoCollapse(control, newValue));
 
-        public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
-            nameof(Location), typeof(Location), typeof(MapContentControl),
-            new PropertyMetadata(null, (o, e) => MapPanel.SetLocation((MapContentControl)o, (Location)e.NewValue)));
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.Register<MapContentControl, Location>(nameof(Location), null, false,
+                (control, oldValue, newValue) => MapPanel.SetLocation(control, newValue));
 
         public MapContentControl()
         {

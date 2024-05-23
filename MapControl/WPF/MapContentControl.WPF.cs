@@ -12,9 +12,11 @@ namespace MapControl
     /// </summary>
     public class MapContentControl : ContentControl
     {
-        public static readonly DependencyProperty AutoCollapseProperty = MapPanel.AutoCollapseProperty.AddOwner(typeof(MapContentControl));
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.AddOwner<MapContentControl>(MapPanel.AutoCollapseProperty);
 
-        public static readonly DependencyProperty LocationProperty = MapPanel.LocationProperty.AddOwner(typeof(MapContentControl));
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.AddOwner<MapContentControl>(MapPanel.LocationProperty);
 
         static MapContentControl()
         {
@@ -50,8 +52,8 @@ namespace MapControl
             DefaultStyleKeyProperty.OverrideMetadata(typeof(Pushpin), new FrameworkPropertyMetadata(typeof(Pushpin)));
         }
 
-        public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(
-            nameof(CornerRadius), typeof(CornerRadius), typeof(Pushpin));
+        public static readonly DependencyProperty CornerRadiusProperty =
+            DependencyPropertyHelper.Register<Pushpin, CornerRadius>(nameof(CornerRadius));
 
         public CornerRadius CornerRadius
         {

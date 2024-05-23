@@ -49,9 +49,9 @@ namespace MapControl.UiTools
             ((INotifyCollectionChanged)MapOverlays).CollectionChanged += (s, e) => InitializeMenu();
         }
 
-        public static readonly DependencyProperty MapProperty = DependencyProperty.Register(
-            nameof(Map), typeof(MapBase), typeof(MapLayersMenuButton),
-            new PropertyMetadata(null, (o, e) => ((MapLayersMenuButton)o).InitializeMenu()));
+        public static readonly DependencyProperty MapProperty =
+            DependencyPropertyHelper.Register<MapLayersMenuButton, MapBase>(nameof(Map), null, false,
+                (button, oldValue, newValue) => button.InitializeMenu());
 
         public MapBase Map
         {

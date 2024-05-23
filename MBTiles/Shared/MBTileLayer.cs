@@ -18,9 +18,9 @@ namespace MapControl.MBTiles
     /// </summary>
     public class MBTileLayer : MapTileLayer
     {
-        public static readonly DependencyProperty FileProperty = DependencyProperty.Register(
-            nameof(File), typeof(string), typeof(MBTileLayer),
-            new PropertyMetadata(null, async (o, e) => await ((MBTileLayer)o).FilePropertyChanged((string)e.NewValue)));
+        public static readonly DependencyProperty FileProperty =
+            DependencyPropertyHelper.Register<MBTileLayer, string>(nameof(File), null, false,
+                async (layer, oldValue, newValue) => await layer.FilePropertyChanged(newValue));
 
         public string File
         {

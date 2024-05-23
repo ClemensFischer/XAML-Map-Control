@@ -21,8 +21,8 @@ namespace MapControl
     /// </summary>
     public class Map : MapBase
     {
-        public static readonly DependencyProperty MouseWheelZoomDeltaProperty = DependencyProperty.Register(
-            nameof(MouseWheelZoomDelta), typeof(double), typeof(Map), new PropertyMetadata(0.25));
+        public static readonly DependencyProperty MouseWheelZoomDeltaProperty =
+            DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
         private bool manipulationEnabled;
         private double mouseWheelDelta;

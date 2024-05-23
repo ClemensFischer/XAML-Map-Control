@@ -16,50 +16,50 @@ namespace MapControl
 {
     public partial class MapOverlay
     {
-        public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(
-            nameof(FontFamily), typeof(FontFamily), typeof(MapOverlay), new PropertyMetadata(null));
+        public static readonly DependencyProperty FontFamilyProperty =
+            DependencyPropertyHelper.Register<MapOverlay, FontFamily>(nameof(FontFamily));
 
-        public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(
-            nameof(FontSize), typeof(double), typeof(MapOverlay), new PropertyMetadata(12d));
+        public static readonly DependencyProperty FontSizeProperty =
+            DependencyPropertyHelper.Register<MapOverlay, double>(nameof(FontSize), 12d);
 
-        public static readonly DependencyProperty FontStyleProperty = DependencyProperty.Register(
-            nameof(FontStyle), typeof(FontStyle), typeof(MapOverlay), new PropertyMetadata(FontStyle.Normal));
+        public static readonly DependencyProperty FontStyleProperty =
+            DependencyPropertyHelper.Register<MapOverlay, FontStyle>(nameof(FontStyle), FontStyle.Normal);
 
-        public static readonly DependencyProperty FontStretchProperty = DependencyProperty.Register(
-            nameof(FontStretch), typeof(FontStretch), typeof(MapOverlay), new PropertyMetadata(FontStretch.Normal));
+        public static readonly DependencyProperty FontStretchProperty =
+            DependencyPropertyHelper.Register<MapOverlay, FontStretch>(nameof(FontStretch), FontStretch.Normal);
 
-        public static readonly DependencyProperty FontWeightProperty = DependencyProperty.Register(
-            nameof(FontWeight), typeof(FontWeight), typeof(MapOverlay), new PropertyMetadata(FontWeights.Normal));
+        public static readonly DependencyProperty FontWeightProperty =
+            DependencyPropertyHelper.Register<MapOverlay, FontWeight>(nameof(FontWeight), FontWeights.Normal);
 
-        public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
-            nameof(Foreground), typeof(Brush), typeof(MapOverlay), new PropertyMetadata(null));
+        public static readonly DependencyProperty ForegroundProperty =
+            DependencyPropertyHelper.Register<MapOverlay, Brush>(nameof(Foreground));
 
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(
-            nameof(Stroke), typeof(Brush), typeof(MapOverlay), new PropertyMetadata(null));
+        public static readonly DependencyProperty StrokeProperty =
+            DependencyPropertyHelper.Register<MapOverlay, Brush>(nameof(Stroke));
 
-        public static readonly DependencyProperty StrokeThicknessProperty = DependencyProperty.Register(
-            nameof(StrokeThickness), typeof(double), typeof(MapOverlay), new PropertyMetadata(1d));
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            DependencyPropertyHelper.Register<MapOverlay, double>(nameof(StrokeThickness), 1d);
 
-        public static readonly DependencyProperty StrokeDashArrayProperty = DependencyProperty.Register(
-            nameof(StrokeDashArray), typeof(DoubleCollection), typeof(MapOverlay), new PropertyMetadata(null));
+        public static readonly DependencyProperty StrokeDashArrayProperty =
+            DependencyPropertyHelper.Register<MapOverlay, DoubleCollection>(nameof(StrokeDashArray));
 
-        public static readonly DependencyProperty StrokeDashOffsetProperty = DependencyProperty.Register(
-            nameof(StrokeDashOffset), typeof(double), typeof(MapOverlay), new PropertyMetadata(0d));
+        public static readonly DependencyProperty StrokeDashOffsetProperty =
+            DependencyPropertyHelper.Register<MapOverlay, double>(nameof(StrokeDashOffset));
 
-        public static readonly DependencyProperty StrokeDashCapProperty = DependencyProperty.Register(
-            nameof(StrokeDashCap), typeof(PenLineCap), typeof(MapOverlay), new PropertyMetadata(PenLineCap.Flat));
+        public static readonly DependencyProperty StrokeDashCapProperty =
+            DependencyPropertyHelper.Register<MapOverlay, PenLineCap>(nameof(StrokeDashCap), PenLineCap.Flat);
 
-        public static readonly DependencyProperty StrokeStartLineCapProperty = DependencyProperty.Register(
-            nameof(StrokeStartLineCap), typeof(PenLineCap), typeof(MapOverlay), new PropertyMetadata(PenLineCap.Flat));
+        public static readonly DependencyProperty StrokeStartLineCapProperty =
+            DependencyPropertyHelper.Register<MapOverlay, PenLineCap>(nameof(StrokeStartLineCap), PenLineCap.Flat);
 
-        public static readonly DependencyProperty StrokeEndLineCapProperty = DependencyProperty.Register(
-            nameof(StrokeEndLineCap), typeof(PenLineCap), typeof(MapOverlay), new PropertyMetadata(PenLineCap.Flat));
+        public static readonly DependencyProperty StrokeEndLineCapProperty =
+            DependencyPropertyHelper.Register<MapOverlay, PenLineCap>(nameof(StrokeEndLineCap), PenLineCap.Flat);
 
-        public static readonly DependencyProperty StrokeLineJoinProperty = DependencyProperty.Register(
-            nameof(StrokeLineJoin), typeof(PenLineJoin), typeof(MapOverlay), new PropertyMetadata(PenLineJoin.Miter));
+        public static readonly DependencyProperty StrokeLineJoinProperty =
+            DependencyPropertyHelper.Register<MapOverlay, PenLineJoin>(nameof(StrokeLineJoin), PenLineJoin.Miter);
 
-        public static readonly DependencyProperty StrokeMiterLimitProperty = DependencyProperty.Register(
-            nameof(StrokeMiterLimit), typeof(double), typeof(MapOverlay), new PropertyMetadata(1d));
+        public static readonly DependencyProperty StrokeMiterLimitProperty =
+            DependencyPropertyHelper.Register<MapOverlay, double>(nameof(StrokeMiterLimit), 1d);
 
         protected override void SetParentMap(MapBase map)
         {

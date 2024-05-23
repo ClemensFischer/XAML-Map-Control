@@ -11,35 +11,29 @@ namespace MapControl
 {
     public partial class PushpinBorder : Decorator
     {
-        public static readonly DependencyProperty ArrowSizeProperty = DependencyProperty.Register(
-            nameof(ArrowSize), typeof(Size), typeof(PushpinBorder),
-            new FrameworkPropertyMetadata(new Size(10d, 20d),
-                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty ArrowSizeProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, Size>(nameof(ArrowSize), new Size(10d, 20d),
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
 
-        public static readonly DependencyProperty BorderWidthProperty = DependencyProperty.Register(
-            nameof(BorderWidth), typeof(double), typeof(PushpinBorder),
-            new FrameworkPropertyMetadata(0d,
-                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty BorderWidthProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, double>(nameof(BorderWidth), 0d,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
 
-        public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(
-            nameof(Background), typeof(Brush), typeof(PushpinBorder),
-            new FrameworkPropertyMetadata(null,
-                FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty BackgroundProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, Brush>(nameof(Background), null,
+                FrameworkPropertyMetadataOptions.AffectsRender);
 
-        public static readonly DependencyProperty BorderBrushProperty = DependencyProperty.Register(
-            nameof(BorderBrush), typeof(Brush), typeof(PushpinBorder),
-            new FrameworkPropertyMetadata(null,
-                FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty BorderBrushProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, Brush>(nameof(BorderBrush), null,
+                FrameworkPropertyMetadataOptions.AffectsRender);
 
-        public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(
-            nameof(CornerRadius), typeof(CornerRadius), typeof(PushpinBorder),
-            new FrameworkPropertyMetadata(new CornerRadius(),
-                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty CornerRadiusProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, CornerRadius>(nameof(CornerRadius), new CornerRadius(),
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
 
-        public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register(
-            nameof(Padding), typeof(Thickness), typeof(PushpinBorder),
-            new FrameworkPropertyMetadata(new Thickness(2),
-                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty PaddingProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, Thickness>(nameof(Padding), new Thickness(2),
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender);
 
         public Brush Background
         {

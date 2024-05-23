@@ -51,9 +51,9 @@ namespace MapControl
 
         private static string QueryString(ushort tag) => $"/ifd/{{ushort={tag}}}";
 
-        public static readonly DependencyProperty SourcePathProperty = DependencyProperty.Register(
-            nameof(SourcePath), typeof(string), typeof(GeoImage),
-            new PropertyMetadata(null, async (o, e) => await ((GeoImage)o).SourcePathPropertyChanged((string)e.NewValue)));
+        public static readonly DependencyProperty SourcePathProperty =
+            DependencyPropertyHelper.Register<GeoImage, string>(nameof(SourcePath), null, false,
+                async (image, oldValue, newValue) => await image.SourcePathPropertyChanged(newValue));
 
         public GeoImage()
         {

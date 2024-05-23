@@ -21,13 +21,13 @@ namespace MapControl
     /// </summary>
     public class MapPolyline : MapPath
     {
-        public static readonly DependencyProperty LocationsProperty = DependencyProperty.Register(
-            nameof(Locations), typeof(IEnumerable<Location>), typeof(MapPolyline),
-            new PropertyMetadata(null, (o, e) => ((MapPolyline)o).DataCollectionPropertyChanged(e)));
+        public static readonly DependencyProperty LocationsProperty =
+            DependencyPropertyHelper.Register<MapPolyline, IEnumerable<Location>>(nameof(Locations), null, false,
+                (polyline, oldValue, newValue) => polyline.DataCollectionPropertyChanged(oldValue, newValue));
 
-        public static readonly DependencyProperty FillRuleProperty = DependencyProperty.Register(
-            nameof(FillRule), typeof(FillRule), typeof(MapPolyline),
-            new PropertyMetadata(FillRule.EvenOdd, (o, e) => ((PathGeometry)((MapPolyline)o).Data).FillRule = (FillRule)e.NewValue));
+        public static readonly DependencyProperty FillRuleProperty =
+            DependencyPropertyHelper.Register<MapPolyline, FillRule>(nameof(FillRule), FillRule.EvenOdd, false,
+                (polyline, oldValue, newValue) => ((PathGeometry)polyline.Data).FillRule = newValue);
 
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.

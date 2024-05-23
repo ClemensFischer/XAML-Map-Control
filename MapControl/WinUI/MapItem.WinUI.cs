@@ -17,13 +17,13 @@ namespace MapControl
 {
     public partial class MapItem
     {
-        public static readonly DependencyProperty AutoCollapseProperty = DependencyProperty.Register(
-            nameof(AutoCollapse), typeof(bool), typeof(MapItem), new PropertyMetadata(false,
-                (o, e) => MapPanel.SetAutoCollapse((MapItem)o, (bool)e.NewValue)));
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.Register<MapItem, bool>(nameof(AutoCollapse), false, false,
+                (item, oldValue, newValue) => MapPanel.SetAutoCollapse(item, newValue));
 
-        public static readonly DependencyProperty LocationProperty = DependencyProperty.Register(
-            nameof(Location), typeof(Location), typeof(MapItem),  new PropertyMetadata(null,
-                (o, e) => ((MapItem)o).LocationPropertyChanged((Location)e.NewValue)));
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.Register<MapItem, Location>(nameof(Location), null, false,
+                (item, oldValue, newValue) => item.LocationPropertyChanged(newValue));
 
         private void LocationPropertyChanged(Location location)
         {

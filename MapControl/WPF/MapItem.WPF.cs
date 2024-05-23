@@ -10,12 +10,12 @@ namespace MapControl
 {
     public partial class MapItem
     {
-        public static readonly DependencyProperty AutoCollapseProperty = MapPanel.AutoCollapseProperty.AddOwner(
-            typeof(MapItem));
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.AddOwner<MapItem>(MapPanel.AutoCollapseProperty);
 
-        public static readonly DependencyProperty LocationProperty = MapPanel.LocationProperty.AddOwner(
-            typeof(MapItem), new FrameworkPropertyMetadata(null,
-                (o, e) => ((MapItem)o).UpdateMapTransform((Location)e.NewValue)));
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty,
+                (item, oldValue, newValue) => item.UpdateMapTransform(newValue));
 
         static MapItem()
         {
