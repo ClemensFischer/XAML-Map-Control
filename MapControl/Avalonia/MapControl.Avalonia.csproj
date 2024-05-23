@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>MapControl</RootNamespace>
@@ -19,9 +19,6 @@
 
     <ItemGroup>
         <Compile Include="..\Shared\*.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Compile Remove="..\Shared\BindingHelper.cs" />
         <Compile Remove="..\Shared\GeoImage.cs" />
         <Compile Remove="..\Shared\MapGraticule.cs" />
