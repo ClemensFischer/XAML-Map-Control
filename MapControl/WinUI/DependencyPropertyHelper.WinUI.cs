@@ -33,7 +33,6 @@ namespace MapControl
             TValue defaultValue = default,
             Action<FrameworkElement, TValue, TValue> changed = null,
             bool inherits = false) // unused in WinUI/UWP
-            where TOwner : DependencyObject
         {
             var metadata = changed != null
                 ? new PropertyMetadata(defaultValue, (o, e) => changed((FrameworkElement)o, (TValue)e.OldValue, (TValue)e.NewValue))

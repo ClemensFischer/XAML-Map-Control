@@ -33,7 +33,6 @@ namespace MapControl
             TValue defaultValue = default,
             Action<Control, TValue, TValue> changed = null,
             bool inherits = false)
-            where TOwner : AvaloniaObject
         {
             var property = AvaloniaProperty.RegisterAttached<TOwner, Control, TValue>(name, defaultValue, inherits);
 

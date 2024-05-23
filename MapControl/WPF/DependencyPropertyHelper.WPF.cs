@@ -50,7 +50,6 @@ namespace MapControl
             TValue defaultValue = default,
             Action<FrameworkElement, TValue, TValue> changed = null,
             bool inherits = false)
-            where TOwner : DependencyObject
         {
             var metadata = new FrameworkPropertyMetadata
             {
