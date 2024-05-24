@@ -35,7 +35,7 @@ namespace MapControl
                 true);
 
         public static readonly StyledProperty<double> MinZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(MinZoomLevel), 1d,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(MinZoomLevel), DefaultZoomLevel,
                 (map, oldValue, newValue) => map.MinZoomLevelPropertyChanged(newValue),
                 (map, value) => map.CoerceMinZoomLevelProperty(value));
 
@@ -45,13 +45,13 @@ namespace MapControl
                 (map, value) => map.CoerceMaxZoomLevelProperty(value));
 
         public static readonly StyledProperty<double> ZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), 1d,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(ZoomLevel), DefaultZoomLevel,
                 (map, oldValue, newValue) => map.ZoomLevelPropertyChanged(newValue),
                 (map, value) => map.CoerceZoomLevelProperty(value),
                 true);
 
         public static readonly StyledProperty<double> TargetZoomLevelProperty =
-            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), 1d,
+            DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), DefaultZoomLevel,
                 async (map, oldValue, newValue) => await map.TargetZoomLevelPropertyChanged(newValue),
                 (map, value) => map.CoerceZoomLevelProperty(value),
                 true);
