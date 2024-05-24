@@ -87,6 +87,11 @@ namespace SampleApplication
             map.TargetHeading = 0d;
         }
 
+        private void MapDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+        }
+
         private async void MapPointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
