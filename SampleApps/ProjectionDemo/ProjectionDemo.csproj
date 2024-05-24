@@ -14,5 +14,4 @@
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
     </ItemGroup>
-
 </Project>
