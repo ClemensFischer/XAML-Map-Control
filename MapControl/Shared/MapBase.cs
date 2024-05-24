@@ -35,8 +35,6 @@ namespace MapControl
     /// </summary>
     public partial class MapBase : MapPanel
     {
-        private const double DefaultZoomLevel = 1d;
-
         public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
 
         public static readonly DependencyProperty AnimationDurationProperty =
@@ -420,12 +418,7 @@ namespace MapControl
 
         private double CoerceZoomLevelProperty(double zoomLevel)
         {
-            if (zoomLevel != DefaultZoomLevel) // Avalonia: ignore coercing default value
-            {
-                zoomLevel = Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
-            }
-
-            return zoomLevel;
+            return Math.Min(Math.Max(zoomLevel, MinZoomLevel), MaxZoomLevel);
         }
 
         private double CoerceHeadingProperty(double heading)

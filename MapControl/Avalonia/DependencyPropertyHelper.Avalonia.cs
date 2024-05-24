@@ -19,9 +19,17 @@ namespace MapControl
             bool bindTwoWayByDefault = false)
             where TOwner : AvaloniaObject
         {
-            var property = AvaloniaProperty.Register<TOwner, TValue>(name, defaultValue, false,
-                bindTwoWayByDefault ? Avalonia.Data.BindingMode.TwoWay : Avalonia.Data.BindingMode.OneWay, null,
-                coerce != null ? ((obj, value) => coerce((TOwner)obj, value)) : null);
+            Func<AvaloniaObject, TValue, TValue> coerceFunc = null;
+
+            if (coerce != null)
+            {
+                // do not coerce default value
+                coerceFunc = (obj, value) => value.Equals(defaultValue) ? value : coerce((TOwner)obj, value);
+            }
+
+            var bindingMode = bindTwoWayByDefault ? Avalonia.Data.BindingMode.TwoWay : Avalonia.Data.BindingMode.OneWay;
+
+            var property = AvaloniaProperty.Register<TOwner, TValue>(name, defaultValue, false, bindingMode, null, coerceFunc);
 
             if (changed != null)
             {
