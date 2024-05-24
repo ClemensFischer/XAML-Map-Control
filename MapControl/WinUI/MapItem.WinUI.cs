@@ -51,14 +51,20 @@ namespace MapControl
 
             if (parentMap != null)
             {
-                // If this.Background is not explicitly set, bind it to parentMap.Background
-                this.SetBindingOnUnsetProperty(BackgroundProperty, parentMap, Panel.BackgroundProperty, nameof(Background));
+                if (Background == null)
+                {
+                    SetBinding(BackgroundProperty, parentMap.CreateBinding(nameof(Background)));
+                }
 
-                // If this.Foreground is not explicitly set, bind it to parentMap.Foreground
-                this.SetBindingOnUnsetProperty(ForegroundProperty, parentMap, MapBase.ForegroundProperty, nameof(Foreground));
+                if (Foreground == null)
+                {
+                    SetBinding(ForegroundProperty, parentMap.CreateBinding(nameof(Foreground)));
+                }
 
-                // If this.BorderBrush is not explicitly set, bind it to parentMap.Foreground
-                this.SetBindingOnUnsetProperty(BorderBrushProperty, parentMap, MapBase.ForegroundProperty, nameof(Foreground));
+                if (BorderBrush == null)
+                {
+                    SetBinding(BorderBrushProperty, parentMap.CreateBinding(nameof(Foreground)));
+                }
             }
         }
     }

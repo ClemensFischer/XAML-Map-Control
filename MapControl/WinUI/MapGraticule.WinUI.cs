@@ -32,11 +32,13 @@ namespace MapControl
 
             if (Children.Count == 0)
             {
-                path.SetBinding(Shape.StrokeProperty, this.GetOrCreateBinding(StrokeProperty, nameof(Stroke)));
-                path.SetBinding(Shape.StrokeThicknessProperty, this.GetOrCreateBinding(StrokeThicknessProperty, nameof(StrokeThickness)));
-                path.SetBinding(Shape.StrokeDashArrayProperty, this.GetOrCreateBinding(StrokeDashArrayProperty, nameof(StrokeDashArray)));
-                path.SetBinding(Shape.StrokeDashOffsetProperty, this.GetOrCreateBinding(StrokeDashOffsetProperty, nameof(StrokeDashOffset)));
-                path.SetBinding(Shape.StrokeDashCapProperty, this.GetOrCreateBinding(StrokeDashCapProperty, nameof(StrokeDashCap)));
+                path.SetBinding(Shape.StrokeProperty, this.CreateBinding(nameof(Stroke)));
+                path.SetBinding(Shape.StrokeThicknessProperty, this.CreateBinding(nameof(StrokeThickness)));
+                path.SetBinding(Shape.StrokeStartLineCapProperty, this.CreateBinding(nameof(StrokeLineCap)));
+                path.SetBinding(Shape.StrokeEndLineCapProperty, this.CreateBinding(nameof(StrokeLineCap)));
+                path.SetBinding(Shape.StrokeDashCapProperty, this.CreateBinding(nameof(StrokeLineCap)));
+                path.SetBinding(Shape.StrokeDashArrayProperty, this.CreateBinding(nameof(StrokeDashArray)));
+                path.SetBinding(Shape.StrokeDashOffsetProperty, this.CreateBinding(nameof(StrokeDashOffset)));
 
                 Children.Add(path);
             }
@@ -54,15 +56,15 @@ namespace MapControl
                 else
                 {
                     textBlock = new TextBlock { RenderTransform = new MatrixTransform() };
-                    textBlock.SetBinding(TextBlock.FontSizeProperty, this.GetOrCreateBinding(FontSizeProperty, nameof(FontSize)));
-                    textBlock.SetBinding(TextBlock.FontStyleProperty, this.GetOrCreateBinding(FontStyleProperty, nameof(FontStyle)));
-                    textBlock.SetBinding(TextBlock.FontStretchProperty, this.GetOrCreateBinding(FontStretchProperty, nameof(FontStretch)));
-                    textBlock.SetBinding(TextBlock.FontWeightProperty, this.GetOrCreateBinding(FontWeightProperty, nameof(FontWeight)));
-                    textBlock.SetBinding(TextBlock.ForegroundProperty, this.GetOrCreateBinding(ForegroundProperty, nameof(Foreground)));
+                    textBlock.SetBinding(TextBlock.FontSizeProperty, this.CreateBinding(nameof(FontSize)));
+                    textBlock.SetBinding(TextBlock.FontStyleProperty, this.CreateBinding(nameof(FontStyle)));
+                    textBlock.SetBinding(TextBlock.FontStretchProperty, this.CreateBinding(nameof(FontStretch)));
+                    textBlock.SetBinding(TextBlock.FontWeightProperty, this.CreateBinding(nameof(FontWeight)));
+                    textBlock.SetBinding(TextBlock.ForegroundProperty, this.CreateBinding(nameof(Foreground)));
 
                     if (FontFamily != null)
                     {
-                        textBlock.SetBinding(TextBlock.FontFamilyProperty, this.GetOrCreateBinding(FontFamilyProperty, nameof(FontFamily)));
+                        textBlock.SetBinding(TextBlock.FontFamilyProperty, this.CreateBinding(nameof(FontFamily)));
                     }
 
                     Children.Add(textBlock);

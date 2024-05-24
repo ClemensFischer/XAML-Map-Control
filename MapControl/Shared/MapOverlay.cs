@@ -11,6 +11,9 @@ using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml.Media;
 using Windows.UI.Text;
+#elif AVALONIA
+using Avalonia.Media;
+using DoubleCollection = System.Collections.Generic.IEnumerable<double>;
 #endif
 
 namespace MapControl
@@ -80,22 +83,10 @@ namespace MapControl
             set => SetValue(StrokeDashOffsetProperty, value);
         }
 
-        public PenLineCap StrokeDashCap
+        public PenLineCap StrokeLineCap
         {
-            get => (PenLineCap)GetValue(StrokeDashCapProperty);
-            set => SetValue(StrokeDashCapProperty, value);
-        }
-
-        public PenLineCap StrokeStartLineCap
-        {
-            get => (PenLineCap)GetValue(StrokeStartLineCapProperty);
-            set => SetValue(StrokeStartLineCapProperty, value);
-        }
-
-        public PenLineCap StrokeEndLineCap
-        {
-            get => (PenLineCap)GetValue(StrokeEndLineCapProperty);
-            set => SetValue(StrokeEndLineCapProperty, value);
+            get => (PenLineCap)GetValue(StrokeLineCapProperty);
+            set => SetValue(StrokeLineCapProperty, value);
         }
 
         public PenLineJoin StrokeLineJoin

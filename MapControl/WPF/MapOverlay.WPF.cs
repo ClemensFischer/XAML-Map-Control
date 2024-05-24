@@ -4,6 +4,7 @@
 
 using System;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -42,14 +43,8 @@ namespace MapControl
         public static readonly DependencyProperty StrokeDashOffsetProperty =
             DependencyPropertyHelper.AddOwner<MapOverlay, double>(Shape.StrokeDashOffsetProperty);
 
-        public static readonly DependencyProperty StrokeDashCapProperty =
+        public static readonly DependencyProperty StrokeLineCapProperty =
             DependencyPropertyHelper.AddOwner<MapOverlay, PenLineCap>(Shape.StrokeDashCapProperty);
-
-        public static readonly DependencyProperty StrokeStartLineCapProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay, PenLineCap>(Shape.StrokeStartLineCapProperty);
-
-        public static readonly DependencyProperty StrokeEndLineCapProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay, PenLineCap>(Shape.StrokeEndLineCapProperty);
 
         public static readonly DependencyProperty StrokeLineJoinProperty =
             DependencyPropertyHelper.AddOwner<MapOverlay, PenLineJoin>(Shape.StrokeLineJoinProperty);
@@ -61,9 +56,10 @@ namespace MapControl
         {
             base.OnInitialized(e);
 
-            // If this.Stroke is not explicitly set, bind it to this.Foreground.
-            //
-            this.SetBindingOnUnsetProperty(StrokeProperty, this, ForegroundProperty, nameof(Foreground));
+            if (Stroke == null)
+            {
+                SetBinding(StrokeProperty, this.CreateBinding(nameof(Foreground)));
+            }
         }
 
         public Pen CreatePen()
@@ -74,9 +70,9 @@ namespace MapControl
                 Thickness = StrokeThickness,
                 LineJoin = StrokeLineJoin,
                 MiterLimit = StrokeMiterLimit,
-                StartLineCap = StrokeStartLineCap,
-                EndLineCap = StrokeEndLineCap,
-                DashCap = StrokeDashCap,
+                StartLineCap = StrokeLineCap,
+                EndLineCap = StrokeLineCap,
+                DashCap = StrokeLineCap,
                 DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset)
             };
         }

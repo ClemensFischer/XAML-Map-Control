@@ -5,10 +5,12 @@
 using Windows.UI.Text;
 #if UWP
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 #else
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 #endif
 
@@ -46,14 +48,8 @@ namespace MapControl
         public static readonly DependencyProperty StrokeDashOffsetProperty =
             DependencyPropertyHelper.Register<MapOverlay, double>(nameof(StrokeDashOffset));
 
-        public static readonly DependencyProperty StrokeDashCapProperty =
-            DependencyPropertyHelper.Register<MapOverlay, PenLineCap>(nameof(StrokeDashCap), PenLineCap.Flat);
-
-        public static readonly DependencyProperty StrokeStartLineCapProperty =
-            DependencyPropertyHelper.Register<MapOverlay, PenLineCap>(nameof(StrokeStartLineCap), PenLineCap.Flat);
-
-        public static readonly DependencyProperty StrokeEndLineCapProperty =
-            DependencyPropertyHelper.Register<MapOverlay, PenLineCap>(nameof(StrokeEndLineCap), PenLineCap.Flat);
+        public static readonly DependencyProperty StrokeLineCapProperty =
+            DependencyPropertyHelper.Register<MapOverlay, PenLineCap>(nameof(StrokeLineCap), PenLineCap.Flat);
 
         public static readonly DependencyProperty StrokeLineJoinProperty =
             DependencyPropertyHelper.Register<MapOverlay, PenLineJoin>(nameof(StrokeLineJoin), PenLineJoin.Miter);
@@ -65,13 +61,15 @@ namespace MapControl
         {
             if (map != null)
             {
-                // If this.Forground is not explicitly set, bind it to map.Foreground.
-                //
-                this.SetBindingOnUnsetProperty(ForegroundProperty, map, MapBase.ForegroundProperty, nameof(Foreground));
+                if (Foreground == null)
+                {
+                    SetBinding(ForegroundProperty, map.CreateBinding(nameof(Foreground)));
+                }
 
-                // If this.Stroke is not explicitly set, bind it to this.Foreground.
-                //
-                this.SetBindingOnUnsetProperty(StrokeProperty, this, ForegroundProperty, nameof(Foreground));
+                if (Stroke == null)
+                {
+                    SetBinding(StrokeProperty, this.CreateBinding(nameof(Foreground)));
+                }
             }
 
             base.SetParentMap(map);
