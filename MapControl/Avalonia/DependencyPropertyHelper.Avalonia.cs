@@ -1,4 +1,7 @@
-﻿
+﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
+// Copyright © 2024 Clemens Fischer
+// Licensed under the Microsoft Public License (Ms-PL)
+
 using Avalonia.Controls;
 using System;
 

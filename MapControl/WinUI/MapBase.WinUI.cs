@@ -70,6 +70,7 @@ namespace MapControl
         public MapBase()
         {
             // Set Background by Style to enable resetting by ClearValue in MapLayerPropertyChanged.
+            // There is no default Style in Generic.xaml because MapBase has no DefaultStyleKey property.
             //
             var style = new Style(typeof(MapBase));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.White)));

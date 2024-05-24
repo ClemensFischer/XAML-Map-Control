@@ -23,6 +23,7 @@ using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Brush = Avalonia.Media.IBrush;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 

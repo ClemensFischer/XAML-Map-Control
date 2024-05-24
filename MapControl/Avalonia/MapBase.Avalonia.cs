@@ -6,6 +6,7 @@ global using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Styling;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,14 +76,10 @@ namespace MapControl
 
         static MapBase()
         {
+            BackgroundProperty.OverrideDefaultValue(typeof(MapBase), Brushes.White);
             ClipToBoundsProperty.OverrideDefaultValue(typeof(MapBase), true);
 
             Animation.RegisterCustomAnimator<Location, LocationAnimator>();
-        }
-
-        public MapBase()
-        {
-            MapProjectionPropertyChanged(MapProjection);
         }
 
         internal Size RenderSize => Bounds.Size;

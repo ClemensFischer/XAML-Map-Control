@@ -16,6 +16,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia.Media;
+using Brush = Avalonia.Media.IBrush;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 using UIElement = Avalonia.Controls.Control;
 #endif
@@ -60,7 +61,7 @@ namespace MapControl
         private Location transformCenter;
         private Point viewCenter;
         private double centerLongitude;
-        private double maxLatitude = 90d;
+        private double maxLatitude = 85.05112878; // default WebMercatorProjection
         private bool internalPropertyChange;
 
         /// <summary>
