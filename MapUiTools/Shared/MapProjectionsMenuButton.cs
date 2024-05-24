@@ -14,24 +14,33 @@ using Windows.UI.Xaml.Markup;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Markup;
+#elif AVALONIA
+using Avalonia.Interactivity;
+using Avalonia.Metadata;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using FrameworkElement = Avalonia.Controls.Control;
 #endif
 
 namespace MapControl.UiTools
 {
 #if WPF
     [ContentProperty(nameof(Projection))]
-#else
+    #elif UWP || WINUI
     [ContentProperty(Name = nameof(Projection))]
 #endif
     public class MapProjectionItem
     {
-        public string Text { get; set; }
+#if AVALONIA
+        [Content]
+#endif
         public string Projection { get; set; }
+
+        public string Text { get; set; }
     }
 
 #if WPF
     [ContentProperty(nameof(MapProjections))]
-#else
+#elif UWP || WINUI
     [ContentProperty(Name = nameof(MapProjections))]
 #endif
     public class MapProjectionsMenuButton : MenuButton
@@ -54,6 +63,9 @@ namespace MapControl.UiTools
             set => SetValue(MapProperty, value);
         }
 
+#if AVALONIA
+        [Content]
+#endif
         public Collection<MapProjectionItem> MapProjections { get; } = new ObservableCollection<MapProjectionItem>();
 
         private void InitializeMenu()

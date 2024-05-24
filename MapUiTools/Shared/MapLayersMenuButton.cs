@@ -15,32 +15,42 @@ using Windows.UI.Xaml.Markup;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Markup;
+#elif AVALONIA
+using Avalonia.Interactivity;
+using Avalonia.Metadata;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using FrameworkElement = Avalonia.Controls.Control;
 #endif
 
 namespace MapControl.UiTools
 {
 #if WPF
     [ContentProperty(nameof(Layer))]
-#else
+#elif UWP || WINUI
     [ContentProperty(Name = nameof(Layer))]
 #endif
     public class MapLayerItem
     {
-        public string Text { get; set; }
-        public UIElement Layer { get; set; }
-        public Func<UIElement> LayerFactory { get; set; }
+#if AVALONIA
+        [Content]
+#endif
+        public FrameworkElement Layer { get; set; }
 
-        public UIElement GetLayer() => Layer ?? (Layer = LayerFactory?.Invoke());
+        public string Text { get; set; }
+
+        public Func<FrameworkElement> LayerFactory { get; set; }
+
+        public FrameworkElement GetLayer() => Layer ?? (Layer = LayerFactory?.Invoke());
     }
 
 #if WPF
     [ContentProperty(nameof(MapLayers))]
-#else
+#elif UWP || WINUI
     [ContentProperty(Name = nameof(MapLayers))]
 #endif
     public class MapLayersMenuButton : MenuButton
     {
-        private UIElement selectedLayer;
+        private FrameworkElement selectedLayer;
 
         public MapLayersMenuButton()
             : base("\uE81E")
@@ -59,6 +69,9 @@ namespace MapControl.UiTools
             set => SetValue(MapProperty, value);
         }
 
+#if AVALONIA
+        [Content]
+#endif
         public Collection<MapLayerItem> MapLayers { get; } = new ObservableCollection<MapLayerItem>();
 
         public Collection<MapLayerItem> MapOverlays { get; } = new ObservableCollection<MapLayerItem>();
@@ -112,7 +125,7 @@ namespace MapControl.UiTools
             ToggleMapOverlay(mapLayerItem.GetLayer());
         }
 
-        private void SetMapLayer(UIElement layer)
+        private void SetMapLayer(FrameworkElement layer)
         {
             if (selectedLayer != layer)
             {
@@ -123,7 +136,7 @@ namespace MapControl.UiTools
             UpdateCheckedStates();
         }
 
-        private void ToggleMapOverlay(UIElement layer)
+        private void ToggleMapOverlay(FrameworkElement layer)
         {
             if (Map.Children.Contains(layer))
             {

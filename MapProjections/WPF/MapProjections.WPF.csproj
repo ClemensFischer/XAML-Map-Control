@@ -29,10 +29,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
+        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
+        <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
     </ItemGroup>
 </Project>

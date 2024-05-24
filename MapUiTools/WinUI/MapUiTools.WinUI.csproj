@@ -25,11 +25,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
-        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
+        <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
     </ItemGroup>
 </Project>
