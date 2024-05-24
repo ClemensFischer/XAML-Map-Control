@@ -13,64 +13,49 @@ namespace MapControl
     public partial class MapOverlay
     {
         public static readonly DependencyProperty FontFamilyProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(TextElement.FontFamilyProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits);
+            DependencyPropertyHelper.AddOwner<MapOverlay, FontFamily>(TextElement.FontFamilyProperty);
 
         public static readonly DependencyProperty FontSizeProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(TextElement.FontSizeProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits);
+            DependencyPropertyHelper.AddOwner<MapOverlay, double>(TextElement.FontSizeProperty);
 
         public static readonly DependencyProperty FontStyleProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(TextElement.FontStyleProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits);
+            DependencyPropertyHelper.AddOwner<MapOverlay, FontStyle>(TextElement.FontStyleProperty);
 
         public static readonly DependencyProperty FontStretchProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(TextElement.FontStretchProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits);
+            DependencyPropertyHelper.AddOwner<MapOverlay, FontStretch>(TextElement.FontStretchProperty);
 
         public static readonly DependencyProperty FontWeightProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(TextElement.FontWeightProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits);
+            DependencyPropertyHelper.AddOwner<MapOverlay, FontWeight>(TextElement.FontWeightProperty);
 
         public static readonly DependencyProperty ForegroundProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(TextElement.ForegroundProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits);
+            DependencyPropertyHelper.AddOwner<MapOverlay, Brush>(TextElement.ForegroundProperty);
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, Brush>(Shape.StrokeProperty);
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeThicknessProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, double>(Shape.StrokeThicknessProperty);
 
         public static readonly DependencyProperty StrokeDashArrayProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeDashArrayProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, DoubleCollection>(Shape.StrokeDashArrayProperty);
 
         public static readonly DependencyProperty StrokeDashOffsetProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeDashOffsetProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, double>(Shape.StrokeDashOffsetProperty);
 
         public static readonly DependencyProperty StrokeDashCapProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeDashCapProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, PenLineCap>(Shape.StrokeDashCapProperty);
 
         public static readonly DependencyProperty StrokeStartLineCapProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeStartLineCapProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, PenLineCap>(Shape.StrokeStartLineCapProperty);
 
         public static readonly DependencyProperty StrokeEndLineCapProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeEndLineCapProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, PenLineCap>(Shape.StrokeEndLineCapProperty);
 
         public static readonly DependencyProperty StrokeLineJoinProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeLineJoinProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, PenLineJoin>(Shape.StrokeLineJoinProperty);
 
         public static readonly DependencyProperty StrokeMiterLimitProperty =
-            DependencyPropertyHelper.AddOwner<MapOverlay>(Shape.StrokeMiterLimitProperty,
-                FrameworkPropertyMetadataOptions.AffectsRender);
+            DependencyPropertyHelper.AddOwner<MapOverlay, double>(Shape.StrokeMiterLimitProperty);
 
         protected override void OnInitialized(EventArgs e)
         {

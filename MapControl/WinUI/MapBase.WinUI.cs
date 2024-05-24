@@ -18,6 +18,10 @@ namespace MapControl
 {
     public partial class MapBase
     {
+        public static readonly DependencyProperty ForegroundProperty =
+            DependencyPropertyHelper.Register<MapBase, Brush>(nameof(Foreground),
+                new SolidColorBrush(Colors.Black));
+
         public static readonly DependencyProperty AnimationEasingFunctionProperty =
             DependencyPropertyHelper.Register<MapBase, EasingFunctionBase>(nameof(AnimationEasingFunction),
                 new QuadraticEase { EasingMode = EasingMode.EaseOut });
@@ -58,7 +62,8 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, double>(nameof(ViewScale), 0d);
 
         private static readonly DependencyProperty AnimatedCenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Windows.Foundation.Point>(nameof(AnimatedCenter), new Windows.Foundation.Point(),
+            DependencyPropertyHelper.Register<MapBase, Windows.Foundation.Point>(nameof(AnimatedCenter),
+                new Windows.Foundation.Point(),
                 (map, oldValue, newValue) => map.Center = new Location(newValue.Y, newValue.X));
 
         private Windows.Foundation.Point AnimatedCenter => (Windows.Foundation.Point)GetValue(AnimatedCenterProperty);

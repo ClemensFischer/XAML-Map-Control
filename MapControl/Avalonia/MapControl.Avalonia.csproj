@@ -18,6 +18,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <None Include="..\..\MapControl.snk" Link="MapControl.snk" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Compile Include="..\Shared\*.cs" />
         <Compile Remove="..\Shared\BindingHelper.cs" />
         <Compile Remove="..\Shared\GeoImage.cs" />
@@ -31,10 +35,6 @@
         <Compile Remove="..\Shared\MapScale.cs" />
         <Compile Remove="..\Shared\PushpinBorder.cs" />
         <Compile Remove="..\Shared\ViewTransform.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="..\..\MapControl.snk" Link="MapControl.snk" />
     </ItemGroup>
 
     <ItemGroup>

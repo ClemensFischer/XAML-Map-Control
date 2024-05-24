@@ -6,6 +6,7 @@ global using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using Avalonia.Styling;
 using System.Threading;
@@ -15,6 +16,9 @@ namespace MapControl
 {
     public partial class MapBase
     {
+        public static readonly StyledProperty<IBrush> ForegroundProperty =
+            DependencyPropertyHelper.AddOwner<MapBase, IBrush>(TextElement.ForegroundProperty);
+
         public static readonly StyledProperty<Easing> AnimationEasingProperty =
             DependencyPropertyHelper.Register<MapBase, Easing>(nameof(AnimationEasing), new QuadraticEaseOut());
 

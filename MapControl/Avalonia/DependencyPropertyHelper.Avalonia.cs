@@ -46,5 +46,12 @@ namespace MapControl
 
             return property;
         }
+
+        public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
+            StyledProperty<TValue> property)
+            where TOwner : AvaloniaObject
+        {
+            return property.AddOwner<TOwner>();
+        }
     }
 }

@@ -73,24 +73,9 @@ namespace MapControl
             return DependencyProperty.RegisterReadOnly(name, typeof(TValue), typeof(TOwner), new PropertyMetadata(defaultValue));
         }
 
-        public static DependencyProperty AddOwner<TOwner>(
-            DependencyProperty property,
-            FrameworkPropertyMetadataOptions options = FrameworkPropertyMetadataOptions.None)
-            where TOwner : DependencyObject
-        {
-            FrameworkPropertyMetadata metadata = null;
-
-            if (options != FrameworkPropertyMetadataOptions.None)
-            {
-                metadata = new FrameworkPropertyMetadata(property.DefaultMetadata.DefaultValue, options);
-            }
-
-            return property.AddOwner(typeof(TOwner), metadata);
-        }
-
         public static DependencyProperty AddOwner<TOwner, TValue>(
             DependencyProperty property,
-            Action<TOwner, TValue, TValue> changed)
+            Action<TOwner, TValue, TValue> changed = null)
             where TOwner : DependencyObject
         {
             FrameworkPropertyMetadata metadata = null;

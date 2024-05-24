@@ -3,12 +3,17 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace MapControl
 {
     public partial class MapBase
     {
+        public static readonly DependencyProperty ForegroundProperty =
+            DependencyPropertyHelper.AddOwner<MapBase, Brush>(TextElement.ForegroundProperty);
+
         public static readonly DependencyProperty AnimationEasingFunctionProperty =
             DependencyPropertyHelper.Register<MapBase, IEasingFunction>(nameof(AnimationEasingFunction),
                 new QuadraticEase { EasingMode = EasingMode.EaseOut });

@@ -11,7 +11,7 @@ namespace MapControl
     public partial class MapItem
     {
         public static readonly DependencyProperty AutoCollapseProperty =
-            DependencyPropertyHelper.AddOwner<MapItem>(MapPanel.AutoCollapseProperty);
+            DependencyPropertyHelper.AddOwner<MapItem, bool>(MapPanel.AutoCollapseProperty);
 
         public static readonly DependencyProperty LocationProperty =
             DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty,

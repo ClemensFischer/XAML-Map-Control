@@ -7,15 +7,12 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 #elif UWP
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #elif WINUI
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
-using Avalonia.Media;
 using Brush = Avalonia.Media.IBrush;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 using UIElement = Avalonia.Controls.Control;
@@ -39,9 +36,6 @@ namespace MapControl
     public partial class MapBase : MapPanel
     {
         public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
-
-        public static readonly DependencyProperty ForegroundProperty =
-            DependencyPropertyHelper.Register<MapBase, Brush>(nameof(Foreground), new SolidColorBrush(Colors.Black));
 
         public static readonly DependencyProperty AnimationDurationProperty =
             DependencyPropertyHelper.Register<MapBase, TimeSpan>(nameof(AnimationDuration), TimeSpan.FromSeconds(0.3));
