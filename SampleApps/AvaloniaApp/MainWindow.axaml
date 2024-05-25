@@ -12,6 +12,12 @@
                  Center="53.5,8.2"
                  DoubleTapped="OnMapDoubleTapped">
 
+            <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
+                <map:MapPath.Data>
+                    <EllipseGeometry RadiusX="1852" RadiusY="1852"/>
+                </map:MapPath.Data>
+            </map:MapPath>
+
             <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
