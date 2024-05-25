@@ -141,14 +141,18 @@ namespace MapControl
             return longitudeOffset;
         }
 
-        protected void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, bool closed)
+        protected PathFigureCollection GetPathFigures(IEnumerable<Location> locations, bool closed)
         {
+            var pathFigures = new PathFigureCollection();
+
             if (parentMap != null && locations != null)
             {
                 var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
 
                 AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
             }
+
+            return pathFigures;
         }
 
         protected void AddMultiPolygonPoints(PathFigureCollection pathFigures, IEnumerable<IEnumerable<Location>> polygons)

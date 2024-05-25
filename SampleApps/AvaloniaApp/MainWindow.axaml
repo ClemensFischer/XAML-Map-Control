@@ -18,6 +18,12 @@
                 </map:MapPath.Data>
             </map:MapPath>
 
+            <map:MapPolygon Stroke="Yellow" StrokeThickness="2">
+                <map:MapPolygon.Locations>
+                    <map:LocationCollection>53.45,8.1 53.45,8.3 53.55,8.3 53.55,8.1</map:LocationCollection>
+                </map:MapPolygon.Locations>
+            </map:MapPolygon>
+
             <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
 

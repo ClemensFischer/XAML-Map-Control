@@ -4,7 +4,6 @@
 
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -21,7 +20,7 @@ namespace MapControl
 
         public static readonly StyledProperty<Geometry> DataProperty =
             DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty,
-                (path, oldValue, newValue) => path.DataPropertyChanged(oldValue, newValue));
+                (path, oldValue, newValue) => path.UpdateData());
 
         public Geometry Data
         {
@@ -30,16 +29,6 @@ namespace MapControl
         }
 
         protected override Geometry CreateDefiningGeometry() => Data;
-
-        private void DataPropertyChanged(Geometry oldData, Geometry newData)
-        {
-            // Check if data is actually a new Geometry.
-            //
-            if (newData != null && !ReferenceEquals(newData, oldData))
-            {
-                UpdateData();
-            }
-        }
 
         private void SetMapTransform(Matrix matrix)
         {

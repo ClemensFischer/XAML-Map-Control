@@ -7,11 +7,9 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 #if UWP
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 #else
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 #endif

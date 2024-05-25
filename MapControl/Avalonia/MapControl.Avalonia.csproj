@@ -28,8 +28,6 @@
         <Compile Remove="..\Shared\MapGraticule.cs" />
         <Compile Remove="..\Shared\MapItem.cs" />
         <Compile Remove="..\Shared\MapItemsControl.cs" />
-        <Compile Remove="..\Shared\MapPolyline.cs" />
-        <Compile Remove="..\Shared\MapPolygon.cs" />
         <Compile Remove="..\Shared\ViewTransform.cs" />
     </ItemGroup>
 

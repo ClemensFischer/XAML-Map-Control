@@ -12,6 +12,9 @@ using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using Avalonia.Media;
+using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
 namespace MapControl
@@ -32,7 +35,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the Locations that define the polygon points.
         /// </summary>
-#if WPF
+#if WPF || AVALONIA
         [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
         public IEnumerable<Location> Locations
@@ -54,9 +57,10 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            var figures = ((PathGeometry)Data).Figures;
-            figures.Clear();
-            AddPolylinePoints(figures, Locations, true);
+            ((PathGeometry)Data).Figures = GetPathFigures(Locations, true);
+#if AVALONIA
+            InvalidateGeometry();
+#endif
         }
     }
 }
