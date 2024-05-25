@@ -32,15 +32,15 @@ namespace MapControl
 
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            base.OnPointerWheelChanged(e);
-
             ZoomMap(e.GetPosition(this), TargetZoomLevel + MouseWheelZoomDelta * e.Delta.Y);
+
+            e.Handled = true;
+
+            base.OnPointerWheelChanged(e);
         }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            base.OnPointerPressed(e);
-
             var point = e.GetCurrentPoint(this);
 
             if (pointer2 == null &&
@@ -58,13 +58,15 @@ namespace MapControl
                     pointer2 = point.Pointer;
                     position2 = point.Position;
                 }
+
+                e.Handled = true;
             }
+
+            base.OnPointerPressed(e);
         }
 
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            base.OnPointerReleased(e);
-
             if (e.Pointer == pointer1 || e.Pointer == pointer2)
             {
                 e.Pointer.Capture(null);
@@ -76,13 +78,15 @@ namespace MapControl
                 }
 
                 pointer2 = null;
+
+                e.Handled = true;
             }
+
+            base.OnPointerReleased(e);
         }
 
         protected override void OnPointerMoved(PointerEventArgs e)
         {
-            base.OnPointerMoved(e);
-
             if (e.Pointer == pointer1 || e.Pointer == pointer2)
             {
                 var position = e.GetPosition(this);
@@ -115,7 +119,11 @@ namespace MapControl
 
                     TransformMap(newOrigin, newOrigin - oldOrigin, newAngle - oldAngle, scale);
                 }
+
+                e.Handled = true;
             }
+
+            base.OnPointerMoved(e);
         }
     }
 }
