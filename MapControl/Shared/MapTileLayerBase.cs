@@ -73,10 +73,10 @@ namespace MapControl
             updateTimer = this.CreateTimer(UpdateInterval);
             updateTimer.Tick += async (s, e) => await Update(false);
 
+            MapPanel.SetRenderTransform(this, new MatrixTransform());
 #if UWP || WINUI
             MapPanel.InitMapElement(this);
 #endif
-            MapPanel.SetRenderTransform(this, new MatrixTransform());
         }
 
         public ITileImageLoader TileImageLoader
