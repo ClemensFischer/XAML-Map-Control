@@ -59,15 +59,14 @@ namespace MapControl
 
         private static readonly DependencyProperty ParentMapProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, MapBase>("ParentMap", null,
-                (element, oldValue, newValue) => SetParentMap(element, newValue), true);
-
-        private static void SetParentMap(FrameworkElement element, MapBase parentMap)
-        {
-            if (element is IMapElement mapElement)
-            {
-                mapElement.ParentMap = parentMap;
-            }
-        }
+                (element, oldValue, newValue) =>
+                {
+                    if (element is IMapElement mapElement)
+                    {
+                        mapElement.ParentMap = newValue;
+                    }
+                },
+                true); // inherits
 
         private MapBase parentMap;
 

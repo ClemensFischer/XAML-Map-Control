@@ -23,13 +23,11 @@ namespace MapControl
 
         public static readonly DependencyProperty LocationProperty =
             DependencyPropertyHelper.Register<MapItem, Location>(nameof(Location), null,
-                (item, oldValue, newValue) => item.LocationPropertyChanged(newValue));
-
-        private void LocationPropertyChanged(Location location)
-        {
-            MapPanel.SetLocation(this, location);
-            UpdateMapTransform(location);
-        }
+                (item, oldValue, newValue) =>
+                {
+                    MapPanel.SetLocation(item, newValue);
+                    item.UpdateMapTransform(newValue);
+                });
 
         public MapItem()
         {
@@ -51,16 +49,16 @@ namespace MapControl
 
             if (parentMap != null)
             {
+                // Workaround for missing RelativeSource AncestorType=MapBase Bindings in default Style.
+                //
                 if (Background == null)
                 {
                     SetBinding(BackgroundProperty, parentMap.CreateBinding(nameof(Background)));
                 }
-
                 if (Foreground == null)
                 {
                     SetBinding(ForegroundProperty, parentMap.CreateBinding(nameof(Foreground)));
                 }
-
                 if (BorderBrush == null)
                 {
                     SetBinding(BorderBrushProperty, parentMap.CreateBinding(nameof(Foreground)));

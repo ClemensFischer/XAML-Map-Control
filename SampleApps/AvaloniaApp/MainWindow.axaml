@@ -12,114 +12,116 @@
                  Center="53.5,8.2"
                  DoubleTapped="OnMapDoubleTapped">
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF"
-                        DataContext="{Binding MapLayer, ElementName=map}">
-                <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
-                             Maximum="1" Value="{Binding LoadingProgress}">
-                    <ProgressBar.Styles>
-                        <Style Selector="ProgressBar[Value=0]">
-                            <Setter Property="IsIndeterminate" Value="True"/>
-                        </Style>
-                        <Style Selector="ProgressBar[Value=1]">
-                            <Setter Property="IsVisible" Value="False"/>
-                        </Style>
-                    </ProgressBar.Styles>
-                </ProgressBar>
-
-                <LayoutTransformControl Margin="4,2">
-                    <LayoutTransformControl.LayoutTransform>
-                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                    </LayoutTransformControl.LayoutTransform>
-                    <md:MarkdownScrollViewer Markdown="{Binding Description}"/>
-                </LayoutTransformControl>
-            </StackPanel>
-
-            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6" Background="#7FFFFFFF">
-                <tools:MapLayersMenuButton x:Name="mapLayersMenuButton"
-                    Margin="2" ToolTip.Tip="Map Layers and Overlays" Map="{Binding ElementName=map}">
-                    <tools:MapLayerItem Text="OpenStreetMap">
-                        <map:MapTileLayer
-                            TileSource="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            SourceName="OpenStreetMap"
-                            Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="OpenStreetMap German">
-                        <map:MapTileLayer
-                            TileSource="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"
-                            SourceName="OpenStreetMap German"
-                            Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="OpenStreetMap French">
-                        <map:MapTileLayer
-                            TileSource="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
-                            SourceName="OpenStreetMap French"
-                            Description="© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="OpenTopoMap">
-                        <map:MapTileLayer
-                            TileSource="https://tile.opentopomap.org/{z}/{x}/{y}.png"
-                            SourceName="OpenTopoMap"
-                            Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="TopPlusOpen WMTS">
-                        <map:WmtsTileLayer
-                            CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"
-                            SourceName="TopPlusOpen"
-                            Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="TopPlusOpen WMS">
-                        <map:WmsImageLayer
-                            ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"
-                            Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="TopPlusOpen WMS Tiles">
-                        <map:MapTileLayer
-                            SourceName="TopPlusOpen"
-                            Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)">
-                            <map:MapTileLayer.TileSource>
-                                <map:BoundingBoxTileSource UriTemplate="https://sgx.geodatenzentrum.de/wms_topplus_open?SERVICE=WMS&amp;VERSION=1.3.0&amp;REQUEST=GetMap&amp;CRS=EPSG:3857&amp;LAYERS=web&amp;STYLES=&amp;FORMAT=image/png&amp;WIDTH=256&amp;HEIGHT=256&amp;BBOX={west},{south},{east},{north}"/>
-                            </map:MapTileLayer.TileSource>
-                        </map:MapTileLayer>
-                    </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="OpenStreetMap WMS">
-                        <map:WmsImageLayer
-                            ServiceUri="http://ows.terrestris.de/osm/service"
-                            Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
-                    </tools:MapLayerItem>
-                    <tools:MapLayersMenuButton.MapOverlays>
-                        <tools:MapLayerItem Text="Scale">
-                            <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-                        </tools:MapLayerItem>
-                        <tools:MapLayerItem Text="Seamarks">
-                            <map:MapTileLayer
-                                TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
-                                SourceName="Seamarks"
-                                MinZoomLevel="9" MaxZoomLevel="18"/>
-                        </tools:MapLayerItem>
-                        <tools:MapLayerItem Text="Sample Image">
-                            <Image Source="avares://AvaloniaApp/10_535_330.jpg" Stretch="Fill"
-                                   map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
-                        </tools:MapLayerItem>
-                        <tools:MapLayerItem Text="Mount Etna KML">
-                            <map:GroundOverlay SourcePath="etna.kml"/>
-                        </tools:MapLayerItem>
-                    </tools:MapLayersMenuButton.MapOverlays>
-                </tools:MapLayersMenuButton>
-
-                <tools:MapProjectionsMenuButton x:Name="mapProjectionsMenuButton"
-                    Margin="2" ToolTip.Tip="Map Projections" Map="{Binding ElementName=map}">
-                    <tools:MapProjectionItem Text="Web Mercator" Projection="EPSG:3857"/>
-                    <tools:MapProjectionItem Text="Equirectangular" Projection="EPSG:4326"/>
-                    <tools:MapProjectionItem Text="ETRS89 / UTM zone 32N" Projection="EPSG:25832"/>
-                    <tools:MapProjectionItem Text="WGS84 / Auto UTM" Projection="AUTO2:42001"/>
-                </tools:MapProjectionsMenuButton>
-
-                <Slider Orientation="Vertical" Margin="-4,8" Height="100"
-                        Minimum="{Binding MinZoomLevel, ElementName=map}"
-                        Maximum="{Binding MaxZoomLevel, ElementName=map}"
-                        Value="{Binding TargetZoomLevel, ElementName=map}"
-                        SmallChange="0.1"/>
-            </StackPanel>
+            <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF"
+                    DataContext="{Binding MapLayer, ElementName=map}">
+            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
+                         Maximum="1" Value="{Binding LoadingProgress}">
+                <ProgressBar.Styles>
+                    <Style Selector="ProgressBar[Value=0]">
+                        <Setter Property="IsIndeterminate" Value="True"/>
+                    </Style>
+                    <Style Selector="ProgressBar[Value=1]">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </Style>
+                </ProgressBar.Styles>
+            </ProgressBar>
+
+            <LayoutTransformControl Margin="4,2">
+                <LayoutTransformControl.LayoutTransform>
+                    <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                </LayoutTransformControl.LayoutTransform>
+                <md:MarkdownScrollViewer Markdown="{Binding Description}"/>
+            </LayoutTransformControl>
+        </StackPanel>
+
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6" Background="#7FFFFFFF">
+            <tools:MapLayersMenuButton x:Name="mapLayersMenuButton"
+                Margin="2" ToolTip.Tip="Map Layers and Overlays" Map="{Binding ElementName=map}">
+                <tools:MapLayerItem Text="OpenStreetMap">
+                    <map:MapTileLayer
+                        TileSource="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        SourceName="OpenStreetMap"
+                        Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenStreetMap German">
+                    <map:MapTileLayer
+                        TileSource="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"
+                        SourceName="OpenStreetMap German"
+                        Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenStreetMap French">
+                    <map:MapTileLayer
+                        TileSource="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
+                        SourceName="OpenStreetMap French"
+                        Description="© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenTopoMap">
+                    <map:MapTileLayer
+                        TileSource="https://tile.opentopomap.org/{z}/{x}/{y}.png"
+                        SourceName="OpenTopoMap"
+                        Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="TopPlusOpen WMTS">
+                    <map:WmtsTileLayer
+                        CapabilitiesUri="https://sgx.geodatenzentrum.de/wmts_topplus_open/1.0.0/WMTSCapabilities.xml"
+                        SourceName="TopPlusOpen"
+                        Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wmts-topplusopen-wmts-topplus-open.html)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="TopPlusOpen WMS">
+                    <map:WmsImageLayer
+                        ServiceUri="https://sgx.geodatenzentrum.de/wms_topplus_open"
+                        Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="TopPlusOpen WMS Tiles">
+                    <map:MapTileLayer
+                        SourceName="TopPlusOpen"
+                        Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)">
+                        <map:MapTileLayer.TileSource>
+                            <map:BoundingBoxTileSource UriTemplate="https://sgx.geodatenzentrum.de/wms_topplus_open?SERVICE=WMS&amp;VERSION=1.3.0&amp;REQUEST=GetMap&amp;CRS=EPSG:3857&amp;LAYERS=web&amp;STYLES=&amp;FORMAT=image/png&amp;WIDTH=256&amp;HEIGHT=256&amp;BBOX={west},{south},{east},{north}"/>
+                        </map:MapTileLayer.TileSource>
+                    </map:MapTileLayer>
+                </tools:MapLayerItem>
+                <tools:MapLayerItem Text="OpenStreetMap WMS">
+                    <map:WmsImageLayer
+                        ServiceUri="http://ows.terrestris.de/osm/service"
+                        Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                </tools:MapLayerItem>
+                <tools:MapLayersMenuButton.MapOverlays>
+                    <tools:MapLayerItem Text="Scale">
+                        <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    </tools:MapLayerItem>
+                    <tools:MapLayerItem Text="Seamarks">
+                        <map:MapTileLayer
+                            TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
+                            SourceName="Seamarks"
+                            MinZoomLevel="9" MaxZoomLevel="18"/>
+                    </tools:MapLayerItem>
+                    <tools:MapLayerItem Text="Sample Image">
+                        <Image Source="avares://AvaloniaApp/10_535_330.jpg" Stretch="Fill"
+                               map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
+                    </tools:MapLayerItem>
+                    <tools:MapLayerItem Text="Mount Etna KML">
+                        <map:GroundOverlay SourcePath="etna.kml"/>
+                    </tools:MapLayerItem>
+                </tools:MapLayersMenuButton.MapOverlays>
+            </tools:MapLayersMenuButton>
+
+            <tools:MapProjectionsMenuButton x:Name="mapProjectionsMenuButton"
+                Margin="2" ToolTip.Tip="Map Projections" Map="{Binding ElementName=map}">
+                <tools:MapProjectionItem Text="Web Mercator" Projection="EPSG:3857"/>
+                <tools:MapProjectionItem Text="Equirectangular" Projection="EPSG:4326"/>
+                <tools:MapProjectionItem Text="ETRS89 / UTM zone 32N" Projection="EPSG:25832"/>
+                <tools:MapProjectionItem Text="WGS84 / Auto UTM" Projection="AUTO2:42001"/>
+            </tools:MapProjectionsMenuButton>
+
+            <Slider Orientation="Vertical" Margin="-4,8" Height="100"
+                    Minimum="{Binding MinZoomLevel, ElementName=map}"
+                    Maximum="{Binding MaxZoomLevel, ElementName=map}"
+                    Value="{Binding TargetZoomLevel, ElementName=map}"
+                    SmallChange="0.1"/>
+        </StackPanel>
     </Grid>
 </Window>

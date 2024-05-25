@@ -4,5 +4,6 @@
              RequestedThemeVariant="Default">
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://MapControl.Avalonia/Themes/Generic.axaml"/>
     </Application.Styles>
 </Application>

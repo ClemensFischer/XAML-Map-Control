@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using Avalonia.Controls;
-using System;
 
 namespace MapControl
 {
@@ -17,8 +16,6 @@ namespace MapControl
 
         public static readonly StyledProperty<Location> LocationProperty =
             DependencyPropertyHelper.AddOwner<MapContentControl, Location>(MapPanel.LocationProperty);
-
-        protected override Type StyleKeyOverride => typeof(MapContentControl);
 
         /// <summary>
         /// Gets/sets MapPanel.AutoCollapse.
@@ -44,6 +41,5 @@ namespace MapControl
     /// </summary>
     public class Pushpin : MapContentControl
     {
-        protected override Type StyleKeyOverride => typeof(Pushpin);
     }
 }

@@ -57,16 +57,16 @@ namespace MapControl
 
             if (parentMap != null)
             {
+                // Workaround for missing RelativeSource AncestorType=MapBase Bindings in default Style.
+                //
                 if (Background == null)
                 {
                     SetBinding(BackgroundProperty, parentMap.CreateBinding(nameof(Background)));
                 }
-
                 if (Foreground == null)
                 {
                     SetBinding(ForegroundProperty, parentMap.CreateBinding(nameof(Foreground)));
                 }
-
                 if (BorderBrush == null)
                 {
                     SetBinding(BorderBrushProperty, parentMap.CreateBinding(nameof(Foreground)));

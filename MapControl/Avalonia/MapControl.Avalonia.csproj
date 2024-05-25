@@ -31,7 +31,6 @@
         <Compile Remove="..\Shared\MapPath.cs" />
         <Compile Remove="..\Shared\MapPolyline.cs" />
         <Compile Remove="..\Shared\MapPolygon.cs" />
-        <Compile Remove="..\Shared\PushpinBorder.cs" />
         <Compile Remove="..\Shared\ViewTransform.cs" />
     </ItemGroup>
 
