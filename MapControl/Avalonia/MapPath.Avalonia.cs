@@ -69,6 +69,7 @@ namespace MapControl
         protected void SetPathFigures(PathFigures pathFigures)
         {
             ((PathGeometry)Data).Figures = pathFigures;
+
             InvalidateGeometry();
         }
 
