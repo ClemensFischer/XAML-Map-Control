@@ -112,7 +112,7 @@ namespace MapControl
         /// </summary>
         public double ViewScale
         {
-            get => (double)GetValue(ViewScaleProperty);
+            get => GetValue(ViewScaleProperty);
             private set => RaisePropertyChanged(ViewScaleProperty, double.NaN, value);
         }
 

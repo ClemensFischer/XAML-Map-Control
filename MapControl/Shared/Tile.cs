@@ -36,11 +36,7 @@ namespace MapControl
         public int Column { get; }
         public int Row => Y;
 
-        public Image Image { get; } = new Image
-        {
-            Stretch = Stretch.Fill,
-            IsHitTestVisible = false // avoid touch capture issues
-        };
+        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
 
         public bool IsPending { get; set; } = true;
 

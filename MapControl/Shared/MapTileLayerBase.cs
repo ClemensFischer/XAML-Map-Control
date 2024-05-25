@@ -66,7 +66,7 @@ namespace MapControl
 
         protected MapTileLayerBase()
         {
-            MapPanel.SetRenderTransform(this, new MatrixTransform());
+            IsHitTestVisible = false;
 
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
@@ -76,6 +76,7 @@ namespace MapControl
 #if UWP || WINUI
             MapPanel.InitMapElement(this);
 #endif
+            MapPanel.SetRenderTransform(this, new MatrixTransform());
         }
 
         public ITileImageLoader TileImageLoader

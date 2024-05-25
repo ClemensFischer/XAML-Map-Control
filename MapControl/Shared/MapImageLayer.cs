@@ -65,6 +65,8 @@ namespace MapControl
 
         public MapImageLayer()
         {
+            IsHitTestVisible = false;
+
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = this.CreateTimer(UpdateInterval);
@@ -145,7 +147,6 @@ namespace MapControl
                     {
                         Opacity = 0d,
                         Stretch = Stretch.Fill,
-                        IsHitTestVisible = false // avoid touch capture issues
                     });
                 }
             }

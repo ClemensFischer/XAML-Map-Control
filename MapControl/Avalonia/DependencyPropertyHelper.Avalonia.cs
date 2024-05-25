@@ -56,10 +56,18 @@ namespace MapControl
         }
 
         public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
-            StyledProperty<TValue> property)
+            StyledProperty<TValue> property,
+            Action<TOwner, TValue, TValue> changed = null)
             where TOwner : AvaloniaObject
         {
-            return property.AddOwner<TOwner>();
+            var newProperty = property.AddOwner<TOwner>();
+
+            if (changed != null)
+            {
+                newProperty.Changed.AddClassHandler<TOwner, TValue>((o, e) => changed(o, e.OldValue.Value, e.NewValue.Value));
+            }
+
+            return newProperty;
         }
 
         public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
