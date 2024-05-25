@@ -2,6 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using System.Collections;
@@ -64,6 +65,12 @@ namespace MapControl
         protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateData();
+        }
+
+        protected void SetPathFigures(PathFigures pathFigures)
+        {
+            ((PathGeometry)Data).Figures = pathFigures;
+            InvalidateGeometry();
         }
 
         protected void AddPolylinePoints(PathFigures pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)

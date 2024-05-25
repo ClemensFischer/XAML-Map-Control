@@ -57,10 +57,7 @@ namespace MapControl
 
         protected override void UpdateData()
         {
-            ((PathGeometry)Data).Figures = GetPathFigures(Locations, false);
-#if AVALONIA
-            InvalidateGeometry();
-#endif
+            SetPathFigures(GetPathFigures(Locations, true));
         }
     }
 }

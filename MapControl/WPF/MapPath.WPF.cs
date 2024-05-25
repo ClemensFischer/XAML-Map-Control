@@ -84,6 +84,11 @@ namespace MapControl
             return true;
         }
 
+        protected void SetPathFigures(PathFigureCollection pathFigures)
+        {
+            ((PathGeometry)Data).Figures = pathFigures;
+        }
+
         protected void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             if (locations.Count() >= 2)
