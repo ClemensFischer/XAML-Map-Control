@@ -51,6 +51,8 @@ namespace MapControl
             {
                 Data.Transform = new MatrixTransform(matrix);
             }
+
+            InvalidateVisual();
         }
 
         #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
