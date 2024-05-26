@@ -5,12 +5,11 @@
 using Avalonia.Collections;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Shapes;
-using Avalonia.Data;
 using Avalonia.Media;
 
 namespace MapControl
 {
-    public partial class MapOverlay
+    public class MapOverlay : MapPanel
     {
         public static readonly StyledProperty<FontFamily> FontFamilyProperty =
             DependencyPropertyHelper.AddOwner<MapOverlay, FontFamily>(TextElement.FontFamilyProperty);
@@ -51,14 +50,82 @@ namespace MapControl
         public static readonly StyledProperty<double> StrokeMiterLimitProperty =
             DependencyPropertyHelper.Register<MapOverlay, double>(nameof(StrokeMiterLimit));
 
-        protected override void OnInitialized()
+        public FontFamily FontFamily
         {
-            base.OnInitialized();
+            get => GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
 
-            if (Stroke == null)
-            {
-                this.SetBinding(StrokeProperty, this.CreateBinding(nameof(Foreground)));
-            }
+        public double FontSize
+        {
+            get => GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
+        }
+
+        public FontStyle FontStyle
+        {
+            get => GetValue(FontStyleProperty);
+            set => SetValue(FontStyleProperty, value);
+        }
+
+        public FontStretch FontStretch
+        {
+            get => GetValue(FontStretchProperty);
+            set => SetValue(FontStretchProperty, value);
+        }
+
+        public FontWeight FontWeight
+        {
+            get => GetValue(FontWeightProperty);
+            set => SetValue(FontWeightProperty, value);
+        }
+
+        public IBrush Foreground
+        {
+            get => GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
+        }
+
+        public IBrush Stroke
+        {
+            get => GetValue(StrokeProperty);
+            set => SetValue(StrokeProperty, value);
+        }
+
+        public double StrokeThickness
+        {
+            get => GetValue(StrokeThicknessProperty);
+            set => SetValue(StrokeThicknessProperty, value);
+        }
+
+        public AvaloniaList<double> StrokeDashArray
+        {
+            get => GetValue(StrokeDashArrayProperty);
+            set => SetValue(StrokeDashArrayProperty, value);
+        }
+
+        public double StrokeDashOffset
+        {
+            get => GetValue(StrokeDashOffsetProperty);
+            set => SetValue(StrokeDashOffsetProperty, value);
+        }
+
+        public PenLineCap StrokeLineCap
+        {
+            get => GetValue(StrokeLineCapProperty);
+            set => SetValue(StrokeLineCapProperty, value);
+        }
+
+        public PenLineJoin StrokeLineJoin
+        {
+            get => GetValue(StrokeLineJoinProperty);
+            set => SetValue(StrokeLineJoinProperty, value);
+        }
+
+        public double StrokeMiterLimit
+        {
+            get => (double)GetValue(StrokeMiterLimitProperty);
+            set => SetValue(StrokeMiterLimitProperty, value);
         }
 
         public Pen CreatePen()
@@ -72,6 +139,16 @@ namespace MapControl
                 LineCap = StrokeLineCap,
                 DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset)
             };
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            if (Stroke == null)
+            {
+                this.SetBinding(StrokeProperty, this.CreateBinding(nameof(Foreground)));
+            }
         }
     }
 }

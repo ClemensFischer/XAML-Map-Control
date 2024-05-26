@@ -119,9 +119,6 @@
     <Compile Include="..\Shared\MapItemsControl.cs">
       <Link>MapItemsControl.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MapOverlay.cs">
-      <Link>MapOverlay.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\MapPanel.cs">
       <Link>MapPanel.cs</Link>
     </Compile>

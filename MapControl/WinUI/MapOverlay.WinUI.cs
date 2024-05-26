@@ -5,18 +5,16 @@
 using Windows.UI.Text;
 #if UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 #else
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 #endif
 
 namespace MapControl
 {
-    public partial class MapOverlay
+    public class MapOverlay : MapPanel
     {
         public static readonly DependencyProperty FontFamilyProperty =
             DependencyPropertyHelper.Register<MapOverlay, FontFamily>(nameof(FontFamily));
@@ -56,6 +54,84 @@ namespace MapControl
 
         public static readonly DependencyProperty StrokeMiterLimitProperty =
             DependencyPropertyHelper.Register<MapOverlay, double>(nameof(StrokeMiterLimit), 1d);
+
+        public FontFamily FontFamily
+        {
+            get => (FontFamily)GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
+
+        public double FontSize
+        {
+            get => (double)GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
+        }
+
+        public FontStyle FontStyle
+        {
+            get => (FontStyle)GetValue(FontStyleProperty);
+            set => SetValue(FontStyleProperty, value);
+        }
+
+        public FontStretch FontStretch
+        {
+            get => (FontStretch)GetValue(FontStretchProperty);
+            set => SetValue(FontStretchProperty, value);
+        }
+
+        public FontWeight FontWeight
+        {
+            get => (FontWeight)GetValue(FontWeightProperty);
+            set => SetValue(FontWeightProperty, value);
+        }
+
+        public Brush Foreground
+        {
+            get => (Brush)GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
+        }
+
+        public Brush Stroke
+        {
+            get => (Brush)GetValue(StrokeProperty);
+            set => SetValue(StrokeProperty, value);
+        }
+
+        public double StrokeThickness
+        {
+            get => (double)GetValue(StrokeThicknessProperty);
+            set => SetValue(StrokeThicknessProperty, value);
+        }
+
+        public DoubleCollection StrokeDashArray
+        {
+            get => (DoubleCollection)GetValue(StrokeDashArrayProperty);
+            set => SetValue(StrokeDashArrayProperty, value);
+        }
+
+        public double StrokeDashOffset
+        {
+            get => (double)GetValue(StrokeDashOffsetProperty);
+            set => SetValue(StrokeDashOffsetProperty, value);
+        }
+
+        public PenLineCap StrokeLineCap
+        {
+            get => (PenLineCap)GetValue(StrokeLineCapProperty);
+            set => SetValue(StrokeLineCapProperty, value);
+        }
+
+        public PenLineJoin StrokeLineJoin
+        {
+            get => (PenLineJoin)GetValue(StrokeLineJoinProperty);
+            set => SetValue(StrokeLineJoinProperty, value);
+        }
+
+        public double StrokeMiterLimit
+        {
+            get => (double)GetValue(StrokeMiterLimitProperty);
+            set => SetValue(StrokeMiterLimitProperty, value);
+        }
 
         protected override void SetParentMap(MapBase map)
         {

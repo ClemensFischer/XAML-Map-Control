@@ -80,13 +80,6 @@ namespace MapControl
 
                 if (closed)
                 {
-                    var segment = new PolyLineSegment();
-
-                    foreach (var point in points.Skip(1))
-                    {
-                        segment.Points.Add(point);
-                    }
-
                     var figure = new PathFigure
                     {
                         StartPoint = points.First(),
@@ -94,7 +87,14 @@ namespace MapControl
                         IsFilled = true
                     };
 
-                    figure.Segments.Add(segment);
+                    var polyline = new PolyLineSegment();
+
+                    foreach (var point in points.Skip(1))
+                    {
+                        polyline.Points.Add(point);
+                    }
+
+                    figure.Segments.Add(polyline);
                     pathFigures.Add(figure);
                 }
                 else
@@ -108,7 +108,7 @@ namespace MapControl
 
                     var viewport = new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height);
                     PathFigure figure = null;
-                    PolyLineSegment segment = null;
+                    PolyLineSegment polyline = null;
 
                     for (int i = 1; i < pointList.Count; i++)
                     {
@@ -127,12 +127,12 @@ namespace MapControl
                                     IsFilled = true
                                 };
 
-                                segment = new PolyLineSegment();
-                                figure.Segments.Add(segment);
+                                polyline = new PolyLineSegment();
+                                figure.Segments.Add(polyline);
                                 pathFigures.Add(figure);
                             }
 
-                            segment.Points.Add(p2);
+                            polyline.Points.Add(p2);
                         }
 
                         if (!inside || p2 != pointList[i])

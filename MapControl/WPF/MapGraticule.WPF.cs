@@ -17,8 +17,6 @@ namespace MapControl
             StrokeThicknessProperty.OverrideMetadata(typeof(MapGraticule), new FrameworkPropertyMetadata(0.5));
         }
 
-        private readonly PathGeometry pathGeometry = new PathGeometry();
-
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
             InvalidateVisual();

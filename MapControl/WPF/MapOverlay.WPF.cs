@@ -4,14 +4,13 @@
 
 using System;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace MapControl
 {
-    public partial class MapOverlay
+    public class MapOverlay : MapPanel
     {
         public static readonly DependencyProperty FontFamilyProperty =
             DependencyPropertyHelper.AddOwner<MapOverlay, FontFamily>(TextElement.FontFamilyProperty);
@@ -52,14 +51,82 @@ namespace MapControl
         public static readonly DependencyProperty StrokeMiterLimitProperty =
             DependencyPropertyHelper.AddOwner<MapOverlay, double>(Shape.StrokeMiterLimitProperty);
 
-        protected override void OnInitialized(EventArgs e)
+        public FontFamily FontFamily
         {
-            base.OnInitialized(e);
+            get => (FontFamily)GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
 
-            if (Stroke == null)
-            {
-                SetBinding(StrokeProperty, this.CreateBinding(nameof(Foreground)));
-            }
+        public double FontSize
+        {
+            get => (double)GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
+        }
+
+        public FontStyle FontStyle
+        {
+            get => (FontStyle)GetValue(FontStyleProperty);
+            set => SetValue(FontStyleProperty, value);
+        }
+
+        public FontStretch FontStretch
+        {
+            get => (FontStretch)GetValue(FontStretchProperty);
+            set => SetValue(FontStretchProperty, value);
+        }
+
+        public FontWeight FontWeight
+        {
+            get => (FontWeight)GetValue(FontWeightProperty);
+            set => SetValue(FontWeightProperty, value);
+        }
+
+        public Brush Foreground
+        {
+            get => (Brush)GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
+        }
+
+        public Brush Stroke
+        {
+            get => (Brush)GetValue(StrokeProperty);
+            set => SetValue(StrokeProperty, value);
+        }
+
+        public double StrokeThickness
+        {
+            get => (double)GetValue(StrokeThicknessProperty);
+            set => SetValue(StrokeThicknessProperty, value);
+        }
+
+        public DoubleCollection StrokeDashArray
+        {
+            get => (DoubleCollection)GetValue(StrokeDashArrayProperty);
+            set => SetValue(StrokeDashArrayProperty, value);
+        }
+
+        public double StrokeDashOffset
+        {
+            get => (double)GetValue(StrokeDashOffsetProperty);
+            set => SetValue(StrokeDashOffsetProperty, value);
+        }
+
+        public PenLineCap StrokeLineCap
+        {
+            get => (PenLineCap)GetValue(StrokeLineCapProperty);
+            set => SetValue(StrokeLineCapProperty, value);
+        }
+
+        public PenLineJoin StrokeLineJoin
+        {
+            get => (PenLineJoin)GetValue(StrokeLineJoinProperty);
+            set => SetValue(StrokeLineJoinProperty, value);
+        }
+
+        public double StrokeMiterLimit
+        {
+            get => (double)GetValue(StrokeMiterLimitProperty);
+            set => SetValue(StrokeMiterLimitProperty, value);
         }
 
         public Pen CreatePen()
@@ -75,6 +142,16 @@ namespace MapControl
                 DashCap = StrokeLineCap,
                 DashStyle = new DashStyle(StrokeDashArray, StrokeDashOffset)
             };
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            if (Stroke == null)
+            {
+                SetBinding(StrokeProperty, this.CreateBinding(nameof(Foreground)));
+            }
         }
     }
 }
