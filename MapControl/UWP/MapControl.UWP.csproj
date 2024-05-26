@@ -260,6 +260,9 @@
     <Compile Include="..\WinUI\MapPath.WinUI.cs">
       <Link>MapPath.WinUI.cs</Link>
     </Compile>
+    <Compile Include="..\WinUI\MapPolypoint.WinUI.cs">
+      <Link>MapPolypoint.WinUI.cs</Link>
+    </Compile>
     <Compile Include="..\WinUI\Matrix.WinUI.cs">
       <Link>Matrix.WinUI.cs</Link>
     </Compile>

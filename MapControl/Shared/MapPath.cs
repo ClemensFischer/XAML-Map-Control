@@ -2,8 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System.Collections.Generic;
-using System.Linq;
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -84,8 +82,6 @@ namespace MapControl
             MapPanel.SetLocation(this, Location);
         }
 
-        #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
-
         protected Point? LocationToMap(Location location, double longitudeOffset)
         {
             if (longitudeOffset != 0d)
@@ -140,34 +136,5 @@ namespace MapControl
 
             return longitudeOffset;
         }
-
-        protected PathFigureCollection GetPathFigures(IEnumerable<Location> locations, bool closed)
-        {
-            var pathFigures = new PathFigureCollection();
-
-            if (parentMap != null && locations != null)
-            {
-                var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
-
-                AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
-            }
-
-            return pathFigures;
-        }
-
-        protected void AddMultiPolygonPoints(PathFigureCollection pathFigures, IEnumerable<IEnumerable<Location>> polygons)
-        {
-            if (parentMap != null && polygons != null)
-            {
-                var longitudeOffset = GetLongitudeOffset(Location);
-
-                foreach (var polygon in polygons)
-                {
-                    AddPolylinePoints(pathFigures, polygon, longitudeOffset, true);
-                }
-            }
-        }
-
-        #endregion
     }
 }

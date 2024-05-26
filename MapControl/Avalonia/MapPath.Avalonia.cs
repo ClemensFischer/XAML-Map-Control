@@ -4,10 +4,6 @@
 
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
 
 namespace MapControl
 {
@@ -43,57 +39,5 @@ namespace MapControl
 
             InvalidateVisual();
         }
-
-        #region Methods used only by derived classes MapPolyline, MapPolygon and MapMultiPolygon
-
-        protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
-        {
-            if (oldValue is INotifyCollectionChanged oldCollection)
-            {
-                oldCollection.CollectionChanged -= DataCollectionChanged;
-            }
-
-            if (newValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += DataCollectionChanged;
-            }
-
-            UpdateData();
-        }
-
-        protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            UpdateData();
-        }
-
-        protected void SetPathFigures(PathFigures pathFigures)
-        {
-            ((PathGeometry)Data).Figures = pathFigures;
-
-            InvalidateGeometry();
-        }
-
-        protected void AddPolylinePoints(PathFigures pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
-        {
-            if (locations.Count() >= 2)
-            {
-                var points = locations
-                    .Select(location => LocationToView(location, longitudeOffset))
-                    .Where(point => point.HasValue)
-                    .Select(point => point.Value);
-
-                var figure = new PathFigure
-                {
-                    StartPoint = points.First(),
-                    IsClosed = closed,
-                    IsFilled = true
-                };
-
-                figure.Segments.Add(new PolyLineSegment(points.Skip(1)));
-                pathFigures.Add(figure);
-            }
-        }
-
-        #endregion
     }
 }
