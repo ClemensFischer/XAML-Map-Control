@@ -21,6 +21,7 @@ namespace MapControl
         public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, sender, sender));
+
             return true;
         }
 

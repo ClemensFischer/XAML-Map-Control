@@ -19,7 +19,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty FillRuleProperty =
             DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,
-                (polypoint, oldValue, newValue) => ((PathGeometry)polypoint.Data).FillRule = newValue);
+                (polypoint, oldValue, newValue) => ((StreamGeometry)polypoint.Data).FillRule = newValue);
 
         public FillRule FillRule
         {
@@ -29,7 +29,7 @@ namespace MapControl
 
         protected MapPolypoint()
         {
-            Data = new PathGeometry();
+            Data = new StreamGeometry();
         }
 
         protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
@@ -45,46 +45,47 @@ namespace MapControl
             }
 
             UpdateData();
+            InvalidateVisual(); // necessary for StreamGeometry
         }
 
         bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             UpdateData();
+            InvalidateVisual(); // necessary for StreamGeometry
+
             return true;
         }
 
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
-            var pathFigures = new PathFigureCollection();
-
-            if (ParentMap != null && locations != null)
+            using (var context = ((StreamGeometry)Data).Open())
             {
-                var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
+                if (ParentMap != null && locations != null)
+                {
+                    var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
 
-                AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
+                    AddPolylinePoints(context, locations, longitudeOffset, closed);
+                }
             }
-
-            ((PathGeometry)Data).Figures = pathFigures;
         }
 
         protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
         {
-            var pathFigures = new PathFigureCollection();
-
-            if (ParentMap != null && polygons != null)
+            using (var context = ((StreamGeometry)Data).Open())
             {
-                var longitudeOffset = GetLongitudeOffset(Location);
-
-                foreach (var polygon in polygons)
+                if (ParentMap != null && polygons != null)
                 {
-                    AddPolylinePoints(pathFigures, polygon, longitudeOffset, true);
+                    var longitudeOffset = GetLongitudeOffset(Location);
+
+                    foreach (var polygon in polygons)
+                    {
+                        AddPolylinePoints(context, polygon, longitudeOffset, true);
+                    }
                 }
             }
-
-            ((PathGeometry)Data).Figures = pathFigures;
         }
 
-        protected void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        private void AddPolylinePoints(StreamGeometryContext context, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             if (locations.Count() >= 2)
             {
@@ -93,15 +94,8 @@ namespace MapControl
                     .Where(point => point.HasValue)
                     .Select(point => point.Value);
 
-                var figure = new PathFigure
-                {
-                    StartPoint = points.First(),
-                    IsClosed = closed,
-                    IsFilled = true
-                };
-
-                figure.Segments.Add(new PolyLineSegment(points.Skip(1), true));
-                pathFigures.Add(figure);
+                context.BeginFigure(points.First(), true, closed);
+                context.PolyLineTo(points.Skip(1).ToList(), true, true);
             }
         }
     }

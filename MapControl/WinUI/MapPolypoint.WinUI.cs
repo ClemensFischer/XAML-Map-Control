@@ -58,7 +58,8 @@ namespace MapControl
 
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
-            var pathFigures = new PathFigureCollection();
+            var pathFigures = ((PathGeometry)Data).Figures;
+            pathFigures.Clear();
 
             if (ParentMap != null && locations != null)
             {
@@ -66,11 +67,9 @@ namespace MapControl
 
                 AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
             }
-
-            ((PathGeometry)Data).Figures = pathFigures;
         }
 
-        protected void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        private void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             if (locations.Count() >= 2)
             {

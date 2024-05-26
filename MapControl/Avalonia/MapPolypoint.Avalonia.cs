@@ -66,7 +66,7 @@ namespace MapControl
             InvalidateGeometry();
         }
 
-        protected void AddPolylinePoints(PathFigures pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        private void AddPolylinePoints(PathFigures pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             if (locations.Count() >= 2)
             {
