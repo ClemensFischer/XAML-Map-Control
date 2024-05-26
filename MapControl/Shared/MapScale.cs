@@ -7,11 +7,13 @@ using System.Globalization;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
@@ -19,12 +21,13 @@ using Windows.UI.Xaml.Shapes;
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 #elif AVALONIA
+using Avalonia.Data;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia.Media;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
 using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
@@ -75,11 +78,22 @@ namespace MapControl
         {
             base.SetParentMap(map);
 
-            line.SetBinding(Shape.StrokeProperty, map.CreateBinding(nameof(Map.Foreground)));
-            line.SetBinding(Shape.StrokeThicknessProperty, this.CreateBinding(nameof(StrokeThickness)));
+#if AVALONIA
+            line.Bind(Shape.StrokeProperty,
+                new Binding { Source = map, Path = nameof(MapBase.Foreground) });
 
+            line.Bind(Shape.StrokeThicknessProperty,
+                new Binding { Source = this, Path = nameof(StrokeThickness) });
+#else
+            line.SetBinding(Shape.StrokeProperty,
+                new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
+
+            line.SetBinding(Shape.StrokeThicknessProperty,
+                new Binding { Source = this, Path = new PropertyPath(nameof(StrokeThickness)) });
+#endif
 #if UWP || WINUI
-            label.SetBinding(TextBlock.ForegroundProperty, map.CreateBinding(nameof(Map.Foreground)));
+            label.SetBinding(TextBlock.ForegroundProperty,
+                new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
 #endif
         }
 

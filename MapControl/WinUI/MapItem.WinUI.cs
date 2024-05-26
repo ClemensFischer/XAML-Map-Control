@@ -6,10 +6,12 @@ using Windows.System;
 #if UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 #else
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 #endif
 
@@ -53,15 +55,18 @@ namespace MapControl
                 //
                 if (Background == null)
                 {
-                    SetBinding(BackgroundProperty, parentMap.CreateBinding(nameof(Background)));
+                    SetBinding(BackgroundProperty,
+                        new Binding { Source = parentMap, Path = new PropertyPath(nameof(Background)) });
                 }
                 if (Foreground == null)
                 {
-                    SetBinding(ForegroundProperty, parentMap.CreateBinding(nameof(Foreground)));
+                    SetBinding(ForegroundProperty,
+                        new Binding { Source = parentMap, Path = new PropertyPath(nameof(Foreground)) });
                 }
                 if (BorderBrush == null)
                 {
-                    SetBinding(BorderBrushProperty, parentMap.CreateBinding(nameof(Foreground)));
+                    SetBinding(BorderBrushProperty,
+                        new Binding { Source = parentMap, Path = new PropertyPath(nameof(Foreground)) });
                 }
             }
         }

@@ -8,11 +8,13 @@ using System.Linq;
 #if UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 #else
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 #endif
@@ -63,7 +65,8 @@ namespace MapControl
         {
             if (map != null && Foreground == null)
             {
-                SetBinding(ForegroundProperty, map.CreateBinding(nameof(Foreground)));
+                SetBinding(ForegroundProperty,
+                    new Binding { Source = map, Path = new PropertyPath(nameof(Foreground)) });
             }
 
             base.SetParentMap(map);
@@ -75,8 +78,11 @@ namespace MapControl
 
             if (Children.Count == 0)
             {
-                path.SetBinding(Shape.StrokeProperty, this.CreateBinding(nameof(Foreground)));
-                path.SetBinding(Shape.StrokeThicknessProperty, this.CreateBinding(nameof(StrokeThickness)));
+                path.SetBinding(Shape.StrokeProperty,
+                    new Binding { Source = this, Path = new PropertyPath(nameof(Foreground)) });
+
+                path.SetBinding(Shape.StrokeThicknessProperty,
+                    new Binding { Source = this, Path = new PropertyPath(nameof(StrokeThickness)) });
 
                 Children.Add(path);
             }
@@ -94,12 +100,17 @@ namespace MapControl
                 else
                 {
                     textBlock = new TextBlock { RenderTransform = new MatrixTransform() };
-                    textBlock.SetBinding(TextBlock.FontSizeProperty, this.CreateBinding(nameof(FontSize)));
-                    textBlock.SetBinding(TextBlock.ForegroundProperty, this.CreateBinding(nameof(Foreground)));
+
+                    textBlock.SetBinding(TextBlock.FontSizeProperty,
+                        new Binding { Source = this, Path = new PropertyPath(nameof(FontSize)) });
+
+                    textBlock.SetBinding(TextBlock.ForegroundProperty,
+                        new Binding { Source = this, Path = new PropertyPath(nameof(Foreground)) });
 
                     if (FontFamily != null)
                     {
-                        textBlock.SetBinding(TextBlock.FontFamilyProperty, this.CreateBinding(nameof(FontFamily)));
+                        textBlock.SetBinding(TextBlock.FontFamilyProperty,
+                            new Binding { Source = this, Path = new PropertyPath(nameof(FontFamily)) });
                     }
 
                     Children.Add(textBlock);
