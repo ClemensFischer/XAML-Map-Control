@@ -102,6 +102,9 @@
                         Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerItem>
                 <tools:MapLayersMenuButton.MapOverlays>
+                    <tools:MapLayerItem Text="Graticule">
+                        <map:MapGraticule Opacity="0.7" FontSize="10"/>
+                    </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Scale">
                         <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                     </tools:MapLayerItem>

@@ -24,7 +24,7 @@ namespace MapControl
             if (coerce != null)
             {
                 // do not coerce default value
-                coerceFunc = (obj, value) => value.Equals(defaultValue) ? value : coerce((TOwner)obj, value);
+                coerceFunc = (obj, value) => Equals(value, defaultValue) ? value : coerce((TOwner)obj, value);
             }
 
             var bindingMode = bindTwoWayByDefault ? Avalonia.Data.BindingMode.TwoWay : Avalonia.Data.BindingMode.OneWay;
@@ -57,10 +57,16 @@ namespace MapControl
 
         public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
             StyledProperty<TValue> property,
+            TValue defaultValue = default,
             Action<TOwner, TValue, TValue> changed = null)
             where TOwner : AvaloniaObject
         {
             var newProperty = property.AddOwner<TOwner>();
+
+            if (!Equals(defaultValue, newProperty.GetMetadata(typeof(TOwner)).DefaultValue))
+            {
+                newProperty.OverrideMetadata<TOwner>(new StyledPropertyMetadata<TValue>(defaultValue));
+            }
 
             if (changed != null)
             {

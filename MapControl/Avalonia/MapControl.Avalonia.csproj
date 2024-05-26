@@ -25,7 +25,6 @@
         <Compile Include="..\Shared\*.cs" />
         <Compile Remove="..\Shared\BindingHelper.cs" />
         <Compile Remove="..\Shared\GeoImage.cs" />
-        <Compile Remove="..\Shared\MapGraticule.cs" />
         <Compile Remove="..\Shared\MapItem.cs" />
         <Compile Remove="..\Shared\MapItemsControl.cs" />
         <Compile Remove="..\Shared\ViewTransform.cs" />

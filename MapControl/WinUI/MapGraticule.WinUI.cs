@@ -6,10 +6,12 @@ using Windows.Foundation;
 using System.Collections.Generic;
 using System.Linq;
 #if UWP
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 #else
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
@@ -17,13 +19,54 @@ using Microsoft.UI.Xaml.Shapes;
 
 namespace MapControl
 {
-    public partial class MapGraticule
+    public partial class MapGraticule : MapPanel
     {
+        public static readonly DependencyProperty ForegroundProperty =
+            DependencyPropertyHelper.Register<MapGraticule, Brush>(nameof(Foreground));
+
+        public static readonly DependencyProperty FontFamilyProperty =
+            DependencyPropertyHelper.Register<MapGraticule, FontFamily>(nameof(FontFamily));
+
+        public static readonly DependencyProperty FontSizeProperty =
+            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(FontSize), 12d);
+
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
+
         private readonly Path path = new Path { Data = new PathGeometry() };
 
-        public MapGraticule()
+        public Brush Foreground
         {
-            StrokeThickness = 0.5;
+            get => (Brush)GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
+        }
+
+        public FontFamily FontFamily
+        {
+            get => (FontFamily)GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
+
+        public double FontSize
+        {
+            get => (double)GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
+        }
+
+        public double StrokeThickness
+        {
+            get => (double)GetValue(StrokeThicknessProperty);
+            set => SetValue(StrokeThicknessProperty, value);
+        }
+
+        protected override void SetParentMap(MapBase map)
+        {
+            if (map != null && Foreground == null)
+            {
+                SetBinding(ForegroundProperty, map.CreateBinding(nameof(Foreground)));
+            }
+
+            base.SetParentMap(map);
         }
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
@@ -32,13 +75,8 @@ namespace MapControl
 
             if (Children.Count == 0)
             {
-                path.SetBinding(Shape.StrokeProperty, this.CreateBinding(nameof(Stroke)));
+                path.SetBinding(Shape.StrokeProperty, this.CreateBinding(nameof(Foreground)));
                 path.SetBinding(Shape.StrokeThicknessProperty, this.CreateBinding(nameof(StrokeThickness)));
-                path.SetBinding(Shape.StrokeStartLineCapProperty, this.CreateBinding(nameof(StrokeLineCap)));
-                path.SetBinding(Shape.StrokeEndLineCapProperty, this.CreateBinding(nameof(StrokeLineCap)));
-                path.SetBinding(Shape.StrokeDashCapProperty, this.CreateBinding(nameof(StrokeLineCap)));
-                path.SetBinding(Shape.StrokeDashArrayProperty, this.CreateBinding(nameof(StrokeDashArray)));
-                path.SetBinding(Shape.StrokeDashOffsetProperty, this.CreateBinding(nameof(StrokeDashOffset)));
 
                 Children.Add(path);
             }
@@ -57,9 +95,6 @@ namespace MapControl
                 {
                     textBlock = new TextBlock { RenderTransform = new MatrixTransform() };
                     textBlock.SetBinding(TextBlock.FontSizeProperty, this.CreateBinding(nameof(FontSize)));
-                    textBlock.SetBinding(TextBlock.FontStyleProperty, this.CreateBinding(nameof(FontStyle)));
-                    textBlock.SetBinding(TextBlock.FontStretchProperty, this.CreateBinding(nameof(FontStretch)));
-                    textBlock.SetBinding(TextBlock.FontWeightProperty, this.CreateBinding(nameof(FontWeight)));
                     textBlock.SetBinding(TextBlock.ForegroundProperty, this.CreateBinding(nameof(Foreground)));
 
                     if (FontFamily != null)

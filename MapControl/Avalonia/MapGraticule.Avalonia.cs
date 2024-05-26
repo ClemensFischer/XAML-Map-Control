@@ -2,23 +2,52 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace MapControl
 {
     public partial class MapGraticule : Control, IMapElement
     {
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
+        public static readonly StyledProperty<IBrush> ForegroundProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, IBrush>(TextElement.ForegroundProperty, null,
+                (graticule, oldValue, newValue) => graticule.InvalidateVisual());
+
+        public static readonly StyledProperty<FontFamily> FontFamilyProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, FontFamily>(TextElement.FontFamilyProperty);
+
+        public static readonly StyledProperty<double> FontSizeProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, double>(TextElement.FontSizeProperty);
+
+        public static readonly StyledProperty<double> StrokeThicknessProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, double>(Shape.StrokeThicknessProperty, 0.5);
+
+        public IBrush Foreground
+        {
+            get => GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
+        }
+
+        public FontFamily FontFamily
+        {
+            get => GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
+
+        public double FontSize
+        {
+            get => GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
+        }
 
         public double StrokeThickness
         {
-            get => (double)GetValue(StrokeThicknessProperty);
+            get => GetValue(StrokeThicknessProperty);
             set => SetValue(StrokeThicknessProperty, value);
         }
 
@@ -51,7 +80,7 @@ namespace MapControl
             InvalidateVisual();
         }
 
-        protected override void OnRender(DrawingContext drawingContext)
+        public override void Render(DrawingContext drawingContext)
         {
             if (parentMap != null)
             {
@@ -69,25 +98,26 @@ namespace MapControl
 
                 if (labels.Count > 0)
                 {
-                    var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
-                    var pixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+                    var typeface = new Typeface(FontFamily, FontStyle.Normal, FontWeight.Normal, FontStretch.Normal);
 
                     foreach (var label in labels)
                     {
                         var latText = new FormattedText(label.LatitudeText,
-                            CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip);
+                            CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
 
                         var lonText = new FormattedText(label.LongitudeText,
-                            CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip);
+                            CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
 
-                        var x = label.X + StrokeThickness / 2d + 2d;
-                        var y1 = label.Y - StrokeThickness / 2d - latText.Height;
-                        var y2 = label.Y + StrokeThickness / 2d;
+                        var x = StrokeThickness / 2d + 2d;
+                        var y1 = -StrokeThickness / 2d - latText.Height;
+                        var y2 = StrokeThickness / 2d;
 
-                        drawingContext.PushTransform(new RotateTransform(label.Rotation, label.X, label.Y));
+                        using var pushState = drawingContext.PushTransform(
+                            Matrix.CreateRotation(Matrix.ToRadians(label.Rotation)) *
+                            Matrix.CreateTranslation(label.X, label.Y));
+
                         drawingContext.DrawText(latText, new Point(x, y1));
                         drawingContext.DrawText(lonText, new Point(x, y2));
-                        drawingContext.Pop();
                     }
                 }
             }
@@ -101,7 +131,7 @@ namespace MapControl
                 IsFilled = false
             };
 
-            figure.Segments.Add(new PolyLineSegment(points.Skip(1), true));
+            figure.Segments.Add(new PolyLineSegment(points.Skip(1)));
             return figure;
         }
     }

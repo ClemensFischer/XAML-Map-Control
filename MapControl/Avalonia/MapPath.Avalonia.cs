@@ -15,7 +15,7 @@ namespace MapControl
         }
 
         public static readonly StyledProperty<Geometry> DataProperty =
-            DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty,
+            DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty, null,
                 (path, oldValue, newValue) => path.UpdateData());
 
         public Geometry Data

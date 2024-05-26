@@ -248,9 +248,6 @@
     <Compile Include="..\WinUI\MapItemsControl.WinUI.cs">
       <Link>MapItemsControl.WinUI.cs</Link>
     </Compile>
-    <Compile Include="..\WinUI\MapOverlay.WinUI.cs">
-      <Link>MapOverlay.WinUI.cs</Link>
-    </Compile>
     <Compile Include="..\WinUI\MapPanel.WinUI.cs">
       <Link>MapPanel.WinUI.cs</Link>
     </Compile>

@@ -15,6 +15,10 @@ using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using Avalonia.Media;
+using DependencyProperty = Avalonia.AvaloniaProperty;
+using PathFigureCollection = Avalonia.Media.PathFigures;
 #endif
 
 namespace MapControl
@@ -22,7 +26,7 @@ namespace MapControl
     /// <summary>
     /// Draws a graticule overlay.
     /// </summary>
-    public partial class MapGraticule : MapOverlay
+    public partial class MapGraticule
     {
         private class Label
         {
