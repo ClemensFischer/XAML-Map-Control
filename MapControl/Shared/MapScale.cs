@@ -7,25 +7,21 @@ using System.Globalization;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 #elif WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 #elif AVALONIA
-using Avalonia.Data;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
@@ -40,18 +36,32 @@ namespace MapControl
     /// <summary>
     /// Draws a map scale overlay.
     /// </summary>
-    public class MapScale : MapOverlay
+    public class MapScale : MapPanel
     {
         public static readonly DependencyProperty PaddingProperty =
             DependencyPropertyHelper.Register<MapScale, Thickness>(nameof(Padding), new Thickness(4));
+
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            DependencyPropertyHelper.Register<MapScale, double>(nameof(StrokeThickness), 1d);
+
+        public Thickness Padding
+        {
+            get => (Thickness)GetValue(PaddingProperty);
+            set => SetValue(PaddingProperty, value);
+        }
+
+        public double StrokeThickness
+        {
+            get => (double)GetValue(StrokeThicknessProperty);
+            set => SetValue(StrokeThicknessProperty, value);
+        }
 
         private readonly Polyline line = new Polyline();
 
         private readonly TextBlock label = new TextBlock
         {
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            TextAlignment = TextAlignment.Center
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
         };
 
         public MapScale()
@@ -65,17 +75,12 @@ namespace MapControl
         {
             base.SetParentMap(map);
 
-            line.SetBinding(Shape.StrokeProperty, this.CreateBinding(nameof(Stroke)));
+            line.SetBinding(Shape.StrokeProperty, map.CreateBinding(nameof(Map.Foreground)));
             line.SetBinding(Shape.StrokeThicknessProperty, this.CreateBinding(nameof(StrokeThickness)));
-#if UWP || WINUI
-            label.SetBinding(TextBlock.ForegroundProperty, this.CreateBinding(nameof(Foreground)));
-#endif
-        }
 
-        public Thickness Padding
-        {
-            get => (Thickness)GetValue(PaddingProperty);
-            set => SetValue(PaddingProperty, value);
+#if UWP || WINUI
+            label.SetBinding(TextBlock.ForegroundProperty, map.CreateBinding(nameof(Map.Foreground)));
+#endif
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -96,7 +101,7 @@ namespace MapControl
 
             var size = new Size(
                 length * scale + StrokeThickness + Padding.Left + Padding.Right,
-                1.25 * FontSize + StrokeThickness + Padding.Top + Padding.Bottom);
+                1.5 * label.FontSize + 2 * StrokeThickness + Padding.Top + Padding.Bottom);
 
             var x1 = Padding.Left + StrokeThickness / 2d;
             var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
@@ -104,19 +109,18 @@ namespace MapControl
             var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
 
             line.Points = new PointCollection
-                {
-                    new Point(x1, y1),
-                    new Point(x1, y2),
-                    new Point(x2, y2),
-                    new Point(x2, y1)
-                };
-            line.Measure(size);
+            {
+                new Point(x1, y1),
+                new Point(x1, y2),
+                new Point(x2, y2),
+                new Point(x2, y1)
+            };
 
             label.Text = length >= 1000d
                 ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
                 : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
-            label.Width = size.Width;
-            label.Height = size.Height;
+
+            line.Measure(size);
             label.Measure(size);
 
             return size;
