@@ -2,10 +2,8 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Templates;
 
 namespace MapControl
 {
@@ -13,17 +11,12 @@ namespace MapControl
     {
         static MapItemsControl()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItemsControl), new FrameworkPropertyMetadata(typeof(MapItemsControl)));
-        }
+            TemplateProperty.OverrideDefaultValue<MapItemsControl>(
+                new FuncControlTemplate<MapItemsControl>(
+                    (itemsControl, namescope) => new ItemsPresenter { ItemsPanel = itemsControl.ItemsPanel }));
 
-        public MapItem ContainerFromItem(object item)
-        {
-            return (MapItem)ItemContainerGenerator.ContainerFromItem(item);
-        }
-
-        public object ItemFromContainer(MapItem container)
-        {
-            return ItemContainerGenerator.ItemFromContainer(container);
+            ItemsPanelProperty.OverrideDefaultValue<MapItemsControl>(
+                new FuncTemplate<Panel>(() => new MapPanel()));
         }
 
         public void SelectItemsInGeometry(Geometry geometry)
@@ -31,19 +24,21 @@ namespace MapControl
             SelectItemsByPosition(p => geometry.FillContains(p));
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item)
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
-            return item is MapItem;
+            recycleKey = null;
+
+            return item is not MapItem;
         }
 
-        protected override DependencyObject GetContainerForItemOverride()
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
             return new MapItem();
         }
 
-        protected override void PrepareContainerForItemOverride(DependencyObject container, object item)
+        protected override void PrepareContainerForItemOverride(Control container, object item, int index)
         {
-            base.PrepareContainerForItemOverride(container, item);
+            base.PrepareContainerForItemOverride(container, item, index);
 
             if (LocationMemberPath != null && container is MapItem mapItem)
             {
@@ -56,9 +51,9 @@ namespace MapControl
             }
         }
 
-        protected override void ClearContainerForItemOverride(DependencyObject container, object item)
+        protected override void ClearContainerForItemOverride(Control container)
         {
-            base.ClearContainerForItemOverride(container, item);
+            base.ClearContainerForItemOverride(container);
 
             if (LocationMemberPath != null && container is MapItem mapItem)
             {

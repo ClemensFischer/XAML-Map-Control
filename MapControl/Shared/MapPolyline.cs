@@ -25,7 +25,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets the Locations that define the polyline points.
         /// </summary>
-#if WPF || AVALONIA
+#if WPF
         [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
         public IEnumerable<Location> Locations

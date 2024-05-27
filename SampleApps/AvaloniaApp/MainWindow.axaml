@@ -12,25 +12,23 @@
                  Center="53.5,8.2"
                  DoubleTapped="OnMapDoubleTapped">
 
-            <ItemsControl ItemsSource="{Binding Pushpins}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <map:MapPanel/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.Styles>
-                    <Style Selector="ContentPresenter">
+            <map:MapItemsControl ItemsSource="{Binding Pushpins}" Background="{x:Null}">
+                <map:MapItemsControl.Styles>
+                    <Style Selector="map|MapItem">
+                        <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
                         <Setter Property="HorizontalAlignment" Value="Center"/>
                         <Setter Property="VerticalAlignment" Value="Bottom"/>
-                        <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+                        <Setter Property="Template">
+                            <ControlTemplate>
+                                <map:Pushpin Content="{Binding Name}"/>
+                            </ControlTemplate>
+                        </Setter>
                     </Style>
-                </ItemsControl.Styles>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <map:Pushpin Content="{Binding Name}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                    <Style Selector="map|MapItem[IsSelected=True]">
+                        <Setter Property="Foreground" Value="Red"/>
+                    </Style>
+                </map:MapItemsControl.Styles>
+            </map:MapItemsControl>
 
             <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
                 <map:MapPath.Data>

@@ -6,15 +6,12 @@ using System;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Data;
 #endif
 
 namespace MapControl
@@ -34,41 +31,6 @@ namespace MapControl
         {
             get => (string)GetValue(LocationMemberPathProperty);
             set => SetValue(LocationMemberPathProperty, value);
-        }
-
-        protected override DependencyObject GetContainerForItemOverride()
-        {
-            return new MapItem();
-        }
-
-        protected override bool IsItemItsOwnContainerOverride(object item)
-        {
-            return item is MapItem;
-        }
-
-        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
-        {
-            base.PrepareContainerForItemOverride(element, item);
-
-            if (LocationMemberPath != null && element is MapItem mapItem)
-            {
-                mapItem.SetBinding(MapItem.LocationProperty,
-                    new Binding
-                    {
-                        Path = new PropertyPath(LocationMemberPath),
-                        Source = item
-                    });
-            }
-        }
-
-        protected override void ClearContainerForItemOverride(DependencyObject element, object item)
-        {
-            base.ClearContainerForItemOverride(element, item);
-
-            if (LocationMemberPath != null && element is MapItem mapItem)
-            {
-                mapItem.ClearValue(MapItem.LocationProperty);
-            }
         }
 
         public void SelectItems(Predicate<object> predicate)
@@ -100,8 +62,9 @@ namespace MapControl
         {
             SelectItems(item =>
             {
-                var loc = MapPanel.GetLocation(ContainerFromItem(item));
-                return loc != null && predicate(loc);
+                var location = MapPanel.GetLocation(ContainerFromItem(item));
+
+                return location != null && predicate(location);
             });
         }
 
@@ -119,7 +82,7 @@ namespace MapControl
             SelectItemsByPosition(p => rect.Contains(p));
         }
 
-        protected internal void OnItemClicked(FrameworkElement mapItem, bool controlKey, bool shiftKey)
+        protected internal void OnItemClicked(MapItem mapItem, bool controlKey, bool shiftKey)
         {
             var item = ItemFromContainer(mapItem);
 
