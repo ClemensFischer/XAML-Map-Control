@@ -2,6 +2,7 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>SampleApplication</RootNamespace>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <DefineConstants>AVALONIA</DefineConstants>
     </PropertyGroup>
@@ -10,6 +11,10 @@
         <AvaloniaResource Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </AvaloniaResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Shared\MapViewModel.cs" Link="MapViewModel.cs" />
     </ItemGroup>
 
     <ItemGroup>

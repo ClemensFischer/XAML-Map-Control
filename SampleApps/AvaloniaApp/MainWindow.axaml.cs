@@ -6,7 +6,7 @@ using MapControl.UiTools;
 using System;
 using System.IO;
 
-namespace AvaloniaApp
+namespace SampleApplication
 {
     public partial class MainWindow : Window
     {

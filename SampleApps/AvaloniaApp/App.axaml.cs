@@ -2,7 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace AvaloniaApp
+namespace SampleApplication
 {
     public partial class App : Application
     {
@@ -17,7 +17,7 @@ namespace AvaloniaApp
             {
                 desktop.MainWindow = new MainWindow
                 {
-                    //DataContext = new MainViewModel()
+                    DataContext = new MapViewModel()
                 };
             }
 

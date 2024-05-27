@@ -1,6 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="AvaloniaApp.App"
+             x:Class="SampleApplication.App"
              RequestedThemeVariant="Default">
     <Application.Styles>
         <FluentTheme />

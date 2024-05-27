@@ -3,14 +3,34 @@
         xmlns:md="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
         xmlns:map="clr-namespace:MapControl;assembly=MapControl.Avalonia"
         xmlns:tools="clr-namespace:MapControl.UiTools;assembly=MapUiTools.Avalonia"
-        xmlns:local="clr-namespace:AvaloniaApp"
-        x:Class="AvaloniaApp.MainWindow"
+        xmlns:local="clr-namespace:SampleApplication"
+        x:Class="SampleApplication.MainWindow"
         Title="MainWindow">
     <Grid>
         <map:Map x:Name="map"
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
                  DoubleTapped="OnMapDoubleTapped">
+
+            <ItemsControl ItemsSource="{Binding Pushpins}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <map:MapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.Styles>
+                    <Style Selector="ContentPresenter">
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="VerticalAlignment" Value="Bottom"/>
+                        <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+                    </Style>
+                </ItemsControl.Styles>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <map:Pushpin Content="{Binding Name}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
                 <map:MapPath.Data>
