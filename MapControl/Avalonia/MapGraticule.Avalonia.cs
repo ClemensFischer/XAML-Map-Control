@@ -10,8 +10,8 @@ namespace MapControl
 {
     public partial class MapGraticule : Control, IMapElement
     {
-        public static readonly StyledProperty<IBrush> ForegroundProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, IBrush>(TextElement.ForegroundProperty, null,
+        public static readonly StyledProperty<Brush> ForegroundProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, Brush>(TextElement.ForegroundProperty, null,
                 (graticule, oldValue, newValue) => graticule.InvalidateVisual());
 
         public static readonly StyledProperty<FontFamily> FontFamilyProperty =
@@ -23,7 +23,7 @@ namespace MapControl
         public static readonly StyledProperty<double> StrokeThicknessProperty =
             DependencyPropertyHelper.AddOwner<MapGraticule, double>(Shape.StrokeThicknessProperty, 0.5);
 
-        public IBrush Foreground
+        public Brush Foreground
         {
             get => GetValue(ForegroundProperty);
             set => SetValue(ForegroundProperty, value);

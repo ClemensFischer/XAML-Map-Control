@@ -17,11 +17,11 @@ namespace MapControl
         public static readonly StyledProperty<double> BorderWidthProperty =
             DependencyPropertyHelper.Register<PushpinBorder, double>(nameof(BorderWidth));
 
-        public static readonly StyledProperty<IBrush> BackgroundProperty =
-            DependencyPropertyHelper.Register<PushpinBorder, IBrush>(nameof(Background));
+        public static readonly StyledProperty<Brush> BackgroundProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, Brush>(nameof(Background));
 
-        public static readonly StyledProperty<IBrush> BorderBrushProperty =
-            DependencyPropertyHelper.Register<PushpinBorder, IBrush>(nameof(BorderBrush));
+        public static readonly StyledProperty<Brush> BorderBrushProperty =
+            DependencyPropertyHelper.Register<PushpinBorder, Brush>(nameof(BorderBrush));
 
         static PushpinBorder()
         {
@@ -37,13 +37,13 @@ namespace MapControl
             set => SetValue(CornerRadiusProperty, value);
         }
 
-        public IBrush Background
+        public Brush Background
         {
             get => GetValue(BackgroundProperty);
             set => SetValue(BackgroundProperty, value);
         }
 
-        public IBrush BorderBrush
+        public Brush BorderBrush
         {
             get => GetValue(BorderBrushProperty);
             set => SetValue(BorderBrushProperty, value);

@@ -37,7 +37,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, TimeSpan>(nameof(AnimationDuration), TimeSpan.FromSeconds(0.3));
 
         public static readonly DependencyProperty MapLayerProperty =
-            DependencyPropertyHelper.Register<MapBase, UIElement>(nameof(MapLayer), null,
+            DependencyPropertyHelper.Register<MapBase, FrameworkElement>(nameof(MapLayer), null,
                 (map, oldValue, newValue) => map.MapLayerPropertyChanged(oldValue, newValue));
 
         public static readonly DependencyProperty MapProjectionProperty =
@@ -83,9 +83,9 @@ namespace MapControl
         /// If the layer implements IMapLayer (like MapTileLayer or MapImageLayer), its (non-null) MapBackground
         /// and MapForeground property values are used for the MapBase Background and Foreground properties.
         /// </summary>
-        public UIElement MapLayer
+        public FrameworkElement MapLayer
         {
-            get => (UIElement)GetValue(MapLayerProperty);
+            get => (FrameworkElement)GetValue(MapLayerProperty);
             set => SetValue(MapLayerProperty, value);
         }
 
@@ -431,7 +431,7 @@ namespace MapControl
             internalPropertyChange = false;
         }
 
-        private void MapLayerPropertyChanged(UIElement oldLayer, UIElement newLayer)
+        private void MapLayerPropertyChanged(FrameworkElement oldLayer, FrameworkElement newLayer)
         {
             if (oldLayer != null)
             {

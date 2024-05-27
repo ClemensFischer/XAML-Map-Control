@@ -20,7 +20,6 @@ global using Brush = Avalonia.Media.IBrush;
 global using ImageSource = Avalonia.Media.IImage;
 global using DependencyObject = Avalonia.AvaloniaObject;
 global using DependencyProperty = Avalonia.AvaloniaProperty;
-global using UIElement = Avalonia.Controls.Control;
 global using FrameworkElement = Avalonia.Controls.Control;
 global using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
 global using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
@@ -35,8 +34,8 @@ namespace MapControl
 {
     public partial class MapBase
     {
-        public static readonly StyledProperty<IBrush> ForegroundProperty =
-            DependencyPropertyHelper.AddOwner<MapBase, IBrush>(TextElement.ForegroundProperty);
+        public static readonly StyledProperty<Brush> ForegroundProperty =
+            DependencyPropertyHelper.AddOwner<MapBase, Brush>(TextElement.ForegroundProperty);
 
         public static readonly StyledProperty<Easing> AnimationEasingProperty =
             DependencyPropertyHelper.Register<MapBase, Easing>(nameof(AnimationEasing), new QuadraticEaseOut());
