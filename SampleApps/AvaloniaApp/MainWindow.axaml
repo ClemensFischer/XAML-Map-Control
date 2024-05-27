@@ -12,7 +12,7 @@
                  Center="53.5,8.2"
                  DoubleTapped="OnMapDoubleTapped">
 
-            <map:MapItemsControl ItemsSource="{Binding Pushpins}" Background="{x:Null}">
+            <map:MapItemsControl ItemsSource="{Binding Pushpins}">
                 <map:MapItemsControl.Styles>
                     <Style Selector="map|MapItem">
                         <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
