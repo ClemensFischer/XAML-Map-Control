@@ -11,6 +11,8 @@ using System.Windows.Media;
 using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl.MBTiles
