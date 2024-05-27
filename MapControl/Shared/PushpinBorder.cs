@@ -14,9 +14,6 @@ using Windows.UI.Xaml.Media;
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-#elif AVALONIA
-using Avalonia.Media;
-using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
 #endif
 
 namespace MapControl

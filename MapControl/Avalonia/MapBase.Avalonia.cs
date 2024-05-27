@@ -2,13 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-global using Avalonia;
-using Avalonia.Animation;
-using Avalonia.Animation.Easings;
-using Avalonia.Controls;
-using Avalonia.Controls.Documents;
-using Avalonia.Media;
-using Avalonia.Styling;
 using System.Threading;
 using System.Threading.Tasks;
 

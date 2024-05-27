@@ -18,13 +18,6 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-#elif AVALONIA
-using Avalonia.Controls;
-using Avalonia.Media;
-using DependencyProperty = Avalonia.AvaloniaProperty;
-using FrameworkElement = Avalonia.Controls.Control;
-using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
-using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
 #endif
 
 /// <summary>
@@ -43,17 +36,6 @@ namespace MapControl
 
     public partial class MapPanel : Panel, IMapElement
     {
-        public static readonly DependencyProperty AutoCollapseProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, bool>("AutoCollapse");
-
-        public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location", null,
-                (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
-
-        public static readonly DependencyProperty BoundingBoxProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null,
-                (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
-
         private static readonly DependencyProperty ViewPositionProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, Point?>("ViewPosition");
 

@@ -17,9 +17,6 @@ using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-#elif AVALONIA
-using DependencyProperty = Avalonia.AvaloniaProperty;
-using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl

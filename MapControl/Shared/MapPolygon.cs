@@ -9,8 +9,6 @@ using System.Windows;
 using Windows.UI.Xaml;
 #elif WINUI
 using Microsoft.UI.Xaml;
-#elif AVALONIA
-using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
 namespace MapControl

@@ -2,8 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Controls;
-using Avalonia.Media;
 using System;
 
 namespace MapControl

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using Path = System.IO.Path;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,12 +24,6 @@ using Windows.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-#elif AVALONIA
-using Avalonia.Controls;
-using Avalonia.Media;
-using DependencyProperty = Avalonia.AvaloniaProperty;
-using FrameworkElement = Avalonia.Controls.Control;
-using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl

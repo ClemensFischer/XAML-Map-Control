@@ -24,14 +24,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-#elif AVALONIA
-using Avalonia.Data;
-using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
-using DependencyProperty = Avalonia.AvaloniaProperty;
-using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
-using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
-using PointCollection = System.Collections.Generic.List<Avalonia.Point>;
 #endif
 
 namespace MapControl
@@ -78,19 +70,12 @@ namespace MapControl
         {
             base.SetParentMap(map);
 
-#if AVALONIA
-            line.Bind(Shape.StrokeProperty,
-                new Binding { Source = map, Path = nameof(MapBase.Foreground) });
-
-            line.Bind(Shape.StrokeThicknessProperty,
-                new Binding { Source = this, Path = nameof(StrokeThickness) });
-#else
             line.SetBinding(Shape.StrokeProperty,
                 new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
 
             line.SetBinding(Shape.StrokeThicknessProperty,
                 new Binding { Source = this, Path = new PropertyPath(nameof(StrokeThickness)) });
-#endif
+
 #if UWP || WINUI
             label.SetBinding(TextBlock.ForegroundProperty,
                 new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });

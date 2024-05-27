@@ -9,7 +9,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -147,7 +146,7 @@ namespace MapControl
 
         private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheName)
         {
-            var extension = Path.GetExtension(uri.LocalPath);
+            var extension = System.IO.Path.GetExtension(uri.LocalPath);
 
             if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
             {

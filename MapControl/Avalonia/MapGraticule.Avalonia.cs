@@ -2,10 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Controls;
-using Avalonia.Controls.Documents;
-using Avalonia.Controls.Shapes;
-using Avalonia.Media;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;

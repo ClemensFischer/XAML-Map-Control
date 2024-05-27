@@ -13,8 +13,6 @@ using System.Windows;
 using Windows.UI.Xaml;
 #elif WINUI
 using Microsoft.UI.Xaml;
-#elif AVALONIA
-using Avalonia.Interactivity;
 #endif
 
 namespace MapControl

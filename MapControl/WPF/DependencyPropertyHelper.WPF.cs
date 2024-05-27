@@ -15,7 +15,9 @@ namespace MapControl
             FrameworkPropertyMetadataOptions options)
             where TOwner : DependencyObject
         {
-            return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), new FrameworkPropertyMetadata(defaultValue, options));
+            var metadata = new FrameworkPropertyMetadata(defaultValue, options);
+
+            return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
         }
 
         public static DependencyProperty Register<TOwner, TValue>(
@@ -43,6 +45,16 @@ namespace MapControl
             }
 
             return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
+        }
+
+        public static DependencyProperty RegisterAttached<TOwner, TValue>(
+            string name,
+            TValue defaultValue,
+            FrameworkPropertyMetadataOptions options)
+        {
+            var metadata = new FrameworkPropertyMetadata(defaultValue, options);
+
+            return DependencyProperty.RegisterAttached(name, typeof(TValue), typeof(TOwner), metadata);
         }
 
         public static DependencyProperty RegisterAttached<TOwner, TValue>(

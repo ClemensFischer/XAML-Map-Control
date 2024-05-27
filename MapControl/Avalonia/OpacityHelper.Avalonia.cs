@@ -4,10 +4,6 @@
 
 using System.Threading.Tasks;
 using System;
-using Avalonia.Controls;
-using Avalonia.Animation;
-using Avalonia.Styling;
-using System.Xml.Linq;
 
 namespace MapControl
 {

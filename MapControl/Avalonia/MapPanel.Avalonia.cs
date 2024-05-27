@@ -2,13 +2,24 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Controls;
-using Avalonia.Media;
-
 namespace MapControl
 {
     public partial class MapPanel
     {
+        public static readonly AttachedProperty<bool> AutoCollapseProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, bool>("AutoCollapse");
+
+        public static readonly AttachedProperty<Location> LocationProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location");
+
+        public static readonly AttachedProperty<BoundingBox> BoundingBoxProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox");
+
+        static MapPanel()
+        {
+            AffectsParentArrange<MapPanel>(LocationProperty, BoundingBoxProperty);
+        }
+
         public MapPanel()
         {
             if (this is MapBase mapBase)

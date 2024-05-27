@@ -2,9 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Controls.Shapes;
-using Avalonia.Media;
-
 namespace MapControl
 {
     public partial class MapPath : Shape

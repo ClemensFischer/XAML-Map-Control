@@ -15,9 +15,6 @@ using Windows.UI.Xaml.Media;
 using Windows.Foundation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-#elif AVALONIA
-using Avalonia.Controls;
-using Avalonia.Media;
 #endif
 
 namespace MapControl

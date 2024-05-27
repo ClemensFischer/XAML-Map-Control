@@ -12,10 +12,6 @@ using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-#elif AVALONIA
-using Avalonia.Controls;
-using Avalonia.Media;
-using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl

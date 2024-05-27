@@ -2,8 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Animation;
-
 namespace MapControl
 {
     public class LocationAnimator : InterpolatingAnimator<Location>

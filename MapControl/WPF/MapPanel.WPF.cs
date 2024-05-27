@@ -11,6 +11,17 @@ namespace MapControl
 {
     public partial class MapPanel
     {
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, bool>("AutoCollapse");
+
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location", null,
+                FrameworkPropertyMetadataOptions.AffectsParentArrange);
+
+        public static readonly DependencyProperty BoundingBoxProperty =
+            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null,
+                FrameworkPropertyMetadataOptions.AffectsParentArrange);
+
         public MapPanel()
         {
             if (this is MapBase)

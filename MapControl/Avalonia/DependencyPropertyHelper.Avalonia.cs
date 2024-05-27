@@ -2,7 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Controls;
 using System;
 
 #pragma warning disable AVP1001 // The same AvaloniaProperty should not be registered twice
@@ -81,6 +80,11 @@ namespace MapControl
             where TOwner : AvaloniaObject
         {
             return AddOwner<TOwner, TValue>((StyledProperty<TValue>)property);
+        }
+
+        public static void SetBinding(this AvaloniaObject target, AvaloniaProperty property, Binding binding)
+        {
+            target.Bind(property, binding);
         }
     }
 }

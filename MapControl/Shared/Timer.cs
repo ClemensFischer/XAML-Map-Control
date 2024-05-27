@@ -8,9 +8,6 @@ using System.Windows;
 using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Xaml;
-#elif AVALONIA
-using Avalonia.Threading;
-using DependencyObject = Avalonia.AvaloniaObject;
 #endif
 
 namespace MapControl

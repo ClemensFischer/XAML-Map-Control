@@ -2,7 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -13,10 +12,33 @@ using Windows.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
-using Brush = Avalonia.Media.IBrush;
-using DependencyProperty = Avalonia.AvaloniaProperty;
-using UIElement = Avalonia.Controls.Control;
+global using Avalonia;
+global using Avalonia.Animation;
+global using Avalonia.Animation.Easings;
+global using Avalonia.Controls;
+global using Avalonia.Controls.Documents;
+global using Avalonia.Controls.Shapes;
+global using Avalonia.Data;
+global using Avalonia.Input;
+global using Avalonia.Interactivity;
+global using Avalonia.Media;
+global using Avalonia.Media.Imaging;
+global using Avalonia.Platform;
+global using Avalonia.Styling;
+global using Avalonia.Threading;
+global using Brush = Avalonia.Media.IBrush;
+global using ImageSource = Avalonia.Media.IImage;
+global using DependencyObject = Avalonia.AvaloniaObject;
+global using DependencyProperty = Avalonia.AvaloniaProperty;
+global using UIElement = Avalonia.Controls.Control;
+global using FrameworkElement = Avalonia.Controls.Control;
+global using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
+global using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
+global using PathFigureCollection = Avalonia.Media.PathFigures;
+global using PointCollection = System.Collections.Generic.List<Avalonia.Point>;
+global using PropertyPath = System.String;
 #endif
+using System;
 
 namespace MapControl
 {

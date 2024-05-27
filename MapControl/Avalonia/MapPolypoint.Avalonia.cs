@@ -2,7 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using Avalonia.Media;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
