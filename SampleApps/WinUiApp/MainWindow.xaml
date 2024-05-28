@@ -61,6 +61,7 @@
                                         </VisualState>
                                     </VisualStateGroup>
                                 </VisualStateManager.VisualStateGroups>
+
                                 <!-- Path with transformed Geometry -->
                                 <Path Fill="Red" Opacity="0.4" IsHitTestVisible="False">
                                     <Path.Data>
@@ -99,11 +100,48 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="map:MapItem">
-                            <map:Pushpin Content="{Binding Name}"
-                                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}"/>
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="Disabled"/>
+                                        <VisualState x:Name="PointerOver"/>
+                                        <VisualState x:Name="Pressed"/>
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedUnfocused">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPointerOver">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPressed">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <map:Pushpin x:Name="pushpin" Content="{Binding Name}"
+                                             HorizontalAlignment="{TemplateBinding HorizontalAlignment}"/>
+                            </Grid>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+                <!--<Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Panel.ZIndex" Value="1"/>
+                        <Setter Property="Foreground" Value="OrangeRed"/>
+                    </Trigger>
+                </Style.Triggers>-->
             </Style>
         </Grid.Resources>
 
