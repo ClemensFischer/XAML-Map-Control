@@ -7,12 +7,15 @@
         x:Class="SampleApplication.MainWindow"
         Title="MainWindow">
     <Grid>
+        <Grid.Resources>
+            <local:MapHeadingToVisibilityConverter x:Key="MapHeadingToVisibilityConverter" />
+        </Grid.Resources>
         <map:Map x:Name="map"
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
                  DoubleTapped="OnMapDoubleTapped">
 
-            <map:MapItemsControl ItemsSource="{Binding Pushpins}">
+            <map:MapItemsControl ItemsSource="{Binding Pushpins}" SelectionMode="Multiple">
                 <map:MapItemsControl.Styles>
                     <Style Selector="map|MapItem">
                         <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
@@ -25,7 +28,7 @@
                         </Setter>
                     </Style>
                     <Style Selector="map|MapItem[IsSelected=True]">
-                        <Setter Property="Foreground" Value="Red"/>
+                        <Setter Property="Foreground" Value="OrangeRed"/>
                     </Style>
                 </map:MapItemsControl.Styles>
             </map:MapItemsControl>
@@ -155,6 +158,14 @@
                     Maximum="{Binding MaxZoomLevel, ElementName=map}"
                     Value="{Binding TargetZoomLevel, ElementName=map}"
                     SmallChange="0.1"/>
+
+            <Button Margin="2" Padding="8" ToolTip.Tip="Reset Heading" Click="ResetHeadingButtonClick"
+                    FontSize="20" FontFamily="Segoe MDL2 Assets" Content="&#xEBE6;"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    IsVisible="{Binding ElementName=map, Path=Heading,
+                                Converter={StaticResource MapHeadingToVisibilityConverter}}">
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

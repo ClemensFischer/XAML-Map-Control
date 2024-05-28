@@ -1,9 +1,11 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Media;
 using MapControl;
 using MapControl.UiTools;
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace SampleApplication
@@ -70,7 +72,28 @@ namespace SampleApplication
 
         private void OnMapDoubleTapped(object sender, TappedEventArgs e)
         {
-            map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+            if (e.Source == map)
+            {
+                map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+            }
+        }
+
+        private void ResetHeadingButtonClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            map.TargetHeading = 0d;
+        }
+    }
+
+    public class MapHeadingToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)value != 0d;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
         }
     }
 }
