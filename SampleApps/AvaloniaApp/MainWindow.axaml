@@ -13,6 +13,7 @@
         <map:Map x:Name="map"
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
+                 ManipulationModes="All"
                  DoubleTapped="OnMapDoubleTapped">
 
             <map:MapItemsControl ItemsSource="{Binding Pushpins}" SelectionMode="Multiple">
