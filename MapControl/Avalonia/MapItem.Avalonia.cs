@@ -15,8 +15,6 @@ namespace MapControl
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            base.OnPointerPressed(e);
-
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?.OnItemClicked(
                 this, e.KeyModifiers.HasFlag(KeyModifiers.Control), e.KeyModifiers.HasFlag(KeyModifiers.Shift));
         }
