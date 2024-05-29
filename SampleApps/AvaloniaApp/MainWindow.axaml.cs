@@ -1,11 +1,9 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Media;
 using MapControl;
 using MapControl.UiTools;
 using System;
-using System.Globalization;
 using System.IO;
 
 namespace SampleApplication
