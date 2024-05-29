@@ -5,6 +5,8 @@ using System.Globalization;
 using Microsoft.UI.Xaml.Data;
 #elif UWP
 using Windows.UI.Xaml.Data;
+#elif AVALONIA
+using Avalonia.Data.Converters;
 #endif
 
 namespace SampleApplication
@@ -35,6 +37,19 @@ namespace SampleApplication
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return ConvertBack(value, targetType, parameter, "");
+        }
+    }
+
+    public class MapHeadingToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)value != 0d;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
         }
     }
 }
