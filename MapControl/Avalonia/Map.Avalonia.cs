@@ -51,16 +51,72 @@ namespace MapControl
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
             ZoomMap(e.GetPosition(this), TargetZoomLevel + MouseWheelZoomDelta * e.Delta.Y);
-
             e.Handled = true;
 
             base.OnPointerWheelChanged(e);
         }
 
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            var point = e.GetCurrentPoint(this);
+
+            if (point.Pointer.Type == PointerType.Mouse && HandleMousePressed(point) ||
+                point.Pointer.Type == PointerType.Touch && HandleTouchPressed(point))
+            {
+                point.Pointer.Capture(this);
+                e.Handled = true;
+            }
+
+            base.OnPointerPressed(e);
+        }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            if (HandlePointerReleased(e.Pointer))
+            {
+                e.Pointer.Capture(null);
+                e.Handled = true;
+            }
+
+            base.OnPointerReleased(e);
+        }
+
+        protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+        {
+            if (HandlePointerReleased(e.Pointer))
+            {
+                e.Handled = true;
+            }
+
+            base.OnPointerCaptureLost(e);
+        }
+
+        protected override void OnPointerMoved(PointerEventArgs e)
+        {
+            if (e.Pointer == pointer1 || e.Pointer == pointer2)
+            {
+                var position = e.GetPosition(this);
+
+                if (pointer2 != null)
+                {
+                    HandleManipulation(e.Pointer, position);
+                }
+                else if (e.Pointer.Type == PointerType.Mouse || ManipulationModes.HasFlag(ManipulationModes.Translate))
+                {
+                    TranslateMap(position - position1);
+                    position1 = position;
+                }
+
+                e.Handled = true;
+            }
+
+            base.OnPointerMoved(e);
+        }
+
         private bool HandleMousePressed(PointerPoint point)
         {
             var handled = pointer1 == null && point.Properties.IsLeftButtonPressed;
-            
+
             if (handled)
             {
                 pointer1 = point.Pointer;
@@ -91,115 +147,62 @@ namespace MapControl
             return handled;
         }
 
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        private bool HandlePointerReleased(IPointer pointer)
         {
-            var point = e.GetCurrentPoint(this);
+            var handled = pointer == pointer1 || pointer == pointer2;
 
-            if (point.Pointer.Type == PointerType.Mouse && HandleMousePressed(point) ||
-                point.Pointer.Type == PointerType.Touch && HandleTouchPressed(point))
+            if (handled)
             {
-                point.Pointer.Capture(this);
-
-                e.Handled = true;
-            }
-
-            base.OnPointerPressed(e);
-        }
-
-        protected override void OnPointerReleased(PointerReleasedEventArgs e)
-        {
-            if (e.Pointer == pointer1 || e.Pointer == pointer2)
-            {
-                e.Pointer.Capture(null);
-
-                if (e.Pointer == pointer1)
+                if (pointer == pointer1)
                 {
                     pointer1 = pointer2;
                     position1 = position2;
                 }
 
                 pointer2 = null;
-
-                e.Handled = true;
             }
 
-            base.OnPointerReleased(e);
+            return handled;
         }
 
-        protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+        private void HandleManipulation(IPointer pointer, Point position)
         {
-            if (e.Pointer == pointer1 || e.Pointer == pointer2)
+            var oldDistance = new Vector(position2.X - position1.X, position2.Y - position1.Y);
+            var oldOrigin = new Point((position1.X + position2.X) / 2d, (position1.Y + position2.Y) / 2d);
+
+            if (pointer == pointer1)
             {
-                if (e.Pointer == pointer1)
-                {
-                    pointer1 = pointer2;
-                    position1 = position2;
-                }
-
-                pointer2 = null;
-
-                e.Handled = true;
+                position1 = position;
+            }
+            else
+            {
+                position2 = position;
             }
 
-            base.OnPointerCaptureLost(e);
-        }
+            var newDistance = new Vector(position2.X - position1.X, position2.Y - position1.Y);
+            var newOrigin = oldOrigin;
+            var translation = new Point();
+            var rotation = 0d;
+            var scale = 1d;
 
-        protected override void OnPointerMoved(PointerEventArgs e)
-        {
-            if (e.Pointer == pointer1 || e.Pointer == pointer2)
+            if (ManipulationModes.HasFlag(ManipulationModes.Translate))
             {
-                var position = e.GetPosition(this);
-
-                if (pointer2 != null)
-                {
-                    var oldDistance = new Vector(position2.X - position1.X, position2.Y - position1.Y);
-                    var oldOrigin = new Point((position1.X + position2.X) / 2d, (position1.Y + position2.Y) / 2d);
-
-                    if (e.Pointer == pointer1)
-                    {
-                        position1 = position;
-                    }
-                    else
-                    {
-                        position2 = position;
-                    }
-
-                    var newDistance = new Vector(position2.X - position1.X, position2.Y - position1.Y);
-                    var newOrigin = oldOrigin;
-                    var translation = new Point();
-                    var rotation = 0d;
-                    var scale = 1d;
-
-                    if (ManipulationModes.HasFlag(ManipulationModes.Translate))
-                    {
-                        newOrigin = new Point((position1.X + position2.X) / 2d, (position1.Y + position2.Y) / 2d);
-                        translation = newOrigin - oldOrigin;
-                    }
-
-                    if (ManipulationModes.HasFlag(ManipulationModes.Rotate))
-                    {
-                        rotation = 180d / Math.PI
-                            * (Math.Atan2(newDistance.Y, newDistance.X) - Math.Atan2(oldDistance.Y, oldDistance.X));
-                    }
-
-                    if (ManipulationModes.HasFlag(ManipulationModes.Scale))
-                    {
-                        scale = newDistance.Length / oldDistance.Length;
-                    }
-
-                    TransformMap(newOrigin, translation, rotation, scale);
-                }
-                else if (e.Pointer.Type != PointerType.Touch || ManipulationModes.HasFlag(ManipulationModes.Translate))
-                {
-                    TranslateMap(position - position1);
-
-                    position1 = position;
-                }
-
-                e.Handled = true;
+                newOrigin = new Point((position1.X + position2.X) / 2d, (position1.Y + position2.Y) / 2d);
+                translation = newOrigin - oldOrigin;
             }
 
-            base.OnPointerMoved(e);
+            if (ManipulationModes.HasFlag(ManipulationModes.Rotate))
+            {
+                rotation = 180d / Math.PI
+                    * (Math.Atan2(newDistance.Y, newDistance.X) - Math.Atan2(oldDistance.Y, oldDistance.X));
+            }
+
+            if (ManipulationModes.HasFlag(ManipulationModes.Scale))
+            {
+                scale = newDistance.Length / oldDistance.Length;
+            }
+
+            TransformMap(newOrigin, translation, rotation, scale);
         }
     }
 }
