@@ -124,6 +124,7 @@ namespace MapControl
             var figure = new PathFigure
             {
                 StartPoint = points.First(),
+                IsClosed = false,
                 IsFilled = false
             };
 
