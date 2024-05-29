@@ -82,14 +82,12 @@ namespace MapControl
             SelectItemsByPosition(p => rect.Contains(p));
         }
 
-        protected internal void OnItemClicked(MapItem mapItem, bool controlKey, bool shiftKey)
+        protected internal void OnItemClicked(MapItem mapItem, bool controlKey)
         {
             var item = ItemFromContainer(mapItem);
 
-            if (SelectionMode == SelectionMode.Single)
+            if (SelectionMode == SelectionMode.Single) // set SelectedItem
             {
-                // Single -> set only SelectedItem.
-
                 if (SelectedItem != item)
                 {
                     SelectedItem = item;
@@ -99,10 +97,8 @@ namespace MapControl
                     SelectedItem = null;
                 }
             }
-            else if (SelectionMode == SelectionMode.Multiple || controlKey)
+            else if (controlKey) // toggle item in SelectedItems
             {
-                // Multiple or Extended with Ctrl -> toggle item in SelectedItems.
-
                 if (SelectedItems.Contains(item))
                 {
                     SelectedItems.Remove(item);
@@ -112,23 +108,10 @@ namespace MapControl
                     SelectedItems.Add(item);
                 }
             }
-            else if (shiftKey && SelectedItem != null)
+            else // set single item in SelectedItems
             {
-                // Extended with Shift -> select items in view rectangle.
-
-                var p1 = MapPanel.GetViewPosition(ContainerFromItem(SelectedItem));
-                var p2 = MapPanel.GetViewPosition(mapItem);
-
-                if (p1.HasValue && p2.HasValue)
-                {
-                    SelectItemsInRect(new Rect(p1.Value, p2.Value));
-                }
-            }
-            else if (SelectedItem != item)
-            {
-                // Extended without Control or Shift -> set selected item.
-
-                SelectedItem = item;
+                SelectedItems.Clear();
+                SelectedItems.Add(item);
             }
         }
     }

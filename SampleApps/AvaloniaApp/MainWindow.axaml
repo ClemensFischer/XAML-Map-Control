@@ -16,7 +16,7 @@
                  ManipulationModes="All"
                  DoubleTapped="OnMapDoubleTapped">
 
-            <map:MapItemsControl ItemsSource="{Binding Pushpins}" SelectionMode="Multiple">
+            <map:MapItemsControl ItemsSource="{Binding Pushpins}">
                 <map:MapItemsControl.Styles>
                     <Style Selector="map|MapItem">
                         <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>

@@ -132,7 +132,7 @@
 
             <map:MapItemsControl ItemsSource="{Binding Points}"
                                  ItemContainerStyle="{StaticResource PointItemStyle}"
-                                 SelectionMode="Extended"/>
+                                 SelectionMode="Multiple"/>
 
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
