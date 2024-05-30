@@ -20,5 +20,9 @@ namespace MapControl
 
             e.Handled = true;
         }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+        }
     }
 }
