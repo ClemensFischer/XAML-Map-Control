@@ -1,12 +1,12 @@
 ﻿using MapControl;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SampleApplication
 {
     public class PointItem
     {
         public string Name { get; set; }
-
         public Location Location { get; set; }
     }
 
@@ -20,6 +20,18 @@ namespace SampleApplication
         public List<PointItem> Points { get; } = new List<PointItem>();
         public List<PointItem> Pushpins { get; } = new List<PointItem>();
         public List<PolylineItem> Polylines { get; } = new List<PolylineItem>();
+
+        private PointItem selectedPushpin;
+
+        public PointItem SelectedPushpin
+        {
+            get => selectedPushpin;
+            set
+            {
+                selectedPushpin = value;
+                Debug.WriteLine(selectedPushpin?.Name);
+            }
+        }
 
         public MapViewModel()
         {
@@ -62,7 +74,7 @@ namespace SampleApplication
             Pushpins.Add(new PointItem
             {
                 Name = "WHV - Eckwarderhörne",
-                Location = new Location(53.5495, 8.1877)
+                Location = new Location(53.5495, 8.1877),
             });
 
             Pushpins.Add(new PointItem
@@ -82,6 +94,8 @@ namespace SampleApplication
                 Name = "Eckwarderhörne",
                 Location = new Location(53.5207, 8.2323)
             });
+
+            SelectedPushpin = Pushpins[0];
 
             Polylines.Add(new PolylineItem
             {

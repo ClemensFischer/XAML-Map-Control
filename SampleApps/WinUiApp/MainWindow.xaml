@@ -131,6 +131,7 @@
                                 </VisualStateManager.VisualStateGroups>
 
                                 <map:Pushpin x:Name="pushpin" Content="{Binding Name}"
+                                             Foreground="{TemplateBinding Foreground}"
                                              HorizontalAlignment="{TemplateBinding HorizontalAlignment}"/>
                             </Grid>
                         </ControlTemplate>
@@ -162,16 +163,18 @@
                              Stroke="{Binding Foreground, ElementName=map}"
                              StrokeThickness="2" StrokeDashArray="1,1"/>
 
-            <map:MapItemsControl ItemsSource="{Binding Polylines}"
-                                 ItemTemplate="{StaticResource PolylineItemTemplate}"/>
+            <map:MapItemsControl ItemTemplate="{StaticResource PolylineItemTemplate}"
+                                 ItemsSource="{Binding Polylines}"/>
 
-            <map:MapItemsControl ItemsSource="{Binding Points}"
-                                 ItemContainerStyle="{StaticResource PointItemStyle}"
-                                 LocationMemberPath="Location"
-                                 SelectionMode="Multiple"/>
+            <map:MapItemsControl ItemContainerStyle="{StaticResource PointItemStyle}"
+                                 ItemsSource="{Binding Points}"
+                                 SelectionMode="Multiple"
+                                 LocationMemberPath="Location"/>
 
-            <map:MapItemsControl ItemsSource="{Binding Pushpins}"
-                                 ItemContainerStyle="{StaticResource PushpinItemStyle}"
+            <map:MapItemsControl ItemContainerStyle="{StaticResource PushpinItemStyle}"
+                                 ItemsSource="{Binding Pushpins}"
+                                 SelectedItem="{Binding SelectedPushpin, Mode=TwoWay}"
+                                 SelectionMode="Multiple"
                                  LocationMemberPath="Location"/>
 
             <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">

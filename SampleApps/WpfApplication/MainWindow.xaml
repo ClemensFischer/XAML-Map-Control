@@ -130,12 +130,14 @@
 
             <map:MapItemsControl ItemsSource="{Binding Polylines}"/>
 
-            <map:MapItemsControl ItemsSource="{Binding Points}"
-                                 ItemContainerStyle="{StaticResource PointItemStyle}"
+            <map:MapItemsControl ItemContainerStyle="{StaticResource PointItemStyle}"
+                                 ItemsSource="{Binding Points}"
                                  SelectionMode="Multiple"/>
 
-            <map:MapItemsControl ItemsSource="{Binding Pushpins}"
-                                 ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
+            <map:MapItemsControl ItemContainerStyle="{StaticResource PushpinItemStyle}"
+                                 ItemsSource="{Binding Pushpins}"
+                                 SelectedItem="{Binding SelectedPushpin}"
+                                 SelectionMode="Multiple"/>
 
             <map:Pushpin AutoCollapse="True" Location="65,-18" Content="Iceland"/>
             <map:Pushpin AutoCollapse="True" Location="71,25" Content="Norway"/>

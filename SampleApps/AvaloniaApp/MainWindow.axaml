@@ -17,6 +17,8 @@
                  DoubleTapped="OnMapDoubleTapped">
 
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
+                                 SelectedItem="{Binding SelectedPushpin}"
+                                 SelectionMode="Multiple"
                                  DoubleTapped="OnMapItemsControlDoubleTapped">
                 <map:MapItemsControl.Styles>
                     <Style Selector="map|MapItem">
@@ -29,7 +31,7 @@
                             </ControlTemplate>
                         </Setter>
                     </Style>
-                    <Style Selector="map|MapItem[IsSelected=True]">
+                    <Style Selector="map|MapItem:selected">
                         <Setter Property="Foreground" Value="OrangeRed"/>
                     </Style>
                 </map:MapItemsControl.Styles>
