@@ -86,7 +86,7 @@ namespace MapControl
         {
             var item = ItemFromContainer(mapItem);
 
-            if (SelectionMode == SelectionMode.Single) // set SelectedItem
+            if (SelectionMode == SelectionMode.Single)
             {
                 if (SelectedItem != item)
                 {
@@ -97,7 +97,7 @@ namespace MapControl
                     SelectedItem = null;
                 }
             }
-            else if (controlKey) // toggle item in SelectedItems
+            else if (controlKey)
             {
                 if (SelectedItems.Contains(item))
                 {
@@ -108,10 +108,13 @@ namespace MapControl
                     SelectedItems.Add(item);
                 }
             }
-            else // set single item in SelectedItems
+            else
             {
-                SelectedItems.Clear();
-                SelectedItems.Add(item);
+#if WPF
+                SetSelectedItems(new[] { item });
+#else
+                SelectedItem = item;
+#endif
             }
         }
     }
