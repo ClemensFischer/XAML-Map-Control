@@ -16,6 +16,11 @@ namespace MapControl
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItemsControl), new FrameworkPropertyMetadata(typeof(MapItemsControl)));
         }
 
+        public void SelectItemsInGeometry(Geometry geometry)
+        {
+            SelectItemsByPosition(p => geometry.FillContains(p));
+        }
+
         public MapItem ContainerFromItem(object item)
         {
             return (MapItem)ItemContainerGenerator.ContainerFromItem(item);
@@ -24,11 +29,6 @@ namespace MapControl
         public object ItemFromContainer(MapItem container)
         {
             return ItemContainerGenerator.ItemFromContainer(container);
-        }
-
-        public void SelectItemsInGeometry(Geometry geometry)
-        {
-            SelectItemsByPosition(p => geometry.FillContains(p));
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item)
