@@ -110,11 +110,7 @@ namespace MapControl
             }
             else
             {
-#if WPF
-                SetSelectedItems(new[] { item });
-#else
-                SelectedItem = item;
-#endif
+                SetSelectedItem(item);
             }
         }
     }
