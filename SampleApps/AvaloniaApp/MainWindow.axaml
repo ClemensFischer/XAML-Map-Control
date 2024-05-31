@@ -142,7 +142,7 @@
                             MinZoomLevel="9" MaxZoomLevel="18"/>
                     </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Graticule">
-                        <map:MapGraticule Opacity="0.7" FontSize="10"/>
+                        <map:MapGraticule Opacity="0.7" StrokeThickness="0.25" FontSize="10"/>
                     </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Scale">
                         <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
