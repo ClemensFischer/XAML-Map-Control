@@ -108,30 +108,22 @@ namespace MapControl
                     Math.Sqrt(transform.M11 * transform.M11 + transform.M12 * transform.M12), 0d, 0d,
                     -Math.Sqrt(transform.M22 * transform.M22 + transform.M21 * transform.M21), 0d, 0d);
             }
+
 #if AVALONIA
-            var width = geoBitmap.Bitmap.PixelSize.Width;
-            var height = geoBitmap.Bitmap.PixelSize.Height;
+            var size = new Point(geoBitmap.Bitmap.PixelSize.Width, geoBitmap.Bitmap.PixelSize.Height);
 #else
-            var width = geoBitmap.Bitmap.PixelWidth;
-            var height = geoBitmap.Bitmap.PixelHeight;
+            var size = new Point(geoBitmap.Bitmap.PixelWidth, geoBitmap.Bitmap.PixelHeight);
 #endif
-            var rect = new Rect(transform.Transform(new Point()), transform.Transform(new Point(width, height)));
+            var rect = new Rect(transform.Transform(new Point()), transform.Transform(size));
 
-            BoundingBox boundingBox = null;
+            var boundingBox = geoBitmap.Projection != null
+                ? geoBitmap.Projection.MapToBoundingBox(rect)
+                : new BoundingBox(rect.Y, rect.X, rect.Y + rect.Height, rect.X + rect.Width);
 
-            if (geoBitmap.Projection != null)
-            {
-                boundingBox = geoBitmap.Projection.MapToBoundingBox(rect);
-            }
-            else
-            {
-                boundingBox = new BoundingBox(rect.Y, rect.X, rect.Y + rect.Height, rect.X + rect.Width);
-            }
+            MapPanel.SetBoundingBox(this, boundingBox);
 
             Children.Clear();
             Children.Add(image);
-
-            MapPanel.SetBoundingBox(this, boundingBox);
         }
 
         private static async Task<GeoBitmap> ReadWorldFileImageAsync(string sourcePath, string worldFilePath)
