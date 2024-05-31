@@ -137,12 +137,6 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-                <!--<Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Panel.ZIndex" Value="1"/>
-                        <Setter Property="Foreground" Value="OrangeRed"/>
-                    </Trigger>
-                </Style.Triggers>-->
             </Style>
         </Grid.Resources>
 

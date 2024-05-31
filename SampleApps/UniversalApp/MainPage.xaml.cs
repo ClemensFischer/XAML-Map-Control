@@ -80,6 +80,11 @@ namespace SampleApplication
 
         partial void AddTestLayers();
 
+        private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine("SelectedItems: " + string.Join(", ", ((MapItemsControl)sender).SelectedItems.OfType<PointItem>().Select(item => item.Name)));
+        }
+
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {
             map.TargetHeading = 0d;

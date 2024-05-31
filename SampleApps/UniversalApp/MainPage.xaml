@@ -84,8 +84,40 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="map:MapItem">
-                            <map:Pushpin Content="{Binding Name}"
-                                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}"/>
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="Disabled"/>
+                                        <VisualState x:Name="PointerOver"/>
+                                        <VisualState x:Name="Pressed"/>
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedUnfocused">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPointerOver">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="SelectedPressed">
+                                            <VisualState.Setters>
+                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <map:Pushpin x:Name="pushpin" Content="{Binding Name}"
+                                             Foreground="{TemplateBinding Foreground}"
+                                             HorizontalAlignment="{TemplateBinding HorizontalAlignment}"/>
+                            </Grid>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -113,12 +145,15 @@
 
             <map:MapItemsControl ItemsSource="{Binding Points}"
                                  ItemContainerStyle="{StaticResource PointItemStyle}"
-                                 LocationMemberPath="Location"
-                                 SelectionMode="Extended"/>
+                                 SelectionMode="Multiple"
+                                 LocationMemberPath="Location"/>
 
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"
-                                 LocationMemberPath="Location"/>
+                                 SelectedItem="{Binding SelectedPushpin, Mode=TwoWay}"
+                                 SelectionMode="Multiple"
+                                 LocationMemberPath="Location"
+                                 SelectionChanged="MapItemsControlSelectionChanged"/>
 
             <map:Pushpin Location="53.5,8.2" AutoCollapse="True" Content="N 53°30' E 8°12'"/>
         </map:Map>
