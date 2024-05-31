@@ -128,11 +128,12 @@
                         Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerItem>
                 <tools:MapLayersMenuButton.MapOverlays>
-                    <tools:MapLayerItem Text="Graticule">
-                        <map:MapGraticule Opacity="0.7" FontSize="10"/>
+                    <tools:MapLayerItem Text="Sample Image">
+                        <Image Source="avares://AvaloniaApp/10_535_330.jpg" Stretch="Fill"
+                               map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
                     </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Scale">
-                        <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <tools:MapLayerItem Text="Mount Etna KML">
+                        <map:GroundOverlay SourcePath="etna.kml"/>
                     </tools:MapLayerItem>
                     <tools:MapLayerItem Text="Seamarks">
                         <map:MapTileLayer
@@ -140,12 +141,11 @@
                             SourceName="Seamarks"
                             MinZoomLevel="9" MaxZoomLevel="18"/>
                     </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Sample Image">
-                        <Image Source="avares://AvaloniaApp/10_535_330.jpg" Stretch="Fill"
-                               map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
+                    <tools:MapLayerItem Text="Graticule">
+                        <map:MapGraticule Opacity="0.7" FontSize="10"/>
                     </tools:MapLayerItem>
-                    <tools:MapLayerItem Text="Mount Etna KML">
-                        <map:GroundOverlay SourcePath="etna.kml"/>
+                    <tools:MapLayerItem Text="Scale">
+                        <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                     </tools:MapLayerItem>
                 </tools:MapLayersMenuButton.MapOverlays>
             </tools:MapLayersMenuButton>
