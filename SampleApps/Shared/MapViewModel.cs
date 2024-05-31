@@ -29,7 +29,7 @@ namespace SampleApplication
             set
             {
                 selectedPushpin = value;
-                Debug.WriteLine(selectedPushpin?.Name);
+                Debug.WriteLine("SelectedPushpin: " + (selectedPushpin?.Name ?? "None"));
             }
         }
 

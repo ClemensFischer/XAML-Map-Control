@@ -3,6 +3,7 @@ using MapControl.UiTools;
 using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
@@ -81,6 +82,11 @@ namespace SampleApplication
         }
 
         partial void AddTestLayers();
+
+        private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine("SelectedItems: " + string.Join(", ", ((MapItemsControl)sender).SelectedItems.OfType<PointItem>().Select(item => item.Name)));
+        }
 
         private void MapItemsControlDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {

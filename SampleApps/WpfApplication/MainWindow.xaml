@@ -137,7 +137,8 @@
             <map:MapItemsControl ItemContainerStyle="{StaticResource PushpinItemStyle}"
                                  ItemsSource="{Binding Pushpins}"
                                  SelectedItem="{Binding SelectedPushpin}"
-                                 SelectionMode="Multiple"/>
+                                 SelectionMode="Multiple"
+                                 SelectionChanged="MapItemsControlSelectionChanged"/>
 
             <map:Pushpin AutoCollapse="True" Location="65,-18" Content="Iceland"/>
             <map:Pushpin AutoCollapse="True" Location="71,25" Content="Norway"/>

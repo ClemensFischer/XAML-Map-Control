@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -20,7 +21,7 @@ namespace SampleApplication
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new RedisCache(Options.Create(new RedisCacheOptions
             //{
-            //    Configuration = "localhost:6379",
+            //    Configuration = "T400:6379",
             //    InstanceName = "MapTileCache/"
             //}));
 
@@ -81,6 +82,11 @@ namespace SampleApplication
         }
 
         partial void AddTestLayers();
+
+        private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine("SelectedItems: " + string.Join(", ", ((MapItemsControl)sender).SelectedItems.OfType<PointItem>().Select(item => item.Name)));
+        }
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
         {

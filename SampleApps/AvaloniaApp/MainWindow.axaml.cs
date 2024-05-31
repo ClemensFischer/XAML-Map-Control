@@ -4,7 +4,9 @@ using Avalonia.Media;
 using MapControl;
 using MapControl.UiTools;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace SampleApplication
 {
@@ -71,6 +73,11 @@ namespace SampleApplication
         }
 
         partial void AddTestLayers();
+
+        private void MapItemsControlSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine("SelectedItems: " + string.Join(", ", ((MapItemsControl)sender).SelectedItems.OfType<PointItem>().Select(item => item.Name)));
+        }
 
         private void MapItemsControlDoubleTapped(object sender, TappedEventArgs e)
         {

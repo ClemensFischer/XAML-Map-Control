@@ -177,6 +177,7 @@
                                  SelectedItem="{Binding SelectedPushpin, Mode=TwoWay}"
                                  SelectionMode="Multiple"
                                  LocationMemberPath="Location"
+                                 SelectionChanged="MapItemsControlSelectionChanged"
                                  DoubleTapped="MapItemsControlDoubleTapped"/>
 
             <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
