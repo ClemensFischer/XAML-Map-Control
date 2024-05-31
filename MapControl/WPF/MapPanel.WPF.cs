@@ -41,7 +41,7 @@ namespace MapControl
             element.RenderTransformOrigin = new Point(originX, originY);
         }
 
-        protected IEnumerable<FrameworkElement> ChildElements => Children.OfType<FrameworkElement>();
+        protected IEnumerable<FrameworkElement> ChildElements => InternalChildren.OfType<FrameworkElement>();
 
         private static void SetVisible(FrameworkElement element, bool visible)
         {
