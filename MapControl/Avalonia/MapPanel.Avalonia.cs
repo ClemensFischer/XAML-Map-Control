@@ -2,6 +2,8 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System.Collections.Generic;
+
 namespace MapControl
 {
     public partial class MapPanel
@@ -39,7 +41,7 @@ namespace MapControl
             element.RenderTransformOrigin = new RelativePoint(originX, originY, RelativeUnit.Relative);
         }
 
-        protected Controls ChildElements => Children;
+        protected IEnumerable<Control> ChildElements => Children;
 
         private static void SetVisible(Control element, bool visible)
         {
