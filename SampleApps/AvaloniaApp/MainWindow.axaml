@@ -14,12 +14,12 @@
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
                  ManipulationModes="All"
-                 DoubleTapped="OnMapDoubleTapped">
+                 DoubleTapped="MapDoubleTapped">
 
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  SelectedItem="{Binding SelectedPushpin}"
                                  SelectionMode="Multiple"
-                                 DoubleTapped="OnMapItemsControlDoubleTapped">
+                                 DoubleTapped="MapItemsControlDoubleTapped">
                 <map:MapItemsControl.Styles>
                     <Style Selector="map|MapItem">
                         <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>

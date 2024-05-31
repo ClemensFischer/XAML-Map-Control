@@ -82,14 +82,19 @@ namespace SampleApplication
 
         partial void AddTestLayers();
 
-        private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
+        private void MapItemsControlDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            map.TargetHeading = 0d;
+            e.Handled = true; // prevent MapDoubleTapped
         }
 
         private void MapDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+        }
+
+        private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)
+        {
+            map.TargetHeading = 0d;
         }
 
         private async void MapPointerPressed(object sender, PointerRoutedEventArgs e)

@@ -72,12 +72,12 @@ namespace SampleApplication
 
         partial void AddTestLayers();
 
-        private void OnMapItemsControlDoubleTapped(object sender, TappedEventArgs e)
+        private void MapItemsControlDoubleTapped(object sender, TappedEventArgs e)
         {
-            e.Handled = true; // prevent OnMapDoubleTapped
+            e.Handled = true; // prevent MapDoubleTapped
         }
 
-        private void OnMapDoubleTapped(object sender, TappedEventArgs e)
+        private void MapDoubleTapped(object sender, TappedEventArgs e)
         {
             map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
         }
