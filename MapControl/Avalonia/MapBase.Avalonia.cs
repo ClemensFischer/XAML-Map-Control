@@ -23,6 +23,7 @@ global using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
 global using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
 global using Brush = Avalonia.Media.IBrush;
 global using ImageSource = Avalonia.Media.IImage;
+global using BitmapSource = Avalonia.Media.Imaging.Bitmap;
 global using PathFigureCollection = Avalonia.Media.PathFigures;
 global using PointCollection = System.Collections.Generic.List<Avalonia.Point>;
 global using PropertyPath = System.String;

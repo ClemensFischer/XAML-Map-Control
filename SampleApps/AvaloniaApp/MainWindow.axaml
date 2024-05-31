@@ -5,7 +5,7 @@
         xmlns:tools="clr-namespace:MapControl.UiTools;assembly=MapUiTools.Avalonia"
         xmlns:local="clr-namespace:SampleApplication"
         x:Class="SampleApplication.MainWindow"
-        Title="MainWindow">
+        Title="XAML MapControl - Avalonia Sample Application">
     <Grid>
         <Grid.Resources>
             <local:MapHeadingToVisibilityConverter x:Key="MapHeadingToVisibilityConverter" />

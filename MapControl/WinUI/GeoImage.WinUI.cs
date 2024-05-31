@@ -17,11 +17,10 @@ namespace MapControl
 
             using (var stream = await file.OpenReadAsync())
             {
-                Matrix transform;
-                MapProjection projection = null;
-
+                var geoBitmap = new GeoBitmap();
                 var decoder = await BitmapDecoder.CreateAsync(stream);
-                var bitmap = await ImageLoader.LoadImageAsync(decoder);
+
+                geoBitmap.Bitmap = await ImageLoader.LoadImageAsync(decoder);
 
                 var geoKeyDirectoryQuery = QueryString(GeoKeyDirectoryTag);
                 var pixelScaleQuery = QueryString(ModelPixelScaleTag);
@@ -43,15 +42,15 @@ namespace MapControl
                     tiePointValue.Value is double[] tiePoint &&
                     tiePoint.Length >= 6)
                 {
-                    transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
+                    geoBitmap.Transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
                 else if (metadata.TryGetValue(transformationQuery, out BitmapTypedValue transformValue) &&
                          transformValue.Value is double[] transformValues &&
                          transformValues.Length == 16)
                 {
-                    transform = new Matrix(transformValues[0], transformValues[1],
-                                           transformValues[4], transformValues[5],
-                                           transformValues[3], transformValues[7]);
+                    geoBitmap.Transform = new Matrix(transformValues[0], transformValues[1],
+                                                     transformValues[4], transformValues[5],
+                                                     transformValues[3], transformValues[7]);
                 }
                 else
                 {
@@ -61,10 +60,10 @@ namespace MapControl
                 if (metadata.TryGetValue(geoKeyDirectoryQuery, out BitmapTypedValue geoKeyDirValue) &&
                     geoKeyDirValue.Value is short[] geoKeyDirectory)
                 {
-                    projection = GetProjection(sourcePath, geoKeyDirectory);
+                    geoBitmap.Projection = GetProjection(sourcePath, geoKeyDirectory);
                 }
 
-                return new GeoBitmap(bitmap, transform, projection);
+                return geoBitmap;
             }
         }
     }

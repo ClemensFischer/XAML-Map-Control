@@ -5,6 +5,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using Path = System.IO.Path;
 using System.Linq;
 using System.Threading.Tasks;
 #if WPF
@@ -26,20 +27,13 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace MapControl
 {
-    public partial class GeoImage : ContentControl
+    public partial class GeoImage : Grid
     {
         private class GeoBitmap
         {
-            public GeoBitmap(BitmapSource bitmap, Matrix transform, MapProjection projection = null)
-            {
-                Bitmap = bitmap;
-                Transform = transform;
-                Projection = projection;
-            }
-
-            public BitmapSource Bitmap { get; }
-            public Matrix Transform { get; }
-            public MapProjection Projection { get; }
+            public BitmapSource Bitmap { get; set; }
+            public Matrix Transform { get; set; }
+            public MapProjection Projection { get; set; }
         }
 
         private const ushort ProjectedCRSGeoKey = 3072;
@@ -55,12 +49,6 @@ namespace MapControl
             DependencyPropertyHelper.Register<GeoImage, string>(nameof(SourcePath), null,
                 async (image, oldValue, newValue) => await image.SourcePathPropertyChanged(newValue));
 
-        public GeoImage()
-        {
-            HorizontalContentAlignment = HorizontalAlignment.Stretch;
-            VerticalContentAlignment = VerticalAlignment.Stretch;
-        }
-
         public string SourcePath
         {
             get => (string)GetValue(SourcePathProperty);
@@ -69,78 +57,90 @@ namespace MapControl
 
         private async Task SourcePathPropertyChanged(string sourcePath)
         {
-            Image image = null;
-            BoundingBox boundingBox = null;
-
-            if (sourcePath != null)
+            if (sourcePath == null)
             {
-                GeoBitmap geoBitmap = null;
+                return;
+            }
 
-                var ext = Path.GetExtension(sourcePath);
+            GeoBitmap geoBitmap = null;
+            var ext = Path.GetExtension(sourcePath);
 
-                if (ext.Length >= 4)
+            if (ext.Length >= 4)
+            {
+                var dir = Path.GetDirectoryName(sourcePath);
+                var file = Path.GetFileNameWithoutExtension(sourcePath);
+                var worldFilePath = Path.Combine(dir, file + ext.Remove(2, 1) + "w");
+
+                if (File.Exists(worldFilePath))
                 {
-                    var dir = Path.GetDirectoryName(sourcePath);
-                    var file = Path.GetFileNameWithoutExtension(sourcePath);
-                    var worldFilePath = Path.Combine(dir, file + ext.Remove(2, 1) + "w");
-
-                    if (File.Exists(worldFilePath))
-                    {
-                        geoBitmap = await ReadWorldFileImageAsync(sourcePath, worldFilePath);
-                    }
-                }
-
-                if (geoBitmap == null)
-                {
-                    geoBitmap = await ReadGeoTiffAsync(sourcePath);
-                }
-
-                image = new Image
-                {
-                    Source = geoBitmap.Bitmap,
-                    Stretch = Stretch.Fill
-                };
-
-                var transform = geoBitmap.Transform;
-
-                if (transform.M12 != 0 || transform.M21 != 0)
-                {
-                    var rotation = (Math.Atan2(transform.M12, transform.M11) + Math.Atan2(transform.M21, -transform.M22)) * 90d / Math.PI;
-
-                    image.RenderTransform = new RotateTransform { Angle = -rotation };
-
-                    // Calculate effective unrotated transform.
-                    //
-                    transform.M11 = Math.Sqrt(transform.M11 * transform.M11 + transform.M12 * transform.M12);
-                    transform.M22 = -Math.Sqrt(transform.M22 * transform.M22 + transform.M21 * transform.M21);
-                    transform.M12 = 0;
-                    transform.M21 = 0;
-                }
-
-                var p1 = transform.Transform(new Point());
-                var p2 = transform.Transform(new Point(geoBitmap.Bitmap.PixelWidth, geoBitmap.Bitmap.PixelHeight));
-                var rect = new Rect(p1, p2);
-
-                if (geoBitmap.Projection != null)
-                {
-                    boundingBox = geoBitmap.Projection.MapToBoundingBox(rect);
-                }
-                else
-                {
-                    boundingBox = new BoundingBox(rect.Y, rect.X, rect.Y + rect.Height, rect.X + rect.Width);
+                    geoBitmap = await ReadWorldFileImageAsync(sourcePath, worldFilePath);
                 }
             }
 
-            Content = image;
+            if (geoBitmap == null)
+            {
+#if AVALONIA
+                return;
+#else
+                geoBitmap = await ReadGeoTiffAsync(sourcePath);
+#endif
+            }
+
+            var image = new Image
+            {
+                Source = geoBitmap.Bitmap,
+                Stretch = Stretch.Fill,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch
+            };
+
+            var transform = geoBitmap.Transform;
+
+            if (transform.M12 != 0 && transform.M21 != 0)
+            {
+                var rotation = (Math.Atan2(transform.M12, transform.M11) + Math.Atan2(transform.M21, -transform.M22)) * 90d / Math.PI;
+
+                image.RenderTransform = new RotateTransform { Angle = -rotation };
+
+                // Calculate effective unrotated transform.
+                //
+                geoBitmap.Transform = new Matrix(
+                    Math.Sqrt(transform.M11 * transform.M11 + transform.M12 * transform.M12), 0d, 0d,
+                    -Math.Sqrt(transform.M22 * transform.M22 + transform.M21 * transform.M21), 0d, 0d);
+            }
+#if AVALONIA
+            var width = geoBitmap.Bitmap.PixelSize.Width;
+            var height = geoBitmap.Bitmap.PixelSize.Height;
+#else
+            var width = geoBitmap.Bitmap.PixelWidth;
+            var height = geoBitmap.Bitmap.PixelHeight;
+#endif
+            var rect = new Rect(transform.Transform(new Point()), transform.Transform(new Point(width, height)));
+
+            BoundingBox boundingBox = null;
+
+            if (geoBitmap.Projection != null)
+            {
+                boundingBox = geoBitmap.Projection.MapToBoundingBox(rect);
+            }
+            else
+            {
+                boundingBox = new BoundingBox(rect.Y, rect.X, rect.Y + rect.Height, rect.X + rect.Width);
+            }
+
+            Children.Clear();
+            Children.Add(image);
 
             MapPanel.SetBoundingBox(this, boundingBox);
         }
 
         private static async Task<GeoBitmap> ReadWorldFileImageAsync(string sourcePath, string worldFilePath)
         {
-            var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
+            var geoBitmap = new GeoBitmap();
 
-            var transform = await Task.Run(() =>
+            geoBitmap.Bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
+
+            geoBitmap.Transform = await Task.Run(() =>
             {
                 var parameters = File.ReadLines(worldFilePath)
                     .Take(6)
@@ -168,7 +168,7 @@ namespace MapControl
                     parameters[5]); // line 6: F or OffsetY
             });
 
-            return new GeoBitmap(bitmap, transform);
+            return geoBitmap;
         }
 
         private static MapProjection GetProjection(string sourcePath, short[] geoKeyDirectory)
