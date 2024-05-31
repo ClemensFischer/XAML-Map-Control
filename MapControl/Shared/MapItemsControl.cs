@@ -110,7 +110,7 @@ namespace MapControl
             }
             else
             {
-                SetSelectedItem(item);
+                ResetSelectedItems(item);
             }
         }
     }

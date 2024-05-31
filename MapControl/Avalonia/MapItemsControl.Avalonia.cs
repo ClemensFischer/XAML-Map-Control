@@ -61,7 +61,7 @@ namespace MapControl
             }
         }
 
-        protected void SetSelectedItem(object item)
+        protected void ResetSelectedItems(object item)
         {
             SelectedItem = item;
         }
