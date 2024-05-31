@@ -63,7 +63,10 @@ namespace MapControl
 
         protected void ResetSelectedItems(object item)
         {
-            SelectedItem = item;
+            if (SelectedItem != item || SelectedItems.Count != 1)
+            {
+                SelectedItem = item;
+            }
         }
     }
 }
