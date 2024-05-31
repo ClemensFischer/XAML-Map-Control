@@ -74,7 +74,7 @@ namespace SampleApplication
 
         partial void AddTestLayers();
 
-        private void MapItemsControlSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Debug.WriteLine("SelectedItems: " + string.Join(", ", ((MapItemsControl)sender).SelectedItems.OfType<PointItem>().Select(item => item.Name)));
         }
