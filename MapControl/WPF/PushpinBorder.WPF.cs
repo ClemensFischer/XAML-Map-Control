@@ -86,16 +86,13 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size size)
         {
-            if (Child != null)
-            {
-                Child.Arrange(new Rect(
-                    BorderWidth + Padding.Left,
-                    BorderWidth + Padding.Top,
-                    size.Width - BorderWidth - Padding.Right,
-                    size.Height - BorderWidth - Padding.Bottom));
-            }
+            Child?.Arrange(new Rect(
+                BorderWidth + Padding.Left,
+                BorderWidth + Padding.Top,
+                Child.DesiredSize.Width,
+                Child.DesiredSize.Height));
 
-            return size;
+            return DesiredSize;
         }
 
         protected override void OnRender(DrawingContext drawingContext)
