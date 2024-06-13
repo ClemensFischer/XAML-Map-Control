@@ -34,9 +34,15 @@ namespace MapControl
             Action<FrameworkElement, TValue, TValue> changed = null,
             bool inherits = false) // unused in WinUI/UWP
         {
-            var metadata = changed != null
-                ? new PropertyMetadata(defaultValue, (o, e) => changed((FrameworkElement)o, (TValue)e.OldValue, (TValue)e.NewValue))
-                : new PropertyMetadata(defaultValue);
+            var metadata = changed == null
+                ? new PropertyMetadata(defaultValue)
+                : new PropertyMetadata(defaultValue, (o, e) =>
+                {
+                    if (o is FrameworkElement element)
+                    {
+                        changed(element, (TValue)e.OldValue, (TValue)e.NewValue);
+                    }
+                });
 
             return DependencyProperty.RegisterAttached(name, typeof(TValue), typeof(TOwner), metadata);
         }

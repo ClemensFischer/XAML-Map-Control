@@ -71,7 +71,13 @@ namespace MapControl
 
             if (changed != null)
             {
-                metadata.PropertyChangedCallback = (o, e) => changed((FrameworkElement)o, (TValue)e.OldValue, (TValue)e.NewValue);
+                metadata.PropertyChangedCallback = (o, e) =>
+                {
+                    if (o is FrameworkElement element)
+                    {
+                        changed(element, (TValue)e.OldValue, (TValue)e.NewValue);
+                    }
+                };
             }
 
             return DependencyProperty.RegisterAttached(name, typeof(TValue), typeof(TOwner), metadata);
