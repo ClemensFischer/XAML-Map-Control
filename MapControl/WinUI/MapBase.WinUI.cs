@@ -175,11 +175,11 @@ namespace MapControl
         {
             if (centerAnimation != null)
             {
-                SetValueInternal(CenterProperty, TargetCenter);
-                UpdateTransform();
-
                 centerAnimation.Completed -= CenterAnimationCompleted;
                 centerAnimation = null;
+
+                SetValueInternal(CenterProperty, TargetCenter);
+                UpdateTransform();
             }
         }
 
@@ -270,11 +270,11 @@ namespace MapControl
         {
             if (zoomLevelAnimation != null)
             {
-                SetValueInternal(ZoomLevelProperty, TargetZoomLevel);
-                UpdateTransform(true);
-
                 zoomLevelAnimation.Completed -= ZoomLevelAnimationCompleted;
                 zoomLevelAnimation = null;
+
+                SetValueInternal(ZoomLevelProperty, TargetZoomLevel);
+                UpdateTransform(true);
             }
         }
 
@@ -346,11 +346,11 @@ namespace MapControl
         {
             if (headingAnimation != null)
             {
-                SetValueInternal(HeadingProperty, TargetHeading);
-                UpdateTransform();
-
                 headingAnimation.Completed -= HeadingAnimationCompleted;
                 headingAnimation = null;
+
+                SetValueInternal(HeadingProperty, TargetHeading);
+                UpdateTransform();
             }
         }
 
