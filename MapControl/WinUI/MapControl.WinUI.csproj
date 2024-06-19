@@ -7,7 +7,7 @@
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for WinUI</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>10.3.0</Version>
+        <Version>10.4.0</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2024 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>

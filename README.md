@@ -1,12 +1,12 @@
 # XAML Map Control
 
-A set of controls for WPF, UWP, WinUI and Avalonia UI for rendering digital maps from different providers and various types of map overlays.
+A set of controls for WPF, UWP, WinUI and Avalonia UI for rendering raster maps from different providers and various types of map overlays.
 
 Map providers can easily be added by specifying a template string for their map tile URLs. 
 Map overlay layers allow to draw and interact with graphical objects and pushpins on the map.
 The Map Control API is similar to the Microsoft Bing Maps Control for WPF, except that no API key is required.
 
-The project includes sample applications for both platforms, which demonstrate the features of XAML Map Control.
+The project includes sample applications for all platforms, which demonstrate the features of XAML Map Control.
 
 Map Control supports multiple map projections. However, the MapTileLayer class only works with WebMercatorProjection.
 For other projections, an appropriate WmtsTileLayer or WmsImageLayer could be used.
