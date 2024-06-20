@@ -3,13 +3,6 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>MapControl.Caching</RootNamespace>
         <AssemblyTitle>XAML Map Control SQLiteCache Library</AssemblyTitle>
-        <Product>XAML Map Control</Product>
-        <Version>10.5.0</Version>
-        <Authors>Clemens Fischer</Authors>
-        <Copyright>Copyright © 2024 Clemens Fischer</Copyright>
-        <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
-        <DelaySign>false</DelaySign>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.SQLiteCache</PackageId>
         <Title>$(AssemblyTitle)</Title>
@@ -18,10 +11,6 @@
         <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ClemensFischer/XAML-Map-Control.git</RepositoryUrl>
     </PropertyGroup>
-
-    <ItemGroup>
-        <None Include="..\..\MapControl.snk" />
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
