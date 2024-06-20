@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net6.0-windows;net462</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <RootNamespace>MapControl.UiTools</RootNamespace>
+        <AssemblyTitle>XAML Map Control UI Tools Library for WPF</AssemblyTitle>
+        <DefineConstants>WPF</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Shared\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
+    </ItemGroup>
+</Project>
