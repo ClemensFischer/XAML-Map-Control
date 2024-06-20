@@ -3,7 +3,7 @@
         <TargetFrameworks>net6.0-windows;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl.Projections</RootNamespace>
-        <AssemblyTitle>XAML Map Control Projections Library for WPF</AssemblyTitle>
+        <AssemblyTitle>XAML Map Control Projections Library</AssemblyTitle>
         <Product>XAML Map Control</Product>
         <Version>10.4.0</Version>
         <Authors>Clemens Fischer</Authors>
@@ -13,6 +13,12 @@
         <DelaySign>false</DelaySign>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
+        <PackageTags>XAML WPF WinUI Avalonia Map</PackageTags>
+        <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/ClemensFischer/XAML-Map-Control.git</RepositoryUrl>
         <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 

@@ -12,7 +12,16 @@
         <DelaySign>false</DelaySign>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.FileDbCache</PackageId>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>IDistributedCache implementation for XAML Map Control, based on EzTools FileDb</Description>
+        <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/ClemensFischer/XAML-Map-Control.git</RepositoryUrl>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\MapControl.snk" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
