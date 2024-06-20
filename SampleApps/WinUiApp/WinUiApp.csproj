@@ -11,7 +11,7 @@
         <RootNamespace>SampleApplication</RootNamespace>
         <AssemblyTitle>XAML Map Control WinUI Sample Application</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>10.4.0</Version>
+        <Version>10.5.0</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2024 Clemens Fischer</Copyright>
         <AnalysisLevel>none</AnalysisLevel>

@@ -7,7 +7,7 @@
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for WinUI</AssemblyTitle>
         <Product>XAML Map Control</Product>
-        <Version>10.4.0</Version>
+        <Version>10.5.0</Version>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2024 Clemens Fischer</Copyright>
         <SignAssembly>true</SignAssembly>
