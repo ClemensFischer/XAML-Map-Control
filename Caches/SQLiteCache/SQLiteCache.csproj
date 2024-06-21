@@ -3,7 +3,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>MapControl.Caching</RootNamespace>
         <AssemblyTitle>XAML Map Control SQLiteCache Library</AssemblyTitle>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.SQLiteCache</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>IDistributedCache implementation for XAML Map Control, based on SQLite</Description>

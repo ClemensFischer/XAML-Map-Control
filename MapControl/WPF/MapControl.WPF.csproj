@@ -4,7 +4,7 @@
         <UseWPF>true</UseWPF>
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library</AssemblyTitle>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>A set of controls for WPF, WinUI and Avalonia UI for rendering raster maps from different providers (like OpenStreetMap and Bing Maps) and various types of map overlays</Description>

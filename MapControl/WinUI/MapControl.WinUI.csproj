@@ -6,7 +6,7 @@
         <UseWinUI>true</UseWinUI>
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for WinUI</AssemblyTitle>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl</PackageId>
         <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>

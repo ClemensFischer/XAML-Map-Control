@@ -6,7 +6,7 @@
         <UseWinUI>true</UseWinUI>
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for WinUI</AssemblyTitle>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
         <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>

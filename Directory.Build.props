@@ -8,5 +8,6 @@
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <DelaySign>false</DelaySign>
+        <GeneratePackage>false</GeneratePackage>
     </PropertyGroup>
 </Project>

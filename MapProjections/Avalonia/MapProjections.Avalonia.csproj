@@ -4,7 +4,7 @@
         <Nullable>disable</Nullable>
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for Avalonia</AssemblyTitle>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
         <DefineConstants>AVALONIA</DefineConstants>
     </PropertyGroup>
