@@ -11,7 +11,7 @@ using Path = System.IO.Path;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
+using System.Xml.Linq;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -140,14 +140,12 @@ namespace MapControl
 
                 var imageOverlays = await Task.Run(() =>
                 {
-                    var kmlDocument = new XmlDocument();
-
                     using (var docStream = docEntry.Open())
                     {
-                        kmlDocument.Load(docStream);
-                    }
+                        var kmlDocument = XDocument.Load(docStream);
 
-                    return ReadGroundOverlays(kmlDocument).ToList();
+                        return ReadGroundOverlays(kmlDocument.Root).ToList();
+                    }
                 });
 
                 foreach (var imageOverlay in imageOverlays)
@@ -179,10 +177,9 @@ namespace MapControl
 
             var imageOverlays = await Task.Run(() =>
             {
-                var kmlDocument = new XmlDocument();
-                kmlDocument.Load(docFilePath);
+                var kmlDocument = XDocument.Load(docFilePath);
 
-                return ReadGroundOverlays(kmlDocument).ToList();
+                return ReadGroundOverlays(kmlDocument.Root).ToList();
             });
 
             foreach (var imageOverlay in imageOverlays)
@@ -193,85 +190,74 @@ namespace MapControl
             return imageOverlays;
         }
 
-        private static IEnumerable<ImageOverlay> ReadGroundOverlays(XmlDocument kmlDocument)
+        private static IEnumerable<ImageOverlay> ReadGroundOverlays(XElement kmlElement)
         {
-            foreach (XmlElement groundOverlayElement in kmlDocument.GetElementsByTagName("GroundOverlay"))
-            {
-                LatLonBox latLonBox = null;
-                string imagePath = null;
-                int zIndex = 0;
+            var ns = kmlElement.Name.Namespace;
+            var docElement = kmlElement.Element(ns + "Document") ?? kmlElement;
 
-                foreach (var childElement in groundOverlayElement.ChildNodes.OfType<XmlElement>())
+            foreach (var folderElement in docElement.Elements(ns + "Folder"))
+            {
+                foreach (var groundOverlayElement in folderElement.Elements(ns + "GroundOverlay"))
                 {
-                    switch (childElement.LocalName)
+                    var latLonBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
+                    var latLonBox = latLonBoxElement != null ? ReadLatLonBox(latLonBoxElement) : null;
+
+                    var imagePathElement = groundOverlayElement.Element(ns + "Icon");
+                    var imagePath = imagePathElement?.Element(ns + "href")?.Value;
+
+                    var drawOrder = groundOverlayElement.Element(ns + "drawOrder")?.Value;
+                    var zIndex = drawOrder != null ? int.Parse(drawOrder) : 0;
+
+                    if (latLonBox != null && imagePath != null)
                     {
-                        case "LatLonBox":
-                            latLonBox = ReadLatLonBox(childElement);
-                            break;
-                        case "Icon":
-                            imagePath = ReadImagePath(childElement);
-                            break;
-                        case "drawOrder":
-                            zIndex = int.Parse(childElement.InnerText.Trim());
-                            break;
+                        yield return new ImageOverlay(latLonBox, imagePath, zIndex);
                     }
                 }
-
-                if (latLonBox != null && imagePath != null)
-                {
-                    yield return new ImageOverlay(latLonBox, imagePath, zIndex);
-                }
             }
         }
 
-        private static string ReadImagePath(XmlElement element)
+        private static LatLonBox ReadLatLonBox(XElement latLonBoxElement)
         {
-            string href = null;
-
-            foreach (var childElement in element.ChildNodes.OfType<XmlElement>())
-            {
-                switch (childElement.LocalName)
-                {
-                    case "href":
-                        href = childElement.InnerText.Trim();
-                        break;
-                }
-            }
-
-            return href;
-        }
-
-        private static LatLonBox ReadLatLonBox(XmlElement element)
-        {
+            var ns = latLonBoxElement.Name.Namespace;
             var north = double.NaN;
             var south = double.NaN;
             var east = double.NaN;
             var west = double.NaN;
             var rotation = 0d;
 
-            foreach (var childElement in element.ChildNodes.OfType<XmlElement>())
+            var value = latLonBoxElement.Element(ns + "north")?.Value;
+            if (value != null)
             {
-                switch (childElement.LocalName)
-                {
-                    case "north":
-                        north = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
-                        break;
-                    case "south":
-                        south = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
-                        break;
-                    case "east":
-                        east = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
-                        break;
-                    case "west":
-                        west = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
-                        break;
-                    case "rotation":
-                        rotation = double.Parse(childElement.InnerText.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture);
-                        break;
-                }
+                north = double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
             }
 
-            if (north <= south || east <= west)
+            value = latLonBoxElement.Element(ns + "south")?.Value;
+            if (value != null)
+            {
+                south = double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+
+            value = latLonBoxElement.Element(ns + "east")?.Value;
+            if (value != null)
+            {
+                east = double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+
+            value = latLonBoxElement.Element(ns + "west")?.Value;
+            if (value != null)
+            {
+                west = double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+
+            value = latLonBoxElement.Element(ns + "rotation")?.Value;
+            if (value != null)
+            {
+                rotation = double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+
+            if (double.IsNaN(north) || double.IsNaN(south) ||
+                double.IsNaN(east) || double.IsNaN(west) ||
+                north <= south || east <= west)
             {
                 throw new FormatException("Invalid LatLonBox");
             }
