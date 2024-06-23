@@ -9,7 +9,6 @@
         <Description>IDistributedCache implementation for XAML Map Control, based on EzTools FileDb</Description>
         <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/ClemensFischer/XAML-Map-Control.git</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
