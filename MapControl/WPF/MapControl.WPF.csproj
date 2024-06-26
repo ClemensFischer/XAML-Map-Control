@@ -8,9 +8,6 @@
         <PackageId>XAML.MapControl</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>A set of controls for WPF, WinUI and Avalonia UI for rendering raster maps from different providers (like OpenStreetMap and Bing Maps) and various types of map overlays</Description>
-        <PackageTags>XAML WPF WinUI Avalonia Map</PackageTags>
-        <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
         <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 

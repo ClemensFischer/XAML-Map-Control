@@ -9,5 +9,9 @@
         <SignAssembly>true</SignAssembly>
         <DelaySign>false</DelaySign>
         <GeneratePackage>false</GeneratePackage>
+        <PackageTags>XAML WPF WinUI Avalonia Map</PackageTags>
+        <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
+        <Nullable>disable</Nullable>
     </PropertyGroup>
 </Project>

@@ -8,9 +8,6 @@
         <PackageId>XAML.MapControl.MapProjections</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
-        <PackageTags>XAML WPF WinUI Avalonia Map</PackageTags>
-        <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
         <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 
