@@ -2,13 +2,13 @@
     <PropertyGroup>
         <TargetFrameworks>net6.0-windows;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
+        <DefineConstants>WPF</DefineConstants>
         <RootNamespace>MapControl.Projections</RootNamespace>
-        <AssemblyTitle>XAML Map Control Projections Library</AssemblyTitle>
+        <AssemblyTitle>XAML Map Control Projections Library for WPF</AssemblyTitle>
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
-        <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

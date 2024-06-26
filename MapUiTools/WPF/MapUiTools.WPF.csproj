@@ -2,9 +2,9 @@
     <PropertyGroup>
         <TargetFrameworks>net6.0-windows;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
+        <DefineConstants>WPF</DefineConstants>
         <RootNamespace>MapControl.UiTools</RootNamespace>
         <AssemblyTitle>XAML Map Control UI Tools Library for WPF</AssemblyTitle>
-        <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

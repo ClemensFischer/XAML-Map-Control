@@ -4,11 +4,13 @@
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <UseRidGraph>true</UseRidGraph>
         <UseWinUI>true</UseWinUI>
+        <DefineConstants>WINUI</DefineConstants>
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for WinUI</AssemblyTitle>
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
-        <DefineConstants>WINUI</DefineConstants>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
     </PropertyGroup>
 
     <ItemGroup>

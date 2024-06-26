@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <RootNamespace>MapControl.MBTiles</RootNamespace>
-        <AssemblyTitle>XAML Map Control MBTiles Library for Avalonia</AssemblyTitle>
-        <PackageId>XAML.MapControl.MBTiles</PackageId>
         <DefineConstants>AVALONIA</DefineConstants>
+        <RootNamespace>MapControl.MBTiles</RootNamespace>
+        <AssemblyTitle>XAML Map Control MBTiles Library for Avalonia UI</AssemblyTitle>
     </PropertyGroup>
 
     <ItemGroup>

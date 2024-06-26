@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
+        <DefineConstants>AVALONIA</DefineConstants>
         <RootNamespace>MapControl.Projections</RootNamespace>
-        <AssemblyTitle>XAML Map Control Projections Library for Avalonia</AssemblyTitle>
+        <AssemblyTitle>XAML Map Control Projections Library for Avalonia UI</AssemblyTitle>
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections</PackageId>
-        <DefineConstants>AVALONIA</DefineConstants>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
     </PropertyGroup>
 
     <ItemGroup>

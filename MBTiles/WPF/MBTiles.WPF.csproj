@@ -2,10 +2,9 @@
     <PropertyGroup>
         <TargetFrameworks>net6.0-windows;net462</TargetFrameworks>
         <UseWPF>true</UseWPF>
+        <DefineConstants>WPF</DefineConstants>
         <RootNamespace>MapControl.MBTiles</RootNamespace>
         <AssemblyTitle>XAML Map Control MBTiles Library for WPF</AssemblyTitle>
-        <PackageId>XAML.MapControl.MBTiles</PackageId>
-        <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <RootNamespace>MapControl.UiTools</RootNamespace>
-        <AssemblyTitle>XAML Map Control UI Tools Library for Avalonia</AssemblyTitle>
         <DefineConstants>AVALONIA</DefineConstants>
+        <RootNamespace>MapControl.UiTools</RootNamespace>
+        <AssemblyTitle>XAML Map Control UI Tools Library for Avalonia UI</AssemblyTitle>
     </PropertyGroup>
 
     <ItemGroup>

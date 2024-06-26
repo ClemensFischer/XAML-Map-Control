@@ -4,9 +4,9 @@
         <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <UseRidGraph>true</UseRidGraph>
         <UseWinUI>true</UseWinUI>
+        <DefineConstants>WINUI</DefineConstants>
         <RootNamespace>MapControl.UiTools</RootNamespace>
         <AssemblyTitle>XAML Map Control UI Tools Library for WinUI</AssemblyTitle>
-        <DefineConstants>WINUI</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
