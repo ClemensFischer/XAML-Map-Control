@@ -1,17 +1,13 @@
 ﻿using MapControl;
-using MapControl.UiTools;
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using Windows.Devices.Input;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 
 namespace SampleApplication
 {
@@ -20,64 +16,17 @@ namespace SampleApplication
         static MainPage()
         {
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
-
-            var bingMapsApiKeyPath = "BingMapsApiKey.txt";
-
-            if (File.Exists(bingMapsApiKeyPath))
-            {
-                BingMapsTileLayer.ApiKey = File.ReadAllText(bingMapsApiKeyPath)?.Trim();
-            }
         }
 
         public MainPage()
         {
             InitializeComponent();
 
-            if (!string.IsNullOrEmpty(BingMapsTileLayer.ApiKey))
-            {
-                mapLayersMenuButton.MapLayers.Add(new MapLayerItem
-                {
-                    Text = "Bing Maps Road",
-                    Layer = new BingMapsTileLayer
-                    {
-                        Mode = BingMapsTileLayer.MapMode.Road,
-                        SourceName = "Bing Maps Road",
-                        Description = "© [Microsoft](http://www.bing.com/maps/)"
-                    }
-                });
-
-                mapLayersMenuButton.MapLayers.Add(new MapLayerItem
-                {
-                    Text = "Bing Maps Aerial",
-                    Layer = new BingMapsTileLayer
-                    {
-                        Mode = BingMapsTileLayer.MapMode.Aerial,
-                        SourceName = "Bing Maps Aerial",
-                        Description = "© [Microsoft](http://www.bing.com/maps/)",
-                        MapForeground = new SolidColorBrush(Colors.White),
-                        MapBackground = new SolidColorBrush(Colors.Black)
-                    }
-                });
-
-                mapLayersMenuButton.MapLayers.Add(new MapLayerItem
-                {
-                    Text = "Bing Maps Aerial with Labels",
-                    Layer = new BingMapsTileLayer
-                    {
-                        Mode = BingMapsTileLayer.MapMode.AerialWithLabels,
-                        SourceName = "Bing Maps Hybrid",
-                        Description = "© [Microsoft](http://www.bing.com/maps/)",
-                        MapForeground = new SolidColorBrush(Colors.White),
-                        MapBackground = new SolidColorBrush(Colors.Black)
-                    }
-                });
-            }
-
+            AddBingMapsLayers();
             AddTestLayers();
         }
 
+        partial void AddBingMapsLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)
