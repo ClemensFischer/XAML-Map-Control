@@ -68,7 +68,7 @@ namespace SampleApplication
             Points.Add(new PointItem
             {
                 Name = "Buhne 10",
-                Location = new Location(53.49350, 8.15563)
+                Location = new Location(53.49348, 8.15694)
             });
 
             Pushpins.Add(new PointItem

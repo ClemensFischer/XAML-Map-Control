@@ -1,12 +1,18 @@
-﻿<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:map="clr-namespace:MapControl">
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:map="clr-namespace:MapControl">
 
-    <!-- Style replaced by TemplateProperty and ItemsPanelProperty default value overrides -->
-    <!--
-    <Style Selector="map|MapItemsControl">
+    <ControlTheme TargetType="{x:Type map:MapBase}" x:Key="{x:Type map:MapBase}">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="Black"/>
+    </ControlTheme>
+
+    <ControlTheme TargetType="{x:Type map:Map}" x:Key="{x:Type map:Map}" BasedOn="{StaticResource {x:Type map:MapBase}}"/>
+
+    <ControlTheme TargetType="{x:Type map:MapItemsControl}" x:Key="{x:Type map:MapItemsControl}">
         <Setter Property="Template">
-            <ControlTemplate>
+            <ControlTemplate TargetType="{x:Type map:MapItemsControl}">
                 <ItemsPresenter ItemsPanel="{TemplateBinding ItemsPanel}"/>
             </ControlTemplate>
         </Setter>
@@ -17,37 +23,64 @@
                 </ItemsPanelTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-    -->
+    </ControlTheme>
 
-    <Style Selector="map|MapContentControl">
+    <ControlTheme TargetType="{x:Type ContentControl}" x:Key="ContentControlTheme">
         <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
         <Setter Property="BorderBrush" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="ClipToBounds" Value="False"/>
+
+        <!-- Template Setter here somehow disables a Template Setter in a Style for a derived type, e.g. MapItem -->
+        <!--<Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type ContentControl}">
+                <ContentPresenter
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                    Margin="{TemplateBinding Padding}"/>
+            </ControlTemplate>
+        </Setter>-->
+    </ControlTheme>
+
+    <ControlTheme TargetType="{x:Type map:MapContentControl}" x:Key="{x:Type map:MapContentControl}" BasedOn="{StaticResource ContentControlTheme}">
         <Setter Property="Template">
-            <ControlTemplate>
-                <ContentPresenter Content="{TemplateBinding Content}"
-                                  ContentTemplate="{TemplateBinding ContentTemplate}"
-                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                  Margin="{TemplateBinding Padding}"/>
+            <ControlTemplate TargetType="{x:Type map:MapContentControl}">
+                <ContentPresenter
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                    Margin="{TemplateBinding Padding}"/>
             </ControlTemplate>
         </Setter>
-    </Style>
+    </ControlTheme>
 
-    <Style Selector="map|Pushpin">
-        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
-        <Setter Property="BorderBrush" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
+    <ControlTheme TargetType="{x:Type map:MapItem}" x:Key="{x:Type map:MapItem}" BasedOn="{StaticResource ContentControlTheme}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type map:MapItem}">
+                <ContentPresenter
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                    Margin="{TemplateBinding Padding}"/>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme TargetType="{x:Type map:Pushpin}" x:Key="{x:Type map:Pushpin}" BasedOn="{StaticResource ContentControlTheme}">
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Bottom"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="5"/>
         <Setter Property="Padding" Value="7,5"/>
         <Setter Property="Template">
-            <ControlTemplate>
+            <ControlTemplate TargetType="{x:Type map:Pushpin}">
                 <map:PushpinBorder
                     HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                     Background="{TemplateBinding Background}"
@@ -63,5 +96,5 @@
                 </map:PushpinBorder>
             </ControlTemplate>
         </Setter>
-    </Style>
-</Styles>
+    </ControlTheme>
+</ResourceDictionary>

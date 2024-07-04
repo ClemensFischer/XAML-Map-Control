@@ -16,6 +16,38 @@
                  ManipulationModes="All"
                  DoubleTapped="MapDoubleTapped">
 
+            <map:MapItemsControl ItemsSource="{Binding Polylines}">
+                <map:MapItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
+                    </DataTemplate>
+                </map:MapItemsControl.ItemTemplate>
+            </map:MapItemsControl>
+
+            <map:MapItemsControl ItemsSource="{Binding Points}"
+                                 SelectionMode="Multiple">
+                <map:MapItemsControl.Styles>
+                    <Style Selector="map|MapItem">
+                        <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+                    </Style>
+                    <Style Selector="map|MapItem:selected">
+                        <Setter Property="Foreground" Value="OrangeRed"/>
+                    </Style>
+                </map:MapItemsControl.Styles>
+                <map:MapItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Canvas Width="100" Height="100"  ClipToBounds="False">
+                            <Path StrokeThickness="2" Stroke="Gray" Fill="Transparent">
+                                <Path.Data>
+                                    <EllipseGeometry RadiusX="8" RadiusY="8"/>
+                                </Path.Data>
+                            </Path>
+                            <TextBlock Margin="16,-9,0,0" Text="{Binding Name}"/>
+                        </Canvas>
+                    </DataTemplate>
+                </map:MapItemsControl.ItemTemplate>
+            </map:MapItemsControl>
+
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  SelectedItem="{Binding SelectedPushpin}"
                                  SelectionMode="Multiple"
@@ -28,8 +60,9 @@
                         <Setter Property="HorizontalAlignment" Value="Center"/>
                         <Setter Property="VerticalAlignment" Value="Bottom"/>
                         <Setter Property="Template">
-                            <ControlTemplate>
-                                <map:Pushpin Content="{Binding Name}"/>
+                            <ControlTemplate TargetType="map:MapItem">
+                                <map:Pushpin Content="{Binding Name}"
+                                             HorizontalAlignment="{TemplateBinding HorizontalAlignment}"/>
                             </ControlTemplate>
                         </Setter>
                     </Style>
