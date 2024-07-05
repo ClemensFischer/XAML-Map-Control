@@ -19,15 +19,15 @@
     </ControlTemplate>
 
     <ControlTheme TargetType="ContentControl" x:Key="ContentControlTheme">
-        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
-        <Setter Property="BorderBrush" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
+        <Setter Property="Background" Value="{CompiledBinding Background, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
+        <Setter Property="BorderBrush" Value="{CompiledBinding Foreground, RelativeSource={RelativeSource AncestorType=map:MapBase}}"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="ClipToBounds" Value="False"/>
-        
-        <!-- Setter here somehow disables a Template Setter in a Style for a derived type, e.g. MapItem -->
+
+        <!-- Template Setter here does somehow break a Style for a derived type like MapItem -->
         <!--<Setter Property="Template" Value="{StaticResource ContentControlTemplate}"/>-->
     </ControlTheme>
 
