@@ -37,6 +37,11 @@
                 <map:MapItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Canvas Width="100" Height="100"  ClipToBounds="False">
+                            <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=map:MapItem}}">
+                                <Path.Data>
+                                    <EllipseGeometry RadiusX="3" RadiusY="3"/>
+                                </Path.Data>
+                            </Path>
                             <Path StrokeThickness="2" Stroke="Gray" Fill="Transparent">
                                 <Path.Data>
                                     <EllipseGeometry RadiusX="8" RadiusY="8"/>
