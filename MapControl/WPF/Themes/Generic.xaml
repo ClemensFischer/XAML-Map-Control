@@ -4,7 +4,6 @@
     xmlns:map="clr-namespace:MapControl">
 
     <Style TargetType="map:MapBase">
-        <Setter Property="Background" Value="White"/>
         <Setter Property="Foreground" Value="Black"/>
     </Style>
 

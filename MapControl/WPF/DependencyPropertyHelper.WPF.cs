@@ -93,14 +93,20 @@ namespace MapControl
 
         public static DependencyProperty AddOwner<TOwner, TValue>(
             DependencyProperty property,
+            TValue defaultValue = default,
             Action<TOwner, TValue, TValue> changed = null)
             where TOwner : DependencyObject
         {
-            FrameworkPropertyMetadata metadata = null;
+            var metadata = new FrameworkPropertyMetadata();
+
+            if (!Equals(defaultValue, property.GetMetadata(typeof(TOwner)).DefaultValue))
+            {
+                metadata.DefaultValue = defaultValue;
+            }
 
             if (changed != null)
             {
-                metadata = new FrameworkPropertyMetadata((o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue));
+                metadata.PropertyChangedCallback = (o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue);
             }
 
             return property.AddOwner(typeof(TOwner), metadata);

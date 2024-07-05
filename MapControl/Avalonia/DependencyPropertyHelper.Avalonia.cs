@@ -62,7 +62,7 @@ namespace MapControl
         {
             var newProperty = property.AddOwner<TOwner>();
 
-            if (!Equals(defaultValue, newProperty.GetMetadata(typeof(TOwner)).DefaultValue))
+            if (!Equals(defaultValue, property.GetMetadata(typeof(TOwner)).DefaultValue))
             {
                 newProperty.OverrideMetadata<TOwner>(new StyledPropertyMetadata<TValue>(defaultValue));
             }
@@ -73,13 +73,6 @@ namespace MapControl
             }
 
             return newProperty;
-        }
-
-        public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
-            AvaloniaProperty property)
-            where TOwner : AvaloniaObject
-        {
-            return AddOwner<TOwner, TValue>((StyledProperty<TValue>)property);
         }
 
         public static void SetBinding(this AvaloniaObject target, AvaloniaProperty property, Binding binding)

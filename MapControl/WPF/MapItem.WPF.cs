@@ -14,7 +14,7 @@ namespace MapControl
             DependencyPropertyHelper.AddOwner<MapItem, bool>(MapPanel.AutoCollapseProperty);
 
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty,
+            DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty, null,
                 (item, oldValue, newValue) => item.UpdateMapTransform(newValue));
 
         static MapItem()
