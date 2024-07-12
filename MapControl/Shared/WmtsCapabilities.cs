@@ -89,12 +89,7 @@ namespace MapControl
                 .Elements(wmts + "Style")
                 .FirstOrDefault();
 
-            var style = styleElement?.Element(ows + "Identifier")?.Value;
-
-            if (string.IsNullOrEmpty(style))
-            {
-                style = "default";
-            }
+            var style = styleElement?.Element(ows + "Identifier")?.Value ?? "";
 
             var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layer, style, capabilitiesUrl);
 
