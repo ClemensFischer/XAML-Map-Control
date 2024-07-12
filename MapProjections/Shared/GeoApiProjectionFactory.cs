@@ -19,18 +19,28 @@ namespace MapControl.Projections
             return factory;
         }
 
-        public Dictionary<int, string> CoordinateSystemWkts { get; } = new Dictionary<int, string>();
+        public override MapProjection GetProjection(string crsId)
+        {
+            switch (crsId)
+            {
+                case MapControl.WebMercatorProjection.DefaultCrsId:
+                    return new WebMercatorProjection();
+
+                case MapControl.WorldMercatorProjection.DefaultCrsId:
+                    return new WorldMercatorProjection();
+
+                case MapControl.Wgs84AutoUtmProjection.DefaultCrsId:
+                    return new Wgs84AutoUtmProjection();
+
+                default:
+                    return base.GetProjection(crsId);
+            }
+        }
 
         public override MapProjection GetProjection(int epsgCode)
         {
             switch (epsgCode)
             {
-                case WorldMercatorProjection.EpsgCode:
-                    return new WorldMercatorProjection();
-
-                case WebMercatorProjection.EpsgCode:
-                    return new WebMercatorProjection();
-
                 case int c when c >= Ed50UtmProjection.FirstZoneEpsgCode && c <= Ed50UtmProjection.LastZoneEpsgCode:
                     return new Ed50UtmProjection(epsgCode % 100);
 
@@ -56,16 +66,6 @@ namespace MapControl.Projections
             }
         }
 
-        public override MapProjection GetProjection(string crsId)
-        {
-            switch (crsId)
-            {
-                case Wgs84AutoUtmProjection.DefaultCrsId:
-                    return new Wgs84AutoUtmProjection();
-
-                default:
-                    return base.GetProjection(crsId);
-            }
-        }
+        public Dictionary<int, string> CoordinateSystemWkts { get; } = new Dictionary<int, string>();
     }
 }

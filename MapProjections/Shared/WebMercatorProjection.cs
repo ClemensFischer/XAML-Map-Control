@@ -18,8 +18,6 @@ namespace MapControl.Projections
     /// </summary>
     public class WebMercatorProjection : GeoApiProjection
     {
-        public const int EpsgCode = 3857;
-
         public WebMercatorProjection()
         {
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;

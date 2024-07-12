@@ -117,9 +117,9 @@ namespace MapControl
     /// </summary>
     public class UpsNorthProjection : PolarStereographicProjection
     {
-        public const int EpsgCode = 32661;
+        public const string DefaultCrsId = "EPSG:32661";
 
-        public UpsNorthProjection(string crsId = "EPSG:32661")
+        public UpsNorthProjection(string crsId = DefaultCrsId)
         {
             CrsId = crsId;
             IsNorth = true;
@@ -131,9 +131,9 @@ namespace MapControl
     /// </summary>
     public class UpsSouthProjection : PolarStereographicProjection
     {
-        public const int EpsgCode = 32761;
+        public const string DefaultCrsId = "EPSG:32761";
 
-        public UpsSouthProjection(string crsId = "EPSG:32761")
+        public UpsSouthProjection(string crsId = DefaultCrsId)
         {
             CrsId = crsId;
             IsNorth = false;

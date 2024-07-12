@@ -15,9 +15,9 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
-        public const int EpsgCode = 3395;
+        public const string DefaultCrsId = "EPSG:3395";
 
-        public WorldMercatorProjection(string crsId = "EPSG:3395")
+        public WorldMercatorProjection(string crsId = DefaultCrsId)
         {
             Type = MapProjectionType.NormalCylindrical;
             CrsId = crsId;

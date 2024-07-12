@@ -45,11 +45,9 @@ namespace MapControl.Projections
     /// </summary>
     public class Wgs84AutoUtmProjection : Wgs84UtmProjection
     {
-        public const string DefaultCrsId = "AUTO2:42001";
-
         private readonly string autoCrsId;
 
-        public Wgs84AutoUtmProjection(string crsId = DefaultCrsId)
+        public Wgs84AutoUtmProjection(string crsId = MapControl.Wgs84AutoUtmProjection.DefaultCrsId)
             : base(31, true)
         {
             autoCrsId = crsId;

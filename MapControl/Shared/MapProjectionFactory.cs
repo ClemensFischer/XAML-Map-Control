@@ -14,46 +14,25 @@ namespace MapControl
             set => instance = value;
         }
 
-        public virtual MapProjection GetProjection(int epsgCode)
-        {
-            switch (epsgCode)
-            {
-                case WorldMercatorProjection.EpsgCode:
-                    return new WorldMercatorProjection();
-
-                case WebMercatorProjection.EpsgCode:
-                    return new WebMercatorProjection();
-
-                case EquirectangularProjection.EpsgCode:
-                    return new EquirectangularProjection();
-
-                case UpsNorthProjection.EpsgCode:
-                    return new UpsNorthProjection();
-
-                case UpsSouthProjection.EpsgCode:
-                    return new UpsSouthProjection();
-
-                case var c when c >= Etrs89UtmProjection.FirstZoneEpsgCode && c <= Etrs89UtmProjection.LastZoneEpsgCode:
-                    return new Etrs89UtmProjection(epsgCode % 100);
-
-                case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
-                    return new Nad83UtmProjection(epsgCode % 100);
-
-                case var c when c >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && c <= Wgs84UtmProjection.LastZoneNorthEpsgCode:
-                    return new Wgs84UtmProjection(epsgCode % 100, true);
-
-                case var c when c >= Wgs84UtmProjection.FirstZoneSouthEpsgCode && c <= Wgs84UtmProjection.LastZoneSouthEpsgCode:
-                    return new Wgs84UtmProjection(epsgCode % 100, false);
-
-                default:
-                    return null;
-            }
-        }
-
         public virtual MapProjection GetProjection(string crsId)
         {
             switch (crsId)
             {
+                case WebMercatorProjection.DefaultCrsId:
+                    return new WebMercatorProjection();
+
+                case WorldMercatorProjection.DefaultCrsId:
+                    return new WorldMercatorProjection();
+
+                case EquirectangularProjection.DefaultCrsId:
+                    return new EquirectangularProjection();
+
+                case UpsNorthProjection.DefaultCrsId:
+                    return new UpsNorthProjection();
+
+                case UpsSouthProjection.DefaultCrsId:
+                    return new UpsSouthProjection();
+
                 case Wgs84AutoUtmProjection.DefaultCrsId:
                     return new Wgs84AutoUtmProjection();
 
@@ -76,6 +55,27 @@ namespace MapControl
                     return crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode)
                         ? GetProjection(epsgCode)
                         : null;
+            }
+        }
+
+        public virtual MapProjection GetProjection(int epsgCode)
+        {
+            switch (epsgCode)
+            {
+                case var c when c >= Etrs89UtmProjection.FirstZoneEpsgCode && c <= Etrs89UtmProjection.LastZoneEpsgCode:
+                    return new Etrs89UtmProjection(epsgCode % 100);
+
+                case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
+                    return new Nad83UtmProjection(epsgCode % 100);
+
+                case var c when c >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && c <= Wgs84UtmProjection.LastZoneNorthEpsgCode:
+                    return new Wgs84UtmProjection(epsgCode % 100, true);
+
+                case var c when c >= Wgs84UtmProjection.FirstZoneSouthEpsgCode && c <= Wgs84UtmProjection.LastZoneSouthEpsgCode:
+                    return new Wgs84UtmProjection(epsgCode % 100, false);
+
+                default:
+                    return null;
             }
         }
     }
