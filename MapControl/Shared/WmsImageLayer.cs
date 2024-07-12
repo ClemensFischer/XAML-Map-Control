@@ -31,7 +31,7 @@ namespace MapControl
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
         public static readonly DependencyProperty WmsStylesProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsStyles), string.Empty,
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsStyles), "",
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
         public static readonly DependencyProperty WmsLayersProperty =

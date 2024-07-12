@@ -89,14 +89,14 @@ namespace SampleApplication
             else
             {
                 mouseLocation.Visibility = Visibility.Collapsed;
-                mouseLocation.Text = string.Empty;
+                mouseLocation.Text = "";
             }
         }
 
         private void MapPointerExited(object sender, PointerRoutedEventArgs e)
         {
             mouseLocation.Visibility = Visibility.Collapsed;
-            mouseLocation.Text = string.Empty;
+            mouseLocation.Text = "";
         }
 
         private static string GetLatLonText(Location location)

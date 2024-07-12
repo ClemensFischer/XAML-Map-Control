@@ -37,7 +37,7 @@ namespace MapControl
         /// <summary>
         /// Gets the WMS 1.3.0 CRS identifier.
         /// </summary>
-        public string CrsId { get; protected set; } = string.Empty;
+        public string CrsId { get; protected set; } = "";
 
         /// <summary>
         /// Gets or sets an optional projection center.

@@ -94,14 +94,14 @@ namespace SampleApplication
             else
             {
                 mouseLocation.Visibility = Visibility.Collapsed;
-                mouseLocation.Text = string.Empty;
+                mouseLocation.Text = "";
             }
         }
 
         private void MapMouseLeave(object sender, MouseEventArgs e)
         {
             mouseLocation.Visibility = Visibility.Collapsed;
-            mouseLocation.Text = string.Empty;
+            mouseLocation.Text = "";
         }
 
         private void MapManipulationInertiaStarting(object sender, ManipulationInertiaStartingEventArgs e)

@@ -84,20 +84,16 @@ namespace MapControl
 
             var styleElement = layerElement
                 .Elements(wmts + "Style")
-                .FirstOrDefault(s => s.Attribute("isDefault")?.Value == "true");
-
-            if (styleElement == null)
-            {
-                styleElement = layerElement
-                    .Elements(wmts + "Style")
-                    .FirstOrDefault();
-            }
+                .FirstOrDefault(s => s.Attribute("isDefault")?.Value == "true")
+            ?? layerElement
+                .Elements(wmts + "Style")
+                .FirstOrDefault();
 
             var style = styleElement?.Element(ows + "Identifier")?.Value;
 
             if (string.IsNullOrEmpty(style))
             {
-                throw new ArgumentException($"No Style element found in Layer \"{layer}\".");
+                style = "default";
             }
 
             var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layer, style, capabilitiesUrl);
