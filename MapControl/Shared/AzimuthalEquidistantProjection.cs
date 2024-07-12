@@ -15,7 +15,9 @@ namespace MapControl
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {
-        public AzimuthalEquidistantProjection(string crsId)
+        public const string DefaultCrsId = "AUTO2:97003"; // proprietary CRS ID
+
+        public AzimuthalEquidistantProjection(string crsId = DefaultCrsId)
         {
             CrsId = crsId;
         }

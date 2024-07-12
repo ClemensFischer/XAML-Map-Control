@@ -17,9 +17,9 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS ID
 
-        public StereographicProjection()
+        public StereographicProjection(string crsId = DefaultCrsId)
         {
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
         }
 
         public override Point? LocationToMap(Location location)

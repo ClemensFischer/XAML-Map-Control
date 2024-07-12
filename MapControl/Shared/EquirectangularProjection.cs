@@ -17,13 +17,12 @@ namespace MapControl
     /// </summary>
     public class EquirectangularProjection : MapProjection
     {
-        public const int DefaultEpsgCode = 4326;
-        public static readonly string DefaultCrsId = $"EPSG:{DefaultEpsgCode}";
+        public const int EpsgCode = 4326;
 
-        public EquirectangularProjection()
+        public EquirectangularProjection(string crsId = "EPSG:4326")
         {
             Type = MapProjectionType.NormalCylindrical;
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
         }
 
         public override Point GetRelativeScale(Location location)

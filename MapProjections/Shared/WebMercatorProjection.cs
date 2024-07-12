@@ -18,7 +18,7 @@ namespace MapControl.Projections
     /// </summary>
     public class WebMercatorProjection : GeoApiProjection
     {
-        public const int DefaultEpsgCode = 3857;
+        public const int EpsgCode = 3857;
 
         public WebMercatorProjection()
         {

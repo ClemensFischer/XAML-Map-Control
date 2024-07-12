@@ -42,7 +42,7 @@ namespace MapControl
         /// <summary>
         /// Gets or sets an optional projection center.
         /// </summary>
-        public virtual Location Center { get; set; } = new Location();
+        public virtual Location Center { get; protected internal set; } = new Location();
 
         /// <summary>
         /// Gets the relative map scale at the specified Location.
@@ -118,7 +118,7 @@ namespace MapControl
         /// </summary>
         public virtual string GetCrsValue()
         {
-            return CrsId.StartsWith("AUTO:") || CrsId.StartsWith("AUTO2:")
+            return CrsId.StartsWith("AUTO2:") || CrsId.StartsWith("AUTO:")
                 ? string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}", CrsId, Center.Longitude, Center.Latitude)
                 : CrsId;
         }

@@ -17,9 +17,9 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:97001"; // GeoServer non-standard CRS ID
 
-        public GnomonicProjection()
+        public GnomonicProjection(string crsId = DefaultCrsId)
         {
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
         }
 
         public override Point? LocationToMap(Location location)

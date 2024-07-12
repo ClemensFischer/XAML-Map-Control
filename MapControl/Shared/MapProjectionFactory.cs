@@ -16,93 +16,67 @@ namespace MapControl
 
         public virtual MapProjection GetProjection(int epsgCode)
         {
-            MapProjection projection = null;
-
             switch (epsgCode)
             {
-                case WorldMercatorProjection.DefaultEpsgCode:
-                    projection = new WorldMercatorProjection();
-                    break;
+                case WorldMercatorProjection.EpsgCode:
+                    return new WorldMercatorProjection();
 
-                case WebMercatorProjection.DefaultEpsgCode:
-                    projection = new WebMercatorProjection();
-                    break;
+                case WebMercatorProjection.EpsgCode:
+                    return new WebMercatorProjection();
 
-                case EquirectangularProjection.DefaultEpsgCode:
-                    projection = new EquirectangularProjection();
-                    break;
+                case EquirectangularProjection.EpsgCode:
+                    return new EquirectangularProjection();
 
-                case UpsNorthProjection.DefaultEpsgCode:
-                    projection = new UpsNorthProjection();
-                    break;
+                case UpsNorthProjection.EpsgCode:
+                    return new UpsNorthProjection();
 
-                case UpsSouthProjection.DefaultEpsgCode:
-                    projection = new UpsSouthProjection();
-                    break;
+                case UpsSouthProjection.EpsgCode:
+                    return new UpsSouthProjection();
 
                 case var c when c >= Etrs89UtmProjection.FirstZoneEpsgCode && c <= Etrs89UtmProjection.LastZoneEpsgCode:
-                    projection = new Etrs89UtmProjection(epsgCode % 100);
-                    break;
+                    return new Etrs89UtmProjection(epsgCode % 100);
 
                 case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
-                    projection = new Nad83UtmProjection(epsgCode % 100);
-                    break;
+                    return new Nad83UtmProjection(epsgCode % 100);
 
                 case var c when c >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && c <= Wgs84UtmProjection.LastZoneNorthEpsgCode:
-                    projection = new Wgs84UtmProjection(epsgCode % 100, true);
-                    break;
+                    return new Wgs84UtmProjection(epsgCode % 100, true);
 
                 case var c when c >= Wgs84UtmProjection.FirstZoneSouthEpsgCode && c <= Wgs84UtmProjection.LastZoneSouthEpsgCode:
-                    projection = new Wgs84UtmProjection(epsgCode % 100, false);
-                    break;
+                    return new Wgs84UtmProjection(epsgCode % 100, false);
 
                 default:
-                    break;
+                    return null;
             }
-
-            return projection;
         }
 
         public virtual MapProjection GetProjection(string crsId)
         {
-            if (crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode))
-            {
-                return GetProjection(epsgCode);
-            }
-
-            MapProjection projection = null;
-
             switch (crsId)
             {
                 case Wgs84AutoUtmProjection.DefaultCrsId:
-                    projection = new Wgs84AutoUtmProjection();
-                    break;
+                    return new Wgs84AutoUtmProjection();
 
                 case OrthographicProjection.DefaultCrsId:
-                    projection = new OrthographicProjection();
-                    break;
+                    return new OrthographicProjection();
 
                 case AutoEquirectangularProjection.DefaultCrsId:
-                    projection = new AutoEquirectangularProjection();
-                    break;
+                    return new AutoEquirectangularProjection();
 
                 case GnomonicProjection.DefaultCrsId:
-                    projection = new GnomonicProjection();
-                    break;
+                    return new GnomonicProjection();
 
                 case StereographicProjection.DefaultCrsId:
-                    projection = new StereographicProjection();
-                    break;
+                    return new StereographicProjection();
 
-                case "AUTO2:97003": // proprietary CRS ID
-                    projection = new AzimuthalEquidistantProjection(crsId);
-                    break;
+                case AzimuthalEquidistantProjection.DefaultCrsId:
+                    return new AzimuthalEquidistantProjection();
 
                 default:
-                    break;
+                    return crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode)
+                        ? GetProjection(epsgCode)
+                        : null;
             }
-
-            return projection;
         }
     }
 }

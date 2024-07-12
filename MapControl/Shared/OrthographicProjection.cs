@@ -17,9 +17,9 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:42003";
 
-        public OrthographicProjection()
+        public OrthographicProjection(string crsId = DefaultCrsId)
         {
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
         }
 
         public override Point? LocationToMap(Location location)

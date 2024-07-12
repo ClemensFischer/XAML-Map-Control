@@ -15,13 +15,12 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
-        public const int DefaultEpsgCode = 3395;
-        public static readonly string DefaultCrsId = $"EPSG:{DefaultEpsgCode}";
+        public const int EpsgCode = 3395;
 
-        public WorldMercatorProjection()
+        public WorldMercatorProjection(string crsId = "EPSG:3395")
         {
             Type = MapProjectionType.NormalCylindrical;
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
         }
 
         public override Point GetRelativeScale(Location location)

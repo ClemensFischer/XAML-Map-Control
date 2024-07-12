@@ -17,7 +17,7 @@ namespace MapControl.Projections
     /// </summary>
     public class WorldMercatorProjection : GeoApiProjection
     {
-        public const int DefaultEpsgCode = 3395;
+        public const int EpsgCode = 3395;
 
         public WorldMercatorProjection()
         {
@@ -43,7 +43,7 @@ namespace MapControl.Projections
                 + "AUTHORITY[\"EPSG\",\"9001\"]],"
                 + "AXIS[\"Easting\",EAST],"
                 + "AXIS[\"Northing\",NORTH],"
-                + "AUTHORITY[\"EPSG\",\"3395\"]]";
+                + $"AUTHORITY[\"EPSG\",\"{EpsgCode}\"]]";
         }
 
         public override Point GetRelativeScale(Location location)

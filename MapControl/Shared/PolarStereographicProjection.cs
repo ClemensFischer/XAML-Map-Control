@@ -117,12 +117,11 @@ namespace MapControl
     /// </summary>
     public class UpsNorthProjection : PolarStereographicProjection
     {
-        public const int DefaultEpsgCode = 32661;
-        public static readonly string DefaultCrsId = $"EPSG:{DefaultEpsgCode}";
+        public const int EpsgCode = 32661;
 
-        public UpsNorthProjection()
+        public UpsNorthProjection(string crsId = "EPSG:32661")
         {
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
             IsNorth = true;
         }
     }
@@ -132,12 +131,11 @@ namespace MapControl
     /// </summary>
     public class UpsSouthProjection : PolarStereographicProjection
     {
-        public const int DefaultEpsgCode = 32761;
-        public static readonly string DefaultCrsId = $"EPSG:{DefaultEpsgCode}";
+        public const int EpsgCode = 32761;
 
-        public UpsSouthProjection()
+        public UpsSouthProjection(string crsId = "EPSG:32761")
         {
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
             IsNorth = false;
         }
     }

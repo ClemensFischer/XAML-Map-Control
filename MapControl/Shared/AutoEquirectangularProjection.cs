@@ -18,10 +18,10 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:42004";
 
-        public AutoEquirectangularProjection()
+        public AutoEquirectangularProjection(string crsId = DefaultCrsId)
         {
             Type = MapProjectionType.NormalCylindrical;
-            CrsId = DefaultCrsId;
+            CrsId = crsId;
         }
 
         public override Point? LocationToMap(Location location)

@@ -8,75 +8,64 @@ namespace MapControl.Projections
 {
     public class GeoApiProjectionFactory : MapProjectionFactory
     {
+        public static GeoApiProjectionFactory GetInstance()
+        {
+            if (!(Instance is GeoApiProjectionFactory factory))
+            {
+                factory = new GeoApiProjectionFactory();
+                Instance = factory;
+            }
+
+            return factory;
+        }
+
         public Dictionary<int, string> CoordinateSystemWkts { get; } = new Dictionary<int, string>();
 
         public override MapProjection GetProjection(int epsgCode)
         {
-            MapProjection projection = null;
-
-            if (CoordinateSystemWkts.TryGetValue(epsgCode, out string wkt))
+            switch (epsgCode)
             {
-                projection = new GeoApiProjection(wkt);
+                case WorldMercatorProjection.EpsgCode:
+                    return new WorldMercatorProjection();
+
+                case WebMercatorProjection.EpsgCode:
+                    return new WebMercatorProjection();
+
+                case int c when c >= Ed50UtmProjection.FirstZoneEpsgCode && c <= Ed50UtmProjection.LastZoneEpsgCode:
+                    return new Ed50UtmProjection(epsgCode % 100);
+
+                case var c when c >= Etrs89UtmProjection.FirstZoneEpsgCode && c <= Etrs89UtmProjection.LastZoneEpsgCode:
+                    return new Etrs89UtmProjection(epsgCode % 100);
+
+                case var c when c >= Nad27UtmProjection.FirstZoneEpsgCode && c <= Nad27UtmProjection.LastZoneEpsgCode:
+                    return new Nad27UtmProjection(epsgCode % 100);
+
+                case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
+                    return new Nad83UtmProjection(epsgCode % 100);
+
+                case var c when c >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && c <= Wgs84UtmProjection.LastZoneNorthEpsgCode:
+                    return new Wgs84UtmProjection(epsgCode % 100, true);
+
+                case var c when c >= Wgs84UtmProjection.FirstZoneSouthEpsgCode && c <= Wgs84UtmProjection.LastZoneSouthEpsgCode:
+                    return new Wgs84UtmProjection(epsgCode % 100, false);
+
+                default:
+                    return CoordinateSystemWkts.TryGetValue(epsgCode, out string wkt)
+                        ? new GeoApiProjection(wkt)
+                        : base.GetProjection(epsgCode);
             }
-            else
-            {
-                switch (epsgCode)
-                {
-                    case WorldMercatorProjection.DefaultEpsgCode:
-                        projection = new WorldMercatorProjection();
-                        break;
-
-                    case WebMercatorProjection.DefaultEpsgCode:
-                        projection = new WebMercatorProjection();
-                        break;
-
-                    case int c when c >= Ed50UtmProjection.FirstZoneEpsgCode && c <= Ed50UtmProjection.LastZoneEpsgCode:
-                        projection = new Ed50UtmProjection(epsgCode % 100);
-                        break;
-
-                    case var c when c >= Etrs89UtmProjection.FirstZoneEpsgCode && c <= Etrs89UtmProjection.LastZoneEpsgCode:
-                        projection = new Etrs89UtmProjection(epsgCode % 100);
-                        break;
-
-                    case var c when c >= Nad27UtmProjection.FirstZoneEpsgCode && c <= Nad27UtmProjection.LastZoneEpsgCode:
-                        projection = new Nad27UtmProjection(epsgCode % 100);
-                        break;
-
-                    case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
-                        projection = new Nad83UtmProjection(epsgCode % 100);
-                        break;
-
-                    case var c when c >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && c <= Wgs84UtmProjection.LastZoneNorthEpsgCode:
-                        projection = new Wgs84UtmProjection(epsgCode % 100, true);
-                        break;
-
-                    case var c when c >= Wgs84UtmProjection.FirstZoneSouthEpsgCode && c <= Wgs84UtmProjection.LastZoneSouthEpsgCode:
-                        projection = new Wgs84UtmProjection(epsgCode % 100, false);
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-
-            return projection ?? base.GetProjection(epsgCode);
         }
 
         public override MapProjection GetProjection(string crsId)
         {
-            MapProjection projection = null;
-
             switch (crsId)
             {
                 case Wgs84AutoUtmProjection.DefaultCrsId:
-                    projection = new Wgs84AutoUtmProjection();
-                    break;
+                    return new Wgs84AutoUtmProjection();
 
                 default:
-                    break;
+                    return base.GetProjection(crsId);
             }
-
-            return projection ?? base.GetProjection(crsId);
         }
     }
 }

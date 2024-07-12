@@ -22,10 +22,6 @@ namespace MapControl.Projections
         public int Zone { get; private set; }
         public bool IsNorth { get; private set; }
 
-        protected Wgs84UtmProjection()
-        {
-        }
-
         public Wgs84UtmProjection(int zone, bool north)
         {
             SetZone(zone, north);
@@ -51,40 +47,41 @@ namespace MapControl.Projections
     {
         public const string DefaultCrsId = "AUTO2:42001";
 
-        public Wgs84AutoUtmProjection(bool useZoneCrsId = false)
-        {
-            UseZoneCrsId = useZoneCrsId;
-            UpdateZone();
-        }
+        private readonly string autoCrsId;
 
-        public bool UseZoneCrsId { get; }
+        public Wgs84AutoUtmProjection(string crsId = DefaultCrsId)
+            : base(31, true)
+        {
+            autoCrsId = crsId;
+
+            if (!string.IsNullOrEmpty(autoCrsId))
+            {
+                CrsId = autoCrsId;
+            }
+        }
 
         public override Location Center
         {
             get => base.Center;
-            set
+            protected set
             {
                 if (!Equals(base.Center, value))
                 {
                     base.Center = value;
-                    UpdateZone();
-                }
-            }
-        }
 
-        private void UpdateZone()
-        {
-            var lon = Location.NormalizeLongitude(Center.Longitude);
-            var zone = (int)Math.Floor(lon / 6d) + 31;
-            var north = Center.Latitude >= 0d;
+                    var lon = Location.NormalizeLongitude(value.Longitude);
+                    var zone = (int)Math.Floor(lon / 6d) + 31;
+                    var north = value.Latitude >= 0d;
 
-            if (Zone != zone || IsNorth != north || string.IsNullOrEmpty(CrsId))
-            {
-                SetZone(zone, north);
+                    if (Zone != zone || IsNorth != north)
+                    {
+                        SetZone(zone, north);
 
-                if (!UseZoneCrsId)
-                {
-                    CrsId = DefaultCrsId;
+                        if (!string.IsNullOrEmpty(autoCrsId))
+                        {
+                            CrsId = autoCrsId;
+                        }
+                    }
                 }
             }
         }
