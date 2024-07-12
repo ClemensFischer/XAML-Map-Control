@@ -168,7 +168,6 @@ namespace MapControl
                     await WriteCacheAsync(cacheKey, buffer, response.MaxAge).ConfigureAwait(false);
                 }
             }
-            //else Debug.WriteLine($"Cached: {cacheKey} - {buffer.Length} bytes");
 
             if (buffer != null && buffer.Length > 0)
             {
@@ -185,6 +184,7 @@ namespace MapControl
             catch (Exception ex)
             {
                 Debug.WriteLine($"TileImageLoader.Cache.GetAsync: {cacheKey}: {ex.Message}");
+
                 return Task.FromResult<byte[]>(null);
             }
         }
@@ -209,6 +209,7 @@ namespace MapControl
             catch (Exception ex)
             {
                 Debug.WriteLine($"TileImageLoader.Cache.SetAsync: {cacheKey}: {ex.Message}");
+
                 return Task.CompletedTask;
             }
         }
