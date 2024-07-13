@@ -89,7 +89,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Name of the TileSource. Used as component of a tile cache key.
+        /// Name of the tile source that is used as component of a tile cache key.
+        /// Tile images are not cached when SourceName is null or empty.
         /// </summary>
         public string SourceName
         {
