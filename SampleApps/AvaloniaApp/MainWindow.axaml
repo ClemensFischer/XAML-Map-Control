@@ -14,7 +14,15 @@
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
                  ManipulationModes="All"
-                 DoubleTapped="MapDoubleTapped">
+                 DoubleTapped="MapDoubleTapped"
+                 PointerPressed="MapPointerPressed"
+                 PointerReleased="MapPointerReleased"
+                 PointerMoved="MapPointerMoved"
+                 PointerExited="MapPointerExited">
+
+            <map:MapPolyline x:Name="measurementLine" IsVisible="False"
+                             Stroke="{Binding Foreground, ElementName=map}"
+                             StrokeThickness="2" StrokeDashArray="1,1"/>
 
             <map:MapItemsControl ItemsSource="{Binding Polylines}">
                 <map:MapItemsControl.ItemTemplate>
@@ -91,6 +99,15 @@
 
             <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
+
+        <TextBlock x:Name="mouseLocation"
+                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4" Padding="4,2"
+                   FontFamily="Consolas" IsHitTestVisible="False" IsVisible="False"
+                   Foreground="{Binding Foreground, ElementName=map}">
+            <TextBlock.Background>
+                <SolidColorBrush Color="{Binding Background.Color, ElementName=map}" Opacity="0.5"/>
+            </TextBlock.Background>
+        </TextBlock>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF"
                     DataContext="{Binding MapLayer, ElementName=map}">

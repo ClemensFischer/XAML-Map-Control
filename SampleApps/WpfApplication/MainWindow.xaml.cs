@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace SampleApplication
@@ -61,7 +62,7 @@ namespace SampleApplication
         {
             var location = map.ViewToLocation(e.GetPosition(map));
 
-            if (location != null)
+            if (location != null && map.CaptureMouse())
             {
                 measurementLine.Visibility = Visibility.Visible;
                 measurementLine.Locations = new LocationCollection(location);
@@ -70,6 +71,7 @@ namespace SampleApplication
 
         private void MapMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
+            map.ReleaseMouseCapture();
             measurementLine.Visibility = Visibility.Collapsed;
             measurementLine.Locations = null;
         }

@@ -45,7 +45,7 @@ namespace SampleApplication
             {
                 var point = e.GetCurrentPoint(map);
 
-                if (point.Properties.IsRightButtonPressed)
+                if (point.Properties.IsRightButtonPressed && map.CapturePointer(e.Pointer))
                 {
                     var location = map.ViewToLocation(point.Position);
 
@@ -55,8 +55,7 @@ namespace SampleApplication
                         measurementLine.Locations = new LocationCollection(location);
                     }
                 }
-                else if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control) &&
-                    map.MapLayer is WmsImageLayer wmsLayer)
+                else if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control) && map.MapLayer is WmsImageLayer wmsLayer)
                 {
                     Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(point.Position));
                 }
@@ -65,8 +64,12 @@ namespace SampleApplication
 
         private void MapPointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            measurementLine.Visibility = Visibility.Collapsed;
-            measurementLine.Locations = null;
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                map.ReleasePointerCapture(e.Pointer);
+                measurementLine.Visibility = Visibility.Collapsed;
+                measurementLine.Locations = null;
+            }
         }
 
         private void MapPointerMoved(object sender, PointerRoutedEventArgs e)
