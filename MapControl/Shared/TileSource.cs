@@ -36,7 +36,7 @@ namespace MapControl
             {
                 uriTemplate = value;
 
-                if (Subdomains == null && uriTemplate != null && uriTemplate.Contains("{s}"))
+                if (uriTemplate != null && uriTemplate.Contains("{s}") && Subdomains == null)
                 {
                     Subdomains = new string[] { "a", "b", "c" }; // default OpenStreetMap subdomains
                 }
