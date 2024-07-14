@@ -234,7 +234,7 @@
                     <map:MapTileLayer
                         TileSource="https://tile.openstreetmap.de/{z}/{x}/{y}.png"
                         SourceName="OpenStreetMap German"
-                        Description="© [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                        Description="© [OpenStreetMap Deutschland](https://www.openstreetmap.de) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerItem>
                 <tools:MapLayerItem Text="OpenStreetMap French">
                     <map:MapTileLayer
@@ -244,7 +244,7 @@
                 </tools:MapLayerItem>
                 <tools:MapLayerItem Text="OpenTopoMap">
                     <map:MapTileLayer
-                        TileSource="https://tile.opentopomap.org/{z}/{x}/{y}.png"
+                        TileSource="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
                         SourceName="OpenTopoMap"
                         Description="© [OpenTopoMap](https://opentopomap.org/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerItem>
