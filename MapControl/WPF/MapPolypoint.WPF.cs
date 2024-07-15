@@ -60,9 +60,9 @@ namespace MapControl
         {
             using (var context = ((StreamGeometry)Data).Open())
             {
-                if (ParentMap != null && locations != null)
+                if (ParentMap != null && locations?.Count() >= 2)
                 {
-                    var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
+                    var longitudeOffset = GetLongitudeOffset(Location ?? locations.First());
 
                     AddPolylinePoints(context, locations, longitudeOffset, closed);
                 }
@@ -77,7 +77,7 @@ namespace MapControl
                 {
                     var longitudeOffset = GetLongitudeOffset(Location);
 
-                    foreach (var polygon in polygons)
+                    foreach (var polygon in polygons.Where(p => p?.Count() >= 2))
                     {
                         AddPolylinePoints(context, polygon, longitudeOffset, true);
                     }
@@ -87,16 +87,13 @@ namespace MapControl
 
         private void AddPolylinePoints(StreamGeometryContext context, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
-            if (locations.Count() >= 2)
-            {
-                var points = locations
-                    .Select(location => LocationToView(location, longitudeOffset))
-                    .Where(point => point.HasValue)
-                    .Select(point => point.Value);
+            var points = locations
+                .Select(location => LocationToView(location, longitudeOffset))
+                .Where(point => point.HasValue)
+                .Select(point => point.Value);
 
-                context.BeginFigure(points.First(), true, closed);
-                context.PolyLineTo(points.Skip(1).ToList(), true, true);
-            }
+            context.BeginFigure(points.First(), true, closed);
+            context.PolyLineTo(points.Skip(1).ToList(), true, true);
         }
     }
 }

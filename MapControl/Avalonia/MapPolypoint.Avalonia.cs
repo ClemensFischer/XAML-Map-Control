@@ -51,39 +51,31 @@ namespace MapControl
 
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
-            var pathFigures = new PathFigures();
+            var pathFigure = new PathFigure();
 
-            if (ParentMap != null && locations != null)
+            if (ParentMap != null && locations?.Count() >= 2)
             {
-                var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
+                var longitudeOffset = GetLongitudeOffset(Location ?? locations.First());
 
-                AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
+                AddPolylinePoints(pathFigure, locations, longitudeOffset, closed);
             }
 
-            ((PathGeometry)Data).Figures = pathFigures;
+            ((PathGeometry)Data).Figures = new PathFigures { pathFigure };
 
-            InvalidateGeometry();
+            InvalidateGeometry(); // ignores an empty PathGeometry.Figures collection
         }
 
-        private void AddPolylinePoints(PathFigures pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        private void AddPolylinePoints(PathFigure pathFigure, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
-            if (locations.Count() >= 2)
-            {
-                var points = locations
-                    .Select(location => LocationToView(location, longitudeOffset))
-                    .Where(point => point.HasValue)
-                    .Select(point => point.Value);
+            var points = locations
+                .Select(location => LocationToView(location, longitudeOffset))
+                .Where(point => point.HasValue)
+                .Select(point => point.Value);
 
-                var figure = new PathFigure
-                {
-                    StartPoint = points.First(),
-                    IsClosed = closed,
-                    IsFilled = true
-                };
-
-                figure.Segments.Add(new PolyLineSegment(points.Skip(1)));
-                pathFigures.Add(figure);
-            }
+            pathFigure.StartPoint = points.First();
+            pathFigure.Segments.Add(new PolyLineSegment(points.Skip(1)));
+            pathFigure.IsClosed = closed;
+            pathFigure.IsFilled = true;
         }
     }
 }
