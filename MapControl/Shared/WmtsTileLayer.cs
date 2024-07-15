@@ -154,7 +154,7 @@ namespace MapControl
                 var layer = currentLayers.FirstOrDefault(l => l.WmtsTileMatrix == tileMatrix) ??
                             new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
 
-                if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.RenderSize))
+                if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
                 {
                     tilesChanged = true;
                 }

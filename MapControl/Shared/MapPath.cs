@@ -124,8 +124,8 @@ namespace MapControl
                 var point = parentMap.LocationToView(location);
 
                 if (point.HasValue &&
-                    (point.Value.X < 0d || point.Value.X > parentMap.RenderSize.Width ||
-                     point.Value.Y < 0d || point.Value.Y > parentMap.RenderSize.Height))
+                    (point.Value.X < 0d || point.Value.X > parentMap.ActualWidth ||
+                     point.Value.Y < 0d || point.Value.Y > parentMap.ActualHeight))
                 {
                     longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
                 }

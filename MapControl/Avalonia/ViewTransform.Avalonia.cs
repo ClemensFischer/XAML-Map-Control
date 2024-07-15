@@ -123,7 +123,7 @@ namespace MapControl
         /// <summary>
         /// Gets the index bounds of a tile matrix.
         /// </summary>
-        public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, Size viewSize)
+        public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, double viewWidth, double viewHeight)
         {
             // View origin in map coordinates.
             //
@@ -143,7 +143,7 @@ namespace MapControl
 
             // Transform view bounds to tile pixel bounds.
             //
-            return new Rect(0d, 0d, viewSize.Width, viewSize.Height).TransformToAABB(transform);
+            return new Rect(0d, 0d, viewWidth, viewHeight).TransformToAABB(transform);
         }
 
         internal static Matrix CreateTransformMatrix(

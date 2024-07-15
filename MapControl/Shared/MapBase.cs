@@ -255,7 +255,7 @@ namespace MapControl
         public void SetTransformCenter(Point center)
         {
             transformCenter = ViewToLocation(center);
-            viewCenter = transformCenter != null ? center : new Point(RenderSize.Width / 2d, RenderSize.Height / 2d);
+            viewCenter = transformCenter != null ? center : new Point(ActualWidth / 2d, ActualHeight / 2d);
         }
 
         /// <summary>
@@ -264,7 +264,7 @@ namespace MapControl
         public void ResetTransformCenter()
         {
             transformCenter = null;
-            viewCenter = new Point(RenderSize.Width / 2d, RenderSize.Height / 2d);
+            viewCenter = new Point(ActualWidth / 2d, ActualHeight / 2d);
         }
 
         /// <summary>
@@ -359,7 +359,7 @@ namespace MapControl
 
                 if (targetCenter != null)
                 {
-                    var scale = Math.Min(RenderSize.Width / rect.Value.Width, RenderSize.Height / rect.Value.Height);
+                    var scale = Math.Min(ActualWidth / rect.Value.Width, ActualHeight / rect.Value.Height);
 
                     TargetZoomLevel = ViewTransform.ScaleToZoomLevel(scale);
                     TargetCenter = targetCenter;
@@ -510,7 +510,7 @@ namespace MapControl
 
                 if (transformCenter != null)
                 {
-                    var center = ViewToLocation(new Point(RenderSize.Width / 2d, RenderSize.Height / 2d));
+                    var center = ViewToLocation(new Point(ActualWidth / 2d, ActualHeight / 2d));
 
                     if (center != null)
                     {

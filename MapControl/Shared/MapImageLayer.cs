@@ -209,12 +209,12 @@ namespace MapControl
         {
             BoundingBox boundingBox = null;
 
-            if (ParentMap != null && ParentMap.RenderSize.Width > 0d && ParentMap.RenderSize.Height > 0d)
+            if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
             {
-                var width = ParentMap.RenderSize.Width * RelativeImageSize;
-                var height = ParentMap.RenderSize.Height * RelativeImageSize;
-                var x = (ParentMap.RenderSize.Width - width) / 2d;
-                var y = (ParentMap.RenderSize.Height - height) / 2d;
+                var width = ParentMap.ActualWidth * RelativeImageSize;
+                var height = ParentMap.ActualHeight * RelativeImageSize;
+                var x = (ParentMap.ActualWidth - width) / 2d;
+                var y = (ParentMap.ActualHeight - height) / 2d;
 
                 boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
             }

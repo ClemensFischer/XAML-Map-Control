@@ -7,10 +7,8 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 #elif UWP
-using Windows.Foundation;
 using Windows.UI.Xaml.Media;
 #elif WINUI
-using Windows.Foundation;
 using Microsoft.UI.Xaml.Media;
 #endif
 
@@ -138,7 +136,7 @@ namespace MapControl
         /// <summary>
         /// Gets the index bounds of a tile matrix.
         /// </summary>
-        public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, Size viewSize)
+        public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, double viewWidth, double viewHeight)
         {
             // View origin in map coordinates.
             //
@@ -158,7 +156,7 @@ namespace MapControl
             // Transform view bounds to tile pixel bounds.
             //
             return new MatrixTransform { Matrix = transform }
-                .TransformBounds(new Rect(0d, 0d, viewSize.Width, viewSize.Height));
+                .TransformBounds(new Rect(0d, 0d, viewWidth, viewHeight));
         }
 
         internal static Matrix CreateTransformMatrix(

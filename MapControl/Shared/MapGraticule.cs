@@ -104,8 +104,8 @@ namespace MapControl
 
         private void AddLabel(ICollection<Label> labels, Location location, Point position, double? rotation = null)
         {
-            if (position.X >= 0d && position.X <= ParentMap.RenderSize.Width &&
-                position.Y >= 0d && position.Y <= ParentMap.RenderSize.Height)
+            if (position.X >= 0d && position.X <= ParentMap.ActualWidth &&
+                position.Y >= 0d && position.Y <= ParentMap.ActualHeight)
             {
                 if (!rotation.HasValue)
                 {
@@ -152,7 +152,7 @@ namespace MapControl
 
         private void DrawCylindricalGraticule(PathFigureCollection figures, ICollection<Label> labels)
         {
-            var bounds = ParentMap.ViewRectToBoundingBox(new Rect(0, 0, ParentMap.RenderSize.Width, ParentMap.RenderSize.Height));
+            var bounds = ParentMap.ViewRectToBoundingBox(new Rect(0, 0, ParentMap.ActualWidth, ParentMap.ActualHeight));
             var latLabelStart = Math.Ceiling(bounds.South / lineDistance) * lineDistance;
             var lonLabelStart = Math.Ceiling(bounds.West / lineDistance) * lineDistance;
 
@@ -288,8 +288,8 @@ namespace MapControl
                 if (p.HasValue)
                 {
                     visible = visible ||
-                        p.Value.X >= 0d && p.Value.X <= ParentMap.RenderSize.Width &&
-                        p.Value.Y >= 0d && p.Value.Y <= ParentMap.RenderSize.Height;
+                        p.Value.X >= 0d && p.Value.X <= ParentMap.ActualWidth &&
+                        p.Value.Y >= 0d && p.Value.Y <= ParentMap.ActualHeight;
 
                     points.Add(p.Value);
                 }
@@ -305,8 +305,8 @@ namespace MapControl
 
         private void GetLatitudeRange(double lineDistance, ref double minLatitude, ref double maxLatitude)
         {
-            var width = ParentMap.RenderSize.Width;
-            var height = ParentMap.RenderSize.Height;
+            var width = ParentMap.ActualWidth;
+            var height = ParentMap.ActualHeight;
             var northPole = ParentMap.LocationToView(new Location(90d, 0d));
             var southPole = ParentMap.LocationToView(new Location(-90d, 0d));
 

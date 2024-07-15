@@ -173,7 +173,7 @@ namespace MapControl
 
             // Bounds in tile pixels from view size.
             //
-            var bounds = ParentMap.ViewTransform.GetTileMatrixBounds(tileMatrixScale, MapTopLeft, ParentMap.RenderSize);
+            var bounds = ParentMap.ViewTransform.GetTileMatrixBounds(tileMatrixScale, MapTopLeft, ParentMap.ActualWidth, ParentMap.ActualHeight);
 
             // Tile X and Y bounds.
             //

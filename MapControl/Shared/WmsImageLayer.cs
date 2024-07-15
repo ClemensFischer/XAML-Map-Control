@@ -134,8 +134,8 @@ namespace MapControl
 
             if (ServiceUri != null &&
                 ParentMap?.MapProjection != null &&
-                ParentMap.RenderSize.Width > 0d &&
-                ParentMap.RenderSize.Height > 0d)
+                ParentMap.ActualWidth > 0d &&
+                ParentMap.ActualHeight > 0d)
             {
                 var uri = GetFeatureInfoRequestUri(position, format);
 
@@ -257,19 +257,19 @@ namespace MapControl
         /// </summary>
         protected virtual string GetFeatureInfoRequestUri(Point position, string format)
         {
-            var viewSize = ParentMap.RenderSize;
-            var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, viewSize.Width, viewSize.Height));
-            var rect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var viewport = new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
+            var boundingBox = ParentMap.ViewRectToBoundingBox(viewport);
+            var mapRect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (!rect.HasValue)
+            if (!mapRect.HasValue)
             {
                 return null;
             }
 
-            var viewRect = GetViewRect(rect.Value);
+            var viewRect = GetViewRect(mapRect.Value);
 
             var transform = ViewTransform.CreateTransformMatrix(
-                -viewSize.Width / 2d, -viewSize.Height / 2d,
+                -viewport.Width / 2d, -viewport.Height / 2d,
                 -viewRect.Rotation,
                 viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
 
@@ -285,7 +285,7 @@ namespace MapControl
                 { "FORMAT", "image/png" },
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(rect.Value) },
+                { "BBOX", GetBboxValue(mapRect.Value) },
                 { "WIDTH", Math.Round(viewRect.Rect.Width).ToString("F0") },
                 { "HEIGHT", Math.Round(viewRect.Rect.Height).ToString("F0") },
                 { "I", Math.Round(imagePos.X).ToString("F0") },

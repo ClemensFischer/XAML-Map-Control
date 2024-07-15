@@ -29,7 +29,8 @@ namespace MapControl
             AffectsRender<PushpinBorder>(ArrowSizeProperty, BorderWidthProperty, CornerRadiusProperty, BackgroundProperty, BorderBrushProperty);
         }
 
-        private Size RenderSize => Bounds.Size;
+        public double ActualWidth => Bounds.Width;
+        public double ActualHeight => Bounds.Height;
 
         public CornerRadius CornerRadius
         {

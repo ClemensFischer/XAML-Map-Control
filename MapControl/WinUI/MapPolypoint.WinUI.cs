@@ -2,6 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -78,9 +79,15 @@ namespace MapControl
 
             if (points.Any())
             {
+                var startPoint = points.First();
+                var minX = startPoint.X;
+                var maxX = startPoint.X;
+                var minY = startPoint.Y;
+                var maxY = startPoint.Y;
+
                 var figure = new PathFigure
                 {
-                    StartPoint = points.First(),
+                    StartPoint = startPoint,
                     IsClosed = closed,
                     IsFilled = true
                 };
@@ -89,10 +96,19 @@ namespace MapControl
 
                 foreach (var point in points.Skip(1))
                 {
+                    minX = Math.Min(minX, point.X);
+                    maxX = Math.Max(maxX, point.X);
+                    minY = Math.Min(minY, point.Y);
+                    maxY = Math.Max(maxY, point.Y);
                     polyline.Points.Add(point);
                 }
 
-                figure.Segments.Add(polyline);
+                if (maxX >= 0 && minX <= ParentMap.ActualWidth &&
+                    maxY >= 0 && minY <= ParentMap.ActualHeight)
+                {
+                    figure.Segments.Add(polyline);
+                }
+
                 pathFigures.Add(figure);
             }
         }

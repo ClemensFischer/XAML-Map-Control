@@ -34,8 +34,8 @@ namespace MapControl
 
         protected virtual Geometry BuildGeometry()
         {
-            var width = Math.Floor(RenderSize.Width);
-            var height = Math.Floor(RenderSize.Height);
+            var width = Math.Floor(ActualWidth);
+            var height = Math.Floor(ActualHeight);
             var x1 = BorderWidth / 2d;
             var y1 = BorderWidth / 2d;
             var x2 = width - x1;

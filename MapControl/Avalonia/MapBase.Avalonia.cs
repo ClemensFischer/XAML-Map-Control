@@ -105,7 +105,8 @@ namespace MapControl
             Animation.RegisterCustomAnimator<Location, LocationAnimator>();
         }
 
-        internal Size RenderSize => Bounds.Size;
+        public double ActualWidth => Bounds.Width;
+        public double ActualHeight => Bounds.Height;
 
         protected override void OnSizeChanged(SizeChangedEventArgs e)
         {

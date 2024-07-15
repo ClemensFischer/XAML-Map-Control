@@ -214,9 +214,9 @@ namespace MapControl
             return GetViewRect(rect.Value);
         }
 
-        protected ViewRect GetViewRect(Rect rect)
+        protected ViewRect GetViewRect(Rect mapRect)
         {
-            var rectCenter = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
+            var rectCenter = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(rectCenter);
             var projection = parentMap.MapProjection;
 
@@ -236,8 +236,8 @@ namespace MapControl
                 }
             }
 
-            var width = rect.Width * parentMap.ViewTransform.Scale;
-            var height = rect.Height * parentMap.ViewTransform.Scale;
+            var width = mapRect.Width * parentMap.ViewTransform.Scale;
+            var height = mapRect.Height * parentMap.ViewTransform.Scale;
             var x = position.X - width / 2d;
             var y = position.Y - height / 2d;
 
@@ -246,8 +246,8 @@ namespace MapControl
 
         private bool IsOutsideViewport(Point point)
         {
-            return point.X < 0d || point.X > parentMap.RenderSize.Width
-                || point.Y < 0d || point.Y > parentMap.RenderSize.Height;
+            return point.X < 0d || point.X > parentMap.ActualWidth
+                || point.Y < 0d || point.Y > parentMap.ActualHeight;
         }
 
         private void ArrangeChildElement(FrameworkElement element, Size panelSize)

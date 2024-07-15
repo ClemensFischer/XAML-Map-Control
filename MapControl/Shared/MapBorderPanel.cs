@@ -40,8 +40,8 @@ namespace MapControl
         protected override void SetViewPosition(FrameworkElement element, ref Point? position)
         {
             var onBorder = false;
-            var w = ParentMap.RenderSize.Width;
-            var h = ParentMap.RenderSize.Height;
+            var w = ParentMap.ActualWidth;
+            var h = ParentMap.ActualHeight;
             var minX = BorderWidth / 2d;
             var minY = BorderWidth / 2d;
             var maxX = w - BorderWidth / 2d;

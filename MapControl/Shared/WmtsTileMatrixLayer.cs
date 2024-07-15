@@ -47,11 +47,11 @@ namespace MapControl
                 viewTransform.GetTileLayerTransform(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, tileMatrixOrigin);
         }
 
-        public bool UpdateTiles(ViewTransform viewTransform, Size viewSize)
+        public bool UpdateTiles(ViewTransform viewTransform, double viewWidth, double viewHeight)
         {
             // Bounds in tile pixels from view size.
             //
-            var bounds = viewTransform.GetTileMatrixBounds(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, viewSize);
+            var bounds = viewTransform.GetTileMatrixBounds(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, viewWidth, viewHeight);
 
             // Tile X and Y bounds.
             //
