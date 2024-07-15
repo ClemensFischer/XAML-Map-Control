@@ -51,31 +51,39 @@ namespace MapControl
 
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
-            var pathFigure = new PathFigure();
+            var pathFigures = new PathFigures();
 
-            if (ParentMap != null && locations?.Count() >= 2)
+            if (ParentMap != null && locations != null)
             {
-                var longitudeOffset = GetLongitudeOffset(Location ?? locations.First());
+                var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
 
-                AddPolylinePoints(pathFigure, locations, longitudeOffset, closed);
+                AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
             }
 
-            ((PathGeometry)Data).Figures = new PathFigures { pathFigure };
+            ((PathGeometry)Data).Figures = pathFigures;
 
-            InvalidateGeometry(); // ignores an empty PathGeometry.Figures collection
+            InvalidateGeometry();
         }
 
-        private void AddPolylinePoints(PathFigure pathFigure, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        private void AddPolylinePoints(PathFigures pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             var points = locations
                 .Select(location => LocationToView(location, longitudeOffset))
                 .Where(point => point.HasValue)
                 .Select(point => point.Value);
 
-            pathFigure.StartPoint = points.First();
-            pathFigure.Segments.Add(new PolyLineSegment(points.Skip(1)));
-            pathFigure.IsClosed = closed;
-            pathFigure.IsFilled = true;
+            if (points.Any())
+            {
+                var figure = new PathFigure
+                {
+                    StartPoint = points.First(),
+                    IsClosed = closed,
+                    IsFilled = true
+                };
+
+                figure.Segments.Add(new PolyLineSegment(points.Skip(1)));
+                pathFigures.Add(figure);
+            }
         }
     }
 }
