@@ -61,6 +61,11 @@ namespace MapControl
                 AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
             }
 
+            SetPathFigures(pathFigures);
+        }
+
+        protected void SetPathFigures(PathFigures pathFigures)
+        {
             if (pathFigures.Count == 0)
             {
                 // Avalonia Shape seems to ignore PathGeometry with empty Figures collection
@@ -69,7 +74,6 @@ namespace MapControl
             }
 
             ((PathGeometry)Data).Figures = pathFigures;
-
             InvalidateGeometry();
         }
 
