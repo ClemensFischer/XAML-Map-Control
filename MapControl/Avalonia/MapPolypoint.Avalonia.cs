@@ -81,19 +81,6 @@ namespace MapControl
             SetPathFigures(figures);
         }
 
-        protected void SetPathFigures(PathFigures figures)
-        {
-            if (figures.Count == 0)
-            {
-                // Avalonia Shape seems to ignore PathGeometry with empty Figures collection
-
-                figures.Add(new PathFigure { StartPoint = new Point(-1000, -1000) });
-            }
-
-            ((PathGeometry)Data).Figures = figures;
-            InvalidateGeometry();
-        }
-
         private void AddPolylinePoints(PathFigures figures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             var points = locations
@@ -132,6 +119,19 @@ namespace MapControl
                     figures.Add(figure);
                 }
             }
+        }
+
+        private void SetPathFigures(PathFigures figures)
+        {
+            if (figures.Count == 0)
+            {
+                // Avalonia Shape seems to ignore PathGeometry with empty Figures collection
+
+                figures.Add(new PathFigure { StartPoint = new Point(-1000, -1000) });
+            }
+
+            ((PathGeometry)Data).Figures = figures;
+            InvalidateGeometry();
         }
     }
 }
