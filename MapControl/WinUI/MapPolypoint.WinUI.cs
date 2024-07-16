@@ -80,36 +80,34 @@ namespace MapControl
             if (points.Any())
             {
                 var startPoint = points.First();
+                var polylineSegment = new PolyLineSegment();
                 var minX = startPoint.X;
                 var maxX = startPoint.X;
                 var minY = startPoint.Y;
                 var maxY = startPoint.Y;
 
-                var figure = new PathFigure
-                {
-                    StartPoint = startPoint,
-                    IsClosed = closed,
-                    IsFilled = true
-                };
-
-                var polyline = new PolyLineSegment();
-
                 foreach (var point in points.Skip(1))
                 {
+                    polylineSegment.Points.Add(point);
                     minX = Math.Min(minX, point.X);
                     maxX = Math.Max(maxX, point.X);
                     minY = Math.Min(minY, point.Y);
                     maxY = Math.Max(maxY, point.Y);
-                    polyline.Points.Add(point);
                 }
 
                 if (maxX >= 0 && minX <= ParentMap.ActualWidth &&
                     maxY >= 0 && minY <= ParentMap.ActualHeight)
                 {
-                    figure.Segments.Add(polyline);
-                }
+                    var pathFigure = new PathFigure
+                    {
+                        StartPoint = startPoint,
+                        IsClosed = closed,
+                        IsFilled = true
+                    };
 
-                pathFigures.Add(figure);
+                    pathFigure.Segments.Add(polylineSegment);
+                    pathFigures.Add(pathFigure);
+                }
             }
         }
     }

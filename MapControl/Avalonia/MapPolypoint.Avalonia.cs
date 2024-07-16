@@ -2,6 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -60,6 +61,13 @@ namespace MapControl
                 AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
             }
 
+            if (pathFigures.Count == 0)
+            {
+                // Avalonia Shape seems to ignore PathGeometry with empty Figures collection
+
+                pathFigures.Add(new PathFigure { StartPoint = new Point(-1000, -1000) });
+            }
+
             ((PathGeometry)Data).Figures = pathFigures;
 
             InvalidateGeometry();
@@ -74,15 +82,34 @@ namespace MapControl
 
             if (points.Any())
             {
-                var figure = new PathFigure
-                {
-                    StartPoint = points.First(),
-                    IsClosed = closed,
-                    IsFilled = true
-                };
+                var startPoint = points.First();
+                var polylineSegment = new PolyLineSegment(points.Skip(1));
+                var minX = startPoint.X;
+                var maxX = startPoint.X;
+                var minY = startPoint.Y;
+                var maxY = startPoint.Y;
 
-                figure.Segments.Add(new PolyLineSegment(points.Skip(1)));
-                pathFigures.Add(figure);
+                foreach (var point in polylineSegment.Points)
+                {
+                    minX = Math.Min(minX, point.X);
+                    maxX = Math.Max(maxX, point.X);
+                    minY = Math.Min(minY, point.Y);
+                    maxY = Math.Max(maxY, point.Y);
+                }
+
+                if (maxX >= 0 && minX <= ParentMap.ActualWidth &&
+                    maxY >= 0 && minY <= ParentMap.ActualHeight)
+                {
+                    var pathFigure = new PathFigure
+                    {
+                        StartPoint = startPoint,
+                        IsClosed = closed,
+                        IsFilled = true
+                    };
+
+                    pathFigure.Segments.Add(polylineSegment);
+                    pathFigures.Add(pathFigure);
+                }
             }
         }
     }
