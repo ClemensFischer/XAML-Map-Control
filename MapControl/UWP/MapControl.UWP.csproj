@@ -113,6 +113,9 @@
     <Compile Include="..\Shared\MapItemsControl.cs">
       <Link>MapItemsControl.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapMultiPolygon.cs">
+      <Link>MapMultiPolygon.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapPanel.cs">
       <Link>MapPanel.cs</Link>
     </Compile>
@@ -148,6 +151,9 @@
     </Compile>
     <Compile Include="..\Shared\PolarStereographicProjection.cs">
       <Link>PolarStereographicProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PolygonCollection.cs">
+      <Link>PolygonCollection.cs</Link>
     </Compile>
     <Compile Include="..\Shared\PushpinBorder.cs">
       <Link>PushpinBorder.cs</Link>

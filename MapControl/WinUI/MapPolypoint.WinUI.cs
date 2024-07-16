@@ -59,18 +59,34 @@ namespace MapControl
 
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
-            var pathFigures = ((PathGeometry)Data).Figures;
-            pathFigures.Clear();
+            var figures = ((PathGeometry)Data).Figures;
+            figures.Clear();
 
             if (ParentMap != null && locations != null)
             {
                 var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
 
-                AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
+                AddPolylinePoints(figures, locations, longitudeOffset, closed);
             }
         }
 
-        private void AddPolylinePoints(PathFigureCollection pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
+        {
+            var figures = ((PathGeometry)Data).Figures;
+            figures.Clear();
+
+            if (ParentMap != null && polygons != null)
+            {
+                var longitudeOffset = GetLongitudeOffset(Location);
+
+                foreach (var locations in polygons)
+                {
+                    AddPolylinePoints(figures, locations, longitudeOffset, true);
+                }
+            }
+        }
+
+        private void AddPolylinePoints(PathFigureCollection figures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             var points = locations
                 .Select(location => LocationToView(location, longitudeOffset))
@@ -79,16 +95,16 @@ namespace MapControl
 
             if (points.Any())
             {
-                var startPoint = points.First();
-                var polylineSegment = new PolyLineSegment();
-                var minX = startPoint.X;
-                var maxX = startPoint.X;
-                var minY = startPoint.Y;
-                var maxY = startPoint.Y;
+                var start = points.First();
+                var polyline = new PolyLineSegment();
+                var minX = start.X;
+                var maxX = start.X;
+                var minY = start.Y;
+                var maxY = start.Y;
 
                 foreach (var point in points.Skip(1))
                 {
-                    polylineSegment.Points.Add(point);
+                    polyline.Points.Add(point);
                     minX = Math.Min(minX, point.X);
                     maxX = Math.Max(maxX, point.X);
                     minY = Math.Min(minY, point.Y);
@@ -98,15 +114,15 @@ namespace MapControl
                 if (maxX >= 0 && minX <= ParentMap.ActualWidth &&
                     maxY >= 0 && minY <= ParentMap.ActualHeight)
                 {
-                    var pathFigure = new PathFigure
+                    var figure = new PathFigure
                     {
-                        StartPoint = startPoint,
+                        StartPoint = start,
                         IsClosed = closed,
                         IsFilled = true
                     };
 
-                    pathFigure.Segments.Add(polylineSegment);
-                    pathFigures.Add(pathFigure);
+                    figure.Segments.Add(polyline);
+                    figures.Add(figure);
                 }
             }
         }

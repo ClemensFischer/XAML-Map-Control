@@ -77,9 +77,9 @@ namespace MapControl
                 {
                     var longitudeOffset = GetLongitudeOffset(Location);
 
-                    foreach (var polygon in polygons)
+                    foreach (var locations in polygons)
                     {
-                        AddPolylinePoints(context, polygon, longitudeOffset, true);
+                        AddPolylinePoints(context, locations, longitudeOffset, true);
                     }
                 }
             }
@@ -94,8 +94,27 @@ namespace MapControl
 
             if (points.Any())
             {
-                context.BeginFigure(points.First(), true, closed);
-                context.PolyLineTo(points.Skip(1).ToList(), true, true);
+                var start = points.First();
+                var polyline = points.Skip(1).ToList();
+                var minX = start.X;
+                var maxX = start.X;
+                var minY = start.Y;
+                var maxY = start.Y;
+
+                foreach (var point in polyline)
+                {
+                    minX = Math.Min(minX, point.X);
+                    maxX = Math.Max(maxX, point.X);
+                    minY = Math.Min(minY, point.Y);
+                    maxY = Math.Max(maxY, point.Y);
+                }
+
+                if (maxX >= 0 && minX <= ParentMap.ActualWidth &&
+                    maxY >= 0 && minY <= ParentMap.ActualHeight)
+                {
+                    context.BeginFigure(start, true, closed);
+                    context.PolyLineTo(polyline, true, true);
+                }
             }
         }
     }

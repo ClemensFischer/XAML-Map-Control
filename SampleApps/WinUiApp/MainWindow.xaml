@@ -174,17 +174,20 @@
                                  SelectionChanged="MapItemsControlSelectionChanged"
                                  DoubleTapped="MapItemsControlDoubleTapped"/>
 
-            <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00">
+            <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00" IsHitTestVisible="False">
                 <map:MapPath.Data>
                     <EllipseGeometry RadiusX="1852" RadiusY="1852"/>
                 </map:MapPath.Data>
             </map:MapPath>
 
-            <map:MapPolygon Stroke="Yellow" StrokeThickness="2">
-                <map:MapPolygon.Locations>
-                    <map:LocationCollection>53.45,8.1 53.45,8.3 53.55,8.3 53.55,8.1</map:LocationCollection>
-                </map:MapPolygon.Locations>
-            </map:MapPolygon>
+            <map:MapMultiPolygon Stroke="Yellow" StrokeThickness="2" Fill="#1FFF0000" IsHitTestVisible="False">
+                <map:MapMultiPolygon.Polygons>
+                    <map:PolygonCollection>
+                        <map:LocationCollection>53.45,8.1 53.45,8.3 53.55,8.3 53.55,8.1</map:LocationCollection>
+                        <map:LocationCollection>53.47,8.14 53.47,8.26 53.53,8.26 53.53,8.14</map:LocationCollection>
+                    </map:PolygonCollection>
+                </map:MapMultiPolygon.Polygons>
+            </map:MapMultiPolygon>
 
             <map:Pushpin Location="53.5,8.2" AutoCollapse="True" Content="N 53°30' E 8°12'"/>
         </map:Map>

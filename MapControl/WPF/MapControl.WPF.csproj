@@ -21,6 +21,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Remove="..\Shared\PolygonCollection.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     </ItemGroup>

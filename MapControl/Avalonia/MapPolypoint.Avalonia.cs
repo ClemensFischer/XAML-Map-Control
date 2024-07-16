@@ -52,32 +52,49 @@ namespace MapControl
 
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
-            var pathFigures = new PathFigures();
+            var figures = new PathFigures();
 
             if (ParentMap != null && locations != null)
             {
                 var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
 
-                AddPolylinePoints(pathFigures, locations, longitudeOffset, closed);
+                AddPolylinePoints(figures, locations, longitudeOffset, closed);
             }
 
-            SetPathFigures(pathFigures);
+            SetPathFigures(figures);
         }
 
-        protected void SetPathFigures(PathFigures pathFigures)
+        protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
         {
-            if (pathFigures.Count == 0)
+            var figures = new PathFigures();
+
+            if (ParentMap != null && polygons != null)
+            {
+                var longitudeOffset = GetLongitudeOffset(Location);
+
+                foreach (var locations in polygons)
+                {
+                    AddPolylinePoints(figures, locations, longitudeOffset, true);
+                }
+            }
+
+            SetPathFigures(figures);
+        }
+
+        protected void SetPathFigures(PathFigures figures)
+        {
+            if (figures.Count == 0)
             {
                 // Avalonia Shape seems to ignore PathGeometry with empty Figures collection
 
-                pathFigures.Add(new PathFigure { StartPoint = new Point(-1000, -1000) });
+                figures.Add(new PathFigure { StartPoint = new Point(-1000, -1000) });
             }
 
-            ((PathGeometry)Data).Figures = pathFigures;
+            ((PathGeometry)Data).Figures = figures;
             InvalidateGeometry();
         }
 
-        private void AddPolylinePoints(PathFigures pathFigures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+        private void AddPolylinePoints(PathFigures figures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
             var points = locations
                 .Select(location => LocationToView(location, longitudeOffset))
@@ -86,14 +103,14 @@ namespace MapControl
 
             if (points.Any())
             {
-                var startPoint = points.First();
-                var polylineSegment = new PolyLineSegment(points.Skip(1));
-                var minX = startPoint.X;
-                var maxX = startPoint.X;
-                var minY = startPoint.Y;
-                var maxY = startPoint.Y;
+                var start = points.First();
+                var polyline = new PolyLineSegment(points.Skip(1));
+                var minX = start.X;
+                var maxX = start.X;
+                var minY = start.Y;
+                var maxY = start.Y;
 
-                foreach (var point in polylineSegment.Points)
+                foreach (var point in polyline.Points)
                 {
                     minX = Math.Min(minX, point.X);
                     maxX = Math.Max(maxX, point.X);
@@ -104,15 +121,15 @@ namespace MapControl
                 if (maxX >= 0 && minX <= ParentMap.ActualWidth &&
                     maxY >= 0 && minY <= ParentMap.ActualHeight)
                 {
-                    var pathFigure = new PathFigure
+                    var figure = new PathFigure
                     {
-                        StartPoint = startPoint,
+                        StartPoint = start,
                         IsClosed = closed,
                         IsFilled = true
                     };
 
-                    pathFigure.Segments.Add(polylineSegment);
-                    pathFigures.Add(pathFigure);
+                    figure.Segments.Add(polyline);
+                    figures.Add(figure);
                 }
             }
         }

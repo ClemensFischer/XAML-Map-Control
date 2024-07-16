@@ -3,7 +3,13 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System.Collections.Generic;
+#if WPF
 using System.Windows;
+#elif UWP
+using Windows.UI.Xaml;
+#elif WINUI
+using Microsoft.UI.Xaml;
+#endif
 
 namespace MapControl
 {

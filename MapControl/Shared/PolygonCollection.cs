@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Windows;
 
 namespace MapControl
 {
@@ -16,20 +15,18 @@ namespace MapControl
     /// listener to each element that implements INotifyCollectionChanged and, when such an element changes,
     /// fires its own CollectionChanged event with NotifyCollectionChangedAction.Replace for that element.
     /// </summary>
-    public class PolygonCollection : ObservableCollection<IEnumerable<Location>>, IWeakEventListener
+    public class PolygonCollection : ObservableCollection<IEnumerable<Location>>
     {
-        public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        private void PolygonChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, sender, sender));
-
-            return true;
         }
 
         protected override void InsertItem(int index, IEnumerable<Location> polygon)
         {
             if (polygon is INotifyCollectionChanged addedPolygon)
             {
-                CollectionChangedEventManager.AddListener(addedPolygon, this);
+                addedPolygon.CollectionChanged += PolygonChanged;
             }
 
             base.InsertItem(index, polygon);
@@ -39,12 +36,12 @@ namespace MapControl
         {
             if (this[index] is INotifyCollectionChanged removedPolygon)
             {
-                CollectionChangedEventManager.RemoveListener(removedPolygon, this);
+                removedPolygon.CollectionChanged -= PolygonChanged;
             }
 
             if (polygon is INotifyCollectionChanged addedPolygon)
             {
-                CollectionChangedEventManager.AddListener(addedPolygon, this);
+                addedPolygon.CollectionChanged += PolygonChanged;
             }
 
             base.SetItem(index, polygon);
@@ -54,7 +51,7 @@ namespace MapControl
         {
             if (this[index] is INotifyCollectionChanged removedPolygon)
             {
-                CollectionChangedEventManager.RemoveListener(removedPolygon, this);
+                removedPolygon.CollectionChanged -= PolygonChanged;
             }
 
             base.RemoveItem(index);
@@ -64,7 +61,7 @@ namespace MapControl
         {
             foreach (var polygon in this.OfType<INotifyCollectionChanged>())
             {
-                CollectionChangedEventManager.RemoveListener(polygon, this);
+                polygon.CollectionChanged -= PolygonChanged;
             }
 
             base.ClearItems();
