@@ -151,14 +151,14 @@
                 </map:MapPath.Data>
             </map:MapPath>
 
-            <map:MapMultiPolygon Stroke="Yellow" StrokeThickness="2" Fill="#1FFF0000" IsHitTestVisible="False">
+            <!--<map:MapMultiPolygon Stroke="Yellow" StrokeThickness="2" Fill="#1FFF0000" IsHitTestVisible="False">
                 <map:MapMultiPolygon.Polygons>
                     <map:PolygonCollection>
                         <map:LocationCollection>53.45,8.1 53.45,8.3 53.55,8.3 53.55,8.1</map:LocationCollection>
-                        <map:LocationCollection>53.47,8.14 53.47,8.26 53.53,8.26 53.53,8.14</map:LocationCollection>
+                        <map:LocationCollection>53.5,8.12 53.46,8.2 53.5,8.28 53.54,8.2</map:LocationCollection>
                     </map:PolygonCollection>
                 </map:MapMultiPolygon.Polygons>
-            </map:MapMultiPolygon>
+            </map:MapMultiPolygon>-->
 
             <map:Pushpin AutoCollapse="True" Location="53.5,8.2" Content="N 53°30' E 8°12'"/>
         </map:Map>
