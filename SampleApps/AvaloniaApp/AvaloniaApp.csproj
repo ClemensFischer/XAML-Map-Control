@@ -3,7 +3,6 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>SampleApplication</RootNamespace>
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <DefineConstants>AVALONIA</DefineConstants>
     </PropertyGroup>
 
