@@ -17,7 +17,7 @@ using Microsoft.UI.Xaml.Controls;
 namespace MapControl
 {
     /// <summary>
-    /// Manages a collection of selectable items on a Map.
+    /// An ItemsControl with selectable items on a Map. Uses MapItem as item container.
     /// </summary>
     public partial class MapItemsControl : ListBox
     {
