@@ -15,11 +15,10 @@ namespace MapControl
 {
     public class ToggleMenuFlyoutItem : MenuItem
     {
-        internal static readonly FontFamily SymbolFont = new FontFamily("Segoe MDL2 Assets");
+        internal static readonly FontFamily SymbolFont = new("Segoe MDL2 Assets");
 
         private readonly StackPanel header;
         private readonly TextBlock icon;
-        private bool isChecked;
 
         public ToggleMenuFlyoutItem(string text, object item, EventHandler<RoutedEventArgs> click)
         {
@@ -42,13 +41,13 @@ namespace MapControl
 
         protected override Type StyleKeyOverride => typeof(MenuItem);
 
-        public bool IsChecked
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs args)
         {
-            get => isChecked;
-            set
+            base.OnPropertyChanged(args);
+
+            if (args.Property == IsCheckedProperty)
             {
-                isChecked = value;
-                icon.Text = isChecked ? "\uE73E" : ""; // CheckMark
+                icon.Text = (bool)args.NewValue ? "\uE73E" : ""; // CheckMark
             }
         }
     }
