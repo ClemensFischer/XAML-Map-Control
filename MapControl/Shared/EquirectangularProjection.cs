@@ -48,12 +48,17 @@ namespace MapControl
 
         public override string GetBboxValue(Rect rect)
         {
-            return string.Format(CultureInfo.InvariantCulture,
-                CrsId == "CRS:84" ? "{0},{1},{2},{3}" : "{1},{0},{3},{2}",
-                rect.X / Wgs84MeterPerDegree,
-                rect.Y / Wgs84MeterPerDegree,
-                (rect.X + rect.Width) / Wgs84MeterPerDegree,
-                (rect.Y + rect.Height) / Wgs84MeterPerDegree);
+            if (CrsId == DefaultCrsId || CrsId == "CRS:84")
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    CrsId == DefaultCrsId ? "{1:F8},{0:F8},{3:F8},{2:F8}" : "{0:F8},{1:F8},{2:F8},{3:F8}",
+                    rect.X / Wgs84MeterPerDegree,
+                    rect.Y / Wgs84MeterPerDegree,
+                    (rect.X + rect.Width) / Wgs84MeterPerDegree,
+                    (rect.Y + rect.Height) / Wgs84MeterPerDegree);
+            }
+
+            return base.GetBboxValue(rect);
         }
     }
 }

@@ -128,14 +128,9 @@ namespace MapControl
         /// </summary>
         public virtual string GetBboxValue(Rect rect)
         {
-            // Truncate values for seamless stitching of two WMS images at 180° longitude,
-            // as done in WmsImageLayer.GetImageAsync.
-            //
-            return string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}",
-                0.01 * Math.Ceiling(100d * rect.X),
-                0.01 * Math.Ceiling(100d * rect.Y),
-                0.01 * Math.Floor(100d * (rect.X + rect.Width)),
-                0.01 * Math.Floor(100d * (rect.Y + rect.Height)));
+            return string.Format(CultureInfo.InvariantCulture,
+                "{0:F2},{1:F2},{2:F2},{3:F2}",
+                rect.X, rect.Y, rect.X + rect.Width, rect.Y + rect.Height);
         }
     }
 }

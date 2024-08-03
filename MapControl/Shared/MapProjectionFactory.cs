@@ -25,7 +25,9 @@ namespace MapControl
                     return new WorldMercatorProjection();
 
                 case EquirectangularProjection.DefaultCrsId:
-                    return new EquirectangularProjection();
+                case "CRS:84":
+                case "EPSG:4087":
+                    return new EquirectangularProjection(crsId);
 
                 case UpsNorthProjection.DefaultCrsId:
                     return new UpsNorthProjection();

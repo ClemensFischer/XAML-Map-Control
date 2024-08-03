@@ -24,6 +24,13 @@ namespace MapControl
             CrsId = crsId;
         }
 
+        public override Point GetRelativeScale(Location location)
+        {
+            return new Point(
+                Math.Cos(Center.Latitude * Math.PI / 180d) / Math.Cos(location.Latitude * Math.PI / 180d),
+                1d);
+        }
+
         public override Point? LocationToMap(Location location)
         {
             return new Point(
