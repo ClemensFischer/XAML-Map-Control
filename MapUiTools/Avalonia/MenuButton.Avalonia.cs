@@ -17,25 +17,18 @@ namespace MapControl
     {
         internal static readonly FontFamily SymbolFont = new("Segoe MDL2 Assets");
 
-        private readonly StackPanel header;
-        private readonly TextBlock icon;
+        private readonly TextBlock icon = new()
+        {
+            FontFamily = SymbolFont,
+            FontWeight = FontWeight.Black,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+        };
 
         public ToggleMenuFlyoutItem(string text, object item, EventHandler<RoutedEventArgs> click)
         {
-            icon = new TextBlock
-            {
-                FontFamily = SymbolFont,
-                Width = 20,
-                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-            };
-
-            header = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal };
-            header.Children.Add(icon);
-            header.Children.Add(new TextBlock { Text = text });
-
-            Header = header;
+            Icon = icon;
+            Header = text;
             Tag = item;
-
             Click += click;
         }
 
