@@ -11,7 +11,7 @@
     <AssemblyName>MapControl.UWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22000.0</TargetPlatformVersion>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -82,9 +82,6 @@
     </Compile>
     <Compile Include="..\Shared\GroundOverlay.cs">
       <Link>GroundOverlay.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\ImageFileCache.cs">
-      <Link>ImageFileCache.cs</Link>
     </Compile>
     <Compile Include="..\Shared\ImageLoader.cs">
       <Link>ImageLoader.cs</Link>
@@ -275,6 +272,7 @@
     <Compile Include="..\WinUI\Tile.WinUI.cs">
       <Link>Tile.WinUI.cs</Link>
     </Compile>
+    <Compile Include="ImageFileCache.UWP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />
     <EmbeddedResource Include="Properties\MapControl.UWP.rd.xml" />

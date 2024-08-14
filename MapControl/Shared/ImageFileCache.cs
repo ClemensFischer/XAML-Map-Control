@@ -8,11 +8,11 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
 using System.IO;
-using Path = System.IO.Path;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Path = System.IO.Path;
 
 namespace MapControl.Caching
 {
@@ -269,11 +269,13 @@ namespace MapControl.Caching
                 try
                 {
                     var hasExpired = false;
-                    var buffer = new byte[16];
 
                     using (var stream = file.OpenRead())
                     {
                         stream.Seek(-16, SeekOrigin.End);
+
+                        var buffer = new byte[16];
+
                         hasExpired = stream.Read(buffer, 0, 16) == 16
                             && GetExpirationTicks(buffer, out long expiration)
                             && expiration <= DateTimeOffset.UtcNow.Ticks;
@@ -377,10 +379,11 @@ namespace MapControl.Caching
 
         private static Task WriteAsync(Stream stream, byte[] bytes) => stream.WriteAsync(bytes, 0, bytes.Length);
 
-        static partial void SetAccessControl(string path);
-#if !UWP && !AVALONIA
-        static partial void SetAccessControl(string path)
+        private static void SetAccessControl(string path)
         {
+#if AVALONIA
+            if (!OperatingSystem.IsWindows()) return;
+#endif
             var fileInfo = new FileInfo(path);
             var fileSecurity = fileInfo.GetAccessControl();
             var fullControlRule = new System.Security.AccessControl.FileSystemAccessRule(
@@ -392,6 +395,5 @@ namespace MapControl.Caching
             fileSecurity.AddAccessRule(fullControlRule);
             fileInfo.SetAccessControl(fileSecurity);
         }
-#endif
     }
 }

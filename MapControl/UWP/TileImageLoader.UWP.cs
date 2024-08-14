@@ -15,8 +15,7 @@ namespace MapControl
         /// <summary>
         /// Default folder where the Cache instance may save data.
         /// </summary>
-        public static string DefaultCacheFolder => ApplicationData.Current.TemporaryFolder.Path;
-
+        public static StorageFolder DefaultCacheFolder => ApplicationData.Current.LocalCacheFolder;
 
         private static async Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {

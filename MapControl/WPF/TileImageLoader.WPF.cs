@@ -17,7 +17,6 @@ namespace MapControl
         public static string DefaultCacheFolder =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
 
-
         private static async Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var image = await loadImageFunc().ConfigureAwait(false);
