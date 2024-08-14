@@ -32,7 +32,7 @@ namespace MapControl.Caching
         {
             rootFolder = folder ?? throw new ArgumentException($"The {nameof(folder)} argument must not be null or empty.", nameof(folder));
 
-            Debug.WriteLine($"ImageFileCache: {rootFolder}");
+            Debug.WriteLine($"ImageFileCache: {rootFolder.Path}");
 
             _ = Task.Factory.StartNew(CleanAsync, TaskCreationOptions.LongRunning);
         }
