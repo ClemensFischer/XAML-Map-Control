@@ -24,18 +24,18 @@ namespace MapControl.Caching
         private static readonly byte[] expirationTag = Encoding.ASCII.GetBytes("EXPIRES:");
 
         private readonly MemoryDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
-        private readonly string rootDirectory;
+        private readonly string rootPath;
 
-        public ImageFileCache(string directory)
+        public ImageFileCache(string path)
         {
-            if (string.IsNullOrEmpty(directory))
+            if (string.IsNullOrEmpty(path))
             {
-                throw new ArgumentException($"The {nameof(directory)} argument must not be null or empty.", nameof(directory));
+                throw new ArgumentException($"The {nameof(path)} argument must not be null or empty.", nameof(path));
             }
 
-            rootDirectory = directory;
+            rootPath = path;
 
-            Debug.WriteLine($"ImageFileCache: {rootDirectory}");
+            Debug.WriteLine($"ImageFileCache: {rootPath}");
 
             ThreadPool.QueueUserWorkItem(o => Clean());
         }
@@ -210,7 +210,7 @@ namespace MapControl.Caching
 
         public void Clean()
         {
-            var deletedFileCount = CleanDirectory(new DirectoryInfo(rootDirectory));
+            var deletedFileCount = CleanDirectory(new DirectoryInfo(rootPath));
 
             if (deletedFileCount > 0)
             {
@@ -227,7 +227,7 @@ namespace MapControl.Caching
         {
             try
             {
-                return Path.Combine(rootDirectory, Path.Combine(key.Split('/')));
+                return Path.Combine(rootPath, Path.Combine(key.Split('/')));
             }
             catch (Exception ex)
             {

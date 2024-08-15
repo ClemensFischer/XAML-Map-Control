@@ -9,12 +9,6 @@ namespace MapControl
 {
     public partial class TileImageLoader
     {
-        /// <summary>
-        /// Default folder where the Cache instance may save data, i.e. "C:\ProgramData\MapControl\TileCache".
-        /// </summary>
-        public static string DefaultCacheFolder =>
-            System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
-
         private static async Task LoadTileAsync(Tile tile, Func<Task<IImage>> loadImageFunc)
         {
             var image = await loadImageFunc().ConfigureAwait(false);

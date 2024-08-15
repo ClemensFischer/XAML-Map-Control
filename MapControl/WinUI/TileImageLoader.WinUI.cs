@@ -5,19 +5,12 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace MapControl
 {
     public partial class TileImageLoader
     {
-        /// <summary>
-        /// Default folder where the Cache instance may save data, i.e. "C:\ProgramData\MapControl\TileCache".
-        /// </summary>
-        public static string DefaultCacheFolder =>
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
-
         private static Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource();

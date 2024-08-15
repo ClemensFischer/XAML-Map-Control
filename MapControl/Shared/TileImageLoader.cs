@@ -45,6 +45,12 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".
+        /// </summary>
+        public static string DefaultCacheFolder =>
+            System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
+
+        /// <summary>
         /// An IDistributedCache implementation used to cache tile images.
         /// The default value is a MemoryDistributedCache instance.
         /// </summary>
