@@ -7,6 +7,10 @@
         <DefineConstants>WINUI</DefineConstants>
         <RootNamespace>MapControl.MBTiles</RootNamespace>
         <AssemblyTitle>XAML Map Control MBTiles Library for WinUI</AssemblyTitle>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.MBTiles</PackageId>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>MBTiles library for XAML Map Control</Description>
     </PropertyGroup>
 
     <ItemGroup>
