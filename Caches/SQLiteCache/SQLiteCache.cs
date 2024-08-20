@@ -16,7 +16,7 @@ namespace MapControl.Caching
     /// <summary>
     /// IDistributedCache implementation based on SQLite.
     /// </summary>
-    public class SQLiteCache : IDistributedCache, IDisposable
+    public sealed class SQLiteCache : IDistributedCache, IDisposable
     {
         private readonly SQLiteConnection connection;
 
