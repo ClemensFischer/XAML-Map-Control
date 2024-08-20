@@ -3,7 +3,10 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
@@ -19,19 +22,46 @@ namespace MapControl.MBTiles
 {
     public class MBTileSource : TileSource, IDisposable
     {
-        public MBTileData TileData { get; }
+        private SQLiteConnection connection;
 
-        public MBTileSource(MBTileData tiledata)
+        public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
+
+        public async Task OpenAsync(string file)
         {
-            var format = tiledata.Metadata["format"];
+            Close();
 
-            if (format == "png" || format == "jpg")
+            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file));
+
+            await connection.OpenAsync();
+
+            using (var command = new SQLiteCommand("create table if not exists metadata (name string, value string)", connection))
             {
-                TileData = tiledata;
+                await command.ExecuteNonQueryAsync();
             }
-            else
+
+            using (var command = new SQLiteCommand("create table if not exists tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)", connection))
             {
-                Debug.WriteLine($"MBTileSource: unsupported format '{format}'");
+                await command.ExecuteNonQueryAsync();
+            }
+
+            using (var command = new SQLiteCommand("select * from metadata", connection))
+            {
+                var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    Metadata[(string)reader["name"]] = (string)reader["value"];
+                }
+            }
+        }
+
+        public void Close()
+        {
+            if (connection != null)
+            {
+                Metadata.Clear();
+                connection.Dispose();
+                connection = null;
             }
         }
 
@@ -43,9 +73,21 @@ namespace MapControl.MBTiles
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing && TileData != null)
+            if (disposing)
             {
-                TileData.Dispose();
+                Close();
+            }
+        }
+
+        public async Task<byte[]> ReadImageBufferAsync(int x, int y, int zoomLevel)
+        {
+            using (var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection))
+            {
+                command.Parameters.AddWithValue("@z", zoomLevel);
+                command.Parameters.AddWithValue("@x", x);
+                command.Parameters.AddWithValue("@y", (1 << zoomLevel) - y - 1);
+
+                return await command.ExecuteScalarAsync() as byte[];
             }
         }
 
@@ -53,21 +95,18 @@ namespace MapControl.MBTiles
         {
             ImageSource image = null;
 
-            if (TileData != null)
+            try
             {
-                var buffer = await TileData.ReadImageBufferAsync(x, y, zoomLevel);
+                var buffer = await ReadImageBufferAsync(x, y, zoomLevel);
 
                 if (buffer != null)
                 {
-                    try
-                    {
-                        image = await ImageLoader.LoadImageAsync(buffer);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"MBTileSource : {ex.Message}");
-                    }
+                    image = await ImageLoader.LoadImageAsync(buffer);
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MBTileSource: {ex.Message}");
             }
 
             return image;

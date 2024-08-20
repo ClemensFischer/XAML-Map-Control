@@ -2,6 +2,8 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
@@ -33,14 +35,25 @@ namespace MapControl.MBTiles
         /// <summary>
         /// May be overridden to create a derived MBTileSource that handles other tile formats than png and jpg.
         /// </summary>
-        protected virtual MBTileSource CreateTileSource(MBTileData tileData)
+        protected virtual async Task<MBTileSource> CreateTileSourceAsync(string file)
         {
-            return new MBTileSource(tileData);
+            var tileSource = new MBTileSource();
+
+            await tileSource.OpenAsync(file);
+
+            if (tileSource.Metadata.TryGetValue("format", out string format) && format != "png" && format != "jpg")
+            {
+                tileSource.Dispose();
+
+                throw new NotSupportedException($"Tile image format {format} is not supported.");
+            }
+
+            return tileSource;
         }
 
         private async Task FilePropertyChanged(string file)
         {
-            (TileSource as MBTileSource)?.Dispose();
+            (TileSource as MBTileSource)?.Close();
 
             ClearValue(TileSourceProperty);
             ClearValue(SourceNameProperty);
@@ -48,31 +61,38 @@ namespace MapControl.MBTiles
             ClearValue(MinZoomLevelProperty);
             ClearValue(MaxZoomLevelProperty);
 
-            if (file != null)
+            if (!string.IsNullOrEmpty(file))
             {
-                var tileData = await MBTileData.CreateAsync(file);
-
-                if (tileData.Metadata.TryGetValue("name", out string sourceName))
+                try
                 {
-                    SourceName = sourceName;
-                }
+                    var tileSource = await CreateTileSourceAsync(file);
 
-                if (tileData.Metadata.TryGetValue("description", out string description))
+                    TileSource = tileSource;
+
+                    if (tileSource.Metadata.TryGetValue("name", out string value))
+                    {
+                        SourceName = value;
+                    }
+
+                    if (tileSource.Metadata.TryGetValue("description", out value))
+                    {
+                        Description = value;
+                    }
+
+                    if (tileSource.Metadata.TryGetValue("minzoom", out value) && int.TryParse(value, out int zoomLevel))
+                    {
+                        MinZoomLevel = zoomLevel;
+                    }
+
+                    if (tileSource.Metadata.TryGetValue("maxzoom", out value) && int.TryParse(value, out zoomLevel))
+                    {
+                        MaxZoomLevel = zoomLevel;
+                    }
+                }
+                catch (Exception ex)
                 {
-                    Description = description;
+                    Debug.WriteLine($"MBTileLayer: {ex.Message}");
                 }
-
-                if (tileData.Metadata.TryGetValue("minzoom", out sourceName) && int.TryParse(sourceName, out int minZoom))
-                {
-                    MinZoomLevel = minZoom;
-                }
-
-                if (tileData.Metadata.TryGetValue("maxzoom", out sourceName) && int.TryParse(sourceName, out int maxZoom))
-                {
-                    MaxZoomLevel = maxZoom;
-                }
-
-                TileSource = CreateTileSource(tileData);
             }
         }
     }
