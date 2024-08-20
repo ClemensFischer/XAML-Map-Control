@@ -16,7 +16,7 @@ namespace MapControl.Caching
     /// IDistributedCache implementation based on FileDb, a free and simple No-SQL database by EzTools Software.
     /// See http://www.eztools-software.com/tools/filedb/.
     /// </summary>
-    public class FileDbCache : IDistributedCache, IDisposable
+    public sealed class FileDbCache : IDistributedCache, IDisposable
     {
         private const string keyField = "Key";
         private const string valueField = "Value";
