@@ -69,9 +69,9 @@ namespace MapControl.Caching
             return buffer;
         }
 
-        public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
+        public async Task<byte[]> GetAsync(string key, CancellationToken cancellationToken = default)
         {
-            var buffer = await memoryCache.GetAsync(key, token).ConfigureAwait(false);
+            var buffer = await memoryCache.GetAsync(key, cancellationToken).ConfigureAwait(false);
 
             if (buffer == null)
             {
@@ -79,13 +79,24 @@ namespace MapControl.Caching
 
                 try
                 {
-                    if (path != null && File.Exists(path) && !token.IsCancellationRequested)
+                    if (path != null && File.Exists(path) && !cancellationToken.IsCancellationRequested)
                     {
-                        buffer = await ReadAllBytesAsync(path).ConfigureAwait(false);
-
+#if NETFRAMEWORK
+                        using (var stream = File.OpenRead(path))
+                        {
+                            buffer = new byte[stream.Length];
+                            var offset = 0;
+                            while (offset < buffer.Length)
+                            {
+                                offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, cancellationToken).ConfigureAwait(false);
+                            }
+                        }
+#else
+                        buffer = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(false);
+#endif
                         if (CheckExpiration(ref buffer, out DistributedCacheEntryOptions options))
                         {
-                            await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
+                            await memoryCache.SetAsync(key, buffer, options, cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
@@ -112,11 +123,11 @@ namespace MapControl.Caching
 
                     using (var stream = File.Create(path))
                     {
-                        Write(stream, buffer);
+                        stream.Write(buffer, 0, buffer.Length);
 
                         if (GetExpirationBytes(options, out byte[] expiration))
                         {
-                            Write(stream, expiration);
+                            stream.Write(expiration, 0, expiration.Length);
                         }
                     }
 
@@ -129,34 +140,34 @@ namespace MapControl.Caching
             }
         }
 
-        public async Task SetAsync(string key, byte[] buffer, DistributedCacheEntryOptions options, CancellationToken token = default)
+        public async Task SetAsync(string key, byte[] buffer, DistributedCacheEntryOptions options, CancellationToken cancellationToken = default)
         {
-            await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
+            await memoryCache.SetAsync(key, buffer, options, cancellationToken).ConfigureAwait(false);
 
             var path = GetPath(key);
 
-            if (path != null && buffer?.Length > 0 && !token.IsCancellationRequested)
+            try
             {
-                try
+                if (path != null && buffer?.Length > 0 && !cancellationToken.IsCancellationRequested)
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
 
                     using (var stream = File.Create(path))
                     {
-                        await WriteAsync(stream, buffer).ConfigureAwait(false);
+                        await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
 
                         if (GetExpirationBytes(options, out byte[] expiration))
                         {
-                            await WriteAsync(stream, expiration).ConfigureAwait(false);
+                            await stream.WriteAsync(expiration, 0, expiration.Length, cancellationToken).ConfigureAwait(false);
                         }
                     }
 
                     SetAccessControl(path);
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
             }
         }
 
@@ -189,15 +200,15 @@ namespace MapControl.Caching
             }
         }
 
-        public async Task RemoveAsync(string key, CancellationToken token = default)
+        public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
         {
-            await memoryCache.RemoveAsync(key, token);
+            await memoryCache.RemoveAsync(key, cancellationToken);
 
             var path = GetPath(key);
 
             try
             {
-                if (path != null && File.Exists(path) && !token.IsCancellationRequested)
+                if (path != null && File.Exists(path) && !cancellationToken.IsCancellationRequested)
                 {
                     File.Delete(path);
                 }
@@ -357,27 +368,6 @@ namespace MapControl.Caching
             expirationBytes = expirationTag.Concat(BitConverter.GetBytes(expirationTicks)).ToArray();
             return true;
         }
-
-#if NETFRAMEWORK
-        private static async Task<byte[]> ReadAllBytesAsync(string path)
-        {
-            using (var stream = File.OpenRead(path))
-            {
-                var buffer = new byte[stream.Length];
-                var offset = 0;
-                while (offset < buffer.Length)
-                {
-                    offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset).ConfigureAwait(false);
-                }
-                return buffer;
-            }
-        }
-#else
-        private static Task<byte[]> ReadAllBytesAsync(string path) => File.ReadAllBytesAsync(path);
-#endif
-        private static void Write(Stream stream, byte[] bytes) => stream.Write(bytes, 0, bytes.Length);
-
-        private static Task WriteAsync(Stream stream, byte[] bytes) => stream.WriteAsync(bytes, 0, bytes.Length);
 
         private static void SetAccessControl(string path)
         {
