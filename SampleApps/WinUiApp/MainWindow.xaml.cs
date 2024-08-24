@@ -140,7 +140,7 @@ namespace SampleApplication
                 lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
         }
 
-        private string GetDistanceText(double distance)
+        private static string GetDistanceText(double distance)
         {
             var unit = "m";
 
