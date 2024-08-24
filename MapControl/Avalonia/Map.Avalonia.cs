@@ -27,6 +27,7 @@ namespace MapControl
         public static readonly StyledProperty<double> MouseWheelZoomDeltaProperty =
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
+        private double mouseWheelDelta;
         private IPointer pointer1;
         private IPointer pointer2;
         private Point position1;
@@ -50,8 +51,17 @@ namespace MapControl
 
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            ZoomMap(e.GetPosition(this), TargetZoomLevel + MouseWheelZoomDelta * e.Delta.Y);
-            e.Handled = true;
+            mouseWheelDelta += e.Delta.Y;
+
+            if (Math.Abs(mouseWheelDelta) >= 1d)
+            {
+                // Zoom to integer multiple of MouseWheelZoomDelta.
+                //
+                ZoomMap(e.GetPosition(this),
+                    MouseWheelZoomDelta * Math.Round(TargetZoomLevel / MouseWheelZoomDelta + mouseWheelDelta));
+
+                mouseWheelDelta = 0d;
+            }
 
             base.OnPointerWheelChanged(e);
         }
@@ -64,7 +74,6 @@ namespace MapControl
                 point.Pointer.Type == PointerType.Touch && HandleTouchPressed(point))
             {
                 point.Pointer.Capture(this);
-                e.Handled = true;
             }
 
             base.OnPointerPressed(e);
@@ -75,7 +84,6 @@ namespace MapControl
             if (HandlePointerReleased(e.Pointer))
             {
                 e.Pointer.Capture(null);
-                e.Handled = true;
             }
 
             base.OnPointerReleased(e);
@@ -83,10 +91,7 @@ namespace MapControl
 
         protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
         {
-            if (HandlePointerReleased(e.Pointer))
-            {
-                e.Handled = true;
-            }
+            HandlePointerReleased(e.Pointer);
 
             base.OnPointerCaptureLost(e);
         }
@@ -106,8 +111,6 @@ namespace MapControl
                     TranslateMap(position - position1);
                     position1 = position;
                 }
-
-                e.Handled = true;
             }
 
             base.OnPointerMoved(e);

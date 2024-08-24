@@ -84,7 +84,7 @@ namespace MapControl
                 if (Math.Abs(mouseWheelDelta) >= 1d)
                 {
                     // Zoom to integer multiple of MouseWheelZoomDelta.
-
+                    //
                     ZoomMap(point.Position,
                         MouseWheelZoomDelta * Math.Round(TargetZoomLevel / MouseWheelZoomDelta + mouseWheelDelta));
 
