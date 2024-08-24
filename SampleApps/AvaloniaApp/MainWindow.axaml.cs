@@ -52,13 +52,18 @@ namespace SampleApplication
             {
                 var point = e.GetCurrentPoint(map);
 
-                if (point.Properties.IsRightButtonPressed)
+                if (point.Properties.IsLeftButtonPressed)
+                {
+                    map.Cursor = new Cursor(StandardCursorType.Hand);
+                }
+                else if (point.Properties.IsRightButtonPressed)
                 {
                     e.Pointer.Capture(map);
                     var location = map.ViewToLocation(point.Position);
 
                     if (location != null)
                     {
+                        map.Cursor = new Cursor(StandardCursorType.Cross);
                         measurementLine.IsVisible = true;
                         measurementLine.Locations = new LocationCollection(location);
                     }
@@ -74,6 +79,8 @@ namespace SampleApplication
                 measurementLine.IsVisible = false;
                 measurementLine.Locations = null;
             }
+
+            map.Cursor = null;
         }
 
         private void MapPointerMoved(object sender, PointerEventArgs e)
@@ -131,7 +138,7 @@ namespace SampleApplication
                 lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
         }
 
-        private string GetDistanceText(double distance)
+        private static string GetDistanceText(double distance)
         {
             var unit = "m";
 

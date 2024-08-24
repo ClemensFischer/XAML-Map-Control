@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace SampleApplication
@@ -19,7 +18,7 @@ namespace SampleApplication
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new RedisCache(Options.Create(new RedisCacheOptions
             //{
-            //    Configuration = "T400:6379",
+            //    Configuration = "yoga:6379",
             //    InstanceName = "MapTileCache/"
             //}));
         }
@@ -56,6 +55,15 @@ namespace SampleApplication
             {
                 Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
             }
+            else
+            {
+                map.Cursor = Cursors.ScrollAll;
+            }
+        }
+
+        private void MapMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            map.Cursor = null;
         }
 
         private void MapMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -64,6 +72,7 @@ namespace SampleApplication
 
             if (location != null && map.CaptureMouse())
             {
+                map.Cursor = Cursors.Cross;
                 measurementLine.Visibility = Visibility.Visible;
                 measurementLine.Locations = new LocationCollection(location);
             }
@@ -72,6 +81,7 @@ namespace SampleApplication
         private void MapMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             map.ReleaseMouseCapture();
+            map.Cursor = null;
             measurementLine.Visibility = Visibility.Collapsed;
             measurementLine.Locations = null;
         }
@@ -143,7 +153,7 @@ namespace SampleApplication
                 lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
         }
 
-        private string GetDistanceText(double distance)
+        private static string GetDistanceText(double distance)
         {
             var unit = "m";
 
