@@ -26,8 +26,6 @@ namespace MapControl
         {
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
                 .OnItemClicked(this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
-
-            e.Handled = true;
         }
     }
 }

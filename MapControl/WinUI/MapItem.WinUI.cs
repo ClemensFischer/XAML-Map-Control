@@ -41,8 +41,6 @@ namespace MapControl
         {
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
                 .OnItemClicked(this, e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control));
-
-            e.Handled = true;
         }
 
         protected override void OnApplyTemplate()
