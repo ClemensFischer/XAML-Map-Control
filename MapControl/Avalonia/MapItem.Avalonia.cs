@@ -18,9 +18,5 @@ namespace MapControl
             (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
                 .OnItemClicked(this, e.KeyModifiers.HasFlag(KeyModifiers.Control));
         }
-
-        protected override void OnPointerReleased(PointerReleasedEventArgs e)
-        {
-        }
     }
 }
