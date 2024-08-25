@@ -36,14 +36,12 @@ namespace SampleApplication
             Debug.WriteLine("SelectedItems: " + string.Join(", ", ((MapItemsControl)sender).SelectedItems.OfType<PointItem>().Select(item => item.Name)));
         }
 
-        private void MapItemsControlDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            e.Handled = true; // prevent MapDoubleTapped
-        }
-
         private void MapDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+            if (e.OriginalSource is Map map)
+            {
+                map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+            }
         }
 
         private void ResetHeadingButtonClick(object sender, RoutedEventArgs e)

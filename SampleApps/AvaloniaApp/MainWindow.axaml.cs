@@ -36,14 +36,12 @@ namespace SampleApplication
             map.TargetHeading = 0d;
         }
 
-        private void MapItemsControlDoubleTapped(object sender, TappedEventArgs e)
-        {
-            e.Handled = true; // prevent MapDoubleTapped
-        }
-
         private void MapDoubleTapped(object sender, TappedEventArgs e)
         {
-            map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+            if (e.Source == map)
+            {
+                map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+            }
         }
 
         private void MapPointerPressed(object sender, PointerPressedEventArgs e)
@@ -52,11 +50,7 @@ namespace SampleApplication
             {
                 var point = e.GetCurrentPoint(map);
 
-                if (point.Properties.IsLeftButtonPressed)
-                {
-                    map.Cursor = new Cursor(StandardCursorType.Hand);
-                }
-                else if (point.Properties.IsRightButtonPressed)
+                if (point.Properties.IsRightButtonPressed)
                 {
                     e.Pointer.Capture(map);
                     var location = map.ViewToLocation(point.Position);
@@ -76,11 +70,10 @@ namespace SampleApplication
             if (e.Pointer.Captured == map)
             {
                 e.Pointer.Capture(null);
+                map.Cursor = null;
                 measurementLine.IsVisible = false;
                 measurementLine.Locations = null;
             }
-
-            map.Cursor = null;
         }
 
         private void MapPointerMoved(object sender, PointerEventArgs e)

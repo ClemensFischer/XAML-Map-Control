@@ -64,8 +64,7 @@
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  SelectedItem="{Binding SelectedPushpin}"
                                  SelectionMode="Multiple"
-                                 SelectionChanged="MapItemsControlSelectionChanged"
-                                 DoubleTapped="MapItemsControlDoubleTapped">
+                                 SelectionChanged="MapItemsControlSelectionChanged">
                 <map:MapItemsControl.Styles>
                     <Style Selector="map|MapItem">
                         <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
