@@ -46,7 +46,7 @@ namespace SampleApplication
 
         private async void MapMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2)
+            if (e.ClickCount == 2 && e.Source == map)
             {
                 map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
             }
@@ -55,15 +55,6 @@ namespace SampleApplication
             {
                 Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
             }
-            else
-            {
-                map.Cursor = Cursors.ScrollAll;
-            }
-        }
-
-        private void MapMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            map.Cursor = null;
         }
 
         private void MapMouseRightButtonDown(object sender, MouseButtonEventArgs e)
