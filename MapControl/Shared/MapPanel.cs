@@ -295,6 +295,23 @@ namespace MapControl
             }
         }
 
+        private static void ArrangeElement(FrameworkElement element, ViewRect rect)
+        {
+            element.Width = rect.Rect.Width;
+            element.Height = rect.Rect.Height;
+
+            element.Arrange(rect.Rect);
+
+            if (element.RenderTransform is RotateTransform rotateTransform)
+            {
+                rotateTransform.Angle = rect.Rotation;
+            }
+            else if (rect.Rotation != 0d)
+            {
+                SetRenderTransform(element, new RotateTransform { Angle = rect.Rotation }, 0.5, 0.5);
+            }
+        }
+
         private static void ArrangeElement(FrameworkElement element, Point position)
         {
             var size = GetDesiredSize(element);
@@ -377,23 +394,6 @@ namespace MapControl
             }
 
             element.Arrange(new Rect(x, y, width, height));
-        }
-
-        private static void ArrangeElement(FrameworkElement element, ViewRect rect)
-        {
-            element.Width = rect.Rect.Width;
-            element.Height = rect.Rect.Height;
-
-            element.Arrange(rect.Rect);
-
-            if (element.RenderTransform is RotateTransform rotateTransform)
-            {
-                rotateTransform.Angle = rect.Rotation;
-            }
-            else if (rect.Rotation != 0d)
-            {
-                SetRenderTransform(element, new RotateTransform { Angle = rect.Rotation }, 0.5, 0.5);
-            }
         }
 
         internal static Size GetDesiredSize(FrameworkElement element)
