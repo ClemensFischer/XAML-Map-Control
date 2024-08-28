@@ -213,12 +213,12 @@ namespace MapControl
         {
             var point = MapProjection.LocationToMap(location);
 
-            if (!point.HasValue)
+            if (point.HasValue)
             {
-                return null;
+                point = ViewTransform.MapToView(point.Value);
             }
 
-            return ViewTransform.MapToView(point.Value);
+            return point;
         }
 
         /// <summary>

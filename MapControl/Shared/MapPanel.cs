@@ -191,8 +191,7 @@ namespace MapControl
         {
             var position = parentMap.LocationToView(location);
 
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                IsOutsideViewport(position))
+            if (IsOutsideViewport(position) && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
             {
                 position = parentMap.LocationToView(
                     new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
@@ -219,8 +218,7 @@ namespace MapControl
             var position = parentMap.ViewTransform.MapToView(rectCenter);
             var projection = parentMap.MapProjection;
 
-            if (projection.Type <= MapProjectionType.NormalCylindrical &&
-                IsOutsideViewport(position))
+            if (IsOutsideViewport(position) && projection.Type <= MapProjectionType.NormalCylindrical)
             {
                 var location = projection.MapToLocation(rectCenter);
 
@@ -258,21 +256,24 @@ namespace MapControl
         private void ArrangeChildElement(FrameworkElement element, Size panelSize)
         {
             var location = GetLocation(element);
-            var position = location != null ? GetViewPosition(location) : null;
 
-            SetViewPosition(element, ref position);
-
-            if (GetAutoCollapse(element))
+            if (location != null)
             {
-                SetVisible(element, !IsOutsideViewport(position));
-            }
+                var position = GetViewPosition(location);
 
-            if (position.HasValue)
-            {
+                SetViewPosition(element, ref position);
+
+                if (GetAutoCollapse(element))
+                {
+                    SetVisible(element, !IsOutsideViewport(position));
+                }
+
                 ArrangeElement(element, position.Value);
             }
             else
             {
+                element.ClearValue(ViewPositionProperty);
+
                 var boundingBox = GetBoundingBox(element);
 
                 if (boundingBox != null)
@@ -394,19 +395,17 @@ namespace MapControl
 
         internal static Size GetDesiredSize(FrameworkElement element)
         {
-            var width = 0d;
-            var height = 0d;
+            var width = element.DesiredSize.Width;
+            var height = element.DesiredSize.Height;
 
-            if (element.DesiredSize.Width >= 0d &&
-                element.DesiredSize.Width < double.PositiveInfinity)
+            if (width < 0d || width == double.PositiveInfinity)
             {
-                width = element.DesiredSize.Width;
+                width = 0d;
             }
 
-            if (element.DesiredSize.Height >= 0d &&
-                element.DesiredSize.Height < double.PositiveInfinity)
+            if (height < 0d || height == double.PositiveInfinity)
             {
-                height = element.DesiredSize.Height;
+                height = 0d;
             }
 
             return new Size(width, height);
