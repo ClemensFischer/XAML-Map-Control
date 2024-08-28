@@ -268,7 +268,10 @@ namespace MapControl
                     SetVisible(element, !IsOutsideViewport(position));
                 }
 
-                ArrangeElement(element, position.Value);
+                if (position.HasValue)
+                {
+                    ArrangeElement(element, position.Value);
+                }
             }
             else
             {
