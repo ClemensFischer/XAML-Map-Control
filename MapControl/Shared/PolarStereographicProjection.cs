@@ -119,7 +119,13 @@ namespace MapControl
     {
         public const string DefaultCrsId = "EPSG:32661";
 
-        public UpsNorthProjection(string crsId = DefaultCrsId)
+        public UpsNorthProjection()
+            : this(DefaultCrsId)
+        {
+            // XAML needs parameterless constructor
+        }
+
+        public UpsNorthProjection(string crsId)
         {
             CrsId = crsId;
             IsNorth = true;
@@ -133,7 +139,13 @@ namespace MapControl
     {
         public const string DefaultCrsId = "EPSG:32761";
 
-        public UpsSouthProjection(string crsId = DefaultCrsId)
+        public UpsSouthProjection()
+            : this(DefaultCrsId)
+        {
+            // XAML needs parameterless constructor
+        }
+
+        public UpsSouthProjection(string crsId)
         {
             CrsId = crsId;
             IsNorth = false;

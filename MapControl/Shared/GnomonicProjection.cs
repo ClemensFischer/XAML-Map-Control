@@ -17,7 +17,13 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:97001"; // GeoServer non-standard CRS ID
 
-        public GnomonicProjection(string crsId = DefaultCrsId)
+        public GnomonicProjection()
+            : this(DefaultCrsId)
+        {
+            // XAML needs parameterless constructor
+        }
+
+        public GnomonicProjection(string crsId)
         {
             CrsId = crsId;
         }

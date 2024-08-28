@@ -18,7 +18,13 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:42004";
 
-        public AutoEquirectangularProjection(string crsId = DefaultCrsId)
+        public AutoEquirectangularProjection()
+            : this(DefaultCrsId)
+        {
+            // XAML needs parameterless constructor
+        }
+
+        public AutoEquirectangularProjection(string crsId)
         {
             Type = MapProjectionType.NormalCylindrical;
             CrsId = crsId;

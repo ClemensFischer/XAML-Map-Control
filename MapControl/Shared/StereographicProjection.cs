@@ -17,7 +17,13 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS ID
 
-        public StereographicProjection(string crsId = DefaultCrsId)
+        public StereographicProjection()
+            : this(DefaultCrsId)
+        {
+            // XAML needs parameterless constructor
+        }
+
+        public StereographicProjection(string crsId)
         {
             CrsId = crsId;
         }
