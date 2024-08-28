@@ -17,6 +17,8 @@ namespace MapControl
         public static readonly AttachedProperty<BoundingBox> BoundingBoxProperty =
             DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox");
 
+        protected IEnumerable<Control> ChildElements => Children;
+
         static MapPanel()
         {
             AffectsParentArrange<MapPanel>(LocationProperty, BoundingBoxProperty);
@@ -40,8 +42,6 @@ namespace MapControl
             element.RenderTransform = transform;
             element.RenderTransformOrigin = new RelativePoint(originX, originY, RelativeUnit.Relative);
         }
-
-        protected IEnumerable<Control> ChildElements => Children;
 
         private static void SetVisible(Control element, bool visible)
         {

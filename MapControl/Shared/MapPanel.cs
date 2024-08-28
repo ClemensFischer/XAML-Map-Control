@@ -192,8 +192,7 @@ namespace MapControl
             var position = parentMap.LocationToView(location);
 
             if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                position.HasValue &&
-                IsOutsideViewport(position.Value))
+                IsOutsideViewport(position))
             {
                 position = parentMap.LocationToView(
                     new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
@@ -220,7 +219,8 @@ namespace MapControl
             var position = parentMap.ViewTransform.MapToView(rectCenter);
             var projection = parentMap.MapProjection;
 
-            if (projection.Type <= MapProjectionType.NormalCylindrical && IsOutsideViewport(position))
+            if (projection.Type <= MapProjectionType.NormalCylindrical &&
+                IsOutsideViewport(position))
             {
                 var location = projection.MapToLocation(rectCenter);
 
@@ -250,6 +250,11 @@ namespace MapControl
                 || point.Y < 0d || point.Y > parentMap.ActualHeight;
         }
 
+        private bool IsOutsideViewport(Point? point)
+        {
+            return point.HasValue && IsOutsideViewport(point.Value);
+        }
+
         private void ArrangeChildElement(FrameworkElement element, Size panelSize)
         {
             var location = GetLocation(element);
@@ -259,7 +264,7 @@ namespace MapControl
 
             if (GetAutoCollapse(element))
             {
-                SetVisible(element, !(position.HasValue && IsOutsideViewport(position.Value)));
+                SetVisible(element, !IsOutsideViewport(position));
             }
 
             if (position.HasValue)

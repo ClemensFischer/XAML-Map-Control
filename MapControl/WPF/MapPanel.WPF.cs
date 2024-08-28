@@ -22,6 +22,8 @@ namespace MapControl
             DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null,
                 FrameworkPropertyMetadataOptions.AffectsParentArrange);
 
+        protected IEnumerable<FrameworkElement> ChildElements => InternalChildren.OfType<FrameworkElement>();
+
         public MapPanel()
         {
             if (this is MapBase)
@@ -40,8 +42,6 @@ namespace MapControl
             element.RenderTransform = transform;
             element.RenderTransformOrigin = new Point(originX, originY);
         }
-
-        protected IEnumerable<FrameworkElement> ChildElements => InternalChildren.OfType<FrameworkElement>();
 
         private static void SetVisible(FrameworkElement element, bool visible)
         {
