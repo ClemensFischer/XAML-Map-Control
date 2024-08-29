@@ -2,6 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -12,7 +13,6 @@ using Windows.UI.Xaml.Media;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #endif
-using System;
 
 namespace MapControl
 {
