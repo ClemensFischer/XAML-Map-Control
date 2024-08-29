@@ -230,7 +230,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Transforms a Rect in view coordinates to a BoundingBox in geographic coordinates.
+        /// Gets a BoundingBox in geographic coordinates that covers a Rect in view coordinates.
         /// </summary>
         public BoundingBox ViewRectToBoundingBox(Rect rect)
         {
