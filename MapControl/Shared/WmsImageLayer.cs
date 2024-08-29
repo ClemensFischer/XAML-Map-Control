@@ -228,9 +228,9 @@ namespace MapControl
         /// </summary>
         protected virtual string GetMapRequestUri(BoundingBox boundingBox)
         {
-            var rect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var mapRect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (!rect.HasValue)
+            if (!mapRect.HasValue)
             {
                 return null;
             }
@@ -246,9 +246,9 @@ namespace MapControl
                 { "STYLES", WmsStyles ?? "" },
                 { "FORMAT", "image/png" },
                 { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(rect.Value) },
-                { "WIDTH", Math.Round(viewScale * rect.Value.Width).ToString("F0") },
-                { "HEIGHT", Math.Round(viewScale * rect.Value.Height).ToString("F0") }
+                { "BBOX", GetBboxValue(mapRect.Value) },
+                { "WIDTH", Math.Round(viewScale * mapRect.Value.Width).ToString("F0") },
+                { "HEIGHT", Math.Round(viewScale * mapRect.Value.Height).ToString("F0") }
             });
         }
 
