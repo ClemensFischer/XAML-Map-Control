@@ -191,7 +191,9 @@ namespace MapControl
         {
             var position = parentMap.LocationToView(location);
 
-            if (IsOutsideViewport(position) && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+                position.HasValue &&
+                !InsideViewport(position.Value))
             {
                 position = parentMap.LocationToView(
                     new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
@@ -202,14 +204,14 @@ namespace MapControl
 
         protected ViewRect? GetViewRect(BoundingBox boundingBox)
         {
-            var rect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (!rect.HasValue)
+            if (!mapRect.HasValue)
             {
                 return null;
             }
 
-            return GetViewRect(rect.Value);
+            return GetViewRect(mapRect.Value);
         }
 
         protected ViewRect GetViewRect(Rect mapRect)
@@ -218,7 +220,8 @@ namespace MapControl
             var position = parentMap.ViewTransform.MapToView(rectCenter);
             var projection = parentMap.MapProjection;
 
-            if (IsOutsideViewport(position) && projection.Type <= MapProjectionType.NormalCylindrical)
+            if (projection.Type <= MapProjectionType.NormalCylindrical &&
+                !InsideViewport(position))
             {
                 var location = projection.MapToLocation(rectCenter);
 
@@ -242,15 +245,10 @@ namespace MapControl
             return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
         }
 
-        private bool IsOutsideViewport(Point point)
+        private bool InsideViewport(Point point)
         {
-            return point.X < 0d || point.X > parentMap.ActualWidth
-                || point.Y < 0d || point.Y > parentMap.ActualHeight;
-        }
-
-        private bool IsOutsideViewport(Point? point)
-        {
-            return point.HasValue && IsOutsideViewport(point.Value);
+            return point.X >= 0d && point.X <= parentMap.ActualWidth
+                && point.Y >= 0d && point.Y <= parentMap.ActualHeight;
         }
 
         private void ArrangeChildElement(FrameworkElement element, Size panelSize)
@@ -265,7 +263,7 @@ namespace MapControl
 
                 if (GetAutoCollapse(element))
                 {
-                    SetVisible(element, !IsOutsideViewport(position));
+                    SetVisible(element, position.HasValue && InsideViewport(position.Value));
                 }
 
                 if (position.HasValue)
