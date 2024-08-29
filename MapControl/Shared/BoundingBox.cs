@@ -34,27 +34,15 @@ namespace MapControl
         {
         }
 
-        public double South { get; private set; }
-        public double North { get; private set; }
-        public double West { get; private set; }
-        public double East { get; private set; }
+        public double South { get; }
+        public double North { get; }
+        public double West { get; }
+        public double East { get; }
 
         public virtual double Width => East - West;
         public virtual double Height => North - South;
 
-        public virtual Location Center
-        {
-            get => new Location((South + North) / 2d, (West + East) / 2d);
-            set
-            {
-                var latOffset = value.Latitude - (South + North) / 2d;
-                var lonOffset = value.Longitude - (West + East) / 2d;
-                South += latOffset;
-                North += latOffset;
-                West += lonOffset;
-                East += lonOffset;
-            }
-        }
+        public virtual Location Center => new Location((South + North) / 2d, (West + East) / 2d);
 
         /// <summary>
         /// Creates a BoundingBox instance from a string containing a comma-separated sequence of four floating point numbers.

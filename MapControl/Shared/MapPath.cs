@@ -80,9 +80,20 @@ namespace MapControl
         {
             var longitudeOffset = 0d;
 
-            if (location != null && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical && location != null)
             {
-                longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
+                var position = parentMap.LocationToView(location);
+
+                if (position.HasValue && !parentMap.InsideViewport(position.Value))
+                {
+                    var coercedLongitude = parentMap.CoerceLongitude(location.Longitude);
+                    var coercedPosition = parentMap.LocationToView(new Location(location.Latitude, coercedLongitude));
+
+                    if (coercedPosition.HasValue && parentMap.InsideViewport(coercedPosition.Value))
+                    {
+                        longitudeOffset = coercedLongitude - location.Longitude;
+                    }
+                }
             }
 
             return longitudeOffset;

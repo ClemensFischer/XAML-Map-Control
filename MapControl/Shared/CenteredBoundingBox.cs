@@ -15,7 +15,7 @@ namespace MapControl
             Height = Math.Max(height, 0d);
         }
 
-        public override Location Center { get; set; }
+        public override Location Center { get; }
         public override double Width { get; }
         public override double Height { get; }
     }

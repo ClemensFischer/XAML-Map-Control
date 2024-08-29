@@ -372,6 +372,10 @@ namespace MapControl
             }
         }
 
+        internal bool InsideViewport(Point point) =>
+            point.X >= 0d && point.X <= ActualWidth &&
+            point.Y >= 0d && point.Y <= ActualHeight;
+
         internal double CoerceLongitude(double longitude)
         {
             var offset = longitude - Center.Longitude;
