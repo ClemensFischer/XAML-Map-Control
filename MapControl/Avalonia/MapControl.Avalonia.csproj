@@ -12,7 +12,6 @@
 
     <ItemGroup>
         <Compile Include="..\Shared\*.cs" />
-        <Compile Remove="..\Shared\ViewTransform.cs" />
     </ItemGroup>
 
     <ItemGroup>

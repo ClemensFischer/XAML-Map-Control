@@ -4,13 +4,10 @@
 
 #if WPF
 using System.Windows;
-using System.Windows.Media;
 #elif UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
 #endif
 
 namespace MapControl
@@ -79,6 +76,18 @@ namespace MapControl
             MapPanel.SetLocation(this, Location);
         }
 
+        protected double GetLongitudeOffset(Location location)
+        {
+            var longitudeOffset = 0d;
+
+            if (location != null && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
+            {
+                longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
+            }
+
+            return longitudeOffset;
+        }
+
         protected Point? LocationToMap(Location location, double longitudeOffset)
         {
             if (longitudeOffset != 0d)
@@ -107,31 +116,12 @@ namespace MapControl
         {
             var point = LocationToMap(location, longitudeOffset);
 
-            if (!point.HasValue)
+            if (point.HasValue)
             {
-                return null;
+                point = parentMap.ViewTransform.MapToView(point.Value);
             }
 
-            return parentMap.ViewTransform.MapToView(point.Value);
-        }
-
-        protected double GetLongitudeOffset(Location location)
-        {
-            var longitudeOffset = 0d;
-
-            if (location != null && parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
-            {
-                var point = parentMap.LocationToView(location);
-
-                if (point.HasValue &&
-                    (point.Value.X < 0d || point.Value.X > parentMap.ActualWidth ||
-                     point.Value.Y < 0d || point.Value.Y > parentMap.ActualHeight))
-                {
-                    longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
-                }
-            }
-
-            return longitudeOffset;
+            return point;
         }
     }
 }

@@ -8,19 +8,15 @@ namespace MapControl
 {
     public class CenteredBoundingBox : BoundingBox
     {
-        private readonly Location center;
-        private readonly double width;
-        private readonly double height;
-
-        public CenteredBoundingBox(Location c, double w, double h)
+        public CenteredBoundingBox(Location center, double width, double height)
         {
-            center = c;
-            width = Math.Max(w, 0d);
-            height = Math.Max(h, 0d);
+            Center = center;
+            Width = Math.Max(width, 0d);
+            Height = Math.Max(height, 0d);
         }
 
-        public override Location Center => center;
-        public override double Width => width;
-        public override double Height => height;
+        public override Location Center { get; set; }
+        public override double Width { get; }
+        public override double Height { get; }
     }
 }

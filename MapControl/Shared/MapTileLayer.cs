@@ -156,7 +156,7 @@ namespace MapControl
                 //
                 var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
 
-                var tileMatrixScale = ViewTransform.ZoomLevelToScale(TileMatrix.ZoomLevel);
+                var tileMatrixScale = MapBase.ZoomLevelToScale(TileMatrix.ZoomLevel);
 
                 ((MatrixTransform)RenderTransform).Matrix =
                     ParentMap.ViewTransform.GetTileLayerTransform(tileMatrixScale, MapTopLeft, tileMatrixOrigin);
@@ -169,7 +169,7 @@ namespace MapControl
             //
             var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel - ZoomLevelOffset + 0.001);
 
-            var tileMatrixScale = ViewTransform.ZoomLevelToScale(tileMatrixZoomLevel);
+            var tileMatrixScale = MapBase.ZoomLevelToScale(tileMatrixZoomLevel);
 
             // Bounds in tile pixels from view size.
             //

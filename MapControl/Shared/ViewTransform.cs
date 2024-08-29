@@ -2,7 +2,6 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -18,18 +17,8 @@ namespace MapControl
     /// Defines the transformation between projected map coordinates in meters
     /// and view coordinates in pixels.
     /// </summary>
-    public class ViewTransform
+    public partial class ViewTransform
     {
-        public static double ZoomLevelToScale(double zoomLevel)
-        {
-            return 256d * Math.Pow(2d, zoomLevel) / (360d * MapProjection.Wgs84MeterPerDegree);
-        }
-
-        public static double ScaleToZoomLevel(double scale)
-        {
-            return Math.Log(scale * 360d * MapProjection.Wgs84MeterPerDegree / 256d, 2d);
-        }
-
         /// <summary>
         /// Gets the scaling factor from projected map coordinates to view coordinates,
         /// as pixels per meter.
@@ -52,6 +41,32 @@ namespace MapControl
         public Matrix ViewToMapMatrix { get; private set; }
 
         /// <summary>
+        /// Transforms a Point from projected map coordinates to view coordinates.
+        /// </summary>
+        public Point MapToView(Point point)
+        {
+            return MapToViewMatrix.Transform(point);
+        }
+
+        /// <summary>
+        /// Transforms a Point from view coordinates to projected map coordinates.
+        /// </summary>
+        public Point ViewToMap(Point point)
+        {
+            return ViewToMapMatrix.Transform(point);
+        }
+
+        /// <summary>
+        /// Transform relative to absolute map scale. Returns horizontal and vertical
+        /// scaling factors from meters to view coordinates.
+        /// </summary>
+        public Point GetMapScale(Point relativeScale)
+        {
+            return new Point(Scale * relativeScale.X, Scale * relativeScale.Y);
+        }
+
+#if WPF || UWP || WINUI
+        /// <summary>
         /// Initializes a ViewTransform from a map center point in projected coordinates,
         /// a view conter point, a scaling factor from projected coordinates to view coordinates
         /// and a rotation angle in degrees.
@@ -70,30 +85,6 @@ namespace MapControl
             transform.Invert();
 
             ViewToMapMatrix = transform;
-        }
-
-        /// <summary>
-        /// Transforms a Point from projected map coordinates to view coordinates.
-        /// </summary>
-        public Point MapToView(Point point)
-        {
-            return MapToViewMatrix.Transform(point);
-        }
-
-        /// <summary>
-        /// Transforms a Point from view coordinates to projected map coordinates.
-        /// </summary>
-        public Point ViewToMap(Point point)
-        {
-            return ViewToMapMatrix.Transform(point);
-        }
-
-        /// <summary>
-        /// Gets scaling factors from meters to view coordinates for a relative map scale.
-        /// </summary>
-        public Point GetMapScale(Point relativeScale)
-        {
-            return new Point(Scale * relativeScale.X, Scale * relativeScale.Y);
         }
 
         /// <summary>
@@ -170,5 +161,6 @@ namespace MapControl
 
             return transform;
         }
+#endif
     }
 }

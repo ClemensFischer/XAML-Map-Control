@@ -189,66 +189,53 @@ namespace MapControl
 
         protected Point? GetViewPosition(Location location)
         {
-            var position = parentMap.LocationToView(location);
-
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                position.HasValue &&
-                !InsideViewport(position.Value))
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
             {
-                position = parentMap.LocationToView(
-                    new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
+                var longitude = parentMap.CoerceLongitude(location.Longitude);
+
+                if (longitude != location.Longitude)
+                {
+                    location = new Location(location.Latitude, longitude);
+                }
             }
 
-            return position;
+            return parentMap.LocationToView(location);
         }
 
         protected ViewRect? GetViewRect(BoundingBox boundingBox)
         {
-            var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
-
-            if (!mapRect.HasValue)
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
             {
-                return null;
+                var center = boundingBox.Center;
+                var longitude = parentMap.CoerceLongitude(center.Longitude);
+
+                if (longitude != center.Longitude)
+                {
+                    boundingBox.Center = new Location(center.Latitude, longitude);
+                }
             }
 
-            return GetViewRect(mapRect.Value);
+            var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+
+            if (mapRect.HasValue)
+            {
+                return GetViewRect(mapRect.Value);
+            }
+
+            return null;
         }
 
         protected ViewRect GetViewRect(Rect mapRect)
         {
+            var transform = parentMap.ViewTransform;
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
-            var position = parentMap.ViewTransform.MapToView(center);
-            var projection = parentMap.MapProjection;
-
-            if (projection.Type <= MapProjectionType.NormalCylindrical &&
-                !InsideViewport(position))
-            {
-                var location = projection.MapToLocation(center);
-
-                if (location != null)
-                {
-                    var pos = parentMap.LocationToView(
-                        new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
-
-                    if (pos.HasValue)
-                    {
-                        position = pos.Value;
-                    }
-                }
-            }
-
-            var width = mapRect.Width * parentMap.ViewTransform.Scale;
-            var height = mapRect.Height * parentMap.ViewTransform.Scale;
+            var position = transform.MapToView(center);
+            var width = mapRect.Width * transform.Scale;
+            var height = mapRect.Height * transform.Scale;
             var x = position.X - width / 2d;
             var y = position.Y - height / 2d;
 
-            return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
-        }
-
-        private bool InsideViewport(Point point)
-        {
-            return point.X >= 0d && point.X <= parentMap.ActualWidth
-                && point.Y >= 0d && point.Y <= parentMap.ActualHeight;
+            return new ViewRect(x, y, width, height, transform.Rotation);
         }
 
         private void ArrangeChildElement(FrameworkElement element, Size panelSize)
@@ -263,7 +250,10 @@ namespace MapControl
 
                 if (GetAutoCollapse(element))
                 {
-                    SetVisible(element, position.HasValue && InsideViewport(position.Value));
+                    SetVisible(element,
+                        position.HasValue &&
+                        position.Value.X >= 0d && position.Value.X <= parentMap.ActualWidth &&
+                        position.Value.Y >= 0d && position.Value.Y <= parentMap.ActualHeight);
                 }
 
                 if (position.HasValue)

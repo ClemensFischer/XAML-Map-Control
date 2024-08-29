@@ -31,6 +31,10 @@ namespace MapControl
     /// </summary>
     public partial class MapBase : MapPanel
     {
+        public static double ZoomLevelToScale(double zoomLevel) => 256d * Math.Pow(2d, zoomLevel) / (360d * MapProjection.Wgs84MeterPerDegree);
+
+        public static double ScaleToZoomLevel(double scale) => Math.Log(scale * 360d * MapProjection.Wgs84MeterPerDegree / 256d, 2d);
+
         public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
 
         public static readonly DependencyProperty AnimationDurationProperty =
@@ -361,7 +365,7 @@ namespace MapControl
                 {
                     var scale = Math.Min(ActualWidth / rect.Value.Width, ActualHeight / rect.Value.Height);
 
-                    TargetZoomLevel = ViewTransform.ScaleToZoomLevel(scale);
+                    TargetZoomLevel = ScaleToZoomLevel(scale);
                     TargetCenter = targetCenter;
                     TargetHeading = 0d;
                 }
@@ -497,7 +501,7 @@ namespace MapControl
         private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
         {
             var transformCenterChanged = false;
-            var viewScale = ViewTransform.ZoomLevelToScale(ZoomLevel);
+            var viewScale = ZoomLevelToScale(ZoomLevel);
             var projection = MapProjection;
 
             projection.Center = ProjectionCenter ?? Center;
