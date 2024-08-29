@@ -216,14 +216,14 @@ namespace MapControl
 
         protected ViewRect GetViewRect(Rect mapRect)
         {
-            var rectCenter = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
-            var position = parentMap.ViewTransform.MapToView(rectCenter);
+            var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
+            var position = parentMap.ViewTransform.MapToView(center);
             var projection = parentMap.MapProjection;
 
             if (projection.Type <= MapProjectionType.NormalCylindrical &&
                 !InsideViewport(position))
             {
-                var location = projection.MapToLocation(rectCenter);
+                var location = projection.MapToLocation(center);
 
                 if (location != null)
                 {
