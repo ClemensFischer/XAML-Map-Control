@@ -31,9 +31,11 @@ namespace MapControl
     /// </summary>
     public partial class MapBase : MapPanel
     {
-        public static double ZoomLevelToScale(double zoomLevel) => 256d * Math.Pow(2d, zoomLevel) / (360d * MapProjection.Wgs84MeterPerDegree);
+        public static double ZoomLevelToScale(double zoomLevel)
+            => 256d * Math.Pow(2d, zoomLevel) / (360d * MapProjection.Wgs84MeterPerDegree);
 
-        public static double ScaleToZoomLevel(double scale) => Math.Log(scale * 360d * MapProjection.Wgs84MeterPerDegree / 256d, 2d);
+        public static double ScaleToZoomLevel(double scale)
+            => Math.Log(scale * 360d * MapProjection.Wgs84MeterPerDegree / 256d, 2d);
 
         public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
 
@@ -372,9 +374,8 @@ namespace MapControl
             }
         }
 
-        internal bool InsideViewport(Point point) =>
-            point.X >= 0d && point.X <= ActualWidth &&
-            point.Y >= 0d && point.Y <= ActualHeight;
+        internal bool InsideViewport(Point point)
+            => point.X >= 0d && point.Y >= 0d && point.X <= ActualWidth && point.Y <= ActualHeight;
 
         internal double CoerceLongitude(double longitude)
         {
