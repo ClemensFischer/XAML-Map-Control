@@ -34,14 +34,13 @@ namespace MapControl
 
             public bool TryDequeue(out Tile tile)
             {
-                if (TryPop(out tile))
+                if (!TryPop(out tile))
                 {
-                    tile.IsPending = false;
-                    return true;
+                    return false;
                 }
 
-                tile = null;
-                return false;
+                tile.IsPending = false;
+                return true;
             }
         }
 
