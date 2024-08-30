@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -48,7 +49,7 @@ namespace MapControl
         /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".
         /// </summary>
         public static string DefaultCacheFolder =>
-            System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
 
         /// <summary>
         /// An IDistributedCache implementation used to cache tile images.
@@ -152,7 +153,7 @@ namespace MapControl
 
         private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheName)
         {
-            var extension = System.IO.Path.GetExtension(uri.LocalPath);
+            var extension = Path.GetExtension(uri.LocalPath);
 
             if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
             {

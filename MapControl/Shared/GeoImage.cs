@@ -5,7 +5,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using Path = System.IO.Path;
 using System.Linq;
 using System.Threading.Tasks;
 #if WPF

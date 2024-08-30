@@ -24,6 +24,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+#elif AVALONIA
+using Avalonia.Controls.Shapes;
 #endif
 
 namespace MapControl

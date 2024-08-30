@@ -7,7 +7,6 @@ global using Avalonia.Animation;
 global using Avalonia.Animation.Easings;
 global using Avalonia.Controls;
 global using Avalonia.Controls.Documents;
-global using Avalonia.Controls.Shapes;
 global using Avalonia.Data;
 global using Avalonia.Input;
 global using Avalonia.Interactivity;
