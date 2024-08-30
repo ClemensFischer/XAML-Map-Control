@@ -86,13 +86,7 @@ namespace MapControl
 
                 if (position.HasValue && !parentMap.InsideViewport(position.Value))
                 {
-                    var coercedLongitude = parentMap.CoerceLongitude(location.Longitude);
-                    var coercedPosition = parentMap.LocationToView(new Location(location.Latitude, coercedLongitude));
-
-                    if (coercedPosition.HasValue && parentMap.InsideViewport(coercedPosition.Value))
-                    {
-                        longitudeOffset = coercedLongitude - location.Longitude;
-                    }
+                    longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
                 }
             }
 

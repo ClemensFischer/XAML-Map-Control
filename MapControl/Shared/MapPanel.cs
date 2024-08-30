@@ -197,7 +197,7 @@ namespace MapControl
                 var coercedPosition = parentMap.LocationToView(
                     new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
 
-                if (coercedPosition.HasValue && parentMap.InsideViewport(coercedPosition.Value))
+                if (coercedPosition.HasValue)
                 {
                     position = coercedPosition;
                 }
@@ -234,7 +234,7 @@ namespace MapControl
                     var coercedPosition = parentMap.LocationToView(
                         new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
 
-                    if (coercedPosition.HasValue && parentMap.InsideViewport(coercedPosition.Value))
+                    if (coercedPosition.HasValue)
                     {
                         position = coercedPosition.Value;
                     }
