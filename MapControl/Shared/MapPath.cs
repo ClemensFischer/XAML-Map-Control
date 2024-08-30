@@ -84,7 +84,7 @@ namespace MapControl
             {
                 var position = parentMap.LocationToView(location);
 
-                if (position.HasValue && !parentMap.InsideViewport(position.Value))
+                if (position.HasValue && !parentMap.InsideViewBounds(position.Value))
                 {
                     longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
                 }

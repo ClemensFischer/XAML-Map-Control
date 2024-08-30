@@ -374,7 +374,7 @@ namespace MapControl
             }
         }
 
-        internal bool InsideViewport(Point point)
+        internal bool InsideViewBounds(Point point)
             => point.X >= 0d && point.Y >= 0d && point.X <= ActualWidth && point.Y <= ActualHeight;
 
         internal double CoerceLongitude(double longitude)

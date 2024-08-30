@@ -192,7 +192,7 @@ namespace MapControl
             var position = parentMap.LocationToView(location);
 
             if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
-                position.HasValue && !parentMap.InsideViewport(position.Value))
+                position.HasValue && !parentMap.InsideViewBounds(position.Value))
             {
                 var coercedPosition = parentMap.LocationToView(
                     new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
@@ -225,7 +225,7 @@ namespace MapControl
             var projection = parentMap.MapProjection;
 
             if (projection.Type <= MapProjectionType.NormalCylindrical &&
-                !parentMap.InsideViewport(position))
+                !parentMap.InsideViewBounds(position))
             {
                 var location = projection.MapToLocation(center);
 
@@ -261,7 +261,7 @@ namespace MapControl
 
                 if (GetAutoCollapse(element))
                 {
-                    SetVisible(element, position.HasValue && parentMap.InsideViewport(position.Value));
+                    SetVisible(element, position.HasValue && parentMap.InsideViewBounds(position.Value));
                 }
 
                 if (position.HasValue)
