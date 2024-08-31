@@ -107,8 +107,8 @@ namespace MapControl
 
         protected virtual FrameworkElement CreateOverlay(string sourcePath)
         {
-            var ext = Path.GetExtension(sourcePath).ToLower();
             FrameworkElement overlay;
+            var ext = Path.GetExtension(sourcePath).ToLower();
 
             try
             {
@@ -124,6 +124,7 @@ namespace MapControl
             catch (Exception ex)
             {
                 Debug.WriteLine($"MapOverlaysControl: {sourcePath}: {ex.Message}");
+
                 overlay = new MapPanel();
             }
 

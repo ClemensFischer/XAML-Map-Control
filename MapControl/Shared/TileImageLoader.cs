@@ -162,17 +162,17 @@ namespace MapControl
             }
         }
 
-        private static Task<byte[]> ReadCacheAsync(string cacheKey)
+        private static async Task<byte[]> ReadCacheAsync(string cacheKey)
         {
             try
             {
-                return Cache.GetAsync(cacheKey);
+                return await Cache.GetAsync(cacheKey);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"TileImageLoader.Cache.GetAsync: {cacheKey}: {ex.Message}");
 
-                return Task.FromResult<byte[]>(null);
+                return null;
             }
         }
 
