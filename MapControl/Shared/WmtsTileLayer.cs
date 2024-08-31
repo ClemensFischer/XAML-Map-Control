@@ -91,7 +91,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override Task UpdateTileLayer(bool tileSourceChanged)
+        protected override async Task UpdateTileLayer(bool tileSourceChanged)
         {
             // tileSourceChanged is ignored here because it is always false.
 
@@ -100,15 +100,12 @@ namespace MapControl
             {
                 Children.Clear();
 
-                return LoadTiles(null, null); // stop TileImageLoader
+                await LoadTiles(null, null); // stop TileImageLoader
             }
-
-            if (UpdateChildLayers(tileMatrixSet))
+            else if (UpdateChildLayers(tileMatrixSet))
             {
-                return LoadTiles(tileMatrixSet);
+                await LoadTiles(tileMatrixSet);
             }
-
-            return Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()

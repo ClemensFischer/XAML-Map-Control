@@ -26,7 +26,7 @@ namespace MapControl
             storyboard.Begin();
         }
 
-        public static async Task SwapOpacities(UIElement topElement, UIElement bottomElement)
+        public static Task SwapOpacitiesAsync(UIElement topElement, UIElement bottomElement)
         {
             BeginOpacityAnimation(topElement, new DoubleAnimation
             {
@@ -41,7 +41,7 @@ namespace MapControl
                 Duration = TimeSpan.Zero
             });
 
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

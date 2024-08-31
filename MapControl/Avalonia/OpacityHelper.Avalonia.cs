@@ -32,7 +32,7 @@ namespace MapControl
             return animation.RunAsync(element);
         }
 
-        public static async Task SwapOpacities(Control topElement, Control bottomElement)
+        public static async Task SwapOpacitiesAsync(Control topElement, Control bottomElement)
         {
             var animation = new Animation
             {

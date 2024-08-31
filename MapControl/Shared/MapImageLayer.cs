@@ -244,7 +244,7 @@ namespace MapControl
                 topImage.Source = image;
                 SetBoundingBox(topImage, boundingBox);
 
-                await OpacityHelper.SwapOpacities(topImage, bottomImage);
+                await OpacityHelper.SwapOpacitiesAsync(topImage, bottomImage);
             }
         }
     }

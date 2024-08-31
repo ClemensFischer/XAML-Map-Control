@@ -11,7 +11,7 @@ namespace MapControl
 {
     public static class OpacityHelper
     {
-        public static async Task SwapOpacities(UIElement topElement, UIElement bottomElement)
+        public static Task SwapOpacitiesAsync(UIElement topElement, UIElement bottomElement)
         {
             topElement.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation
             {
@@ -26,7 +26,7 @@ namespace MapControl
                 Duration = TimeSpan.Zero
             });
 
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

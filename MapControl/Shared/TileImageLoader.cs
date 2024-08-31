@@ -62,7 +62,7 @@ namespace MapControl
         /// If tileSource.UriFormat starts with "http" and cacheName is a non-empty string,
         /// tile images will be cached in the TileImageLoader's Cache - if that is not null.
         /// </summary>
-        public Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
+        public async Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
             pendingTiles?.Clear();
 
@@ -102,35 +102,33 @@ namespace MapControl
                         tasks[i] = Task.Run(LoadTilesFromQueueAsync);
                     }
 
-                    return Task.WhenAll(tasks);
+                    await Task.WhenAll(tasks);
                 }
             }
-
-            return Task.CompletedTask;
         }
 
-        private static Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        private static async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
             try
             {
                 if (string.IsNullOrEmpty(cacheName))
                 {
-                    return LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
+                    await LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
                 }
-
-                var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
-
-                if (uri != null)
+                else
                 {
-                    return LoadCachedTileAsync(tile, uri, cacheName);
+                    var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
+
+                    if (uri != null)
+                    {
+                        await LoadCachedTileAsync(tile, uri, cacheName);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
             }
-
-            return Task.CompletedTask;
         }
 
         private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheName)
@@ -178,7 +176,7 @@ namespace MapControl
             }
         }
 
-        private static Task WriteCacheAsync(string cacheKey, byte[] buffer, TimeSpan? expiration)
+        private static async Task WriteCacheAsync(string cacheKey, byte[] buffer, TimeSpan? expiration)
         {
             if (!expiration.HasValue)
             {
@@ -191,15 +189,13 @@ namespace MapControl
 
             try
             {
-                return Cache.SetAsync(cacheKey,
+                await Cache.SetAsync(cacheKey,
                     buffer ?? Array.Empty<byte>(), // cache even if null, when no tile available
                     new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"TileImageLoader.Cache.SetAsync: {cacheKey}: {ex.Message}");
-
-                return Task.CompletedTask;
             }
         }
     }

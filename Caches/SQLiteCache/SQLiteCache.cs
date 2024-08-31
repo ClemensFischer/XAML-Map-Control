@@ -138,13 +138,10 @@ namespace MapControl.Caching
 
         public void Refresh(string key)
         {
-            CheckArgument(key);
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
-            CheckArgument(key);
-
             return Task.CompletedTask;
         }
 

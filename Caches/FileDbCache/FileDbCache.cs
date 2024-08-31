@@ -149,7 +149,6 @@ namespace MapControl.Caching
 
         public void Refresh(string key)
         {
-            CheckArgument(key);
         }
 
         public void Remove(string key)
@@ -185,24 +184,28 @@ namespace MapControl.Caching
         public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
             Set(key, value, options);
+
             return Task.CompletedTask;
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
             Refresh(key);
+
             return Task.CompletedTask;
         }
 
         public Task RemoveAsync(string key, CancellationToken token = default)
         {
             Remove(key);
+
             return Task.CompletedTask;
         }
 
         public Task CleanAsync()
         {
             Clean();
+
             return Task.CompletedTask;
         }
 

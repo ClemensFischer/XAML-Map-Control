@@ -113,7 +113,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override Task UpdateTileLayer(bool tileSourceChanged)
+        protected override async Task UpdateTileLayer(bool tileSourceChanged)
         {
             var updateTiles = false;
 
@@ -142,10 +142,8 @@ namespace MapControl
             {
                 UpdateTiles();
 
-                return LoadTiles(Tiles, SourceName);
+                await LoadTiles(Tiles, SourceName);
             }
-
-            return Task.CompletedTask;
         }
 
         protected override void SetRenderTransform()

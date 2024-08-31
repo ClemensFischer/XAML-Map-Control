@@ -230,7 +230,7 @@ namespace MapControl.Caching
 
         public Task CleanAsync()
         {
-            return Task.Factory.StartNew(Clean, TaskCreationOptions.LongRunning);
+            return Task.Run(Clean);
         }
 
         private string GetPath(string key)
