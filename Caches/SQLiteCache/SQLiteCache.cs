@@ -40,7 +40,7 @@ namespace MapControl.Caching
                 command.ExecuteNonQuery();
             }
 
-            Debug.WriteLine($"SQLiteCache: Opened database {path}");
+            Debug.WriteLine($"{nameof(SQLiteCache)}: Opened database {path}");
 
             Clean();
         }
@@ -70,7 +70,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"SQLiteCache.Get({key}): {ex.Message}");
+                Debug.WriteLine($"{nameof(SQLiteCache)}.Get({key}): {ex.Message}");
             }
 
             return value;
@@ -96,7 +96,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"SQLiteCache.GetAsync({key}): {ex.Message}");
+                Debug.WriteLine($"{nameof(SQLiteCache)}.GetAsync({key}): {ex.Message}");
             }
 
             return value;
@@ -115,7 +115,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"SQLiteCache.Set({key}): {ex.Message}");
+                Debug.WriteLine($"{nameof(SQLiteCache)}.Set({key}): {ex.Message}");
             }
         }
 
@@ -132,7 +132,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"SQLiteCache.SetAsync({key}): {ex.Message}");
+                Debug.WriteLine($"{nameof(SQLiteCache)}.SetAsync({key}): {ex.Message}");
             }
         }
 
@@ -158,7 +158,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"SQLiteCache.Remove({key}): {ex.Message}");
+                Debug.WriteLine($"{nameof(SQLiteCache)}.Remove({key}): {ex.Message}");
             }
         }
 
@@ -175,7 +175,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"SQLiteCache.RemoveAsync({key}): {ex.Message}");
+                Debug.WriteLine($"{nameof(SQLiteCache)}.RemoveAsync({key}): {ex.Message}");
             }
         }
 
@@ -192,7 +192,7 @@ namespace MapControl.Caching
                 var deleted = (long)command.ExecuteScalar();
                 if (deleted > 0)
                 {
-                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
+                    Debug.WriteLine($"{nameof(SQLiteCache)}: Deleted {deleted} expired items");
                 }
             }
 #endif
@@ -211,7 +211,7 @@ namespace MapControl.Caching
                 var deleted = (long)await command.ExecuteScalarAsync();
                 if (deleted > 0)
                 {
-                    Debug.WriteLine($"SQLiteCache: Deleted {deleted} expired items");
+                    Debug.WriteLine($"{nameof(SQLiteCache)}: Deleted {deleted} expired items");
                 }
             }
 #endif

@@ -54,13 +54,13 @@ namespace MapControl
                 }
                 else
                 {
-                    throw new ArgumentException($"No coordinate transformation found in {sourcePath}.");
+                    throw new ArgumentException("No coordinate transformation found.");
                 }
 
                 if (metadata.TryGetValue(geoKeyDirectoryQuery, out BitmapTypedValue geoKeyDirValue) &&
                     geoKeyDirValue.Value is short[] geoKeyDirectory)
                 {
-                    geoBitmap.Projection = GetProjection(sourcePath, geoKeyDirectory);
+                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
                 }
 
                 return geoBitmap;

@@ -32,7 +32,7 @@ namespace MapControl.Caching
         {
             rootFolder = folder ?? throw new ArgumentException($"The {nameof(folder)} argument must not be null or empty.", nameof(folder));
 
-            Debug.WriteLine($"ImageFileCache: {rootFolder.Path}");
+            Debug.WriteLine($"{nameof(ImageFileCache)}: {rootFolder.Path}");
 
             _ = Task.Factory.StartNew(CleanAsync, TaskCreationOptions.LongRunning);
         }
@@ -89,7 +89,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ImageFileCache: Failed reading {key}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {key}: {ex.Message}");
                 }
             }
 
@@ -126,7 +126,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ImageFileCache: Failed writing {key}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {key}: {ex.Message}");
                 }
             }
         }
@@ -137,7 +137,7 @@ namespace MapControl.Caching
 
             if (deletedFileCount > 0)
             {
-                Debug.WriteLine($"ImageFileCache: Deleted {deletedFileCount} expired files.");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Deleted {deletedFileCount} expired files.");
             }
         }
 
@@ -164,7 +164,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageFileCache: Failed cleaning {folder.Path}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed cleaning {folder.Path}: {ex.Message}");
             }
 
             return deletedFileCount;
@@ -200,7 +200,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ImageFileCache: Failed cleaning {file.Path}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed cleaning {file.Path}: {ex.Message}");
                 }
             }
 

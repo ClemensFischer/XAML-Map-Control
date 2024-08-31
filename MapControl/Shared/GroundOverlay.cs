@@ -86,7 +86,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"GroundOverlayPanel: {sourcePath}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(GroundOverlay)}: {sourcePath}: {ex.Message}");
                 }
             }
 

@@ -13,9 +13,9 @@ namespace MapControl
 {
     public partial class GeoImage
     {
-        private static async Task<GeoBitmap> ReadGeoTiffAsync(string sourcePath)
+        private static Task<GeoBitmap> ReadGeoTiffAsync(string sourcePath)
         {
-            return await Task.Run(() =>
+            return Task.Run(() =>
             {
                 var geoBitmap = new GeoBitmap();
 
@@ -42,12 +42,12 @@ namespace MapControl
                 }
                 else
                 {
-                    throw new ArgumentException($"No coordinate transformation found in {sourcePath}.");
+                    throw new ArgumentException("No coordinate transformation found.");
                 }
 
                 if (metadata.GetQuery(QueryString(GeoKeyDirectoryTag)) is short[] geoKeyDirectory)
                 {
-                    geoBitmap.Projection = GetProjection(sourcePath, geoKeyDirectory);
+                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
                 }
 
                 if (metadata.GetQuery(QueryString(NoDataTag)) is string noData &&

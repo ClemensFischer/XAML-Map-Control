@@ -127,7 +127,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"TileImageLoader: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
+                Debug.WriteLine($"{nameof(TileImageLoader)}: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
             }
         }
 
@@ -170,7 +170,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"TileImageLoader.Cache.GetAsync: {cacheKey}: {ex.Message}");
+                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.GetAsync)}: {cacheKey}: {ex.Message}");
 
                 return null;
             }
@@ -195,7 +195,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"TileImageLoader.Cache.SetAsync: {cacheKey}: {ex.Message}");
+                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.SetAsync)}: {cacheKey}: {ex.Message}");
             }
         }
     }

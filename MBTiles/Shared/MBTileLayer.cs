@@ -91,7 +91,7 @@ namespace MapControl.MBTiles
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"MBTileLayer: {ex.Message}");
+                    Debug.WriteLine($"{nameof(MBTileLayer)}: {ex.Message}");
                 }
             }
         }

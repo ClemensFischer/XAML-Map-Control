@@ -60,7 +60,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
             }
 
             progress?.Report(1d);
@@ -121,13 +121,13 @@ namespace MapControl
                     }
                     else
                     {
-                        Debug.WriteLine($"ImageLoader: {uri}: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase}");
+                        Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageLoader: {uri}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
             }
 
             return response;

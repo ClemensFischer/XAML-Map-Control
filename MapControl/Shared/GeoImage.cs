@@ -65,7 +65,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"GeoImage: {ex.Message}");
+                    Debug.WriteLine($"{nameof(GeoImage)}: {sourcePath}: {ex.Message}");
                 }
             }
         }
@@ -138,13 +138,11 @@ namespace MapControl
 
         private static async Task<GeoBitmap> ReadWorldFileImageAsync(string sourcePath, string worldFilePath)
         {
-            var geoBitmap = new GeoBitmap();
-
-            geoBitmap.Bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
-
-            geoBitmap.Transform = await Task.Run(() => ReadWorldFileMatrix(worldFilePath));
-
-            return geoBitmap;
+            return new GeoBitmap
+            {
+                Bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath),
+                Transform = await Task.Run(() => ReadWorldFileMatrix(worldFilePath))
+            };
         }
 
         private static Matrix ReadWorldFileMatrix(string worldFilePath)
@@ -170,7 +168,7 @@ namespace MapControl
                 parameters[5]); // line 6: F or OffsetY
         }
 
-        private static MapProjection GetProjection(string sourcePath, short[] geoKeyDirectory)
+        private static MapProjection GetProjection(short[] geoKeyDirectory)
         {
             MapProjection projection = null;
 
@@ -181,7 +179,7 @@ namespace MapControl
                     int epsgCode = geoKeyDirectory[i + 3];
 
                     projection = MapProjectionFactory.Instance.GetProjection(epsgCode) ??
-                        throw new ArgumentException($"Can not create projection EPSG:{epsgCode} in {sourcePath}.");
+                        throw new ArgumentException($"Can not create projection EPSG:{epsgCode}.");
 
                     break;
                 }

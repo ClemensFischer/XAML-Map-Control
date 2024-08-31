@@ -59,12 +59,12 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"BingMapsTileLayer: {metadataUri}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(BingMapsTileLayer)}: {metadataUri}: {ex.Message}");
                 }
             }
             else
             {
-                Debug.WriteLine("BingMapsTileLayer requires a Bing Maps API Key");
+                Debug.WriteLine($"{nameof(BingMapsTileLayer)} requires a Bing Maps API Key");
             }
         }
 

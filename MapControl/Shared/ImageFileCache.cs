@@ -34,7 +34,7 @@ namespace MapControl.Caching
 
             rootPath = path;
 
-            Debug.WriteLine($"ImageFileCache: {rootPath}");
+            Debug.WriteLine($"{nameof(ImageFileCache)}: {rootPath}");
 
             ThreadPool.QueueUserWorkItem(o => Clean());
         }
@@ -61,7 +61,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {path}: {ex.Message}");
                 }
             }
 
@@ -101,7 +101,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ImageFileCache: Failed reading {path}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {path}: {ex.Message}");
                 }
             }
 
@@ -134,7 +134,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {path}: {ex.Message}");
                 }
             }
         }
@@ -166,7 +166,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageFileCache: Failed writing {path}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {path}: {ex.Message}");
             }
         }
 
@@ -195,7 +195,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageFileCache: Failed deleting {path}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {path}: {ex.Message}");
             }
         }
 
@@ -214,7 +214,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageFileCache: Failed deleting {path}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {path}: {ex.Message}");
             }
         }
 
@@ -224,7 +224,7 @@ namespace MapControl.Caching
 
             if (deletedFileCount > 0)
             {
-                Debug.WriteLine($"ImageFileCache: Deleted {deletedFileCount} expired files.");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Deleted {deletedFileCount} expired files.");
             }
         }
 
@@ -241,7 +241,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageFileCache: Invalid key {key}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Invalid key {key}: {ex.Message}");
             }
 
             return null;
@@ -264,7 +264,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ImageFileCache: Failed cleaning {directory.FullName}: {ex.Message}");
+                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed cleaning {directory.FullName}: {ex.Message}");
             }
 
             return deletedFileCount;
@@ -299,7 +299,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ImageFileCache: Failed cleaning {file.FullName}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed cleaning {file.FullName}: {ex.Message}");
                 }
             }
 

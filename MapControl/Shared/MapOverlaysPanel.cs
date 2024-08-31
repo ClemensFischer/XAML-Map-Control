@@ -123,7 +123,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"MapOverlaysControl: {sourcePath}: {ex.Message}");
+                Debug.WriteLine($"{nameof(MapOverlaysPanel)}: {sourcePath}: {ex.Message}");
 
                 overlay = new MapPanel();
             }

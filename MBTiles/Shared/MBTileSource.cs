@@ -106,7 +106,7 @@ namespace MapControl.MBTiles
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"MBTileSource: {ex.Message}");
+                Debug.WriteLine($"{nameof(MBTileSource)}: {ex.Message}");
             }
 
             return image;
