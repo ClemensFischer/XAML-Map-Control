@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -58,6 +59,19 @@ namespace MapControl
         {
             if (sourcePath != null)
             {
+                try
+                {
+                    await ReadGeoImageAsync(sourcePath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"GeoImage: {ex.Message}");
+                }
+            }
+        }
+
+        private async Task ReadGeoImageAsync(string sourcePath)
+        {
                 GeoBitmap geoBitmap = null;
                 var ext = Path.GetExtension(sourcePath);
 
@@ -120,7 +134,6 @@ namespace MapControl
 
                 Children.Clear();
                 Children.Add(image);
-            }
         }
 
         private static async Task<GeoBitmap> ReadWorldFileImageAsync(string sourcePath, string worldFilePath)
@@ -129,35 +142,32 @@ namespace MapControl
 
             geoBitmap.Bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
 
-            geoBitmap.Transform = await Task.Run(() =>
-            {
-                var parameters = File.ReadLines(worldFilePath)
-                    .Take(6)
-                    .Select((line, i) =>
-                    {
-                        if (!double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double parameter))
-                        {
-                            throw new ArgumentException($"Failed parsing line {i + 1} in world file {worldFilePath}.");
-                        }
-                        return parameter;
-                    })
-                    .ToList();
-
-                if (parameters.Count != 6)
-                {
-                    throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
-                }
-
-                return new Matrix(
-                    parameters[0],  // line 1: A or M11
-                    parameters[1],  // line 2: D or M12
-                    parameters[2],  // line 3: B or M21
-                    parameters[3],  // line 4: E or M22
-                    parameters[4],  // line 5: C or OffsetX
-                    parameters[5]); // line 6: F or OffsetY
-            });
+            geoBitmap.Transform = await Task.Run(() => ReadWorldFileMatrix(worldFilePath));
 
             return geoBitmap;
+        }
+
+        private static Matrix ReadWorldFileMatrix(string worldFilePath)
+        {
+            var parameters = File.ReadLines(worldFilePath)
+                .Select(line => double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double p) ? (double?)p : null)
+                .Where(p => p.HasValue)
+                .Select(p => p.Value)
+                .Take(6)
+                .ToList();
+
+            if (parameters.Count != 6)
+            {
+                throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
+            }
+
+            return new Matrix(
+                parameters[0],  // line 1: A or M11
+                parameters[1],  // line 2: D or M12
+                parameters[2],  // line 3: B or M21
+                parameters[3],  // line 4: E or M22
+                parameters[4],  // line 5: C or OffsetX
+                parameters[5]); // line 6: F or OffsetY
         }
 
         private static MapProjection GetProjection(string sourcePath, short[] geoKeyDirectory)
