@@ -25,25 +25,6 @@ namespace MapControl
 
     public partial class TileImageLoader : ITileImageLoader
     {
-        private class TileQueue : ConcurrentStack<Tile>
-        {
-            public TileQueue(IEnumerable<Tile> tiles)
-                : base(tiles.Where(tile => tile.IsPending).Reverse())
-            {
-            }
-
-            public bool TryDequeue(out Tile tile)
-            {
-                if (!TryPop(out tile))
-                {
-                    return false;
-                }
-
-                tile.IsPending = false;
-                return true;
-            }
-        }
-
         /// <summary>
         /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".
         /// </summary>
@@ -74,7 +55,7 @@ namespace MapControl
         public static int MaxLoadTasks { get; set; } = 4;
 
 
-        private TileQueue pendingTiles;
+        private ConcurrentStack<Tile> pendingTiles;
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection.
@@ -87,7 +68,7 @@ namespace MapControl
 
             if (tiles != null && tileSource != null)
             {
-                pendingTiles = new TileQueue(tiles);
+                pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.IsPending).Reverse());
 
                 var tileCount = pendingTiles.Count;
                 var taskCount = Math.Min(tileCount, MaxLoadTasks);
@@ -101,14 +82,16 @@ namespace MapControl
 
                     progress?.Report(0d);
 
-                    var tileQueue = pendingTiles; // pendingTiles may change while tasks are running
                     var tasks = new Task[taskCount];
+                    var tileStack = pendingTiles; // pendingTiles member may change while tasks are running
 
                     async Task LoadTilesFromQueueAsync()
                     {
-                        while (tileQueue.TryDequeue(out var tile))
+                        while (tileStack.TryPop(out var tile)) // use captured tileStack variable in local function
                         {
-                            progress?.Report((double)(tileCount - tileQueue.Count) / tileCount);
+                            tile.IsPending = false;
+
+                            progress?.Report((double)(tileCount - tileStack.Count) / tileCount);
 
                             await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
                         }
