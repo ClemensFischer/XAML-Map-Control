@@ -47,7 +47,7 @@ namespace MapControl
 
                 if (metadata.GetQuery(QueryString(GeoKeyDirectoryTag)) is short[] geoKeyDirectory)
                 {
-                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
+                    geoBitmap.SetProjection(geoKeyDirectory);
                 }
 
                 if (metadata.GetQuery(QueryString(NoDataTag)) is string noData &&

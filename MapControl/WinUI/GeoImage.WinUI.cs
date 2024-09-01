@@ -60,7 +60,7 @@ namespace MapControl
                 if (metadata.TryGetValue(geoKeyDirectoryQuery, out BitmapTypedValue geoKeyDirValue) &&
                     geoKeyDirValue.Value is short[] geoKeyDirectory)
                 {
-                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
+                    geoBitmap.SetProjection(geoKeyDirectory);
                 }
 
                 return geoBitmap;

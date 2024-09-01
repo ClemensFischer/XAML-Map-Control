@@ -29,11 +29,34 @@ namespace MapControl
 {
     public partial class GeoImage : Grid
     {
+        private class DefaultProjection : MapProjection
+        {
+            public override Point? LocationToMap(Location location) => new Point(location.Longitude, location.Latitude);
+            public override Location MapToLocation(Point point) => new Location(point.Y, point.X);
+        }
+
         private class GeoBitmap
         {
             public BitmapSource Bitmap { get; set; }
             public Matrix Transform { get; set; }
-            public MapProjection Projection { get; set; }
+            public MapProjection Projection { get; set; } = new DefaultProjection();
+
+            public void SetProjection(short[] geoKeyDirectory)
+            {
+                for (var i = 4; i < geoKeyDirectory.Length - 3; i += 4)
+                {
+                    if (geoKeyDirectory[i] == ProjectedCRSGeoKey && geoKeyDirectory[i + 1] == 0)
+                    {
+                        var epsgCode = geoKeyDirectory[i + 3];
+
+                        var projection = MapProjectionFactory.Instance.GetProjection(epsgCode) ??
+                            throw new ArgumentException($"Can not create projection EPSG:{epsgCode}.");
+
+                        Projection = projection;
+                        break;
+                    }
+                }
+            }
         }
 
         private const ushort ProjectedCRSGeoKey = 3072;
@@ -87,15 +110,20 @@ namespace MapControl
                 }
             }
 
+#if AVALONIA
+            if (geoBitmap == null) return;
+            
+            var width = geoBitmap.Bitmap.PixelSize.Width;
+            var height = geoBitmap.Bitmap.PixelSize.Height;
+#else
             if (geoBitmap == null)
             {
-#if AVALONIA
-                return;
-#else
                 geoBitmap = await ReadGeoTiffAsync(sourcePath);
-#endif
             }
 
+            var width = geoBitmap.Bitmap.PixelWidth;
+            var height = geoBitmap.Bitmap.PixelHeight;
+#endif
             var image = new Image
             {
                 Source = geoBitmap.Bitmap,
@@ -105,32 +133,11 @@ namespace MapControl
             };
 
             var transform = geoBitmap.Transform;
+            var p1 = transform.Transform(new Point());
+            var p2 = transform.Transform(new Point(width, height));
+            var mapRect = new Rect(p1, p2); ;
 
-            if (transform.M12 != 0 && transform.M21 != 0)
-            {
-                var rotation = (Math.Atan2(transform.M12, transform.M11) + Math.Atan2(transform.M21, -transform.M22)) * 90d / Math.PI;
-
-                image.RenderTransform = new RotateTransform { Angle = -rotation };
-
-                // Calculate effective unrotated transform.
-                //
-                geoBitmap.Transform = new Matrix(
-                    Math.Sqrt(transform.M11 * transform.M11 + transform.M12 * transform.M12), 0d, 0d,
-                    -Math.Sqrt(transform.M22 * transform.M22 + transform.M21 * transform.M21), 0d, 0d);
-            }
-
-#if AVALONIA
-            var size = new Point(geoBitmap.Bitmap.PixelSize.Width, geoBitmap.Bitmap.PixelSize.Height);
-#else
-            var size = new Point(geoBitmap.Bitmap.PixelWidth, geoBitmap.Bitmap.PixelHeight);
-#endif
-            var rect = new Rect(transform.Transform(new Point()), transform.Transform(size));
-
-            var boundingBox = geoBitmap.Projection != null
-                ? geoBitmap.Projection.MapToBoundingBox(rect)
-                : new BoundingBox(rect.Y, rect.X, rect.Y + rect.Height, rect.X + rect.Width);
-
-            MapPanel.SetBoundingBox(this, boundingBox);
+            MapPanel.SetBoundingBox(this, geoBitmap.Projection.MapToBoundingBox(mapRect));
 
             Children.Clear();
             Children.Add(image);
@@ -166,26 +173,6 @@ namespace MapControl
                 parameters[3],  // line 4: E or M22
                 parameters[4],  // line 5: C or OffsetX
                 parameters[5]); // line 6: F or OffsetY
-        }
-
-        private static MapProjection GetProjection(short[] geoKeyDirectory)
-        {
-            MapProjection projection = null;
-
-            for (int i = 4; i < geoKeyDirectory.Length - 3; i += 4)
-            {
-                if (geoKeyDirectory[i] == ProjectedCRSGeoKey && geoKeyDirectory[i + 1] == 0)
-                {
-                    int epsgCode = geoKeyDirectory[i + 3];
-
-                    projection = MapProjectionFactory.Instance.GetProjection(epsgCode) ??
-                        throw new ArgumentException($"Can not create projection EPSG:{epsgCode}.");
-
-                    break;
-                }
-            }
-
-            return projection;
         }
     }
 }
