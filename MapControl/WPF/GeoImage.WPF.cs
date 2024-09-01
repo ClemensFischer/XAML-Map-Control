@@ -6,13 +6,20 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
-    public partial class GeoImage
+    public partial class GeoImage : Image
     {
+        private void SetImage(ImageSource image)
+        {
+            Source = image;
+            Stretch = Stretch.Fill;
+        }
+
         private static Task<GeoBitmap> ReadGeoTiffAsync(string sourcePath)
         {
             return Task.Run(() =>
@@ -47,7 +54,7 @@ namespace MapControl
 
                 if (metadata.GetQuery(QueryString(GeoKeyDirectoryTag)) is short[] geoKeyDirectory)
                 {
-                    geoBitmap.SetProjection(geoKeyDirectory);
+                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
                 }
 
                 if (metadata.GetQuery(QueryString(NoDataTag)) is string noData &&

@@ -6,11 +6,32 @@ using System;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+#if UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+#else
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
-    public partial class GeoImage
+    public partial class GeoImage : Grid
     {
+        private void SetImage(ImageSource image)
+        {
+            Children.Clear();
+            Children.Add(new Image
+            {
+                Source = image,
+                Stretch = Stretch.Fill,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch
+            });
+        }
+
         private static async Task<GeoBitmap> ReadGeoTiffAsync(string sourcePath)
         {
             var file = await StorageFile.GetFileFromPathAsync(FilePath.GetFullPath(sourcePath));
@@ -60,7 +81,7 @@ namespace MapControl
                 if (metadata.TryGetValue(geoKeyDirectoryQuery, out BitmapTypedValue geoKeyDirValue) &&
                     geoKeyDirValue.Value is short[] geoKeyDirectory)
                 {
-                    geoBitmap.SetProjection(geoKeyDirectory);
+                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
                 }
 
                 return geoBitmap;
