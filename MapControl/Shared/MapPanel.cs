@@ -206,7 +206,7 @@ namespace MapControl
             return position;
         }
 
-        protected ViewRect? GetViewRect(BoundingBox boundingBox)
+        protected Rect? GetViewRect(BoundingBox boundingBox)
         {
             var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
@@ -218,7 +218,7 @@ namespace MapControl
             return null;
         }
 
-        protected ViewRect GetViewRect(Rect mapRect)
+        protected Rect GetViewRect(Rect mapRect)
         {
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
@@ -246,7 +246,7 @@ namespace MapControl
             var x = position.X - width / 2d;
             var y = position.Y - height / 2d;
 
-            return new ViewRect(x, y, width, height, parentMap.ViewTransform.Rotation);
+            return new Rect(x, y, width, height);
         }
 
         private void ArrangeChildElement(FrameworkElement element, Size panelSize)
@@ -277,11 +277,11 @@ namespace MapControl
 
                 if (boundingBox != null)
                 {
-                    var viewRect = GetViewRect(boundingBox);
+                    var rect = GetViewRect(boundingBox);
 
-                    if (viewRect.HasValue)
+                    if (rect.HasValue)
                     {
-                        ArrangeElement(element, viewRect.Value);
+                        ArrangeElement(element, rect.Value, parentMap.ViewTransform.Rotation);
                     }
                 }
                 else
@@ -291,20 +291,20 @@ namespace MapControl
             }
         }
 
-        private static void ArrangeElement(FrameworkElement element, ViewRect rect)
+        private static void ArrangeElement(FrameworkElement element, Rect rect, double rotation)
         {
-            element.Width = rect.Rect.Width;
-            element.Height = rect.Rect.Height;
+            element.Width = rect.Width;
+            element.Height = rect.Height;
 
-            element.Arrange(rect.Rect);
+            element.Arrange(rect);
 
             if (element.RenderTransform is RotateTransform rotateTransform)
             {
-                rotateTransform.Angle = rect.Rotation;
+                rotateTransform.Angle = rotation;
             }
-            else if (rect.Rotation != 0d)
+            else if (rotation != 0d)
             {
-                SetRenderTransform(element, new RotateTransform { Angle = rect.Rotation }, 0.5, 0.5);
+                SetRenderTransform(element, new RotateTransform { Angle = rotation }, 0.5, 0.5);
             }
         }
 

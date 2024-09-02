@@ -68,7 +68,7 @@ namespace MapControl
 
         private static async Task LoadGeoImageAsync(Image image, string sourcePath)
         {
-            if (sourcePath != null)
+            if (!string.IsNullOrEmpty(sourcePath))
             {
                 try
                 {

@@ -270,8 +270,8 @@ namespace MapControl
 
             var transform = ViewTransform.CreateTransformMatrix(
                 -viewport.Width / 2d, -viewport.Height / 2d,
-                -viewRect.Rotation,
-                viewRect.Rect.Width / 2d, viewRect.Rect.Height / 2d);
+                -ParentMap.ViewTransform.Rotation,
+                viewRect.Width / 2d, viewRect.Height / 2d);
 
             var imagePos = transform.Transform(position);
 
@@ -286,8 +286,8 @@ namespace MapControl
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
                 { "BBOX", GetBboxValue(mapRect.Value) },
-                { "WIDTH", Math.Round(viewRect.Rect.Width).ToString("F0") },
-                { "HEIGHT", Math.Round(viewRect.Rect.Height).ToString("F0") },
+                { "WIDTH", Math.Round(viewRect.Width).ToString("F0") },
+                { "HEIGHT", Math.Round(viewRect.Height).ToString("F0") },
                 { "I", Math.Round(imagePos.X).ToString("F0") },
                 { "J", Math.Round(imagePos.Y).ToString("F0") }
             };

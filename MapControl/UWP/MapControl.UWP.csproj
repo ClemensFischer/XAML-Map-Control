@@ -182,9 +182,6 @@
     <Compile Include="..\Shared\ViewportChangedEventArgs.cs">
       <Link>ViewportChangedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\ViewRect.cs">
-      <Link>ViewRect.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\ViewTransform.cs">
       <Link>ViewTransform.cs</Link>
     </Compile>

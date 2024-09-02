@@ -40,9 +40,6 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\MBTileData.cs">
-      <Link>MBTileData.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\MBTileLayer.cs">
       <Link>MBTileLayer.cs</Link>
     </Compile>
