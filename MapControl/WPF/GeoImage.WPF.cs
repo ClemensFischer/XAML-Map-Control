@@ -6,46 +6,40 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Controls;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
-    public partial class GeoImage : Image
+    public partial class GeoImage
     {
-        private void SetImage(ImageSource image)
-        {
-            Source = image;
-            Stretch = Stretch.Fill;
-        }
+        private Point BitmapSize => new Point(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
 
-        private static Task<GeoBitmap> ReadGeoTiffAsync(string sourcePath)
+        private Task LoadGeoTiffAsync(string sourcePath)
         {
             return Task.Run(() =>
             {
-                var geoBitmap = new GeoBitmap();
-
                 using (var stream = File.OpenRead(sourcePath))
                 {
-                    geoBitmap.Bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                    bitmapSource = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                 }
 
-                var metadata = (BitmapMetadata)geoBitmap.Bitmap.Metadata;
+                var metadata = (BitmapMetadata)bitmapSource.Metadata;
 
                 if (metadata.GetQuery(QueryString(ModelPixelScaleTag)) is double[] pixelScale &&
                     pixelScale.Length == 3 &&
                     metadata.GetQuery(QueryString(ModelTiePointTag)) is double[] tiePoint &&
                     tiePoint.Length >= 6)
                 {
-                    geoBitmap.Transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
+                    transformMatrix = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
                 else if (metadata.GetQuery(QueryString(ModelTransformationTag)) is double[] transformValues &&
                          transformValues.Length == 16)
                 {
-                    geoBitmap.Transform = new Matrix(transformValues[0], transformValues[1],
-                                                     transformValues[4], transformValues[5],
-                                                     transformValues[3], transformValues[7]);
+                    transformMatrix = new Matrix(transformValues[0], transformValues[1],
+                                                 transformValues[4], transformValues[5],
+                                                 transformValues[3], transformValues[7]);
                 }
                 else
                 {
@@ -54,16 +48,14 @@ namespace MapControl
 
                 if (metadata.GetQuery(QueryString(GeoKeyDirectoryTag)) is short[] geoKeyDirectory)
                 {
-                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
+                    SetProjection(geoKeyDirectory);
                 }
 
                 if (metadata.GetQuery(QueryString(NoDataTag)) is string noData &&
                     int.TryParse(noData, out int noDataValue))
                 {
-                    geoBitmap.Bitmap = ConvertTransparentPixel(geoBitmap.Bitmap, noDataValue);
+                    bitmapSource = ConvertTransparentPixel(bitmapSource, noDataValue);
                 }
-
-                return geoBitmap;
             });
         }
 

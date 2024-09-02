@@ -10,13 +10,18 @@ using System.Linq;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 #elif UWP
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 #elif WINUI
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 #endif
 
@@ -24,29 +29,6 @@ namespace MapControl
 {
     public partial class GeoImage
     {
-        private class GeoBitmap
-        {
-            public BitmapSource Bitmap { get; set; }
-            public Matrix Transform { get; set; }
-            public MapProjection Projection { get; set; }
-
-            public BoundingBox BoundingBox
-            {
-                get
-                {
-                    var p1 = Transform.Transform(new Point());
-#if AVALONIA
-                    var p2 = Transform.Transform(new Point(Bitmap.PixelSize.Width, Bitmap.PixelSize.Height));
-#else
-                    var p2 = Transform.Transform(new Point(Bitmap.PixelWidth, Bitmap.PixelHeight));
-#endif
-                    return Projection != null
-                        ? Projection.MapToBoundingBox(new Rect(p1, p2))
-                        : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
-                }
-            }
-        }
-
         private const ushort ProjectedCRSGeoKey = 3072;
         private const ushort GeoKeyDirectoryTag = 34735;
         private const ushort ModelPixelScaleTag = 33550;
@@ -56,23 +38,48 @@ namespace MapControl
 
         private static string QueryString(ushort tag) => $"/ifd/{{ushort={tag}}}";
 
-        public static readonly DependencyProperty SourcePathProperty =
-            DependencyPropertyHelper.Register<GeoImage, string>(nameof(SourcePath), null,
-                async (image, oldValue, newValue) => await image.SourcePathPropertyChanged(newValue));
+        private BitmapSource bitmapSource;
+        private Matrix transformMatrix;
+        private MapProjection mapProjection;
+        private BoundingBox boundingBox;
 
-        public string SourcePath
+        public static readonly DependencyProperty SourcePathProperty =
+            DependencyPropertyHelper.RegisterAttached<GeoImage, string>("SourcePath", null,
+                async (image, oldValue, newValue) => await LoadGeoImageAsync((Image)image, newValue));
+
+        public static string GetSourcePath(Image image)
         {
-            get => (string)GetValue(SourcePathProperty);
-            set => SetValue(SourcePathProperty, value);
+            return (string)image.GetValue(SourcePathProperty);
         }
 
-        private async Task SourcePathPropertyChanged(string sourcePath)
+        public static void SetSourcePath(Image image, string value)
+        {
+            image.SetValue(SourcePathProperty, value);
+        }
+
+        public static Image LoadGeoImage(string sourcePath)
+        {
+            var image = new Image();
+
+            SetSourcePath(image, sourcePath);
+
+            return image;
+        }
+
+        private static async Task LoadGeoImageAsync(Image image, string sourcePath)
         {
             if (sourcePath != null)
             {
                 try
                 {
-                    await ReadGeoImageAsync(sourcePath);
+                    var geoImage = new GeoImage();
+
+                    await geoImage.LoadGeoImageAsync(sourcePath);
+
+                    image.Source = geoImage.bitmapSource;
+                    image.Stretch = Stretch.Fill;
+
+                    MapPanel.SetBoundingBox(image, geoImage.boundingBox);
                 }
                 catch (Exception ex)
                 {
@@ -81,9 +88,8 @@ namespace MapControl
             }
         }
 
-        private async Task ReadGeoImageAsync(string sourcePath)
+        private async Task LoadGeoImageAsync(string sourcePath)
         {
-            GeoBitmap geoBitmap = null;
             var ext = Path.GetExtension(sourcePath);
 
             if (ext.Length >= 4)
@@ -94,27 +100,28 @@ namespace MapControl
 
                 if (File.Exists(worldFilePath))
                 {
-                    geoBitmap = await ReadWorldFileImageAsync(sourcePath, worldFilePath);
+                    await LoadWorldFileImageAsync(sourcePath, worldFilePath);
                 }
             }
 
-            if (geoBitmap == null)
+            if (bitmapSource == null)
             {
-                geoBitmap = await ReadGeoTiffAsync(sourcePath);
+                await LoadGeoTiffAsync(sourcePath);
             }
 
-            MapPanel.SetBoundingBox(this, geoBitmap.BoundingBox);
+            var p1 = transformMatrix.Transform(new Point());
+            var p2 = transformMatrix.Transform(BitmapSize);
 
-            SetImage(geoBitmap.Bitmap);
+            boundingBox = mapProjection != null
+                ? mapProjection.MapToBoundingBox(new Rect(p1, p2))
+                : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
         }
 
-        private static async Task<GeoBitmap> ReadWorldFileImageAsync(string sourcePath, string worldFilePath)
+        private async Task LoadWorldFileImageAsync(string sourcePath, string worldFilePath)
         {
-            return new GeoBitmap
-            {
-                Bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath),
-                Transform = await Task.Run(() => ReadWorldFileMatrix(worldFilePath))
-            };
+            transformMatrix = await Task.Run(() => ReadWorldFileMatrix(worldFilePath));
+
+            bitmapSource = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
         }
 
         private static Matrix ReadWorldFileMatrix(string worldFilePath)
@@ -140,7 +147,7 @@ namespace MapControl
                 parameters[5]); // line 6: F or OffsetY
         }
 
-        private static MapProjection GetProjection(short[] geoKeyDirectory)
+        private void SetProjection(short[] geoKeyDirectory)
         {
             for (var i = 4; i < geoKeyDirectory.Length - 3; i += 4)
             {
@@ -148,12 +155,10 @@ namespace MapControl
                 {
                     var epsgCode = geoKeyDirectory[i + 3];
 
-                    return MapProjectionFactory.Instance.GetProjection(epsgCode) ??
+                    mapProjection = MapProjectionFactory.Instance.GetProjection(epsgCode) ??
                         throw new ArgumentException($"Can not create projection EPSG:{epsgCode}.");
                 }
             }
-
-            return null;
         }
     }
 }

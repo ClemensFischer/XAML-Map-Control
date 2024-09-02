@@ -118,7 +118,7 @@ namespace MapControl
                 }
                 else
                 {
-                    overlay = new GeoImage { SourcePath = sourcePath };
+                    overlay = GeoImage.LoadGeoImage(sourcePath);
                 }
             }
             catch (Exception ex)

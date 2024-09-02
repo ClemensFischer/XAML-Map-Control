@@ -6,42 +6,22 @@ using System;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
-#if UWP
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-#else
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-#endif
 
 namespace MapControl
 {
-    public partial class GeoImage : Grid
+    public partial class GeoImage
     {
-        private void SetImage(ImageSource image)
-        {
-            Children.Clear();
-            Children.Add(new Image
-            {
-                Source = image,
-                Stretch = Stretch.Fill,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch
-            });
-        }
+        private Point BitmapSize => new Point(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
 
-        private static async Task<GeoBitmap> ReadGeoTiffAsync(string sourcePath)
+        private async Task LoadGeoTiffAsync(string sourcePath)
         {
             var file = await StorageFile.GetFileFromPathAsync(FilePath.GetFullPath(sourcePath));
 
             using (var stream = await file.OpenReadAsync())
             {
-                var geoBitmap = new GeoBitmap();
                 var decoder = await BitmapDecoder.CreateAsync(stream);
 
-                geoBitmap.Bitmap = await ImageLoader.LoadImageAsync(decoder);
+                bitmapSource = await ImageLoader.LoadImageAsync(decoder);
 
                 var geoKeyDirectoryQuery = QueryString(GeoKeyDirectoryTag);
                 var pixelScaleQuery = QueryString(ModelPixelScaleTag);
@@ -63,15 +43,15 @@ namespace MapControl
                     tiePointValue.Value is double[] tiePoint &&
                     tiePoint.Length >= 6)
                 {
-                    geoBitmap.Transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
+                    transformMatrix = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
                 else if (metadata.TryGetValue(transformationQuery, out BitmapTypedValue transformValue) &&
                          transformValue.Value is double[] transformValues &&
                          transformValues.Length == 16)
                 {
-                    geoBitmap.Transform = new Matrix(transformValues[0], transformValues[1],
-                                                     transformValues[4], transformValues[5],
-                                                     transformValues[3], transformValues[7]);
+                    transformMatrix = new Matrix(transformValues[0], transformValues[1],
+                                                 transformValues[4], transformValues[5],
+                                                 transformValues[3], transformValues[7]);
                 }
                 else
                 {
@@ -81,10 +61,8 @@ namespace MapControl
                 if (metadata.TryGetValue(geoKeyDirectoryQuery, out BitmapTypedValue geoKeyDirValue) &&
                     geoKeyDirValue.Value is short[] geoKeyDirectory)
                 {
-                    geoBitmap.Projection = GetProjection(geoKeyDirectory);
+                    SetProjection(geoKeyDirectory);
                 }
-
-                return geoBitmap;
             }
         }
     }
