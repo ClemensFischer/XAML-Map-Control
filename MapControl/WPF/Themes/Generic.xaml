@@ -3,11 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:map="clr-namespace:MapControl">
 
-    <Style TargetType="map:MapBase">
-        <Setter Property="FlowDirection" Value="LeftToRight"/>
-        <Setter Property="Foreground" Value="Black"/>
-    </Style>
-
     <Style TargetType="map:MapItemsControl">
         <Setter Property="Template">
             <Setter.Value>

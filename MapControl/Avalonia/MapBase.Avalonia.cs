@@ -35,7 +35,7 @@ namespace MapControl
     public partial class MapBase
     {
         public static readonly StyledProperty<Brush> ForegroundProperty =
-            DependencyPropertyHelper.AddOwner<MapBase, Brush>(TextElement.ForegroundProperty);
+            DependencyPropertyHelper.AddOwner<MapBase, Brush>(TextElement.ForegroundProperty, Brushes.Black);
 
         public static readonly StyledProperty<Easing> AnimationEasingProperty =
             DependencyPropertyHelper.Register<MapBase, Easing>(nameof(AnimationEasing), new QuadraticEaseOut());
@@ -102,6 +102,11 @@ namespace MapControl
             ClipToBoundsProperty.OverrideDefaultValue(typeof(MapBase), true);
 
             Animation.RegisterCustomAnimator<Location, LocationAnimator>();
+        }
+
+        public MapBase()
+        {
+            FlowDirection = FlowDirection.LeftToRight; // OverrideDefaultValue won't stop value inheritance
         }
 
         public double ActualWidth => Bounds.Width;
