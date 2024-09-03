@@ -4,6 +4,7 @@
     xmlns:map="clr-namespace:MapControl">
 
     <ControlTheme TargetType="map:MapBase" x:Key="{x:Type map:MapBase}">
+        <Setter Property="FlowDirection" Value="LeftToRight"/>
         <Setter Property="Foreground" Value="Black"/>
     </ControlTheme>
 

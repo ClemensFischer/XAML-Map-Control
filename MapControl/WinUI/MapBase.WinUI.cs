@@ -79,6 +79,7 @@ namespace MapControl
             //
             var style = new Style(typeof(MapBase));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.White)));
+            style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
             Style = style;
 
             SizeChanged += OnSizeChanged;
