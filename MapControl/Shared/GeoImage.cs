@@ -41,7 +41,6 @@ namespace MapControl
         private BitmapSource bitmapSource;
         private Matrix transformMatrix;
         private MapProjection mapProjection;
-        private BoundingBox boundingBox;
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.RegisterAttached<GeoImage, string>("SourcePath", null,
@@ -76,10 +75,17 @@ namespace MapControl
 
                     await geoImage.LoadGeoImageAsync(sourcePath);
 
+                    var p1 = geoImage.transformMatrix.Transform(new Point());
+                    var p2 = geoImage.transformMatrix.Transform(geoImage.BitmapSize);
+
+                    var boundingBox = geoImage.mapProjection != null
+                        ? geoImage.mapProjection.MapToBoundingBox(new Rect(p1, p2))
+                        : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
+
                     image.Source = geoImage.bitmapSource;
                     image.Stretch = Stretch.Fill;
 
-                    MapPanel.SetBoundingBox(image, geoImage.boundingBox);
+                    MapPanel.SetBoundingBox(image, boundingBox);
                 }
                 catch (Exception ex)
                 {
@@ -108,13 +114,6 @@ namespace MapControl
             {
                 await LoadGeoTiffAsync(sourcePath);
             }
-
-            var p1 = transformMatrix.Transform(new Point());
-            var p2 = transformMatrix.Transform(BitmapSize);
-
-            boundingBox = mapProjection != null
-                ? mapProjection.MapToBoundingBox(new Rect(p1, p2))
-                : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
         }
 
         private async Task LoadWorldFileImageAsync(string sourcePath, string worldFilePath)
