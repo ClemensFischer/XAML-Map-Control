@@ -277,12 +277,7 @@ namespace MapControl
 
                 if (boundingBox != null)
                 {
-                    var rect = GetViewRect(boundingBox);
-
-                    if (rect.HasValue)
-                    {
-                        ArrangeElement(element, rect.Value, parentMap.ViewTransform.Rotation);
-                    }
+                    ArrangeElement(element, boundingBox);
                 }
                 else
                 {
@@ -291,20 +286,27 @@ namespace MapControl
             }
         }
 
-        private static void ArrangeElement(FrameworkElement element, Rect rect, double rotation)
+        private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
         {
-            element.Width = rect.Width;
-            element.Height = rect.Height;
+            var rect = GetViewRect(boundingBox);
 
-            element.Arrange(rect);
+            if (rect.HasValue)
+            {
+                element.Width = rect.Value.Width;
+                element.Height = rect.Value.Height;
 
-            if (element.RenderTransform is RotateTransform rotateTransform)
-            {
-                rotateTransform.Angle = rotation;
-            }
-            else if (rotation != 0d)
-            {
-                SetRenderTransform(element, new RotateTransform { Angle = rotation }, 0.5, 0.5);
+                element.Arrange(rect.Value);
+
+                var rotation = parentMap.ViewTransform.Rotation - boundingBox.Rotation;
+
+                if (element.RenderTransform is RotateTransform rotateTransform)
+                {
+                    rotateTransform.Angle = rotation;
+                }
+                else if (rotation != 0d)
+                {
+                    SetRenderTransform(element, new RotateTransform { Angle = rotation }, 0.5, 0.5);
+                }
             }
         }
 

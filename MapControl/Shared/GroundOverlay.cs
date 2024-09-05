@@ -29,27 +29,16 @@ namespace MapControl
 {
     public class GroundOverlay : MapPanel
     {
-        class LatLonBox : BoundingBox
-        {
-            public LatLonBox(double south, double west, double north, double east, double rotation)
-                : base(south, west, north, east)
-            {
-                Rotation = rotation;
-            }
-
-            public double Rotation { get; }
-        }
-
         class ImageOverlay
         {
-            public ImageOverlay(LatLonBox latLonBox, string imagePath, int zIndex)
+            public ImageOverlay(BoundingBox boundingBox, string imagePath, int zIndex)
             {
-                LatLonBox = latLonBox;
+                BoundingBox = boundingBox;
                 ImagePath = imagePath;
                 ZIndex = zIndex;
             }
 
-            public LatLonBox LatLonBox { get; }
+            public BoundingBox BoundingBox { get; }
             public string ImagePath { get; }
             public int ZIndex { get; }
             public ImageSource ImageSource { get; set; }
@@ -102,26 +91,15 @@ namespace MapControl
         {
             foreach (var imageOverlay in imageOverlays.Where(i => i.ImageSource != null))
             {
-                FrameworkElement overlay = new Image
+                var image = new Image
                 {
                     Source = imageOverlay.ImageSource,
                     Stretch = Stretch.Fill
                 };
 
-                if (imageOverlay.LatLonBox.Rotation != 0d)
-                {
-                    SetRenderTransform(overlay, new RotateTransform { Angle = -imageOverlay.LatLonBox.Rotation }, 0.5, 0.5);
-
-                    // Additional Panel for map rotation, see MapPanel.ArrangeElement(FrameworkElement, ViewRect).
-                    //
-                    var panel = new Grid();
-                    panel.Children.Add(overlay);
-                    overlay = panel;
-                }
-
-                SetBoundingBox(overlay, imageOverlay.LatLonBox);
-                overlay.SetValue(Canvas.ZIndexProperty, imageOverlay.ZIndex);
-                Children.Add(overlay);
+                image.SetValue(Canvas.ZIndexProperty, imageOverlay.ZIndex);
+                SetBoundingBox(image, imageOverlay.BoundingBox);
+                Children.Add(image);
             }
         }
 
@@ -198,8 +176,8 @@ namespace MapControl
             {
                 foreach (var groundOverlayElement in folderElement.Elements(ns + "GroundOverlay"))
                 {
-                    var latLonBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
-                    var latLonBox = latLonBoxElement != null ? ReadLatLonBox(latLonBoxElement) : null;
+                    var boundingBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
+                    var boundingBox = boundingBoxElement != null ? ReadBoundingBox(boundingBoxElement) : null;
 
                     var imagePathElement = groundOverlayElement.Element(ns + "Icon");
                     var imagePath = imagePathElement?.Element(ns + "href")?.Value;
@@ -207,15 +185,15 @@ namespace MapControl
                     var drawOrder = groundOverlayElement.Element(ns + "drawOrder")?.Value;
                     var zIndex = drawOrder != null ? int.Parse(drawOrder) : 0;
 
-                    if (latLonBox != null && imagePath != null)
+                    if (boundingBox != null && imagePath != null)
                     {
-                        yield return new ImageOverlay(latLonBox, imagePath, zIndex);
+                        yield return new ImageOverlay(boundingBox, imagePath, zIndex);
                     }
                 }
             }
         }
 
-        private static LatLonBox ReadLatLonBox(XElement latLonBoxElement)
+        private static BoundingBox ReadBoundingBox(XElement latLonBoxElement)
         {
             var ns = latLonBoxElement.Name.Namespace;
             var north = double.NaN;
@@ -261,7 +239,7 @@ namespace MapControl
                 throw new FormatException("Invalid LatLonBox");
             }
 
-            return new LatLonBox(south, west, north, east, rotation);
+            return new BoundingBox(south, west, north, east, rotation);
         }
     }
 }

@@ -21,12 +21,13 @@ namespace MapControl
         {
         }
 
-        public BoundingBox(double latitude1, double longitude1, double latitude2, double longitude2)
+        public BoundingBox(double latitude1, double longitude1, double latitude2, double longitude2, double rotation = 0d)
         {
             South = Math.Min(Math.Max(Math.Min(latitude1, latitude2), -90d), 90d);
             North = Math.Min(Math.Max(Math.Max(latitude1, latitude2), -90d), 90d);
             West = Math.Min(longitude1, longitude2);
             East = Math.Max(longitude1, longitude2);
+            Rotation = rotation;
         }
 
         public BoundingBox(Location location1, Location location2)
@@ -38,6 +39,7 @@ namespace MapControl
         public double North { get; }
         public double West { get; }
         public double East { get; }
+        public double Rotation { get; }
 
         public virtual double Width => East - West;
         public virtual double Height => North - South;
@@ -56,16 +58,21 @@ namespace MapControl
                 values = boundingBox.Split(new char[] { ',' });
             }
 
-            if (values?.Length != 4)
+            if (values == null || values.Length != 4 && values.Length != 5)
             {
-                throw new FormatException("BoundingBox string must contain a comma-separated sequence of four floating point numbers.");
+                throw new FormatException("BoundingBox string must contain a comma-separated sequence of four or five floating point numbers.");
             }
+
+            var rotation = values.Length == 5
+                ? double.Parse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture)
+                : 0d;
 
             return new BoundingBox(
                 double.Parse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture),
                 double.Parse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture),
                 double.Parse(values[2], NumberStyles.Float, CultureInfo.InvariantCulture),
-                double.Parse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture));
+                double.Parse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture),
+                rotation);
         }
     }
 }
