@@ -30,7 +30,7 @@ namespace MapControl.MBTiles
         {
             Close();
 
-            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file));
+            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file) + ";Read Only=True");
 
             await connection.OpenAsync();
 
