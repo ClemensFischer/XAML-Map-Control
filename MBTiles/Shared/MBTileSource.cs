@@ -34,16 +34,6 @@ namespace MapControl.MBTiles
 
             await connection.OpenAsync();
 
-            using (var command = new SQLiteCommand("create table if not exists metadata (name string, value string)", connection))
-            {
-                await command.ExecuteNonQueryAsync();
-            }
-
-            using (var command = new SQLiteCommand("create table if not exists tiles (zoom_level integer, tile_column integer, tile_row integer, tile_data blob)", connection))
-            {
-                await command.ExecuteNonQueryAsync();
-            }
-
             using (var command = new SQLiteCommand("select * from metadata", connection))
             {
                 var reader = await command.ExecuteReaderAsync();
