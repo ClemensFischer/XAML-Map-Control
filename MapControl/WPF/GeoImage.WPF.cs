@@ -16,6 +16,8 @@ namespace MapControl
     {
         private Point BitmapSize => new Point(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
 
+        private ImageBrush ImageBrush => new ImageBrush(bitmapSource);
+
         private Task LoadGeoTiffAsync(string sourcePath)
         {
             return Task.Run(() =>

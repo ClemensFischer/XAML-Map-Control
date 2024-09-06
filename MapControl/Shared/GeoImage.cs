@@ -13,16 +13,21 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Shape = System.Windows.Shapes.Shape;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using Shape = Windows.UI.Xaml.Shapes.Shape;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Shape = Microsoft.UI.Xaml.Shapes.Shape;
+#elif AVALONIA
+using Shape = Avalonia.Controls.Shapes.Shape;
 #endif
 
 namespace MapControl
@@ -44,28 +49,28 @@ namespace MapControl
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.RegisterAttached<GeoImage, string>("SourcePath", null,
-                async (image, oldValue, newValue) => await LoadGeoImageAsync((Image)image, newValue));
+                async (image, oldValue, newValue) => await LoadGeoImageAsync(image, newValue));
 
-        public static string GetSourcePath(Image image)
+        public static string GetSourcePath(FrameworkElement image)
         {
             return (string)image.GetValue(SourcePathProperty);
         }
 
-        public static void SetSourcePath(Image image, string value)
+        public static void SetSourcePath(FrameworkElement image, string value)
         {
             image.SetValue(SourcePathProperty, value);
         }
 
-        public static Image LoadGeoImage(string sourcePath)
+        public static FrameworkElement LoadGeoImage(string sourcePath)
         {
-            var image = new Image();
+            var image = new Image { Stretch = Stretch.Fill };
 
             SetSourcePath(image, sourcePath);
 
             return image;
         }
 
-        private static async Task LoadGeoImageAsync(Image image, string sourcePath)
+        private static async Task LoadGeoImageAsync(FrameworkElement element, string sourcePath)
         {
             if (!string.IsNullOrEmpty(sourcePath))
             {
@@ -82,10 +87,16 @@ namespace MapControl
                         ? geoImage.mapProjection.MapToBoundingBox(new Rect(p1, p2))
                         : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
 
-                    image.Source = geoImage.bitmapSource;
-                    image.Stretch = Stretch.Fill;
+                    if (element is Image image)
+                    {
+                        image.Source = geoImage.bitmapSource;
+                    }
+                    else if (element is Shape shape)
+                    {
+                        shape.Fill = geoImage.ImageBrush;
+                    }
 
-                    MapPanel.SetBoundingBox(image, boundingBox);
+                    MapPanel.SetBoundingBox(element, boundingBox);
                 }
                 catch (Exception ex)
                 {

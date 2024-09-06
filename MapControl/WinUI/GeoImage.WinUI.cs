@@ -6,12 +6,19 @@ using System;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+#if UWP
+using Windows.UI.Xaml.Media;
+#else
+using Microsoft.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
     public partial class GeoImage
     {
         private Point BitmapSize => new Point(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
+
+        private ImageBrush ImageBrush => new ImageBrush { ImageSource = bitmapSource };
 
         private async Task LoadGeoTiffAsync(string sourcePath)
         {

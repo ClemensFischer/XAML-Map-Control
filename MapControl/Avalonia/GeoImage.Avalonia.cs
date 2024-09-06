@@ -11,6 +11,8 @@ namespace MapControl
     {
         private Point BitmapSize => new(bitmapSource.PixelSize.Width, bitmapSource.PixelSize.Height);
 
+        private ImageBrush ImageBrush => new(bitmapSource);
+
         private Task LoadGeoTiffAsync(string sourcePath)
         {
             throw new InvalidOperationException("GeoTIFF is not supported.");
