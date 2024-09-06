@@ -83,23 +83,18 @@ namespace MapControl
 
             if (imageOverlays != null)
             {
-                AddImageOverlays(imageOverlays);
-            }
-        }
-
-        private void AddImageOverlays(IEnumerable<ImageOverlay> imageOverlays)
-        {
-            foreach (var imageOverlay in imageOverlays.Where(i => i.ImageSource != null))
-            {
-                var image = new Image
+                foreach (var imageOverlay in imageOverlays.Where(i => i.ImageSource != null))
                 {
-                    Source = imageOverlay.ImageSource,
-                    Stretch = Stretch.Fill
-                };
+                    var image = new Image
+                    {
+                        Source = imageOverlay.ImageSource,
+                        Stretch = Stretch.Fill
+                    };
 
-                image.SetValue(Canvas.ZIndexProperty, imageOverlay.ZIndex);
-                SetBoundingBox(image, imageOverlay.BoundingBox);
-                Children.Add(image);
+                    image.SetValue(Canvas.ZIndexProperty, imageOverlay.ZIndex);
+                    SetBoundingBox(image, imageOverlay.BoundingBox);
+                    Children.Add(image);
+                }
             }
         }
 
