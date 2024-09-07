@@ -61,7 +61,7 @@ namespace MapControl
             image.SetValue(SourcePathProperty, value);
         }
 
-        public static FrameworkElement LoadGeoImage(string sourcePath)
+        public static Image LoadGeoImage(string sourcePath)
         {
             var image = new Image { Stretch = Stretch.Fill };
 
