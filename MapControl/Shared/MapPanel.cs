@@ -187,7 +187,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected Point? GetViewPosition(Location location)
+        private Point? GetViewPosition(Location location)
         {
             var position = parentMap.LocationToView(location);
 
@@ -206,7 +206,7 @@ namespace MapControl
             return position;
         }
 
-        protected Rect? GetViewRect(BoundingBox boundingBox)
+        private Rect? GetViewRect(BoundingBox boundingBox)
         {
             var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
@@ -218,16 +218,15 @@ namespace MapControl
             return null;
         }
 
-        protected Rect GetViewRect(Rect mapRect)
+        private Rect GetViewRect(Rect mapRect)
         {
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
-            var projection = parentMap.MapProjection;
 
-            if (projection.Type <= MapProjectionType.NormalCylindrical &&
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
                 !parentMap.InsideViewBounds(position))
             {
-                var location = projection.MapToLocation(center);
+                var location = parentMap.MapProjection.MapToLocation(center);
 
                 if (location != null)
                 {

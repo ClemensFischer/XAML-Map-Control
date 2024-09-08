@@ -236,7 +236,8 @@ namespace MapControl
                 return null;
             }
 
-            var viewScale = ParentMap.ViewTransform.Scale;
+            var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
+            var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
 
             return GetRequestUri(new Dictionary<string, string>
             {
@@ -248,8 +249,8 @@ namespace MapControl
                 { "FORMAT", "image/png" },
                 { "CRS", GetCrsValue() },
                 { "BBOX", GetBboxValue(mapRect.Value) },
-                { "WIDTH", Math.Round(viewScale * mapRect.Value.Width).ToString("F0") },
-                { "HEIGHT", Math.Round(viewScale * mapRect.Value.Height).ToString("F0") }
+                { "WIDTH", Math.Round(width).ToString("F0") },
+                { "HEIGHT", Math.Round(height).ToString("F0") }
             });
         }
 
@@ -267,12 +268,13 @@ namespace MapControl
                 return null;
             }
 
-            var viewRect = GetViewRect(mapRect.Value);
+            var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
+            var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
 
             var transform = ViewTransform.CreateTransformMatrix(
                 -viewport.Width / 2d, -viewport.Height / 2d,
                 -ParentMap.ViewTransform.Rotation,
-                viewRect.Width / 2d, viewRect.Height / 2d);
+                width / 2d, height / 2d);
 
             var imagePos = transform.Transform(position);
 
@@ -287,8 +289,8 @@ namespace MapControl
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
                 { "BBOX", GetBboxValue(mapRect.Value) },
-                { "WIDTH", Math.Round(viewRect.Width).ToString("F0") },
-                { "HEIGHT", Math.Round(viewRect.Height).ToString("F0") },
+                { "WIDTH", Math.Round(width).ToString("F0") },
+                { "HEIGHT", Math.Round(height).ToString("F0") },
                 { "I", Math.Round(imagePos.X).ToString("F0") },
                 { "J", Math.Round(imagePos.Y).ToString("F0") }
             };
