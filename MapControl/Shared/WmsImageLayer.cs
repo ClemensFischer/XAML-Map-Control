@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -297,12 +298,36 @@ namespace MapControl
 
         protected virtual string GetCrsValue()
         {
-            return ParentMap.MapProjection.GetCrsValue();
+            var projection = ParentMap.MapProjection;
+            var crsId = projection.CrsId;
+
+            if (crsId.StartsWith("AUTO2:") || crsId.StartsWith("AUTO:"))
+            {
+                crsId = string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}", crsId, projection.Center.Longitude, projection.Center.Latitude);
+            }
+
+            return crsId;
         }
 
         protected virtual string GetBboxValue(Rect rect)
         {
-            return ParentMap.MapProjection.GetBboxValue(rect);
+            var crsId = ParentMap.MapProjection.CrsId;
+            var format = "{0:F2},{1:F2},{2:F2},{3:F2}";
+            var x1 = rect.X;
+            var y1 = rect.Y;
+            var x2 = rect.X + rect.Width;
+            var y2 = rect.Y + rect.Height;
+
+            if (crsId == "CRS:84" || crsId == "EPSG:4326")
+            {
+                format = crsId == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
+                x1 /= MapProjection.Wgs84MeterPerDegree;
+                y1 /= MapProjection.Wgs84MeterPerDegree;
+                x2 /= MapProjection.Wgs84MeterPerDegree;
+                y2 /= MapProjection.Wgs84MeterPerDegree;
+            }
+
+            return string.Format(CultureInfo.InvariantCulture, format, x1, y1, x2, y2);
         }
 
         protected string GetRequestUri(IDictionary<string, string> queryParameters)

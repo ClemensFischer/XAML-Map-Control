@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Globalization;
 #if WPF
 using System.Windows;
 #endif
@@ -50,21 +49,6 @@ namespace MapControl
             return new Location(
                 point.Y / Wgs84MeterPerDegree,
                 point.X / Wgs84MeterPerDegree);
-        }
-
-        public override string GetBboxValue(Rect rect)
-        {
-            if (CrsId == DefaultCrsId || CrsId == "CRS:84")
-            {
-                return string.Format(CultureInfo.InvariantCulture,
-                    CrsId == DefaultCrsId ? "{1:F8},{0:F8},{3:F8},{2:F8}" : "{0:F8},{1:F8},{2:F8},{3:F8}",
-                    rect.X / Wgs84MeterPerDegree,
-                    rect.Y / Wgs84MeterPerDegree,
-                    (rect.X + rect.Width) / Wgs84MeterPerDegree,
-                    (rect.Y + rect.Height) / Wgs84MeterPerDegree);
-            }
-
-            return base.GetBboxValue(rect);
         }
     }
 }

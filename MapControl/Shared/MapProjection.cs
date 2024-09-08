@@ -3,7 +3,6 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Globalization;
 #if WPF
 using System.Windows;
 #endif
@@ -67,70 +66,34 @@ namespace MapControl
         /// </summary>
         public virtual Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
-            Rect? rect = null;
+            Rect? mapRect = null;
+            var southWest = LocationToMap(new Location(boundingBox.South, boundingBox.West));
+            var northEast = LocationToMap(new Location(boundingBox.North, boundingBox.East));
 
-            if (boundingBox.South < boundingBox.North && boundingBox.West < boundingBox.East)
+            if (southWest.HasValue && northEast.HasValue)
             {
-                var p1 = LocationToMap(new Location(boundingBox.South, boundingBox.West));
-                var p2 = LocationToMap(new Location(boundingBox.North, boundingBox.East));
-
-                if (p1.HasValue && p2.HasValue)
-                {
-                    rect = new Rect(p1.Value, p2.Value);
-                }
-            }
-            else if (boundingBox.Center != null)
-            {
-                // boundingBox is a CenteredBoundingBox
-                //
-                var center = LocationToMap(boundingBox.Center);
-
-                if (center.HasValue)
-                {
-                    var width = boundingBox.Width * Wgs84MeterPerDegree;
-                    var height = boundingBox.Height * Wgs84MeterPerDegree;
-                    var x = center.Value.X - width / 2d;
-                    var y = center.Value.Y - height / 2d;
-
-                    rect = new Rect(x, y, width, height);
-                }
+                mapRect = new Rect(southWest.Value, northEast.Value);
             }
 
-            return rect;
+            return mapRect;
         }
 
         /// <summary>
         /// Transforms a Rect in projected map coordinates to a BoundingBox in geographic coordinates.
         /// Returns null when the MapRect can not be transformed.
         /// </summary>
-        public virtual BoundingBox MapToBoundingBox(Rect rect)
+        public virtual BoundingBox MapToBoundingBox(Rect mapRect)
         {
-            var southWest = MapToLocation(new Point(rect.X, rect.Y));
-            var northEast = MapToLocation(new Point(rect.X + rect.Width, rect.Y + rect.Height));
+            BoundingBox boundingBox = null;
+            var southWest = MapToLocation(new Point(mapRect.X, mapRect.Y));
+            var northEast = MapToLocation(new Point(mapRect.X + mapRect.Width, mapRect.Y + mapRect.Height));
 
-            return southWest != null && northEast != null
-                ? new BoundingBox(southWest, northEast)
-                : null;
-        }
+            if (southWest != null && northEast != null)
+            {
+                boundingBox = new BoundingBox(southWest, northEast);
+            }
 
-        /// <summary>
-        /// Gets the CRS parameter value for a WMS GetMap request.
-        /// </summary>
-        public virtual string GetCrsValue()
-        {
-            return CrsId.StartsWith("AUTO2:") || CrsId.StartsWith("AUTO:")
-                ? string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}", CrsId, Center.Longitude, Center.Latitude)
-                : CrsId;
-        }
-
-        /// <summary>
-        /// Gets the BBOX parameter value for a WMS GetMap request.
-        /// </summary>
-        public virtual string GetBboxValue(Rect rect)
-        {
-            return string.Format(CultureInfo.InvariantCulture,
-                "{0:F2},{1:F2},{2:F2},{3:F2}",
-                rect.X, rect.Y, rect.X + rect.Width, rect.Y + rect.Height);
+            return boundingBox;
         }
     }
 }

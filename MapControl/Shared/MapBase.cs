@@ -360,16 +360,16 @@ namespace MapControl
         /// </summary>
         public void ZoomToBounds(BoundingBox boundingBox)
         {
-            var rect = MapProjection.BoundingBoxToMap(boundingBox);
+            var mapRect = MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (rect.HasValue)
+            if (mapRect.HasValue)
             {
-                var rectCenter = new Point(rect.Value.X + rect.Value.Width / 2d, rect.Value.Y + rect.Value.Height / 2d);
+                var rectCenter = new Point(mapRect.Value.X + mapRect.Value.Width / 2d, mapRect.Value.Y + mapRect.Value.Height / 2d);
                 var targetCenter = MapProjection.MapToLocation(rectCenter);
 
                 if (targetCenter != null)
                 {
-                    var scale = Math.Min(ActualWidth / rect.Value.Width, ActualHeight / rect.Value.Height);
+                    var scale = Math.Min(ActualWidth / mapRect.Value.Width, ActualHeight / mapRect.Value.Height);
 
                     TargetZoomLevel = ScaleToZoomLevel(scale);
                     TargetCenter = targetCenter;

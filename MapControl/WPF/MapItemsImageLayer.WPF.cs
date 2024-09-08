@@ -37,11 +37,11 @@ namespace MapControl
 
             if (projection != null && items != null)
             {
-                var rect = projection.BoundingBoxToMap(boundingBox);
+                var mapRect = projection.BoundingBoxToMap(boundingBox);
 
-                if (rect.HasValue)
+                if (mapRect.HasValue)
                 {
-                    image = await Task.Run(() => GetImage(projection, rect.Value, items));
+                    image = await Task.Run(() => GetImage(projection, mapRect.Value, items));
                 }
             }
 
