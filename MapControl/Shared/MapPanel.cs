@@ -208,14 +208,14 @@ namespace MapControl
 
         private Rect? GetViewRect(BoundingBox boundingBox)
         {
-            var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var rect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (mapRect.HasValue)
+            if (rect.HasValue)
             {
-                return GetViewRect(mapRect.Value);
+                rect = GetViewRect(rect.Value);
             }
 
-            return null;
+            return rect;
         }
 
         private Rect GetViewRect(Rect mapRect)

@@ -138,7 +138,9 @@ namespace MapControl
                 ParentMap.ActualWidth > 0d &&
                 ParentMap.ActualHeight > 0d)
             {
-                var uri = GetFeatureInfoRequestUri(position, format);
+                var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight));
+
+                var uri = GetFeatureInfoRequestUri(boundingBox, position, format);
 
                 if (!string.IsNullOrEmpty(uri))
                 {
@@ -229,73 +231,75 @@ namespace MapControl
         /// </summary>
         protected virtual string GetMapRequestUri(BoundingBox boundingBox)
         {
+            string uri = null;
             var mapRect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (!mapRect.HasValue)
+            if (mapRect.HasValue)
             {
-                return null;
+                var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
+                var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
+
+                uri = GetRequestUri(new Dictionary<string, string>
+                {
+                    { "SERVICE", "WMS" },
+                    { "VERSION", "1.3.0" },
+                    { "REQUEST", "GetMap" },
+                    { "LAYERS", WmsLayers ?? "" },
+                    { "STYLES", WmsStyles ?? "" },
+                    { "FORMAT", "image/png" },
+                    { "CRS", GetCrsValue() },
+                    { "BBOX", GetBboxValue(boundingBox, mapRect.Value) },
+                    { "WIDTH", Math.Round(width).ToString("F0") },
+                    { "HEIGHT", Math.Round(height).ToString("F0") }
+                });
             }
 
-            var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
-            var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
-
-            return GetRequestUri(new Dictionary<string, string>
-            {
-                { "SERVICE", "WMS" },
-                { "VERSION", "1.3.0" },
-                { "REQUEST", "GetMap" },
-                { "LAYERS", WmsLayers ?? "" },
-                { "STYLES", WmsStyles ?? "" },
-                { "FORMAT", "image/png" },
-                { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(mapRect.Value) },
-                { "WIDTH", Math.Round(width).ToString("F0") },
-                { "HEIGHT", Math.Round(height).ToString("F0") }
-            });
+            return uri;
         }
 
         /// <summary>
         /// Returns a GetFeatureInfo request URL string.
         /// </summary>
-        protected virtual string GetFeatureInfoRequestUri(Point position, string format)
+        protected virtual string GetFeatureInfoRequestUri(BoundingBox boundingBox, Point position, string format)
         {
-            var viewport = new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
-            var boundingBox = ParentMap.ViewRectToBoundingBox(viewport);
+            string uri = null;
             var mapRect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (!mapRect.HasValue)
+            if (mapRect.HasValue)
             {
-                return null;
+                var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
+                var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
+
+                var transform = ViewTransform.CreateTransformMatrix(
+                    -ParentMap.ActualWidth / 2d, -ParentMap.ActualWidth / 2d,
+                    -ParentMap.ViewTransform.Rotation,
+                    width / 2d, height / 2d);
+
+                var imagePos = transform.Transform(position);
+
+                var queryParameters = new Dictionary<string, string>
+                {
+                    { "SERVICE", "WMS" },
+                    { "VERSION", "1.3.0" },
+                    { "REQUEST", "GetFeatureInfo" },
+                    { "LAYERS", WmsLayers ?? "" },
+                    { "STYLES", WmsStyles ?? "" },
+                    { "FORMAT", "image/png" },
+                    { "INFO_FORMAT", format },
+                    { "CRS", GetCrsValue() },
+                    { "BBOX", GetBboxValue(boundingBox, mapRect.Value) },
+                    { "WIDTH", Math.Round(width).ToString("F0") },
+                    { "HEIGHT", Math.Round(height).ToString("F0") },
+                    { "I", Math.Round(imagePos.X).ToString("F0") },
+                    { "J", Math.Round(imagePos.Y).ToString("F0") }
+                };
+
+                // GetRequestUri may modify queryParameters["LAYERS"]
+                //
+                uri = GetRequestUri(queryParameters) + "&QUERY_LAYERS=" + queryParameters["LAYERS"];
             }
 
-            var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
-            var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
-
-            var transform = ViewTransform.CreateTransformMatrix(
-                -viewport.Width / 2d, -viewport.Height / 2d,
-                -ParentMap.ViewTransform.Rotation,
-                width / 2d, height / 2d);
-
-            var imagePos = transform.Transform(position);
-
-            var queryParameters = new Dictionary<string, string>
-            {
-                { "SERVICE", "WMS" },
-                { "VERSION", "1.3.0" },
-                { "REQUEST", "GetFeatureInfo" },
-                { "LAYERS", WmsLayers ?? "" },
-                { "STYLES", WmsStyles ?? "" },
-                { "FORMAT", "image/png" },
-                { "INFO_FORMAT", format },
-                { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(mapRect.Value) },
-                { "WIDTH", Math.Round(width).ToString("F0") },
-                { "HEIGHT", Math.Round(height).ToString("F0") },
-                { "I", Math.Round(imagePos.X).ToString("F0") },
-                { "J", Math.Round(imagePos.Y).ToString("F0") }
-            };
-
-            return GetRequestUri(queryParameters) + "&QUERY_LAYERS=" + queryParameters["LAYERS"];
+            return uri;
         }
 
         protected virtual string GetCrsValue()
@@ -311,22 +315,27 @@ namespace MapControl
             return crsId;
         }
 
-        protected virtual string GetBboxValue(Rect rect)
+        protected virtual string GetBboxValue(BoundingBox boundingBox, Rect mapRect)
         {
             var crsId = ParentMap.MapProjection.CrsId;
-            var format = "{0:F2},{1:F2},{2:F2},{3:F2}";
-            var x1 = rect.X;
-            var y1 = rect.Y;
-            var x2 = rect.X + rect.Width;
-            var y2 = rect.Y + rect.Height;
+            string format;
+            double x1, y1, x2, y2;
 
             if (crsId == "CRS:84" || crsId == "EPSG:4326")
             {
                 format = crsId == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
-                x1 /= MapProjection.Wgs84MeterPerDegree;
-                y1 /= MapProjection.Wgs84MeterPerDegree;
-                x2 /= MapProjection.Wgs84MeterPerDegree;
-                y2 /= MapProjection.Wgs84MeterPerDegree;
+                x1 = boundingBox.West;
+                y1 = boundingBox.South;
+                x2 = boundingBox.East;
+                y2 = boundingBox.North;
+            }
+            else
+            {
+                format = "{0:F2},{1:F2},{2:F2},{3:F2}";
+                x1 = mapRect.X;
+                y1 = mapRect.Y;
+                x2 = mapRect.X + mapRect.Width;
+                y2 = mapRect.Y + mapRect.Height;
             }
 
             return string.Format(CultureInfo.InvariantCulture, format, x1, y1, x2, y2);
