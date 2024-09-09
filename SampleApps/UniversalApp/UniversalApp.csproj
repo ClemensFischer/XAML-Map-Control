@@ -105,6 +105,10 @@
       <Project>{951bc5d2-d653-42d9-9a91-21dc50de0182}</Project>
       <Name>MapControl.UWP</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\MapProjections\UWP\MapProjections.UWP.csproj">
+      <Project>{9ee69591-5edc-45e3-893e-2f9a4b82d538}</Project>
+      <Name>MapProjections.UWP</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\MapUiTools\UWP\MapUiTools.UWP.csproj">
       <Project>{dffe8e49-aa07-457e-a459-99326b44f828}</Project>
       <Name>MapUiTools.UWP</Name>

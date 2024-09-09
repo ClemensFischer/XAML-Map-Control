@@ -126,8 +126,6 @@ namespace MapControl
                 var r1 = (Math.Atan2(dy1, dx1) * 180d / Math.PI + 180d) % 360d - 180d;
                 var r2 = (Math.Atan2(-dx2, dy2) * 180d / Math.PI + 180d) % 360d - 180d;
 
-                System.Diagnostics.Debug.WriteLine($"{r1}, {r2}");
-
                 rotatedRect = new Tuple<Rect, double>(new Rect(x, y, width, height), latLonBox.Rotation + (r1 + r2) / 2d);
             }
 

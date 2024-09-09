@@ -21,23 +21,36 @@ namespace MapControl.Projections
 
         public override MapProjection GetProjection(string crsId)
         {
+            MapProjection projection = null;
+
             switch (crsId)
             {
                 case MapControl.WebMercatorProjection.DefaultCrsId:
-                    return new WebMercatorProjection();
+                    projection = new WebMercatorProjection();
+                    break;
 
                 case MapControl.WorldMercatorProjection.DefaultCrsId:
-                    return new WorldMercatorProjection();
+                    projection = new WorldMercatorProjection();
+                    break;
 
-                case MapControl.Wgs84AutoUtmProjection.DefaultCrsId:
-                    return new Wgs84AutoUtmProjection();
+                case Wgs84AutoUtmProjection.DefaultCrsId:
+                    projection = new Wgs84AutoUtmProjection();
+                    break;
 
                 default:
-                    return base.GetProjection(crsId);
+                    projection = base.GetProjection(crsId);
+                    break;
             }
+
+            if (projection == null && crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode))
+            {
+                projection = GetProjection(epsgCode);
+            }
+
+            return projection;
         }
 
-        public override MapProjection GetProjection(int epsgCode)
+        public virtual MapProjection GetProjection(int epsgCode)
         {
             switch (epsgCode)
             {
@@ -62,7 +75,7 @@ namespace MapControl.Projections
                 default:
                     return CoordinateSystemWkts.TryGetValue(epsgCode, out string wkt)
                         ? new GeoApiProjection(wkt)
-                        : base.GetProjection(epsgCode);
+                        : null;
             }
         }
 
