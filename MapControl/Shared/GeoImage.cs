@@ -94,18 +94,6 @@ namespace MapControl
                     else if (element is Shape shape)
                     {
                         shape.Fill = geoImage.ImageBrush;
-#if WPF
-                        MapPanel.GetParentMap(shape).Children.Add(new MapPolygon
-                        {
-                            Stroke = Brushes.Green,
-                            StrokeThickness = 1,
-                            Locations = new LocationCollection(
-                                new Location(boundingBox.North, boundingBox.West),
-                                new Location(boundingBox.North, boundingBox.East),
-                                new Location(boundingBox.South, boundingBox.East),
-                                new Location(boundingBox.South, boundingBox.West))
-                        });
-#endif
                     }
 
                     MapPanel.SetBoundingBox(element, boundingBox);
@@ -177,7 +165,7 @@ namespace MapControl
                 {
                     var epsgCode = geoKeyDirectory[i + 3];
 
-                    mapProjection = MapProjectionFactory.Instance.GetProjection(epsgCode) ??
+                    mapProjection = MapProjectionFactory.Instance.GetProjection($"EPSG:{epsgCode}") ??
                         throw new ArgumentException($"Can not create projection EPSG:{epsgCode}.");
                 }
             }
