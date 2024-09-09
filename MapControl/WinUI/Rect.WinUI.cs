@@ -2,6 +2,8 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
+
 namespace MapControl
 {
     /// <summary>
@@ -17,10 +19,12 @@ namespace MapControl
             Height = height;
         }
 
-
         public Rect(Point p1, Point p2)
-            : this(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y)
         {
+            X = Math.Min(p1.X, p2.X);
+            Y = Math.Min(p1.Y, p2.Y);
+            Width = Math.Max(p1.X, p2.X) - X;
+            Height = Math.Max(p1.Y, p2.Y) - Y;
         }
 
         public double X { get; }
