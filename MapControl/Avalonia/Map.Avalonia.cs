@@ -74,6 +74,7 @@ namespace MapControl
                 point.Pointer.Type == PointerType.Touch && HandleTouchPressed(point))
             {
                 point.Pointer.Capture(this);
+                SetTransformCenter(point.Position);
             }
 
             base.OnPointerPressed(e);
@@ -83,6 +84,7 @@ namespace MapControl
         {
             if (HandlePointerReleased(e.Pointer))
             {
+                EndMoveMap();
                 e.Pointer.Capture(null);
             }
 
@@ -91,7 +93,10 @@ namespace MapControl
 
         protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
         {
-            HandlePointerReleased(e.Pointer);
+            if (HandlePointerReleased(e.Pointer))
+            {
+                EndMoveMap();
+            }
 
             base.OnPointerCaptureLost(e);
         }
@@ -108,8 +113,8 @@ namespace MapControl
                 }
                 else if (e.Pointer.Type == PointerType.Mouse || ManipulationModes.HasFlag(ManipulationModes.Translate))
                 {
-                    TranslateMap(position - position1);
                     position1 = position;
+                    MoveMap(position);
                 }
             }
 

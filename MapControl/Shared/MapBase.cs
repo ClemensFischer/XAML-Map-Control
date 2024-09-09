@@ -278,15 +278,37 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Changes the Center property according to the specified translation in view coordinates.
+        /// Moves the map by the difference of the specified position in view coordinates and a temporary
+        /// transform origin point that has been set before by a call to SetTransformCenter. Map movement
+        /// must be terminated by a call to EndMoveMap. MoveMap provides higher accuracy than TranslateMap.
         /// </summary>
-        public void TranslateMap(Point translation)
+        public void MoveMap(Point position)
+        {
+            if (transformCenter != null)
+            {
+                viewCenter = position;
+                UpdateTransform();
+            }
+        }
+
+        /// <summary>
+        /// Terminates map movement by the MoveMap method.
+        /// </summary>
+        public void EndMoveMap()
         {
             if (transformCenter != null)
             {
                 ResetTransformCenter();
                 UpdateTransform();
             }
+        }
+
+        /// <summary>
+        /// Changes the Center property according to the specified translation in view coordinates.
+        /// </summary>
+        public void TranslateMap(Point translation)
+        {
+            EndMoveMap();
 
             if (translation.X != 0d || translation.Y != 0d)
             {

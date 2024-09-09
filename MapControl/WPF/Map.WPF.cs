@@ -19,7 +19,6 @@ namespace MapControl
         public static readonly DependencyProperty ManipulationModeProperty =
             DependencyPropertyHelper.Register<Map, ManipulationModes>(nameof(ManipulationMode), ManipulationModes.Translate | ManipulationModes.Scale);
 
-        private Point? mousePosition;
         private double mouseWheelDelta;
 
         static Map()
@@ -73,28 +72,21 @@ namespace MapControl
         {
             if (Keyboard.Modifiers == ModifierKeys.None && CaptureMouse())
             {
-                mousePosition = e.GetPosition(this);
+                SetTransformCenter(e.GetPosition(this));
             }
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (mousePosition.HasValue)
-            {
-                mousePosition = null;
-                ReleaseMouseCapture();
-            }
+            EndMoveMap();
+            ReleaseMouseCapture();
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (mousePosition.HasValue)
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var position = e.GetPosition(this);
-                var translation = new Point(position.X - mousePosition.Value.X, position.Y - mousePosition.Value.Y);
-                mousePosition = position;
-
-                TranslateMap(translation);
+                MoveMap(e.GetPosition(this));
             }
         }
 

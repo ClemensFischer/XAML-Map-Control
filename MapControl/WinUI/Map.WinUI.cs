@@ -24,7 +24,7 @@ namespace MapControl
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty =
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
-        private bool manipulationEnabled;
+        private bool mouseMoveEnabled;
         private double mouseWheelDelta;
 
         public Map()
@@ -53,7 +53,11 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (manipulationEnabled)
+            if (mouseMoveEnabled || e.Delta.Rotation == 0d && e.Delta.Scale == 1d)
+            {
+                MoveMap(e.Position);
+            }
+            else if (e.PointerDeviceType != PointerDeviceType.Mouse)
             {
                 TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
             }
@@ -61,14 +65,22 @@ namespace MapControl
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            manipulationEnabled = e.Pointer.PointerDeviceType != PointerDeviceType.Mouse ||
-                                  e.KeyModifiers == VirtualKeyModifiers.None &&
-                                  e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
+            var point = e.GetCurrentPoint(this);
+
+            mouseMoveEnabled = e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
+                               e.KeyModifiers == VirtualKeyModifiers.None &&
+                               point.Properties.IsLeftButtonPressed;
+
+            if (mouseMoveEnabled || e.Pointer.PointerDeviceType != PointerDeviceType.Mouse)
+            {
+                SetTransformCenter(point.Position);
+            }
         }
 
         private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            manipulationEnabled = false;
+            mouseMoveEnabled = false;
+            EndMoveMap();
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
