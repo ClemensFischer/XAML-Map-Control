@@ -66,27 +66,28 @@ namespace MapControl
         /// </summary>
         public virtual Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
-            Rect? mapRect = null;
+            Rect? rect = null;
+
             var southWest = LocationToMap(new Location(boundingBox.South, boundingBox.West));
             var northEast = LocationToMap(new Location(boundingBox.North, boundingBox.East));
 
             if (southWest.HasValue && northEast.HasValue)
             {
-                mapRect = new Rect(southWest.Value, northEast.Value);
+                rect = new Rect(southWest.Value, northEast.Value);
             }
 
-            return mapRect;
+            return rect;
         }
 
         /// <summary>
         /// Transforms a Rect in projected map coordinates to a BoundingBox in geographic coordinates.
         /// Returns null when the MapRect can not be transformed.
         /// </summary>
-        public virtual BoundingBox MapToBoundingBox(Rect mapRect)
+        public virtual BoundingBox MapToBoundingBox(Rect rect)
         {
             BoundingBox boundingBox = null;
-            var southWest = MapToLocation(new Point(mapRect.X, mapRect.Y));
-            var northEast = MapToLocation(new Point(mapRect.X + mapRect.Width, mapRect.Y + mapRect.Height));
+            var southWest = MapToLocation(new Point(rect.X, rect.Y));
+            var northEast = MapToLocation(new Point(rect.X + rect.Width, rect.Y + rect.Height));
 
             if (southWest != null && northEast != null)
             {
@@ -94,6 +95,43 @@ namespace MapControl
             }
 
             return boundingBox;
+        }
+
+        /// <summary>
+        /// Transforms a LatLonBox in geographic coordinates to a rotated Rect in projected map coordinates.
+        /// Returns null when the LatLonBox can not be transformed.
+        /// </summary>
+        public virtual Tuple<Rect, double> LatLonBoxToMap(LatLonBox latLonBox)
+        {
+            Tuple<Rect, double> rotatedRect = null;
+            Point? center, north, south, west, east;
+            var boxCenter = latLonBox.Center;
+
+            if ((center = LocationToMap(boxCenter)).HasValue &&
+                (north = LocationToMap(new Location(latLonBox.North, boxCenter.Longitude))).HasValue &&
+                (south = LocationToMap(new Location(latLonBox.South, boxCenter.Longitude))).HasValue &&
+                (west = LocationToMap(new Location(boxCenter.Latitude, latLonBox.West))).HasValue &&
+                (east = LocationToMap(new Location(boxCenter.Latitude, latLonBox.East))).HasValue)
+            {
+                var dx1 = east.Value.X - west.Value.X;
+                var dy1 = east.Value.Y - west.Value.Y;
+                var dx2 = north.Value.X - south.Value.X;
+                var dy2 = north.Value.Y - south.Value.Y;
+                var width = Math.Sqrt(dx1 * dx1 + dy1 * dy1);
+                var height = Math.Sqrt(dx2 * dx2 + dy2 * dy2);
+                var x = center.Value.X - width / 2d;
+                var y = center.Value.Y - height / 2d;
+
+                // angles measured relative to horizontal and vertical axis
+                var r1 = (Math.Atan2(dy1, dx1) * 180d / Math.PI + 180d) % 360d - 180d;
+                var r2 = (Math.Atan2(-dx2, dy2) * 180d / Math.PI + 180d) % 360d - 180d;
+
+                System.Diagnostics.Debug.WriteLine($"{r1}, {r2}");
+
+                rotatedRect = new Tuple<Rect, double>(new Rect(x, y, width, height), latLonBox.Rotation + (r1 + r2) / 2d);
+            }
+
+            return rotatedRect;
         }
     }
 }

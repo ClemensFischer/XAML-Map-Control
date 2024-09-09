@@ -85,7 +85,7 @@ namespace MapControl
 
                     var boundingBox = geoImage.mapProjection != null
                         ? geoImage.mapProjection.MapToBoundingBox(new Rect(p1, p2))
-                        : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
+                        : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X, 0d);
 
                     if (element is Image image)
                     {
@@ -94,6 +94,18 @@ namespace MapControl
                     else if (element is Shape shape)
                     {
                         shape.Fill = geoImage.ImageBrush;
+#if WPF
+                        MapPanel.GetParentMap(shape).Children.Add(new MapPolygon
+                        {
+                            Stroke = Brushes.Green,
+                            StrokeThickness = 1,
+                            Locations = new LocationCollection(
+                                new Location(boundingBox.North, boundingBox.West),
+                                new Location(boundingBox.North, boundingBox.East),
+                                new Location(boundingBox.South, boundingBox.East),
+                                new Location(boundingBox.South, boundingBox.West))
+                        });
+#endif
                     }
 
                     MapPanel.SetBoundingBox(element, boundingBox);

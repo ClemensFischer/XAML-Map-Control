@@ -86,6 +86,9 @@
     <Compile Include="..\Shared\ImageLoader.cs">
       <Link>ImageLoader.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\LatLonBox.cs">
+      <Link>LatLonBox.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Location.cs">
       <Link>Location.cs</Link>
     </Compile>

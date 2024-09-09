@@ -21,7 +21,7 @@ namespace MapControl
 
         public override Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
-            Rect? mapRect = null;
+            Rect? rect = null;
             var center = LocationToMap(boundingBox.Center);
 
             if (center.HasValue)
@@ -31,21 +31,21 @@ namespace MapControl
                 var x = center.Value.X - width / 2d;
                 var y = center.Value.Y - height / 2d;
 
-                mapRect = new Rect(x, y, width, height);
+                rect = new Rect(x, y, width, height);
             }
 
-            return mapRect;
+            return rect;
         }
 
-        public override BoundingBox MapToBoundingBox(Rect mapRect)
+        public override BoundingBox MapToBoundingBox(Rect rect)
         {
             BoundingBox boundingBox = null;
-            var rectCenter = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
+            var rectCenter = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
             var center = MapToLocation(rectCenter);
 
             if (center != null)
             {
-                boundingBox = new CenteredBoundingBox(center, mapRect.Width / Wgs84MeterPerDegree, mapRect.Height / Wgs84MeterPerDegree);
+                boundingBox = new CenteredBoundingBox(center, rect.Width / Wgs84MeterPerDegree, rect.Height / Wgs84MeterPerDegree);
             }
 
             return boundingBox;

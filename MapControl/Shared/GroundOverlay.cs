@@ -171,8 +171,8 @@ namespace MapControl
             {
                 foreach (var groundOverlayElement in folderElement.Elements(ns + "GroundOverlay"))
                 {
-                    var boundingBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
-                    var boundingBox = boundingBoxElement != null ? ReadBoundingBox(boundingBoxElement) : null;
+                    var latLonBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
+                    var latLonBox = latLonBoxElement != null ? ReadLatLonBox(latLonBoxElement) : null;
 
                     var imagePathElement = groundOverlayElement.Element(ns + "Icon");
                     var imagePath = imagePathElement?.Element(ns + "href")?.Value;
@@ -180,15 +180,15 @@ namespace MapControl
                     var drawOrder = groundOverlayElement.Element(ns + "drawOrder")?.Value;
                     var zIndex = drawOrder != null ? int.Parse(drawOrder) : 0;
 
-                    if (boundingBox != null && imagePath != null)
+                    if (latLonBox != null && imagePath != null)
                     {
-                        yield return new ImageOverlay(boundingBox, imagePath, zIndex);
+                        yield return new ImageOverlay(latLonBox, imagePath, zIndex);
                     }
                 }
             }
         }
 
-        private static BoundingBox ReadBoundingBox(XElement latLonBoxElement)
+        private static LatLonBox ReadLatLonBox(XElement latLonBoxElement)
         {
             var ns = latLonBoxElement.Name.Namespace;
             var north = double.NaN;
@@ -234,7 +234,7 @@ namespace MapControl
                 throw new FormatException("Invalid LatLonBox");
             }
 
-            return new BoundingBox(south, west, north, east, rotation);
+            return new LatLonBox(south, west, north, east, rotation);
         }
     }
 }

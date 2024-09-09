@@ -232,12 +232,12 @@ namespace MapControl
         protected virtual string GetMapRequestUri(BoundingBox boundingBox)
         {
             string uri = null;
-            var mapRect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (mapRect.HasValue)
+            if (bbox.HasValue)
             {
-                var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
-                var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
+                var width = ParentMap.ViewTransform.Scale * bbox.Value.Width;
+                var height = ParentMap.ViewTransform.Scale * bbox.Value.Height;
 
                 uri = GetRequestUri(new Dictionary<string, string>
                 {
@@ -248,7 +248,7 @@ namespace MapControl
                     { "STYLES", WmsStyles ?? "" },
                     { "FORMAT", "image/png" },
                     { "CRS", GetCrsValue() },
-                    { "BBOX", GetBboxValue(boundingBox, mapRect.Value) },
+                    { "BBOX", GetBboxValue(boundingBox, bbox.Value) },
                     { "WIDTH", Math.Round(width).ToString("F0") },
                     { "HEIGHT", Math.Round(height).ToString("F0") }
                 });
@@ -263,12 +263,12 @@ namespace MapControl
         protected virtual string GetFeatureInfoRequestUri(BoundingBox boundingBox, Point position, string format)
         {
             string uri = null;
-            var mapRect = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            if (mapRect.HasValue)
+            if (bbox.HasValue)
             {
-                var width = ParentMap.ViewTransform.Scale * mapRect.Value.Width;
-                var height = ParentMap.ViewTransform.Scale * mapRect.Value.Height;
+                var width = ParentMap.ViewTransform.Scale * bbox.Value.Width;
+                var height = ParentMap.ViewTransform.Scale * bbox.Value.Height;
 
                 var transform = ViewTransform.CreateTransformMatrix(
                     -ParentMap.ActualWidth / 2d, -ParentMap.ActualWidth / 2d,
@@ -287,7 +287,7 @@ namespace MapControl
                     { "FORMAT", "image/png" },
                     { "INFO_FORMAT", format },
                     { "CRS", GetCrsValue() },
-                    { "BBOX", GetBboxValue(boundingBox, mapRect.Value) },
+                    { "BBOX", GetBboxValue(boundingBox, bbox.Value) },
                     { "WIDTH", Math.Round(width).ToString("F0") },
                     { "HEIGHT", Math.Round(height).ToString("F0") },
                     { "I", Math.Round(imagePos.X).ToString("F0") },
@@ -315,7 +315,7 @@ namespace MapControl
             return crsId;
         }
 
-        protected virtual string GetBboxValue(BoundingBox boundingBox, Rect mapRect)
+        protected virtual string GetBboxValue(BoundingBox boundingBox, Rect mapBoundingBox)
         {
             var crsId = ParentMap.MapProjection.CrsId;
             string format;
@@ -332,10 +332,10 @@ namespace MapControl
             else
             {
                 format = "{0:F2},{1:F2},{2:F2},{3:F2}";
-                x1 = mapRect.X;
-                y1 = mapRect.Y;
-                x2 = mapRect.X + mapRect.Width;
-                y2 = mapRect.Y + mapRect.Height;
+                x1 = mapBoundingBox.X;
+                y1 = mapBoundingBox.Y;
+                x2 = mapBoundingBox.X + mapBoundingBox.Width;
+                y2 = mapBoundingBox.Y + mapBoundingBox.Height;
             }
 
             return string.Format(CultureInfo.InvariantCulture, format, x1, y1, x2, y2);

@@ -206,16 +206,28 @@ namespace MapControl
             return position;
         }
 
-        private Rect? GetViewRect(BoundingBox boundingBox)
+        private Tuple<Rect, double> GetViewRect(BoundingBox boundingBox)
         {
-            var rect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
-
-            if (rect.HasValue)
+            if (boundingBox is LatLonBox latLonBox)
             {
-                rect = GetViewRect(rect.Value);
+                var rotatedRect = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
+
+                if (rotatedRect != null)
+                {
+                    return new Tuple<Rect, double>(GetViewRect(rotatedRect.Item1), rotatedRect.Item2);
+                }
+            }
+            else
+            {
+                var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+
+                if (mapRect.HasValue)
+                {
+                    return new Tuple<Rect, double>(GetViewRect(mapRect.Value), 0d);
+                }
             }
 
-            return rect;
+            return null;
         }
 
         private Rect GetViewRect(Rect mapRect)
@@ -287,16 +299,16 @@ namespace MapControl
 
         private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
         {
-            var rect = GetViewRect(boundingBox);
+            var viewRect = GetViewRect(boundingBox);
 
-            if (rect.HasValue)
+            if (viewRect != null)
             {
-                element.Width = rect.Value.Width;
-                element.Height = rect.Value.Height;
+                element.Width = viewRect.Item1.Width;
+                element.Height = viewRect.Item1.Height;
 
-                element.Arrange(rect.Value);
+                element.Arrange(viewRect.Item1);
 
-                var rotation = parentMap.ViewTransform.Rotation - boundingBox.Rotation;
+                var rotation = parentMap.ViewTransform.Rotation - viewRect.Item2;
 
                 if (element.RenderTransform is RotateTransform rotateTransform)
                 {
