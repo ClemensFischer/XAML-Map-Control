@@ -46,11 +46,11 @@ namespace MapControl
             var n2 = n * n;
             var n3 = n * n2;
 
+            var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
+
             var alpha1 = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
             var alpha2 = n2 * 13d / 48d - n3 * 3d / 5d;
             var alpha3 = n3 * 61d / 240d;
-
-            var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
 
             // φ
             var phi = location.Latitude * Math.PI / 180d;
@@ -69,17 +69,21 @@ namespace MapControl
             // η'
             var eta_ = Math_Atanh(Math.Sin(lambda) / Math.Sqrt(1d + t * t));
 
-            var N = FalseNorthing + k0A * (xi_
+            // ξ
+            var xi = xi_
                 + alpha1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_)
                 + alpha2 * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_)
-                + alpha3 * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_));
+                + alpha3 * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_);
 
-            var E = FalseEasting + k0A * (eta_
+            // η
+            var eta = eta_
                 + alpha1 * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_)
                 + alpha2 * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_)
-                + alpha3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_));
+                + alpha3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_);
 
-            return new Point(E, N);
+            return new Point(
+                k0A * eta + FalseEasting,
+                k0A * xi + FalseNorthing);
         }
 
         public override Location MapToLocation(Point point)
@@ -88,6 +92,8 @@ namespace MapControl
             var n2 = n * n;
             var n3 = n * n2;
 
+            var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
+
             var beta1 = n / 2d - n2 * 2d / 3d + n3 * 37d / 96d;
             var beta2 = n2 / 48d + n3 / 15d;
             var beta3 = n3 * 17d / 480d;
@@ -95,8 +101,6 @@ namespace MapControl
             var delta1 = n * 2d - n2 * 2d / 3d - n3 * 2d;
             var delta2 = n2 * 7d / 3d - n3 * 8d / 5d;
             var delta3 = n3 * 56d / 15d;
-
-            var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
 
             // ξ
             var xi = (point.Y - FalseNorthing) / k0A;
@@ -116,16 +120,21 @@ namespace MapControl
                 - beta2 * Math.Cos(4d * xi) * Math.Sinh(4d * eta)
                 - beta3 * Math.Cos(6d * xi) * Math.Sinh(6d * eta);
 
+            // χ
             var chi = Math.Asin(Math.Sin(xi_) / Math.Cosh(eta_));
 
+            // φ
             var phi = chi
                 + delta1 * Math.Sin(2d * chi)
                 + delta2 * Math.Sin(4d * chi)
                 + delta3 * Math.Sin(6d * chi);
 
+            // λ
             var lambda = Math.Atan(Math.Sinh(eta_) / Math.Cos(xi_));
 
-            return new Location(phi * 180d / Math.PI, lambda * 180d / Math.PI + CentralMeridian);
+            return new Location(
+                phi * 180d / Math.PI,
+                lambda * 180d / Math.PI + CentralMeridian);
         }
     }
 }
