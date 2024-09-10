@@ -20,6 +20,7 @@ namespace MapControl
 #else
         private static double Math_Atanh(double x) => Math.Atanh(x);
 #endif
+
         public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
         public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.9996;
