@@ -68,6 +68,9 @@
     <Compile Include="..\Shared\EquirectangularProjection.cs">
       <Link>EquirectangularProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Etrs89UtmProjection.cs">
+      <Link>Etrs89UtmProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\FilePath.cs">
       <Link>FilePath.cs</Link>
     </Compile>
@@ -140,6 +143,9 @@
     <Compile Include="..\Shared\MapTileLayerBase.cs">
       <Link>MapTileLayerBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Nad83UtmProjection.cs">
+      <Link>Nad83UtmProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\OrthographicProjection.cs">
       <Link>OrthographicProjection.cs</Link>
     </Compile>
@@ -173,6 +179,9 @@
     <Compile Include="..\Shared\Timer.cs">
       <Link>Timer.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\TransverseMercatorProjection.cs">
+      <Link>TransverseMercatorProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\ViewportChangedEventArgs.cs">
       <Link>ViewportChangedEventArgs.cs</Link>
     </Compile>
@@ -181,6 +190,9 @@
     </Compile>
     <Compile Include="..\Shared\WebMercatorProjection.cs">
       <Link>WebMercatorProjection.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Wgs84UtmProjection.cs">
+      <Link>Wgs84UtmProjection.cs</Link>
     </Compile>
     <Compile Include="..\Shared\WmsImageLayer.cs">
       <Link>WmsImageLayer.cs</Link>

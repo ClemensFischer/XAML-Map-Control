@@ -100,6 +100,13 @@ namespace MapControl.Projections
 
         public IMathTransform MapToLocationTransform { get; private set; }
 
+        public override Point GetRelativeScale(Location location)
+        {
+            var k = coordinateSystem?.Projection?.GetParameter("scale_factor")?.Value ?? 1d;
+
+            return new Point(k, k);
+        }
+
         public override Point? LocationToMap(Location location)
         {
             if (LocationToMapTransform == null)

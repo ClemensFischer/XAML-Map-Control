@@ -2,15 +2,14 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using ProjNet.CoordinateSystems;
 using System;
 
-namespace MapControl.Projections
+namespace MapControl
 {
     /// <summary>
     /// WGS84 UTM Projection with zone number and north/south flag.
     /// </summary>
-    public class Wgs84UtmProjection : GeoApiProjection
+    public class Wgs84UtmProjection : TransverseMercatorProjection
     {
         public const int FirstZone = 1;
         public const int LastZone = 60;
@@ -36,7 +35,13 @@ namespace MapControl.Projections
 
             Zone = zone;
             IsNorth = north;
-            CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(Zone, IsNorth);
+            CrsId = $"EPSG:{(north ? 32600 : 32700) + zone}";
+            EquatorialRadius = Wgs84EquatorialRadius;
+            Flattening = Wgs84Flattening;
+            ScaleFactor = 0.9996;
+            CentralMeridian = Zone * 6d - 183d;
+            FalseEasting = 5e5;
+            FalseNorthing = IsNorth ? 0d : 1e7;
         }
     }
 
@@ -45,9 +50,11 @@ namespace MapControl.Projections
     /// </summary>
     public class Wgs84AutoUtmProjection : Wgs84UtmProjection
     {
+        public const string DefaultCrsId = "AUTO2:42001";
+
         private readonly string autoCrsId;
 
-        public Wgs84AutoUtmProjection(string crsId = MapControl.Wgs84AutoUtmProjection.DefaultCrsId)
+        public Wgs84AutoUtmProjection(string crsId = DefaultCrsId)
             : base(31, true)
         {
             autoCrsId = crsId;
@@ -61,7 +68,7 @@ namespace MapControl.Projections
         public override Location Center
         {
             get => base.Center;
-            protected set
+            protected internal set
             {
                 if (!Equals(base.Center, value))
                 {
