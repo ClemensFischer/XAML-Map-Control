@@ -67,6 +67,9 @@ namespace MapControl
                 case var c when c >= Etrs89UtmProjection.FirstZoneEpsgCode && c <= Etrs89UtmProjection.LastZoneEpsgCode:
                     return new Etrs89UtmProjection(epsgCode % 100);
 
+                case var c when c >= Nad27UtmProjection.FirstZoneEpsgCode && c <= Nad27UtmProjection.LastZoneEpsgCode:
+                    return new Nad27UtmProjection(epsgCode % 100);
+
                 case var c when c >= Nad83UtmProjection.FirstZoneEpsgCode && c <= Nad83UtmProjection.LastZoneEpsgCode:
                     return new Nad83UtmProjection(epsgCode % 100);
 

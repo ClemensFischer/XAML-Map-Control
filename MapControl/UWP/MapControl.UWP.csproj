@@ -143,6 +143,9 @@
     <Compile Include="..\Shared\MapTileLayerBase.cs">
       <Link>MapTileLayerBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Nad27UtmProjection.cs">
+      <Link>Nad27UtmProjection.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Nad83UtmProjection.cs">
       <Link>Nad83UtmProjection.cs</Link>
     </Compile>
