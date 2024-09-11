@@ -18,7 +18,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
-        <ProjectReference Include="..\..\MapProjections\WPF\MapProjections.WPF.csproj" />
         <ProjectReference Include="..\..\MapUiTools\WPF\MapUiTools.WPF.csproj" />
     </ItemGroup>
 

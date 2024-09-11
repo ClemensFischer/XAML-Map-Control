@@ -13,7 +13,7 @@ namespace SampleApplication
     {
         static MainWindow()
         {
-            MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
+            //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
 
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);

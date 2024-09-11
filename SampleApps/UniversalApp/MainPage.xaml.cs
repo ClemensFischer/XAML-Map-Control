@@ -16,7 +16,7 @@ namespace SampleApplication
     {
         static MainPage()
         {
-            MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
+            //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
 
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(ApplicationData.Current.LocalCacheFolder);
         }

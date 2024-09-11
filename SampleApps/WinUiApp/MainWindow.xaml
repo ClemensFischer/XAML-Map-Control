@@ -294,7 +294,6 @@
                 <tools:MapProjectionItem Text="Web Mercator" Projection="EPSG:3857"/>
                 <tools:MapProjectionItem Text="Equirectangular" Projection="EPSG:4326"/>
                 <tools:MapProjectionItem Text="ETRS89 / UTM zone 32N" Projection="EPSG:25832"/>
-                <tools:MapProjectionItem Text="WGS84 / Auto UTM" Projection="AUTO2:42001"/>
             </tools:MapProjectionsMenuButton>
 
             <Slider Orientation="Vertical" Margin="4,8" Height="100"

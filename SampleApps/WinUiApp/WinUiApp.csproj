@@ -33,7 +33,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
-        <ProjectReference Include="..\..\MapProjections\WinUI\MapProjections.WinUI.csproj" />
         <ProjectReference Include="..\..\MapUiTools\WinUI\MapUiTools.WinUI.csproj" />
     </ItemGroup>
 
