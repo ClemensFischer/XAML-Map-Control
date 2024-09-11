@@ -31,7 +31,7 @@ namespace MapControl.Projections
                 + "GEOGCS[\"NAD27\","
                 + "DATUM[\"North_American_Datum_1927\","
                 + "SPHEROID[\"Clarke 1866\",6378206.4,294.978698213898],"
-                + "]," //"EXTENSION[\"PROJ4_GRIDS\",\"NTv2_0.gsb\"]]," -- not recognized
+                + "],"
                 + "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"
                 + "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],"
                 + "AUTHORITY[\"EPSG\",\"4267\"]],"
