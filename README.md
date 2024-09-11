@@ -72,7 +72,7 @@ and a library for [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles) support
 
 FileDbCache and SQLiteCache are available with Package Ids
 * [XAML.MapControl.FileDbCache](https://www.nuget.org/packages/XAML.MapControl.FileDbCache/),
-* [XAML.MapControl.SQLiteCache](https://www.nuget.org/packages/XAML.MapControl.SQLiteCache/),
+* [XAML.MapControl.SQLiteCache](https://www.nuget.org/packages/XAML.MapControl.SQLiteCache/).
 
 ---
 
