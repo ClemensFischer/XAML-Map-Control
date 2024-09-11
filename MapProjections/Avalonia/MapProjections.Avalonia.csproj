@@ -5,7 +5,7 @@
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for Avalonia UI</AssemblyTitle>
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
-        <PackageId>XAML.MapControl.MapProjections</PackageId>
+        <PackageId>XAML.MapControl.MapProjections.Avalonia</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
     </PropertyGroup>

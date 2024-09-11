@@ -6,7 +6,7 @@
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for WPF</AssemblyTitle>
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
-        <PackageId>XAML.MapControl</PackageId>
+        <PackageId>XAML.MapControl.WPF</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>A set of WPF controls for rendering raster maps from different providers (like OpenStreetMap and Bing Maps) and various types of map overlays</Description>
     </PropertyGroup>

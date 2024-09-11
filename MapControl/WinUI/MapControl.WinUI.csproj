@@ -7,7 +7,8 @@
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for WinUI</AssemblyTitle>
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
-        <PackageId>XAML.MapControl</PackageId>
+        <PackageId>XAML.MapControl.WinUI</PackageId>
+        <Title>$(AssemblyTitle)</Title>
         <Description>A set of WinUI controls for rendering raster maps from different providers (like OpenStreetMap and Bing Maps) and various types of map overlays</Description>
     </PropertyGroup>
 
