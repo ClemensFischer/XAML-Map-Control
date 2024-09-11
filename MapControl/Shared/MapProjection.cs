@@ -122,7 +122,9 @@ namespace MapControl
                 var x = center.Value.X - width / 2d;
                 var y = center.Value.Y - height / 2d;
 
-                // angles measured relative to horizontal and vertical axis
+                // Additional rotation caused by the projection, calculated as mean value
+                // of the two angles measured relative to the east and north axis.
+                //
                 var r1 = (Math.Atan2(dy1, dx1) * 180d / Math.PI + 180d) % 360d - 180d;
                 var r2 = (Math.Atan2(-dx2, dy2) * 180d / Math.PI + 180d) % 360d - 180d;
 
