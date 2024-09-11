@@ -83,9 +83,9 @@ namespace MapControl
                     var p1 = geoImage.transformMatrix.Transform(new Point());
                     var p2 = geoImage.transformMatrix.Transform(geoImage.BitmapSize);
 
-                    var boundingBox = geoImage.mapProjection != null
-                        ? geoImage.mapProjection.MapToBoundingBox(new Rect(p1, p2))
-                        : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X, 0d);
+                    var latLonBox = geoImage.mapProjection != null
+                        ? new LatLonBox(geoImage.mapProjection.MapToBoundingBox(new Rect(p1, p2)))
+                        : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
 
                     if (element is Image image)
                     {
@@ -96,7 +96,7 @@ namespace MapControl
                         shape.Fill = geoImage.ImageBrush;
                     }
 
-                    MapPanel.SetBoundingBox(element, boundingBox);
+                    MapPanel.SetBoundingBox(element, latLonBox);
                 }
                 catch (Exception ex)
                 {
