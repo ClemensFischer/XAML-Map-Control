@@ -56,18 +56,18 @@ Please note that some map providers may not allow persistent caching of their ma
 
 XAML Map Control is available on NuGet, as a set of framework-specific packages with Package Ids
 * [XAML.MapControl.WPF](https://www.nuget.org/packages/XAML.MapControl.WPF/),
-* [XAML.MapControl.WInUI](https://www.nuget.org/packages/XAML.MapControl.WinUI/),
+* [XAML.MapControl.WinUI](https://www.nuget.org/packages/XAML.MapControl.WinUI/),
 * [XAML.MapControl.Avalonia](https://www.nuget.org/packages/XAML.MapControl.Avalonia/).
 
 There are also packages for an extension library with additional map projections, based on
 [ProjNET4GeoAPI](https://github.com/NetTopologySuite/ProjNet4GeoAPI), with Package Ids
 * [XAML.MapControl.MapProjections.WPF](https://www.nuget.org/packages/XAML.MapControl.MapProjections.WPF/),
-* [XAML.MapControl.MapProjections.WInUI](https://www.nuget.org/packages/XAML.MapControl.MapProjections.WinUI/),
+* [XAML.MapControl.MapProjections.WinUI](https://www.nuget.org/packages/XAML.MapControl.MapProjections.WinUI/),
 * [XAML.MapControl.MapProjections.Avalonia](https://www.nuget.org/packages/XAML.MapControl.MapProjections.Avalonia/),
 
 and a library for [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles) support, with Package Ids
 * [XAML.MapControl.MBTiles.WPF](https://www.nuget.org/packages/XAML.MapControl.MBTiles.WPF/),
-* [XAML.MapControl.MBTiles.WInUI](https://www.nuget.org/packages/XAML.MapControl.MBTiles.WinUI/),
+* [XAML.MapControl.MBTiles.WinUI](https://www.nuget.org/packages/XAML.MapControl.MBTiles.WinUI/),
 * [XAML.MapControl.MBTiles.Avalonia](https://www.nuget.org/packages/XAML.MapControl.MBTiles.Avalonia/),
 
 FileDbCache and SQLiteCache are available with Package Ids
