@@ -44,7 +44,7 @@ namespace MapControl.Projections
                 + "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],"
                 + "AXIS[\"Easting\",EAST],"
                 + "AXIS[\"Northing\",NORTH],"
-                + $"AUTHORITY[\"EPSG\",\"269{zone}\"]]";
+                + $"AUTHORITY[\"EPSG\",\"269{zone:00}\"]]";
         }
     }
 }
