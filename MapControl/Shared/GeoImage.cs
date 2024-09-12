@@ -166,7 +166,7 @@ namespace MapControl
                     var epsgCode = geoKeyDirectory[i + 3];
 
                     mapProjection = MapProjectionFactory.Instance.GetProjection($"EPSG:{epsgCode}") ??
-                        throw new ArgumentException($"Can not create projection EPSG:{epsgCode}.");
+                        throw new ArgumentException($"Can not create MapProjection \"EPSG:{epsgCode}\".");
                 }
             }
         }

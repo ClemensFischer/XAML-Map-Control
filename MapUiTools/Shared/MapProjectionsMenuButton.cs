@@ -2,6 +2,7 @@
 // Copyright © 2024 Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace MapControl.UiTools
 {
 #if WPF
     [ContentProperty(nameof(Projection))]
-    #elif UWP || WINUI
+#elif UWP || WINUI
     [ContentProperty(Name = nameof(Projection))]
 #endif
     public class MapProjectionItem
@@ -101,7 +102,8 @@ namespace MapControl.UiTools
             if (selectedProjection != projection)
             {
                 selectedProjection = projection;
-                Map.MapProjection = MapProjectionFactory.Instance.GetProjection(selectedProjection);
+                Map.MapProjection = MapProjectionFactory.Instance.GetProjection(selectedProjection) ??
+                    throw new ArgumentException($"Can not create MapProjection \"{selectedProjection}\".");
             }
 
             UpdateCheckedStates();
