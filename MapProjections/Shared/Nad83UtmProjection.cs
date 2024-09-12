@@ -30,7 +30,7 @@ namespace MapControl.Projections
                 = $"PROJCS[\"NAD83 / UTM zone {zone}N\","
                 + "GEOGCS[\"NAD83\","
                 + "DATUM[\"North_American_Datum_1983\","
-                + "SPHEROID[\"GRS 1980\",6378137,298.257222101],TOWGS84[0,0,0,0,0,0,0]],"
+                + "SPHEROID[\"GRS 1980\",6378137,298.257222101]],"
                 + "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"
                 + "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],"
                 + "AUTHORITY[\"EPSG\",\"4269\"]],"
