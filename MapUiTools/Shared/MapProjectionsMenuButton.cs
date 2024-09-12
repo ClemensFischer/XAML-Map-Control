@@ -5,6 +5,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 #if WPF
 using System.Windows;
@@ -101,9 +102,15 @@ namespace MapControl.UiTools
         {
             if (selectedProjection != projection)
             {
-                selectedProjection = projection;
-                Map.MapProjection = MapProjectionFactory.Instance.GetProjection(selectedProjection) ??
-                    throw new ArgumentException($"Can not create MapProjection \"{selectedProjection}\".");
+                try
+                {
+                    Map.MapProjection = MapProjectionFactory.Instance.GetProjection(projection);
+                    selectedProjection = projection;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(MapProjectionFactory)}: {ex.Message}");
+                }
             }
 
             UpdateCheckedStates();

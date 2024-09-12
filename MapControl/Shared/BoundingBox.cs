@@ -58,7 +58,7 @@ namespace MapControl
 
             if (values == null || values.Length != 4 && values.Length != 5)
             {
-                throw new FormatException("BoundingBox string must contain a comma-separated sequence of four or five floating point numbers.");
+                throw new FormatException($"{nameof(BoundingBox)} string must contain a comma-separated sequence of four or five floating point numbers.");
             }
 
             var rotation = values.Length == 5

@@ -66,7 +66,7 @@ namespace MapControl
 
             if (values?.Length != 2)
             {
-                throw new FormatException("Location string must contain a comma-separated pair of floating point numbers.");
+                throw new FormatException($"{nameof(Location)} string must contain a comma-separated pair of floating point numbers.");
             }
 
             return new Location(
