@@ -29,7 +29,7 @@ namespace MapControl
 {
     public class GroundOverlay : MapPanel
     {
-        class ImageOverlay
+        private class ImageOverlay
         {
             public ImageOverlay(BoundingBox boundingBox, string imagePath, int zIndex)
             {
