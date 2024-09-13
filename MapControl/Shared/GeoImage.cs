@@ -74,11 +74,11 @@ namespace MapControl
             image.SetValue(SourcePathProperty, value);
         }
 
-        public static Image LoadGeoImage(string sourcePath)
+        public static async Task<Image> CreateAsync(string sourcePath)
         {
             var image = new Image();
 
-            SetSourcePath(image, sourcePath);
+            await LoadGeoImageAsync(image, sourcePath);
 
             return image;
         }

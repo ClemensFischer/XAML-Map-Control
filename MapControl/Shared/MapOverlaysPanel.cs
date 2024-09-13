@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 #if WPF
 using System.Windows;
 #elif UWP
@@ -25,7 +26,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty SourcePathsProperty =
             DependencyPropertyHelper.Register<MapOverlaysPanel, IEnumerable<string>>(nameof(SourcePaths), null,
-                (control, oldValue, newValue) => control.SourcePathsPropertyChanged(oldValue, newValue));
+                async (control, oldValue, newValue) => await control.SourcePathsPropertyChanged(oldValue, newValue));
 
         public IEnumerable<string> SourcePaths
         {
@@ -33,7 +34,7 @@ namespace MapControl
             set => SetValue(SourcePathsProperty, value);
         }
 
-        private void SourcePathsPropertyChanged(IEnumerable<string> oldSourcePaths, IEnumerable<string> newSourcePaths)
+        private async Task SourcePathsPropertyChanged(IEnumerable<string> oldSourcePaths, IEnumerable<string> newSourcePaths)
         {
             Children.Clear();
 
@@ -49,16 +50,16 @@ namespace MapControl
                     newCollection.CollectionChanged += SourcePathsCollectionChanged;
                 }
 
-                AddOverlays(0, newSourcePaths);
+                await AddOverlays(0, newSourcePaths);
             }
         }
 
-        private void SourcePathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        private async void SourcePathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
@@ -67,33 +68,33 @@ namespace MapControl
 
                 case NotifyCollectionChangedAction.Move:
                     RemoveOverlays(args.OldStartingIndex, args.OldItems.Count);
-                    AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Replace:
-                    ReplaceOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await ReplaceOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
                     Children.Clear();
-                    AddOverlays(0, SourcePaths);
+                    await AddOverlays(0, SourcePaths);
                     break;
             }
         }
 
-        private void AddOverlays(int index, IEnumerable<string> sourcePaths)
+        private async Task AddOverlays(int index, IEnumerable<string> sourcePaths)
         {
             foreach (var sourcePath in sourcePaths)
             {
-                Children.Insert(index++, CreateOverlay(sourcePath));
+                Children.Insert(index++, await CreateOverlay(sourcePath));
             }
         }
 
-        private void ReplaceOverlays(int index, IEnumerable<string> sourcePaths)
+        private async Task ReplaceOverlays(int index, IEnumerable<string> sourcePaths)
         {
             foreach (var sourcePath in sourcePaths)
             {
-                Children[index++] = CreateOverlay(sourcePath);
+                Children[index++] = await CreateOverlay(sourcePath);
             }
         }
 
@@ -105,7 +106,7 @@ namespace MapControl
             }
         }
 
-        protected virtual FrameworkElement CreateOverlay(string sourcePath)
+        protected virtual async Task<FrameworkElement> CreateOverlay(string sourcePath)
         {
             FrameworkElement overlay;
             var ext = Path.GetExtension(sourcePath).ToLower();
@@ -114,11 +115,11 @@ namespace MapControl
             {
                 if (ext == ".kmz" || ext == ".kml")
                 {
-                    overlay = new GroundOverlay { SourcePath = sourcePath };
+                    overlay = await GroundOverlay.CreateAsync(sourcePath);
                 }
                 else
                 {
-                    overlay = GeoImage.LoadGeoImage(sourcePath);
+                    overlay = await GeoImage.CreateAsync(sourcePath);
                 }
             }
             catch (Exception ex)

@@ -46,7 +46,7 @@ namespace MapControl
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,
-                async (overlay, oldValue, newValue) => await overlay.SourcePathPropertyChanged(newValue));
+                async (groundOverlay, oldValue, newValue) => await groundOverlay.LoadAsync(newValue));
 
         public string SourcePath
         {
@@ -54,7 +54,16 @@ namespace MapControl
             set => SetValue(SourcePathProperty, value);
         }
 
-        private async Task SourcePathPropertyChanged(string sourcePath)
+        public static async Task<GroundOverlay> CreateAsync(string sourcePath)
+        {
+            var groundOverlay = new GroundOverlay();
+
+            await groundOverlay.LoadAsync(sourcePath);
+
+            return groundOverlay;
+        }
+
+        public async Task LoadAsync(string sourcePath)
         {
             IEnumerable<ImageOverlay> imageOverlays = null;
 
@@ -66,11 +75,11 @@ namespace MapControl
 
                     if (ext == ".kmz")
                     {
-                        imageOverlays = await ReadGroundOverlaysFromArchiveAsync(sourcePath);
+                        imageOverlays = await LoadGroundOverlaysFromArchiveAsync(sourcePath);
                     }
                     else if (ext == ".kml")
                     {
-                        imageOverlays = await ReadGroundOverlaysFromFileAsync(sourcePath);
+                        imageOverlays = await LoadGroundOverlaysFromFileAsync(sourcePath);
                     }
                 }
                 catch (Exception ex)
@@ -98,7 +107,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromArchiveAsync(string archiveFilePath)
+        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromArchiveAsync(string archiveFilePath)
         {
             using (var archive = ZipFile.OpenRead(archiveFilePath))
             {
@@ -141,7 +150,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> ReadGroundOverlaysFromFileAsync(string docFilePath)
+        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromFileAsync(string docFilePath)
         {
             docFilePath = FilePath.GetFullPath(docFilePath);
 

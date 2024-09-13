@@ -6,6 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading.Tasks;
 #if WPF
 using System.Windows;
 using System.Windows.Markup;
@@ -38,9 +39,9 @@ namespace MapControl.UiTools
 
         public string Text { get; set; }
 
-        public Func<FrameworkElement> LayerFactory { get; set; }
+        public Func<Task<FrameworkElement>> LayerFactory { get; set; }
 
-        public FrameworkElement GetLayer() => Layer ?? (Layer = LayerFactory?.Invoke());
+        public async Task<FrameworkElement> GetLayer() => Layer ?? (Layer = await LayerFactory?.Invoke());
     }
 
 #if WPF
@@ -55,13 +56,13 @@ namespace MapControl.UiTools
         public MapLayersMenuButton()
             : base("\uE81E")
         {
-            ((INotifyCollectionChanged)MapLayers).CollectionChanged += (s, e) => InitializeMenu();
-            ((INotifyCollectionChanged)MapOverlays).CollectionChanged += (s, e) => InitializeMenu();
+            ((INotifyCollectionChanged)MapLayers).CollectionChanged += async (s, e) => await InitializeMenu();
+            ((INotifyCollectionChanged)MapOverlays).CollectionChanged += async (s, e) => await InitializeMenu();
         }
 
         public static readonly DependencyProperty MapProperty =
             DependencyPropertyHelper.Register<MapLayersMenuButton, MapBase>(nameof(Map), null,
-                (button, oldValue, newValue) => button.InitializeMenu());
+                async (button, oldValue, newValue) => await button.InitializeMenu());
 
         public MapBase Map
         {
@@ -76,7 +77,7 @@ namespace MapControl.UiTools
 
         public Collection<MapLayerItem> MapOverlays { get; } = new ObservableCollection<MapLayerItem>();
 
-        private void InitializeMenu()
+        private async Task InitializeMenu()
         {
             if (Map != null)
             {
@@ -104,25 +105,25 @@ namespace MapControl.UiTools
 
                 if (initialLayer != null)
                 {
-                    SetMapLayer(initialLayer);
+                    SetMapLayer(await initialLayer);
                 }
             }
         }
 
-        private void MapLayerClicked(object sender, RoutedEventArgs e)
+        private async void MapLayerClicked(object sender, RoutedEventArgs e)
         {
             var item = (FrameworkElement)sender;
             var mapLayerItem = (MapLayerItem)item.Tag;
 
-            SetMapLayer(mapLayerItem.GetLayer());
+            SetMapLayer(await mapLayerItem.GetLayer());
         }
 
-        private void MapOverlayClicked(object sender, RoutedEventArgs e)
+        private async void MapOverlayClicked(object sender, RoutedEventArgs e)
         {
             var item = (FrameworkElement)sender;
             var mapLayerItem = (MapLayerItem)item.Tag;
 
-            ToggleMapOverlay(mapLayerItem.GetLayer());
+            ToggleMapOverlay(await mapLayerItem.GetLayer());
         }
 
         private void SetMapLayer(FrameworkElement layer)
