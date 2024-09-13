@@ -35,9 +35,6 @@ namespace MapControl
     {
         private partial class GeoBitmap
         {
-            public BitmapSource BitmapSource { get; }
-            public LatLonBox LatLonBox { get; }
-
             public GeoBitmap(BitmapSource bitmapSource, Matrix transform, MapProjection projection)
             {
                 BitmapSource = bitmapSource;
@@ -49,6 +46,9 @@ namespace MapControl
                     ? new LatLonBox(projection.MapToBoundingBox(new Rect(p1, p2)))
                     : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
             }
+
+            public BitmapSource BitmapSource { get; }
+            public LatLonBox LatLonBox { get; }
         }
 
         private const ushort ProjectedCRSGeoKey = 3072;
