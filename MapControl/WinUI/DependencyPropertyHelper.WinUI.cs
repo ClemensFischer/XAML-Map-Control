@@ -15,21 +15,9 @@ namespace MapControl
 {
     public static class DependencyPropertyHelper
     {
-        public static DependencyProperty Register<TOwner, TValue>(
+        public static DependencyProperty RegisterAttached<TValue>(
             string name,
-            TValue defaultValue = default,
-            Action<TOwner, TValue, TValue> changed = null)
-            where TOwner : DependencyObject
-        {
-            var metadata = changed != null
-                ? new PropertyMetadata(defaultValue, (o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue))
-                : new PropertyMetadata(defaultValue);
-
-            return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
-        }
-
-        public static DependencyProperty RegisterAttached<TOwner, TValue>(
-            string name,
+            Type ownerType,
             TValue defaultValue = default,
             Action<FrameworkElement, TValue, TValue> changed = null,
             bool inherits = false) // unused in WinUI/UWP
@@ -44,7 +32,20 @@ namespace MapControl
                     }
                 });
 
-            return DependencyProperty.RegisterAttached(name, typeof(TValue), typeof(TOwner), metadata);
+            return DependencyProperty.RegisterAttached(name, typeof(TValue), ownerType, metadata);
+        }
+
+        public static DependencyProperty Register<TOwner, TValue>(
+            string name,
+            TValue defaultValue = default,
+            Action<TOwner, TValue, TValue> changed = null)
+            where TOwner : DependencyObject
+        {
+            var metadata = changed != null
+                ? new PropertyMetadata(defaultValue, (o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue))
+                : new PropertyMetadata(defaultValue);
+
+            return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
         }
     }
 }

@@ -12,16 +12,23 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
-    public partial class GeoImage
+    public static partial class GeoImage
     {
-        private Point BitmapSize => new Point(bitmapSource.PixelWidth, bitmapSource.PixelHeight);
+        private partial class GeoBitmap
+        {
+            public Point BitmapSize => new Point(BitmapSource.PixelWidth, BitmapSource.PixelHeight);
 
-        private ImageBrush ImageBrush => new ImageBrush(bitmapSource);
+            public ImageBrush ImageBrush => new ImageBrush(BitmapSource);
+        }
 
-        private Task LoadGeoTiffAsync(string sourcePath)
+        private static Task<GeoBitmap> LoadGeoTiffAsync(string sourcePath)
         {
             return Task.Run(() =>
             {
+                BitmapSource bitmapSource;
+                Matrix transformMatrix;
+                MapProjection mapProjection = null;
+
                 using (var stream = File.OpenRead(sourcePath))
                 {
                     bitmapSource = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
@@ -50,7 +57,7 @@ namespace MapControl
 
                 if (metadata.GetQuery(QueryString(GeoKeyDirectoryTag)) is short[] geoKeyDirectory)
                 {
-                    SetProjection(geoKeyDirectory);
+                    mapProjection = GetProjection(geoKeyDirectory);
                 }
 
                 if (metadata.GetQuery(QueryString(NoDataTag)) is string noData &&
@@ -58,6 +65,8 @@ namespace MapControl
                 {
                     bitmapSource = ConvertTransparentPixel(bitmapSource, noDataValue);
                 }
+
+                return new GeoBitmap(bitmapSource, transformMatrix, mapProjection);
             });
         }
 

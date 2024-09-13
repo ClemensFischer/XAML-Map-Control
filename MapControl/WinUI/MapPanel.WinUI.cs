@@ -17,14 +17,14 @@ namespace MapControl
     public partial class MapPanel
     {
         public static readonly DependencyProperty AutoCollapseProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, bool>("AutoCollapse");
+            DependencyPropertyHelper.RegisterAttached<bool>("AutoCollapse", typeof(MapPanel));
 
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location", null,
+            DependencyPropertyHelper.RegisterAttached<Location>("Location", typeof(MapPanel), null,
                 (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
 
         public static readonly DependencyProperty BoundingBoxProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox", null,
+            DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel), null,
                 (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
 
         protected IEnumerable<FrameworkElement> ChildElements => Children.OfType<FrameworkElement>();

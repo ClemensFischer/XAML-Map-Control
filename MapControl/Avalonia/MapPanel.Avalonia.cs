@@ -9,13 +9,13 @@ namespace MapControl
     public partial class MapPanel
     {
         public static readonly AttachedProperty<bool> AutoCollapseProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, bool>("AutoCollapse");
+            DependencyPropertyHelper.RegisterAttached<bool>("AutoCollapse", typeof(MapPanel));
 
         public static readonly AttachedProperty<Location> LocationProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, Location>("Location");
+            DependencyPropertyHelper.RegisterAttached<Location>("Location", typeof(MapPanel));
 
         public static readonly AttachedProperty<BoundingBox> BoundingBoxProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, BoundingBox>("BoundingBox");
+            DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel));
 
         protected IEnumerable<Control> ChildElements => Children;
 

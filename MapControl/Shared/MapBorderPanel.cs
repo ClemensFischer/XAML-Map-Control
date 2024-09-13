@@ -24,7 +24,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBorderPanel, double>(nameof(BorderWidth));
 
         public static readonly DependencyProperty OnBorderProperty =
-            DependencyPropertyHelper.RegisterAttached<MapBorderPanel, bool>("OnBorder");
+            DependencyPropertyHelper.RegisterAttached<bool>("OnBorder", typeof(MapBorderPanel));
 
         public double BorderWidth
         {

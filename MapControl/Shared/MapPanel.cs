@@ -37,10 +37,10 @@ namespace MapControl
     public partial class MapPanel : Panel, IMapElement
     {
         private static readonly DependencyProperty ViewPositionProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, Point?>("ViewPosition");
+            DependencyPropertyHelper.RegisterAttached<Point?>("ViewPosition", typeof(MapPanel));
 
         private static readonly DependencyProperty ParentMapProperty =
-            DependencyPropertyHelper.RegisterAttached<MapPanel, MapBase>("ParentMap", null,
+            DependencyPropertyHelper.RegisterAttached<MapBase>("ParentMap", typeof(MapPanel), null,
                 (element, oldValue, newValue) =>
                 {
                     if (element is IMapElement mapElement)

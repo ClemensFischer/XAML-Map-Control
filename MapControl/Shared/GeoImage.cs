@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
@@ -32,8 +31,26 @@ using Shape = Avalonia.Controls.Shapes.Shape;
 
 namespace MapControl
 {
-    public partial class GeoImage
+    public static partial class GeoImage
     {
+        private partial class GeoBitmap
+        {
+            public BitmapSource BitmapSource { get; }
+            public LatLonBox LatLonBox { get; }
+
+            public GeoBitmap(BitmapSource bitmapSource, Matrix transform, MapProjection projection)
+            {
+                BitmapSource = bitmapSource;
+
+                var p1 = transform.Transform(new Point());
+                var p2 = transform.Transform(BitmapSize);
+
+                LatLonBox = projection != null
+                    ? new LatLonBox(projection.MapToBoundingBox(new Rect(p1, p2)))
+                    : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
+            }
+        }
+
         private const ushort ProjectedCRSGeoKey = 3072;
         private const ushort GeoKeyDirectoryTag = 34735;
         private const ushort ModelPixelScaleTag = 33550;
@@ -43,13 +60,9 @@ namespace MapControl
 
         private static string QueryString(ushort tag) => $"/ifd/{{ushort={tag}}}";
 
-        private BitmapSource bitmapSource;
-        private Matrix transformMatrix;
-        private MapProjection mapProjection;
-
         public static readonly DependencyProperty SourcePathProperty =
-            DependencyPropertyHelper.RegisterAttached<GeoImage, string>("SourcePath", null,
-                async (image, oldValue, newValue) => await LoadGeoImageAsync(image, newValue));
+            DependencyPropertyHelper.RegisterAttached<string>("SourcePath", typeof(GeoImage), null,
+                async (element, oldValue, newValue) => await LoadGeoImageAsync(element, newValue));
 
         public static string GetSourcePath(FrameworkElement image)
         {
@@ -63,40 +76,33 @@ namespace MapControl
 
         public static Image LoadGeoImage(string sourcePath)
         {
-            var image = new Image { Stretch = Stretch.Fill };
+            var image = new Image();
 
             SetSourcePath(image, sourcePath);
 
             return image;
         }
 
-        private static async Task LoadGeoImageAsync(FrameworkElement element, string sourcePath)
+        public static async Task LoadGeoImageAsync(this FrameworkElement element, string sourcePath)
         {
             if (!string.IsNullOrEmpty(sourcePath))
             {
                 try
                 {
-                    var geoImage = new GeoImage();
-
-                    await geoImage.LoadGeoImageAsync(sourcePath);
-
-                    var p1 = geoImage.transformMatrix.Transform(new Point());
-                    var p2 = geoImage.transformMatrix.Transform(geoImage.BitmapSize);
-
-                    var latLonBox = geoImage.mapProjection != null
-                        ? new LatLonBox(geoImage.mapProjection.MapToBoundingBox(new Rect(p1, p2)))
-                        : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
+                    var geoBitmap = await LoadGeoBitmapAsync(sourcePath);
 
                     if (element is Image image)
                     {
-                        image.Source = geoImage.bitmapSource;
+                        image.Source = geoBitmap.BitmapSource;
+                        image.Stretch = Stretch.Fill;
                     }
                     else if (element is Shape shape)
                     {
-                        shape.Fill = geoImage.ImageBrush;
+                        shape.Fill = geoBitmap.ImageBrush;
+                        shape.Stretch = Stretch.Fill;
                     }
 
-                    MapPanel.SetBoundingBox(element, latLonBox);
+                    MapPanel.SetBoundingBox(element, geoBitmap.LatLonBox);
                 }
                 catch (Exception ex)
                 {
@@ -105,7 +111,7 @@ namespace MapControl
             }
         }
 
-        private async Task LoadGeoImageAsync(string sourcePath)
+        private static async Task<GeoBitmap> LoadGeoBitmapAsync(string sourcePath)
         {
             var ext = Path.GetExtension(sourcePath);
 
@@ -117,47 +123,48 @@ namespace MapControl
 
                 if (File.Exists(worldFilePath))
                 {
-                    await LoadWorldFileImageAsync(sourcePath, worldFilePath);
+                    return new GeoBitmap(
+                        (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath),
+                        await ReadWorldFileMatrix(worldFilePath),
+                        null);
                 }
             }
 
-            if (bitmapSource == null)
+            return await LoadGeoTiffAsync(sourcePath);
+        }
+
+        private static async Task<Matrix> ReadWorldFileMatrix(string worldFilePath)
+        {
+            using (var fileStream = File.OpenRead(worldFilePath))
+            using (var streamReader = new StreamReader(fileStream))
             {
-                await LoadGeoTiffAsync(sourcePath);
+                var parameters = new double[6];
+                var index = 0;
+                string line;
+
+                while (index < 6 &&
+                    (line = await streamReader.ReadLineAsync()) != null &&
+                    double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double parameter))
+                {
+                    parameters[index++] = parameter;
+                }
+
+                if (index != 6)
+                {
+                    throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
+                }
+
+                return new Matrix(
+                    parameters[0],  // line 1: A or M11
+                    parameters[1],  // line 2: D or M12
+                    parameters[2],  // line 3: B or M21
+                    parameters[3],  // line 4: E or M22
+                    parameters[4],  // line 5: C or OffsetX
+                    parameters[5]); // line 6: F or OffsetY
             }
         }
 
-        private async Task LoadWorldFileImageAsync(string sourcePath, string worldFilePath)
-        {
-            transformMatrix = await Task.Run(() => ReadWorldFileMatrix(worldFilePath));
-
-            bitmapSource = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
-        }
-
-        private static Matrix ReadWorldFileMatrix(string worldFilePath)
-        {
-            var parameters = File.ReadLines(worldFilePath)
-                .Select(line => double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double p) ? (double?)p : null)
-                .Where(p => p.HasValue)
-                .Select(p => p.Value)
-                .Take(6)
-                .ToList();
-
-            if (parameters.Count != 6)
-            {
-                throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
-            }
-
-            return new Matrix(
-                parameters[0],  // line 1: A or M11
-                parameters[1],  // line 2: D or M12
-                parameters[2],  // line 3: B or M21
-                parameters[3],  // line 4: E or M22
-                parameters[4],  // line 5: C or OffsetX
-                parameters[5]); // line 6: F or OffsetY
-        }
-
-        private void SetProjection(short[] geoKeyDirectory)
+        private static MapProjection GetProjection(short[] geoKeyDirectory)
         {
             for (var i = 4; i < geoKeyDirectory.Length - 3; i += 4)
             {
@@ -165,9 +172,11 @@ namespace MapControl
                 {
                     var epsgCode = geoKeyDirectory[i + 3];
 
-                    mapProjection = MapProjectionFactory.Instance.GetProjection($"EPSG:{epsgCode}");
+                    return MapProjectionFactory.Instance.GetProjection($"EPSG:{epsgCode}");
                 }
             }
+
+            return null;
         }
     }
 }

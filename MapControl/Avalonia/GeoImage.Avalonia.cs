@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
-    public partial class GeoImage
+    public static partial class GeoImage
     {
-        private Point BitmapSize => new(bitmapSource.PixelSize.Width, bitmapSource.PixelSize.Height);
+        private partial class GeoBitmap
+        {
+            public Point BitmapSize => new(BitmapSource.PixelSize.Width, BitmapSource.PixelSize.Height);
 
-        private ImageBrush ImageBrush => new(bitmapSource);
+            public ImageBrush ImageBrush => new(BitmapSource);
+        }
 
-        private Task LoadGeoTiffAsync(string sourcePath)
+        private static Task<GeoBitmap> LoadGeoTiffAsync(string sourcePath)
         {
             throw new InvalidOperationException("GeoTIFF is not supported.");
         }
