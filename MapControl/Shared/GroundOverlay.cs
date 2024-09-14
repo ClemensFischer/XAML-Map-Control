@@ -31,15 +31,15 @@ namespace MapControl
     {
         private class ImageOverlay
         {
-            public ImageOverlay(BoundingBox boundingBox, string imagePath, int zIndex)
+            public ImageOverlay(string imagePath, BoundingBox boundingBox, int zIndex)
             {
-                BoundingBox = boundingBox;
                 ImagePath = imagePath;
+                BoundingBox = boundingBox;
                 ZIndex = zIndex;
             }
 
-            public BoundingBox BoundingBox { get; }
             public string ImagePath { get; }
+            public BoundingBox BoundingBox { get; }
             public int ZIndex { get; }
             public ImageSource ImageSource { get; set; }
         }
@@ -180,18 +180,18 @@ namespace MapControl
             {
                 foreach (var groundOverlayElement in folderElement.Elements(ns + "GroundOverlay"))
                 {
-                    var latLonBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
-                    var latLonBox = latLonBoxElement != null ? ReadLatLonBox(latLonBoxElement) : null;
-
                     var imagePathElement = groundOverlayElement.Element(ns + "Icon");
                     var imagePath = imagePathElement?.Element(ns + "href")?.Value;
+
+                    var latLonBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
+                    var latLonBox = latLonBoxElement != null ? ReadLatLonBox(latLonBoxElement) : null;
 
                     var drawOrder = groundOverlayElement.Element(ns + "drawOrder")?.Value;
                     var zIndex = drawOrder != null ? int.Parse(drawOrder) : 0;
 
                     if (latLonBox != null && imagePath != null)
                     {
-                        yield return new ImageOverlay(latLonBox, imagePath, zIndex);
+                        yield return new ImageOverlay(imagePath, latLonBox, zIndex);
                     }
                 }
             }

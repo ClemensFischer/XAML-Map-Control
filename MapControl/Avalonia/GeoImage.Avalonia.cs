@@ -9,13 +9,6 @@ namespace MapControl
 {
     public static partial class GeoImage
     {
-        private partial class GeoBitmap
-        {
-            public Point BitmapSize => new(BitmapSource.PixelSize.Width, BitmapSource.PixelSize.Height);
-
-            public ImageBrush ImageBrush => new(BitmapSource);
-        }
-
         private static Task<GeoBitmap> LoadGeoTiffAsync(string sourcePath)
         {
             throw new InvalidOperationException("GeoTIFF is not supported.");

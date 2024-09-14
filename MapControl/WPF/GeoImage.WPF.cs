@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -14,13 +13,6 @@ namespace MapControl
 {
     public static partial class GeoImage
     {
-        private partial class GeoBitmap
-        {
-            public Point BitmapSize => new Point(BitmapSource.PixelWidth, BitmapSource.PixelHeight);
-
-            public ImageBrush ImageBrush => new ImageBrush(BitmapSource);
-        }
-
         private static Task<GeoBitmap> LoadGeoTiffAsync(string sourcePath)
         {
             return Task.Run(() =>

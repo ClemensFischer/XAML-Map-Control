@@ -33,15 +33,18 @@ namespace MapControl
 {
     public static partial class GeoImage
     {
-        private partial class GeoBitmap
+        private class GeoBitmap
         {
             public GeoBitmap(BitmapSource bitmapSource, Matrix transform, MapProjection projection)
             {
-                BitmapSource = bitmapSource;
-
                 var p1 = transform.Transform(new Point());
-                var p2 = transform.Transform(BitmapSize);
-
+                var p2 = transform.Transform(new Point(
+#if AVALONIA
+                    bitmapSource.PixelSize.Width, bitmapSource.PixelSize.Height));
+#else
+                    bitmapSource.PixelWidth, bitmapSource.PixelHeight));
+#endif
+                BitmapSource = bitmapSource;
                 LatLonBox = projection != null
                     ? new LatLonBox(projection.MapToBoundingBox(new Rect(p1, p2)))
                     : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
@@ -93,13 +96,21 @@ namespace MapControl
 
                     if (element is Image image)
                     {
-                        image.Source = geoBitmap.BitmapSource;
                         image.Stretch = Stretch.Fill;
+                        image.Source = geoBitmap.BitmapSource;
                     }
                     else if (element is Shape shape)
                     {
-                        shape.Fill = geoBitmap.ImageBrush;
                         shape.Stretch = Stretch.Fill;
+                        shape.Fill = new ImageBrush
+                        {
+                            Stretch = Stretch.Fill,
+#if AVALONIA
+                            Source = geoBitmap.BitmapSource
+#else
+                            ImageSource = geoBitmap.BitmapSource
+#endif
+                        };
                     }
 
                     MapPanel.SetBoundingBox(element, geoBitmap.LatLonBox);
