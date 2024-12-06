@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace SampleApplication
 {
@@ -29,11 +30,11 @@ namespace SampleApplication
         {
             InitializeComponent();
 
-            AddBingMapsLayers();
+            AddMapTilerLayers();
             AddTestLayers();
         }
 
-        partial void AddBingMapsLayers();
+        partial void AddMapTilerLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)

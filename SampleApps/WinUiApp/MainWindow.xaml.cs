@@ -26,11 +26,11 @@ namespace SampleApplication
 
             Title = "XAML Map Control - WinUI Sample Application";
 
-            AddBingMapsLayers();
+            AddMapTilerLayers();
             AddTestLayers();
         }
 
-        partial void AddBingMapsLayers();
+        partial void AddMapTilerLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)

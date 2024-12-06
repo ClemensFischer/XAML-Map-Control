@@ -48,11 +48,11 @@
     <EnableGatekeeperAnalysis>false</EnableGatekeeperAnalysis>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\BingMapsLayers.cs">
-      <Link>BingMapsLayers.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\HyperlinkText.cs">
       <Link>HyperlinkText.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MapTilerLayers.cs">
+      <Link>MapTilerLayers.cs</Link>
     </Compile>
     <Compile Include="..\Shared\MapViewModel.cs">
       <Link>MapViewModel.cs</Link>
