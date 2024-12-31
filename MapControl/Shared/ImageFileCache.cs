@@ -18,7 +18,7 @@ namespace MapControl.Caching
     /// <summary>
     /// IDistributedCache implementation based on local image files.
     /// </summary>
-    public partial class ImageFileCache : IDistributedCache
+    public class ImageFileCache : IDistributedCache
     {
         private static readonly byte[] expirationTag = Encoding.ASCII.GetBytes("EXPIRES:");
 

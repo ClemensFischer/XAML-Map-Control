@@ -22,7 +22,7 @@ namespace MapControl
     /// <summary>
     /// A MapPanel with a collection of GroundOverlay or GeoImage children.
     /// </summary>
-    public partial class MapOverlaysPanel : MapPanel
+    public class MapOverlaysPanel : MapPanel
     {
         public static readonly DependencyProperty SourcePathsProperty =
             DependencyPropertyHelper.Register<MapOverlaysPanel, IEnumerable<string>>(nameof(SourcePaths), null,

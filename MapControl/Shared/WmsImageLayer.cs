@@ -25,7 +25,7 @@ namespace MapControl
     /// <summary>
     /// Displays a single map image from a Web Map Service (WMS).
     /// </summary>
-    public partial class WmsImageLayer : MapImageLayer
+    public class WmsImageLayer : MapImageLayer
     {
         public static readonly DependencyProperty ServiceUriProperty =
             DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null,

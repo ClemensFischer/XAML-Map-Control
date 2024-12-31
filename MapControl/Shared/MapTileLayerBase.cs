@@ -23,7 +23,7 @@ using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 
 namespace MapControl
 {
-    public abstract partial class MapTileLayerBase : Panel, IMapLayer
+    public abstract class MapTileLayerBase : Panel, IMapLayer
     {
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null,
