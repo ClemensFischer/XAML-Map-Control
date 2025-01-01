@@ -3,6 +3,7 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -26,29 +27,11 @@ namespace MapControl
             return new BitmapImage(uri);
         }
 
-        public static async Task<WriteableBitmap> LoadImageAsync(BitmapDecoder decoder)
-        {
-            var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
-            var pixelData = await decoder.GetPixelDataAsync(
-                BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
-                ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
-
-            pixelData.DetachPixelData().CopyTo(image.PixelBuffer);
-
-            return image;
-        }
-
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
         {
-            // WinUI BitmapImage produces visual artifacts with Bing Maps Aerial (or all JPEG?)
-            // images in a tile raster, where thin white lines may appear as gaps between tiles.
-            // Alternatives are SoftwareBitmapSource or WriteableBitmap.
-            //
-            // var image = new BitmapImage();
-            // await image.SetSourceAsync(stream);
-            // return image;
-
-            return await LoadImageAsync(await BitmapDecoder.CreateAsync(stream));
+            var image = new BitmapImage();
+            await image.SetSourceAsync(stream);
+            return image;
         }
 
         public static Task<ImageSource> LoadImageAsync(Stream stream)
@@ -75,27 +58,60 @@ namespace MapControl
             return image;
         }
 
-        internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
+        internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(BitmapDecoder decoder)
         {
-            var images = await LoadImagesAsync(uri1, uri2, progress);
+            var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
+            var pixelData = await decoder.GetPixelDataAsync(
+                BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
+                ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
 
+            pixelData.DetachPixelData().CopyTo(image.PixelBuffer);
+
+            return image;
+        }
+
+        internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri)
+        {
             WriteableBitmap image = null;
 
-            if (images.Length == 2 &&
-                images[0] is WriteableBitmap image1 &&
-                images[1] is WriteableBitmap image2 &&
-                image1.PixelHeight == image2.PixelHeight)
+            try
             {
-                var buffer1 = image1.PixelBuffer;
-                var buffer2 = image2.PixelBuffer;
-                var stride1 = (uint)image1.PixelWidth * 4;
-                var stride2 = (uint)image2.PixelWidth * 4;
+                using (var stream = await RandomAccessStreamReference.CreateFromUri(uri).OpenReadAsync())
+                {
+                    image = await LoadWriteableBitmapAsync(await BitmapDecoder.CreateAsync(stream));
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
+            }
+
+            return image;
+        }
+
+        internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
+        {
+            WriteableBitmap mergedImage = null;
+
+            progress?.Report(0d);
+
+            var images = await Task.WhenAll(LoadWriteableBitmapAsync(uri1), LoadWriteableBitmapAsync(uri2));
+
+            if (images.Length == 2 &&
+                images[0] != null &&
+                images[1] != null &&
+                images[0].PixelHeight == images[1].PixelHeight)
+            {
+                var buffer1 = images[0].PixelBuffer;
+                var buffer2 = images[1].PixelBuffer;
+                var stride1 = (uint)images[0].PixelWidth * 4;
+                var stride2 = (uint)images[1].PixelWidth * 4;
                 var stride = stride1 + stride2;
-                var height = image1.PixelHeight;
+                var height = images[0].PixelHeight;
 
-                image = new WriteableBitmap(image1.PixelWidth + image2.PixelWidth, height);
+                mergedImage = new WriteableBitmap(images[0].PixelWidth + images[1].PixelWidth, height);
 
-                var buffer = image.PixelBuffer;
+                var buffer = mergedImage.PixelBuffer;
 
                 for (uint y = 0; y < height; y++)
                 {
@@ -104,7 +120,9 @@ namespace MapControl
                 }
             }
 
-            return image;
+            progress?.Report(1d);
+
+            return mergedImage;
         }
     }
 }

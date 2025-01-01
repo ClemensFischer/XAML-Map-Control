@@ -28,7 +28,7 @@ namespace MapControl
             {
                 var decoder = await BitmapDecoder.CreateAsync(stream);
 
-                bitmapSource = await ImageLoader.LoadImageAsync(decoder);
+                bitmapSource = await ImageLoader.LoadWriteableBitmapAsync(decoder);
 
                 var geoKeyDirectoryQuery = QueryString(GeoKeyDirectoryTag);
                 var pixelScaleQuery = QueryString(ModelPixelScaleTag);

@@ -54,9 +54,9 @@ namespace MapControl
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
-            var images = await LoadImagesAsync(uri1, uri2, progress);
+            WriteableBitmap mergedImage = null;
 
-            WriteableBitmap image = null;
+            var images = await LoadImagesAsync(uri1, uri2, progress);
 
             if (images.Length == 2 &&
                 images[0] is BitmapSource image1 &&
@@ -77,13 +77,13 @@ namespace MapControl
                 image1.CopyPixels(buffer1, stride1, 0);
                 image2.CopyPixels(buffer2, stride2, 0);
 
-                image = new WriteableBitmap(width1 + width2, height, 96, 96, format, null);
-                image.WritePixels(new Int32Rect(0, 0, width1, height), buffer1, stride1, 0);
-                image.WritePixels(new Int32Rect(width1, 0, width2, height), buffer2, stride2, 0);
-                image.Freeze();
+                mergedImage = new WriteableBitmap(width1 + width2, height, 96, 96, format, null);
+                mergedImage.WritePixels(new Int32Rect(0, 0, width1, height), buffer1, stride1, 0);
+                mergedImage.WritePixels(new Int32Rect(width1, 0, width2, height), buffer2, stride2, 0);
+                mergedImage.Freeze();
             }
 
-            return image;
+            return mergedImage;
         }
     }
 }
