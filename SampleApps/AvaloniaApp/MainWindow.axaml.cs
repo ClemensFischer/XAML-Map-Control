@@ -21,11 +21,11 @@ namespace SampleApplication
         {
             InitializeComponent();
 
-            AddBingMapsLayers();
+            AddMapTilerLayers();
             AddTestLayers();
         }
 
-        partial void AddBingMapsLayers();
+        partial void AddMapTilerLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)
