@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using MapControl;
 using MapControl.UiTools;
@@ -25,7 +25,7 @@ namespace SampleApplication
         partial void AddMapTilerLayers()
         {
 #if UWP
-            var mapTilerApiKeyPath = "BingMapsApiKey.txt";
+            var mapTilerApiKeyPath = "MapTilerApiKey.txt";
 #else
             var mapTilerApiKeyPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "MapTilerApiKey.txt");
@@ -41,7 +41,9 @@ namespace SampleApplication
                     {
                         TileSource = new TileSource { UriTemplate = "https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=" + apiKey },
                         SourceName = "MapTiler Satellite",
-                        Description = "� [MapTiler](https://www.maptiler.com/)"
+                        Description = "© [MapTiler](https://www.maptiler.com/)",
+                        MapBackground = new SolidColorBrush { Color = Colors.Black },
+                        MapForeground = new SolidColorBrush { Color = Colors.White },
                     }
                 });
             }
