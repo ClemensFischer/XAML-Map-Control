@@ -4,12 +4,16 @@
 
 #if UWP
 using Windows.UI;
+using Windows.UI.Composition;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 #else
 using Microsoft.UI;
+using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 #endif
@@ -85,6 +89,8 @@ namespace MapControl
             FlowDirection = FlowDirection.LeftToRight;
 
             SizeChanged += OnSizeChanged;
+
+            ElementCompositionPreview.GetElementVisual(this).BorderMode = CompositionBorderMode.Hard;
         }
 
         /// <summary>
