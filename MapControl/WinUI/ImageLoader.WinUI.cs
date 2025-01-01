@@ -72,13 +72,15 @@ namespace MapControl
 
         internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri)
         {
-            WriteableBitmap image = null;
+            WriteableBitmap bitmap = null;
 
             try
             {
                 using (var stream = await RandomAccessStreamReference.CreateFromUri(uri).OpenReadAsync())
                 {
-                    image = await LoadWriteableBitmapAsync(await BitmapDecoder.CreateAsync(stream));
+                    var decoder = await BitmapDecoder.CreateAsync(stream);
+
+                    bitmap = await LoadWriteableBitmapAsync(decoder);
                 }
             }
             catch (Exception ex)
@@ -86,32 +88,32 @@ namespace MapControl
                 Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
             }
 
-            return image;
+            return bitmap;
         }
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
-            WriteableBitmap mergedImage = null;
+            WriteableBitmap mergedBitmap = null;
 
             progress?.Report(0d);
 
-            var images = await Task.WhenAll(LoadWriteableBitmapAsync(uri1), LoadWriteableBitmapAsync(uri2));
+            var bitmaps = await Task.WhenAll(LoadWriteableBitmapAsync(uri1), LoadWriteableBitmapAsync(uri2));
 
-            if (images.Length == 2 &&
-                images[0] != null &&
-                images[1] != null &&
-                images[0].PixelHeight == images[1].PixelHeight)
+            if (bitmaps.Length == 2 &&
+                bitmaps[0] != null &&
+                bitmaps[1] != null &&
+                bitmaps[0].PixelHeight == bitmaps[1].PixelHeight)
             {
-                var buffer1 = images[0].PixelBuffer;
-                var buffer2 = images[1].PixelBuffer;
-                var stride1 = (uint)images[0].PixelWidth * 4;
-                var stride2 = (uint)images[1].PixelWidth * 4;
+                var buffer1 = bitmaps[0].PixelBuffer;
+                var buffer2 = bitmaps[1].PixelBuffer;
+                var stride1 = (uint)bitmaps[0].PixelWidth * 4;
+                var stride2 = (uint)bitmaps[1].PixelWidth * 4;
                 var stride = stride1 + stride2;
-                var height = images[0].PixelHeight;
+                var height = bitmaps[0].PixelHeight;
 
-                mergedImage = new WriteableBitmap(images[0].PixelWidth + images[1].PixelWidth, height);
+                mergedBitmap = new WriteableBitmap(bitmaps[0].PixelWidth + bitmaps[1].PixelWidth, height);
 
-                var buffer = mergedImage.PixelBuffer;
+                var buffer = mergedBitmap.PixelBuffer;
 
                 for (uint y = 0; y < height; y++)
                 {
@@ -122,7 +124,7 @@ namespace MapControl
 
             progress?.Report(1d);
 
-            return mergedImage;
+            return mergedBitmap;
         }
     }
 }

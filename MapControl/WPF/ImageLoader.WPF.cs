@@ -54,36 +54,36 @@ namespace MapControl
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
-            WriteableBitmap mergedImage = null;
+            WriteableBitmap mergedBitmap = null;
 
             var images = await LoadImagesAsync(uri1, uri2, progress);
 
             if (images.Length == 2 &&
-                images[0] is BitmapSource image1 &&
-                images[1] is BitmapSource image2 &&
-                image1.PixelHeight == image2.PixelHeight &&
-                image1.Format == image2.Format &&
-                image1.Format.BitsPerPixel % 8 == 0)
+                images[0] is BitmapSource bitmap1 &&
+                images[1] is BitmapSource bitmap2 &&
+                bitmap1.PixelHeight == bitmap2.PixelHeight &&
+                bitmap1.Format == bitmap2.Format &&
+                bitmap1.Format.BitsPerPixel % 8 == 0)
             {
-                var format = image1.Format;
-                var height = image1.PixelHeight;
-                var width1 = image1.PixelWidth;
-                var width2 = image2.PixelWidth;
+                var format = bitmap1.Format;
+                var height = bitmap1.PixelHeight;
+                var width1 = bitmap1.PixelWidth;
+                var width2 = bitmap2.PixelWidth;
                 var stride1 = width1 * format.BitsPerPixel / 8;
                 var stride2 = width2 * format.BitsPerPixel / 8;
                 var buffer1 = new byte[stride1 * height];
                 var buffer2 = new byte[stride2 * height];
 
-                image1.CopyPixels(buffer1, stride1, 0);
-                image2.CopyPixels(buffer2, stride2, 0);
+                bitmap1.CopyPixels(buffer1, stride1, 0);
+                bitmap2.CopyPixels(buffer2, stride2, 0);
 
-                mergedImage = new WriteableBitmap(width1 + width2, height, 96, 96, format, null);
-                mergedImage.WritePixels(new Int32Rect(0, 0, width1, height), buffer1, stride1, 0);
-                mergedImage.WritePixels(new Int32Rect(width1, 0, width2, height), buffer2, stride2, 0);
-                mergedImage.Freeze();
+                mergedBitmap = new WriteableBitmap(width1 + width2, height, 96, 96, format, null);
+                mergedBitmap.WritePixels(new Int32Rect(0, 0, width1, height), buffer1, stride1, 0);
+                mergedBitmap.WritePixels(new Int32Rect(width1, 0, width2, height), buffer2, stride2, 0);
+                mergedBitmap.Freeze();
             }
 
-            return mergedImage;
+            return mergedBitmap;
         }
     }
 }

@@ -17,28 +17,28 @@ namespace MapControl
         {
             return Task.Run(() =>
             {
-                BitmapSource bitmapSource;
-                Matrix transformMatrix;
-                MapProjection mapProjection = null;
+                BitmapSource bitmap;
+                Matrix transform;
+                MapProjection projection = null;
 
                 using (var stream = File.OpenRead(sourcePath))
                 {
-                    bitmapSource = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                    bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                 }
 
-                var metadata = (BitmapMetadata)bitmapSource.Metadata;
+                var metadata = (BitmapMetadata)bitmap.Metadata;
 
                 if (metadata.GetQuery(QueryString(ModelPixelScaleTag)) is double[] pixelScale &&
                     pixelScale.Length == 3 &&
                     metadata.GetQuery(QueryString(ModelTiePointTag)) is double[] tiePoint &&
                     tiePoint.Length >= 6)
                 {
-                    transformMatrix = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
+                    transform = new Matrix(pixelScale[0], 0d, 0d, -pixelScale[1], tiePoint[3], tiePoint[4]);
                 }
                 else if (metadata.GetQuery(QueryString(ModelTransformationTag)) is double[] transformValues &&
                          transformValues.Length == 16)
                 {
-                    transformMatrix = new Matrix(transformValues[0], transformValues[1],
+                    transform = new Matrix(transformValues[0], transformValues[1],
                                                  transformValues[4], transformValues[5],
                                                  transformValues[3], transformValues[7]);
                 }
@@ -49,16 +49,16 @@ namespace MapControl
 
                 if (metadata.GetQuery(QueryString(GeoKeyDirectoryTag)) is short[] geoKeyDirectory)
                 {
-                    mapProjection = GetProjection(geoKeyDirectory);
+                    projection = GetProjection(geoKeyDirectory);
                 }
 
                 if (metadata.GetQuery(QueryString(NoDataTag)) is string noData &&
                     int.TryParse(noData, out int noDataValue))
                 {
-                    bitmapSource = ConvertTransparentPixel(bitmapSource, noDataValue);
+                    bitmap = ConvertTransparentPixel(bitmap, noDataValue);
                 }
 
-                return new GeoBitmap(bitmapSource, transformMatrix, mapProjection);
+                return new GeoBitmap(bitmap, transform, projection);
             });
         }
 

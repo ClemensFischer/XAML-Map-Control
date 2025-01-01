@@ -35,16 +35,16 @@ namespace MapControl
     {
         private class GeoBitmap
         {
-            public GeoBitmap(BitmapSource bitmapSource, Matrix transform, MapProjection projection)
+            public GeoBitmap(BitmapSource bitmap, Matrix transform, MapProjection projection)
             {
                 var p1 = transform.Transform(new Point());
                 var p2 = transform.Transform(new Point(
 #if AVALONIA
-                    bitmapSource.PixelSize.Width, bitmapSource.PixelSize.Height));
+                    bitmap.PixelSize.Width, bitmap.PixelSize.Height));
 #else
-                    bitmapSource.PixelWidth, bitmapSource.PixelHeight));
+                    bitmap.PixelWidth, bitmap.PixelHeight));
 #endif
-                BitmapSource = bitmapSource;
+                BitmapSource = bitmap;
                 LatLonBox = projection != null
                     ? new LatLonBox(projection.MapToBoundingBox(new Rect(p1, p2)))
                     : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
