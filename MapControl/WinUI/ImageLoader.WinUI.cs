@@ -70,17 +70,25 @@ namespace MapControl
             return image;
         }
 
-        internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri)
+        internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri, IProgress<double> progress)
         {
             WriteableBitmap bitmap = null;
 
+            progress.Report(0d);
+
             try
             {
-                using (var stream = await RandomAccessStreamReference.CreateFromUri(uri).OpenReadAsync())
-                {
-                    var decoder = await BitmapDecoder.CreateAsync(stream);
+                var response = await GetHttpResponseAsync(uri, progress);
 
-                    bitmap = await LoadWriteableBitmapAsync(decoder);
+                if (response?.Buffer != null)
+                {
+                    using (var memoryStream = new MemoryStream(response.Buffer))
+                    using (var randomAccessStream = memoryStream.AsRandomAccessStream())
+                    {
+                        var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+
+                        bitmap = await LoadWriteableBitmapAsync(decoder);
+                    }
                 }
             }
             catch (Exception ex)
@@ -88,16 +96,20 @@ namespace MapControl
                 Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
             }
 
+            progress.Report(1d);
+
             return bitmap;
         }
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
             WriteableBitmap mergedBitmap = null;
+            var p1 = 0d;
+            var p2 = 0d;
 
-            progress?.Report(0d);
-
-            var bitmaps = await Task.WhenAll(LoadWriteableBitmapAsync(uri1), LoadWriteableBitmapAsync(uri2));
+            var bitmaps = await Task.WhenAll(
+                LoadWriteableBitmapAsync(uri1, new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); })),
+                LoadWriteableBitmapAsync(uri2, new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); })));
 
             if (bitmaps.Length == 2 &&
                 bitmaps[0] != null &&
@@ -121,8 +133,6 @@ namespace MapControl
                     buffer2.CopyTo(y * stride2, buffer, y * stride + stride1, stride2);
                 }
             }
-
-            progress?.Report(1d);
 
             return mergedBitmap;
         }

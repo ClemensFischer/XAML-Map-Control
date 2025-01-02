@@ -44,7 +44,7 @@ namespace MapControl
                 {
                     var response = await GetHttpResponseAsync(uri, progress);
 
-                    if (response != null && response.Buffer != null)
+                    if (response?.Buffer != null)
                     {
                         image = await LoadImageAsync(response.Buffer);
                     }
