@@ -116,9 +116,6 @@
             <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
                          Maximum="1" Value="{Binding LoadingProgress}">
                 <ProgressBar.Styles>
-                    <Style Selector="ProgressBar[Value=0]">
-                        <Setter Property="IsIndeterminate" Value="True"/>
-                    </Style>
                     <Style Selector="ProgressBar[Value=1]">
                         <Setter Property="IsVisible" Value="False"/>
                     </Style>

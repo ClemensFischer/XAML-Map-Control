@@ -180,9 +180,6 @@
                 <ProgressBar.Style>
                     <Style TargetType="ProgressBar">
                         <Style.Triggers>
-                            <Trigger Property="Value" Value="0">
-                                <Setter Property="IsIndeterminate" Value="True"/>
-                            </Trigger>
                             <Trigger Property="Value" Value="1">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </Trigger>

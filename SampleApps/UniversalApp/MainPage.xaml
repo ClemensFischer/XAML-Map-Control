@@ -170,13 +170,6 @@
                     DataContext="{Binding MapLayer, ElementName=map}">
             <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
                          Maximum="1" Value="{Binding LoadingProgress}">
-                <ProgressBar.IsIndeterminate>
-                    <Binding Path="Value" RelativeSource="{RelativeSource Self}">
-                        <Binding.Converter>
-                            <local:DoubleTriggerConverter Trigger="0" TriggerValue="true" DefaultValue="false"/>
-                        </Binding.Converter>
-                    </Binding>
-                </ProgressBar.IsIndeterminate>
                 <ProgressBar.Visibility>
                     <Binding Path="Value" RelativeSource="{RelativeSource Self}">
                         <Binding.Converter>
