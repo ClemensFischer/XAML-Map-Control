@@ -50,7 +50,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapImageLayer, Brush>(nameof(MapForeground));
 
         public static readonly DependencyProperty LoadingProgressProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, double>( nameof(LoadingProgress), 1d);
+            DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(LoadingProgress), 1d);
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
@@ -181,8 +181,8 @@ namespace MapControl
             }
             else
             {
-                updateTimer.Stop();
                 updateInProgress = true;
+                updateTimer.Stop();
 
                 ImageSource image = null;
                 var boundingBox = GetImageBoundingBox();
@@ -205,7 +205,7 @@ namespace MapControl
             }
         }
 
-        protected BoundingBox GetImageBoundingBox()
+        private BoundingBox GetImageBoundingBox()
         {
             BoundingBox boundingBox = null;
 
