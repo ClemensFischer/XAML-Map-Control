@@ -11,12 +11,16 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 #elif UWP
+using Windows.UI.Composition;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media;
 #elif WINUI
+using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 #endif
@@ -68,7 +72,10 @@ namespace MapControl
             updateTimer.Tick += async (s, e) => await Update(false);
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
-#if UWP || WINUI
+#if WPF
+            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
+#elif UWP || WINUI
+            ElementCompositionPreview.GetElementVisual(this).BorderMode = CompositionBorderMode.Hard;
             MapPanel.InitMapElement(this);
 #endif
         }

@@ -81,11 +81,6 @@ namespace MapControl
             FlowDirectionProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(FlowDirection.LeftToRight) { Inherits = false });
         }
 
-        public MapBase()
-        {
-            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
-        }
-
         /// <summary>
         /// Gets or sets the EasingFunction of the Center, ZoomLevel and Heading animations.
         /// The default value is a QuadraticEase with EasingMode.EaseOut.
