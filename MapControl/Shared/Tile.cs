@@ -43,7 +43,7 @@ namespace MapControl
 
             if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
-                AnimateImageOpacity();
+                FadeIn();
             }
         }
     }

@@ -17,28 +17,29 @@ namespace MapControl
     {
         public static void FadeOver(Image topImage, Image bottomImage)
         {
-            var topImageAnimation = new DoubleAnimation
+            var fadeInAnimation = new DoubleAnimation
             {
                 To = 1d,
                 Duration = MapBase.ImageFadeDuration
             };
 
-            var bottomImageAnimation = new DoubleAnimation
+            var fadeOutAnimation = new DoubleAnimation
             {
                 To = 0d,
                 BeginTime = MapBase.ImageFadeDuration,
-                Duration = TimeSpan.Zero
+                Duration = TimeSpan.Zero,
+                FillBehavior = FillBehavior.Stop
             };
 
-            Storyboard.SetTargetProperty(topImageAnimation, nameof(Opacity));
-            Storyboard.SetTarget(topImageAnimation, topImage);
+            Storyboard.SetTargetProperty(fadeInAnimation, nameof(Opacity));
+            Storyboard.SetTarget(fadeInAnimation, topImage);
 
-            Storyboard.SetTargetProperty(bottomImageAnimation, nameof(Opacity));
-            Storyboard.SetTarget(bottomImageAnimation, bottomImage);
+            Storyboard.SetTargetProperty(fadeOutAnimation, nameof(Opacity));
+            Storyboard.SetTarget(fadeOutAnimation, bottomImage);
 
             var storyboard = new Storyboard();
-            storyboard.Children.Add(topImageAnimation);
-            storyboard.Children.Add(bottomImageAnimation);
+            storyboard.Children.Add(fadeInAnimation);
+            storyboard.Children.Add(fadeOutAnimation);
             storyboard.Begin();
         }
     }

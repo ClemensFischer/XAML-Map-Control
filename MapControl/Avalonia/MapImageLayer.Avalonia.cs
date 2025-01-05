@@ -10,7 +10,7 @@ namespace MapControl
     {
         public static void FadeOver(Image topImage, Image bottomImage)
         {
-            var animation = new Animation
+            var fadeInAnimation = new Animation
             {
                 FillMode = FillMode.Forward,
                 Duration = MapBase.ImageFadeDuration,
@@ -24,7 +24,7 @@ namespace MapControl
                 }
             };
 
-            _ = animation.RunAsync(topImage).ContinueWith(
+            _ = fadeInAnimation.RunAsync(topImage).ContinueWith(
                 _ => bottomImage.Opacity = 0d,
                 TaskScheduler.FromCurrentSynchronizationContext());
         }

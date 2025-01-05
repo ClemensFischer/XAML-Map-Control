@@ -12,18 +12,22 @@ namespace MapControl
     {
         public static void FadeOver(Image topImage, Image bottomImage)
         {
-            topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
+            var fadeInAnimation = new DoubleAnimation
             {
                 To = 1d,
                 Duration = MapBase.ImageFadeDuration
-            });
+            };
 
-            bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
+            var fadeOutAnimation = new DoubleAnimation
             {
                 To = 0d,
                 BeginTime = MapBase.ImageFadeDuration,
-                Duration = TimeSpan.Zero
-            });
+                Duration = TimeSpan.Zero,
+                FillBehavior = FillBehavior.Stop
+            };
+
+            topImage.BeginAnimation(OpacityProperty, fadeInAnimation);
+            bottomImage.BeginAnimation(OpacityProperty, fadeOutAnimation);
         }
     }
 }

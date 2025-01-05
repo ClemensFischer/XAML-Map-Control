@@ -8,9 +8,9 @@ namespace MapControl
 {
     public partial class Tile
     {
-        private void AnimateImageOpacity()
+        private void FadeIn()
         {
-            var animation = new Animation
+            var fadeInAnimation = new Animation
             {
                 Duration = MapBase.ImageFadeDuration,
                 Children =
@@ -28,7 +28,7 @@ namespace MapControl
                 }
             };
 
-            _ = animation.RunAsync(Image);
+            _ = fadeInAnimation.RunAsync(Image);
         }
     }
 }
