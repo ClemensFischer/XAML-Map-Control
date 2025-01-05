@@ -28,7 +28,7 @@ namespace MapControl
     /// Displays a single map image, e.g. from a Web Map Service (WMS).
     /// The image must be provided by the abstract GetImageAsync() method.
     /// </summary>
-    public abstract class MapImageLayer : MapPanel, IMapLayer
+    public abstract partial class MapImageLayer : MapPanel, IMapLayer
     {
         public static readonly DependencyProperty DescriptionProperty =
             DependencyPropertyHelper.Register<MapImageLayer, string>(nameof(Description));
@@ -199,7 +199,7 @@ namespace MapControl
                     }
                 }
 
-                await SwapImages(image, boundingBox);
+                SwapImages(image, boundingBox);
 
                 updateInProgress = false;
             }
@@ -231,7 +231,7 @@ namespace MapControl
             }
         }
 
-        private async Task SwapImages(ImageSource image, BoundingBox boundingBox)
+        private void SwapImages(ImageSource image, BoundingBox boundingBox)
         {
             if (Children.Count >= 2)
             {
@@ -244,7 +244,7 @@ namespace MapControl
                 topImage.Source = image;
                 SetBoundingBox(topImage, boundingBox);
 
-                await OpacityHelper.SwapOpacitiesAsync(topImage, bottomImage);
+                FadeOver(topImage, bottomImage);
             }
         }
     }

@@ -3,30 +3,27 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Animation;
 
 namespace MapControl
 {
-    public static class OpacityHelper
+    public partial class MapImageLayer
     {
-        public static Task SwapOpacitiesAsync(UIElement topElement, UIElement bottomElement)
+        public static void FadeOver(Image topImage, Image bottomImage)
         {
-            topElement.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation
+            topImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
                 To = 1d,
                 Duration = MapBase.ImageFadeDuration
             });
 
-            bottomElement.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation
+            bottomImage.BeginAnimation(OpacityProperty, new DoubleAnimation
             {
                 To = 0d,
                 BeginTime = MapBase.ImageFadeDuration,
                 Duration = TimeSpan.Zero
             });
-
-            return Task.CompletedTask;
         }
     }
 }

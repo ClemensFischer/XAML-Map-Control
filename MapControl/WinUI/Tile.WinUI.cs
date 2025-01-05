@@ -18,13 +18,19 @@ namespace MapControl
     {
         private void BeginOpacityAnimation()
         {
-            OpacityHelper.BeginOpacityAnimation(Image,
-                new DoubleAnimation
-                {
-                    From = 0d,
-                    Duration = MapBase.ImageFadeDuration,
-                    FillBehavior = FillBehavior.Stop
-                });
+            var animation = new DoubleAnimation
+            {
+                From = 0d,
+                Duration = MapBase.ImageFadeDuration,
+                FillBehavior = FillBehavior.Stop
+            };
+
+            Storyboard.SetTargetProperty(animation, nameof(UIElement.Opacity));
+            Storyboard.SetTarget(animation, Image);
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+            storyboard.Begin();
         }
 
         private void AnimateImageOpacity()

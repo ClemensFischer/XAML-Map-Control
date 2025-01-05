@@ -242,6 +242,9 @@
     <Compile Include="..\WinUI\MapGraticule.WinUI.cs">
       <Link>MapGraticule.WinUI.cs</Link>
     </Compile>
+    <Compile Include="..\WinUI\MapImageLayer.WinUI.cs">
+      <Link>MapImageLayer.WinUI.cs</Link>
+    </Compile>
     <Compile Include="..\WinUI\MapItem.WinUI.cs">
       <Link>MapItem.WinUI.cs</Link>
     </Compile>
@@ -259,9 +262,6 @@
     </Compile>
     <Compile Include="..\WinUI\Matrix.WinUI.cs">
       <Link>Matrix.WinUI.cs</Link>
-    </Compile>
-    <Compile Include="..\WinUI\OpacityHelper.WinUI.cs">
-      <Link>OpacityHelper.WinUI.cs</Link>
     </Compile>
     <Compile Include="..\WinUI\Point.WinUI.cs">
       <Link>Point.WinUI.cs</Link>

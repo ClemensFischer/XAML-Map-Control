@@ -161,21 +161,7 @@ namespace MapControl
 
                 centerCts?.Cancel();
 
-                centerAnimation = new Animation
-                {
-                    FillMode = FillMode.Forward,
-                    Duration = AnimationDuration,
-                    Easing = AnimationEasing,
-                    Children =
-                    {
-                        new KeyFrame
-                        {
-                            KeyTime = AnimationDuration,
-                            Setters = { new Setter(CenterProperty, new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude))) }
-                        }
-                    }
-                };
-
+                centerAnimation = CreateAnimation(CenterProperty, new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude)));
                 centerCts = new CancellationTokenSource();
 
                 await centerAnimation.RunAsync(this, centerCts.Token);
@@ -226,21 +212,7 @@ namespace MapControl
             {
                 zoomLevelCts?.Cancel();
 
-                zoomLevelAnimation = new Animation
-                {
-                    FillMode = FillMode.Forward,
-                    Duration = AnimationDuration,
-                    Easing = AnimationEasing,
-                    Children =
-                    {
-                        new KeyFrame
-                        {
-                            KeyTime = AnimationDuration,
-                            Setters = { new Setter(ZoomLevelProperty, targetZoomLevel) }
-                        }
-                    }
-                };
-
+                zoomLevelAnimation = CreateAnimation(ZoomLevelProperty, targetZoomLevel);
                 zoomLevelCts = new CancellationTokenSource();
 
                 await zoomLevelAnimation.RunAsync(this, zoomLevelCts.Token);
@@ -288,21 +260,7 @@ namespace MapControl
 
                 headingCts?.Cancel();
 
-                headingAnimation = new Animation
-                {
-                    FillMode = FillMode.Forward,
-                    Duration = AnimationDuration,
-                    Easing = AnimationEasing,
-                    Children =
-                    {
-                        new KeyFrame
-                        {
-                            KeyTime = AnimationDuration,
-                            Setters = { new Setter(HeadingProperty, targetHeading) }
-                        }
-                    }
-                };
-
+                headingAnimation = CreateAnimation(HeadingProperty, targetHeading);
                 headingCts = new CancellationTokenSource();
 
                 await headingAnimation.RunAsync(this, headingCts.Token);
@@ -316,6 +274,24 @@ namespace MapControl
                 headingCts = null;
                 headingAnimation = null;
             }
+        }
+
+        private Animation CreateAnimation(DependencyProperty property, object value)
+        {
+            return new Animation
+            {
+                FillMode = FillMode.Forward,
+                Duration = AnimationDuration,
+                Easing = AnimationEasing,
+                Children =
+                    {
+                        new KeyFrame
+                        {
+                            KeyTime = AnimationDuration,
+                            Setters = { new Setter(property, value) }
+                        }
+                    }
+            };
         }
     }
 }

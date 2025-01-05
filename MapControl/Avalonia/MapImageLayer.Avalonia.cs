@@ -2,24 +2,20 @@
 // Copyright © Clemens Fischer
 // Licensed under the Microsoft Public License (Ms-PL)
 
-using System;
+using System.Threading.Tasks;
 
 namespace MapControl
 {
-    public partial class Tile
+    public partial class MapImageLayer
     {
-        private void AnimateImageOpacity()
+        public static void FadeOver(Image topImage, Image bottomImage)
         {
             var animation = new Animation
             {
+                FillMode = FillMode.Forward,
                 Duration = MapBase.ImageFadeDuration,
                 Children =
                 {
-                    new KeyFrame
-                    {
-                        KeyTime = TimeSpan.Zero,
-                        Setters = { new Setter(Visual.OpacityProperty, 0d) }
-                    },
                     new KeyFrame
                     {
                         KeyTime = MapBase.ImageFadeDuration,
@@ -28,7 +24,9 @@ namespace MapControl
                 }
             };
 
-            _ = animation.RunAsync(Image);
+            _ = animation.RunAsync(topImage).ContinueWith(
+                _ => bottomImage.Opacity = 0d,
+                TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }
