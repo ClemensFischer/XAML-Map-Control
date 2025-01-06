@@ -278,38 +278,10 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Moves the map by the difference of the specified position in view coordinates and a temporary
-        /// transform origin point that has been set before by a call to SetTransformCenter. Map movement
-        /// must be terminated by a call to EndMoveMap. MoveMap provides higher accuracy than TranslateMap.
-        /// </summary>
-        public void MoveMap(Point position)
-        {
-            if (transformCenter != null)
-            {
-                viewCenter = position;
-                UpdateTransform();
-            }
-        }
-
-        /// <summary>
-        /// Terminates map movement by the MoveMap method.
-        /// </summary>
-        public void EndMoveMap()
-        {
-            if (transformCenter != null)
-            {
-                ResetTransformCenter();
-                UpdateTransform();
-            }
-        }
-
-        /// <summary>
         /// Changes the Center property according to the specified translation in view coordinates.
         /// </summary>
         public void TranslateMap(Point translation)
         {
-            EndMoveMap();
-
             if (translation.X != 0d || translation.Y != 0d)
             {
                 var center = ViewToLocation(new Point(viewCenter.X - translation.X, viewCenter.Y - translation.Y));
@@ -328,7 +300,11 @@ namespace MapControl
         /// </summary>
         public void TransformMap(Point center, Point translation, double rotation, double scale)
         {
-            if (rotation != 0d || scale != 1d)
+            if (rotation == 0d && scale == 1d)
+            {
+                TranslateMap(translation);
+            }
+            else
             {
                 SetTransformCenter(center);
 
@@ -351,12 +327,6 @@ namespace MapControl
                 }
 
                 UpdateTransform(true);
-            }
-            else
-            {
-                // More accurate than SetTransformCenter.
-                //
-                TranslateMap(translation);
             }
         }
 

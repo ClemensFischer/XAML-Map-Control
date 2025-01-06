@@ -147,6 +147,7 @@
         <map:Map x:Name="map"
                  Center="53.5,8.2"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11"
+                 ManipulationMode="All"
                  DoubleTapped="MapDoubleTapped"
                  PointerPressed="MapPointerPressed"
                  PointerReleased="MapPointerReleased"

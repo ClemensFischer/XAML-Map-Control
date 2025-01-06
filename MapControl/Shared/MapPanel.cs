@@ -234,6 +234,24 @@ namespace MapControl
         {
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
+
+            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+                !parentMap.InsideViewBounds(position))
+            {
+                var location = parentMap.MapProjection.MapToLocation(center);
+
+                if (location != null)
+                {
+                    var coercedPosition = parentMap.LocationToView(
+                        new Location(location.Latitude, parentMap.CoerceLongitude(location.Longitude)));
+
+                    if (coercedPosition.HasValue)
+                    {
+                        position = coercedPosition.Value;
+                    }
+                }
+            }
+
             var width = mapRect.Width * parentMap.ViewTransform.Scale;
             var height = mapRect.Height * parentMap.ViewTransform.Scale;
             var x = position.X - width / 2d;

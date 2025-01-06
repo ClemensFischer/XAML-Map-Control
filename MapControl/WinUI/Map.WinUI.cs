@@ -24,7 +24,7 @@ namespace MapControl
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty =
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
-        private bool mouseMoveEnabled;
+        private Point? mousePosition;
         private double mouseWheelDelta;
 
         public Map()
@@ -53,9 +53,11 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (mouseMoveEnabled || e.Delta.Rotation == 0d && e.Delta.Scale == 1d)
+            if (mousePosition.HasValue)
             {
-                MoveMap(e.Position);
+                var p = e.Position;
+                TranslateMap(new Point(p.X - mousePosition.Value.X, p.Y - mousePosition.Value.Y));
+                mousePosition = p;
             }
             else if (e.PointerDeviceType != PointerDeviceType.Mouse)
             {
@@ -67,20 +69,23 @@ namespace MapControl
         {
             var point = e.GetCurrentPoint(this);
 
-            mouseMoveEnabled = e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
-                               e.KeyModifiers == VirtualKeyModifiers.None &&
-                               point.Properties.IsLeftButtonPressed;
-
-            if (mouseMoveEnabled || e.Pointer.PointerDeviceType != PointerDeviceType.Mouse)
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
+                e.KeyModifiers == VirtualKeyModifiers.None &&
+                point.Properties.IsLeftButtonPressed &&
+                CapturePointer(e.Pointer))
             {
-                SetTransformCenter(point.Position);
+                mousePosition = point.Position;
             }
         }
 
         private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            mouseMoveEnabled = false;
-            EndMoveMap();
+            if (mousePosition.HasValue &&
+                e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                mousePosition = null;
+                ReleasePointerCapture(e.Pointer);
+            }
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)

@@ -70,33 +70,55 @@ namespace MapControl
         {
             var point = e.GetCurrentPoint(this);
 
-            if (point.Pointer.Type == PointerType.Mouse && HandleMousePressed(point) ||
-                point.Pointer.Type == PointerType.Touch && HandleTouchPressed(point))
+            if (pointer1 == null && point.Pointer.Type == PointerType.Mouse && point.Properties.IsLeftButtonPressed ||
+                pointer2 == null && point.Pointer.Type == PointerType.Touch && ManipulationModes != ManipulationModes.None)
             {
                 point.Pointer.Capture(this);
-                SetTransformCenter(point.Position);
+
+                if (pointer1 == null)
+                {
+                    pointer1 = point.Pointer;
+                    position1 = point.Position;
+                }
+                else
+                {
+                    pointer2 = point.Pointer;
+                    position2 = point.Position;
+                }
             }
 
             base.OnPointerPressed(e);
         }
 
+        private void HandlePointerReleased(IPointer pointer, bool releaseCapture)
+        {
+            if (pointer == pointer1 || pointer == pointer2)
+            {
+                if (pointer == pointer1)
+                {
+                    pointer1 = pointer2;
+                    position1 = position2;
+                }
+
+                pointer2 = null;
+
+                if (releaseCapture)
+                {
+                    pointer.Capture(null);
+                }
+            }
+        }
+
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (HandlePointerReleased(e.Pointer))
-            {
-                EndMoveMap();
-                e.Pointer.Capture(null);
-            }
+            HandlePointerReleased(e.Pointer, true);
 
             base.OnPointerReleased(e);
         }
 
         protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
         {
-            if (HandlePointerReleased(e.Pointer))
-            {
-                EndMoveMap();
-            }
+            HandlePointerReleased(e.Pointer, false);
 
             base.OnPointerCaptureLost(e);
         }
@@ -113,64 +135,12 @@ namespace MapControl
                 }
                 else if (e.Pointer.Type == PointerType.Mouse || ManipulationModes.HasFlag(ManipulationModes.Translate))
                 {
+                    TranslateMap(new Point(position.X - position1.X, position.Y - position1.Y));
                     position1 = position;
-                    MoveMap(position);
                 }
             }
 
             base.OnPointerMoved(e);
-        }
-
-        private bool HandleMousePressed(PointerPoint point)
-        {
-            var handled = pointer1 == null && point.Properties.IsLeftButtonPressed;
-
-            if (handled)
-            {
-                pointer1 = point.Pointer;
-                position1 = point.Position;
-            }
-
-            return handled;
-        }
-
-        private bool HandleTouchPressed(PointerPoint point)
-        {
-            var handled = pointer2 == null && ManipulationModes != ManipulationModes.None;
-
-            if (handled)
-            {
-                if (pointer1 == null)
-                {
-                    pointer1 = point.Pointer;
-                    position1 = point.Position;
-                }
-                else
-                {
-                    pointer2 = point.Pointer;
-                    position2 = point.Position;
-                }
-            }
-
-            return handled;
-        }
-
-        private bool HandlePointerReleased(IPointer pointer)
-        {
-            var handled = pointer == pointer1 || pointer == pointer2;
-
-            if (handled)
-            {
-                if (pointer == pointer1)
-                {
-                    pointer1 = pointer2;
-                    position1 = position2;
-                }
-
-                pointer2 = null;
-            }
-
-            return handled;
         }
 
         private void HandleManipulation(IPointer pointer, Point position)
