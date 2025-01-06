@@ -27,11 +27,11 @@ namespace MapControl
         public static readonly StyledProperty<double> MouseWheelZoomDeltaProperty =
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
-        private double mouseWheelDelta;
         private IPointer pointer1;
         private IPointer pointer2;
         private Point position1;
         private Point position2;
+        private double mouseWheelDelta;
 
         public ManipulationModes ManipulationModes
         {
@@ -90,35 +90,18 @@ namespace MapControl
             base.OnPointerPressed(e);
         }
 
-        private void HandlePointerReleased(IPointer pointer, bool releaseCapture)
+        protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
         {
-            if (pointer == pointer1 || pointer == pointer2)
+            if (e.Pointer == pointer1 || e.Pointer == pointer2)
             {
-                if (pointer == pointer1)
+                if (e.Pointer == pointer1)
                 {
                     pointer1 = pointer2;
                     position1 = position2;
                 }
 
                 pointer2 = null;
-
-                if (releaseCapture)
-                {
-                    pointer.Capture(null);
-                }
             }
-        }
-
-        protected override void OnPointerReleased(PointerReleasedEventArgs e)
-        {
-            HandlePointerReleased(e.Pointer, true);
-
-            base.OnPointerReleased(e);
-        }
-
-        protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
-        {
-            HandlePointerReleased(e.Pointer, false);
 
             base.OnPointerCaptureLost(e);
         }

@@ -24,7 +24,7 @@ namespace MapControl
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty =
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
-        private Point? mousePosition;
+        private uint capturedPointerId;
         private double mouseWheelDelta;
 
         public Map()
@@ -37,7 +37,7 @@ namespace MapControl
 
             ManipulationDelta += OnManipulationDelta;
             PointerPressed += OnPointerPressed;
-            PointerReleased += OnPointerReleased;
+            PointerCaptureLost += OnPointerCaptureLost;
             PointerWheelChanged += OnPointerWheelChanged;
         }
 
@@ -53,11 +53,9 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (mousePosition.HasValue)
+            if (capturedPointerId != 0)
             {
-                var p = e.Position;
-                TranslateMap(new Point(p.X - mousePosition.Value.X, p.Y - mousePosition.Value.Y));
-                mousePosition = p;
+                TranslateMap(e.Delta.Translation);
             }
             else if (e.PointerDeviceType != PointerDeviceType.Mouse)
             {
@@ -67,24 +65,20 @@ namespace MapControl
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            var point = e.GetCurrentPoint(this);
-
             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
                 e.KeyModifiers == VirtualKeyModifiers.None &&
-                point.Properties.IsLeftButtonPressed &&
+                e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
                 CapturePointer(e.Pointer))
             {
-                mousePosition = point.Position;
+                capturedPointerId = e.Pointer.PointerId;
             }
         }
 
-        private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
+        private void OnPointerCaptureLost(object sender, PointerRoutedEventArgs e)
         {
-            if (mousePosition.HasValue &&
-                e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            if (capturedPointerId == e.Pointer.PointerId)
             {
-                mousePosition = null;
-                ReleasePointerCapture(e.Pointer);
+                capturedPointerId = 0;
             }
         }
 
