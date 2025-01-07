@@ -31,15 +31,15 @@ namespace MapControl
     {
         private class ImageOverlay
         {
-            public ImageOverlay(string imagePath, BoundingBox boundingBox, int zIndex)
+            public ImageOverlay(string imagePath, LatLonBox latLonBox, int zIndex)
             {
                 ImagePath = imagePath;
-                BoundingBox = boundingBox;
+                LatLonBox = latLonBox;
                 ZIndex = zIndex;
             }
 
             public string ImagePath { get; }
-            public BoundingBox BoundingBox { get; }
+            public LatLonBox LatLonBox { get; }
             public int ZIndex { get; }
             public ImageSource ImageSource { get; set; }
         }
@@ -101,7 +101,7 @@ namespace MapControl
                     };
 
                     image.SetValue(Canvas.ZIndexProperty, imageOverlay.ZIndex);
-                    SetBoundingBox(image, imageOverlay.BoundingBox);
+                    SetBoundingBox(image, imageOverlay.LatLonBox);
                     Children.Add(image);
                 }
             }
