@@ -11,15 +11,17 @@ namespace MapControl
 {
     public partial class TileImageLoader
     {
-        private static async Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
+        private static Task<object> LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource<object>();
 
-            async void callback()
+            async void LoadTileImage()
             {
                 try
                 {
-                    tile.SetImageSource(await loadImageFunc());
+                    var image = await loadImageFunc();
+
+                    tile.SetImageSource(image);
                     tcs.TrySetResult(null);
                 }
                 catch (Exception ex)
@@ -28,9 +30,9 @@ namespace MapControl
                 }
             }
 
-            await tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, callback);
+            _ = tile.Image.Dispatcher.RunAsync(CoreDispatcherPriority.Low, LoadTileImage);
 
-            await tcs.Task.ConfigureAwait(false);
+            return tcs.Task;
         }
     }
 }

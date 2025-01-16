@@ -12,6 +12,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+#if WPF
+using System.Windows.Media;
+#elif UWP
+using Windows.UI.Xaml.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
@@ -54,13 +61,11 @@ namespace MapControl
         /// </summary>
         public static int MaxLoadTasks { get; set; } = 4;
 
-
         private ConcurrentStack<Tile> pendingTiles;
 
         /// <summary>
-        /// Loads all pending tiles from the tiles collection.
-        /// If tileSource.UriFormat starts with "http" and cacheName is a non-empty string,
-        /// tile images will be cached in the TileImageLoader's Cache - if that is not null.
+        /// Loads all pending tiles from the tiles collection. Tile image caching is enabled when the Cache
+        /// property is non-null and tileSource.UriFormat starts with "http" and cacheName is a non-empty string.
         /// </summary>
         public async Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
@@ -77,7 +82,7 @@ namespace MapControl
                 {
                     if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
                     {
-                        cacheName = null; // no tile caching
+                        cacheName = null; // disable tile image caching
                     }
 
                     progress?.Report(0d);
@@ -93,7 +98,14 @@ namespace MapControl
 
                             progress?.Report((double)(tileCount - tileStack.Count) / tileCount);
 
-                            await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
+                            try
+                            {
+                                await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"{nameof(TileImageLoader)}: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
+                            }
                         }
                     }
 
@@ -107,32 +119,36 @@ namespace MapControl
             }
         }
 
-        private static async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(cacheName))
-                {
-                    await LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel));
-                }
-                else
-                {
-                    var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
+        protected virtual Task<ImageSource> LoadImageAsync(byte[] buffer) => ImageLoader.LoadImageAsync(buffer);
 
-                    if (uri != null)
-                    {
-                        await LoadCachedTileAsync(tile, uri, cacheName);
-                    }
-                }
-            }
-            catch (Exception ex)
+        private async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        {
+            Func<Task<ImageSource>> loadImageFunc;
+
+            if (string.IsNullOrEmpty(cacheName))
             {
-                Debug.WriteLine($"{nameof(TileImageLoader)}: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
+                loadImageFunc = () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel);
             }
+            else
+            {
+                var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
+
+                if (uri == null) return;
+
+                var buffer = await LoadCachedBufferAsync(tile, uri, cacheName).ConfigureAwait(false);
+
+                if (buffer == null || buffer.Length == 0) return;
+
+                loadImageFunc = () => LoadImageAsync(buffer);
+            }
+
+            await LoadTileAsync(tile, loadImageFunc).ConfigureAwait(false); // loadImageFunc runs in UI thread in WinUI/UWP
         }
 
-        private static async Task LoadCachedTileAsync(Tile tile, Uri uri, string cacheName)
+        private static async Task<byte[]> LoadCachedBufferAsync(Tile tile, Uri uri, string cacheName)
         {
+            byte[] buffer = null;
+
             var extension = Path.GetExtension(uri.LocalPath);
 
             if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
@@ -142,7 +158,14 @@ namespace MapControl
 
             var cacheKey = $"{cacheName}/{tile.ZoomLevel}/{tile.Column}/{tile.Row}{extension}";
 
-            var buffer = await ReadCacheAsync(cacheKey).ConfigureAwait(false);
+            try
+            {
+                buffer = await Cache.GetAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.GetAsync)}: {cacheKey}: {ex.Message}");
+            }
 
             if (buffer == null)
             {
@@ -152,51 +175,24 @@ namespace MapControl
                 {
                     buffer = response.Buffer;
 
-                    await WriteCacheAsync(cacheKey, buffer, response.MaxAge).ConfigureAwait(false);
+                    try
+                    {
+                        var expiration = !response.MaxAge.HasValue ? DefaultCacheExpiration
+                            : response.MaxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
+                            : response.MaxAge.Value;
+
+                        await Cache.SetAsync(cacheKey,
+                            buffer ?? Array.Empty<byte>(), // cache even if null, when no tile available
+                            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration });
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.SetAsync)}: {cacheKey}: {ex.Message}");
+                    }
                 }
             }
 
-            if (buffer != null && buffer.Length > 0)
-            {
-                await LoadTileAsync(tile, () => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
-            }
-        }
-
-        private static async Task<byte[]> ReadCacheAsync(string cacheKey)
-        {
-            try
-            {
-                return await Cache.GetAsync(cacheKey);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.GetAsync)}: {cacheKey}: {ex.Message}");
-
-                return null;
-            }
-        }
-
-        private static async Task WriteCacheAsync(string cacheKey, byte[] buffer, TimeSpan? expiration)
-        {
-            if (!expiration.HasValue)
-            {
-                expiration = DefaultCacheExpiration;
-            }
-            else if (expiration > MaxCacheExpiration)
-            {
-                expiration = MaxCacheExpiration;
-            }
-
-            try
-            {
-                await Cache.SetAsync(cacheKey,
-                    buffer ?? Array.Empty<byte>(), // cache even if null, when no tile available
-                    new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.SetAsync)}: {cacheKey}: {ex.Message}");
-            }
+            return buffer;
         }
     }
 }

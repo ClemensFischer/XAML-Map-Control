@@ -15,11 +15,13 @@ namespace MapControl
         {
             var tcs = new TaskCompletionSource();
 
-            async void callback()
+            async void LoadTileImage()
             {
                 try
                 {
-                    tile.SetImageSource(await loadImageFunc());
+                    var image = await loadImageFunc();
+
+                    tile.SetImageSource(image);
                     tcs.TrySetResult();
                 }
                 catch (Exception ex)
@@ -28,7 +30,10 @@ namespace MapControl
                 }
             }
 
-            tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, callback);
+            if (!tile.Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, LoadTileImage))
+            {
+                tcs.TrySetCanceled();
+            }
 
             return tcs.Task;
         }
