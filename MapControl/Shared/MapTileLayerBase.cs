@@ -43,7 +43,8 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapTileLayerBase, int>(nameof(MaxBackgroundLevels), 5);
 
         public static readonly DependencyProperty UpdateIntervalProperty =
-            DependencyPropertyHelper.Register<MapTileLayerBase, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2));
+            DependencyPropertyHelper.Register<MapTileLayerBase, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
+                (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, bool>(nameof(UpdateWhileViewportChanging));
