@@ -75,7 +75,7 @@ namespace MapControl
 
         /// <summary>
         /// Loads a tile ImageSource asynchronously from GetUri(column, row, zoomLevel).
-        /// This method is called by a TileImageLoader that does not perform caching.
+        /// This method is called by TileImageLoader for TileSources without caching.
         /// </summary>
         public virtual Task<ImageSource> LoadImageAsync(int column, int row, int zoomLevel)
         {
