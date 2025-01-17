@@ -119,9 +119,7 @@ namespace MapControl
             }
         }
 
-        protected virtual Task<ImageSource> LoadImageAsync(byte[] buffer) => ImageLoader.LoadImageAsync(buffer);
-
-        private async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        private static async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
             Func<Task<ImageSource>> loadImageFunc;
 
@@ -139,7 +137,7 @@ namespace MapControl
 
                 if (buffer == null || buffer.Length == 0) return;
 
-                loadImageFunc = () => LoadImageAsync(buffer);
+                loadImageFunc = () => tileSource.LoadImageAsync(buffer);
             }
 
             await LoadTileAsync(tile, loadImageFunc).ConfigureAwait(false); // loadImageFunc runs in UI thread in WinUI/UWP
