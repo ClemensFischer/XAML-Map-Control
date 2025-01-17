@@ -12,13 +12,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-#if WPF
-using System.Windows.Media;
-#elif UWP
-using Windows.UI.Xaml.Media;
-#elif WINUI
-using Microsoft.UI.Xaml.Media;
-#endif
 
 namespace MapControl
 {
@@ -98,14 +91,7 @@ namespace MapControl
 
                             progress?.Report((double)(tileCount - tileStack.Count) / tileCount);
 
-                            try
-                            {
-                                await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"{nameof(TileImageLoader)}: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
-                            }
+                            await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
                         }
                     }
 
@@ -121,26 +107,33 @@ namespace MapControl
 
         private static async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
         {
-            Func<Task<ImageSource>> loadImageFunc;
+            // Both tileSource.LoadImageAsync calls below are executed in the UI thread in WinUI and UWP.
 
-            if (string.IsNullOrEmpty(cacheName))
+            try
             {
-                loadImageFunc = () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel);
+                if (string.IsNullOrEmpty(cacheName))
+                {
+                    await LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel)).ConfigureAwait(false);
+                }
+                else
+                {
+                    var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
+
+                    if (uri != null)
+                    {
+                        var buffer = await LoadCachedBufferAsync(tile, uri, cacheName).ConfigureAwait(false);
+
+                        if (buffer != null && buffer.Length > 0)
+                        {
+                            await LoadTileAsync(tile, () => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
+                        }
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
-
-                if (uri == null) return;
-
-                var buffer = await LoadCachedBufferAsync(tile, uri, cacheName).ConfigureAwait(false);
-
-                if (buffer == null || buffer.Length == 0) return;
-
-                loadImageFunc = () => tileSource.LoadImageAsync(buffer);
+                Debug.WriteLine($"{nameof(TileImageLoader)}: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
             }
-
-            await LoadTileAsync(tile, loadImageFunc).ConfigureAwait(false); // loadImageFunc runs in UI thread in WinUI/UWP
         }
 
         private static async Task<byte[]> LoadCachedBufferAsync(Tile tile, Uri uri, string cacheName)
