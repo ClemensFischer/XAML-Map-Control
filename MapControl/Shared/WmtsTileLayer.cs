@@ -71,6 +71,8 @@ namespace MapControl
 
         public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = new Dictionary<string, WmtsTileMatrixSet>();
 
+        protected virtual WmtsTileSource CreateTileSource(string uriTemplate) => new WmtsTileSource { UriTemplate = uriTemplate };
+
         protected override Size MeasureOverride(Size availableSize)
         {
             foreach (var layer in ChildLayers)
@@ -104,7 +106,26 @@ namespace MapControl
             }
             else if (UpdateChildLayers(tileMatrixSet))
             {
-                await LoadTiles(tileMatrixSet);
+                var cacheName = SourceName;
+
+                if (TileSource is WmtsTileSource tileSource)
+                {
+                    tileSource.TileMatrixSet = tileMatrixSet;
+
+                    if (!string.IsNullOrEmpty(cacheName))
+                    {
+                        if (!string.IsNullOrEmpty(Layer))
+                        {
+                            cacheName += "/" + Layer.Replace(':', '_');
+                        }
+
+                        cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
+                    }
+                }
+
+                var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
+
+                await LoadTiles(tiles, cacheName);
             }
         }
 
@@ -164,30 +185,6 @@ namespace MapControl
             return tilesChanged;
         }
 
-        private Task LoadTiles(WmtsTileMatrixSet tileMatrixSet)
-        {
-            var cacheName = SourceName;
-
-            if (TileSource is WmtsTileSource tileSource)
-            {
-                tileSource.TileMatrixSet = tileMatrixSet;
-
-                if (!string.IsNullOrEmpty(cacheName))
-                {
-                    if (!string.IsNullOrEmpty(Layer))
-                    {
-                        cacheName += "/" + Layer.Replace(':', '_');
-                    }
-
-                    cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
-                }
-            }
-
-            var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
-
-            return LoadTiles(tiles, cacheName);
-        }
-
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
             Loaded -= OnLoaded;
@@ -206,7 +203,7 @@ namespace MapControl
                     }
 
                     Layer = capabilities.Layer;
-                    TileSource = capabilities.TileSource;
+                    TileSource = CreateTileSource(capabilities.UriTemplate);
                 }
                 catch (Exception ex)
                 {
