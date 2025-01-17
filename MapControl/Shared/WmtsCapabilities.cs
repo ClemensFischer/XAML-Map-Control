@@ -24,7 +24,7 @@ namespace MapControl
         private static readonly XNamespace xlink = "http://www.w3.org/1999/xlink";
 
         public string Layer { get; private set; }
-        public string UriTemplate { get; private set; }
+        public string UrlTemplate { get; private set; }
         public List<WmtsTileMatrixSet> TileMatrixSets { get; private set; }
 
         public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri capabilitiesUri, string layer)
@@ -117,7 +117,7 @@ namespace MapControl
             return new WmtsCapabilities
             {
                 Layer = layer,
-                UriTemplate = urlTemplate,
+                UrlTemplate = urlTemplate,
                 TileMatrixSets = tileMatrixSets
             };
         }
