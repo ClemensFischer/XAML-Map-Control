@@ -106,21 +106,18 @@ namespace MapControl
             }
             else if (UpdateChildLayers(tileMatrixSet))
             {
+                ((WmtsTileSource)TileSource).TileMatrixSet = tileMatrixSet;
+
                 var cacheName = SourceName;
 
-                if (TileSource is WmtsTileSource tileSource)
+                if (!string.IsNullOrEmpty(cacheName))
                 {
-                    tileSource.TileMatrixSet = tileMatrixSet;
-
-                    if (!string.IsNullOrEmpty(cacheName))
+                    if (!string.IsNullOrEmpty(Layer))
                     {
-                        if (!string.IsNullOrEmpty(Layer))
-                        {
-                            cacheName += "/" + Layer.Replace(':', '_');
-                        }
-
-                        cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
+                        cacheName += "/" + Layer.Replace(':', '_');
                     }
+
+                    cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
                 }
 
                 var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
