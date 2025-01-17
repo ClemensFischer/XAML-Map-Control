@@ -200,7 +200,7 @@ namespace MapControl
                     }
 
                     Layer = capabilities.Layer;
-                    TileSource = CreateTileSource(capabilities.UriTemplate);
+                    TileSource = CreateTileSource(capabilities.UrlTemplate);
                 }
                 catch (Exception ex)
                 {
