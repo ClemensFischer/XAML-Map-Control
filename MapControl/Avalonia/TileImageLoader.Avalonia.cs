@@ -13,7 +13,7 @@ namespace MapControl
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 
-            await Dispatcher.UIThread.InvokeAsync(() => tile.SetImageSource(image));
+            _ = Dispatcher.UIThread.InvokeAsync(() => tile.SetImageSource(image)); // no need to await InvokeAsync
         }
     }
 }

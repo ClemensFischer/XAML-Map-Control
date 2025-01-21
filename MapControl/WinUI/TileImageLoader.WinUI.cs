@@ -21,8 +21,9 @@ namespace MapControl
                 {
                     var image = await loadImageFunc();
 
+                    tcs.TrySetResult(); // tcs.Task has completed when image is loaded
+
                     tile.SetImageSource(image);
-                    tcs.TrySetResult();
                 }
                 catch (Exception ex)
                 {
