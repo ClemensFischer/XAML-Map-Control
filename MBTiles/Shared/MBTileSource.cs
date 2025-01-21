@@ -91,7 +91,7 @@ namespace MapControl.MBTiles
 
                 if (buffer != null)
                 {
-                    image = await ImageLoader.LoadImageAsync(buffer);
+                    image = await LoadImageAsync(buffer);
                 }
             }
             catch (Exception ex)
