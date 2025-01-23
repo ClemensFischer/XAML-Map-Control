@@ -21,6 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- Directly referencing "Microsoft.Web.WebView2 is a workaround for a bug in WindowsAppSDK, https://github.com/microsoft/WindowsAppSDK/issues/4807 -->
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2957.106" />
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
         <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
