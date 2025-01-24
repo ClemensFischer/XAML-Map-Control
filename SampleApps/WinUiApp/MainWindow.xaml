@@ -7,13 +7,6 @@
 
     <Grid>
         <Grid.Resources>
-            <!--
-            XAML declaration of BingMapsTileLayer is necessary to make Value="{Binding LoadingProgress}"
-            on the ProgressBar below work. Apparently dependency properties of custom types do not fire
-            change notifications when the type is not declared in XAML. To be reported as WinUI issue.
-            -->
-            <map:BingMapsTileLayer x:Key="dummy"/>
-
             <DataTemplate x:Key="PolylineItemTemplate">
                 <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>
             </DataTemplate>
