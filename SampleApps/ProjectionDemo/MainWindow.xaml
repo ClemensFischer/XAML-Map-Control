@@ -4,8 +4,15 @@
         xmlns:map="clr-namespace:MapControl;assembly=MapControl.WPF"
         Title="XAML MapControl - Projection Demo" Height="600" Width="800"
         Loaded="Window_Loaded">
-    <DockPanel>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+    <Grid>
+        <map:Map MaxZoomLevel="22" ZoomLevel="10" Center="50.1,8.25" MapLayer="{Binding CurrentLayer}"
+                 MapProjection="{Binding CurrentProjection}"
+                 MouseRightButtonUp="Map_MouseRightButtonUp">
+
+            <map:Pushpin map:MapPanel.Location="{Binding PushpinLocation}"
+                         Content="{Binding PushpinText}"/>
+        </map:Map>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="4">
             <ComboBox Margin="2"
                       ItemsSource="{Binding Projections}"
                       SelectedItem="{Binding CurrentProjection}"
@@ -16,19 +23,5 @@
                       SelectedValuePath="Value"
                       DisplayMemberPath="Key"/>
         </StackPanel>
-
-        <map:Map MaxZoomLevel="22" ZoomLevel="8" Center="50,8" MapLayer="{Binding CurrentLayer}"
-                 MouseRightButtonUp="Map_MouseRightButtonUp">
-            <map:MapBase.MapProjection>
-                <Binding Path="CurrentProjection">
-                    <Binding.FallbackValue>
-                        <map:WebMercatorProjection/>
-                    </Binding.FallbackValue>
-                </Binding>
-            </map:MapBase.MapProjection>
-
-            <map:Pushpin map:MapPanel.Location="{Binding PushpinLocation}"
-                         Content="{Binding PushpinText}"/>
-        </map:Map>
-    </DockPanel>
+    </Grid>
 </Window>

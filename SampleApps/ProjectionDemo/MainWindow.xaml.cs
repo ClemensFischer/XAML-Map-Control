@@ -40,11 +40,19 @@ namespace ProjectionDemo
                 });
 
             viewModel.Layers.Add(
+                "Basemap.de WMS",
+                new WmsImageLayer
+                {
+                    ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_basemapde"),
+                    WmsLayers = "de_basemapde_web_raster_farbe"
+                });
+
+            viewModel.Layers.Add(
                 "Orthophotos Wiesbaden",
                 new WmsImageLayer
                 {
                     ServiceUri = new Uri("https://geoportal.wiesbaden.de/cgi-bin/mapserv.fcgi?map=d:/openwimap/umn/map/orthophoto/orthophotos.map"),
-                    WmsLayers = "orthophoto2017"
+                    WmsLayers = "orthophoto2023"
                 });
 
             viewModel.CurrentProjection = viewModel.Projections[0];
@@ -70,9 +78,9 @@ namespace ProjectionDemo
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public List<MapProjection> Projections { get; } = new List<MapProjection>();
+        public List<MapProjection> Projections { get; } = [];
 
-        public Dictionary<string, IMapLayer> Layers { get; } = new Dictionary<string, IMapLayer>();
+        public Dictionary<string, IMapLayer> Layers { get; } = [];
 
         public MapProjection CurrentProjection
         {
