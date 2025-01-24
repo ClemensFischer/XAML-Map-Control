@@ -19,7 +19,7 @@ namespace MapControl
                     new KeyFrame
                     {
                         KeyTime = MapBase.ImageFadeDuration,
-                        Setters = { new Setter(Visual.OpacityProperty, 1d) }
+                        Setters = { new Setter(OpacityProperty, 1d) }
                     }
                 }
             };

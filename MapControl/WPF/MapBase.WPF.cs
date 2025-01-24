@@ -137,8 +137,7 @@ namespace MapControl
                 {
                     To = new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude)),
                     Duration = AnimationDuration,
-                    EasingFunction = AnimationEasingFunction,
-                    FillBehavior = FillBehavior.Stop
+                    EasingFunction = AnimationEasingFunction
                 };
 
                 centerAnimation.Completed += CenterAnimationCompleted;
@@ -154,9 +153,9 @@ namespace MapControl
                 centerAnimation.Completed -= CenterAnimationCompleted;
                 centerAnimation = null;
 
-                BeginAnimation(CenterProperty, null);
                 SetValueInternal(CenterProperty, TargetCenter);
                 UpdateTransform();
+                BeginAnimation(CenterProperty, null);
             }
         }
 
@@ -202,8 +201,7 @@ namespace MapControl
                 {
                     To = targetZoomLevel,
                     Duration = AnimationDuration,
-                    EasingFunction = AnimationEasingFunction,
-                    FillBehavior = FillBehavior.Stop
+                    EasingFunction = AnimationEasingFunction
                 };
 
                 zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
@@ -219,9 +217,9 @@ namespace MapControl
                 zoomLevelAnimation.Completed -= ZoomLevelAnimationCompleted;
                 zoomLevelAnimation = null;
 
-                BeginAnimation(ZoomLevelProperty, null);
                 SetValueInternal(ZoomLevelProperty, TargetZoomLevel);
                 UpdateTransform(true);
+                BeginAnimation(ZoomLevelProperty, null);
             }
         }
 
@@ -262,8 +260,7 @@ namespace MapControl
                 {
                     By = delta,
                     Duration = AnimationDuration,
-                    EasingFunction = AnimationEasingFunction,
-                    FillBehavior = FillBehavior.Stop
+                    EasingFunction = AnimationEasingFunction
                 };
 
                 headingAnimation.Completed += HeadingAnimationCompleted;
@@ -279,9 +276,9 @@ namespace MapControl
                 headingAnimation.Completed -= HeadingAnimationCompleted;
                 headingAnimation = null;
 
-                BeginAnimation(HeadingProperty, null);
                 SetValueInternal(HeadingProperty, TargetHeading);
                 UpdateTransform();
+                BeginAnimation(HeadingProperty, null);
             }
         }
     }

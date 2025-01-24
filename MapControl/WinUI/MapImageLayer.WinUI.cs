@@ -27,8 +27,7 @@ namespace MapControl
             {
                 To = 0d,
                 BeginTime = MapBase.ImageFadeDuration,
-                Duration = TimeSpan.Zero,
-                FillBehavior = FillBehavior.Stop
+                Duration = TimeSpan.Zero
             };
 
             Storyboard.SetTargetProperty(fadeInAnimation, nameof(Opacity));
