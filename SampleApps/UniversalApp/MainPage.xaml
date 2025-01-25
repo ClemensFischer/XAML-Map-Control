@@ -130,6 +130,7 @@
 
         <map:Map x:Name="map" ManipulationMode="All"
                  Center="53.5,8.2"
+                 DoubleTapped="MapDoubleTapped"
                  MinZoomLevel="2" MaxZoomLevel="21" ZoomLevel="11"
                  PointerPressed="MapPointerPressed"
                  PointerReleased="MapPointerReleased"
