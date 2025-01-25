@@ -125,10 +125,7 @@ namespace MapControl
         /// <summary>
         /// Gets the progress of the ImageLoader as a double value between 0 and 1.
         /// </summary>
-        public double LoadingProgress
-        {
-            get => (double)GetValue(LoadingProgressProperty);
-        }
+        public double LoadingProgress => (double)GetValue(LoadingProgressProperty);
 
         protected override void SetParentMap(MapBase map)
         {
@@ -136,11 +133,7 @@ namespace MapControl
             {
                 while (Children.Count < 2)
                 {
-                    Children.Add(new Image
-                    {
-                        Opacity = 0d,
-                        Stretch = Stretch.Fill,
-                    });
+                    Children.Add(new Image { Stretch = Stretch.Fill });
                 }
             }
             else
@@ -236,7 +229,6 @@ namespace MapControl
             if (Children.Count >= 2)
             {
                 var topImage = (Image)Children[0];
-                var bottomImage = (Image)Children[1];
 
                 Children.RemoveAt(0);
                 Children.Insert(1, topImage);
@@ -244,7 +236,7 @@ namespace MapControl
                 topImage.Source = image;
                 SetBoundingBox(topImage, boundingBox);
 
-                FadeOver(topImage, bottomImage);
+                FadeOver();
             }
         }
     }

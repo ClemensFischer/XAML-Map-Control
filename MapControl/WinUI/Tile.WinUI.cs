@@ -25,8 +25,8 @@ namespace MapControl
                 FillBehavior = FillBehavior.Stop
             };
 
-            Storyboard.SetTargetProperty(fadeInAnimation, nameof(UIElement.Opacity));
             Storyboard.SetTarget(fadeInAnimation, Image);
+            Storyboard.SetTargetProperty(fadeInAnimation, nameof(UIElement.Opacity));
 
             var storyboard = new Storyboard();
             storyboard.Children.Add(fadeInAnimation);

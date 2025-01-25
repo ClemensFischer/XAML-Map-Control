@@ -8,7 +8,7 @@ namespace MapControl
 {
     public partial class MapImageLayer
     {
-        public static void FadeOver(Image topImage, Image bottomImage)
+        private void FadeOver()
         {
             var fadeInAnimation = new Animation
             {
@@ -24,8 +24,8 @@ namespace MapControl
                 }
             };
 
-            _ = fadeInAnimation.RunAsync(topImage).ContinueWith(
-                _ => bottomImage.Opacity = 0d,
+            _ = fadeInAnimation.RunAsync(Children[1]).ContinueWith(
+                _ => Children[0].Opacity = 0d,
                 TaskScheduler.FromCurrentSynchronizationContext());
         }
     }

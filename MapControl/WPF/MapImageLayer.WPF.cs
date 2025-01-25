@@ -3,14 +3,14 @@
 // Licensed under the Microsoft Public License (Ms-PL)
 
 using System;
-using System.Windows.Controls;
+using System.Windows;
 using System.Windows.Media.Animation;
 
 namespace MapControl
 {
     public partial class MapImageLayer
     {
-        public static void FadeOver(Image topImage, Image bottomImage)
+        private void FadeOver()
         {
             var fadeInAnimation = new DoubleAnimation
             {
@@ -25,8 +25,16 @@ namespace MapControl
                 Duration = TimeSpan.Zero
             };
 
-            topImage.BeginAnimation(OpacityProperty, fadeInAnimation);
-            bottomImage.BeginAnimation(OpacityProperty, fadeOutAnimation);
+            Storyboard.SetTarget(fadeInAnimation, Children[1]);
+            Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
+
+            Storyboard.SetTarget(fadeOutAnimation, Children[0]);
+            Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(fadeInAnimation);
+            storyboard.Children.Add(fadeOutAnimation);
+            storyboard.Begin();
         }
     }
 }
