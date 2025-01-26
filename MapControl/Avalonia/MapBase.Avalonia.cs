@@ -48,7 +48,7 @@ namespace MapControl
 
         public static readonly StyledProperty<Location> TargetCenterProperty =
            DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(),
-                async (map, oldValue, newValue) => await map.TargetCenterPropertyChanged(newValue),
+                async (map, oldValue, newValue) => await map.TargetCenterPropertyChangedAsync(newValue),
                 (map, value) => map.CoerceCenterProperty(value),
                 true);
 
@@ -70,7 +70,7 @@ namespace MapControl
 
         public static readonly StyledProperty<double> TargetZoomLevelProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetZoomLevel), 1d,
-                async (map, oldValue, newValue) => await map.TargetZoomLevelPropertyChanged(newValue),
+                async (map, oldValue, newValue) => await map.TargetZoomLevelPropertyChangedAsync(newValue),
                 (map, value) => map.CoerceZoomLevelProperty(value),
                 true);
 
@@ -82,7 +82,7 @@ namespace MapControl
 
         public static readonly StyledProperty<double> TargetHeadingProperty =
             DependencyPropertyHelper.Register<MapBase, double>(nameof(TargetHeading), 0d,
-                async (map, oldValue, newValue) => await map.TargetHeadingPropertyChanged(newValue),
+                async (map, oldValue, newValue) => await map.TargetHeadingPropertyChangedAsync(newValue),
                 (map, value) => map.CoerceHeadingProperty(value),
                 true);
 
@@ -153,7 +153,7 @@ namespace MapControl
             }
         }
 
-        private async Task TargetCenterPropertyChanged(Location targetCenter)
+        private async Task TargetCenterPropertyChangedAsync(Location targetCenter)
         {
             if (!internalPropertyChange && !targetCenter.Equals(Center))
             {
@@ -206,7 +206,7 @@ namespace MapControl
             }
         }
 
-        private async Task TargetZoomLevelPropertyChanged(double targetZoomLevel)
+        private async Task TargetZoomLevelPropertyChangedAsync(double targetZoomLevel)
         {
             if (!internalPropertyChange && targetZoomLevel != ZoomLevel)
             {
@@ -241,7 +241,7 @@ namespace MapControl
             }
         }
 
-        private async Task TargetHeadingPropertyChanged(double targetHeading)
+        private async Task TargetHeadingPropertyChangedAsync(double targetHeading)
         {
             if (!internalPropertyChange && targetHeading != Heading)
             {

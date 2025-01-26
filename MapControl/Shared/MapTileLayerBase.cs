@@ -31,7 +31,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null,
-                async (layer, oldValue, newValue) => await layer.Update(true));
+                async (layer, oldValue, newValue) => await layer.UpdateAsync(true));
 
         public static readonly DependencyProperty SourceNameProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, string>(nameof(SourceName));
@@ -70,7 +70,7 @@ namespace MapControl
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = this.CreateTimer(UpdateInterval);
-            updateTimer.Tick += async (s, e) => await Update(false);
+            updateTimer.Tick += async (s, e) => await UpdateAsync(false);
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
 #if WPF
@@ -194,25 +194,25 @@ namespace MapControl
 
         protected abstract void SetRenderTransform();
 
-        protected abstract Task UpdateTileLayer(bool tileSourceChanged);
+        protected abstract Task UpdateTileLayerAsync(bool tileSourceChanged);
 
-        protected Task LoadTiles(IEnumerable<Tile> tiles, string cacheName)
+        protected Task LoadTilesAsync(IEnumerable<Tile> tiles, string cacheName)
         {
             return TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress);
         }
 
-        private Task Update(bool tileSourceChanged)
+        private Task UpdateAsync(bool tileSourceChanged)
         {
             updateTimer.Stop();
 
-            return UpdateTileLayer(tileSourceChanged);
+            return UpdateTileLayerAsync(tileSourceChanged);
         }
 
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (e.TransformCenterChanged || e.ProjectionChanged || Children.Count == 0)
             {
-                await Update(false); // update immediately
+                await UpdateAsync(false); // update immediately
             }
             else
             {

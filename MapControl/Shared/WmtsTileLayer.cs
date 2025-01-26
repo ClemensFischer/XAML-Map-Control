@@ -93,7 +93,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override async Task UpdateTileLayer(bool tileSourceChanged)
+        protected override async Task UpdateTileLayerAsync(bool tileSourceChanged)
         {
             // tileSourceChanged is ignored here because it is always false.
 
@@ -102,7 +102,7 @@ namespace MapControl
             {
                 Children.Clear();
 
-                await LoadTiles(null, null); // stop TileImageLoader
+                await LoadTilesAsync(null, null); // stop TileImageLoader
             }
             else if (UpdateChildLayers(tileMatrixSet))
             {
@@ -122,7 +122,7 @@ namespace MapControl
 
                 var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
 
-                await LoadTiles(tiles, cacheName);
+                await LoadTilesAsync(tiles, cacheName);
             }
         }
 

@@ -26,7 +26,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty SourcePathsProperty =
             DependencyPropertyHelper.Register<MapOverlaysPanel, IEnumerable<string>>(nameof(SourcePaths), null,
-                async (control, oldValue, newValue) => await control.SourcePathsPropertyChanged(oldValue, newValue));
+                async (control, oldValue, newValue) => await control.SourcePathsPropertyChangedAsync(oldValue, newValue));
 
         public IEnumerable<string> SourcePaths
         {
@@ -34,7 +34,7 @@ namespace MapControl
             set => SetValue(SourcePathsProperty, value);
         }
 
-        private async Task SourcePathsPropertyChanged(IEnumerable<string> oldSourcePaths, IEnumerable<string> newSourcePaths)
+        private async Task SourcePathsPropertyChangedAsync(IEnumerable<string> oldSourcePaths, IEnumerable<string> newSourcePaths)
         {
             Children.Clear();
 
@@ -50,7 +50,7 @@ namespace MapControl
                     newCollection.CollectionChanged += SourcePathsCollectionChanged;
                 }
 
-                await AddOverlays(0, newSourcePaths);
+                await AddOverlaysAsync(0, newSourcePaths);
             }
         }
 
@@ -59,7 +59,7 @@ namespace MapControl
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    await AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await AddOverlaysAsync(args.NewStartingIndex, args.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
@@ -68,33 +68,33 @@ namespace MapControl
 
                 case NotifyCollectionChangedAction.Move:
                     RemoveOverlays(args.OldStartingIndex, args.OldItems.Count);
-                    await AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await AddOverlaysAsync(args.NewStartingIndex, args.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Replace:
-                    await ReplaceOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await ReplaceOverlaysAsync(args.NewStartingIndex, args.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
                     Children.Clear();
-                    await AddOverlays(0, SourcePaths);
+                    await AddOverlaysAsync(0, SourcePaths);
                     break;
             }
         }
 
-        private async Task AddOverlays(int index, IEnumerable<string> sourcePaths)
+        private async Task AddOverlaysAsync(int index, IEnumerable<string> sourcePaths)
         {
             foreach (var sourcePath in sourcePaths)
             {
-                Children.Insert(index++, await CreateOverlay(sourcePath));
+                Children.Insert(index++, await CreateOverlayAsync(sourcePath));
             }
         }
 
-        private async Task ReplaceOverlays(int index, IEnumerable<string> sourcePaths)
+        private async Task ReplaceOverlaysAsync(int index, IEnumerable<string> sourcePaths)
         {
             foreach (var sourcePath in sourcePaths)
             {
-                Children[index++] = await CreateOverlay(sourcePath);
+                Children[index++] = await CreateOverlayAsync(sourcePath);
             }
         }
 
@@ -106,7 +106,7 @@ namespace MapControl
             }
         }
 
-        protected virtual async Task<FrameworkElement> CreateOverlay(string sourcePath)
+        protected virtual async Task<FrameworkElement> CreateOverlayAsync(string sourcePath)
         {
             FrameworkElement overlay;
             var ext = Path.GetExtension(sourcePath).ToLower();

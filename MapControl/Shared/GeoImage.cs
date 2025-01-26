@@ -136,7 +136,7 @@ namespace MapControl
                 {
                     return new GeoBitmap(
                         (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath),
-                        await ReadWorldFileMatrix(worldFilePath),
+                        await ReadWorldFileMatrixAsync(worldFilePath),
                         null);
                 }
             }
@@ -144,7 +144,7 @@ namespace MapControl
             return await LoadGeoTiffAsync(sourcePath);
         }
 
-        private static async Task<Matrix> ReadWorldFileMatrix(string worldFilePath)
+        private static async Task<Matrix> ReadWorldFileMatrixAsync(string worldFilePath)
         {
             using (var fileStream = File.OpenRead(worldFilePath))
             using (var streamReader = new StreamReader(fileStream))
