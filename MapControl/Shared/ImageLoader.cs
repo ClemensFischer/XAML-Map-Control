@@ -109,7 +109,7 @@ namespace MapControl
 
                             if (progress != null && content.Headers.ContentLength.HasValue)
                             {
-                                buffer = await ReadAsByteArrayAsync(content, progress).ConfigureAwait(false);
+                                buffer = await ReadAsByteArray(content, progress).ConfigureAwait(false);
                             }
                             else
                             {
@@ -133,7 +133,7 @@ namespace MapControl
             return response;
         }
 
-        private static async Task<byte[]> ReadAsByteArrayAsync(HttpContent content, IProgress<double> progress)
+        private static async Task<byte[]> ReadAsByteArray(HttpContent content, IProgress<double> progress)
         {
             var length = (int)content.Headers.ContentLength.Value;
             var buffer = new byte[length];
