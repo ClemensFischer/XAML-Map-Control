@@ -133,7 +133,7 @@ namespace MapControl.Caching
 
         public async Task CleanAsync()
         {
-            var deletedFileCount = await CleanFolderAsync(rootFolder);
+            var deletedFileCount = await CleanFolder(rootFolder);
 
             if (deletedFileCount > 0)
             {
@@ -141,7 +141,7 @@ namespace MapControl.Caching
             }
         }
 
-        private static async Task<int> CleanFolderAsync(StorageFolder folder)
+        private static async Task<int> CleanFolder(StorageFolder folder)
         {
             var deletedFileCount = 0;
 
@@ -149,12 +149,12 @@ namespace MapControl.Caching
             {
                 foreach (var f in await folder.GetFoldersAsync())
                 {
-                    deletedFileCount += await CleanFolderAsync(f);
+                    deletedFileCount += await CleanFolder(f);
                 }
 
                 foreach (var f in await folder.GetFilesAsync())
                 {
-                    deletedFileCount += await CleanFileAsync(f);
+                    deletedFileCount += await CleanFile(f);
                 }
 
                 if ((await folder.GetItemsAsync()).Count == 0)
@@ -170,7 +170,7 @@ namespace MapControl.Caching
             return deletedFileCount;
         }
 
-        private static async Task<int> CleanFileAsync(StorageFile file)
+        private static async Task<int> CleanFile(StorageFile file)
         {
             var deletedFileCount = 0;
             var size = (await file.GetBasicPropertiesAsync()).Size;
