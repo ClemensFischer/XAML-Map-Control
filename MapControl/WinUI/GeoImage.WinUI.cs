@@ -16,7 +16,7 @@ namespace MapControl
 {
     public static partial class GeoImage
     {
-        private static async Task<GeoBitmap> LoadGeoTiffAsync(string sourcePath)
+        private static async Task<GeoBitmap> LoadGeoTiff(string sourcePath)
         {
             BitmapSource bitmap;
             Matrix transform;

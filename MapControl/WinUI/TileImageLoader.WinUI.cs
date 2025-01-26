@@ -11,7 +11,7 @@ namespace MapControl
 {
     public partial class TileImageLoader
     {
-        private static Task LoadTileAsync(Tile tile, Func<Task<ImageSource>> loadImageFunc)
+        private static Task LoadTileImage(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource();
 

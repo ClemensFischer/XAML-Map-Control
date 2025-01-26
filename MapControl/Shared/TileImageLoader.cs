@@ -93,7 +93,7 @@ namespace MapControl
 
                             try
                             {
-                                await LoadTileAsync(tile, tileSource, cacheName).ConfigureAwait(false);
+                                await LoadTileImage(tile, tileSource, cacheName).ConfigureAwait(false);
                             }
                             catch (Exception ex)
                             {
@@ -112,14 +112,14 @@ namespace MapControl
             }
         }
 
-        private static async Task LoadTileAsync(Tile tile, TileSource tileSource, string cacheName)
+        private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName)
         {
             // Pass tileSource.LoadImageAsync calls to platform-specific method
-            // LoadTileAsync(Tile, Func<Task<ImageSource>>) for execution on the UI thread in WinUI/UWP.
+            // LoadTileImage(Tile, Func<Task<ImageSource>>) for execution on the UI thread in WinUI and UWP.
 
             if (string.IsNullOrEmpty(cacheName))
             {
-                await LoadTileAsync(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel)).ConfigureAwait(false);
+                await LoadTileImage(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel)).ConfigureAwait(false);
             }
             else
             {
@@ -127,17 +127,17 @@ namespace MapControl
 
                 if (uri != null)
                 {
-                    var buffer = await LoadCachedBufferAsync(tile, uri, cacheName).ConfigureAwait(false);
+                    var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
 
                     if (buffer != null && buffer.Length > 0)
                     {
-                        await LoadTileAsync(tile, () => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
+                        await LoadTileImage(tile, () => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
                     }
                 }
             }
         }
 
-        private static async Task<byte[]> LoadCachedBufferAsync(Tile tile, Uri uri, string cacheName)
+        private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName)
         {
             byte[] buffer = null;
 

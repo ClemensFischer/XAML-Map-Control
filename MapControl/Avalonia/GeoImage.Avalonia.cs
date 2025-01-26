@@ -9,7 +9,7 @@ namespace MapControl
 {
     public static partial class GeoImage
     {
-        private static Task<GeoBitmap> LoadGeoTiffAsync(string sourcePath)
+        private static Task<GeoBitmap> LoadGeoTiff(string sourcePath)
         {
             throw new InvalidOperationException("GeoTIFF is not supported.");
         }

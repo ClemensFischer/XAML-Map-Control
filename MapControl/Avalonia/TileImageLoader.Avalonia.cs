@@ -9,7 +9,7 @@ namespace MapControl
 {
     public partial class TileImageLoader
     {
-        private static async Task LoadTileAsync(Tile tile, Func<Task<IImage>> loadImageFunc)
+        private static async Task LoadTileImage(Tile tile, Func<Task<IImage>> loadImageFunc)
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 

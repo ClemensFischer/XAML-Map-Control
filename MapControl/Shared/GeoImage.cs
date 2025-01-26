@@ -92,7 +92,7 @@ namespace MapControl
             {
                 try
                 {
-                    var geoBitmap = await LoadGeoBitmapAsync(sourcePath);
+                    var geoBitmap = await LoadGeoBitmap(sourcePath);
 
                     if (element is Image image)
                     {
@@ -122,7 +122,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<GeoBitmap> LoadGeoBitmapAsync(string sourcePath)
+        private static async Task<GeoBitmap> LoadGeoBitmap(string sourcePath)
         {
             var ext = Path.GetExtension(sourcePath);
 
@@ -136,15 +136,15 @@ namespace MapControl
                 {
                     return new GeoBitmap(
                         (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath),
-                        await ReadWorldFileMatrixAsync(worldFilePath),
+                        await ReadWorldFileMatrix(worldFilePath),
                         null);
                 }
             }
 
-            return await LoadGeoTiffAsync(sourcePath);
+            return await LoadGeoTiff(sourcePath);
         }
 
-        private static async Task<Matrix> ReadWorldFileMatrixAsync(string worldFilePath)
+        private static async Task<Matrix> ReadWorldFileMatrix(string worldFilePath)
         {
             using (var fileStream = File.OpenRead(worldFilePath))
             using (var streamReader = new StreamReader(fileStream))

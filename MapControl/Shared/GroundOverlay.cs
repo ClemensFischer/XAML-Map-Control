@@ -75,11 +75,11 @@ namespace MapControl
 
                     if (ext == ".kmz")
                     {
-                        imageOverlays = await LoadGroundOverlaysFromArchiveAsync(sourcePath);
+                        imageOverlays = await LoadGroundOverlaysFromArchive(sourcePath);
                     }
                     else if (ext == ".kml")
                     {
-                        imageOverlays = await LoadGroundOverlaysFromFileAsync(sourcePath);
+                        imageOverlays = await LoadGroundOverlaysFromFile(sourcePath);
                     }
                 }
                 catch (Exception ex)
@@ -107,7 +107,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromArchiveAsync(string archiveFilePath)
+        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromArchive(string archiveFilePath)
         {
             using (var archive = ZipFile.OpenRead(archiveFilePath))
             {
@@ -150,7 +150,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromFileAsync(string docFilePath)
+        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromFile(string docFilePath)
         {
             docFilePath = FilePath.GetFullPath(docFilePath);
 
