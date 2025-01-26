@@ -133,7 +133,11 @@ namespace MapControl
             {
                 while (Children.Count < 2)
                 {
-                    Children.Add(new Image { Stretch = Stretch.Fill });
+                    Children.Add(new Image
+                    {
+                        Opacity = 0d,
+                        Stretch = Stretch.Fill
+                    });
                 }
             }
             else
@@ -236,7 +240,15 @@ namespace MapControl
                 topImage.Source = image;
                 SetBoundingBox(topImage, boundingBox);
 
-                FadeOver();
+                if (MapBase.ImageFadeDuration > TimeSpan.Zero)
+                {
+                    FadeOver();
+                }
+                else
+                {
+                    topImage.Opacity = 1d;
+                    Children[0].Opacity = 0d;
+                }
             }
         }
     }
