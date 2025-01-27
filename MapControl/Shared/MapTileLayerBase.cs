@@ -184,8 +184,6 @@ namespace MapControl
                 if (parentMap != null)
                 {
                     parentMap.ViewportChanged += OnViewportChanged;
-
-                    SetRenderTransform();
                 }
 
                 updateTimer.Run();
