@@ -31,7 +31,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null,
-                async (layer, oldValue, newValue) => await layer.Update(true));
+                async (layer, oldValue, newValue) => await layer.UpdateTileLayer(true));
 
         public static readonly DependencyProperty SourceNameProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, string>(nameof(SourceName));
@@ -70,7 +70,7 @@ namespace MapControl
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = this.CreateTimer(UpdateInterval);
-            updateTimer.Tick += async (s, e) => await Update(false);
+            updateTimer.Tick += async (s, e) => await UpdateTileLayer(false);
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
 #if WPF
@@ -201,7 +201,7 @@ namespace MapControl
             return TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress);
         }
 
-        private Task Update(bool tileSourceChanged)
+        private Task UpdateTileLayer(bool tileSourceChanged)
         {
             updateTimer.Stop();
 
@@ -212,7 +212,7 @@ namespace MapControl
         {
             if (e.TransformCenterChanged || e.ProjectionChanged || Children.Count == 0)
             {
-                await Update(false); // update immediately
+                await UpdateTileLayer(false); // update immediately
             }
             else
             {
