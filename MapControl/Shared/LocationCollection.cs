@@ -172,7 +172,7 @@ namespace MapControl
 
             // beta = atan(dlon,dy)
             // sec(beta) = 1 / cos(atan(dlon,dy)) = sqrt(1 + (dlon/dy)^2)
-
+            //
             var sec = Math.Sqrt(1d + dlon * dlon / (dy * dy));
 
             const double secLimit = 1000d; // beta approximately +/-90°

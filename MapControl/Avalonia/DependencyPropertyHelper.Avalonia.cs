@@ -39,7 +39,8 @@ namespace MapControl
 
             if (coerce != null)
             {
-                // do not coerce default value
+                // Do not coerce default value.
+                //
                 coerceFunc = (obj, value) => Equals(value, defaultValue) ? value : coerce((TOwner)obj, value);
             }
 

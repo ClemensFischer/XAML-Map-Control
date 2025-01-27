@@ -65,7 +65,7 @@ namespace MapControl
                 ? double.Parse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture)
                 : 0d;
 
-            // always return a LatLonBox, i.e. a BoundingBox with optional rotation, as used by GeoImage and GroundOverlay
+            // Always return a LatLonBox, i.e. a BoundingBox with optional rotation, as used by GeoImage and GroundOverlay.
             //
             return new LatLonBox(
                 double.Parse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture),
