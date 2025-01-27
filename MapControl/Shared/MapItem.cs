@@ -63,6 +63,7 @@ namespace MapControl
                     // Attach ViewportChanged handler only if MapTransform is actually used.
                     //
                     parentMap.ViewportChanged += OnViewportChanged;
+
                     UpdateMapTransform(Location);
                 }
             }
@@ -83,6 +84,7 @@ namespace MapControl
                     if (parentMap != null)
                     {
                         parentMap.ViewportChanged += OnViewportChanged;
+
                         UpdateMapTransform(Location);
                     }
                 }
