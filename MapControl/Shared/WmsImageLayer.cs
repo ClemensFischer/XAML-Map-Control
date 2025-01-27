@@ -39,7 +39,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsLayers), null,
                 async (layer, oldValue, newValue) =>
                 {
-                    // Ignore property change from GetImageAsync when Layers was null.
+                    // Ignore property change from GetImageAsync when WmsLayers was null.
                     //
                     if (oldValue != null)
                     {
