@@ -88,7 +88,10 @@ namespace MapControl
         /// Loads a tile ImageSource asynchronously from an encoded frame buffer in a byte array.
         /// This method is called by TileImageLoader when caching is enabled.
         /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(byte[] buffer) => ImageLoader.LoadImageAsync(buffer);
+        public virtual Task<ImageSource> LoadImageAsync(byte[] buffer)
+        {
+            return ImageLoader.LoadImageAsync(buffer);
+        }
 
         /// <summary>
         /// Creates a TileSource instance from an Uri template string.

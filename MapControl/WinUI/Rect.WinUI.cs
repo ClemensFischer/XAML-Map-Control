@@ -32,7 +32,10 @@ namespace MapControl
         public double Width { get; }
         public double Height { get; }
 
-        public bool Contains(Point p) => p.X >= X && p.X <= X + Width && p.Y >= Y && p.Y <= Y + Height;
+        public bool Contains(Point p)
+        {
+            return p.X >= X && p.X <= X + Width && p.Y >= Y && p.Y <= Y + Height;
+        }
 
         public static implicit operator Windows.Foundation.Rect(Rect r)
         {

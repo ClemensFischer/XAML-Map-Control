@@ -22,7 +22,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
-using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 #endif
 
 namespace MapControl
@@ -192,14 +191,14 @@ namespace MapControl
 
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
-        protected abstract void SetRenderTransform();
-
-        protected abstract Task UpdateTileLayerAsync(bool tileSourceChanged);
-
         protected Task LoadTilesAsync(IEnumerable<Tile> tiles, string cacheName)
         {
             return TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress);
         }
+
+        protected abstract void SetRenderTransform();
+
+        protected abstract Task UpdateTileLayerAsync(bool tileSourceChanged);
 
         private Task UpdateTileLayer(bool tileSourceChanged)
         {

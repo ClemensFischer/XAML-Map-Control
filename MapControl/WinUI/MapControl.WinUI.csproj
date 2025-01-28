@@ -17,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="..\Shared\Timer.cs" />
         <Compile Remove="..\Shared\TypeConverters.cs" />
     </ItemGroup>
 
