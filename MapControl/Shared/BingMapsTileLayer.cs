@@ -42,7 +42,7 @@ namespace MapControl
         public string Culture { get; set; }
         public Uri LogoImageUri { get; private set; }
 
-        private async void OnLoaded(object sender, RoutedEventArgs args)
+        private async void OnLoaded(object sender, RoutedEventArgs e)
         {
             Loaded -= OnLoaded;
 

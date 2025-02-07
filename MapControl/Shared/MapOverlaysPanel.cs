@@ -54,25 +54,25 @@ namespace MapControl
             }
         }
 
-        private async void SourcePathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        private async void SourcePathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (args.Action)
+            switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    await AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await AddOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    RemoveOverlays(args.OldStartingIndex, args.OldItems.Count);
+                    RemoveOverlays(e.OldStartingIndex, e.OldItems.Count);
                     break;
 
                 case NotifyCollectionChangedAction.Move:
-                    RemoveOverlays(args.OldStartingIndex, args.OldItems.Count);
-                    await AddOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    RemoveOverlays(e.OldStartingIndex, e.OldItems.Count);
+                    await AddOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Replace:
-                    await ReplaceOverlays(args.NewStartingIndex, args.NewItems.Cast<string>());
+                    await ReplaceOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
