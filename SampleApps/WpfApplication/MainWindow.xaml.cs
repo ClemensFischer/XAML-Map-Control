@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace SampleApplication
 {
@@ -15,7 +14,6 @@ namespace SampleApplication
         static MainWindow()
         {
             //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
-
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
@@ -29,12 +27,9 @@ namespace SampleApplication
         public MainWindow()
         {
             InitializeComponent();
-
-            AddMapTilerLayers();
             AddTestLayers();
         }
 
-        partial void AddMapTilerLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -17,19 +17,15 @@ namespace SampleApplication
         static MainPage()
         {
             //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
-
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(ApplicationData.Current.LocalCacheFolder);
         }
 
         public MainPage()
         {
             InitializeComponent();
-
-            AddMapTilerLayers();
             AddTestLayers();
         }
 
-        partial void AddMapTilerLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)

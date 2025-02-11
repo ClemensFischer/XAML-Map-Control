@@ -51,9 +51,6 @@
     <Compile Include="..\Shared\HyperlinkText.cs">
       <Link>HyperlinkText.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MapTilerLayers.cs">
-      <Link>MapTilerLayers.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\MapViewModel.cs">
       <Link>MapViewModel.cs</Link>
     </Compile>

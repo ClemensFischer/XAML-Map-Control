@@ -13,19 +13,15 @@ namespace SampleApplication
         static MainWindow()
         {
             //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
-
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
         }
 
         public MainWindow()
         {
             InitializeComponent();
-
-            AddMapTilerLayers();
             AddTestLayers();
         }
 
-        partial void AddMapTilerLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)

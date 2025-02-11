@@ -16,21 +16,16 @@ namespace SampleApplication
         static MainWindow()
         {
             //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
-
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
         }
 
         public MainWindow()
         {
             InitializeComponent();
-
-            Title = "XAML Map Control - WinUI Sample Application";
-
-            AddMapTilerLayers();
             AddTestLayers();
+            Title = "XAML Map Control - WinUI Sample Application";
         }
 
-        partial void AddMapTilerLayers();
         partial void AddTestLayers();
 
         private void MapItemsControlSelectionChanged(object sender, SelectionChangedEventArgs e)
