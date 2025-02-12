@@ -24,6 +24,11 @@ namespace MapControl
         public Wgs84UtmProjection(int zone, bool north)
         {
             SetZone(zone, north);
+
+            EquatorialRadius = Wgs84EquatorialRadius;
+            Flattening = Wgs84Flattening;
+            ScaleFactor = 0.9996;
+            FalseEasting = 5e5;
         }
 
         protected void SetZone(int zone, bool north)
@@ -36,12 +41,8 @@ namespace MapControl
             Zone = zone;
             IsNorth = north;
             CrsId = $"EPSG:{(north ? 32600 : 32700) + zone}";
-            EquatorialRadius = Wgs84EquatorialRadius;
-            Flattening = Wgs84Flattening;
-            ScaleFactor = 0.9996;
-            CentralMeridian = Zone * 6d - 183d;
-            FalseEasting = 5e5;
-            FalseNorthing = IsNorth ? 0d : 1e7;
+            CentralMeridian = zone * 6d - 183d;
+            FalseNorthing = north ? 0d : 1e7;
         }
     }
 

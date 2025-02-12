@@ -75,10 +75,10 @@ namespace MapControl
         {
             var t = Math.Exp(-y * Math.PI / 180d); // p.44 (7-10)
 
-            return LatitudeFromSeriesApproximation(Wgs84Eccentricity, t) * 180d / Math.PI;
+            return ApproximateLatitude(Wgs84Eccentricity, t) * 180d / Math.PI;
         }
 
-        internal static double LatitudeFromSeriesApproximation(double e, double t)
+        internal static double ApproximateLatitude(double e, double t)
         {
             var e_2 = e * e;
             var e_4 = e_2 * e_2;

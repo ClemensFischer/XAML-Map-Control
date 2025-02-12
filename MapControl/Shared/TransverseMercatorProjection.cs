@@ -15,12 +15,6 @@ namespace MapControl
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
-#if NETFRAMEWORK || UWP
-        private static double Math_Atanh(double x) => Math.Log((1d + x) / (1d - x)) / 2d;
-#else
-        private static double Math_Atanh(double x) => Math.Atanh(x);
-#endif
-
         public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
         public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.9996;
@@ -35,19 +29,22 @@ namespace MapControl
 
         public override Point GetRelativeScale(Location location)
         {
-            // Precise enough, avoid calculations as in LocationToMap.
-            //
             return new Point(ScaleFactor, ScaleFactor);
         }
 
         public override Point? LocationToMap(Location location)
         {
+#if NETFRAMEWORK || UWP
+            double Atanh(double x) => Math.Log((1d + x) / (1d - x)) / 2d;
+#else
+            static double Atanh(double x) => Math.Atanh(x);
+#endif
             var n = Flattening / (2d - Flattening);
             var n2 = n * n;
             var n3 = n * n2;
-
             var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
 
+            // α_j
             var alpha1 = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
             var alpha2 = n2 * 13d / 48d - n3 * 3d / 5d;
             var alpha3 = n3 * 61d / 240d;
@@ -59,15 +56,14 @@ namespace MapControl
             var lambda = (location.Longitude - CentralMeridian) * Math.PI / 180d;
 
             var s = 2d * Math.Sqrt(n) / (1d + n);
-            var sinLat = Math.Sin(phi);
-
-            var t = Math.Sinh(Math_Atanh(sinLat) - s * Math_Atanh(s * sinLat));
+            var sinPhi = Math.Sin(phi);
+            var t = Math.Sinh(Atanh(sinPhi) - s * Atanh(s * sinPhi));
 
             // ξ'
             var xi_ = Math.Atan(t / Math.Cos(lambda));
 
             // η'
-            var eta_ = Math_Atanh(Math.Sin(lambda) / Math.Sqrt(1d + t * t));
+            var eta_ = Atanh(Math.Sin(lambda) / Math.Sqrt(1d + t * t));
 
             // ξ
             var xi = xi_
@@ -91,13 +87,14 @@ namespace MapControl
             var n = Flattening / (2d - Flattening);
             var n2 = n * n;
             var n3 = n * n2;
-
             var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
 
+            // β_j
             var beta1 = n / 2d - n2 * 2d / 3d + n3 * 37d / 96d;
             var beta2 = n2 / 48d + n3 / 15d;
             var beta3 = n3 * 17d / 480d;
 
+            // δ_j
             var delta1 = n * 2d - n2 * 2d / 3d - n3 * 2d;
             var delta2 = n2 * 7d / 3d - n3 * 8d / 5d;
             var delta3 = n3 * 56d / 15d;
