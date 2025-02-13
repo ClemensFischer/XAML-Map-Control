@@ -91,7 +91,7 @@ namespace MapControl
                 + (e_2 / 2d + 5d * e_4 / 24d + e_6 / 12d + 13d * e_8 / 360d) * Math.Sin(2d * lat)
                 + (7d * e_4 / 48d + 29d * e_6 / 240d + 811d * e_8 / 11520d) * Math.Sin(4d * lat)
                 + (7d * e_6 / 120d + 81d * e_8 / 1120d) * Math.Sin(6d * lat)
-                + (4279d * e_8 / 161280d) * Math.Sin(8d * lat); // p.45 (3-5)
+                + 4279d * e_8 / 161280d * Math.Sin(8d * lat); // p.45 (3-5)
         }
     }
 }
