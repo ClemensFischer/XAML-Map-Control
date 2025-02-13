@@ -224,12 +224,7 @@ namespace MapControl
 
             if (supportedCrs.StartsWith(urnPrefix)) // e.g. "urn:ogc:def:crs:EPSG:6.18:3857")
             {
-                var crs = supportedCrs.Substring(urnPrefix.Length).Split(':');
-
-                if (crs.Length > 1)
-                {
-                    supportedCrs = "EPSG:" + crs[1];
-                }
+                supportedCrs = "EPSG:" + supportedCrs.Substring(urnPrefix.Length).Split(':').Last();
             }
 
             var tileMatrixes = new List<WmtsTileMatrix>();
