@@ -220,11 +220,13 @@ namespace MapControl
                 throw new ArgumentException($"No SupportedCRS element found in TileMatrixSet \"{identifier}\".");
             }
 
-            const string urnPrefix = "urn:ogc:def:crs:EPSG:";
+            const string urnPrefix = "urn:ogc:def:crs:";
 
             if (supportedCrs.StartsWith(urnPrefix)) // e.g. "urn:ogc:def:crs:EPSG:6.18:3857")
             {
-                supportedCrs = "EPSG:" + supportedCrs.Substring(urnPrefix.Length).Split(':').Last();
+                var crsComponents = supportedCrs.Substring(urnPrefix.Length).Split(':');
+
+                supportedCrs = crsComponents.First() + ":" + crsComponents.Last();
             }
 
             var tileMatrixes = new List<WmtsTileMatrix>();
