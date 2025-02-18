@@ -65,6 +65,9 @@
     <Compile Include="..\Shared\CenteredBoundingBox.cs">
       <Link>CenteredBoundingBox.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\DispatcherTimerHelper.cs">
+      <Link>DispatcherTimerHelper.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\EquirectangularProjection.cs">
       <Link>EquirectangularProjection.cs</Link>
     </Compile>
@@ -178,9 +181,6 @@
     </Compile>
     <Compile Include="..\Shared\TileSource.cs">
       <Link>TileSource.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\Timer.cs">
-      <Link>Timer.cs</Link>
     </Compile>
     <Compile Include="..\Shared\TransverseMercatorProjection.cs">
       <Link>TransverseMercatorProjection.cs</Link>
