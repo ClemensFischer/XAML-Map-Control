@@ -44,6 +44,12 @@ namespace MapControl
         public static TimeSpan DefaultCacheExpiration { get; set; } = TimeSpan.FromDays(1);
 
         /// <summary>
+        /// Minimum expiration time for cached tile images. A transmitted expiration time
+        /// that falls below this value is ignored. The default value is TimeSpan.Zero.
+        /// </summary>
+        public static TimeSpan MinCacheExpiration { get; set; } = TimeSpan.Zero;
+
+        /// <summary>
         /// Maximum expiration time for cached tile images. A transmitted expiration time
         /// that exceeds this value is ignored. The default value is ten days.
         /// </summary>
@@ -170,6 +176,7 @@ namespace MapControl
                     try
                     {
                         var expiration = !response.MaxAge.HasValue ? DefaultCacheExpiration
+                            : response.MaxAge.Value < MinCacheExpiration ? MinCacheExpiration
                             : response.MaxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
                             : response.MaxAge.Value;
 
