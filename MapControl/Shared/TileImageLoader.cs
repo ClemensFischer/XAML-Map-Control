@@ -162,7 +162,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.GetAsync)}: {cacheKey}: {ex.Message}");
+                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.GetAsync: {cacheKey}: {ex.Message}");
             }
 
             if (buffer == null)
@@ -186,7 +186,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.{nameof(Cache.SetAsync)}: {cacheKey}: {ex.Message}");
+                        Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.SetAsync: {cacheKey}: {ex.Message}");
                     }
                 }
             }
