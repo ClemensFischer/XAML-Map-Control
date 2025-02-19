@@ -19,8 +19,14 @@ namespace MapControl.Caching
     public sealed class SQLiteCache : IDistributedCache, IDisposable
     {
         private readonly SQLiteConnection connection;
+        private readonly Timer cleanTimer;
 
         public SQLiteCache(string path)
+            : this(path, TimeSpan.FromHours(1))
+        {
+        }
+
+        public SQLiteCache(string path, TimeSpan autoCleanInterval)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -42,11 +48,15 @@ namespace MapControl.Caching
 
             Debug.WriteLine($"{nameof(SQLiteCache)}: Opened database {path}");
 
-            Clean();
+            if (autoCleanInterval > TimeSpan.Zero)
+            {
+                cleanTimer = new Timer(_ => Clean(), null, TimeSpan.Zero, autoCleanInterval);
+            }
         }
 
         public void Dispose()
         {
+            cleanTimer?.Dispose();
             connection.Dispose();
         }
 

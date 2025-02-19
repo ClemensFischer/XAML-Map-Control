@@ -23,8 +23,14 @@ namespace MapControl.Caching
         private const string expiresField = "Expires";
 
         private readonly FileDb fileDb = new FileDb { AutoFlush = true };
+        private readonly Timer cleanTimer;
 
         public FileDbCache(string path)
+            : this(path, TimeSpan.FromHours(1))
+        {
+        }
+
+        public FileDbCache(string path, TimeSpan autoCleanInterval)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -40,8 +46,6 @@ namespace MapControl.Caching
             {
                 fileDb.Open(path);
                 Debug.WriteLine($"{nameof(FileDbCache)}: Opened database {path}");
-
-                Clean();
             }
             catch
             {
@@ -63,10 +67,16 @@ namespace MapControl.Caching
 
                 Debug.WriteLine($"{nameof(FileDbCache)}: Created database {path}");
             }
+
+            if (autoCleanInterval > TimeSpan.Zero)
+            {
+                cleanTimer = new Timer(_ => Clean(), null, TimeSpan.Zero, autoCleanInterval);
+            }
         }
 
         public void Dispose()
         {
+            cleanTimer?.Dispose();
             fileDb.Dispose();
         }
 
