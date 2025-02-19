@@ -7,34 +7,45 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
-using Buffer = Windows.Storage.Streams.Buffer;
 
 namespace MapControl.Caching
 {
     /// <summary>
     /// IDistributedCache implementation based on local image files.
     /// </summary>
-    public partial class ImageFileCache : IDistributedCache
+    public sealed class ImageFileCache : IDistributedCache, IDisposable
     {
-        private static readonly byte[] expirationTag = Encoding.ASCII.GetBytes("EXPIRES:");
-
         private readonly MemoryDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
         private readonly StorageFolder rootFolder;
+        private readonly Timer cleanTimer;
+        private bool cleaning;
 
         public ImageFileCache(StorageFolder folder)
+            : this(folder, TimeSpan.FromHours(1))
+        {
+        }
+
+        public ImageFileCache(StorageFolder folder, TimeSpan autoCleanInterval)
         {
             rootFolder = folder ?? throw new ArgumentException($"The {nameof(folder)} argument must not be null or empty.", nameof(folder));
 
             Debug.WriteLine($"{nameof(ImageFileCache)}: {rootFolder.Path}");
 
-            _ = Task.Factory.StartNew(CleanAsync, TaskCreationOptions.LongRunning);
+            if (autoCleanInterval > TimeSpan.Zero)
+            {
+                cleanTimer = new Timer(_ => CleanAsync().Wait(), null, TimeSpan.Zero, autoCleanInterval);
+            }
+        }
+
+        public void Dispose()
+        {
+            cleanTimer?.Dispose();
         }
 
         public byte[] Get(string key)
@@ -46,7 +57,7 @@ namespace MapControl.Caching
         {
             throw new NotSupportedException();
         }
-         
+
         public void Remove(string key)
         {
             throw new NotSupportedException();
@@ -77,14 +88,13 @@ namespace MapControl.Caching
                 {
                     var item = await rootFolder.TryGetItemAsync(key.Replace('/', '\\'));
 
-                    if (item is StorageFile file)
+                    if (item is StorageFile file && file.DateCreated > DateTimeOffset.Now)
                     {
                         buffer = (await FileIO.ReadBufferAsync(file)).ToArray();
 
-                        if (CheckExpiration(ref buffer, out DistributedCacheEntryOptions options))
-                        {
-                            await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
-                        }
+                        var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.DateCreated };
+
+                        await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex)
@@ -114,15 +124,13 @@ namespace MapControl.Caching
 
                     var file = await folder.CreateFileAsync(keyComponents[keyComponents.Length - 1], CreationCollisionOption.OpenIfExists);
 
-                    using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
-                    {
-                        await stream.WriteAsync(buffer.AsBuffer());
+                    await FileIO.WriteBytesAsync(file, buffer);
 
-                        if (GetExpirationBytes(options, out byte[] expiration))
-                        {
-                            await stream.WriteAsync(expiration.AsBuffer());
-                        }
-                    }
+                    var expiration = options.AbsoluteExpiration.HasValue
+                        ? options.AbsoluteExpiration.Value.LocalDateTime
+                        : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
+
+                    File.SetCreationTime(file.Path, expiration);
                 }
                 catch (Exception ex)
                 {
@@ -133,11 +141,21 @@ namespace MapControl.Caching
 
         public async Task CleanAsync()
         {
-            var deletedFileCount = await CleanFolder(rootFolder);
-
-            if (deletedFileCount > 0)
+            if (!cleaning)
             {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Deleted {deletedFileCount} expired files.");
+                cleaning = true;
+
+                foreach (var folder in await rootFolder.GetFoldersAsync())
+                {
+                    var deletedFileCount = await CleanFolder(folder);
+
+                    if (deletedFileCount > 0)
+                    {
+                        Debug.WriteLine($"{nameof(ImageFileCache)}: Deleted {deletedFileCount} expired files in {folder.Name}.");
+                    }
+                }
+
+                cleaning = false;
             }
         }
 
@@ -147,14 +165,15 @@ namespace MapControl.Caching
 
             try
             {
-                foreach (var f in await folder.GetFoldersAsync())
+                foreach (var subFolder in await folder.GetFoldersAsync())
                 {
-                    deletedFileCount += await CleanFolder(f);
+                    deletedFileCount += await CleanFolder(subFolder);
                 }
 
-                foreach (var f in await folder.GetFilesAsync())
+                foreach (var file in (await folder.GetFilesAsync()).Where(f => f.DateCreated <= DateTime.Now))
                 {
-                    deletedFileCount += await CleanFile(f);
+                    await file.DeleteAsync();
+                    deletedFileCount++;
                 }
 
                 if ((await folder.GetItemsAsync()).Count == 0)
@@ -168,105 +187,6 @@ namespace MapControl.Caching
             }
 
             return deletedFileCount;
-        }
-
-        private static async Task<int> CleanFile(StorageFile file)
-        {
-            var deletedFileCount = 0;
-            var size = (await file.GetBasicPropertiesAsync()).Size;
-
-            if (size > 16)
-            {
-                try
-                {
-                    var hasExpired = false;
-
-                    using (var stream = await file.OpenReadAsync())
-                    {
-                        stream.Seek(size - 16);
-
-                        var buffer = await stream.ReadAsync(new Buffer(16), 16, InputStreamOptions.None);
-
-                        hasExpired = buffer.Length == 16
-                            && GetExpirationTicks(buffer.ToArray(), out long expiration)
-                            && expiration <= DateTimeOffset.UtcNow.Ticks;
-                    }
-
-                    if (hasExpired)
-                    {
-                        await file.DeleteAsync();
-                        deletedFileCount = 1;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed cleaning {file.Path}: {ex.Message}");
-                }
-            }
-
-            return deletedFileCount;
-        }
-
-        private static bool CheckExpiration(ref byte[] buffer, out DistributedCacheEntryOptions options)
-        {
-            if (GetExpirationTicks(buffer, out long expiration))
-            {
-                if (expiration > DateTimeOffset.UtcNow.Ticks)
-                {
-                    Array.Resize(ref buffer, buffer.Length - 16);
-
-                    options = new DistributedCacheEntryOptions
-                    {
-                        AbsoluteExpiration = new DateTimeOffset(expiration, TimeSpan.Zero)
-                    };
-
-                    return true;
-                }
-
-                buffer = null; // buffer has expired
-            }
-
-            options = null;
-            return false;
-        }
-
-        private static bool GetExpirationTicks(byte[] buffer, out long expirationTicks)
-        {
-            if (buffer.Length >= 16 &&
-                expirationTag.SequenceEqual(buffer.Skip(buffer.Length - 16).Take(8)))
-            {
-                expirationTicks = BitConverter.ToInt64(buffer, buffer.Length - 8);
-                return true;
-            }
-
-            expirationTicks = 0;
-            return false;
-        }
-
-        private static bool GetExpirationBytes(DistributedCacheEntryOptions options, out byte[] expirationBytes)
-        {
-            long expirationTicks;
-
-            if (options.AbsoluteExpiration.HasValue)
-            {
-                expirationTicks = options.AbsoluteExpiration.Value.Ticks;
-            }
-            else if (options.AbsoluteExpirationRelativeToNow.HasValue)
-            {
-                expirationTicks = DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow.Value).Ticks;
-            }
-            else if (options.SlidingExpiration.HasValue)
-            {
-                expirationTicks = DateTimeOffset.UtcNow.Add(options.SlidingExpiration.Value).Ticks;
-            }
-            else
-            {
-                expirationBytes = null;
-                return false;
-            }
-
-            expirationBytes = expirationTag.Concat(BitConverter.GetBytes(expirationTicks)).ToArray();
-            return true;
         }
     }
 }
