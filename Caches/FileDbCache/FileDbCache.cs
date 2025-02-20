@@ -23,14 +23,14 @@ namespace MapControl.Caching
         private const string expiresField = "Expires";
 
         private readonly FileDb fileDb = new FileDb { AutoFlush = true };
-        private readonly Timer cleanTimer;
+        private readonly Timer expirationScanTimer;
 
         public FileDbCache(string path)
             : this(path, TimeSpan.FromHours(1))
         {
         }
 
-        public FileDbCache(string path, TimeSpan autoCleanInterval)
+        public FileDbCache(string path, TimeSpan expirationScanFrequency)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -45,6 +45,7 @@ namespace MapControl.Caching
             try
             {
                 fileDb.Open(path);
+
                 Debug.WriteLine($"{nameof(FileDbCache)}: Opened database {path}");
             }
             catch
@@ -68,15 +69,15 @@ namespace MapControl.Caching
                 Debug.WriteLine($"{nameof(FileDbCache)}: Created database {path}");
             }
 
-            if (autoCleanInterval > TimeSpan.Zero)
+            if (expirationScanFrequency > TimeSpan.Zero)
             {
-                cleanTimer = new Timer(_ => Clean(), null, TimeSpan.Zero, autoCleanInterval);
+                expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
             }
         }
 
         public void Dispose()
         {
-            cleanTimer?.Dispose();
+            expirationScanTimer?.Dispose();
             fileDb.Dispose();
         }
 
@@ -92,7 +93,7 @@ namespace MapControl.Caching
 
                 if (record != null)
                 {
-                    if ((DateTime)record[1] > DateTime.UtcNow)
+                    if ((DateTime)record[1] > DateTime.Now)
                     {
                         value = (byte[])record[0];
                     }
@@ -114,24 +115,9 @@ namespace MapControl.Caching
         {
             CheckArguments(key, value, options);
 
-            DateTime expiration;
-
-            if (options.AbsoluteExpiration.HasValue)
-            {
-                expiration = options.AbsoluteExpiration.Value.DateTime;
-            }
-            else if (options.AbsoluteExpirationRelativeToNow.HasValue)
-            {
-                expiration = DateTime.UtcNow.Add(options.AbsoluteExpirationRelativeToNow.Value);
-            }
-            else if (options.SlidingExpiration.HasValue)
-            {
-                expiration = DateTime.UtcNow.Add(options.SlidingExpiration.Value);
-            }
-            else
-            {
-                expiration = DateTime.UtcNow.Add(TimeSpan.FromDays(1));
-            }
+            var expiration = options.AbsoluteExpiration.HasValue
+                ? options.AbsoluteExpiration.Value.LocalDateTime
+                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
 
             var fieldValues = new FieldValues(3)
             {
@@ -175,9 +161,9 @@ namespace MapControl.Caching
             }
         }
 
-        public void Clean()
+        public void DeleteExpiredItems()
         {
-            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.Now, ComparisonOperatorEnum.LessThanOrEqual));
 
             if (deleted > 0)
             {
@@ -208,13 +194,6 @@ namespace MapControl.Caching
         public Task RemoveAsync(string key, CancellationToken token = default)
         {
             Remove(key);
-
-            return Task.CompletedTask;
-        }
-
-        public Task CleanAsync()
-        {
-            Clean();
 
             return Task.CompletedTask;
         }

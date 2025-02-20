@@ -19,17 +19,17 @@ namespace MapControl.Caching
     /// </summary>
     public sealed class ImageFileCache : IDistributedCache, IDisposable
     {
-        private readonly MemoryDistributedCache memoryCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+        private readonly MemoryDistributedCache memoryCache;
         private readonly DirectoryInfo rootDirectory;
-        private readonly Timer cleanTimer;
-        private bool cleaning;
+        private readonly Timer expirationScanTimer;
+        private bool scanningExpiration;
 
         public ImageFileCache(string path)
             : this(path, TimeSpan.FromHours(1))
         {
         }
 
-        public ImageFileCache(string path, TimeSpan autoCleanInterval)
+        public ImageFileCache(string path, TimeSpan expirationScanFrequency)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -41,15 +41,21 @@ namespace MapControl.Caching
 
             Debug.WriteLine($"{nameof(ImageFileCache)}: {rootDirectory.FullName}");
 
-            if (autoCleanInterval > TimeSpan.Zero)
+            var options = new MemoryDistributedCacheOptions();
+
+            if (expirationScanFrequency > TimeSpan.Zero)
             {
-                cleanTimer = new Timer(_ => Clean(), null, TimeSpan.Zero, autoCleanInterval);
+                options.ExpirationScanFrequency = expirationScanFrequency;
+
+                expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
             }
+
+            memoryCache = new MemoryDistributedCache(Options.Create(options));
         }
 
         public void Dispose()
         {
-            cleanTimer?.Dispose();
+            expirationScanTimer?.Dispose();
         }
 
         public byte[] Get(string key)
@@ -64,15 +70,7 @@ namespace MapControl.Caching
                 {
                     if (file != null && file.Exists && file.CreationTime > DateTime.Now)
                     {
-                        using (var stream = file.OpenRead())
-                        {
-                            buffer = new byte[stream.Length];
-                            var offset = 0;
-                            while (offset < buffer.Length)
-                            {
-                                offset += stream.Read(buffer, offset, buffer.Length - offset);
-                            }
-                        }
+                        buffer = ReadAllBytes(file);
 
                         var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
 
@@ -100,15 +98,7 @@ namespace MapControl.Caching
                 {
                     if (file != null && file.Exists && file.CreationTime > DateTime.Now && !token.IsCancellationRequested)
                     {
-                        using (var stream = file.OpenRead())
-                        {
-                            buffer = new byte[stream.Length];
-                            var offset = 0;
-                            while (offset < buffer.Length)
-                            {
-                                offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, token).ConfigureAwait(false);
-                            }
-                        }
+                        buffer = await ReadAllBytes(file, token).ConfigureAwait(false);
 
                         var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
 
@@ -117,6 +107,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
+                    buffer = null;
                     Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {file.FullName}: {ex.Message}");
                 }
             }
@@ -224,29 +215,24 @@ namespace MapControl.Caching
             }
         }
 
-        public void Clean()
+        public void DeleteExpiredItems()
         {
-            if (!cleaning)
+            if (!scanningExpiration)
             {
-                cleaning = true;
+                scanningExpiration = true;
 
                 foreach (var directory in rootDirectory.EnumerateDirectories())
                 {
-                    var deletedFileCount = CleanDirectory(directory);
+                    var deletedFileCount = ScanDirectory(directory);
 
                     if (deletedFileCount > 0)
                     {
-                        Debug.WriteLine($"{nameof(ImageFileCache)}: Deleted {deletedFileCount} expired files in {directory.Name}.");
+                        Debug.WriteLine($"{nameof(ImageFileCache)}: Deleted {deletedFileCount} expired items in {directory.Name}.");
                     }
                 }
 
-                cleaning = false;
+                scanningExpiration = false;
             }
-        }
-
-        public Task CleanAsync()
-        {
-            return Task.Run(Clean);
         }
 
         private FileInfo GetFile(string key)
@@ -263,6 +249,38 @@ namespace MapControl.Caching
             return null;
         }
 
+        private static byte[] ReadAllBytes(FileInfo file)
+        {
+            using (var stream = file.OpenRead())
+            {
+                var buffer = new byte[stream.Length];
+                var offset = 0;
+
+                while (offset < buffer.Length)
+                {
+                    offset += stream.Read(buffer, offset, buffer.Length - offset);
+                }
+
+                return buffer;
+            }
+        }
+
+        private static async Task<byte[]> ReadAllBytes(FileInfo file, CancellationToken token)
+        {
+            using (var stream = file.OpenRead())
+            {
+                var buffer = new byte[stream.Length];
+                var offset = 0;
+
+                while (offset < buffer.Length)
+                {
+                    offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, token).ConfigureAwait(false);
+                }
+
+                return buffer;
+            }
+        }
+
         private static void SetExpiration(FileInfo file, DistributedCacheEntryOptions options)
         {
             file.CreationTime = options.AbsoluteExpiration.HasValue
@@ -270,13 +288,13 @@ namespace MapControl.Caching
                 : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
         }
 
-        private static int CleanDirectory(DirectoryInfo directory)
+        private static int ScanDirectory(DirectoryInfo directory)
         {
             var deletedFileCount = 0;
 
             try
             {
-                deletedFileCount = directory.EnumerateDirectories().Sum(CleanDirectory);
+                deletedFileCount = directory.EnumerateDirectories().Sum(ScanDirectory);
 
                 foreach (var file in directory.EnumerateFiles().Where(f => f.CreationTime <= DateTime.Now))
                 {

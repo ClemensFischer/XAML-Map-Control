@@ -19,14 +19,14 @@ namespace MapControl.Caching
     public sealed class SQLiteCache : IDistributedCache, IDisposable
     {
         private readonly SQLiteConnection connection;
-        private readonly Timer cleanTimer;
+        private readonly Timer expirationScanTimer;
 
         public SQLiteCache(string path)
             : this(path, TimeSpan.FromHours(1))
         {
         }
 
-        public SQLiteCache(string path, TimeSpan autoCleanInterval)
+        public SQLiteCache(string path, TimeSpan expirationScanFrequency)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -48,15 +48,15 @@ namespace MapControl.Caching
 
             Debug.WriteLine($"{nameof(SQLiteCache)}: Opened database {path}");
 
-            if (autoCleanInterval > TimeSpan.Zero)
+            if (expirationScanFrequency > TimeSpan.Zero)
             {
-                cleanTimer = new Timer(_ => Clean(), null, TimeSpan.Zero, autoCleanInterval);
+                expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
             }
         }
 
         public void Dispose()
         {
-            cleanTimer?.Dispose();
+            expirationScanTimer?.Dispose();
             connection.Dispose();
         }
 
@@ -189,11 +189,11 @@ namespace MapControl.Caching
             }
         }
 
-        public void Clean()
+        public void DeleteExpiredItems()
         {
             using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
             {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.Now.Ticks);
                 command.ExecuteNonQuery();
             }
 #if DEBUG
@@ -208,11 +208,11 @@ namespace MapControl.Caching
 #endif
         }
 
-        public async Task CleanAsync()
+        public async Task DeleteExpiredItemsAsync()
         {
             using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
             {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.Now.Ticks);
                 await command.ExecuteNonQueryAsync();
             }
 #if DEBUG
@@ -243,24 +243,9 @@ namespace MapControl.Caching
 
         private SQLiteCommand SetItemCommand(string key, byte[] buffer, DistributedCacheEntryOptions options)
         {
-            DateTimeOffset expiration;
-
-            if (options.AbsoluteExpiration.HasValue)
-            {
-                expiration = options.AbsoluteExpiration.Value;
-            }
-            else if (options.AbsoluteExpirationRelativeToNow.HasValue)
-            {
-                expiration = DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow.Value);
-            }
-            else if (options.SlidingExpiration.HasValue)
-            {
-                expiration = DateTimeOffset.UtcNow.Add(options.SlidingExpiration.Value);
-            }
-            else
-            {
-                expiration = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(1));
-            }
+            var expiration = options.AbsoluteExpiration.HasValue
+                ? options.AbsoluteExpiration.Value
+                : DateTimeOffset.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
 
             var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
             command.Parameters.AddWithValue("@key", key);
@@ -273,7 +258,7 @@ namespace MapControl.Caching
         {
             var expiration = new DateTimeOffset((long)reader["expiration"], TimeSpan.Zero);
 
-            if (expiration <= DateTimeOffset.UtcNow)
+            if (expiration <= DateTimeOffset.Now)
             {
                 return false;
             }
