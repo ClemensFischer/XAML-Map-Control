@@ -193,7 +193,7 @@ namespace MapControl.Caching
         {
             using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
             {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.Now.Ticks);
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
                 command.ExecuteNonQuery();
             }
 #if DEBUG
@@ -212,7 +212,7 @@ namespace MapControl.Caching
         {
             using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
             {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.Now.Ticks);
+                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
                 await command.ExecuteNonQueryAsync();
             }
 #if DEBUG
@@ -245,7 +245,7 @@ namespace MapControl.Caching
         {
             var expiration = options.AbsoluteExpiration.HasValue
                 ? options.AbsoluteExpiration.Value
-                : DateTimeOffset.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
+                : DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
 
             var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
             command.Parameters.AddWithValue("@key", key);
@@ -258,7 +258,7 @@ namespace MapControl.Caching
         {
             var expiration = new DateTimeOffset((long)reader["expiration"], TimeSpan.Zero);
 
-            if (expiration <= DateTimeOffset.Now)
+            if (expiration <= DateTimeOffset.UtcNow)
             {
                 return false;
             }
