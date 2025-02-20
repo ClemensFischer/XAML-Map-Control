@@ -37,6 +37,7 @@ namespace MapControl.Caching
             }
 
             rootDirectory = new DirectoryInfo(path);
+            rootDirectory.Create();
 
             Debug.WriteLine($"{nameof(ImageFileCache)}: {rootDirectory.FullName}");
 
@@ -133,10 +134,14 @@ namespace MapControl.Caching
             {
                 if (file != null && buffer?.Length > 0)
                 {
-                    using (var stream = CreateFile(file, options))
+                    file.Directory.Create();
+
+                    using (var stream = file.Create())
                     {
                         stream.Write(buffer, 0, buffer.Length);
                     }
+
+                    SetExpiration(file, options);
                 }
             }
             catch (Exception ex)
@@ -155,10 +160,14 @@ namespace MapControl.Caching
             {
                 if (file != null && buffer?.Length > 0 && !token.IsCancellationRequested)
                 {
-                    using (var stream = CreateFile(file, options))
+                    file.Directory.Create();
+
+                    using (var stream = file.Create())
                     {
                         await stream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
                     }
+
+                    SetExpiration(file, options);
                 }
             }
             catch (Exception ex)
@@ -254,24 +263,11 @@ namespace MapControl.Caching
             return null;
         }
 
-        private static FileStream CreateFile(FileInfo file, DistributedCacheEntryOptions options)
+        private static void SetExpiration(FileInfo file, DistributedCacheEntryOptions options)
         {
-            file.Directory.Create();
-
-            var stream = file.Create();
-
-            try
-            {
-                file.CreationTime = options.AbsoluteExpiration.HasValue
-                        ? options.AbsoluteExpiration.Value.LocalDateTime
-                        : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed setting creation time of {file.FullName}: {ex.Message}");
-            }
-
-            return stream;
+            file.CreationTime = options.AbsoluteExpiration.HasValue
+                ? options.AbsoluteExpiration.Value.LocalDateTime
+                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
         }
 
         private static int CleanDirectory(DirectoryInfo directory)
