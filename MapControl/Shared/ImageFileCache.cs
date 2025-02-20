@@ -98,7 +98,7 @@ namespace MapControl.Caching
 
                 try
                 {
-                    if (file != null && file.Exists && file.CreationTime > DateTime.Now)
+                    if (file != null && file.Exists && file.CreationTime > DateTime.Now && !token.IsCancellationRequested)
                     {
                         using (var stream = file.OpenRead())
                         {
