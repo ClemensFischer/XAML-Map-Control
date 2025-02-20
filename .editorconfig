@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CsWinRT1028: Class is not marked partial
+dotnet_diagnostic.CsWinRT1028.severity = silent
