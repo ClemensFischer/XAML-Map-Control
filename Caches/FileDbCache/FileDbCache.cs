@@ -93,7 +93,7 @@ namespace MapControl.Caching
 
                 if (record != null)
                 {
-                    if ((DateTime)record[1] > DateTime.Now)
+                    if ((DateTime)record[1] > DateTime.UtcNow)
                     {
                         value = (byte[])record[0];
                     }
@@ -116,8 +116,8 @@ namespace MapControl.Caching
             CheckArguments(key, value, options);
 
             var expiration = options.AbsoluteExpiration.HasValue
-                ? options.AbsoluteExpiration.Value.LocalDateTime
-                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
+                ? options.AbsoluteExpiration.Value.UtcDateTime
+                : DateTime.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
 
             var fieldValues = new FieldValues(3)
             {
@@ -163,7 +163,7 @@ namespace MapControl.Caching
 
         public void DeleteExpiredItems()
         {
-            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.Now, ComparisonOperatorEnum.LessThanOrEqual));
+            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
 
             if (deleted > 0)
             {
