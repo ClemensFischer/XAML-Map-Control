@@ -86,7 +86,7 @@ namespace MapControl.Caching
             {
                 try
                 {
-                    var item = await rootFolder.TryGetItemAsync(key.Replace('/', '\\'));
+                    var item = await rootFolder.TryGetItemAsync(Path.Combine(key.Split('/')));
 
                     if (item is StorageFile file && file.DateCreated > DateTimeOffset.Now)
                     {
