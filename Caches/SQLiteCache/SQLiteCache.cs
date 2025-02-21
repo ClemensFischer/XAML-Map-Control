@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace MapControl.Caching
 {
     /// <summary>
-    /// IDistributedCache implementation based on SQLite.
+    /// IDistributedCache implementation based on System.Data.SQLite.
     /// </summary>
     public sealed class SQLiteCache : IDistributedCache, IDisposable
     {
