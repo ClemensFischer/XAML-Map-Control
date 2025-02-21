@@ -19,7 +19,7 @@ namespace SampleApplication
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new NeoSmart.Caching.Sqlite.SqliteCache(
-            //    new NeoSmart.Caching.Sqlite.SqliteCacheOptions { CachePath = Path.Combine(TileImageLoader.DefaultCacheFolder, "TileCache.db") });
+            //    new NeoSmart.Caching.Sqlite.SqliteCacheOptions { CachePath = System.IO.Path.Combine(TileImageLoader.DefaultCacheFolder, "TileCache.db") });
         }
 
         public MainWindow()
