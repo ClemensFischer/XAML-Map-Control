@@ -14,14 +14,12 @@ namespace SampleApplication
         static MainWindow()
         {
             //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
+
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
-            //TileImageLoader.Cache = new RedisCache(Options.Create(new RedisCacheOptions
-            //{
-            //    Configuration = "yoga:6379",
-            //    InstanceName = "MapTileCache/"
-            //}));
+            //TileImageLoader.Cache = new NeoSmart.Caching.Sqlite.SqliteCache(
+            //    new NeoSmart.Caching.Sqlite.SqliteCacheOptions { CachePath = Path.Combine(TileImageLoader.DefaultCacheFolder, "TileCache.db") });
         }
 
         public MainWindow()
