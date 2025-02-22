@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Windows.Devices.Input;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -14,14 +13,10 @@ namespace SampleApplication
 {
     public sealed partial class MainPage : Page
     {
-        static MainPage()
-        {
-            //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
-        }
-
         public MainPage()
         {
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+
             InitializeComponent();
             AddTestLayers();
         }
