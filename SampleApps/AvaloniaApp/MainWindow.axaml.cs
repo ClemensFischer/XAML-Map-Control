@@ -10,14 +10,11 @@ namespace SampleApplication
 {
     public partial class MainWindow : Window
     {
-        static MainWindow()
-        {
-            //MapProjectionFactory.Instance = new MapControl.Projections.GeoApiProjectionFactory();
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
-        }
-
         public MainWindow()
         {
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
+
             InitializeComponent();
             AddTestLayers();
         }
