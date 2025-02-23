@@ -41,7 +41,7 @@ namespace MapControl.Caching
             connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(path));
             connection.Open();
 
-            using (var command = new SQLiteCommand("PRAGMA journal_mode=WAL", connection))
+            using (var command = new SQLiteCommand("pragma journal_mode=wal", connection))
             {
                 command.ExecuteNonQuery();
             }
