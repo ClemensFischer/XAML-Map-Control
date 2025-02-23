@@ -20,7 +20,7 @@ using ImageSource = Avalonia.Media.IImage;
 
 namespace MapControl.MBTiles
 {
-    public class MBTileSource : TileSource, IDisposable
+    public sealed class MBTileSource : TileSource, IDisposable
     {
         private SQLiteConnection connection;
 
@@ -57,28 +57,7 @@ namespace MapControl.MBTiles
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Close();
-            }
-        }
-
-        public async Task<byte[]> ReadImageBufferAsync(int x, int y, int zoomLevel)
-        {
-            using (var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection))
-            {
-                command.Parameters.AddWithValue("@z", zoomLevel);
-                command.Parameters.AddWithValue("@x", x);
-                command.Parameters.AddWithValue("@y", (1 << zoomLevel) - y - 1);
-
-                return await command.ExecuteScalarAsync() as byte[];
-            }
+            Close();
         }
 
         public override async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
@@ -87,11 +66,13 @@ namespace MapControl.MBTiles
 
             try
             {
-                var buffer = await ReadImageBufferAsync(x, y, zoomLevel);
-
-                if (buffer != null)
+                using (var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection))
                 {
-                    image = await LoadImageAsync(buffer);
+                    command.Parameters.AddWithValue("@z", zoomLevel);
+                    command.Parameters.AddWithValue("@x", x);
+                    command.Parameters.AddWithValue("@y", (1 << zoomLevel) - y - 1);
+
+                    image = await LoadImageAsync((byte[])await command.ExecuteScalarAsync());
                 }
             }
             catch (Exception ex)
