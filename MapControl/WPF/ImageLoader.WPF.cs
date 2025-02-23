@@ -43,13 +43,10 @@ namespace MapControl
                 return Task.FromResult<ImageSource>(null);
             }
 
-            return Task.Run(() =>
+            using (var stream = File.OpenRead(path))
             {
-                using (var stream = File.OpenRead(path))
-                {
-                    return LoadImage(stream);
-                }
-            });
+                return LoadImageAsync(stream);
+            }
         }
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
