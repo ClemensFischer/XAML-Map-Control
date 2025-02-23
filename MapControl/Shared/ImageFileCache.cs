@@ -285,7 +285,7 @@ namespace MapControl.Caching
         {
             file.CreationTime = options.AbsoluteExpiration.HasValue
                 ? options.AbsoluteExpiration.Value.LocalDateTime
-                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
+                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
         }
 
         private static int ScanDirectory(DirectoryInfo directory)
