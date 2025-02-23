@@ -4,7 +4,6 @@
 
 using Microsoft.Extensions.Caching.Distributed;
 using System;
-using System.Data.Common;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
@@ -75,12 +74,7 @@ namespace MapControl.Caching
             {
                 using (var command = GetItemCommand(key))
                 {
-                    var reader = command.ExecuteReader();
-
-                    if (reader.Read() && !ReadValue(reader, ref value))
-                    {
-                        Remove(key);
-                    }
+                    value = (byte[])command.ExecuteScalar();
                 }
             }
             catch (Exception ex)
@@ -101,12 +95,7 @@ namespace MapControl.Caching
             {
                 using (var command = GetItemCommand(key))
                 {
-                    var reader = await command.ExecuteReaderAsync(token);
-
-                    if (await reader.ReadAsync(token) && !ReadValue(reader, ref value))
-                    {
-                        await RemoveAsync(key);
-                    }
+                    value = (byte[])await command.ExecuteScalarAsync();
                 }
             }
             catch (Exception ex)
@@ -166,7 +155,7 @@ namespace MapControl.Caching
 
             try
             {
-                using (var command = RemoveItemCommand(key))
+                using (var command = DeleteItemCommand(key))
                 {
                     command.ExecuteNonQuery();
                 }
@@ -183,7 +172,7 @@ namespace MapControl.Caching
 
             try
             {
-                using (var command = RemoveItemCommand(key))
+                using (var command = DeleteItemCommand(key))
                 {
                     await command.ExecuteNonQueryAsync();
                 }
@@ -196,13 +185,7 @@ namespace MapControl.Caching
 
         public void DeleteExpiredItems()
         {
-            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
-            {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
-                command.ExecuteNonQuery();
-            }
-#if DEBUG
-            using (var command = new SQLiteCommand("select changes()", connection))
+            using (var command = DeleteExpiredItemCommand())
             {
                 var deleted = (long)command.ExecuteScalar();
                 if (deleted > 0)
@@ -210,66 +193,6 @@ namespace MapControl.Caching
                     Debug.WriteLine($"{nameof(SQLiteCache)}: Deleted {deleted} expired items");
                 }
             }
-#endif
-        }
-
-        public async Task DeleteExpiredItemsAsync()
-        {
-            using (var command = new SQLiteCommand("delete from items where expiration < @exp", connection))
-            {
-                command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
-                await command.ExecuteNonQueryAsync();
-            }
-#if DEBUG
-            using (var command = new SQLiteCommand("select changes()", connection))
-            {
-                var deleted = (long)await command.ExecuteScalarAsync();
-                if (deleted > 0)
-                {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}: Deleted {deleted} expired items");
-                }
-            }
-#endif
-        }
-
-        private SQLiteCommand GetItemCommand(string key)
-        {
-            var command = new SQLiteCommand("select expiration, buffer from items where key = @key", connection);
-            command.Parameters.AddWithValue("@key", key);
-            return command;
-        }
-
-        private SQLiteCommand RemoveItemCommand(string key)
-        {
-            var command = new SQLiteCommand("delete from items where key = @key", connection);
-            command.Parameters.AddWithValue("@key", key);
-            return command;
-        }
-
-        private SQLiteCommand SetItemCommand(string key, byte[] buffer, DistributedCacheEntryOptions options)
-        {
-            var expiration = options.AbsoluteExpiration.HasValue
-                ? options.AbsoluteExpiration.Value
-                : DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
-
-            var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
-            command.Parameters.AddWithValue("@key", key);
-            command.Parameters.AddWithValue("@exp", expiration.Ticks);
-            command.Parameters.AddWithValue("@buf", buffer);
-            return command;
-        }
-
-        private static bool ReadValue(DbDataReader reader, ref byte[] value)
-        {
-            var expiration = new DateTimeOffset((long)reader["expiration"], TimeSpan.Zero);
-
-            if (expiration <= DateTimeOffset.UtcNow)
-            {
-                return false;
-            }
-
-            value = (byte[])reader["buffer"];
-            return true;
         }
 
         private static void CheckArgument(string key)
@@ -293,6 +216,40 @@ namespace MapControl.Caching
             {
                 throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
             }
+        }
+
+        private SQLiteCommand GetItemCommand(string key)
+        {
+            var command = new SQLiteCommand("select buffer from items where key = @key and expiration > @now", connection);
+            command.Parameters.AddWithValue("@key", key);
+            command.Parameters.AddWithValue("@now", DateTimeOffset.UtcNow.Ticks);
+            return command;
+        }
+
+        private SQLiteCommand SetItemCommand(string key, byte[] buffer, DistributedCacheEntryOptions options)
+        {
+            var expiration = options.AbsoluteExpiration ??
+                DateTimeOffset.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
+
+            var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
+            command.Parameters.AddWithValue("@key", key);
+            command.Parameters.AddWithValue("@exp", expiration.Ticks);
+            command.Parameters.AddWithValue("@buf", buffer);
+            return command;
+        }
+
+        private SQLiteCommand DeleteItemCommand(string key)
+        {
+            var command = new SQLiteCommand("delete from items where key = @key", connection);
+            command.Parameters.AddWithValue("@key", key);
+            return command;
+        }
+
+        private SQLiteCommand DeleteExpiredItemCommand()
+        {
+            var command = new SQLiteCommand("delete from items where expiration <= @now; select changes()", connection);
+            command.Parameters.AddWithValue("@now", DateTimeOffset.UtcNow.Ticks);
+            return command;
         }
     }
 }
