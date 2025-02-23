@@ -117,7 +117,7 @@ namespace MapControl.Caching
 
             var expiration = options.AbsoluteExpiration.HasValue
                 ? options.AbsoluteExpiration.Value.UtcDateTime
-                : DateTime.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? (options.SlidingExpiration ?? TimeSpan.FromDays(1)));
+                : DateTime.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
 
             var fieldValues = new FieldValues(3)
             {
