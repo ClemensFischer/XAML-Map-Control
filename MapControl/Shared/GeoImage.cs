@@ -132,11 +132,12 @@ namespace MapControl
                 var file = Path.GetFileNameWithoutExtension(sourcePath);
                 var worldFilePath = Path.Combine(dir, file + ext.Remove(2, 1) + "w");
 
-                if (await ImageLoader.LoadImageAsync(sourcePath) is BitmapSource bitmap)
+                if (File.Exists(worldFilePath))
                 {
-                    var transform = await ReadWorldFileMatrix(worldFilePath);
-
-                    return new GeoBitmap(bitmap, transform, null);
+                    return new GeoBitmap(
+                        (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath),
+                        await ReadWorldFileMatrix(worldFilePath),
+                        null);
                 }
             }
 
