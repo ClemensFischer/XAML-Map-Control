@@ -91,16 +91,9 @@ namespace MapControl.Caching
             {
                 var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
 
-                if (record != null)
+                if (record != null && (DateTime)record[1] > DateTime.UtcNow)
                 {
-                    if ((DateTime)record[1] > DateTime.UtcNow)
-                    {
-                        value = (byte[])record[0];
-                    }
-                    else
-                    {
-                        fileDb.DeleteRecordByKey(key);
-                    }
+                    value = (byte[])record[0];
                 }
             }
             catch (Exception ex)
