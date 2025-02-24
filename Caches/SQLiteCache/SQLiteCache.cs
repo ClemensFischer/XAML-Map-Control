@@ -37,7 +37,7 @@ namespace MapControl.Caching
                 path = Path.Combine(path, "TileCache.sqlite");
             }
 
-            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(path));
+            connection = new SQLiteConnection("Data Source=" + path);
             connection.Open();
 
             using (var command = new SQLiteCommand("pragma journal_mode=wal", connection))
