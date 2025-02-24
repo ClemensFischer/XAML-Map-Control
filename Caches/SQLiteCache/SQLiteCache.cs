@@ -195,29 +195,6 @@ namespace MapControl.Caching
             }
         }
 
-        private static void CheckArgument(string key)
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
-            }
-        }
-
-        private static void CheckArguments(string key, byte[] value, DistributedCacheEntryOptions options)
-        {
-            CheckArgument(key);
-
-            if (value == null)
-            {
-                throw new ArgumentNullException($"The {nameof(value)} argument must not be null.", nameof(value));
-            }
-
-            if (options == null)
-            {
-                throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
-            }
-        }
-
         private SQLiteCommand GetItemCommand(string key)
         {
             var command = new SQLiteCommand("select buffer from items where key = @key and expiration > @now", connection);
@@ -250,6 +227,29 @@ namespace MapControl.Caching
             var command = new SQLiteCommand("delete from items where expiration <= @now; select changes()", connection);
             command.Parameters.AddWithValue("@now", DateTimeOffset.UtcNow.Ticks);
             return command;
+        }
+
+        private static void CheckArgument(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
+            }
+        }
+
+        private static void CheckArguments(string key, byte[] value, DistributedCacheEntryOptions options)
+        {
+            CheckArgument(key);
+
+            if (value == null)
+            {
+                throw new ArgumentNullException($"The {nameof(value)} argument must not be null.", nameof(value));
+            }
+
+            if (options == null)
+            {
+                throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
+            }
         }
     }
 }
