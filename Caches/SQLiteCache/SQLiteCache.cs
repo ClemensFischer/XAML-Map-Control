@@ -233,7 +233,7 @@ namespace MapControl.Caching
 
             var command = new SQLiteCommand("insert or replace into items (key, expiration, buffer) values (@key, @exp, @buf)", connection);
             command.Parameters.AddWithValue("@key", key);
-            command.Parameters.AddWithValue("@exp", expiration.Ticks);
+            command.Parameters.AddWithValue("@exp", expiration.UtcTicks);
             command.Parameters.AddWithValue("@buf", buffer);
             return command;
         }
