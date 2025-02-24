@@ -89,11 +89,14 @@ namespace MapControl.Caching
 
             try
             {
-                var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
-
-                if (record != null && (DateTime)record[1] > DateTime.UtcNow)
+                lock (fileDb)
                 {
-                    value = (byte[])record[0];
+                    var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
+
+                    if (record != null && (DateTime)record[1] > DateTime.UtcNow)
+                    {
+                        value = (byte[])record[0];
+                    }
                 }
             }
             catch (Exception ex)
@@ -120,14 +123,17 @@ namespace MapControl.Caching
 
             try
             {
-                if (fileDb.GetRecordByKey(key, new string[0], false) != null)
+                lock (fileDb)
                 {
-                    fileDb.UpdateRecordByKey(key, fieldValues);
-                }
-                else
-                {
-                    fieldValues.Add(keyField, key);
-                    fileDb.AddRecord(fieldValues);
+                    if (fileDb.GetRecordByKey(key, new string[0], false) != null)
+                    {
+                        fileDb.UpdateRecordByKey(key, fieldValues);
+                    }
+                    else
+                    {
+                        fieldValues.Add(keyField, key);
+                        fileDb.AddRecord(fieldValues);
+                    }
                 }
             }
             catch (Exception ex)
@@ -146,7 +152,10 @@ namespace MapControl.Caching
 
             try
             {
-                fileDb.DeleteRecordByKey(key);
+                lock (fileDb)
+                {
+                    fileDb.DeleteRecordByKey(key);
+                }
             }
             catch (Exception ex)
             {
@@ -156,12 +165,16 @@ namespace MapControl.Caching
 
         public void DeleteExpiredItems()
         {
-            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
-
-            if (deleted > 0)
+            lock (fileDb)
             {
-                Debug.WriteLine($"{nameof(FileDbCache)}: Deleted {deleted} expired items");
-                fileDb.Clean();
+                var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+
+                if (deleted > 0)
+                {
+                    fileDb.Clean();
+
+                    Debug.WriteLine($"{nameof(FileDbCache)}: Deleted {deleted} expired items");
+                }
             }
         }
 
