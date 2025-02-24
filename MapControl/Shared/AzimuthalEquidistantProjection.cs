@@ -11,7 +11,7 @@ namespace MapControl
 {
     /// <summary>
     /// Spherical Azimuthal Equidistant Projection - No standard CRS ID.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.195-197.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.195-197.
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {

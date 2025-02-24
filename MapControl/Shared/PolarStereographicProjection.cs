@@ -12,7 +12,7 @@ namespace MapControl
     /// <summary>
     /// Elliptical Polar Stereographic Projection with a given scale factor at the pole and
     /// optional false easting and northing, as used by the UPS North and UPS South projections.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.154-163.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.154-163.
     /// </summary>
     public class PolarStereographicProjection : MapProjection
     {

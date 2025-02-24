@@ -11,7 +11,7 @@ namespace MapControl
 {
     /// <summary>
     /// Elliptical Mercator Projection - EPSG:3395.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.44-45.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.44-45.
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {

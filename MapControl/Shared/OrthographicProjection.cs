@@ -11,7 +11,7 @@ namespace MapControl
 {
     /// <summary>
     /// Spherical Orthographic Projection - AUTO2:42003.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.148-150.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.148-150.
     /// </summary>
     public class OrthographicProjection : AzimuthalProjection
     {

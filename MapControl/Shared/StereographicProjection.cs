@@ -11,7 +11,7 @@ namespace MapControl
 {
     /// <summary>
     /// Spherical Stereographic Projection - AUTO2:97002.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.157-160.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.157-160.
     /// </summary>
     public class StereographicProjection : AzimuthalProjection
     {

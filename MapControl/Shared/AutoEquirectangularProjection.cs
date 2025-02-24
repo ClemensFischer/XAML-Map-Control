@@ -12,7 +12,7 @@ namespace MapControl
     /// <summary>
     /// Auto-Equirectangular Projection - AUTO2:42004.
     /// Equidistant cylindrical projection with standard parallel and central meridian set by the Center property.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.90-91.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.90-91.
     /// </summary>
     public class AutoEquirectangularProjection : MapProjection
     {

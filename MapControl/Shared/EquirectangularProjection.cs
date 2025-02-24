@@ -12,7 +12,7 @@ namespace MapControl
     /// <summary>
     /// Equirectangular Projection - EPSG:4326.
     /// Equidistant cylindrical projection with zero standard parallel and central meridian.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.90-91.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.90-91.
     /// </summary>
     public class EquirectangularProjection : MapProjection
     {
