@@ -18,7 +18,7 @@ namespace MapControl.Caching
     public sealed class SQLiteCache : IDistributedCache, IDisposable
     {
         private readonly SQLiteConnection connection;
-        private readonly Timer expirationScanTimer;
+        private readonly Timer timer;
 
         public SQLiteCache(string path)
             : this(path, TimeSpan.FromHours(1))
@@ -54,13 +54,13 @@ namespace MapControl.Caching
 
             if (expirationScanFrequency > TimeSpan.Zero)
             {
-                expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
+                timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
             }
         }
 
         public void Dispose()
         {
-            expirationScanTimer?.Dispose();
+            timer?.Dispose();
             connection.Dispose();
         }
 
