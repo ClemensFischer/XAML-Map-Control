@@ -23,7 +23,7 @@ namespace MapControl.Caching
         private const string expiresField = "Expires";
 
         private readonly FileDb fileDb = new FileDb { AutoFlush = true };
-        private readonly Timer expirationScanTimer;
+        private readonly Timer timer;
 
         public FileDbCache(string path)
             : this(path, TimeSpan.FromHours(1))
@@ -71,13 +71,13 @@ namespace MapControl.Caching
 
             if (expirationScanFrequency > TimeSpan.Zero)
             {
-                expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
+                timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
             }
         }
 
         public void Dispose()
         {
-            expirationScanTimer?.Dispose();
+            timer?.Dispose();
             fileDb.Dispose();
         }
 
@@ -89,14 +89,11 @@ namespace MapControl.Caching
 
             try
             {
-                lock (fileDb)
-                {
-                    var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
+                var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
 
-                    if (record != null && (DateTime)record[1] > DateTime.UtcNow)
-                    {
-                        value = (byte[])record[0];
-                    }
+                if (record != null && (DateTime)record[1] > DateTime.UtcNow)
+                {
+                    value = (byte[])record[0];
                 }
             }
             catch (Exception ex)
@@ -123,17 +120,14 @@ namespace MapControl.Caching
 
             try
             {
-                lock (fileDb)
+                if (fileDb.GetRecordByKey(key, new string[0], false) != null)
                 {
-                    if (fileDb.GetRecordByKey(key, new string[0], false) != null)
-                    {
-                        fileDb.UpdateRecordByKey(key, fieldValues);
-                    }
-                    else
-                    {
-                        fieldValues.Add(keyField, key);
-                        fileDb.AddRecord(fieldValues);
-                    }
+                    fileDb.UpdateRecordByKey(key, fieldValues);
+                }
+                else
+                {
+                    fieldValues.Add(keyField, key);
+                    fileDb.AddRecord(fieldValues);
                 }
             }
             catch (Exception ex)
@@ -152,10 +146,7 @@ namespace MapControl.Caching
 
             try
             {
-                lock (fileDb)
-                {
-                    fileDb.DeleteRecordByKey(key);
-                }
+                fileDb.DeleteRecordByKey(key);
             }
             catch (Exception ex)
             {
@@ -165,16 +156,13 @@ namespace MapControl.Caching
 
         public void DeleteExpiredItems()
         {
-            lock (fileDb)
+            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+
+            if (deleted > 0)
             {
-                var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+                fileDb.Clean();
 
-                if (deleted > 0)
-                {
-                    fileDb.Clean();
-
-                    Debug.WriteLine($"{nameof(FileDbCache)}: Deleted {deleted} expired items");
-                }
+                Debug.WriteLine($"{nameof(FileDbCache)}: Deleted {deleted} expired items");
             }
         }
 
