@@ -33,11 +33,4 @@
     <ItemGroup Condition="'$(TargetFramework)'=='net48'">
         <Reference Include="System.Net.Http" />
     </ItemGroup>
-
-    <!--<ItemGroup>
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.2" />
-        <PackageReference Include="NeoSmart.Caching.Sqlite" Version="9.0.1" />
-    </ItemGroup>-->
 </Project>

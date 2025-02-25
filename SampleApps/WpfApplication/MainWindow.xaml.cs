@@ -7,10 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-//using Microsoft.Extensions.Logging;
-//using NeoSmart.Caching.Sqlite;
-//using System.IO;
-
 namespace SampleApplication
 {
     public partial class MainWindow : Window
@@ -18,14 +14,10 @@ namespace SampleApplication
         public MainWindow()
         {
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
 
-            // https://neosmart.net/blog/sqlite-cache-for-asp-net-core/
-            //var factory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Trace));
-            //var logger = factory.CreateLogger<SqliteCache>();
-            //var options = new SqliteCacheOptions { CachePath = Path.Combine(TileImageLoader.DefaultCacheFolder, "TileCache.db") };
-            //TileImageLoader.Cache = new SqliteCache(options, logger);
-
-            //Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
+            Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
 
             InitializeComponent();
             AddTestLayers();
