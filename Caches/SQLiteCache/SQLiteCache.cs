@@ -197,9 +197,9 @@ namespace MapControl.Caching
 
         private SQLiteCommand GetItemCommand(string key)
         {
-            var command = new SQLiteCommand("select buffer from items where key = @key and expiration > @now", connection);
+            var command = new SQLiteCommand("select buffer from items where key = @key and expiration > @exp", connection);
             command.Parameters.AddWithValue("@key", key);
-            command.Parameters.AddWithValue("@now", DateTimeOffset.UtcNow.Ticks);
+            command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
             return command;
         }
 
@@ -224,8 +224,8 @@ namespace MapControl.Caching
 
         private SQLiteCommand DeleteExpiredItemCommand()
         {
-            var command = new SQLiteCommand("delete from items where expiration <= @now; select changes()", connection);
-            command.Parameters.AddWithValue("@now", DateTimeOffset.UtcNow.Ticks);
+            var command = new SQLiteCommand("delete from items where expiration <= @exp; select changes()", connection);
+            command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
             return command;
         }
 
