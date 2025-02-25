@@ -13,8 +13,7 @@ using System.Threading.Tasks;
 namespace MapControl.Caching
 {
     /// <summary>
-    /// IDistributedCache implementation based on FileDb, a free and simple No-SQL database by EzTools Software.
-    /// See http://www.eztools-software.com/tools/filedb/.
+    /// IDistributedCache implementation based on FileDb, https://github.com/eztools-software/FileDb.
     /// </summary>
     public sealed class FileDbCache : IDistributedCache, IDisposable
     {

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace MapControl.Caching
 {
     /// <summary>
-    /// IDistributedCache implementation based on System.Data.SQLite.
+    /// IDistributedCache implementation based on System.Data.SQLite, https://system.data.sqlite.org/.
     /// </summary>
     public sealed class SQLiteCache : IDistributedCache, IDisposable
     {
