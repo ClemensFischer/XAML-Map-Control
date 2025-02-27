@@ -1,8 +1,4 @@
-﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// Copyright © Clemens Fischer
-// Licensed under the Microsoft Public License (Ms-PL)
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace MapControl.Projections
 {

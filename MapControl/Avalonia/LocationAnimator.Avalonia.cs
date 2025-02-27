@@ -1,8 +1,4 @@
-﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// Copyright © Clemens Fischer
-// Licensed under the Microsoft Public License (Ms-PL)
-
-namespace MapControl
+﻿namespace MapControl
 {
     public class LocationAnimator : InterpolatingAnimator<Location>
     {

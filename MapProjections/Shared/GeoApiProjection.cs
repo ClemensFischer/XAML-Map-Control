@@ -1,8 +1,4 @@
-﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// Copyright © Clemens Fischer
-// Licensed under the Microsoft Public License (Ms-PL)
-
-using GeoAPI.CoordinateSystems;
+﻿using GeoAPI.CoordinateSystems;
 using GeoAPI.CoordinateSystems.Transformations;
 using GeoAPI.Geometries;
 using ProjNet.CoordinateSystems;

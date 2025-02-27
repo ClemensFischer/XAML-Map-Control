@@ -1,8 +1,4 @@
-﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// Copyright © Clemens Fischer
-// Licensed under the Microsoft Public License (Ms-PL)
-
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -243,12 +239,12 @@ namespace MapControl.Caching
 
             if (value == null)
             {
-                throw new ArgumentNullException($"The {nameof(value)} argument must not be null.", nameof(value));
+                throw new ArgumentNullException(nameof(value), $"The {nameof(value)} argument must not be null.");
             }
 
             if (options == null)
             {
-                throw new ArgumentNullException($"The {nameof(options)} argument must not be null.", nameof(options));
+                throw new ArgumentNullException(nameof(options), $"The {nameof(options)} argument must not be null.");
             }
         }
     }

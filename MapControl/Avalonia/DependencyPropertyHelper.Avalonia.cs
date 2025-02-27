@@ -1,8 +1,4 @@
-﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// Copyright © Clemens Fischer
-// Licensed under the Microsoft Public License (Ms-PL)
-
-using System;
+﻿using System;
 
 #pragma warning disable AVP1001 // The same AvaloniaProperty should not be registered twice
 

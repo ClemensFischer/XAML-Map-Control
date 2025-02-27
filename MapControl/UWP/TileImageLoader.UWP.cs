@@ -1,8 +1,4 @@
-﻿// XAML Map Control - https://github.com/ClemensFischer/XAML-Map-Control
-// Copyright © Clemens Fischer
-// Licensed under the Microsoft Public License (Ms-PL)
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
