@@ -138,11 +138,12 @@ namespace MapControl.Caching
 
         public void Refresh(string key)
         {
+            throw new NotSupportedException();
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
-            return Task.CompletedTask;
+            throw new NotSupportedException();
         }
 
         public void Remove(string key)

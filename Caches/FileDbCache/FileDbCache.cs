@@ -99,6 +99,11 @@ namespace MapControl.Caching
             return value;
         }
 
+        public Task<byte[]> GetAsync(string key, CancellationToken token = default)
+        {
+            return Task.FromResult(Get(key));
+        }
+
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
             CheckArguments(key, value, options);
@@ -131,8 +136,21 @@ namespace MapControl.Caching
             }
         }
 
+        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
+        {
+            Set(key, value, options);
+
+            return Task.CompletedTask;
+        }
+
         public void Refresh(string key)
         {
+            throw new NotSupportedException();
+        }
+
+        public Task RefreshAsync(string key, CancellationToken token = default)
+        {
+            throw new NotSupportedException();
         }
 
         public void Remove(string key)
@@ -149,6 +167,13 @@ namespace MapControl.Caching
             }
         }
 
+        public Task RemoveAsync(string key, CancellationToken token = default)
+        {
+            Remove(key);
+
+            return Task.CompletedTask;
+        }
+
         public void DeleteExpiredItems()
         {
             var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
@@ -159,32 +184,6 @@ namespace MapControl.Caching
 
                 Debug.WriteLine($"{nameof(FileDbCache)}: Deleted {deleted} expired items");
             }
-        }
-
-        public Task<byte[]> GetAsync(string key, CancellationToken token = default)
-        {
-            return Task.FromResult(Get(key));
-        }
-
-        public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
-        {
-            Set(key, value, options);
-
-            return Task.CompletedTask;
-        }
-
-        public Task RefreshAsync(string key, CancellationToken token = default)
-        {
-            Refresh(key);
-
-            return Task.CompletedTask;
-        }
-
-        public Task RemoveAsync(string key, CancellationToken token = default)
-        {
-            Remove(key);
-
-            return Task.CompletedTask;
         }
 
         private static void CheckArgument(string key)
