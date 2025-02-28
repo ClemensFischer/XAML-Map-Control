@@ -23,14 +23,9 @@ namespace MapControl.Caching
 
         public SQLiteCache(string path, TimeSpan expirationScanFrequency)
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(Path.GetExtension(path)))
             {
-                throw new ArgumentException($"The {nameof(path)} argument must not be null or empty.", nameof(path));
-            }
-
-            if (string.IsNullOrEmpty(Path.GetExtension(path)))
-            {
-                path = Path.Combine(path, "TileCache.sqlite");
+                path = Path.Combine(path ?? "", "TileCache.sqlite");
             }
 
             connection = new SQLiteConnection("Data Source=" + path);
@@ -62,20 +57,21 @@ namespace MapControl.Caching
 
         public byte[] Get(string key)
         {
-            CheckArgument(key);
-
             byte[] value = null;
 
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                using (var command = GetItemCommand(key))
+                try
                 {
-                    value = (byte[])command.ExecuteScalar();
+                    using (var command = GetItemCommand(key))
+                    {
+                        value = (byte[])command.ExecuteScalar();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(SQLiteCache)}.Get({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(SQLiteCache)}.Get({key}): {ex.Message}");
+                }
             }
 
             return value;
@@ -83,20 +79,21 @@ namespace MapControl.Caching
 
         public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
         {
-            CheckArgument(key);
-
             byte[] value = null;
 
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                using (var command = GetItemCommand(key))
+                try
                 {
-                    value = (byte[])await command.ExecuteScalarAsync();
+                    using (var command = GetItemCommand(key))
+                    {
+                        value = (byte[])await command.ExecuteScalarAsync();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(SQLiteCache)}.GetAsync({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(SQLiteCache)}.GetAsync({key}): {ex.Message}");
+                }
             }
 
             return value;
@@ -104,79 +101,82 @@ namespace MapControl.Caching
 
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
-            CheckArguments(key, value, options);
-
-            try
+            if (!string.IsNullOrEmpty(key) && value != null && options != null)
             {
-                using (var command = SetItemCommand(key, value, options))
+                try
                 {
-                    command.ExecuteNonQuery();
+                    using (var command = SetItemCommand(key, value, options))
+                    {
+                        command.ExecuteNonQuery();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(SQLiteCache)}.Set({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(SQLiteCache)}.Set({key}): {ex.Message}");
+                }
             }
         }
 
         public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
-            CheckArguments(key, value, options);
-
-            try
+            if (!string.IsNullOrEmpty(key) && value != null && options != null)
             {
-                using (var command = SetItemCommand(key, value, options))
+                try
                 {
-                    await command.ExecuteNonQueryAsync(token);
+                    using (var command = SetItemCommand(key, value, options))
+                    {
+                        await command.ExecuteNonQueryAsync(token);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(SQLiteCache)}.SetAsync({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(SQLiteCache)}.SetAsync({key}): {ex.Message}");
+                }
             }
         }
 
         public void Refresh(string key)
         {
-            throw new NotSupportedException();
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
-            throw new NotSupportedException();
+            return Task.CompletedTask;
         }
 
         public void Remove(string key)
         {
-            CheckArgument(key);
-
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                using (var command = DeleteItemCommand(key))
+                try
                 {
-                    command.ExecuteNonQuery();
+                    using (var command = DeleteItemCommand(key))
+                    {
+                        command.ExecuteNonQuery();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(SQLiteCache)}.Remove({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(SQLiteCache)}.Remove({key}): {ex.Message}");
+                }
             }
         }
 
         public async Task RemoveAsync(string key, CancellationToken token = default)
         {
-            CheckArgument(key);
-
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                using (var command = DeleteItemCommand(key))
+                try
                 {
-                    await command.ExecuteNonQueryAsync();
+                    using (var command = DeleteItemCommand(key))
+                    {
+                        await command.ExecuteNonQueryAsync();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(SQLiteCache)}.RemoveAsync({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(SQLiteCache)}.RemoveAsync({key}): {ex.Message}");
+                }
             }
         }
 
@@ -224,29 +224,6 @@ namespace MapControl.Caching
             var command = new SQLiteCommand("delete from items where expiration <= @exp; select changes()", connection);
             command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
             return command;
-        }
-
-        private static void CheckArgument(string key)
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
-            }
-        }
-
-        private static void CheckArguments(string key, byte[] value, DistributedCacheEntryOptions options)
-        {
-            CheckArgument(key);
-
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value), $"The {nameof(value)} argument must not be null.");
-            }
-
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options), $"The {nameof(options)} argument must not be null.");
-            }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MapControl.Caching
         {
             if (string.IsNullOrEmpty(path))
             {
-                throw new ArgumentException($"The {nameof(path)} argument must not be null or empty.", nameof(path));
+                path = "TileCache";
             }
 
             rootDirectory = new DirectoryInfo(path);
@@ -56,158 +56,185 @@ namespace MapControl.Caching
 
         public byte[] Get(string key)
         {
-            var buffer = memoryCache.Get(key);
+            byte[] value = null;
 
-            if (buffer == null)
+            if (!string.IsNullOrEmpty(key))
             {
-                var file = GetFile(key);
+                value = memoryCache.Get(key);
 
-                try
+                if (value == null)
                 {
-                    if (file != null && file.Exists && file.CreationTime > DateTime.Now)
+                    var file = GetFile(key);
+
+                    try
                     {
-                        buffer = ReadAllBytes(file);
+                        if (file != null && file.Exists && file.CreationTime > DateTime.Now)
+                        {
+                            value = ReadAllBytes(file);
 
-                        var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
+                            var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
 
-                        memoryCache.Set(key, buffer, options);
+                            memoryCache.Set(key, value, options);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {file.FullName}: {ex.Message}");
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {file.FullName}: {ex.Message}");
+                    }
                 }
             }
 
-            return buffer;
+            return value;
         }
 
         public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
         {
-            var buffer = await memoryCache.GetAsync(key, token).ConfigureAwait(false);
+            byte[] value = null;
 
-            if (buffer == null)
+            if (!string.IsNullOrEmpty(key))
             {
+                value = await memoryCache.GetAsync(key, token).ConfigureAwait(false);
+
+                if (value == null)
+                {
+                    var file = GetFile(key);
+
+                    try
+                    {
+                        if (file != null && file.Exists && file.CreationTime > DateTime.Now && !token.IsCancellationRequested)
+                        {
+                            value = await ReadAllBytes(file, token).ConfigureAwait(false);
+
+                            var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
+
+                            await memoryCache.SetAsync(key, value, options, token).ConfigureAwait(false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {file.FullName}: {ex.Message}");
+                    }
+                }
+            }
+
+            return value;
+        }
+
+        public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
+        {
+            if (!string.IsNullOrEmpty(key) && value != null && options != null)
+            {
+                memoryCache.Set(key, value, options);
+
                 var file = GetFile(key);
 
                 try
                 {
-                    if (file != null && file.Exists && file.CreationTime > DateTime.Now && !token.IsCancellationRequested)
+                    if (file != null && value?.Length > 0)
                     {
-                        buffer = await ReadAllBytes(file, token).ConfigureAwait(false);
+                        file.Directory.Create();
 
-                        var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
+                        using (var stream = file.Create())
+                        {
+                            stream.Write(value, 0, value.Length);
+                        }
 
-                        await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
+                        SetExpiration(file, options);
                     }
                 }
                 catch (Exception ex)
                 {
-                    buffer = null;
-                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {file.FullName}: {ex.Message}");
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {file.FullName}: {ex.Message}");
                 }
-            }
-
-            return buffer;
-        }
-
-        public void Set(string key, byte[] buffer, DistributedCacheEntryOptions options)
-        {
-            memoryCache.Set(key, buffer, options);
-
-            var file = GetFile(key);
-
-            try
-            {
-                if (file != null && buffer?.Length > 0)
-                {
-                    file.Directory.Create();
-
-                    using (var stream = file.Create())
-                    {
-                        stream.Write(buffer, 0, buffer.Length);
-                    }
-
-                    SetExpiration(file, options);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {file.FullName}: {ex.Message}");
             }
         }
 
-        public async Task SetAsync(string key, byte[] buffer, DistributedCacheEntryOptions options, CancellationToken token = default)
+        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
-            await memoryCache.SetAsync(key, buffer, options, token).ConfigureAwait(false);
-
-            var file = GetFile(key);
-
-            try
+            if (!string.IsNullOrEmpty(key) && value != null && options != null)
             {
-                if (file != null && buffer?.Length > 0 && !token.IsCancellationRequested)
+                await memoryCache.SetAsync(key, value, options, token).ConfigureAwait(false);
+
+                var file = GetFile(key);
+
+                try
                 {
-                    file.Directory.Create();
-
-                    using (var stream = file.Create())
+                    if (file != null && value?.Length > 0 && !token.IsCancellationRequested)
                     {
-                        await stream.WriteAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
-                    }
+                        file.Directory.Create();
 
-                    SetExpiration(file, options);
+                        using (var stream = file.Create())
+                        {
+                            await stream.WriteAsync(value, 0, value.Length, token).ConfigureAwait(false);
+                        }
+
+                        SetExpiration(file, options);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {file.FullName}: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {file.FullName}: {ex.Message}");
+                }
             }
         }
 
         public void Refresh(string key)
         {
-            memoryCache.Refresh(key);
+            if (!string.IsNullOrEmpty(key))
+            {
+                memoryCache.Refresh(key);
+            }
         }
 
-        public Task RefreshAsync(string key, CancellationToken token = default)
+        public async Task RefreshAsync(string key, CancellationToken token = default)
         {
-            return memoryCache.RefreshAsync(key, token);
+            if (!string.IsNullOrEmpty(key))
+            {
+                await memoryCache.RefreshAsync(key, token);
+            }
         }
 
         public void Remove(string key)
         {
-            memoryCache.Remove(key);
-
-            var file = GetFile(key);
-
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                if (file != null && file.Exists)
+                memoryCache.Remove(key);
+
+                var file = GetFile(key);
+
+                try
                 {
-                    file.Delete();
+                    if (file != null && file.Exists)
+                    {
+                        file.Delete();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {file.FullName}: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {file.FullName}: {ex.Message}");
+                }
             }
         }
 
         public async Task RemoveAsync(string key, CancellationToken token = default)
         {
-            await memoryCache.RemoveAsync(key, token);
-
-            var file = GetFile(key);
-
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                if (file != null && file.Exists && !token.IsCancellationRequested)
+                await memoryCache.RemoveAsync(key, token);
+
+                var file = GetFile(key);
+
+                try
                 {
-                    file.Delete();
+                    if (file != null && file.Exists && !token.IsCancellationRequested)
+                    {
+                        file.Delete();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {file.FullName}: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {file.FullName}: {ex.Message}");
+                }
             }
         }
 

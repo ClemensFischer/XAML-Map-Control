@@ -27,14 +27,9 @@ namespace MapControl.Caching
 
         public FileDbCache(string path, TimeSpan expirationScanFrequency)
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(Path.GetExtension(path)))
             {
-                throw new ArgumentException($"The {nameof(path)} argument must not be null or empty.", nameof(path));
-            }
-
-            if (string.IsNullOrEmpty(Path.GetExtension(path)))
-            {
-                path = Path.Combine(path, "TileCache.fdb");
+                path = Path.Combine(path ?? "", "TileCache.fdb");
             }
 
             try
@@ -78,22 +73,23 @@ namespace MapControl.Caching
 
         public byte[] Get(string key)
         {
-            CheckArgument(key);
-
             byte[] value = null;
 
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
-
-                if (record != null && (DateTime)record[1] > DateTime.UtcNow)
+                try
                 {
-                    value = (byte[])record[0];
+                    var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
+
+                    if (record != null && (DateTime)record[1] > DateTime.UtcNow)
+                    {
+                        value = (byte[])record[0];
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(FileDbCache)}.Get({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(FileDbCache)}.Get({key}): {ex.Message}");
+                }
             }
 
             return value;
@@ -106,33 +102,34 @@ namespace MapControl.Caching
 
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
-            CheckArguments(key, value, options);
-
-            var expiration = options.AbsoluteExpiration.HasValue
-                ? options.AbsoluteExpiration.Value.UtcDateTime
-                : DateTime.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
-
-            var fieldValues = new FieldValues(3)
+            if (!string.IsNullOrEmpty(key) && value != null && options != null)
             {
-                { valueField, value },
-                { expiresField, expiration }
-            };
+                var expiration = options.AbsoluteExpiration.HasValue
+                    ? options.AbsoluteExpiration.Value.UtcDateTime
+                    : DateTime.UtcNow.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
 
-            try
-            {
-                if (fileDb.GetRecordByKey(key, new string[0], false) != null)
+                var fieldValues = new FieldValues(3)
                 {
-                    fileDb.UpdateRecordByKey(key, fieldValues);
-                }
-                else
+                    { valueField, value },
+                    { expiresField, expiration }
+                };
+
+                try
                 {
-                    fieldValues.Add(keyField, key);
-                    fileDb.AddRecord(fieldValues);
+                    if (fileDb.GetRecordByKey(key, new string[0], false) != null)
+                    {
+                        fileDb.UpdateRecordByKey(key, fieldValues);
+                    }
+                    else
+                    {
+                        fieldValues.Add(keyField, key);
+                        fileDb.AddRecord(fieldValues);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(FileDbCache)}.Set({key}): {ex.Message}");
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(FileDbCache)}.Set({key}): {ex.Message}");
+                }
             }
         }
 
@@ -145,25 +142,25 @@ namespace MapControl.Caching
 
         public void Refresh(string key)
         {
-            throw new NotSupportedException();
         }
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
-            throw new NotSupportedException();
+            return Task.CompletedTask;
         }
 
         public void Remove(string key)
         {
-            CheckArgument(key);
-
-            try
+            if (!string.IsNullOrEmpty(key))
             {
-                fileDb.DeleteRecordByKey(key);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(FileDbCache)}.Remove({key}): {ex.Message}");
+                try
+                {
+                    fileDb.DeleteRecordByKey(key);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(FileDbCache)}.Remove({key}): {ex.Message}");
+                }
             }
         }
 
@@ -183,29 +180,6 @@ namespace MapControl.Caching
                 fileDb.Clean();
 
                 Debug.WriteLine($"{nameof(FileDbCache)}: Deleted {deleted} expired items");
-            }
-        }
-
-        private static void CheckArgument(string key)
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"The {nameof(key)} argument must not be null or empty.", nameof(key));
-            }
-        }
-
-        private static void CheckArguments(string key, byte[] value, DistributedCacheEntryOptions options)
-        {
-            CheckArgument(key);
-
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value), $"The {nameof(value)} argument must not be null.");
-            }
-
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options), $"The {nameof(options)} argument must not be null.");
             }
         }
     }
