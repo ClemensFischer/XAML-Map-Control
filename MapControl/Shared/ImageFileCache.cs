@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace MapControl.Caching
 {
     /// <summary>
-    /// IDistributedCache implementation based on local image files.
+    /// IDistributedCache implementation based on local files.
     /// </summary>
     public sealed class ImageFileCache : IDistributedCache, IDisposable
     {
