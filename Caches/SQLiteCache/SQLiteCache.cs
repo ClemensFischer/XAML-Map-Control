@@ -182,13 +182,21 @@ namespace MapControl.Caching
 
         public void DeleteExpiredItems()
         {
-            using (var command = DeleteExpiredItemCommand())
+            long deleted;
+
+            using (var command = DeleteExpiredItemsCommand())
             {
-                var deleted = (long)command.ExecuteScalar();
-                if (deleted > 0)
+                deleted = (long)command.ExecuteScalar();
+            }
+
+            if (deleted > 0)
+            {
+                using (var command = new SQLiteCommand("vacuum", connection))
                 {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}: Deleted {deleted} expired items");
+                    command.ExecuteNonQuery();
                 }
+
+                Debug.WriteLine($"{nameof(SQLiteCache)}: Deleted {deleted} expired items");
             }
         }
 
@@ -219,7 +227,7 @@ namespace MapControl.Caching
             return command;
         }
 
-        private SQLiteCommand DeleteExpiredItemCommand()
+        private SQLiteCommand DeleteExpiredItemsCommand()
         {
             var command = new SQLiteCommand("delete from items where expiration <= @exp; select changes()", connection);
             command.Parameters.AddWithValue("@exp", DateTimeOffset.UtcNow.Ticks);
