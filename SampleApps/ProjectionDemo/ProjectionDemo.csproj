@@ -3,8 +3,8 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net9.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
-		<RootNamespace>ProjectionDemo</RootNamespace>
-		<AssemblyTitle>XAML Map Control Projection Demo Application</AssemblyTitle>
+        <RootNamespace>ProjectionDemo</RootNamespace>
+        <AssemblyTitle>XAML Map Control Projection Demo Application</AssemblyTitle>
     </PropertyGroup>
 
     <ItemGroup>
