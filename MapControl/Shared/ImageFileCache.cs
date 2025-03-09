@@ -27,12 +27,7 @@ namespace MapControl.Caching
 
         public ImageFileCache(string path, TimeSpan expirationScanFrequency)
         {
-            if (string.IsNullOrEmpty(path))
-            {
-                path = "TileCache";
-            }
-
-            rootDirectory = new DirectoryInfo(path);
+            rootDirectory = new DirectoryInfo(!string.IsNullOrEmpty(path) ? path : "TileCache");
             rootDirectory.Create();
 
             Debug.WriteLine($"{nameof(ImageFileCache)}: {rootDirectory.FullName}");

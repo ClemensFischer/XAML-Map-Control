@@ -68,7 +68,9 @@ namespace MapControl.MBTiles
                     command.Parameters.AddWithValue("@x", x);
                     command.Parameters.AddWithValue("@y", (1 << zoomLevel) - y - 1);
 
-                    image = await LoadImageAsync((byte[])await command.ExecuteScalarAsync());
+                    var buffer = (byte[])await command.ExecuteScalarAsync();
+
+                    image = await LoadImageAsync(buffer);
                 }
             }
             catch (Exception ex)
