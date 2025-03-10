@@ -67,31 +67,29 @@ namespace MapControl
         /// <summary>
         /// Calculates a series of Locations on a great circle, or orthodrome, that connects the two specified Locations,
         /// with an optional angular resolution specified in degrees.
-        ///
-        /// See https://en.wikipedia.org/wiki/Great-circle_navigation
+        /// https://en.wikipedia.org/wiki/Great-circle_navigation
         /// </summary>
         public static LocationCollection OrthodromeLocations(Location location1, Location location2, double resolution = 1d)
         {
             if (resolution <= 0d)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(resolution), "The resolution argument must be greater than zero.");
+                    nameof(resolution), $"The {nameof(resolution)} argument must be greater than zero.");
             }
 
             var lat1 = location1.Latitude * Math.PI / 180d;
             var lon1 = location1.Longitude * Math.PI / 180d;
             var lat2 = location2.Latitude * Math.PI / 180d;
             var lon2 = location2.Longitude * Math.PI / 180d;
-
             var cosLat1 = Math.Cos(lat1);
             var sinLat1 = Math.Sin(lat1);
             var cosLat2 = Math.Cos(lat2);
             var sinLat2 = Math.Sin(lat2);
             var cosLon12 = Math.Cos(lon2 - lon1);
             var sinLon12 = Math.Sin(lon2 - lon1);
-
-            var a = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
-            var b = cosLat2 * sinLon12;
+            var a = cosLat2 * sinLon12;
+            var b = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
+            // σ12
             var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12);
 
             var n = (int)Math.Ceiling(s12 / resolution * 180d / Math.PI); // s12 in radians
@@ -100,15 +98,18 @@ namespace MapControl
 
             if (n > 1)
             {
-                var az1 = Math.Atan2(sinLon12, cosLat1 * sinLat2 / cosLat2 - sinLat1 * cosLon12);
+                // https://en.wikipedia.org/wiki/Great-circle_navigation#Finding_way-points
+                // α1
+                var az1 = Math.Atan2(a, b);
                 var cosAz1 = Math.Cos(az1);
                 var sinAz1 = Math.Sin(az1);
-
+                // α0
                 var az0 = Math.Atan2(sinAz1 * cosLat1, Math.Sqrt(cosAz1 * cosAz1 + sinAz1 * sinAz1 * sinLat1 * sinLat1));
-                var sinAz0 = Math.Sin(az0);
                 var cosAz0 = Math.Cos(az0);
-
+                var sinAz0 = Math.Sin(az0);
+                // σ01
                 var s01 = Math.Atan2(sinLat1, cosLat1 * cosAz1);
+                // λ0
                 var lon0 = lon1 - Math.Atan2(sinAz0 * Math.Sin(s01), Math.Cos(s01));
 
                 for (var i = 1; i < n; i++)
@@ -139,7 +140,7 @@ namespace MapControl
             if (resolution <= 0d)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(resolution), "The resolution argument must be greater than zero.");
+                    nameof(resolution), $"The {nameof(resolution)} argument must be greater than zero.");
             }
 
             var lat1 = location1.Latitude;
@@ -153,13 +154,13 @@ namespace MapControl
             if (double.IsInfinity(y1))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(location1), "The location1 argument must have an absolute latitude value of less than 90.");
+                    nameof(location1), $"The {nameof(location1)} argument must have an absolute latitude value of less than 90.");
             }
 
             if (double.IsInfinity(y2))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(location2), "The location2 argument must have an absolute latitude value of less than 90.");
+                    nameof(location2), $"The {nameof(location2)} argument must have an absolute latitude value of less than 90.");
             }
 
             var dlat = lat2 - lat1;

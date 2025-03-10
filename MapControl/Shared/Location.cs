@@ -5,6 +5,10 @@ namespace MapControl
 {
     /// <summary>
     /// A geographic location with latitude and longitude values in degrees.
+    /// For calculations with azimuth and distance on great circles, see
+    /// https://en.wikipedia.org/wiki/Great_circle
+    /// https://en.wikipedia.org/wiki/Great-circle_distance
+    /// https://en.wikipedia.org/wiki/Great-circle_navigation
     /// </summary>
 #if UWP || WINUI
     [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
@@ -81,54 +85,63 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Calculates the great circle distance between this and the specified Location.
-        /// https://en.wikipedia.org/wiki/Great_circle
-        /// https://en.wikipedia.org/wiki/Great-circle_distance
-        /// https://en.wikipedia.org/wiki/Great-circle_navigation
+        /// Calculates great circle azimuth and distance in radians between this and the specified Location.
         /// </summary>
-        public double GetDistance(
-            Location location, double earthRadius = MapProjection.Wgs84EquatorialRadius)
+        public void GetAzimuthDistance(Location location, out double azimuth, out double distance)
         {
             var lat1 = Latitude * Math.PI / 180d;
             var lon1 = Longitude * Math.PI / 180d;
             var lat2 = location.Latitude * Math.PI / 180d;
             var lon2 = location.Longitude * Math.PI / 180d;
-            var sinLat1 = Math.Sin(lat1);
             var cosLat1 = Math.Cos(lat1);
-            var sinLat2 = Math.Sin(lat2);
+            var sinLat1 = Math.Sin(lat1);
             var cosLat2 = Math.Cos(lat2);
-            var sinLon12 = Math.Sin(lon2 - lon1);
+            var sinLat2 = Math.Sin(lat2);
             var cosLon12 = Math.Cos(lon2 - lon1);
-            var a = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
-            var b = cosLat2 * sinLon12;
-            var c = sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12;
-            var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), c);
-
-            return earthRadius * s12;
+            var sinLon12 = Math.Sin(lon2 - lon1);
+            var a = cosLat2 * sinLon12;
+            var b = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
+            // α1
+            azimuth = Math.Atan2(a, b);
+            // σ12
+            distance = Math.Atan2(Math.Sqrt(a * a + b * b), sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12);
         }
 
         /// <summary>
-        /// Calculates the Location on a great circle at the specified azimuth angle and distance from this Location.
-        /// https://en.wikipedia.org/wiki/Great_circle
-        /// https://en.wikipedia.org/wiki/Great-circle_navigation
+        /// Calculates the great circle distance in meters between this and the specified Location.
         /// </summary>
-        public Location GetLocation(
-            double azimuth, double distance, double earthRadius = MapProjection.Wgs84EquatorialRadius)
+        public double GetDistance(Location location, double earthRadius = MapProjection.Wgs84EquatorialRadius)
         {
-            var s12 = distance / earthRadius;
-            var az1 = azimuth * Math.PI / 180d;
+            GetAzimuthDistance(location, out double _, out double distance);
+
+            return earthRadius * distance;
+        }
+
+        /// <summary>
+        /// Calculates the Location on a great circle at the specified azimuth and distance in radians from this Location.
+        /// </summary>
+        public Location GetLocation(double azimuth, double distance)
+        {
             var lat1 = Latitude * Math.PI / 180d;
             var lon1 = Longitude * Math.PI / 180d;
-            var sinS12 = Math.Sin(s12);
-            var cosS12 = Math.Cos(s12);
-            var sinAz1 = Math.Sin(az1);
-            var cosAz1 = Math.Cos(az1);
-            var sinLat1 = Math.Sin(lat1);
+            var cosD = Math.Cos(distance);
+            var sinD = Math.Sin(distance);
+            var cosA = Math.Cos(azimuth);
+            var sinA = Math.Sin(azimuth);
             var cosLat1 = Math.Cos(lat1);
-            var lat2 = Math.Asin(sinLat1 * cosS12 + cosLat1 * sinS12 * cosAz1);
-            var lon2 = lon1 + Math.Atan2(sinS12 * sinAz1, cosLat1 * cosS12 - sinLat1 * sinS12 * cosAz1);
+            var sinLat1 = Math.Sin(lat1);
+            var lat2 = Math.Asin(sinLat1 * cosD + cosLat1 * sinD * cosA);
+            var lon2 = lon1 + Math.Atan2(sinD * sinA, cosLat1 * cosD - sinLat1 * sinD * cosA);
 
             return new Location(lat2 * 180d / Math.PI, lon2 * 180d / Math.PI);
+        }
+
+        /// <summary>
+        /// Calculates the Location on a great circle at the specified azimuth in degrees and distance in meters from this Location.
+        /// </summary>
+        public Location GetLocation(double azimuth, double distance, double earthRadius = MapProjection.Wgs84EquatorialRadius)
+        {
+            return GetLocation(azimuth * Math.PI / 180d, distance / earthRadius);
         }
     }
 }
