@@ -35,8 +35,19 @@ namespace MapControl
 
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
-            (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
-                .OnItemClicked(this, e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control));
+            // Prevent default handling in ListBoxItem by not calling base.OnPointerPressed.
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
+                   .OnItemClicked(this, e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control));
+            }
+        }
+
+        protected override void OnPointerReleased(PointerRoutedEventArgs e)
+        {
+            // Prevent default handling in ListBoxItem by not calling base.OnPointerReleased.
+            e.Handled = true;
         }
 
         protected override void OnApplyTemplate()
