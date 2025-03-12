@@ -21,14 +21,18 @@ namespace MapControl
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             // Prevent default handling in ListBoxItem by not calling base.OnMouseLeftButtonDown.
-
-            (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
-                .OnItemClicked(this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
+                    .OnItemClicked(this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
+            }
         }
 
         protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
         {
             // Prevent default handling in ListBoxItem by not calling base.OnMouseRightButtonDown.
+            e.Handled = true;
         }
     }
 }
