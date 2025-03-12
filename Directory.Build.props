@@ -3,7 +3,7 @@
         <Product>XAML Map Control</Product>
         <Authors>Clemens Fischer</Authors>
         <Copyright>Copyright © 2025 Clemens Fischer</Copyright>
-        <Version>13.0.1</Version>
+        <Version>13.1.0</Version>
         <AssemblyVersion>$(Version)</AssemblyVersion>
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
