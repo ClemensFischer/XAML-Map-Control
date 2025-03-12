@@ -18,9 +18,13 @@ namespace MapControl
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
         }
 
+        /// <summary>
+        /// Replaces ListBoxItem mouse event handling by not calling base.OnMouseLeftButtonDown.
+        /// Setting e.Handled = true generates a MouseLeftButtonUp event in the parent MapItemsControl,
+        /// which resembles the behavior of the ListBox base class.
+        /// </summary>
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            // Prevent default handling in ListBoxItem by not calling base.OnMouseLeftButtonDown.
             if (!e.Handled)
             {
                 e.Handled = true;
@@ -29,9 +33,13 @@ namespace MapControl
             }
         }
 
+        /// <summary>
+        /// Replaces ListBoxItem mouse event handling by not calling base.OnMouseRightButtonDown.
+        /// Setting e.Handled = true generates a MouseRightButtonUp event in the parent MapItemsControl,
+        /// which resembles the behavior of the ListBox base class.
+        /// </summary>
         protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
         {
-            // Prevent default handling in ListBoxItem by not calling base.OnMouseRightButtonDown.
             e.Handled = true;
         }
     }

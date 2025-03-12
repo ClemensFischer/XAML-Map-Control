@@ -9,10 +9,19 @@
             DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty, null,
                 (item, oldValue, newValue) => item.UpdateMapTransform(newValue));
 
+        /// <summary>
+        /// Replaces ListBoxItem pointer event handling by not calling base.OnPointerPressed.
+        /// Setting e.Handled = true generates a PointerReleased event in the parent MapItemsControl,
+        /// which resembles the behavior of the ListBox base class.
+        /// </summary>
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
-                .OnItemClicked(this, e.KeyModifiers.HasFlag(KeyModifiers.Control));
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
+                   .OnItemClicked(this, e.KeyModifiers.HasFlag(KeyModifiers.Control));
+            }
         }
     }
 }

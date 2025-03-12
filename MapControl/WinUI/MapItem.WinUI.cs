@@ -33,21 +33,20 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
+        /// <summary>
+        /// Replaces ListBoxItem pointer event handling by not calling base.OnPointerPressed.
+        /// Setting e.Handled = true generates a PointerReleased event in the parent MapItemsControl,
+        /// which differs from the behavior of the ListBox base class, where neither a PointerPressed
+        /// nor a PointerReleased is generated.
+        /// </summary>
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
-            // Prevent default handling in ListBoxItem by not calling base.OnPointerPressed.
             if (!e.Handled)
             {
                 e.Handled = true;
                 (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
                    .OnItemClicked(this, e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control));
             }
-        }
-
-        protected override void OnPointerReleased(PointerRoutedEventArgs e)
-        {
-            // Prevent default handling in ListBoxItem by not calling base.OnPointerReleased.
-            e.Handled = true;
         }
 
         protected override void OnApplyTemplate()
