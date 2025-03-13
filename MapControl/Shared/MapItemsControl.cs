@@ -69,13 +69,14 @@ namespace MapControl
             SelectItems(item =>
             {
                 var pos = MapPanel.GetViewPosition(ContainerFromItem(item));
+
                 return pos.HasValue && predicate(pos.Value);
             });
         }
 
         public void SelectItemsInRect(Rect rect)
         {
-            SelectItemsByPosition(p => rect.Contains(p));
+            SelectItemsByPosition(rect.Contains);
         }
 
         protected internal void OnItemClicked(MapItem mapItem, bool controlKey)
