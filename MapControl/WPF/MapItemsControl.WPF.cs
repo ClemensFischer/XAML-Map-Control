@@ -14,7 +14,7 @@ namespace MapControl
 
         public void SelectItemsInGeometry(Geometry geometry)
         {
-            SelectItemsByPosition(p => geometry.FillContains(p));
+            SelectItemsByPosition(geometry.FillContains);
         }
 
         public MapItem ContainerFromItem(object item)

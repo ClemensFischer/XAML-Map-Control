@@ -17,7 +17,7 @@ namespace MapControl
 
         public void SelectItemsInGeometry(Geometry geometry)
         {
-            SelectItemsByPosition(p => geometry.FillContains(p));
+            SelectItemsByPosition(geometry.FillContains);
         }
 
         protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
