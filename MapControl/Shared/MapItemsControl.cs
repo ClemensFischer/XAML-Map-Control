@@ -79,7 +79,7 @@ namespace MapControl
             SelectItemsByPosition(rect.Contains);
         }
 
-        protected internal void OnItemClicked(MapItem mapItem, bool controlKey)
+        protected internal void OnItemClicked(MapItem mapItem, bool controlKeyPressed)
         {
             var item = ItemFromContainer(mapItem);
 
@@ -89,12 +89,12 @@ namespace MapControl
                 {
                     SelectedItem = item;
                 }
-                else if (controlKey)
+                else if (controlKeyPressed)
                 {
                     SelectedItem = null;
                 }
             }
-            else if (controlKey)
+            else if (SelectionMode == SelectionMode.Multiple || controlKeyPressed)
             {
                 if (SelectedItems.Contains(item))
                 {
