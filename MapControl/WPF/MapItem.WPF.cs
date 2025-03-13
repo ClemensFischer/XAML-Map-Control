@@ -28,8 +28,11 @@ namespace MapControl
             if (!e.Handled)
             {
                 e.Handled = true;
-                (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
-                    .OnItemClicked(this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
+
+                if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
+                {
+                    mapItemsControl.OnItemClicked(this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
+                }
             }
         }
 

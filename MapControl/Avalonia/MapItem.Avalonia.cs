@@ -19,8 +19,11 @@
             if (!e.Handled)
             {
                 e.Handled = true;
-                (ItemsControl.ItemsControlFromItemContainer(this) as MapItemsControl)?
-                   .OnItemClicked(this, e.KeyModifiers.HasFlag(KeyModifiers.Control));
+
+                if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
+                {
+                    mapItemsControl.OnItemClicked(this, e.KeyModifiers.HasFlag(KeyModifiers.Control));
+                }
             }
         }
     }
