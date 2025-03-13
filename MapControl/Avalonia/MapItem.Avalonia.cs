@@ -10,20 +10,17 @@
                 (item, oldValue, newValue) => item.UpdateMapTransform(newValue));
 
         /// <summary>
-        /// Replaces ListBoxItem pointer event handling by not calling base.OnPointerPressed.
-        /// Setting e.Handled = true generates a PointerReleased event in the parent MapItemsControl,
-        /// which resembles the behavior of the ListBox base class.
+        /// Prevent range selection by Shift+PointerPressed.
         /// </summary>
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (!e.Handled)
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
                 e.Handled = true;
-
-                if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
-                {
-                    mapItemsControl.OnItemClicked(this, e.KeyModifiers.HasFlag(KeyModifiers.Control));
-                }
+            }
+            else
+            {
+                base.OnPointerPressed(e);
             }
         }
     }

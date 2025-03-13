@@ -1,12 +1,10 @@
 ﻿using Windows.System;
 #if UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 #else
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 #endif
@@ -34,21 +32,17 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Replaces ListBoxItem pointer event handling by not calling base.OnPointerPressed.
-        /// Setting e.Handled = true generates a PointerReleased event in the parent MapItemsControl,
-        /// which differs from the behavior of the ListBox base class, where neither a PointerPressed
-        /// nor a PointerReleased is generated.
+        /// Prevent range selection by Shift+PointerPressed.
         /// </summary>
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
-            if (!e.Handled)
+            if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
             {
                 e.Handled = true;
-
-                if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
-                {
-                    mapItemsControl.OnItemClicked(this, e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control));
-                }
+            }
+            else
+            {
+                base.OnPointerPressed(e);
             }
         }
 

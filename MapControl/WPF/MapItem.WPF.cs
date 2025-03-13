@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace MapControl
@@ -19,31 +18,18 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Replaces ListBoxItem mouse event handling by not calling base.OnMouseLeftButtonDown.
-        /// Setting e.Handled = true generates a MouseLeftButtonUp event in the parent MapItemsControl,
-        /// which resembles the behavior of the ListBox base class.
+        /// Prevent range selection by Shift+MouseLeftButtonDown.
         /// </summary>
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            if (!e.Handled)
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
             {
                 e.Handled = true;
-
-                if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
-                {
-                    mapItemsControl.OnItemClicked(this, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
-                }
             }
-        }
-
-        /// <summary>
-        /// Replaces ListBoxItem mouse event handling by not calling base.OnMouseRightButtonDown.
-        /// Setting e.Handled = true generates a MouseRightButtonUp event in the parent MapItemsControl,
-        /// which resembles the behavior of the ListBox base class.
-        /// </summary>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            OnMouseLeftButtonDown(e);
+            else
+            {
+                base.OnMouseLeftButtonDown(e);
+            }
         }
     }
 }

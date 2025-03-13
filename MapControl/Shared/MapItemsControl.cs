@@ -78,41 +78,5 @@ namespace MapControl
         {
             SelectItemsByPosition(rect.Contains);
         }
-
-        protected internal void OnItemClicked(MapItem mapItem, bool controlKeyPressed)
-        {
-            var item = ItemFromContainer(mapItem);
-
-            if (SelectionMode == SelectionMode.Single)
-            {
-                if (SelectedItem != item)
-                {
-                    SelectedItem = item;
-                }
-                else if (controlKeyPressed)
-                {
-                    SelectedItem = null;
-                }
-            }
-            else if (
-#if !AVALONIA
-                SelectionMode == SelectionMode.Multiple ||
-#endif
-                controlKeyPressed)
-            {
-                if (SelectedItems.Contains(item))
-                {
-                    SelectedItems.Remove(item);
-                }
-                else
-                {
-                    SelectedItems.Add(item);
-                }
-            }
-            else
-            {
-                ResetSelectedItems(item);
-            }
-        }
     }
 }
