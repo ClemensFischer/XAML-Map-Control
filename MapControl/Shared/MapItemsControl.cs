@@ -94,7 +94,11 @@ namespace MapControl
                     SelectedItem = null;
                 }
             }
-            else if (SelectionMode == SelectionMode.Multiple || controlKeyPressed)
+            else if (
+#if !AVALONIA
+                SelectionMode == SelectionMode.Multiple ||
+#endif
+                controlKeyPressed)
             {
                 if (SelectedItems.Contains(item))
                 {
