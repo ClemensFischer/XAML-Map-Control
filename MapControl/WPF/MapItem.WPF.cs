@@ -43,7 +43,7 @@ namespace MapControl
         /// </summary>
         protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
         {
-            e.Handled = true;
+            OnMouseLeftButtonDown(e);
         }
     }
 }
