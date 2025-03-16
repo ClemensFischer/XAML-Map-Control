@@ -15,13 +15,13 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Remove="..\Shared\PolygonCollection.cs" />
+    </ItemGroup>
+
     <ItemGroup Condition="'$(TargetFramework)'=='net462'">
         <Reference Include="System.IO.Compression" />
         <Reference Include="System.Net.Http" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Remove="..\Shared\PolygonCollection.cs" />
     </ItemGroup>
 
     <ItemGroup>
