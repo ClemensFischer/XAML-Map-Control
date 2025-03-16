@@ -61,10 +61,5 @@ namespace MapControl
                 mapItem.ClearValue(MapItem.LocationProperty);
             }
         }
-
-        protected void ResetSelectedItems(object item)
-        {
-            SetSelectedItems(new[] { item });
-        }
     }
 }
