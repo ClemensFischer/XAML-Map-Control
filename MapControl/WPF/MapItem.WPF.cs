@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace MapControl
@@ -17,14 +18,12 @@ namespace MapControl
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));
         }
 
-        /// <summary>
-        /// Prevent range selection by Shift+MouseLeftButtonDown.
-        /// </summary>
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
             {
                 e.Handled = true;
+                MapItemsControl.SetSelectedItemsRange(this);
             }
             else
             {

@@ -78,5 +78,42 @@ namespace MapControl
         {
             SelectItemsByPosition(rect.Contains);
         }
+
+        internal static void SetSelectedItemsRange(MapItem mapItem)
+        {
+            if (ItemsControlFromItemContainer(mapItem) is MapItemsControl mapItemsControl &&
+                mapItemsControl.SelectionMode != SelectionMode.Single)
+            {
+                var pos = MapPanel.GetViewPosition(mapItem);
+
+                if (pos.HasValue)
+                {
+                    var xMin = pos.Value.X;
+                    var xMax = pos.Value.X;
+                    var yMin = pos.Value.Y;
+                    var yMax = pos.Value.Y;
+
+                    if (mapItemsControl.SelectedItem != null)
+                    {
+                        var selectedMapItem = mapItemsControl.ContainerFromItem(mapItemsControl.SelectedItem);
+
+                        if (selectedMapItem != mapItem)
+                        {
+                            pos = MapPanel.GetViewPosition(selectedMapItem);
+
+                            if (pos.HasValue)
+                            {
+                                xMin = Math.Min(xMin, pos.Value.X);
+                                xMax = Math.Max(xMax, pos.Value.X);
+                                yMin = Math.Min(yMin, pos.Value.Y);
+                                yMax = Math.Max(yMax, pos.Value.Y);
+                            }
+                        }
+                    }
+
+                    mapItemsControl.SelectItemsInRect(new Rect(xMin, yMin, xMax - xMin, yMax - yMin));
+                }
+            }
+        }
     }
 }

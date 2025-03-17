@@ -9,14 +9,12 @@
             DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty, null,
                 (item, oldValue, newValue) => item.UpdateMapTransform(newValue));
 
-        /// <summary>
-        /// Prevent range selection by Shift+PointerPressed.
-        /// </summary>
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
                 e.Handled = true;
+                MapItemsControl.SetSelectedItemsRange(this);
             }
             else
             {

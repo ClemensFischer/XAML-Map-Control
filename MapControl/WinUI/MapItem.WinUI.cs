@@ -31,14 +31,12 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
-        /// <summary>
-        /// Prevent range selection by Shift+PointerPressed.
-        /// </summary>
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
             if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
             {
                 e.Handled = true;
+                MapItemsControl.SetSelectedItemsRange(this);
             }
             else
             {
