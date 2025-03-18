@@ -79,7 +79,10 @@ namespace MapControl
             SelectItemsByPosition(rect.Contains);
         }
 
-        internal static void SetSelectedItemsRange(MapItem mapItem)
+        /// <summary>
+        /// Selects all items in a rectangular range between SelectedItem and the specified MapItem.
+        /// </summary>
+        internal static void SelectItemsInRange(MapItem mapItem)
         {
             if (ItemsControlFromItemContainer(mapItem) is MapItemsControl mapItemsControl &&
                 mapItemsControl.SelectionMode != SelectionMode.Single)

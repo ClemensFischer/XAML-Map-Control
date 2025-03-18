@@ -23,7 +23,7 @@ namespace MapControl
             if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
             {
                 e.Handled = true;
-                MapItemsControl.SetSelectedItemsRange(this);
+                MapItemsControl.SelectItemsInRange(this);
             }
             else
             {

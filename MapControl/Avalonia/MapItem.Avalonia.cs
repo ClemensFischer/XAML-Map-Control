@@ -14,7 +14,7 @@
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
                 e.Handled = true;
-                MapItemsControl.SetSelectedItemsRange(this);
+                MapItemsControl.SelectItemsInRange(this);
             }
             else
             {

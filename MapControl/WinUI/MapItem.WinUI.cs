@@ -38,7 +38,7 @@ namespace MapControl
             if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
             {
                 e.Handled = true;
-                MapItemsControl.SetSelectedItemsRange(this);
+                MapItemsControl.SelectItemsInRange(this);
             }
             else
             {
