@@ -31,8 +31,10 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
-        protected override void OnPointerPressed(PointerRoutedEventArgs e)
+        protected override void OnPointerReleased(PointerRoutedEventArgs e)
         {
+            // In contrast to WPF and Avalonia, item selection is done on PointerReleased.
+            //
             if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
             {
                 e.Handled = true;
@@ -40,7 +42,7 @@ namespace MapControl
             }
             else
             {
-                base.OnPointerPressed(e);
+                base.OnPointerReleased(e);
             }
         }
 
