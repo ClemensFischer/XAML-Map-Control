@@ -32,7 +32,7 @@ namespace MapControl
         // PointerReleased in order to possibly cancel item selection.
         //
         private const float pointerMovementThreshold = 2f;
-        private Windows.Foundation.Point pointerPressedPosition;
+        private Windows.Foundation.Point? pointerPressedPosition;
 
         public MapItem()
         {
@@ -51,8 +51,9 @@ namespace MapControl
         {
             var p = e.GetCurrentPoint(null).Position;
 
-            if (Math.Abs(p.X - pointerPressedPosition.X) <= pointerMovementThreshold &&
-                Math.Abs(p.Y - pointerPressedPosition.Y) <= pointerMovementThreshold &&
+            if (pointerPressedPosition.HasValue &&
+                Math.Abs(p.X - pointerPressedPosition.Value.X) <= pointerMovementThreshold &&
+                Math.Abs(p.Y - pointerPressedPosition.Value.Y) <= pointerMovementThreshold &&
                 ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
             {
                 if (mapItemsControl.SelectionMode == SelectionMode.Extended &&
@@ -66,6 +67,7 @@ namespace MapControl
                 }
             }
 
+            pointerPressedPosition = null;
             e.Handled = true;
         }
 
