@@ -70,6 +70,7 @@ namespace MapControl
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            // Set manipulationEnabled before ManipulationStarted.
             // IsLeftButtonPressed: input was triggered by the primary action mode of an input device.
             //
             manipulationEnabled =
@@ -79,7 +80,7 @@ namespace MapControl
 
         private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            // Set manipulationEnabled when no PointerPressed was received.
+            // Set manipulationEnabled before ManipulationStarted when no PointerPressed was received.
             //
             if (!manipulationEnabled.HasValue &&
                 e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
