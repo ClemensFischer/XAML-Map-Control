@@ -45,11 +45,6 @@ namespace MapControl
             pointerPressedPosition = e.GetCurrentPoint(null).Position;
 
             base.OnPointerPressed(e);
-
-            // Unsetting e.Handled enables PointerPressed event handlers
-            // and PointerPressed handling in class Map.
-            //
-            e.Handled = false;
         }
 
         protected override void OnPointerReleased(PointerRoutedEventArgs e)
@@ -71,9 +66,7 @@ namespace MapControl
                 }
             }
 
-            // Unsetting e.Handled enables PointerReleased event handlers.
-            //
-            e.Handled = false;
+            e.Handled = true;
         }
 
         protected override void OnApplyTemplate()

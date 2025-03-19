@@ -21,7 +21,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
         private double mouseWheelDelta;
-        private bool manipulationEnabled;
+        private bool? manipulationEnabled;
 
         public Map()
         {
@@ -34,6 +34,7 @@ namespace MapControl
             ManipulationDelta += OnManipulationDelta;
             ManipulationCompleted += OnManipulationCompleted;
             PointerPressed += OnPointerPressed;
+            PointerMoved += OnPointerMoved;
             PointerWheelChanged += OnPointerWheelChanged;
         }
 
@@ -49,7 +50,7 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (manipulationEnabled)
+            if (manipulationEnabled.HasValue && manipulationEnabled.Value)
             {
                 if (e.PointerDeviceType == PointerDeviceType.Mouse)
                 {
@@ -64,7 +65,7 @@ namespace MapControl
 
         private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
-            manipulationEnabled = false;
+            manipulationEnabled = null;
         }
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
@@ -74,6 +75,17 @@ namespace MapControl
             manipulationEnabled =
                 e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
                 e.KeyModifiers == VirtualKeyModifiers.None;
+        }
+
+        private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            // Set manipulationEnabled when no PointerPressed was received.
+            //
+            if (!manipulationEnabled.HasValue &&
+                e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            {
+                manipulationEnabled = e.KeyModifiers == VirtualKeyModifiers.None;
+            }
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
