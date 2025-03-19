@@ -152,7 +152,7 @@
             <map:MapItemsControl ItemsSource="{Binding Pushpins}"
                                  ItemContainerStyle="{StaticResource PushpinItemStyle}"
                                  SelectedItem="{Binding SelectedPushpin, Mode=TwoWay}"
-                                 SelectionMode="Multiple"
+                                 SelectionMode="Extended"
                                  LocationMemberPath="Location"
                                  SelectionChanged="MapItemsControlSelectionChanged"/>
 
