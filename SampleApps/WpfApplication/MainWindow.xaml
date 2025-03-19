@@ -4,8 +4,7 @@
         xmlns:map="clr-namespace:MapControl;assembly=MapControl.WPF"
         xmlns:tools="clr-namespace:MapControl.UiTools;assembly=MapUiTools.WPF"
         xmlns:local="clr-namespace:SampleApplication"
-        Title="XAML MapControl - WPF Sample Application" Height="600" Width="900"
-        Stylus.IsPressAndHoldEnabled="False">
+        Title="XAML MapControl - WPF Sample Application" Height="600" Width="900">
 
     <Window.Resources>
         <ResourceDictionary>
