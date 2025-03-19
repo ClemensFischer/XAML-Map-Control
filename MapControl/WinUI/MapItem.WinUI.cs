@@ -42,9 +42,9 @@ namespace MapControl
 
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
-            pointerPressedPosition = e.GetCurrentPoint(null).Position;
-
             base.OnPointerPressed(e);
+            pointerPressedPosition = e.GetCurrentPoint(null).Position;
+            e.Handled = true;
         }
 
         protected override void OnPointerReleased(PointerRoutedEventArgs e)
