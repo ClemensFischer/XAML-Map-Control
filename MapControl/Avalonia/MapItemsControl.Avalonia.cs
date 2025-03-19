@@ -67,39 +67,6 @@ namespace MapControl
             {
                 UpdateSelection(mapItem, true, false, controlKeyPressed);
             }
-
-            //var item = ItemFromContainer(mapItem);
-
-            //if (SelectionMode == SelectionMode.Single)
-            //{
-            //    if (SelectedItem != item)
-            //    {
-            //        SelectedItem = item;
-            //    }
-            //    else if (controlKeyPressed)
-            //    {
-            //        SelectedItem = null;
-            //    }
-            //}
-            //else if (controlKeyPressed)
-            //{
-            //    if (SelectedItems.Contains(item))
-            //    {
-            //        SelectedItems.Remove(item);
-            //    }
-            //    else
-            //    {
-            //        SelectedItems.Add(item);
-            //    }
-            //}
-            //else if (shiftKeyPressed)
-            //{
-            //    SelectItemsInRange(mapItem);
-            //}
-            //else if (SelectedItem != item || SelectedItems.Count != 1)
-            //{
-            //    SelectedItem = item;
-            //}
         }
     }
 }
