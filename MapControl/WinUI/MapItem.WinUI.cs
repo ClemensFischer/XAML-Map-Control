@@ -1,10 +1,13 @@
-﻿using Windows.System;
+﻿using System;
+using Windows.System;
 #if UWP
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 #else
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 #endif
@@ -25,25 +28,44 @@ namespace MapControl
                     item.UpdateMapTransform(newValue);
                 });
 
+        // Used to detect pointer movement between PointerPressed and
+        // PointerReleased in order to possibly cancel item selection.
+        //
+        private const float pointerMovementThreshold = 2f;
+        private Windows.Foundation.Point pointerPressedPosition;
+
         public MapItem()
         {
             DefaultStyleKey = typeof(MapItem);
             MapPanel.InitMapElement(this);
         }
 
+        protected override void OnPointerPressed(PointerRoutedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+            pointerPressedPosition = e.GetCurrentPoint(null).Position;
+        }
+
         protected override void OnPointerReleased(PointerRoutedEventArgs e)
         {
-            // In contrast to WPF and Avalonia, item selection is done on PointerReleased.
-            //
-            if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+            var p = e.GetCurrentPoint(null).Position;
+
+            if (Math.Abs(p.X - pointerPressedPosition.X) <= pointerMovementThreshold &&
+                Math.Abs(p.Y - pointerPressedPosition.Y) <= pointerMovementThreshold &&
+                ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
             {
-                e.Handled = true;
-                MapItemsControl.SelectItemsInRange(this);
+                if (mapItemsControl.SelectionMode == SelectionMode.Extended &&
+                    e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+                {
+                    mapItemsControl.SelectItemsInRange(this);
+                }
+                else
+                {
+                    base.OnPointerReleased(e);
+                }
             }
-            else
-            {
-                base.OnPointerReleased(e);
-            }
+
+            e.Handled = true;
         }
 
         protected override void OnApplyTemplate()

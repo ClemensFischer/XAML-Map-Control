@@ -20,8 +20,8 @@ namespace MapControl
         public static readonly DependencyProperty MouseWheelZoomDeltaProperty =
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
-        private uint capturedPointerId;
         private double mouseWheelDelta;
+        private bool? manipulationEnabled;
 
         public Map()
         {
@@ -32,8 +32,10 @@ namespace MapControl
                 | ManipulationModes.TranslateInertia;
 
             ManipulationDelta += OnManipulationDelta;
+            ManipulationCompleted += OnManipulationCompleted;
             PointerPressed += OnPointerPressed;
-            PointerCaptureLost += OnPointerCaptureLost;
+            PointerReleased += OnPointerReleased;
+            PointerMoved += OnPointerMoved;
             PointerWheelChanged += OnPointerWheelChanged;
         }
 
@@ -49,32 +51,46 @@ namespace MapControl
 
         private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (capturedPointerId != 0)
+            if (manipulationEnabled.HasValue && manipulationEnabled.Value)
             {
-                TranslateMap(e.Delta.Translation);
+                if (e.PointerDeviceType == PointerDeviceType.Mouse)
+                {
+                    TranslateMap(e.Delta.Translation);
+                }
+                else
+                {
+                    TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+                }
             }
-            else if (e.PointerDeviceType != PointerDeviceType.Mouse)
-            {
-                TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
-            }
+        }
+
+        private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            manipulationEnabled = null;
+        }
+
+        private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            manipulationEnabled = null;
         }
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse &&
-                e.KeyModifiers == VirtualKeyModifiers.None &&
+            // IsLeftButtonPressed: input was triggered by the primary action mode of an input device.
+            //
+            manipulationEnabled =
                 e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
-                CapturePointer(e.Pointer))
-            {
-                capturedPointerId = e.Pointer.PointerId;
-            }
+                e.KeyModifiers == VirtualKeyModifiers.None;
         }
 
-        private void OnPointerCaptureLost(object sender, PointerRoutedEventArgs e)
+        private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            if (capturedPointerId == e.Pointer.PointerId)
+            // Set manipulationEnabled when no PointerPressed was received.
+            //
+            if (!manipulationEnabled.HasValue &&
+                e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
-                capturedPointerId = 0;
+                manipulationEnabled = e.KeyModifiers == VirtualKeyModifiers.None;
             }
         }
 

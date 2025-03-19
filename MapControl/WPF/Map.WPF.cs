@@ -23,16 +23,6 @@ namespace MapControl
             IsManipulationEnabledProperty.OverrideMetadata(typeof(Map), new FrameworkPropertyMetadata(true));
         }
 
-        public Map()
-        {
-            ManipulationStarted += OnManipulationStarted;
-            ManipulationDelta += OnManipulationDelta;
-            MouseLeftButtonDown += OnMouseLeftButtonDown;
-            MouseLeftButtonUp += OnMouseLeftButtonUp;
-            MouseMove += OnMouseMove;
-            MouseWheel += OnMouseWheel;
-        }
-
         /// <summary>
         /// Gets or sets the amount by which the ZoomLevel property changes by a MouseWheel event.
         /// The default value is 0.25.
@@ -52,29 +42,38 @@ namespace MapControl
             set => SetValue(ManipulationModeProperty, value);
         }
 
-        private void OnManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        protected override void OnManipulationStarted(ManipulationStartedEventArgs e)
         {
+            base.OnManipulationStarted(e);
+
             Manipulation.SetManipulationMode(this, ManipulationMode);
         }
 
-        private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
+        protected override void OnManipulationDelta(ManipulationDeltaEventArgs e)
         {
+            base.OnManipulationDelta(e);
+
             TransformMap(e.ManipulationOrigin,
                 (Point)e.DeltaManipulation.Translation,
                 e.DeltaManipulation.Rotation,
                 e.DeltaManipulation.Scale.LengthSquared / 2d);
         }
 
-        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.None && CaptureMouse())
+            base.OnMouseLeftButtonDown(e);
+
+            if (Keyboard.Modifiers == ModifierKeys.None &&
+                CaptureMouse())
             {
                 mousePosition = e.GetPosition(this);
             }
         }
 
-        private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
+            base.OnMouseLeftButtonUp(e);
+
             if (mousePosition.HasValue)
             {
                 mousePosition = null;
@@ -82,18 +81,30 @@ namespace MapControl
             }
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
+            base.OnMouseMove(e);
+
             if (mousePosition.HasValue)
             {
                 var p = e.GetPosition(this);
                 TranslateMap(new Point(p.X - mousePosition.Value.X, p.Y - mousePosition.Value.Y));
                 mousePosition = p;
             }
+            else if (e.LeftButton == MouseButtonState.Pressed &&
+                Keyboard.Modifiers == ModifierKeys.None &&
+                CaptureMouse())
+            {
+                // Set mousePosition when no MouseLeftButtonDown event was received.
+                //
+                mousePosition = e.GetPosition(this);
+            }
         }
 
-        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
+            base.OnMouseWheel(e);
+
             // Standard mouse wheel delta value is 120.
             //
             mouseWheelDelta += e.Delta / 120d;

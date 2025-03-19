@@ -11,14 +11,28 @@
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            if (e.Pointer.Type == PointerType.Touch)
             {
-                e.Handled = true;
-                MapItemsControl.SelectItemsInRange(this);
+                UpdateSelection(e);
             }
-            else
+
+            e.Handled = true;
+        }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            UpdateSelection(e);
+
+            e.Handled = true;
+        }
+
+        private void UpdateSelection(PointerEventArgs e)
+        {
+            if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
             {
-                base.OnPointerPressed(e);
+                mapItemsControl.UpdateSelection(this,
+                    e.KeyModifiers.HasFlag(KeyModifiers.Control),
+                    e.KeyModifiers.HasFlag(KeyModifiers.Shift));
             }
         }
     }

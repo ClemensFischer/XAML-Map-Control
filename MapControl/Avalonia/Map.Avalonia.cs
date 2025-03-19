@@ -62,11 +62,24 @@ namespace MapControl
             base.OnPointerWheelChanged(e);
         }
 
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        protected override void OnPointerMoved(PointerEventArgs e)
         {
             var point = e.GetCurrentPoint(this);
 
-            if (pointer1 == null && point.Pointer.Type == PointerType.Mouse && point.Properties.IsLeftButtonPressed ||
+            if (point.Pointer == pointer1 || point.Pointer == pointer2)
+            {
+                if (pointer2 != null)
+                {
+                    HandleManipulation(point.Pointer, point.Position);
+                }
+                else if (point.Pointer.Type == PointerType.Mouse || ManipulationModes.HasFlag(ManipulationModes.Translate))
+                {
+                    TranslateMap(new Point(point.Position.X - position1.X, point.Position.Y - position1.Y));
+                    position1 = point.Position;
+                }
+            }
+            else if (
+                pointer1 == null && point.Pointer.Type == PointerType.Mouse && point.Properties.IsLeftButtonPressed && e.KeyModifiers == KeyModifiers.None ||
                 pointer2 == null && point.Pointer.Type == PointerType.Touch && ManipulationModes != ManipulationModes.None)
             {
                 point.Pointer.Capture(this);
@@ -83,7 +96,7 @@ namespace MapControl
                 }
             }
 
-            base.OnPointerPressed(e);
+            base.OnPointerMoved(e);
         }
 
         protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
@@ -100,26 +113,6 @@ namespace MapControl
             }
 
             base.OnPointerCaptureLost(e);
-        }
-
-        protected override void OnPointerMoved(PointerEventArgs e)
-        {
-            if (e.Pointer == pointer1 || e.Pointer == pointer2)
-            {
-                var position = e.GetPosition(this);
-
-                if (pointer2 != null)
-                {
-                    HandleManipulation(e.Pointer, position);
-                }
-                else if (e.Pointer.Type == PointerType.Mouse || ManipulationModes.HasFlag(ManipulationModes.Translate))
-                {
-                    TranslateMap(new Point(position.X - position1.X, position.Y - position1.Y));
-                    position1 = position;
-                }
-            }
-
-            base.OnPointerMoved(e);
         }
 
         private void HandleManipulation(IPointer pointer, Point position)

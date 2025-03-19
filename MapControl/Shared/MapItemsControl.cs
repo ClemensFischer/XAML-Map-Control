@@ -68,9 +68,9 @@ namespace MapControl
         {
             SelectItems(item =>
             {
-                var pos = MapPanel.GetViewPosition(ContainerFromItem(item));
+                var position = MapPanel.GetViewPosition(ContainerFromItem(item));
 
-                return pos.HasValue && predicate(pos.Value);
+                return position.HasValue && predicate(position.Value);
             });
         }
 
@@ -82,40 +82,36 @@ namespace MapControl
         /// <summary>
         /// Selects all items in a rectangular range between SelectedItem and the specified MapItem.
         /// </summary>
-        internal static void SelectItemsInRange(MapItem mapItem)
+        internal void SelectItemsInRange(MapItem mapItem)
         {
-            if (ItemsControlFromItemContainer(mapItem) is MapItemsControl mapItemsControl &&
-                mapItemsControl.SelectionMode != SelectionMode.Single)
+            var position = MapPanel.GetViewPosition(mapItem);
+
+            if (position.HasValue)
             {
-                var pos = MapPanel.GetViewPosition(mapItem);
+                var xMin = position.Value.X;
+                var xMax = position.Value.X;
+                var yMin = position.Value.Y;
+                var yMax = position.Value.Y;
 
-                if (pos.HasValue)
+                if (SelectedItem != null)
                 {
-                    var xMin = pos.Value.X;
-                    var xMax = pos.Value.X;
-                    var yMin = pos.Value.Y;
-                    var yMax = pos.Value.Y;
+                    var selectedMapItem = ContainerFromItem(SelectedItem);
 
-                    if (mapItemsControl.SelectedItem != null)
+                    if (selectedMapItem != mapItem)
                     {
-                        var selectedMapItem = mapItemsControl.ContainerFromItem(mapItemsControl.SelectedItem);
+                        position = MapPanel.GetViewPosition(selectedMapItem);
 
-                        if (selectedMapItem != mapItem)
+                        if (position.HasValue)
                         {
-                            pos = MapPanel.GetViewPosition(selectedMapItem);
-
-                            if (pos.HasValue)
-                            {
-                                xMin = Math.Min(xMin, pos.Value.X);
-                                xMax = Math.Max(xMax, pos.Value.X);
-                                yMin = Math.Min(yMin, pos.Value.Y);
-                                yMax = Math.Max(yMax, pos.Value.Y);
-                            }
+                            xMin = Math.Min(xMin, position.Value.X);
+                            xMax = Math.Max(xMax, position.Value.X);
+                            yMin = Math.Min(yMin, position.Value.Y);
+                            yMax = Math.Max(yMax, position.Value.Y);
                         }
                     }
-
-                    mapItemsControl.SelectItemsInRect(new Rect(xMin, yMin, xMax - xMin, yMax - yMin));
                 }
+
+                SelectItemsInRect(new Rect(xMin, yMin, xMax - xMin, yMax - yMin));
             }
         }
     }
