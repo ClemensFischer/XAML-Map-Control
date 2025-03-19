@@ -103,13 +103,6 @@ namespace SampleApplication
             e.TranslationBehavior.DesiredDeceleration = 0.001;
         }
 
-        private void MapItemTouchDown(object sender, TouchEventArgs e)
-        {
-            var mapItem = (MapItem)sender;
-            mapItem.IsSelected = !mapItem.IsSelected;
-            e.Handled = true;
-        }
-
         private static string GetLatLonText(Location location)
         {
             var latitude = (int)Math.Round(location.Latitude * 60000d);

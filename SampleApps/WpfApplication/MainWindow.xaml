@@ -14,7 +14,6 @@
             </DataTemplate>
 
             <Style x:Key="PointItemStyle" TargetType="map:MapItem">
-                <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
                 <Setter Property="AutoCollapse" Value="True"/>
                 <Setter Property="Location" Value="{Binding Location}"/>
                 <Setter Property="Template">
@@ -86,7 +85,6 @@
             </Style>
 
             <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
-                <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
                 <Setter Property="AutoCollapse" Value="True"/>
                 <Setter Property="Location" Value="{Binding Location}"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
