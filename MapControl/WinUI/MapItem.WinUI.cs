@@ -28,10 +28,6 @@ namespace MapControl
                     item.UpdateMapTransform(newValue);
                 });
 
-        // Used to detect pointer movement between PointerPressed and
-        // PointerReleased in order to possibly cancel item selection.
-        //
-        private const float pointerMovementThreshold = 2f;
         private Windows.Foundation.Point? pointerPressedPosition;
 
         public MapItem()
@@ -49,25 +45,31 @@ namespace MapControl
 
         protected override void OnPointerReleased(PointerRoutedEventArgs e)
         {
-            var p = e.GetCurrentPoint(null).Position;
-
-            if (pointerPressedPosition.HasValue &&
-                Math.Abs(p.X - pointerPressedPosition.Value.X) <= pointerMovementThreshold &&
-                Math.Abs(p.Y - pointerPressedPosition.Value.Y) <= pointerMovementThreshold &&
-                ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
+            if (pointerPressedPosition.HasValue)
             {
-                if (mapItemsControl.SelectionMode == SelectionMode.Extended &&
-                    e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+                const float pointerMovementThreshold = 2f;
+                var p = e.GetCurrentPoint(null).Position;
+
+                // Perform selection only when no significant pointer movement occured.
+                //
+                if (Math.Abs(p.X - pointerPressedPosition.Value.X) <= pointerMovementThreshold &&
+                    Math.Abs(p.Y - pointerPressedPosition.Value.Y) <= pointerMovementThreshold &&
+                    ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
                 {
-                    mapItemsControl.SelectItemsInRange(this);
+                    if (mapItemsControl.SelectionMode == SelectionMode.Extended &&
+                        e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+                    {
+                        mapItemsControl.SelectItemsInRange(this);
+                    }
+                    else
+                    {
+                        base.OnPointerReleased(e);
+                    }
                 }
-                else
-                {
-                    base.OnPointerReleased(e);
-                }
+
+                pointerPressedPosition = null;
             }
 
-            pointerPressedPosition = null;
             e.Handled = true;
         }
 
