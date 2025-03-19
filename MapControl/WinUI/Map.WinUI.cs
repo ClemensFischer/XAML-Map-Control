@@ -34,7 +34,6 @@ namespace MapControl
             ManipulationDelta += OnManipulationDelta;
             ManipulationCompleted += OnManipulationCompleted;
             PointerPressed += OnPointerPressed;
-            PointerReleased += OnPointerReleased;
             PointerMoved += OnPointerMoved;
             PointerWheelChanged += OnPointerWheelChanged;
         }
@@ -65,11 +64,6 @@ namespace MapControl
         }
 
         private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-        {
-            manipulationEnabled = null;
-        }
-
-        private void OnPointerReleased(object sender, PointerRoutedEventArgs e)
         {
             manipulationEnabled = null;
         }
