@@ -57,15 +57,16 @@ namespace MapControl
             }
         }
 
-        internal void UpdateSelection(MapItem mapItem, bool controlKeyPressed, bool shiftKeyPressed)
+        internal void UpdateSelection(MapItem mapItem, PointerEventArgs e)
         {
-            if (SelectionMode != SelectionMode.Single && shiftKeyPressed)
+            if (SelectionMode != SelectionMode.Single &&
+                e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
                 SelectItemsInRange(mapItem);
             }
             else
             {
-                UpdateSelection(mapItem, true, false, controlKeyPressed);
+                UpdateSelection(mapItem, true, false, e.KeyModifiers.HasFlag(KeyModifiers.Control));
             }
         }
     }

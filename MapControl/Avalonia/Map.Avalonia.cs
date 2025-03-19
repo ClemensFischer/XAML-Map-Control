@@ -72,15 +72,20 @@ namespace MapControl
                 {
                     HandleManipulation(point.Pointer, point.Position);
                 }
-                else if (point.Pointer.Type == PointerType.Mouse || ManipulationModes.HasFlag(ManipulationModes.Translate))
+                else if (point.Pointer.Type == PointerType.Mouse ||
+                    ManipulationModes.HasFlag(ManipulationModes.Translate))
                 {
                     TranslateMap(new Point(point.Position.X - position1.X, point.Position.Y - position1.Y));
                     position1 = point.Position;
                 }
             }
-            else if (
-                pointer1 == null && point.Pointer.Type == PointerType.Mouse && point.Properties.IsLeftButtonPressed && e.KeyModifiers == KeyModifiers.None ||
-                pointer2 == null && point.Pointer.Type == PointerType.Touch && ManipulationModes != ManipulationModes.None)
+            else if (pointer1 == null &&
+                point.Pointer.Type == PointerType.Mouse &&
+                point.Properties.IsLeftButtonPressed &&
+                e.KeyModifiers == KeyModifiers.None ||
+                pointer2 == null &&
+                point.Pointer.Type == PointerType.Touch &&
+                ManipulationModes != ManipulationModes.None)
             {
                 point.Pointer.Capture(this);
 

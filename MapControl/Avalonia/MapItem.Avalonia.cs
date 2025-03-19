@@ -11,9 +11,10 @@
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (e.Pointer.Type == PointerType.Touch)
+            if (e.Pointer.Type != PointerType.Mouse &&
+                ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
             {
-                UpdateSelection(e);
+                mapItemsControl.UpdateSelection(this, e);
             }
 
             e.Handled = true;
@@ -21,19 +22,14 @@
 
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            UpdateSelection(e);
+            if (e.Pointer.Type == PointerType.Mouse &&
+                e.InitialPressMouseButton == MouseButton.Left &&
+                ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
+            {
+                mapItemsControl.UpdateSelection(this, e);
+            }
 
             e.Handled = true;
-        }
-
-        private void UpdateSelection(PointerEventArgs e)
-        {
-            if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
-            {
-                mapItemsControl.UpdateSelection(this,
-                    e.KeyModifiers.HasFlag(KeyModifiers.Control),
-                    e.KeyModifiers.HasFlag(KeyModifiers.Shift));
-            }
         }
     }
 }
