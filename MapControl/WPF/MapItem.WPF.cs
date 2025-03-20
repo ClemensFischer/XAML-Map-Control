@@ -20,29 +20,21 @@ namespace MapControl
 
         protected override void OnTouchDown(TouchEventArgs e)
         {
-            // Prevent default touch handling.
-            //
             e.Handled = true;
         }
 
         protected override void OnTouchUp(TouchEventArgs e)
         {
-            // Prevent default touch handling.
-            //
             e.Handled = true;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            // Prevent default item selection on mouse down.
-            //
             e.Handled = true;
         }
 
         protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
         {
-            // Prevent default item selection on mouse down.
-            //
             e.Handled = true;
         }
 
