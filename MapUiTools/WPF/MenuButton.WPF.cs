@@ -1,46 +1,33 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Markup;
 
 namespace MapControl.UiTools
 {
-    public class MenuButton : Button
+    [ContentProperty(nameof(Items))]
+    public partial class MenuButton
     {
         static MenuButton()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MenuButton), new FrameworkPropertyMetadata(typeof(MenuButton)));
         }
 
-        protected MenuButton(string icon)
+        public MenuButton()
         {
-            Content = icon;
-
+            ContextMenu = new ContextMenu();
+            DataContextChanged += (s, e) => ContextMenu.DataContext = e.NewValue;
+            Loaded += async (s, e) => await Initialize();
             Click += (s, e) => ContextMenu.IsOpen = true;
         }
 
-        protected ContextMenu CreateMenu()
+        public string Icon
         {
-            var menu = new ContextMenu();
-            ContextMenu = menu;
-            return menu;
+            get => Content as string;
+            set => Content = value;
         }
 
-        protected IEnumerable<MenuItem> GetMenuItems()
-        {
-            return ContextMenu.Items.OfType<MenuItem>();
-        }
+        public ContextMenu Menu => ContextMenu;
 
-        protected static MenuItem CreateMenuItem(string text, object item, RoutedEventHandler click)
-        {
-            var menuItem = new MenuItem { Header = text, Tag = item };
-            menuItem.Click += click;
-            return menuItem;
-        }
-
-        protected static Separator CreateSeparator()
-        {
-            return new Separator();
-        }
+        public ItemCollection Items => ContextMenu.Items;
     }
 }

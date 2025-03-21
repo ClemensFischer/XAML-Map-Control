@@ -40,11 +40,17 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\MapLayersMenuButton.cs">
-      <Link>MapLayersMenuButton.cs</Link>
+    <Compile Include="..\Shared\MapLayerMenuItem.cs">
+      <Link>MapLayerMenuItem.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MapProjectionsMenuButton.cs">
-      <Link>MapProjectionsMenuButton.cs</Link>
+    <Compile Include="..\Shared\MapProjectionMenuItem.cs">
+      <Link>MapProjectionMenuItem.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\MenuButton.cs">
+      <Link>MenuButton.cs</Link>
+    </Compile>
+    <Compile Include="..\WinUI\MapMenuItem.WinUI.cs">
+      <Link>MapMenuItem.WinUI.cs</Link>
     </Compile>
     <Compile Include="..\WinUI\MenuButton.WinUI.cs">
       <Link>MenuButton.WinUI.cs</Link>

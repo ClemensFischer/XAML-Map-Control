@@ -1,44 +1,31 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 #if UWP
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Markup;
 #elif WINUI
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Markup;
 #endif
 
 namespace MapControl.UiTools
 {
-    public class MenuButton : Button
+    [ContentProperty(Name = nameof(Items))]
+    public partial class MenuButton
     {
-        protected MenuButton(string icon)
+        public MenuButton()
         {
-            Content = new FontIcon { Glyph = icon };
+            Flyout = new MenuFlyout();
+            Loaded += async (s, e) => await Initialize();
         }
 
-        protected MenuFlyout CreateMenu()
+        public string Icon
         {
-            var menu = new MenuFlyout();
-            Flyout = menu;
-            return menu;
+            get => (Content as FontIcon)?.Glyph;
+            set => Content = new FontIcon { Glyph = value };
         }
 
-        protected IEnumerable<ToggleMenuFlyoutItem> GetMenuItems()
-        {
-            return ((MenuFlyout)Flyout).Items.OfType<ToggleMenuFlyoutItem>();
-        }
+        public MenuFlyout Menu => (MenuFlyout)Flyout;
 
-        protected static ToggleMenuFlyoutItem CreateMenuItem(string text, object item, RoutedEventHandler click)
-        {
-            var menuItem = new ToggleMenuFlyoutItem { Text = text, Tag = item };
-            menuItem.Click += click;
-            return menuItem;
-        }
-
-        protected static MenuFlyoutSeparator CreateSeparator()
-        {
-            return new MenuFlyoutSeparator();
-        }
+        public IList<MenuFlyoutItemBase> Items => Menu.Items;
     }
 }
