@@ -33,16 +33,11 @@ namespace MapControl.UiTools
             {
                 DataContext = Map;
 
-                if (Items.Count > 0)
+                if (Items.Count > 0 &&
+                    Items[0] is MapMenuItem item &&
+                    await item.Execute(Map))
                 {
-                    if (Items[0] is MapLayerMenuItem mapLayerItem)
-                    {
-                        await mapLayerItem.Execute(Map);
-                    }
-                    else if (Items[0] is MapProjectionMenuItem mapProjectionItem)
-                    {
-                        mapProjectionItem.Execute(Map);
-                    }
+                    item.IsChecked = true;
                 }
             }
         }

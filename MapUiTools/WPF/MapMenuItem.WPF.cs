@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace MapControl.UiTools
 {
-    public class MapMenuItem : MenuItem
+    public abstract class MapMenuItem : MenuItem
     {
         public string Text
         {
@@ -12,7 +13,8 @@ namespace MapControl.UiTools
             set => Header = value;
         }
 
-        protected IEnumerable<MapMenuItem> ParentMenuItems
-            => (Parent as ItemsControl)?.Items.OfType<MapMenuItem>();
+        public abstract Task<bool> Execute(MapBase map);
+
+        protected IEnumerable<MapMenuItem> ParentMenuItems => ((ItemsControl)Parent).Items.OfType<MapMenuItem>();
     }
 }

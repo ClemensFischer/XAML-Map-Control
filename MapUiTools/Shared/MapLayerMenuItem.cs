@@ -35,10 +35,8 @@ namespace MapControl.UiTools
         {
             Click += async (s, e) =>
             {
-                if (DataContext is MapBase map)
+                if (DataContext is MapBase map && await Execute(map))
                 {
-                    await Execute(map);
-
                     foreach (var item in ParentMenuItems.OfType<MapLayerMenuItem>())
                     {
                         item.IsChecked = map.Children.Contains(item.MapLayer);
@@ -47,18 +45,30 @@ namespace MapControl.UiTools
             };
         }
 
-        public virtual async Task Execute(MapBase map)
+        public override async Task<bool> Execute(MapBase map)
         {
-            map.MapLayer = MapLayer ?? (MapLayer = await MapLayerFactory.Invoke());
-            IsChecked = true;
+            var layer = MapLayer ?? (MapLayer = await MapLayerFactory.Invoke());
+
+            if (layer == null)
+            {
+                return false;
+            }
+
+            map.MapLayer = layer;
+            return true;
         }
     }
 
     public class MapOverlayMenuItem : MapLayerMenuItem
     {
-        public override async Task Execute(MapBase map)
+        public override async Task<bool> Execute(MapBase map)
         {
             var layer = MapLayer ?? (MapLayer = await MapLayerFactory.Invoke());
+
+            if (layer == null)
+            {
+                return false;
+            }
 
             if (map.Children.Contains(layer))
             {
@@ -85,6 +95,8 @@ namespace MapControl.UiTools
                     }
                 }
             }
+
+            return true;
         }
     }
 }

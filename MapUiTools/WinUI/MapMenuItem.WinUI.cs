@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 #if UWP
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -10,9 +11,11 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MapControl.UiTools
 {
-    public class MapMenuItem : ToggleMenuFlyoutItem
+    public abstract class MapMenuItem : ToggleMenuFlyoutItem
     {
+        public abstract Task<bool> Execute(MapBase map);
+
         protected IEnumerable<MapMenuItem> ParentMenuItems
-            => (VisualTreeHelper.GetParent(this) as Panel)?.Children.OfType<MapMenuItem>();
+            => ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>();
     }
 }
