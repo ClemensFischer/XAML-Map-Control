@@ -30,8 +30,10 @@ namespace MapControl.UiTools
         {
             Click += async (s, e) =>
             {
-                if (DataContext is MapBase map && await Execute(map))
+                if (DataContext is MapBase map)
                 {
+                    await Execute(map);
+
                     foreach (var item in ParentMenuItems.OfType<MapProjectionMenuItem>())
                     {
                         item.IsChecked = map.MapProjection.CrsId == item.MapProjection;
@@ -40,7 +42,7 @@ namespace MapControl.UiTools
             };
         }
 
-        public override Task<bool> Execute(MapBase map)
+        public override Task Execute(MapBase map)
         {
             bool success = true;
 
@@ -57,7 +59,9 @@ namespace MapControl.UiTools
                 }
             }
 
-            return Task.FromResult(success);
+            IsChecked = success;
+
+            return Task.CompletedTask;
         }
     }
 }

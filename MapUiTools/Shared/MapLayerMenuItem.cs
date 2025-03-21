@@ -35,8 +35,10 @@ namespace MapControl.UiTools
         {
             Click += async (s, e) =>
             {
-                if (DataContext is MapBase map && await Execute(map))
+                if (DataContext is MapBase map)
                 {
+                    await Execute(map);
+
                     foreach (var item in ParentMenuItems.OfType<MapLayerMenuItem>())
                     {
                         item.IsChecked = map.Children.Contains(item.MapLayer);
@@ -45,58 +47,54 @@ namespace MapControl.UiTools
             };
         }
 
-        public override async Task<bool> Execute(MapBase map)
+        public override async Task Execute(MapBase map)
         {
             var layer = MapLayer ?? (MapLayer = await MapLayerFactory.Invoke());
 
-            if (layer == null)
+            if (layer != null)
             {
-                return false;
+                map.MapLayer = layer;
+                IsChecked = true;
             }
-
-            map.MapLayer = layer;
-            return true;
         }
     }
 
     public class MapOverlayMenuItem : MapLayerMenuItem
     {
-        public override async Task<bool> Execute(MapBase map)
+        public override async Task Execute(MapBase map)
         {
             var layer = MapLayer ?? (MapLayer = await MapLayerFactory.Invoke());
 
-            if (layer == null)
+            if (layer != null)
             {
-                return false;
-            }
-
-            if (map.Children.Contains(layer))
-            {
-                map.Children.Remove(layer);
-            }
-            else
-            {
-                var index = 1;
-
-                foreach (var itemLayer in ParentMenuItems?
-                    .OfType<MapOverlayMenuItem>()
-                    .Select(item => item.MapLayer)
-                    .Where(itemLayer => itemLayer != null))
+                if (map.Children.Contains(layer))
                 {
-                    if (itemLayer == layer)
-                    {
-                        map.Children.Insert(index, itemLayer);
-                        break;
-                    }
+                    map.Children.Remove(layer);
+                }
+                else
+                {
+                    var index = 1;
 
-                    if (map.Children.Contains(itemLayer))
+                    foreach (var itemLayer in ParentMenuItems?
+                        .OfType<MapOverlayMenuItem>()
+                        .Select(item => item.MapLayer)
+                        .Where(itemLayer => itemLayer != null))
                     {
-                        index++;
+                        if (itemLayer == layer)
+                        {
+                            map.Children.Insert(index, itemLayer);
+                            break;
+                        }
+
+                        if (map.Children.Contains(itemLayer))
+                        {
+                            index++;
+                        }
                     }
                 }
-            }
 
-            return true;
+                IsChecked = true;
+            }
         }
     }
 }

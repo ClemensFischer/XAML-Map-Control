@@ -33,11 +33,9 @@ namespace MapControl.UiTools
             {
                 DataContext = Map;
 
-                if (Items.Count > 0 &&
-                    Items[0] is MapMenuItem item &&
-                    await item.Execute(Map))
+                if (Items.Count > 0 && Items[0] is MapMenuItem item)
                 {
-                    item.IsChecked = true;
+                    await item.Execute(Map);
                 }
             }
         }

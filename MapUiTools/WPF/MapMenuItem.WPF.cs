@@ -13,7 +13,7 @@ namespace MapControl.UiTools
             set => Header = value;
         }
 
-        public abstract Task<bool> Execute(MapBase map);
+        public abstract Task Execute(MapBase map);
 
         protected IEnumerable<MapMenuItem> ParentMenuItems => ((ItemsControl)Parent).Items.OfType<MapMenuItem>();
     }

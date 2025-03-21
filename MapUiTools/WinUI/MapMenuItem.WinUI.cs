@@ -13,7 +13,7 @@ namespace MapControl.UiTools
 {
     public abstract class MapMenuItem : ToggleMenuFlyoutItem
     {
-        public abstract Task<bool> Execute(MapBase map);
+        public abstract Task Execute(MapBase map);
 
         protected IEnumerable<MapMenuItem> ParentMenuItems
             => ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>();
