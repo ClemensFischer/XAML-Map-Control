@@ -15,7 +15,7 @@ namespace SampleApplication
     {
         public MainWindow()
         {
-            TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
             //TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
             Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
 
@@ -147,26 +147,6 @@ namespace SampleApplication
             var distanceFormat = distance >= 100d ? "F0" : "F1";
 
             return string.Format(CultureInfo.InvariantCulture, "\n   {0:" + distanceFormat + "} {1}", distance, unit);
-        }
-
-        private void MapItemsControl_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            Debug.WriteLine("MapItemsControl_Tapped");
-        }
-
-        private void MapItemsControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            Debug.WriteLine("MapItemsControl_RightTapped");
-        }
-
-        private void MapItemsControl_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            Debug.WriteLine("MapItemsControl_PointerPressed");
-        }
-
-        private void MapItemsControl_PointerReleased(object sender, PointerRoutedEventArgs e)
-        {
-            Debug.WriteLine("MapItemsControl_PointerReleased");
         }
     }
 }

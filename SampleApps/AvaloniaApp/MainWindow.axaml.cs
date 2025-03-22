@@ -12,7 +12,7 @@ namespace SampleApplication
     {
         public MainWindow()
         {
-            TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
             Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
 
             InitializeComponent();
@@ -139,21 +139,6 @@ namespace SampleApplication
             var distanceFormat = distance >= 100d ? "F0" : "F1";
 
             return string.Format(CultureInfo.InvariantCulture, "\n   {0:" + distanceFormat + "} {1}", distance, unit);
-        }
-
-        private void MapItemsControl_PointerPressed(object sender, Avalonia.Input.PointerPressedEventArgs e)
-        {
-            Debug.WriteLine("PointerPressed");
-        }
-
-        private void MapItemsControl_PointerReleased(object sender, Avalonia.Input.PointerReleasedEventArgs e)
-        {
-            Debug.WriteLine("PointerReleased");
-        }
-
-        private void MapItemsControl_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
-        {
-            Debug.WriteLine("Tapped");
         }
     }
 }

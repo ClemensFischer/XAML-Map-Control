@@ -164,11 +164,7 @@
                                  SelectedItem="{Binding SelectedPushpin, Mode=TwoWay}"
                                  SelectionMode="Extended"
                                  LocationMemberPath="Location"
-                                 SelectionChanged="MapItemsControlSelectionChanged"
-                                 PointerPressed="MapItemsControl_PointerPressed"
-                                 PointerReleased="MapItemsControl_PointerReleased"
-                                 Tapped="MapItemsControl_Tapped"
-                                 RightTapped="MapItemsControl_RightTapped"/>
+                                 SelectionChanged="MapItemsControlSelectionChanged"/>
 
             <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00" IsHitTestVisible="False">
                 <map:MapPath.Data>

@@ -30,8 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Caches\FileDbCache\FileDbCache.csproj" />
-        <ProjectReference Include="..\..\Caches\SQLiteCache\SQLiteCache.csproj" />
         <ProjectReference Include="..\..\MapUiTools\WPF\MapUiTools.WPF.csproj" />
     </ItemGroup>
 </Project>
