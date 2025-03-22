@@ -17,11 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
-        <ProjectReference Include="..\..\MapUiTools\WPF\MapUiTools.WPF.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Content Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
@@ -32,5 +27,11 @@
 
     <ItemGroup Condition="'$(TargetFramework)'=='net48'">
         <Reference Include="System.Net.Http" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Caches\FileDbCache\FileDbCache.csproj" />
+        <ProjectReference Include="..\..\Caches\SQLiteCache\SQLiteCache.csproj" />
+        <ProjectReference Include="..\..\MapUiTools\WPF\MapUiTools.WPF.csproj" />
     </ItemGroup>
 </Project>

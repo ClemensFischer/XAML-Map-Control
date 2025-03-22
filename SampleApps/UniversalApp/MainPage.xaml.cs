@@ -15,7 +15,7 @@ namespace SampleApplication
     {
         public MainPage()
         {
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
 
             InitializeComponent();
             AddTestLayers();
