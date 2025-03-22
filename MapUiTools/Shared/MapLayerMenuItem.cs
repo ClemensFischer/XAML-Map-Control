@@ -33,6 +33,14 @@ namespace MapControl.UiTools
 
         public MapLayerMenuItem()
         {
+            Loaded += (s, e) =>
+            {
+                if (DataContext is MapBase map)
+                {
+                    IsChecked = map.Children.Contains(MapLayer);
+                }
+            };
+
             Click += async (s, e) =>
             {
                 if (DataContext is MapBase map)

@@ -28,6 +28,14 @@ namespace MapControl.UiTools
 
         public MapProjectionMenuItem()
         {
+            Loaded += (s, e) =>
+            {
+                if (DataContext is MapBase map)
+                {
+                    IsChecked = map.MapProjection.CrsId == MapProjection;
+                }
+            };
+
             Click += async (s, e) =>
             {
                 if (DataContext is MapBase map)
