@@ -27,7 +27,7 @@ namespace MapControl.UiTools
 #if AVALONIA
         [Content]
 #endif
-        public FrameworkElement MapLayer { get; set; }
+        public virtual FrameworkElement MapLayer { get; set; }
 
         public Func<Task<FrameworkElement>> MapLayerFactory { get; set; }
 
