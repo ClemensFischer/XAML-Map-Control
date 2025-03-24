@@ -22,9 +22,9 @@ namespace MapControl
 
         public MapPanel()
         {
-            if (this is MapBase mapBase)
+            if (this is MapBase)
             {
-                SetValue(ParentMapProperty, mapBase);
+                SetValue(ParentMapProperty, this);
             }
         }
 
