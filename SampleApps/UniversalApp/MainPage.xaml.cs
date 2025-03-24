@@ -18,6 +18,9 @@ namespace SampleApplication
             //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
 
             InitializeComponent();
+
+            sampleOverlayMenuItem.MapLayerFactory = async () => await GroundOverlay.CreateAsync("etna.kml");
+
             AddTestLayers();
         }
 

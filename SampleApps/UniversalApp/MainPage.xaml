@@ -226,14 +226,14 @@
                         ServiceUri="http://ows.terrestris.de/osm/service"
                         Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerMenuItem>
+
                 <MenuFlyoutSeparator/>
+
                 <tools:MapOverlayMenuItem Text="Sample Image">
                     <Image Source="10_535_330.jpg" Stretch="Fill"
                         map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
                 </tools:MapOverlayMenuItem>
-                <tools:MapOverlayMenuItem Text="Mount Etna KML">
-                    <map:GroundOverlay SourcePath="etna.kml"/>
-                </tools:MapOverlayMenuItem>
+                <tools:MapOverlayMenuItem x:Name="sampleOverlayMenuItem" Text="Mount Etna KML"/>
                 <tools:MapOverlayMenuItem Text="Seamarks">
                     <map:MapTileLayer
                         TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
