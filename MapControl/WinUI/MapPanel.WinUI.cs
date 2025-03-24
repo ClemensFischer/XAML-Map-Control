@@ -27,6 +27,7 @@ namespace MapControl
 
         public MapPanel()
         {
+            UseLayoutRounding = false;
             InitMapElement(this);
         }
 
@@ -40,7 +41,7 @@ namespace MapControl
             {
                 // Workaround for missing property value inheritance.
                 // Loaded and Unloaded handlers set and clear the ParentMap property value.
-
+                //
                 element.Loaded += (s, e) => GetParentMap((FrameworkElement)s);
                 element.Unloaded += (s, e) => ((FrameworkElement)s).ClearValue(ParentMapProperty);
             }
@@ -51,7 +52,7 @@ namespace MapControl
             var parentMap = (MapBase)element.GetValue(ParentMapProperty);
 
             // Traverse visual tree because of missing property value inheritance.
-
+            //
             if (parentMap == null &&
                 VisualTreeHelper.GetParent(element) is FrameworkElement parentElement)
             {
