@@ -20,9 +20,10 @@ namespace SampleApplication
             Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
 
             InitializeComponent();
-            AddTestLayers();
 
-            Title = "XAML Map Control - WinUI Sample Application";
+            sampleOverlayMenuItem.MapLayerFactory = async () => await GroundOverlay.CreateAsync("etna.kml");
+
+            AddTestLayers();
         }
 
         partial void AddTestLayers();
