@@ -16,6 +16,9 @@ namespace SampleApplication
             Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
 
             InitializeComponent();
+
+            sampleOverlayMenuItem.MapLayerFactory = async () => await GroundOverlay.CreateAsync("etna.kml");
+
             AddTestLayers();
         }
 
