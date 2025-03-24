@@ -83,7 +83,7 @@ namespace MapControl.UiTools
                 {
                     var index = 1;
 
-                    foreach (var itemLayer in ParentMenuItems?
+                    foreach (var itemLayer in ParentMenuItems
                         .OfType<MapOverlayMenuItem>()
                         .Select(item => item.MapLayer)
                         .Where(itemLayer => itemLayer != null))
