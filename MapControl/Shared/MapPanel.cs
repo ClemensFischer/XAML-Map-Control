@@ -202,30 +202,6 @@ namespace MapControl
             return position;
         }
 
-        private Tuple<Rect, double> GetViewRect(BoundingBox boundingBox)
-        {
-            if (boundingBox is LatLonBox latLonBox)
-            {
-                var rotatedRect = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
-
-                if (rotatedRect != null)
-                {
-                    return new Tuple<Rect, double>(GetViewRect(rotatedRect.Item1), rotatedRect.Item2);
-                }
-            }
-            else
-            {
-                var mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
-
-                if (mapRect.HasValue)
-                {
-                    return new Tuple<Rect, double>(GetViewRect(mapRect.Value), 0d);
-                }
-            }
-
-            return null;
-        }
-
         private Rect GetViewRect(Rect mapRect)
         {
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
@@ -295,16 +271,33 @@ namespace MapControl
 
         private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
         {
-            var viewRect = GetViewRect(boundingBox);
+            Rect? mapRect = null;
+            var rotation = 0d;
 
-            if (viewRect != null)
+            if (boundingBox is LatLonBox latLonBox)
             {
-                element.Width = viewRect.Item1.Width;
-                element.Height = viewRect.Item1.Height;
+                var rotatedRect = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
 
-                element.Arrange(viewRect.Item1);
+                if (rotatedRect != null)
+                {
+                    mapRect = rotatedRect.Item1;
+                    rotation = -rotatedRect.Item2;
+                }
+            }
+            else
+            {
+                mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            }
 
-                var rotation = parentMap.ViewTransform.Rotation - viewRect.Item2;
+            if (mapRect.HasValue)
+            {
+                var viewRect = GetViewRect(mapRect.Value);
+
+                element.Width = viewRect.Width;
+                element.Height = viewRect.Height;
+                element.Arrange(viewRect);
+
+                rotation += parentMap.ViewTransform.Rotation;
 
                 if (element.RenderTransform is RotateTransform rotateTransform)
                 {
