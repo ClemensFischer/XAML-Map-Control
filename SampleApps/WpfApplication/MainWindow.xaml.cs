@@ -20,6 +20,9 @@ namespace SampleApplication
             Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
 
             InitializeComponent();
+
+            sampleOverlayMenuItem.MapLayerFactory = async () => await GroundOverlay.CreateAsync("etna.kml");
+
             AddTestLayers();
         }
 
@@ -141,66 +144,6 @@ namespace SampleApplication
             var distanceFormat = distance >= 100d ? "F0" : "F1";
 
             return string.Format(CultureInfo.InvariantCulture, "\n   {0:" + distanceFormat + "} {1}", distance, unit);
-        }
-
-        private void MapItemsControl_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("PreviewMouseLeftButtonDown");
-        }
-
-        private void MapItemsControl_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("PreviewMouseLeftButtonUp");
-        }
-
-        private void MapItemsControl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("MouseLeftButtonDown");
-        }
-
-        private void MapItemsControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("MouseLeftButtonUp");
-        }
-
-        private void MapItemsControl_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("PreviewMouseRightButtonDown");
-        }
-
-        private void MapItemsControl_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("PreviewMouseRightButtonUp");
-        }
-
-        private void MapItemsControl_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("MouseRightButtonDown");
-        }
-
-        private void MapItemsControl_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Debug.WriteLine("MouseRightButtonUp");
-        }
-
-        private void MapItemsControl_TouchDown(object sender, TouchEventArgs e)
-        {
-            Debug.WriteLine("TouchDown");
-        }
-
-        private void MapItemsControl_TouchUp(object sender, TouchEventArgs e)
-        {
-            Debug.WriteLine("TouchUp");
-        }
-
-        private void MapItemsControl_PreviewTouchDown(object sender, TouchEventArgs e)
-        {
-            Debug.WriteLine("PreviewTouchDown");
-        }
-
-        private void MapItemsControl_PreviewTouchUp(object sender, TouchEventArgs e)
-        {
-            Debug.WriteLine("PreviewTouchUp");
         }
     }
 }
