@@ -15,11 +15,34 @@ namespace MapControl.UiTools
     {
         protected MapMenuItem()
         {
-            Loaded += (s, e) => ParentMenuItems = ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>().ToList();
+            Loaded += (s, e) =>
+            {
+                ParentMenuItems = ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>().ToList();
+
+                if (DataContext is MapBase map)
+                {
+                    IsChecked = GetIsChecked(map);
+                }
+            };
+
+            Click += async (s, e) =>
+            {
+                if (DataContext is MapBase map)
+                {
+                    await Execute(map);
+
+                    foreach (var item in ParentMenuItems)
+                    {
+                        item.IsChecked = item.GetIsChecked(map);
+                    }
+                }
+            };
         }
 
-        public abstract Task Execute(MapBase map);
-
         protected IList<MapMenuItem> ParentMenuItems { get; private set; }
+
+        protected abstract bool GetIsChecked(MapBase map);
+
+        public abstract Task Execute(MapBase map);
     }
 }

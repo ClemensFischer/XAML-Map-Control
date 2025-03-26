@@ -8,15 +8,36 @@ using System.Threading.Tasks;
 
 namespace MapControl.UiTools
 {
-    public abstract class MapMenuItem : MenuItem
+    public abstract partial class MapMenuItem : MenuItem
     {
-        public MapMenuItem()
+        protected MapMenuItem()
         {
             Icon = new TextBlock
             {
                 FontFamily = new("Segoe MDL2 Assets"),
                 FontWeight = FontWeight.Black,
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+            };
+
+            Loaded += (s, e) =>
+            {
+                if (DataContext is MapBase map)
+                {
+                    IsChecked = GetIsChecked(map);
+                }
+            };
+
+            Click += async (s, e) =>
+            {
+                if (DataContext is MapBase map)
+                {
+                    await Execute(map);
+
+                    foreach (var item in ParentMenuItems)
+                    {
+                        item.IsChecked = item.GetIsChecked(map);
+                    }
+                }
             };
         }
 
@@ -26,11 +47,13 @@ namespace MapControl.UiTools
             set => Header = value;
         }
 
-        public abstract Task Execute(MapBase map);
-
         protected IEnumerable<MapMenuItem> ParentMenuItems => ((ItemsControl)Parent).Items.OfType<MapMenuItem>();
 
         protected override Type StyleKeyOverride => typeof(MenuItem);
+
+        protected abstract bool GetIsChecked(MapBase map);
+
+        public abstract Task Execute(MapBase map);
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs args)
         {

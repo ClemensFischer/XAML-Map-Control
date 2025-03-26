@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Markup;
@@ -26,28 +25,9 @@ namespace MapControl.UiTools
 #endif
         public string MapProjection { get; set; }
 
-        public MapProjectionMenuItem()
+        protected override bool GetIsChecked(MapBase map)
         {
-            Loaded += (s, e) =>
-            {
-                if (DataContext is MapBase map)
-                {
-                    IsChecked = map.MapProjection.CrsId == MapProjection;
-                }
-            };
-
-            Click += async (s, e) =>
-            {
-                if (DataContext is MapBase map)
-                {
-                    await Execute(map);
-
-                    foreach (var item in ParentMenuItems.OfType<MapProjectionMenuItem>())
-                    {
-                        item.IsChecked = map.MapProjection.CrsId == item.MapProjection;
-                    }
-                }
-            };
+            return map.MapProjection.CrsId == MapProjection;
         }
 
         public override Task Execute(MapBase map)

@@ -31,28 +31,9 @@ namespace MapControl.UiTools
 
         public Func<Task<FrameworkElement>> MapLayerFactory { get; set; }
 
-        public MapLayerMenuItem()
+        protected override bool GetIsChecked(MapBase map)
         {
-            Loaded += (s, e) =>
-            {
-                if (DataContext is MapBase map)
-                {
-                    IsChecked = map.Children.Contains(MapLayer);
-                }
-            };
-
-            Click += async (s, e) =>
-            {
-                if (DataContext is MapBase map)
-                {
-                    await Execute(map);
-
-                    foreach (var item in ParentMenuItems.OfType<MapLayerMenuItem>())
-                    {
-                        item.IsChecked = map.Children.Contains(item.MapLayer);
-                    }
-                }
-            };
+            return map.Children.Contains(MapLayer);
         }
 
         public override async Task Execute(MapBase map)
