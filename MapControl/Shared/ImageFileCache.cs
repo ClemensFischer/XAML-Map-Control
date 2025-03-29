@@ -11,12 +11,8 @@ using System.Threading.Tasks;
 namespace MapControl.Caching
 {
     /// <summary>
-    /// IDistributedCache implementation based on local files.
-    /// <br/><b>
-    /// Do not create an ImageFileCache instance that operates on a directory
-    /// which contains other files than downloaded map tile images.
-    /// ImageFileCache may unintentionally delete these files.
-    /// </b>
+    /// IDistributedCache implementation that creates a single file per cache entry.
+    /// The cache expiration time is stored in the file's CreationTime property.
     /// </summary>
     public sealed class ImageFileCache : IDistributedCache, IDisposable
     {
@@ -319,7 +315,8 @@ namespace MapControl.Caching
             {
                 deletedFileCount = directory.EnumerateDirectories().Sum(ScanDirectory);
 
-                foreach (var file in directory.EnumerateFiles().Where(f => f.CreationTime <= DateTime.Now))
+                foreach (var file in directory.EnumerateFiles()
+                    .Where(f => f.CreationTime > f.LastWriteTime && f.CreationTime <= DateTime.Now))
                 {
                     file.Delete();
                     deletedFileCount++;
