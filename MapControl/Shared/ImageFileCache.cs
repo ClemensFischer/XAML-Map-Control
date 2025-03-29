@@ -12,6 +12,11 @@ namespace MapControl.Caching
 {
     /// <summary>
     /// IDistributedCache implementation based on local files.
+    /// <br/><b>
+    /// Do not create an ImageFileCache instance that operates on a directory
+    /// which contains other files than downloaded map tile images.
+    /// ImageFileCache may unintentionally delete these files.
+    /// </b>
     /// </summary>
     public sealed class ImageFileCache : IDistributedCache, IDisposable
     {
