@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
 using MapControl;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,8 +13,9 @@ namespace SampleApplication
     {
         public MainWindow()
         {
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
-            Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
+            //var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug());
+            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
+            //Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
 
             InitializeComponent();
 
