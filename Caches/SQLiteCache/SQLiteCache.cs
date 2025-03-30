@@ -1,13 +1,23 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Data.SQLite;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl.Caching
 {
+    public class SQLiteCacheOptions : IOptions<SQLiteCacheOptions>
+    {
+        public SQLiteCacheOptions Value => this;
+
+        public string Path { get; set; }
+
+        public TimeSpan ExpirationScanFrequency { get; set; } = TimeSpan.FromHours(1);
+    }
+
     /// <summary>
     /// IDistributedCache implementation based on System.Data.SQLite, https://system.data.sqlite.org/.
     /// </summary>
@@ -15,14 +25,27 @@ namespace MapControl.Caching
     {
         private readonly SQLiteConnection connection;
         private readonly Timer timer;
+        private readonly ILogger logger;
 
-        public SQLiteCache(string path)
-            : this(path, TimeSpan.FromHours(1))
+        public SQLiteCache(string path, ILoggerFactory loggerFactory = null)
+            : this(new SQLiteCacheOptions { Path = path }, loggerFactory)
         {
         }
 
-        public SQLiteCache(string path, TimeSpan expirationScanFrequency)
+        public SQLiteCache(IOptions<SQLiteCacheOptions> optionsAccessor, ILoggerFactory loggerFactory = null)
+            : this(optionsAccessor.Value, loggerFactory)
         {
+        }
+
+        public SQLiteCache(SQLiteCacheOptions options, ILoggerFactory loggerFactory = null)
+        {
+            if (loggerFactory != null)
+            {
+                logger = loggerFactory.CreateLogger<SQLiteCache>();
+            }
+
+            var path = options.Path;
+
             if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(Path.GetExtension(path)))
             {
                 path = Path.Combine(path ?? "", "TileCache.sqlite");
@@ -41,11 +64,11 @@ namespace MapControl.Caching
                 command.ExecuteNonQuery();
             }
 
-            Debug.WriteLine($"{nameof(SQLiteCache)}: Opened database {path}");
+            logger?.LogInformation("Opened database {path}", path);
 
-            if (expirationScanFrequency > TimeSpan.Zero)
+            if (options.ExpirationScanFrequency > TimeSpan.Zero)
             {
-                timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
+                timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, options.ExpirationScanFrequency);
             }
         }
 
@@ -70,7 +93,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}.Get({key}): {ex.Message}");
+                    logger?.LogError(ex, "Get({key})", key);
                 }
             }
 
@@ -92,7 +115,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}.GetAsync({key}): {ex.Message}");
+                    logger?.LogError(ex, "GetAsync({key})", key);
                 }
             }
 
@@ -112,7 +135,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}.Set({key}): {ex.Message}");
+                    logger?.LogError(ex, "Set({key})", key);
                 }
             }
         }
@@ -130,7 +153,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}.SetAsync({key}): {ex.Message}");
+                    logger?.LogError(ex, "SetAsync({key})", key);
                 }
             }
         }
@@ -157,7 +180,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}.Remove({key}): {ex.Message}");
+                    logger?.LogError(ex, "Remove({key})", key);
                 }
             }
         }
@@ -175,28 +198,28 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(SQLiteCache)}.RemoveAsync({key}): {ex.Message}");
+                    logger?.LogError(ex, "RemoveAsync({key})", key);
                 }
             }
         }
 
         public void DeleteExpiredItems()
         {
-            long deleted;
+            long deletedItemsCount;
 
             using (var command = DeleteExpiredItemsCommand())
             {
-                deleted = (long)command.ExecuteScalar();
+                deletedItemsCount = (long)command.ExecuteScalar();
             }
 
-            if (deleted > 0)
+            if (deletedItemsCount > 0)
             {
                 using (var command = new SQLiteCommand("vacuum", connection))
                 {
                     command.ExecuteNonQuery();
                 }
 
-                Debug.WriteLine($"{nameof(SQLiteCache)}: Deleted {deleted} expired items");
+                logger?.LogInformation("Deleted {count} expired items", deletedItemsCount);
             }
         }
 

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -10,6 +10,15 @@ using System.Threading.Tasks;
 
 namespace MapControl.Caching
 {
+    public class ImageFileCacheOptions : IOptions<ImageFileCacheOptions>
+    {
+        public ImageFileCacheOptions Value => this;
+
+        public string Path { get; set; }
+
+        public TimeSpan ExpirationScanFrequency { get; set; } = TimeSpan.FromHours(1);
+    }
+
     /// <summary>
     /// IDistributedCache implementation that creates a single file per cache entry.
     /// The cache expiration time is stored in the file's CreationTime property.
@@ -19,30 +28,43 @@ namespace MapControl.Caching
         private readonly MemoryDistributedCache memoryCache;
         private readonly DirectoryInfo rootDirectory;
         private readonly Timer expirationScanTimer;
+        private readonly ILogger logger;
         private bool scanningExpiration;
 
-        public ImageFileCache(string path)
-            : this(path, TimeSpan.FromHours(1))
+        public ImageFileCache(string path, ILoggerFactory loggerFactory = null)
+            : this(new ImageFileCacheOptions { Path = path }, loggerFactory)
         {
         }
 
-        public ImageFileCache(string path, TimeSpan expirationScanFrequency)
+        public ImageFileCache(IOptions<ImageFileCacheOptions> optionsAccessor, ILoggerFactory loggerFactory = null)
+            : this(optionsAccessor.Value, loggerFactory)
         {
+        }
+
+        public ImageFileCache(ImageFileCacheOptions options, ILoggerFactory loggerFactory = null)
+        {
+            if (loggerFactory != null)
+            {
+                logger = loggerFactory.CreateLogger<ImageFileCache>();
+            }
+
+            var path = options.Path;
+
             rootDirectory = new DirectoryInfo(!string.IsNullOrEmpty(path) ? path : "TileCache");
             rootDirectory.Create();
 
-            Debug.WriteLine($"{nameof(ImageFileCache)}: {rootDirectory.FullName}");
+            logger?.LogInformation("Started in {name}", rootDirectory.FullName);
 
-            var options = new MemoryDistributedCacheOptions();
+            var memoryCacheOptions = new MemoryDistributedCacheOptions();
 
-            if (expirationScanFrequency > TimeSpan.Zero)
+            if (options.ExpirationScanFrequency > TimeSpan.Zero)
             {
-                options.ExpirationScanFrequency = expirationScanFrequency;
+                memoryCacheOptions.ExpirationScanFrequency = options.ExpirationScanFrequency;
 
-                expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
+                expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, options.ExpirationScanFrequency);
             }
 
-            memoryCache = new MemoryDistributedCache(Options.Create(options));
+            memoryCache = new MemoryDistributedCache(Options.Create(memoryCacheOptions));
         }
 
         public void Dispose()
@@ -75,7 +97,7 @@ namespace MapControl.Caching
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {file.FullName}: {ex.Message}");
+                        logger?.LogError(ex, "Failed reading {name}", file.FullName);
                     }
                 }
             }
@@ -108,7 +130,7 @@ namespace MapControl.Caching
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"{nameof(ImageFileCache)}: Failed reading {file.FullName}: {ex.Message}");
+                        logger?.LogError(ex, "Failed reading {name}", file.FullName);
                     }
                 }
             }
@@ -140,7 +162,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {file.FullName}: {ex.Message}");
+                    logger?.LogError(ex, "Failed writing {name}", file.FullName);
                 }
             }
         }
@@ -169,7 +191,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed writing {file.FullName}: {ex.Message}");
+                    logger?.LogError(ex, "Failed writing {name}", file.FullName);
                 }
             }
         }
@@ -207,7 +229,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {file.FullName}: {ex.Message}");
+                    logger?.LogError(ex, "Failed deleting {name}", file.FullName);
                 }
             }
         }
@@ -229,7 +251,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(ImageFileCache)}: Failed deleting {file.FullName}: {ex.Message}");
+                    logger?.LogError(ex, "Failed deleting {name}", file.FullName);
                 }
             }
         }
@@ -246,12 +268,40 @@ namespace MapControl.Caching
 
                     if (deletedFileCount > 0)
                     {
-                        Debug.WriteLine($"{nameof(ImageFileCache)}: Deleted {deletedFileCount} expired items in {directory.Name}.");
+                        logger?.LogInformation("Deleted {count} expired items in {name}", deletedFileCount, directory.FullName);
                     }
                 }
 
                 scanningExpiration = false;
             }
+        }
+
+        private int ScanDirectory(DirectoryInfo directory)
+        {
+            var deletedFileCount = 0;
+
+            try
+            {
+                deletedFileCount = directory.EnumerateDirectories().Sum(ScanDirectory);
+
+                foreach (var file in directory.EnumerateFiles()
+                    .Where(f => f.CreationTime > f.LastWriteTime && f.CreationTime <= DateTime.Now))
+                {
+                    file.Delete();
+                    deletedFileCount++;
+                }
+
+                if (!directory.EnumerateFileSystemInfos().Any())
+                {
+                    directory.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "Failed cleaning {name}", directory.FullName);
+            }
+
+            return deletedFileCount;
         }
 
         private FileInfo GetFile(string key)
@@ -262,7 +312,7 @@ namespace MapControl.Caching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Invalid key {key}: {ex.Message}");
+                logger?.LogError(ex, "Invalid key {key}", key);
             }
 
             return null;
@@ -305,34 +355,6 @@ namespace MapControl.Caching
             file.CreationTime = options.AbsoluteExpiration.HasValue
                 ? options.AbsoluteExpiration.Value.LocalDateTime
                 : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
-        }
-
-        private static int ScanDirectory(DirectoryInfo directory)
-        {
-            var deletedFileCount = 0;
-
-            try
-            {
-                deletedFileCount = directory.EnumerateDirectories().Sum(ScanDirectory);
-
-                foreach (var file in directory.EnumerateFiles()
-                    .Where(f => f.CreationTime > f.LastWriteTime && f.CreationTime <= DateTime.Now))
-                {
-                    file.Delete();
-                    deletedFileCount++;
-                }
-
-                if (!directory.EnumerateFileSystemInfos().Any())
-                {
-                    directory.Delete();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{nameof(ImageFileCache)}: Failed cleaning {directory.FullName}: {ex.Message}");
-            }
-
-            return deletedFileCount;
         }
     }
 }

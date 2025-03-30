@@ -1,13 +1,23 @@
 ﻿using FileDbNs;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl.Caching
 {
+    public class FileDbCacheOptions : IOptions<FileDbCacheOptions>
+    {
+        public FileDbCacheOptions Value => this;
+
+        public string Path { get; set; }
+
+        public TimeSpan ExpirationScanFrequency { get; set; } = TimeSpan.FromHours(1);
+    }
+
     /// <summary>
     /// IDistributedCache implementation based on FileDb, https://github.com/eztools-software/FileDb.
     /// </summary>
@@ -19,14 +29,27 @@ namespace MapControl.Caching
 
         private readonly FileDb fileDb = new FileDb { AutoFlush = true };
         private readonly Timer timer;
+        private readonly ILogger logger;
 
-        public FileDbCache(string path)
-            : this(path, TimeSpan.FromHours(1))
+        public FileDbCache(string path, ILoggerFactory loggerFactory = null)
+            : this(new FileDbCacheOptions { Path = path }, loggerFactory)
         {
         }
 
-        public FileDbCache(string path, TimeSpan expirationScanFrequency)
+        public FileDbCache(IOptions<FileDbCacheOptions> optionsAccessor, ILoggerFactory loggerFactory = null)
+            : this(optionsAccessor.Value, loggerFactory)
         {
+        }
+
+        public FileDbCache(FileDbCacheOptions options, ILoggerFactory loggerFactory = null)
+        {
+            if (loggerFactory != null)
+            {
+                logger = loggerFactory.CreateLogger<FileDbCache>();
+            }
+
+            var path = options.Path;
+
             if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(Path.GetExtension(path)))
             {
                 path = Path.Combine(path ?? "", "TileCache.fdb");
@@ -36,7 +59,7 @@ namespace MapControl.Caching
             {
                 fileDb.Open(path);
 
-                Debug.WriteLine($"{nameof(FileDbCache)}: Opened database {path}");
+                logger?.LogInformation("Opened database {path}", path);
             }
             catch
             {
@@ -56,12 +79,12 @@ namespace MapControl.Caching
                     new Field(expiresField, DataTypeEnum.DateTime)
                 });
 
-                Debug.WriteLine($"{nameof(FileDbCache)}: Created database {path}");
+                logger?.LogInformation("Created database {path}", path);
             }
 
-            if (expirationScanFrequency > TimeSpan.Zero)
+            if (options.ExpirationScanFrequency > TimeSpan.Zero)
             {
-                timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, expirationScanFrequency);
+                timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, options.ExpirationScanFrequency);
             }
         }
 
@@ -88,7 +111,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(FileDbCache)}.Get({key}): {ex.Message}");
+                    logger?.LogError(ex, "Get({key})", key);
                 }
             }
 
@@ -128,7 +151,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(FileDbCache)}.Set({key}): {ex.Message}");
+                    logger?.LogError(ex, "Set({key})", key);
                 }
             }
         }
@@ -159,7 +182,7 @@ namespace MapControl.Caching
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(FileDbCache)}.Remove({key}): {ex.Message}");
+                    logger?.LogError(ex, "Remove({key})", key);
                 }
             }
         }
@@ -173,13 +196,13 @@ namespace MapControl.Caching
 
         public void DeleteExpiredItems()
         {
-            var deleted = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+            var deletedItemsCount = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
 
-            if (deleted > 0)
+            if (deletedItemsCount > 0)
             {
                 fileDb.Clean();
 
-                Debug.WriteLine($"{nameof(FileDbCache)}: Deleted {deleted} expired items");
+                logger?.LogInformation("Deleted {count} expired items", deletedItemsCount);
             }
         }
     }
