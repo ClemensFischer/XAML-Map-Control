@@ -1,4 +1,5 @@
 ﻿using MapControl;
+using MapControl.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
@@ -17,8 +18,9 @@ namespace SampleApplication
         public MainWindow()
         {
             //var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug());
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
-            //Closed += (s, e) => (TileImageLoader.Cache as IDisposable)?.Dispose();
+            //var tileCache = new ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
+            //Closed += (s, e) => tileCache.Dispose();
+            //TileImageLoader.Cache = tileCache;
 
             InitializeComponent();
 
