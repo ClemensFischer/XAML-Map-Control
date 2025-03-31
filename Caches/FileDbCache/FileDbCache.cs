@@ -43,17 +43,14 @@ namespace MapControl.Caching
 
         public FileDbCache(FileDbCacheOptions options, ILoggerFactory loggerFactory = null)
         {
-            if (loggerFactory != null)
-            {
-                logger = loggerFactory.CreateLogger<FileDbCache>();
-            }
-
             var path = options.Path;
 
             if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(Path.GetExtension(path)))
             {
                 path = Path.Combine(path ?? "", "TileCache.fdb");
             }
+
+            logger = loggerFactory?.CreateLogger<FileDbCache>();
 
             try
             {

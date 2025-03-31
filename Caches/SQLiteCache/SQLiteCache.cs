@@ -39,11 +39,6 @@ namespace MapControl.Caching
 
         public SQLiteCache(SQLiteCacheOptions options, ILoggerFactory loggerFactory = null)
         {
-            if (loggerFactory != null)
-            {
-                logger = loggerFactory.CreateLogger<SQLiteCache>();
-            }
-
             var path = options.Path;
 
             if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(Path.GetExtension(path)))
@@ -63,6 +58,8 @@ namespace MapControl.Caching
             {
                 command.ExecuteNonQuery();
             }
+
+            logger = loggerFactory?.CreateLogger<SQLiteCache>();
 
             logger?.LogInformation("Opened database {path}", path);
 
