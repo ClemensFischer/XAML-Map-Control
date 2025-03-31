@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -17,14 +17,19 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = LoggerFactory?.CreateLogger(typeof(ImageLoader)));
+
+        public static ILoggerFactory LoggerFactory { get; set; }
+
         /// <summary>
         /// The System.Net.Http.HttpClient instance used to download images via a http or https Uri.
         /// </summary>
-        public static HttpClient HttpClient { get; set; } = new HttpClient();
+        public static HttpClient HttpClient { get; set; }
 
         static ImageLoader()
         {
-            HttpClient.Timeout = TimeSpan.FromSeconds(30);
+            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
@@ -56,7 +61,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
+                Logger?.LogError(ex, "{uri}", uri);
             }
 
             progress?.Report(1d);
@@ -117,13 +122,13 @@ namespace MapControl
                     }
                     else
                     {
-                        Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase}");
+                        Logger?.LogWarning("{uri}: {status} {reason}", uri, (int)responseMessage.StatusCode, responseMessage.ReasonPhrase);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
+                Logger?.LogError(ex, "{uri}", uri);
             }
 
             return response;

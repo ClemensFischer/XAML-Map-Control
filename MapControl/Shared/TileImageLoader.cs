@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,6 +59,9 @@ namespace MapControl
         /// </summary>
         public static int MaxLoadTasks { get; set; } = 4;
 
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<TileImageLoader>());
+
         private ConcurrentStack<Tile> pendingTiles;
 
         /// <summary>
@@ -102,7 +105,7 @@ namespace MapControl
                             }
                             catch (Exception ex)
                             {
-                                Debug.WriteLine($"{nameof(TileImageLoader)}: {tile.ZoomLevel}/{tile.Column}/{tile.Row}: {ex.Message}");
+                                Logger?.LogError(ex, "{zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                             }
                         }
                     }
@@ -161,7 +164,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.GetAsync: {cacheKey}: {ex.Message}");
+                Logger?.LogError(ex, "Cache.GetAsync: {cacheKey}", cacheKey);
             }
 
             if (buffer == null)
@@ -185,7 +188,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"{nameof(TileImageLoader)}.{nameof(Cache)}.SetAsync: {cacheKey}: {ex.Message}");
+                        Logger?.LogError(ex, "Cache.SetAsync: {cacheKey}", cacheKey);
                     }
                 }
             }

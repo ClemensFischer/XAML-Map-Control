@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
@@ -55,12 +55,12 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(BingMapsTileLayer)}: {metadataUri}: {ex.Message}");
+                    ImageLoader.LoggerFactory?.CreateLogger<BingMapsTileLayer>()?.LogError(ex, "{uri}", metadataUri);
                 }
             }
             else
             {
-                Debug.WriteLine($"{nameof(BingMapsTileLayer)} requires a Bing Maps API Key");
+                ImageLoader.LoggerFactory?.CreateLogger<BingMapsTileLayer>()?.LogError("Bing Maps API Key required");
             }
         }
 

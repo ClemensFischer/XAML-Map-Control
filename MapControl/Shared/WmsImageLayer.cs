@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +23,9 @@ namespace MapControl
     /// </summary>
     public class WmsImageLayer : MapImageLayer
     {
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<WmsImageLayer>());
+
         public static readonly DependencyProperty ServiceUriProperty =
             DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null,
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
@@ -114,7 +117,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"{nameof(WmsImageLayer)}: {uri}: {ex.Message}");
+                        Logger?.LogError(ex, "{uri}", uri);
                     }
                 }
             }
@@ -146,7 +149,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"{nameof(WmsImageLayer)}: {uri}: {ex.Message}");
+                        Logger?.LogError(ex, "{uri}", uri);
                     }
                 }
             }
@@ -366,7 +369,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(WmsImageLayer)}: {uri}: {ex.Message}");
+                    Logger?.LogError(ex, "{uri}", uri);
                 }
             }
 

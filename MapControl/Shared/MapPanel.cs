@@ -175,7 +175,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"{nameof(MapPanel)}.ArrangeOverride: {element}: {ex.Message}");
+                        Debug.WriteLine($"MapPanel.ArrangeOverride: {element}: {ex.Message}");
                     }
                 }
             }

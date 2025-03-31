@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -80,7 +80,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(GroundOverlay)}: {sourcePath}: {ex.Message}");
+                    ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>()?.LogError(ex, "{sourcePath}", sourcePath);
                 }
             }
 

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -107,22 +105,13 @@ namespace MapControl
             FrameworkElement overlay;
             var ext = Path.GetExtension(sourcePath).ToLower();
 
-            try
+            if (ext == ".kmz" || ext == ".kml")
             {
-                if (ext == ".kmz" || ext == ".kml")
-                {
-                    overlay = await GroundOverlay.CreateAsync(sourcePath);
-                }
-                else
-                {
-                    overlay = await GeoImage.CreateAsync(sourcePath);
-                }
+                overlay = await GroundOverlay.CreateAsync(sourcePath);
             }
-            catch (Exception ex)
+            else
             {
-                Debug.WriteLine($"{nameof(MapOverlaysPanel)}: {sourcePath}: {ex.Message}");
-
-                overlay = new MapPanel();
+                overlay = await GeoImage.CreateAsync(sourcePath);
             }
 
             return overlay;

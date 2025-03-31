@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -89,7 +89,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(ImageLoader)}: {uri}: {ex.Message}");
+                Logger?.LogError(ex, "{uri}", uri);
             }
 
             progress.Report(1d);

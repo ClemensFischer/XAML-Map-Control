@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -113,7 +113,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(GeoImage)}: {sourcePath}: {ex.Message}");
+                    ImageLoader.LoggerFactory?.CreateLogger(typeof(GeoImage))?.LogError(ex, "{sourcePath}", sourcePath);
                 }
             }
         }
