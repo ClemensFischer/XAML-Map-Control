@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
@@ -87,7 +87,7 @@ namespace MapControl.MBTiles
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(MBTileLayer)}: {ex.Message}");
+                    ImageLoader.LoggerFactory?.CreateLogger<MBTileLayer>()?.LogError(ex, "Invalid file: {file}", file);
                 }
             }
         }

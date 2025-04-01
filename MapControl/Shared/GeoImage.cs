@@ -113,7 +113,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    ImageLoader.LoggerFactory?.CreateLogger(typeof(GeoImage))?.LogError(ex, "{sourcePath}", sourcePath);
+                    ImageLoader.LoggerFactory?.CreateLogger(typeof(GeoImage))?.LogError(ex, "Failed loading from {path}", sourcePath);
                 }
             }
         }

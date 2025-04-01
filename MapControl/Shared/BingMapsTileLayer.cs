@@ -55,12 +55,12 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    ImageLoader.LoggerFactory?.CreateLogger<BingMapsTileLayer>()?.LogError(ex, "{uri}", metadataUri);
+                    ImageLoader.LoggerFactory?.CreateLogger<BingMapsTileLayer>()?.LogError(ex, "Failed loading metadata from {uri}", metadataUri);
                 }
             }
             else
             {
-                ImageLoader.LoggerFactory?.CreateLogger<BingMapsTileLayer>()?.LogError("Bing Maps API Key required");
+                ImageLoader.LoggerFactory?.CreateLogger<BingMapsTileLayer>()?.LogError("Bing Maps API key required");
             }
         }
 

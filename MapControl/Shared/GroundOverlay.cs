@@ -80,7 +80,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>()?.LogError(ex, "{sourcePath}", sourcePath);
+                    ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>()?.LogError(ex, "Failed loading from {path}", sourcePath);
                 }
             }
 

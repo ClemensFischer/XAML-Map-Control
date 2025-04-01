@@ -105,7 +105,7 @@ namespace MapControl
                             }
                             catch (Exception ex)
                             {
-                                Logger?.LogError(ex, "{zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
+                                Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                             }
                         }
                     }

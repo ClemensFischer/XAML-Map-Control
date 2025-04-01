@@ -200,7 +200,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    ImageLoader.LoggerFactory?.CreateLogger<WmtsTileLayer>()?.LogError(ex, "{uri}", CapabilitiesUri);
+                    ImageLoader.LoggerFactory?.CreateLogger<WmtsTileLayer>()?.LogError(ex, "Failed reading capabilities from {uri}", CapabilitiesUri);
                 }
             }
         }

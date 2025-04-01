@@ -117,7 +117,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Logger?.LogError(ex, "{uri}", uri);
+                        Logger?.LogError(ex, "Failed reading capabilities from {uri}", uri);
                     }
                 }
             }
@@ -149,7 +149,7 @@ namespace MapControl
                     }
                     catch (Exception ex)
                     {
-                        Logger?.LogError(ex, "{uri}", uri);
+                        Logger?.LogError(ex, "Failed reading feature info from {uri}", uri);
                     }
                 }
             }

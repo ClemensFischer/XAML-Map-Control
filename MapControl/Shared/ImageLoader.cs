@@ -61,7 +61,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "{uri}", uri);
+                Logger?.LogError(ex, "Failed loading image from {uri}", uri);
             }
 
             progress?.Report(1d);
@@ -128,7 +128,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "{uri}", uri);
+                Logger?.LogError(ex, "Failed loading image from {uri}", uri);
             }
 
             return response;

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 #if WPF
@@ -18,6 +18,9 @@ namespace MapControl.MBTiles
 {
     public sealed class MBTileSource : TileSource, IDisposable
     {
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>());
+
         private SQLiteConnection connection;
 
         public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
@@ -75,7 +78,7 @@ namespace MapControl.MBTiles
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(MBTileSource)}: {ex.Message}");
+                Logger?.LogError(ex, "LoadImageAsync");
             }
 
             return image;
