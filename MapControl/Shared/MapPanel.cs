@@ -169,14 +169,7 @@ namespace MapControl
             {
                 foreach (var element in ChildElements)
                 {
-                    try
-                    {
-                        ArrangeChildElement(element, finalSize);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"MapPanel.ArrangeOverride: {element}: {ex.Message}");
-                    }
+                    ArrangeChildElement(element, finalSize);
                 }
             }
 

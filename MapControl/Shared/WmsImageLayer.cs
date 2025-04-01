@@ -164,49 +164,56 @@ namespace MapControl
         {
             ImageSource image = null;
 
-            if (ServiceUri != null && ParentMap?.MapProjection != null)
+            try
             {
-                if (WmsLayers == null &&
-                    ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+                if (ServiceUri != null && ParentMap?.MapProjection != null)
                 {
-                    // Get first Layer from a GetCapabilities response.
-                    //
-                    WmsLayers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
-                }
-
-                if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
-                    ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
-                {
-                    var uri = CreateUri(GetMapRequestUri(boundingBox));
-
-                    if (uri != null)
+                    if (WmsLayers == null &&
+                        ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
                     {
-                        image = await ImageLoader.LoadImageAsync(uri, progress);
+                        // Get first Layer from a GetCapabilities response.
+                        //
+                        WmsLayers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
                     }
-                }
-                else
-                {
-                    BoundingBox bbox1, bbox2;
 
-                    if (boundingBox.West < -180d)
+                    if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
+                        ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
                     {
-                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West + 360, boundingBox.North, 180d);
-                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East);
+                        var uri = GetMapRequestUri(boundingBox);
+
+                        if (uri != null)
+                        {
+                            image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
+                        }
                     }
                     else
                     {
-                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West, boundingBox.North, 180d);
-                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East - 360d);
-                    }
+                        BoundingBox bbox1, bbox2;
 
-                    var uri1 = CreateUri(GetMapRequestUri(bbox1));
-                    var uri2 = CreateUri(GetMapRequestUri(bbox2));
+                        if (boundingBox.West < -180d)
+                        {
+                            bbox1 = new BoundingBox(boundingBox.South, boundingBox.West + 360, boundingBox.North, 180d);
+                            bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East);
+                        }
+                        else
+                        {
+                            bbox1 = new BoundingBox(boundingBox.South, boundingBox.West, boundingBox.North, 180d);
+                            bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East - 360d);
+                        }
 
-                    if (uri1 != null && uri2 != null)
-                    {
-                        image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
+                        var uri1 = GetMapRequestUri(bbox1);
+                        var uri2 = GetMapRequestUri(bbox2);
+
+                        if (uri1 != null && uri2 != null)
+                        {
+                            image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "GetImageAsync");
             }
 
             return image;
@@ -357,23 +364,6 @@ namespace MapControl
                 + string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
             return uri.Replace(" ", "%20");
-        }
-
-        private static Uri CreateUri(string uri)
-        {
-            if (!string.IsNullOrEmpty(uri))
-            {
-                try
-                {
-                    return new Uri(uri, UriKind.RelativeOrAbsolute);
-                }
-                catch (Exception ex)
-                {
-                    Logger?.LogError(ex, "{uri}", uri);
-                }
-            }
-
-            return null;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 #if WPF
@@ -181,14 +180,7 @@ namespace MapControl
 
                 if (boundingBox != null)
                 {
-                    try
-                    {
-                        image = await GetImageAsync(boundingBox, loadingProgress);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"MapImageLayer.GetImageAsync: {ex.Message}");
-                    }
+                    image = await GetImageAsync(boundingBox, loadingProgress);
                 }
 
                 SwapImages(image, boundingBox);
