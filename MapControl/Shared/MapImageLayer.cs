@@ -176,10 +176,17 @@ namespace MapControl
                 updateTimer.Stop();
 
                 ImageSource image = null;
-                var boundingBox = GetImageBoundingBox();
+                BoundingBox boundingBox = null;
 
-                if (boundingBox != null)
+                if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
                 {
+                    var width = ParentMap.ActualWidth * RelativeImageSize;
+                    var height = ParentMap.ActualHeight * RelativeImageSize;
+                    var x = (ParentMap.ActualWidth - width) / 2d;
+                    var y = (ParentMap.ActualHeight - height) / 2d;
+
+                    boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
+
                     image = await GetImageAsync(boundingBox, loadingProgress);
                 }
 
@@ -187,23 +194,6 @@ namespace MapControl
 
                 updateInProgress = false;
             }
-        }
-
-        private BoundingBox GetImageBoundingBox()
-        {
-            BoundingBox boundingBox = null;
-
-            if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
-            {
-                var width = ParentMap.ActualWidth * RelativeImageSize;
-                var height = ParentMap.ActualHeight * RelativeImageSize;
-                var x = (ParentMap.ActualWidth - width) / 2d;
-                var y = (ParentMap.ActualHeight - height) / 2d;
-
-                boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
-            }
-
-            return boundingBox;
         }
 
         private void ClearImages()
