@@ -16,8 +16,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.2.6" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.3" />
+        <PackageReference Include="Avalonia" Version="11.2.8" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.4" />
     </ItemGroup>
 </Project>

@@ -12,8 +12,8 @@
 
     <ItemGroup>
         <PackageReference Include="FileDb.Standard" Version="7.4.4" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.4" />
     </ItemGroup>
 </Project>
