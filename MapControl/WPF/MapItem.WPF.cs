@@ -41,7 +41,6 @@ namespace MapControl
             {
                 base.OnMouseLeftButtonDown(e);
             }
-
         }
     }
 }
