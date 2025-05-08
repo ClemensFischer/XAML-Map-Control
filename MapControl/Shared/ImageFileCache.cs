@@ -90,6 +90,8 @@ namespace MapControl.Caching
                             var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
 
                             memoryCache.Set(key, value, options);
+
+                            logger?.LogTrace("Read {name}", file.FullName);
                         }
                     }
                     catch (Exception ex)
@@ -123,6 +125,8 @@ namespace MapControl.Caching
                             var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
 
                             await memoryCache.SetAsync(key, value, options, token).ConfigureAwait(false);
+
+                            logger?.LogTrace("Read {name}", file.FullName);
                         }
                     }
                     catch (Exception ex)
@@ -155,6 +159,8 @@ namespace MapControl.Caching
                         }
 
                         SetExpiration(file, options);
+
+                        logger?.LogTrace("Wrote {name}", file.FullName);
                     }
                 }
                 catch (Exception ex)
@@ -184,6 +190,8 @@ namespace MapControl.Caching
                         }
 
                         SetExpiration(file, options);
+
+                        logger?.LogTrace("Wrote {name}", file.FullName);
                     }
                 }
                 catch (Exception ex)

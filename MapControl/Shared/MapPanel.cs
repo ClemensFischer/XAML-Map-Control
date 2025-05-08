@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-#if WPF
+﻿#if WPF
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;

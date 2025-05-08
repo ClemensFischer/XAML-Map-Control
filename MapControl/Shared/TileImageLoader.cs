@@ -8,6 +8,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+#if WPF
+using System.Windows.Media;
+#elif UWP
+using Windows.UI.Xaml.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Media;
+#endif
 
 namespace MapControl
 {
@@ -127,7 +134,9 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(cacheName))
             {
-                await LoadTileImage(tile, () => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel)).ConfigureAwait(false);
+                Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel);
+
+                await LoadTileImage(tile, LoadImage).ConfigureAwait(false);
             }
             else
             {
@@ -139,7 +148,9 @@ namespace MapControl
 
                     if (buffer != null && buffer.Length > 0)
                     {
-                        await LoadTileImage(tile, () => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
+                        Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(buffer);
+
+                        await LoadTileImage(tile, LoadImage).ConfigureAwait(false);
                     }
                 }
             }
@@ -160,7 +171,7 @@ namespace MapControl
 
             try
             {
-                buffer = await Cache.GetAsync(cacheKey);
+                buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -173,18 +184,20 @@ namespace MapControl
 
                 if (response != null)
                 {
-                    buffer = response.Buffer;
+                    buffer = response.Buffer ?? Array.Empty<byte>(); // cache even if null, when no tile available
 
                     try
                     {
-                        var expiration = !response.MaxAge.HasValue ? DefaultCacheExpiration
-                            : response.MaxAge.Value < MinCacheExpiration ? MinCacheExpiration
-                            : response.MaxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
-                            : response.MaxAge.Value;
+                        var options = new DistributedCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow =
+                                !response.MaxAge.HasValue ? DefaultCacheExpiration
+                                : response.MaxAge.Value < MinCacheExpiration ? MinCacheExpiration
+                                : response.MaxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
+                                : response.MaxAge.Value
+                        };
 
-                        await Cache.SetAsync(cacheKey,
-                            buffer ?? Array.Empty<byte>(), // cache even if null, when no tile available
-                            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration });
+                        await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
