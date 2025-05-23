@@ -23,7 +23,7 @@ namespace MapControl
 
         private void FadeIn()
         {
-            if (Image.Source is BitmapSource bitmap && bitmap.IsDownloading && !bitmap.IsFrozen)
+            if (Image.Source is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
             {
                 bitmap.DownloadCompleted += BitmapDownloadCompleted;
                 bitmap.DownloadFailed += BitmapDownloadFailed;
