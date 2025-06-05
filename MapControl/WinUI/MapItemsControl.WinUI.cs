@@ -1,9 +1,7 @@
 ﻿#if UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 #else
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
 #endif
 
 namespace MapControl
@@ -34,26 +32,13 @@ namespace MapControl
         protected override void PrepareContainerForItemOverride(DependencyObject container, object item)
         {
             base.PrepareContainerForItemOverride(container, item);
-
-            if (LocationMemberPath != null && container is MapItem mapItem)
-            {
-                mapItem.SetBinding(MapItem.LocationProperty,
-                    new Binding
-                    {
-                        Path = new PropertyPath(LocationMemberPath),
-                        Source = item
-                    });
-            }
+            PrepareContainer(container, item);
         }
 
         protected override void ClearContainerForItemOverride(DependencyObject container, object item)
         {
             base.ClearContainerForItemOverride(container, item);
-
-            if (LocationMemberPath != null && container is MapItem mapItem)
-            {
-                mapItem.ClearValue(MapItem.LocationProperty);
-            }
+            ClearContainer(container);
         }
     }
 }

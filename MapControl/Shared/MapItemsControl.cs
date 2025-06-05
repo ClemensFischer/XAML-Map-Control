@@ -2,12 +2,15 @@
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 #endif
 
 namespace MapControl
@@ -112,6 +115,27 @@ namespace MapControl
                 }
 
                 SelectItemsInRect(new Rect(xMin, yMin, xMax - xMin, yMax - yMin));
+            }
+        }
+
+        private void PrepareContainer(DependencyObject container, object item)
+        {
+            if (LocationMemberPath != null && container is MapItem mapItem)
+            {
+                mapItem.SetBinding(MapItem.LocationProperty,
+                    new Binding
+                    {
+                        Path = new PropertyPath(LocationMemberPath),
+                        Source = item
+                    });
+            }
+        }
+
+        private void ClearContainer(DependencyObject container)
+        {
+            if (LocationMemberPath != null && container is MapItem mapItem)
+            {
+                mapItem.ClearValue(MapItem.LocationProperty);
             }
         }
     }

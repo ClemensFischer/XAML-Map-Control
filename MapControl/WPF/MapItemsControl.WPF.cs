@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
 
 namespace MapControl
@@ -40,26 +39,13 @@ namespace MapControl
         protected override void PrepareContainerForItemOverride(DependencyObject container, object item)
         {
             base.PrepareContainerForItemOverride(container, item);
-
-            if (LocationMemberPath != null && container is MapItem mapItem)
-            {
-                mapItem.SetBinding(MapItem.LocationProperty,
-                    new Binding
-                    {
-                        Path = new PropertyPath(LocationMemberPath),
-                        Source = item
-                    });
-            }
+            PrepareContainer(container, item);
         }
 
         protected override void ClearContainerForItemOverride(DependencyObject container, object item)
         {
             base.ClearContainerForItemOverride(container, item);
-
-            if (LocationMemberPath != null && container is MapItem mapItem)
-            {
-                mapItem.ClearValue(MapItem.LocationProperty);
-            }
+            ClearContainer(container);
         }
     }
 }

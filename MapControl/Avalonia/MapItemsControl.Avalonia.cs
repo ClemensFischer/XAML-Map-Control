@@ -20,6 +20,11 @@ namespace MapControl
             SelectItemsByPosition(geometry.FillContains);
         }
 
+        public new MapItem ContainerFromItem(object item)
+        {
+            return (MapItem)base.ContainerFromItem(item);
+        }
+
         protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
             recycleKey = null;
@@ -35,26 +40,13 @@ namespace MapControl
         protected override void PrepareContainerForItemOverride(Control container, object item, int index)
         {
             base.PrepareContainerForItemOverride(container, item, index);
-
-            if (LocationMemberPath != null && container is MapItem mapItem)
-            {
-                mapItem.SetBinding(MapItem.LocationProperty,
-                    new Binding
-                    {
-                        Path = new PropertyPath(LocationMemberPath),
-                        Source = item
-                    });
-            }
+            PrepareContainer(container, item);
         }
 
         protected override void ClearContainerForItemOverride(Control container)
         {
             base.ClearContainerForItemOverride(container);
-
-            if (LocationMemberPath != null && container is MapItem mapItem)
-            {
-                mapItem.ClearValue(MapItem.LocationProperty);
-            }
+            ClearContainer(container);
         }
 
         internal void UpdateSelection(MapItem mapItem, PointerEventArgs e)
