@@ -38,30 +38,18 @@ namespace MapControl
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Stretch = Stretch.None
             };
-            
-            path.SetBinding(Shape.FillProperty, new Binding
-            {
-                Path = new PropertyPath(nameof(Background)),
-                Source = this
-            });
 
-            path.SetBinding(Shape.StrokeProperty, new Binding
-            {
-                Path = new PropertyPath(nameof(BorderBrush)),
-                Source = this
-            });
+            path.SetBinding(Shape.FillProperty,
+                new Binding { Source = this, Path = new PropertyPath(nameof(Background)) });
 
-            path.SetBinding(Shape.StrokeThicknessProperty, new Binding
-            {
-                Path = new PropertyPath(nameof(BorderWidth)),
-                Source = this
-            });
+            path.SetBinding(Shape.StrokeProperty,
+                new Binding { Source = this, Path = new PropertyPath(nameof(BorderBrush)) });
 
-            border.SetBinding(PaddingProperty, new Binding
-            {
-                Path = new PropertyPath(nameof(Padding)),
-                Source = this
-            });
+            path.SetBinding(Shape.StrokeThicknessProperty,
+                new Binding { Source = this, Path = new PropertyPath(nameof(BorderWidth)) });
+
+            border.SetBinding(PaddingProperty,
+                new Binding { Source = this, Path = new PropertyPath(nameof(Padding)) });
 
             SetBorderMargin();
 

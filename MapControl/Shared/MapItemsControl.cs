@@ -123,11 +123,7 @@ namespace MapControl
             if (LocationMemberPath != null && container is MapItem mapItem)
             {
                 mapItem.SetBinding(MapItem.LocationProperty,
-                    new Binding
-                    {
-                        Path = new PropertyPath(LocationMemberPath),
-                        Source = item
-                    });
+                    new Binding { Source = item, Path = new PropertyPath(LocationMemberPath) });
             }
         }
 

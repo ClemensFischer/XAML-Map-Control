@@ -68,11 +68,11 @@ namespace MapControl
         {
             base.SetParentMap(map);
 
-            line.SetBinding(Shape.StrokeProperty,
-                new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
-
             line.SetBinding(Shape.StrokeThicknessProperty,
                 new Binding { Source = this, Path = new PropertyPath(nameof(StrokeThickness)) });
+
+            line.SetBinding(Shape.StrokeProperty,
+                new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
 
 #if UWP || WINUI
             label.SetBinding(TextBlock.ForegroundProperty,
