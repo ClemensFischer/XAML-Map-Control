@@ -103,22 +103,22 @@
                                         <VisualState x:Name="Pressed"/>
                                         <VisualState x:Name="Selected">
                                             <VisualState.Setters>
-                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                                <Setter Target="pushpin.FontWeight" Value="Bold"/>
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="SelectedUnfocused">
                                             <VisualState.Setters>
-                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                                <Setter Target="pushpin.FontWeight" Value="Bold"/>
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="SelectedPointerOver">
                                             <VisualState.Setters>
-                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                                <Setter Target="pushpin.FontWeight" Value="Bold"/>
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="SelectedPressed">
                                             <VisualState.Setters>
-                                                <Setter Target="pushpin.Foreground" Value="OrangeRed"/>
+                                                <Setter Target="pushpin.FontWeight" Value="Bold"/>
                                             </VisualState.Setters>
                                         </VisualState>
                                     </VisualStateGroup>

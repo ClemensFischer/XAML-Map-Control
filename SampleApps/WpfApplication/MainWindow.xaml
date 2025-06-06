@@ -99,7 +99,7 @@
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
                         <Setter Property="Panel.ZIndex" Value="1"/>
-                        <Setter Property="Foreground" Value="OrangeRed"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>

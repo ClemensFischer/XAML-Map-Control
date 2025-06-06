@@ -39,7 +39,7 @@
                         <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
                     </Style>
                     <Style Selector="map|MapItem:selected">
-                        <Setter Property="Foreground" Value="OrangeRed"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
                     </Style>
                 </map:MapItemsControl.Styles>
                 <map:MapItemsControl.ItemTemplate>
@@ -79,7 +79,7 @@
                         </Setter>
                     </Style>
                     <Style Selector="map|MapItem:selected">
-                        <Setter Property="Foreground" Value="OrangeRed"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
                     </Style>
                 </map:MapItemsControl.Styles>
             </map:MapItemsControl>
