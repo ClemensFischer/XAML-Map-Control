@@ -7,7 +7,7 @@
 
         public static readonly StyledProperty<Location> LocationProperty =
             DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty, null,
-                (item, oldValue, newValue) => item.UpdateMapTransform(newValue));
+                (item, oldValue, newValue) => item.UpdateMapTransform());
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {

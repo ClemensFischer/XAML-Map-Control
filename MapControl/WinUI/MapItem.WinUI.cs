@@ -25,7 +25,7 @@ namespace MapControl
                 (item, oldValue, newValue) =>
                 {
                     MapPanel.SetLocation(item, newValue);
-                    item.UpdateMapTransform(newValue);
+                    item.UpdateMapTransform();
                 });
 
         private Windows.Foundation.Point? pointerPressedPosition;

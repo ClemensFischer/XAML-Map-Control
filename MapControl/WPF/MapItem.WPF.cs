@@ -11,7 +11,7 @@ namespace MapControl
 
         public static readonly DependencyProperty LocationProperty =
             DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty, null,
-                (item, oldValue, newValue) => item.UpdateMapTransform(newValue));
+                (item, oldValue, newValue) => item.UpdateMapTransform());
 
         static MapItem()
         {

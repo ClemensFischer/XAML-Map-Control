@@ -60,7 +60,7 @@ namespace MapControl
                     //
                     parentMap.ViewportChanged += OnViewportChanged;
 
-                    UpdateMapTransform(Location);
+                    UpdateMapTransform();
                 }
             }
         }
@@ -81,7 +81,7 @@ namespace MapControl
                     {
                         parentMap.ViewportChanged += OnViewportChanged;
 
-                        UpdateMapTransform(Location);
+                        UpdateMapTransform();
                     }
                 }
 
@@ -91,14 +91,14 @@ namespace MapControl
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
-            UpdateMapTransform(Location);
+            UpdateMapTransform();
         }
 
-        private void UpdateMapTransform(Location location)
+        private void UpdateMapTransform()
         {
-            if (mapTransform != null && parentMap != null && location != null)
+            if (mapTransform != null && parentMap != null && Location != null)
             {
-                mapTransform.Matrix = parentMap.GetMapTransform(location);
+                mapTransform.Matrix = parentMap.GetMapTransform(Location);
             }
         }
     }
