@@ -28,9 +28,6 @@ namespace MapControl
         public static readonly DependencyProperty FontSizeProperty =
             DependencyPropertyHelper.Register<MapGraticule, double>(nameof(FontSize), 12d);
 
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
-
         private readonly Path path = new Path { Data = new PathGeometry() };
 
         public Brush Foreground
@@ -49,12 +46,6 @@ namespace MapControl
         {
             get => (double)GetValue(FontSizeProperty);
             set => SetValue(FontSizeProperty, value);
-        }
-
-        public double StrokeThickness
-        {
-            get => (double)GetValue(StrokeThicknessProperty);
-            set => SetValue(StrokeThicknessProperty, value);
         }
 
         protected override void SetParentMap(MapBase map)

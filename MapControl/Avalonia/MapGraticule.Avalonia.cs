@@ -1,47 +1,15 @@
-﻿using Avalonia.Controls.Shapes;
+﻿using Avalonia.Controls.Primitives;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
 namespace MapControl
 {
-    public partial class MapGraticule : Control, IMapElement
+    public partial class MapGraticule : TemplatedControl, IMapElement
     {
-        public static readonly StyledProperty<Brush> ForegroundProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, Brush>(TextElement.ForegroundProperty, null,
-                (graticule, oldValue, newValue) => graticule.InvalidateVisual());
-
-        public static readonly StyledProperty<FontFamily> FontFamilyProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, FontFamily>(TextElement.FontFamilyProperty);
-
-        public static readonly StyledProperty<double> FontSizeProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, double>(TextElement.FontSizeProperty);
-
-        public static readonly StyledProperty<double> StrokeThicknessProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, double>(Shape.StrokeThicknessProperty, 0.5);
-
-        public Brush Foreground
+        static MapGraticule()
         {
-            get => GetValue(ForegroundProperty);
-            set => SetValue(ForegroundProperty, value);
-        }
-
-        public FontFamily FontFamily
-        {
-            get => GetValue(FontFamilyProperty);
-            set => SetValue(FontFamilyProperty, value);
-        }
-
-        public double FontSize
-        {
-            get => GetValue(FontSizeProperty);
-            set => SetValue(FontSizeProperty, value);
-        }
-
-        public double StrokeThickness
-        {
-            get => GetValue(StrokeThicknessProperty);
-            set => SetValue(StrokeThicknessProperty, value);
+            ForegroundProperty.Changed.AddClassHandler<MapGraticule, IBrush>((graticule, e) => graticule.InvalidateVisual());
         }
 
         private MapBase parentMap;
@@ -91,7 +59,7 @@ namespace MapControl
 
                 if (labels.Count > 0)
                 {
-                    var typeface = new Typeface(FontFamily, FontStyle.Normal, FontWeight.Normal, FontStretch.Normal);
+                    var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
 
                     foreach (var label in labels)
                     {

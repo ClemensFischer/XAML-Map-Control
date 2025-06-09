@@ -9,15 +9,6 @@ namespace MapControl
 {
     public partial class MapGraticule : Control, IMapElement
     {
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
-
-        public double StrokeThickness
-        {
-            get => (double)GetValue(StrokeThicknessProperty);
-            set => SetValue(StrokeThicknessProperty, value);
-        }
-
         private MapBase parentMap;
 
         /// <summary>
