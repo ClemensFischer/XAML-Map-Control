@@ -101,8 +101,6 @@ namespace MapControl
             };
 
             drawingContext.DrawGeometry(Background, pen, BuildGeometry());
-
-            base.OnRender(drawingContext);
         }
     }
 }
