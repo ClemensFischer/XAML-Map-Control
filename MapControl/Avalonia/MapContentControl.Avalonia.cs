@@ -6,10 +6,10 @@
     public class MapContentControl : ContentControl
     {
         public static readonly StyledProperty<bool> AutoCollapseProperty =
-            DependencyPropertyHelper.AddOwner<MapContentControl, bool>(MapPanel.AutoCollapseProperty);
+            MapPanel.AutoCollapseProperty.AddOwner<MapContentControl>();
 
         public static readonly StyledProperty<Location> LocationProperty =
-            DependencyPropertyHelper.AddOwner<MapContentControl, Location>(MapPanel.LocationProperty);
+            MapPanel.LocationProperty.AddOwner<MapContentControl>();
 
         /// <summary>
         /// Gets/sets MapPanel.AutoCollapse.

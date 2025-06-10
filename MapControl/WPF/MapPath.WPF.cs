@@ -6,14 +6,9 @@ namespace MapControl
 {
     public partial class MapPath : Shape
     {
-        public MapPath()
-        {
-            Stretch = Stretch.None;
-        }
-
         public static readonly DependencyProperty DataProperty =
-            DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty, null,
-                (path, oldValue, newValue) => path.DataPropertyChanged(oldValue, newValue));
+            Path.DataProperty.AddOwner(typeof(MapPath),
+                new FrameworkPropertyMetadata(null, (o, e) => ((MapPath)o).DataPropertyChanged(e)));
 
         public Geometry Data
         {
@@ -23,15 +18,17 @@ namespace MapControl
 
         protected override Geometry DefiningGeometry => Data;
 
-        private void DataPropertyChanged(Geometry oldData, Geometry newData)
+        private void DataPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
-            // Check if data is actually a new Geometry.
+            // Check if Data is actually a new Geometry.
             //
-            if (newData != null && !ReferenceEquals(newData, oldData))
+            if (e.NewValue != null && !ReferenceEquals(e.NewValue, e.OldValue))
             {
-                if (newData.IsFrozen)
+                var data = (Geometry)e.NewValue;
+
+                if (data.IsFrozen)
                 {
-                    Data = newData.Clone(); // DataPropertyChanged called again
+                    Data = data.Clone(); // DataPropertyChanged called again
                 }
                 else
                 {

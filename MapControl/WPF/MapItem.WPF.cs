@@ -7,11 +7,11 @@ namespace MapControl
     public partial class MapItem
     {
         public static readonly DependencyProperty AutoCollapseProperty =
-            DependencyPropertyHelper.AddOwner<MapItem, bool>(MapPanel.AutoCollapseProperty);
+            MapPanel.AutoCollapseProperty.AddOwner(typeof(MapItem));
 
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty, null,
-                (item, oldValue, newValue) => item.UpdateMapTransform());
+            MapPanel.LocationProperty.AddOwner(typeof(MapItem),
+                new FrameworkPropertyMetadata(null, (o, e) => ((MapItem)o).UpdateMapTransform()));
 
         static MapItem()
         {

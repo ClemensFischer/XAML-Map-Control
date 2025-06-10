@@ -40,17 +40,11 @@ namespace MapControl
 
         private const double LineInterpolationResolution = 2d;
 
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
-
         public static readonly DependencyProperty MinLineDistanceProperty =
             DependencyPropertyHelper.Register<MapGraticule, double>(nameof(MinLineDistance), 150d);
 
-        public double StrokeThickness
-        {
-            get => (double)GetValue(StrokeThicknessProperty);
-            set => SetValue(StrokeThicknessProperty, value);
-        }
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
 
         /// <summary>
         /// Minimum graticule line distance in pixels. The default value is 150.
@@ -59,6 +53,30 @@ namespace MapControl
         {
             get => (double)GetValue(MinLineDistanceProperty);
             set => SetValue(MinLineDistanceProperty, value);
+        }
+
+        public double StrokeThickness
+        {
+            get => (double)GetValue(StrokeThicknessProperty);
+            set => SetValue(StrokeThicknessProperty, value);
+        }
+
+        public Brush Foreground
+        {
+            get => (Brush)GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
+        }
+
+        public FontFamily FontFamily
+        {
+            get => (FontFamily)GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
+
+        public double FontSize
+        {
+            get => (double)GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
         }
 
         private double lineDistance;

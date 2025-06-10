@@ -12,7 +12,6 @@ namespace MapControl
     {
         public MapPath()
         {
-            Stretch = Stretch.None;
             MapPanel.InitMapElement(this);
         }
 

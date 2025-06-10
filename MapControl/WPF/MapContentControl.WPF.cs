@@ -9,10 +9,10 @@ namespace MapControl
     public class MapContentControl : ContentControl
     {
         public static readonly DependencyProperty AutoCollapseProperty =
-            DependencyPropertyHelper.AddOwner<MapContentControl, bool>(MapPanel.AutoCollapseProperty);
+            MapPanel.AutoCollapseProperty.AddOwner(typeof(MapContentControl));
 
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.AddOwner<MapContentControl, Location>(MapPanel.LocationProperty);
+            MapPanel.LocationProperty.AddOwner(typeof(MapContentControl));
 
         static MapContentControl()
         {

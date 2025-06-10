@@ -28,24 +28,6 @@ namespace MapControl
         public static readonly DependencyProperty FontSizeProperty =
             DependencyPropertyHelper.Register<MapGraticule, double>(nameof(FontSize), 12d);
 
-        public Brush Foreground
-        {
-            get => (Brush)GetValue(ForegroundProperty);
-            set => SetValue(ForegroundProperty, value);
-        }
-
-        public FontFamily FontFamily
-        {
-            get => (FontFamily)GetValue(FontFamilyProperty);
-            set => SetValue(FontFamilyProperty, value);
-        }
-
-        public double FontSize
-        {
-            get => (double)GetValue(FontSizeProperty);
-            set => SetValue(FontSizeProperty, value);
-        }
-
         protected override void SetParentMap(MapBase map)
         {
             if (map != null && Foreground == null)

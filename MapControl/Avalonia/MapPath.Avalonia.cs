@@ -4,14 +4,12 @@ namespace MapControl
 {
     public partial class MapPath : Shape
     {
-        public MapPath()
-        {
-            Stretch = Stretch.None;
-        }
+        public static readonly StyledProperty<Geometry> DataProperty = Path.DataProperty.AddOwner<MapPath>();
 
-        public static readonly StyledProperty<Geometry> DataProperty =
-            DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty, null,
-                (path, oldValue, newValue) => path.UpdateData());
+        static MapPath()
+        {
+            DataProperty.Changed.AddClassHandler<MapPath, Geometry>((path, e) => path.UpdateData());
+        }
 
         public Geometry Data
         {

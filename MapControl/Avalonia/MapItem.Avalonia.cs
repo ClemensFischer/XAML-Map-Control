@@ -3,11 +3,15 @@
     public partial class MapItem
     {
         public static readonly StyledProperty<bool> AutoCollapseProperty =
-            DependencyPropertyHelper.AddOwner<MapItem, bool>(MapPanel.AutoCollapseProperty);
+            MapPanel.AutoCollapseProperty.AddOwner<MapItem>();
 
         public static readonly StyledProperty<Location> LocationProperty =
-            DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty, null,
-                (item, oldValue, newValue) => item.UpdateMapTransform());
+            MapPanel.LocationProperty.AddOwner<MapItem>();
+
+        static MapItem()
+        {
+            LocationProperty.Changed.AddClassHandler<MapItem, Location>((item, e) => item.UpdateMapTransform());
+        }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {

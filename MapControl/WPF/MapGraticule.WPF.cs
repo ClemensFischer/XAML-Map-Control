@@ -2,13 +2,22 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace MapControl
 {
-    public partial class MapGraticule : Control, IMapElement
+    public partial class MapGraticule : FrameworkElement, IMapElement
     {
+        public static readonly DependencyProperty ForegroundProperty =
+            TextElement.ForegroundProperty.AddOwner(typeof(MapGraticule));
+
+        public static readonly DependencyProperty FontFamilyProperty =
+            TextElement.FontFamilyProperty.AddOwner(typeof(MapGraticule));
+
+        public static readonly DependencyProperty FontSizeProperty =
+            TextElement.FontSizeProperty.AddOwner(typeof(MapGraticule), new FrameworkPropertyMetadata(12d));
+
         private MapBase parentMap;
 
         /// <summary>
@@ -56,7 +65,7 @@ namespace MapControl
 
                 if (labels.Count > 0)
                 {
-                    var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+                    var typeface = new Typeface(FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
                     var pixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
 
                     foreach (var label in labels)
