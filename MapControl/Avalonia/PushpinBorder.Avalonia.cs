@@ -22,7 +22,7 @@ namespace MapControl
         static PushpinBorder()
         {
             AffectsMeasure<PushpinBorder>(ArrowSizeProperty, BorderWidthProperty, CornerRadiusProperty);
-            AffectsRender<PushpinBorder>(ArrowSizeProperty, BorderWidthProperty, CornerRadiusProperty, BackgroundProperty, BorderBrushProperty);
+            AffectsRender<PushpinBorder>(BackgroundProperty, BorderBrushProperty);
         }
 
         public double ActualWidth => Bounds.Width;
