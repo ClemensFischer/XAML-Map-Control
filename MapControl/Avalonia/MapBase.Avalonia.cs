@@ -102,7 +102,7 @@ namespace MapControl
 
         public MapBase()
         {
-            FlowDirection = FlowDirection.LeftToRight; // OverrideDefaultValue won't stop value inheritance
+            FlowDirection = FlowDirection.LeftToRight;
         }
 
         public double ActualWidth => Bounds.Width;
