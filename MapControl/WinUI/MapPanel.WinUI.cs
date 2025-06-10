@@ -25,26 +25,18 @@ namespace MapControl
 
         protected IEnumerable<FrameworkElement> ChildElements => Children.OfType<FrameworkElement>();
 
-        public MapPanel()
+        partial void InitMapPanel()
         {
-            UseLayoutRounding = false;
             InitMapElement(this);
         }
 
         public static void InitMapElement(FrameworkElement element)
         {
-            if (element is MapBase)
-            {
-                element.SetValue(ParentMapProperty, element);
-            }
-            else
-            {
-                // Workaround for missing property value inheritance.
-                // Loaded and Unloaded handlers set and clear the ParentMap property value.
-                //
-                element.Loaded += (s, e) => GetParentMap((FrameworkElement)s);
-                element.Unloaded += (s, e) => ((FrameworkElement)s).ClearValue(ParentMapProperty);
-            }
+            // Workaround for missing property value inheritance.
+            // Loaded and Unloaded handlers set and clear the ParentMap property value.
+            //
+            element.Loaded += (s, e) => GetParentMap((FrameworkElement)s);
+            element.Unloaded += (s, e) => ((FrameworkElement)s).ClearValue(ParentMapProperty);
         }
 
         public static MapBase GetParentMap(FrameworkElement element)

@@ -20,14 +20,6 @@ namespace MapControl
 
         protected IEnumerable<FrameworkElement> ChildElements => InternalChildren.OfType<FrameworkElement>();
 
-        public MapPanel()
-        {
-            if (this is MapBase)
-            {
-                SetValue(ParentMapProperty, this);
-            }
-        }
-
         public static MapBase GetParentMap(FrameworkElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);

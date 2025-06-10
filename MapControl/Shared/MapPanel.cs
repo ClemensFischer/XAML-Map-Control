@@ -44,6 +44,22 @@ namespace MapControl
                 },
                 true); // inherits
 
+        public MapPanel()
+        {
+            UseLayoutRounding = false;
+
+            if (this is MapBase)
+            {
+                SetValue(ParentMapProperty, this);
+            }
+            else
+            {
+                InitMapPanel();
+            }
+        }
+
+        partial void InitMapPanel();
+
         private MapBase parentMap;
 
         /// <summary>

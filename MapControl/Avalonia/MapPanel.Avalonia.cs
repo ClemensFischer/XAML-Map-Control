@@ -18,14 +18,6 @@
             AffectsParentArrange<MapPanel>(LocationProperty, BoundingBoxProperty);
         }
 
-        public MapPanel()
-        {
-            if (this is MapBase)
-            {
-                SetValue(ParentMapProperty, this);
-            }
-        }
-
         public static MapBase GetParentMap(Control element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);
