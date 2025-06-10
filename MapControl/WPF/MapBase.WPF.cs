@@ -74,7 +74,11 @@ namespace MapControl
             BackgroundProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(Brushes.White));
             ClipToBoundsProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(true));
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(typeof(MapBase)));
-            FlowDirectionProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(FlowDirection.LeftToRight) { Inherits = false });
+        }
+
+        public MapBase()
+        {
+            FlowDirection = FlowDirection.LeftToRight;
         }
 
         /// <summary>
