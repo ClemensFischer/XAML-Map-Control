@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MapControl
+﻿namespace MapControl
 {
     public partial class MapPanel
     {
@@ -13,7 +11,7 @@ namespace MapControl
         public static readonly AttachedProperty<BoundingBox> BoundingBoxProperty =
             DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel));
 
-        protected IEnumerable<Control> ChildElements => Children;
+        protected Controls ChildElements => Children;
 
         static MapPanel()
         {
