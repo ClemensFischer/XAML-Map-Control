@@ -28,8 +28,6 @@ namespace MapControl
         public static readonly DependencyProperty FontSizeProperty =
             DependencyPropertyHelper.Register<MapGraticule, double>(nameof(FontSize), 12d);
 
-        private readonly Path path = new Path { Data = new PathGeometry() };
-
         public Brush Foreground
         {
             get => (Brush)GetValue(ForegroundProperty);
@@ -61,10 +59,12 @@ namespace MapControl
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
-            var labels = DrawGraticule(((PathGeometry)path.Data).Figures);
+            Path path;
 
             if (Children.Count == 0)
             {
+                path = new Path { Data = new PathGeometry() };
+
                 path.SetBinding(Shape.StrokeProperty,
                     new Binding { Source = this, Path = new PropertyPath(nameof(Foreground)) });
 
@@ -73,7 +73,12 @@ namespace MapControl
 
                 Children.Add(path);
             }
+            else
+            {
+                path = (Path)Children[0];
+            }
 
+            var labels = DrawGraticule(((PathGeometry)path.Data).Figures);
             var childrenCount = 1;
 
             foreach (var label in labels)

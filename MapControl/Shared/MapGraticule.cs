@@ -107,7 +107,7 @@ namespace MapControl
                 labelFormat, hemisphere, seconds / 3600, seconds / 60 % 60, seconds % 60);
         }
 
-        private void AddLabel(ICollection<Label> labels, Location location, Point position, double? rotation = null)
+        private void AddLabel(List<Label> labels, Location location, Point position, double? rotation = null)
         {
             if (position.X >= 0d && position.X <= ParentMap.ActualWidth &&
                 position.Y >= 0d && position.Y <= ParentMap.ActualHeight)
@@ -135,7 +135,7 @@ namespace MapControl
             }
         }
 
-        private ICollection<Label> DrawGraticule(PathFigureCollection figures)
+        private List<Label> DrawGraticule(PathFigureCollection figures)
         {
             var labels = new List<Label>();
 
@@ -155,7 +155,7 @@ namespace MapControl
             return labels;
         }
 
-        private void DrawCylindricalGraticule(PathFigureCollection figures, ICollection<Label> labels)
+        private void DrawCylindricalGraticule(PathFigureCollection figures, List<Label> labels)
         {
             var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0, 0, ParentMap.ActualWidth, ParentMap.ActualHeight));
             var latLabelStart = Math.Ceiling(boundingBox.South / lineDistance) * lineDistance;
@@ -195,7 +195,7 @@ namespace MapControl
             }
         }
 
-        private void DrawGraticule(PathFigureCollection figures, ICollection<Label> labels)
+        private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
         {
             var minLat = 0d;
             var maxLat = 0d;
