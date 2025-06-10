@@ -40,7 +40,7 @@ namespace MapControl
                 coerceFunc = (obj, value) => Equals(value, defaultValue) ? value : coerce((TOwner)obj, value);
             }
 
-            var bindingMode = bindTwoWayByDefault ? Avalonia.Data.BindingMode.TwoWay : Avalonia.Data.BindingMode.OneWay;
+            var bindingMode = bindTwoWayByDefault ? BindingMode.TwoWay : BindingMode.OneWay;
 
             var property = AvaloniaProperty.Register<TOwner, TValue>(name, defaultValue, false, bindingMode, null, coerceFunc);
 
