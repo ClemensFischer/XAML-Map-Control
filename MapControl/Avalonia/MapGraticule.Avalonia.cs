@@ -1,15 +1,41 @@
-﻿using Avalonia.Controls.Primitives;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
 namespace MapControl
 {
-    public partial class MapGraticule : TemplatedControl, IMapElement
+    public partial class MapGraticule : Control, IMapElement
     {
         static MapGraticule()
         {
-            ForegroundProperty.Changed.AddClassHandler<MapGraticule, IBrush>((graticule, e) => graticule.InvalidateVisual());
+            AffectsRender<MapGraticule>(ForegroundProperty);
+        }
+
+        public static readonly StyledProperty<IBrush> ForegroundProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, IBrush>(TextElement.ForegroundProperty);
+
+        public static readonly StyledProperty<FontFamily> FontFamilyProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, FontFamily>(TextElement.FontFamilyProperty);
+
+        public static readonly StyledProperty<double> FontSizeProperty =
+            DependencyPropertyHelper.AddOwner<MapGraticule, double>(TextElement.FontSizeProperty, 12d);
+
+        public Brush Foreground
+        {
+            get => GetValue(ForegroundProperty);
+            set => SetValue(ForegroundProperty, value);
+        }
+
+        public FontFamily FontFamily
+        {
+            get => GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
+
+        public double FontSize
+        {
+            get => GetValue(FontSizeProperty);
+            set => SetValue(FontSizeProperty, value);
         }
 
         private MapBase parentMap;
@@ -59,7 +85,7 @@ namespace MapControl
 
                 if (labels.Count > 0)
                 {
-                    var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+                    var typeface = new Typeface(FontFamily, FontStyle.Normal, FontWeight.Normal, FontStretch.Normal);
 
                     foreach (var label in labels)
                     {
