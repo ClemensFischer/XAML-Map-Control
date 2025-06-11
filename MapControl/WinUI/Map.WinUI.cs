@@ -31,11 +31,11 @@ namespace MapControl
                 | ManipulationModes.TranslateY
                 | ManipulationModes.TranslateInertia;
 
-            ManipulationDelta += OnManipulationDelta;
-            ManipulationCompleted += OnManipulationCompleted;
+            PointerWheelChanged += OnPointerWheelChanged;
             PointerPressed += OnPointerPressed;
             PointerMoved += OnPointerMoved;
-            PointerWheelChanged += OnPointerWheelChanged;
+            ManipulationDelta += OnManipulationDelta;
+            ManipulationCompleted += OnManipulationCompleted;
         }
 
         /// <summary>
@@ -48,24 +48,26 @@ namespace MapControl
             set => SetValue(MouseWheelZoomDeltaProperty, value);
         }
 
-        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
-            if (manipulationEnabled.HasValue && manipulationEnabled.Value)
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
             {
-                if (e.PointerDeviceType == PointerDeviceType.Mouse)
+                var point = e.GetCurrentPoint(this);
+
+                // Standard mouse wheel delta value is 120.
+                //
+                mouseWheelDelta += point.Properties.MouseWheelDelta / 120d;
+
+                if (Math.Abs(mouseWheelDelta) >= 1d)
                 {
-                    TranslateMap(e.Delta.Translation);
-                }
-                else
-                {
-                    TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
+                    // Zoom to integer multiple of MouseWheelZoomDelta.
+                    //
+                    ZoomMap(point.Position,
+                        MouseWheelZoomDelta * Math.Round(TargetZoomLevel / MouseWheelZoomDelta + mouseWheelDelta));
+
+                    mouseWheelDelta = 0d;
                 }
             }
-        }
-
-        private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-        {
-            manipulationEnabled = null;
         }
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
@@ -89,26 +91,24 @@ namespace MapControl
             }
         }
 
-        private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            if (manipulationEnabled.HasValue && manipulationEnabled.Value)
             {
-                var point = e.GetCurrentPoint(this);
-
-                // Standard mouse wheel delta value is 120.
-                //
-                mouseWheelDelta += point.Properties.MouseWheelDelta / 120d;
-
-                if (Math.Abs(mouseWheelDelta) >= 1d)
+                if (e.PointerDeviceType == PointerDeviceType.Mouse)
                 {
-                    // Zoom to integer multiple of MouseWheelZoomDelta.
-                    //
-                    ZoomMap(point.Position,
-                        MouseWheelZoomDelta * Math.Round(TargetZoomLevel / MouseWheelZoomDelta + mouseWheelDelta));
-
-                    mouseWheelDelta = 0d;
+                    TranslateMap(e.Delta.Translation);
+                }
+                else
+                {
+                    TransformMap(e.Position, e.Delta.Translation, e.Delta.Rotation, e.Delta.Scale);
                 }
             }
+        }
+
+        private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            manipulationEnabled = null;
         }
     }
 }
