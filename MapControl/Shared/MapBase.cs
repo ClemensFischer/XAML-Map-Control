@@ -75,7 +75,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the Duration of the Center, ZoomLevel and Heading animations.
+        /// Gets or sets the duration of the Center, ZoomLevel and Heading animations.
         /// The default value is 0.3 seconds.
         /// </summary>
         public TimeSpan AnimationDuration
@@ -303,21 +303,18 @@ namespace MapControl
             else
             {
                 SetTransformCenter(center);
-
                 viewCenter = new Point(viewCenter.X + translation.X, viewCenter.Y + translation.Y);
 
                 if (rotation != 0d)
                 {
-                    var heading = (((Heading - rotation) % 360d) + 360d) % 360d;
-
+                    var heading = CoerceHeadingProperty(Heading - rotation);
                     SetValueInternal(HeadingProperty, heading);
                     SetValueInternal(TargetHeadingProperty, heading);
                 }
 
                 if (scale != 1d)
                 {
-                    var zoomLevel = Math.Min(Math.Max(ZoomLevel + Math.Log(scale, 2d), MinZoomLevel), MaxZoomLevel);
-
+                    var zoomLevel = CoerceZoomLevelProperty(ZoomLevel + Math.Log(scale, 2d));
                     SetValueInternal(ZoomLevelProperty, zoomLevel);
                     SetValueInternal(TargetZoomLevelProperty, zoomLevel);
                 }
@@ -327,18 +324,30 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets the value of the TargetZoomLevel property while retaining the specified center point
-        /// in view coordinates.
+        /// Sets the ZoomLevel or TargetZoomLevel property while retaining
+        /// the specified center point in view coordinates.
         /// </summary>
-        public void ZoomMap(Point center, double zoomLevel)
+        public void ZoomMap(Point center, double zoomLevel, bool animated = true)
         {
             zoomLevel = CoerceZoomLevelProperty(zoomLevel);
 
-            if (TargetZoomLevel != zoomLevel)
+            if (animated)
             {
-                SetTransformCenter(center);
-
-                TargetZoomLevel = zoomLevel;
+                if (TargetZoomLevel != zoomLevel)
+                {
+                    SetTransformCenter(center);
+                    TargetZoomLevel = zoomLevel;
+                }
+            }
+            else
+            {
+                if (ZoomLevel != zoomLevel)
+                {
+                    SetTransformCenter(center);
+                    SetValueInternal(ZoomLevelProperty, zoomLevel);
+                    SetValueInternal(TargetZoomLevelProperty, zoomLevel);
+                    UpdateTransform(true);
+                }
             }
         }
 
@@ -358,7 +367,6 @@ namespace MapControl
                 if (targetCenter != null)
                 {
                     var scale = Math.Min(ActualWidth / mapRect.Value.Width, ActualHeight / mapRect.Value.Height);
-
                     TargetZoomLevel = ScaleToZoomLevel(scale);
                     TargetCenter = targetCenter;
                     TargetHeading = 0d;
@@ -428,9 +436,7 @@ namespace MapControl
         private void SetValueInternal(DependencyProperty property, object value)
         {
             internalPropertyChange = true;
-
             SetValue(property, value);
-
             internalPropertyChange = false;
         }
 

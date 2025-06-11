@@ -23,11 +23,13 @@ namespace MapControl
         public static readonly StyledProperty<double> MouseWheelZoomDeltaProperty =
             DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
 
+        public static readonly DependencyProperty MouseWheelZoomAnimatedProperty =
+            DependencyPropertyHelper.Register<Map, bool>(nameof(MouseWheelZoomAnimated), true);
+
         private IPointer pointer1;
         private IPointer pointer2;
         private Point position1;
         private Point position2;
-        private double mouseWheelDelta;
 
         public ManipulationModes ManipulationModes
         {
@@ -36,7 +38,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets the amount by which the ZoomLevel property changes by a MouseWheel event.
+        /// Gets or sets the amount by which the ZoomLevel property changes by a PointerWheelChanged event.
         /// The default value is 0.25.
         /// </summary>
         public double MouseWheelZoomDelta
@@ -45,19 +47,33 @@ namespace MapControl
             set => SetValue(MouseWheelZoomDeltaProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value that controls whether zooming by a PointerWheelChanged event is animated.
+        /// The default value is true.
+        /// </summary>
+        public bool MouseWheelZoomAnimated
+        {
+            get => (bool)GetValue(MouseWheelZoomAnimatedProperty);
+            set => SetValue(MouseWheelZoomAnimatedProperty, value);
+        }
+
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            mouseWheelDelta += e.Delta.Y;
+            var delta = e.Delta.Y;
+            var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * delta;
+            var animated = false;
 
-            if (Math.Abs(mouseWheelDelta) >= 1d)
+            if (delta % 1d == 0d)
             {
-                // Zoom to integer multiple of MouseWheelZoomDelta.
+                // Zoom to integer multiple of MouseWheelZoomDelta when delta is an integer value,
+                // i.e. when the event was actually raised by a mouse wheel and not by a touch pad
+                // or a similar device with higher resolution.
                 //
-                ZoomMap(e.GetPosition(this),
-                    MouseWheelZoomDelta * Math.Round(TargetZoomLevel / MouseWheelZoomDelta + mouseWheelDelta));
-
-                mouseWheelDelta = 0d;
+                zoomLevel = MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta);
+                animated = MouseWheelZoomAnimated;
             }
+
+            ZoomMap(e.GetPosition(this), zoomLevel, animated);
 
             base.OnPointerWheelChanged(e);
         }
