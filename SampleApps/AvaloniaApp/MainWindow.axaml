@@ -13,7 +13,7 @@
         <map:Map x:Name="map"
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
-                 ManipulationModes="All"
+                 ManipulationMode="All"
                  DoubleTapped="MapDoubleTapped"
                  PointerPressed="MapPointerPressed"
                  PointerReleased="MapPointerReleased"
@@ -188,7 +188,7 @@
                         MinZoomLevel="9" MaxZoomLevel="18"/>
                 </tools:MapOverlayMenuItem>
                 <tools:MapOverlayMenuItem Text="Graticule">
-                    <map:MapGraticule Opacity="0.7"/>
+                    <map:MapGraticule Opacity="0.7" StrokeThickness="0.3"/>
                 </tools:MapOverlayMenuItem>
                 <tools:MapOverlayMenuItem Text="Scale">
                     <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>

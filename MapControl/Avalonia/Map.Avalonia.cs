@@ -12,68 +12,28 @@ namespace MapControl
         All = Translate | Rotate | Scale
     }
 
-    /// <summary>
-    /// MapBase with default input event handling.
-    /// </summary>
-    public class Map : MapBase
+    public partial class Map
     {
-        public static readonly StyledProperty<ManipulationModes> ManipulationModesProperty =
-            DependencyPropertyHelper.Register<Map, ManipulationModes>(nameof(ManipulationModes), ManipulationModes.Translate | ManipulationModes.Scale);
+        public static readonly StyledProperty<ManipulationModes> ManipulationModeProperty =
+            DependencyPropertyHelper.Register<Map, ManipulationModes>(nameof(ManipulationMode), ManipulationModes.Translate | ManipulationModes.Scale);
 
-        public static readonly StyledProperty<double> MouseWheelZoomDeltaProperty =
-            DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
-
-        public static readonly DependencyProperty MouseWheelZoomAnimatedProperty =
-            DependencyPropertyHelper.Register<Map, bool>(nameof(MouseWheelZoomAnimated), true);
+        /// <summary>
+        /// Gets or sets a value that specifies how the map control handles manipulations.
+        /// </summary>
+        public ManipulationModes ManipulationMode
+        {
+            get => GetValue(ManipulationModeProperty);
+            set => SetValue(ManipulationModeProperty, value);
+        }
 
         private IPointer pointer1;
         private IPointer pointer2;
         private Point position1;
         private Point position2;
 
-        public ManipulationModes ManipulationModes
-        {
-            get => GetValue(ManipulationModesProperty);
-            set => SetValue(ManipulationModesProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the amount by which the ZoomLevel property changes by a PointerWheelChanged event.
-        /// The default value is 0.25.
-        /// </summary>
-        public double MouseWheelZoomDelta
-        {
-            get => GetValue(MouseWheelZoomDeltaProperty);
-            set => SetValue(MouseWheelZoomDeltaProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets a value that controls whether zooming by a PointerWheelChanged event is animated.
-        /// The default value is true.
-        /// </summary>
-        public bool MouseWheelZoomAnimated
-        {
-            get => (bool)GetValue(MouseWheelZoomAnimatedProperty);
-            set => SetValue(MouseWheelZoomAnimatedProperty, value);
-        }
-
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            var delta = e.Delta.Y;
-            var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * delta;
-            var animated = false;
-
-            if (delta % 1d == 0d)
-            {
-                // Zoom to integer multiple of MouseWheelZoomDelta when delta is an integer value,
-                // i.e. when the event was actually raised by a mouse wheel and not by a touch pad
-                // or a similar device with higher resolution.
-                //
-                zoomLevel = MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta);
-                animated = MouseWheelZoomAnimated;
-            }
-
-            ZoomMap(e.GetPosition(this), zoomLevel, animated);
+            OnMouseWheel(e.GetPosition(this), e.Delta.Y);
 
             base.OnPointerWheelChanged(e);
         }
@@ -89,7 +49,7 @@ namespace MapControl
                     HandleManipulation(point.Pointer, point.Position);
                 }
                 else if (point.Pointer.Type == PointerType.Mouse ||
-                    ManipulationModes.HasFlag(ManipulationModes.Translate))
+                    ManipulationMode.HasFlag(ManipulationModes.Translate))
                 {
                     TranslateMap(new Point(point.Position.X - position1.X, point.Position.Y - position1.Y));
                     position1 = point.Position;
@@ -101,7 +61,7 @@ namespace MapControl
                 e.KeyModifiers == KeyModifiers.None ||
                 pointer2 == null &&
                 point.Pointer.Type == PointerType.Touch &&
-                ManipulationModes != ManipulationModes.None)
+                ManipulationMode != ManipulationModes.None)
             {
                 point.Pointer.Capture(this);
 
@@ -156,19 +116,19 @@ namespace MapControl
             var rotation = 0d;
             var scale = 1d;
 
-            if (ManipulationModes.HasFlag(ManipulationModes.Translate))
+            if (ManipulationMode.HasFlag(ManipulationModes.Translate))
             {
                 newOrigin = new Point((position1.X + position2.X) / 2d, (position1.Y + position2.Y) / 2d);
                 translation = newOrigin - oldOrigin;
             }
 
-            if (ManipulationModes.HasFlag(ManipulationModes.Rotate))
+            if (ManipulationMode.HasFlag(ManipulationModes.Rotate))
             {
                 rotation = 180d / Math.PI
                     * (Math.Atan2(newDistance.Y, newDistance.X) - Math.Atan2(oldDistance.Y, oldDistance.X));
             }
 
-            if (ManipulationModes.HasFlag(ManipulationModes.Scale))
+            if (ManipulationMode.HasFlag(ManipulationModes.Scale))
             {
                 scale = newDistance.Length / oldDistance.Length;
             }

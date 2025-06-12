@@ -1,29 +1,17 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 
 namespace MapControl
 {
-    /// <summary>
-    /// MapBase with default input event handling.
-    /// </summary>
-    public class Map : MapBase
+    public partial class Map
     {
-        public static readonly DependencyProperty ManipulationModeProperty =
-            DependencyPropertyHelper.Register<Map, ManipulationModes>(nameof(ManipulationMode), ManipulationModes.Translate | ManipulationModes.Scale);
-
-        public static readonly DependencyProperty MouseWheelZoomDeltaProperty =
-            DependencyPropertyHelper.Register<Map, double>(nameof(MouseWheelZoomDelta), 0.25);
-
-        public static readonly DependencyProperty MouseWheelZoomAnimatedProperty =
-            DependencyPropertyHelper.Register<Map, bool>(nameof(MouseWheelZoomAnimated), true);
-
-        private Point? mousePosition;
-
         static Map()
         {
             IsManipulationEnabledProperty.OverrideMetadata(typeof(Map), new FrameworkPropertyMetadata(true));
         }
+
+        public static readonly DependencyProperty ManipulationModeProperty =
+            DependencyPropertyHelper.Register<Map, ManipulationModes>(nameof(ManipulationMode), ManipulationModes.Translate | ManipulationModes.Scale);
 
         /// <summary>
         /// Gets or sets a value that specifies how the map control handles manipulations.
@@ -34,42 +22,11 @@ namespace MapControl
             set => SetValue(ManipulationModeProperty, value);
         }
 
-        /// <summary>
-        /// Gets or sets the amount by which the ZoomLevel property changes by a MouseWheel event.
-        /// The default value is 0.25.
-        /// </summary>
-        public double MouseWheelZoomDelta
-        {
-            get => (double)GetValue(MouseWheelZoomDeltaProperty);
-            set => SetValue(MouseWheelZoomDeltaProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets a value that controls whether zooming by a MouseWheel event is animated.
-        /// The default value is true.
-        /// </summary>
-        public bool MouseWheelZoomAnimated
-        {
-            get => (bool)GetValue(MouseWheelZoomAnimatedProperty);
-            set => SetValue(MouseWheelZoomAnimatedProperty, value);
-        }
+        private Point? mousePosition;
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
-            var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * e.Delta / 120d;
-            var animated = false;
-
-            if (e.Delta % 120 == 0)
-            {
-                // Zoom to integer multiple of MouseWheelZoomDelta when delta is a multiple of 120,
-                // i.e. when the event was actually raised by a mouse wheel and not by a touch pad
-                // or a similar device with higher resolution.
-                //
-                zoomLevel = MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta);
-                animated = MouseWheelZoomAnimated;
-            }
-
-            ZoomMap(e.GetPosition(this), zoomLevel, animated);
+            OnMouseWheel(e.GetPosition(this), e.Delta);
 
             base.OnMouseWheel(e);
         }

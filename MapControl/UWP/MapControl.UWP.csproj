@@ -101,6 +101,9 @@
     <Compile Include="..\Shared\LocationCollection.cs">
       <Link>LocationCollection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Map.cs">
+      <Link>Map.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapBase.cs">
       <Link>MapBase.cs</Link>
     </Compile>
