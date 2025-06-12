@@ -26,20 +26,22 @@ namespace MapControl
             set => SetValue(ManipulationModeProperty, value);
         }
 
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+        {
+            base.OnPointerWheelChanged(e);
+
+            OnMouseWheel(e.GetPosition(this), e.Delta.Y);
+        }
+
         private IPointer pointer1;
         private IPointer pointer2;
         private Point position1;
         private Point position2;
 
-        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
-        {
-            OnMouseWheel(e.GetPosition(this), e.Delta.Y);
-
-            base.OnPointerWheelChanged(e);
-        }
-
         protected override void OnPointerMoved(PointerEventArgs e)
         {
+            base.OnPointerMoved(e);
+
             var point = e.GetCurrentPoint(this);
 
             if (point.Pointer == pointer1 || point.Pointer == pointer2)
@@ -76,12 +78,12 @@ namespace MapControl
                     position2 = point.Position;
                 }
             }
-
-            base.OnPointerMoved(e);
         }
 
         protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
         {
+            base.OnPointerCaptureLost(e);
+
             if (e.Pointer == pointer1 || e.Pointer == pointer2)
             {
                 if (e.Pointer == pointer1)
@@ -92,8 +94,6 @@ namespace MapControl
 
                 pointer2 = null;
             }
-
-            base.OnPointerCaptureLost(e);
         }
 
         private void HandleManipulation(IPointer pointer, Point position)

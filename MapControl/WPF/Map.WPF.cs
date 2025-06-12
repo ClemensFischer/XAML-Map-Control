@@ -22,57 +22,55 @@ namespace MapControl
             set => SetValue(ManipulationModeProperty, value);
         }
 
-        private Point? mousePosition;
-
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
+            base.OnMouseWheel(e);
+
             // Standard mouse wheel delta value is 120.
             //
             OnMouseWheel(e.GetPosition(this), e.Delta / 120d);
-
-            base.OnMouseWheel(e);
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        private Point? mousePosition;
+
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.None &&
-                CaptureMouse())
+            base.OnPreviewMouseLeftButtonDown(e);
+
+            if (Keyboard.Modifiers == ModifierKeys.None)
             {
+                // Do not call CaptureMouse here because it avoids MapItem selection.
+                //
                 mousePosition = e.GetPosition(this);
             }
-
-            base.OnMouseLeftButtonDown(e);
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
+            base.OnPreviewMouseLeftButtonUp(e);
+
             if (mousePosition.HasValue)
             {
                 mousePosition = null;
                 ReleaseMouseCapture();
             }
-
-            base.OnMouseLeftButtonUp(e);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            base.OnMouseMove(e);
+
             if (mousePosition.HasValue)
             {
+                if (!IsMouseCaptured)
+                {
+                    CaptureMouse();
+                }
+
                 var p = e.GetPosition(this);
                 TranslateMap(new Point(p.X - mousePosition.Value.X, p.Y - mousePosition.Value.Y));
                 mousePosition = p;
             }
-            else if (e.LeftButton == MouseButtonState.Pressed &&
-                Keyboard.Modifiers == ModifierKeys.None &&
-                CaptureMouse())
-            {
-                // Set mousePosition when no MouseLeftButtonDown event was received.
-                //
-                mousePosition = e.GetPosition(this);
-            }
-
-            base.OnMouseMove(e);
         }
 
         protected override void OnManipulationStarted(ManipulationStartedEventArgs e)
@@ -84,12 +82,12 @@ namespace MapControl
 
         protected override void OnManipulationDelta(ManipulationDeltaEventArgs e)
         {
+            base.OnManipulationDelta(e);
+
             TransformMap(e.ManipulationOrigin,
                 (Point)e.DeltaManipulation.Translation,
                 e.DeltaManipulation.Rotation,
                 e.DeltaManipulation.Scale.LengthSquared / 2d);
-
-            base.OnManipulationDelta(e);
         }
     }
 }

@@ -26,8 +26,6 @@ namespace MapControl
             ManipulationCompleted += OnManipulationCompleted;
         }
 
-        private bool? manipulationEnabled;
-
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
@@ -39,6 +37,8 @@ namespace MapControl
                 OnMouseWheel(point.Position, point.Properties.MouseWheelDelta / 120d);
             }
         }
+
+        private bool? manipulationEnabled;
 
         private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
         {
