@@ -40,13 +40,6 @@ namespace MapControl
             set => SetValue(MouseWheelZoomAnimatedProperty, value);
         }
 
-        private void OnMouseWheel(Point position, int delta)
-        {
-            // Standard mouse wheel delta value is 120.
-            //
-            OnMouseWheel(position, delta / 120d);
-        }
-
         private void OnMouseWheel(Point position, double delta)
         {
             var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * delta;

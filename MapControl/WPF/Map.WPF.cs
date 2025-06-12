@@ -26,7 +26,9 @@ namespace MapControl
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
-            OnMouseWheel(e.GetPosition(this), e.Delta);
+            // Standard mouse wheel delta value is 120.
+            //
+            OnMouseWheel(e.GetPosition(this), e.Delta / 120d);
 
             base.OnMouseWheel(e);
         }
