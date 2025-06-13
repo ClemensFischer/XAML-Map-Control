@@ -20,7 +20,6 @@ namespace MapControl
                 | ManipulationModes.TranslateInertia;
 
             PointerWheelChanged += OnPointerWheelChanged;
-            PointerPressed += OnPointerPressed;
             PointerMoved += OnPointerMoved;
             ManipulationDelta += OnManipulationDelta;
             ManipulationCompleted += OnManipulationCompleted;
@@ -40,20 +39,8 @@ namespace MapControl
 
         private bool? manipulationEnabled;
 
-        private void OnPointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            // Set manipulationEnabled before ManipulationStarted.
-            // IsLeftButtonPressed: input was triggered by the primary action mode of an input device.
-            //
-            manipulationEnabled =
-                e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
-                e.KeyModifiers == VirtualKeyModifiers.None;
-        }
-
         private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            // Set manipulationEnabled before ManipulationStarted when no PointerPressed was received.
-            //
             if (!manipulationEnabled.HasValue &&
                 e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
