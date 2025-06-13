@@ -52,13 +52,13 @@ namespace MapControl
             {
                 SetValue(ParentMapProperty, this);
             }
+#if UWP || WINUI
             else
             {
-                InitMapPanel();
+                InitMapElement(this);
             }
+#endif
         }
-
-        partial void InitMapPanel();
 
         private MapBase parentMap;
 

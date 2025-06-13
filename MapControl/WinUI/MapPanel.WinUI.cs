@@ -25,11 +25,6 @@ namespace MapControl
 
         protected IEnumerable<FrameworkElement> ChildElements => Children.OfType<FrameworkElement>();
 
-        partial void InitMapPanel()
-        {
-            InitMapElement(this);
-        }
-
         public static void InitMapElement(FrameworkElement element)
         {
             // Workaround for missing property value inheritance.
