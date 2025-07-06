@@ -45,11 +45,10 @@ namespace MapControl
             var zoomLevel = TargetZoomLevel + MouseWheelZoomDelta * delta;
             var animated = false;
 
-            if (delta % 1d == 0d)
+            if (delta >= 1d)
             {
-                // Zoom to integer multiple of MouseWheelZoomDelta when delta is an integer value,
-                // i.e. when the event was actually raised by a mouse wheel and not by a touch pad
-                // or a similar device with higher resolution.
+                // Zoom to integer multiple of MouseWheelZoomDelta when the event was raised by a
+                // mouse wheel or by a large movement on a touch pad or other high resolution device.
                 //
                 zoomLevel = MouseWheelZoomDelta * Math.Round(zoomLevel / MouseWheelZoomDelta);
                 animated = MouseWheelZoomAnimated;
