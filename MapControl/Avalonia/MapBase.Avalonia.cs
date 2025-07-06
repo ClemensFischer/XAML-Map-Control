@@ -158,16 +158,17 @@ namespace MapControl
                 centerCts?.Cancel();
 
                 centerAnimation = CreateAnimation(CenterProperty, new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude)));
-                centerCts = new CancellationTokenSource();
 
-                await centerAnimation.RunAsync(this, centerCts.Token);
-
-                if (!centerCts.IsCancellationRequested)
+                using (centerCts = new CancellationTokenSource())
                 {
-                    UpdateTransform();
+                    await centerAnimation.RunAsync(this, centerCts.Token);
+
+                    if (!centerCts.IsCancellationRequested)
+                    {
+                        UpdateTransform();
+                    }
                 }
 
-                centerCts.Dispose();
                 centerCts = null;
                 centerAnimation = null;
             }
@@ -209,16 +210,17 @@ namespace MapControl
                 zoomLevelCts?.Cancel();
 
                 zoomLevelAnimation = CreateAnimation(ZoomLevelProperty, targetZoomLevel);
-                zoomLevelCts = new CancellationTokenSource();
 
-                await zoomLevelAnimation.RunAsync(this, zoomLevelCts.Token);
-
-                if (!zoomLevelCts.IsCancellationRequested)
+                using (zoomLevelCts = new CancellationTokenSource())
                 {
-                    UpdateTransform(true); // reset transform center
+                    await zoomLevelAnimation.RunAsync(this, zoomLevelCts.Token);
+
+                    if (!zoomLevelCts.IsCancellationRequested)
+                    {
+                        UpdateTransform(true); // reset transform center
+                    }
                 }
 
-                zoomLevelCts.Dispose();
                 zoomLevelCts = null;
                 zoomLevelAnimation = null;
             }
@@ -257,16 +259,17 @@ namespace MapControl
                 headingCts?.Cancel();
 
                 headingAnimation = CreateAnimation(HeadingProperty, targetHeading);
-                headingCts = new CancellationTokenSource();
 
-                await headingAnimation.RunAsync(this, headingCts.Token);
-
-                if (!headingCts.IsCancellationRequested)
+                using (headingCts = new CancellationTokenSource())
                 {
-                    UpdateTransform();
+                    await headingAnimation.RunAsync(this, headingCts.Token);
+
+                    if (!headingCts.IsCancellationRequested)
+                    {
+                        UpdateTransform();
+                    }
                 }
 
-                headingCts.Dispose();
                 headingCts = null;
                 headingAnimation = null;
             }
