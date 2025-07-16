@@ -331,7 +331,7 @@ namespace MapControl
         {
             zoomLevel = CoerceZoomLevelProperty(zoomLevel);
 
-            if (animated || TargetZoomLevel != ZoomLevel) // animation may be running
+            if (animated || zoomLevelAnimation != null)
             {
                 if (TargetZoomLevel != zoomLevel)
                 {
