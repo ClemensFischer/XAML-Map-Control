@@ -352,7 +352,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Sets the TargetZoomLevel and TargetCenter properties so that the specified bounding box
+        /// Sets the TargetZoomLevel and TargetCenter properties so that the specified BoundingBox
         /// fits into the current view. The TargetHeading property is set to zero.
         /// </summary>
         public void ZoomToBounds(BoundingBox boundingBox)
