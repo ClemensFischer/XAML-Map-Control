@@ -142,7 +142,7 @@ namespace MapControl
 
                 centerAnimation.Completed += CenterAnimationCompleted;
 
-                BeginAnimation(CenterProperty, centerAnimation);
+                BeginAnimation(CenterProperty, centerAnimation, HandoffBehavior.Compose);
             }
         }
 
@@ -206,7 +206,7 @@ namespace MapControl
 
                 zoomLevelAnimation.Completed += ZoomLevelAnimationCompleted;
 
-                BeginAnimation(ZoomLevelProperty, zoomLevelAnimation);
+                BeginAnimation(ZoomLevelProperty, zoomLevelAnimation, HandoffBehavior.Compose);
             }
         }
 
@@ -265,7 +265,7 @@ namespace MapControl
 
                 headingAnimation.Completed += HeadingAnimationCompleted;
 
-                BeginAnimation(HeadingProperty, headingAnimation);
+                BeginAnimation(HeadingProperty, headingAnimation, HandoffBehavior.SnapshotAndReplace); // don't compose
             }
         }
 
