@@ -51,7 +51,7 @@ namespace MapControl
         {
             Uri uri = null;
 
-            if (UriTemplate != null && column >= 0 && row >= 0 && zoomLevel >= 0)
+            if (UriTemplate != null)
             {
                 var uriString = UriTemplate
                     .Replace("{x}", column.ToString())
