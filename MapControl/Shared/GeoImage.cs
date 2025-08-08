@@ -34,11 +34,10 @@ namespace MapControl
             public GeoBitmap(BitmapSource bitmap, Matrix transform, MapProjection projection)
             {
                 var p1 = transform.Transform(new Point());
-                var p2 = transform.Transform(new Point(
 #if AVALONIA
-                    bitmap.PixelSize.Width, bitmap.PixelSize.Height));
+                var p2 = transform.Transform(new Point(bitmap.PixelSize.Width, bitmap.PixelSize.Height));
 #else
-                    bitmap.PixelWidth, bitmap.PixelHeight));
+                var p2 = transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight));
 #endif
                 BitmapSource = bitmap;
                 LatLonBox = projection != null
