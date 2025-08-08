@@ -444,7 +444,10 @@ namespace MapControl
         {
             if (oldLayer != null)
             {
-                Children.Remove(oldLayer);
+                if (Children.Count > 0 && Children[0] == oldLayer)
+                {
+                    Children.RemoveAt(0);
+                }
 
                 if (oldLayer is IMapLayer mapLayer)
                 {
@@ -461,7 +464,10 @@ namespace MapControl
 
             if (newLayer != null)
             {
-                Children.Insert(0, newLayer);
+                if (Children.Count == 0 || Children[0] != newLayer)
+                {
+                    Children.Insert(0, newLayer);
+                }
 
                 if (newLayer is IMapLayer mapLayer)
                 {
