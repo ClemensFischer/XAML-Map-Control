@@ -12,12 +12,6 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MapControl
 {
-    public interface IMapLayer : IMapElement
-    {
-        Brush MapBackground { get; }
-        Brush MapForeground { get; }
-    }
-
     /// <summary>
     /// The map control. Displays map content provided by one or more tile or image layers,
     /// such as MapTileLayerBase or MapImageLayer instances.
@@ -41,10 +35,6 @@ namespace MapControl
 
         public static readonly DependencyProperty AnimationDurationProperty =
             DependencyPropertyHelper.Register<MapBase, TimeSpan>(nameof(AnimationDuration), TimeSpan.FromSeconds(0.3));
-
-        public static readonly DependencyProperty MapLayerProperty =
-            DependencyPropertyHelper.Register<MapBase, FrameworkElement>(nameof(MapLayer), null,
-                (map, oldValue, newValue) => map.MapLayerPropertyChanged(oldValue, newValue));
 
         public static readonly DependencyProperty MapProjectionProperty =
             DependencyPropertyHelper.Register<MapBase, MapProjection>(nameof(MapProjection), new WebMercatorProjection(),
@@ -82,17 +72,6 @@ namespace MapControl
         {
             get => (TimeSpan)GetValue(AnimationDurationProperty);
             set => SetValue(AnimationDurationProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the base map layer, which is added as first element to the Children collection.
-        /// If the layer implements IMapLayer (like MapTileLayer or MapImageLayer), its (non-null) MapBackground
-        /// and MapForeground property values are used for the MapBase Background and Foreground properties.
-        /// </summary>
-        public FrameworkElement MapLayer
-        {
-            get => (FrameworkElement)GetValue(MapLayerProperty);
-            set => SetValue(MapLayerProperty, value);
         }
 
         /// <summary>
@@ -438,49 +417,6 @@ namespace MapControl
             internalPropertyChange = true;
             SetValue(property, value);
             internalPropertyChange = false;
-        }
-
-        private void MapLayerPropertyChanged(FrameworkElement oldLayer, FrameworkElement newLayer)
-        {
-            if (oldLayer != null)
-            {
-                if (Children.Count > 0 && Children[0] == oldLayer)
-                {
-                    Children.RemoveAt(0);
-                }
-
-                if (oldLayer is IMapLayer mapLayer)
-                {
-                    if (mapLayer.MapBackground != null)
-                    {
-                        ClearValue(BackgroundProperty);
-                    }
-                    if (mapLayer.MapForeground != null)
-                    {
-                        ClearValue(ForegroundProperty);
-                    }
-                }
-            }
-
-            if (newLayer != null)
-            {
-                if (Children.Count == 0 || Children[0] != newLayer)
-                {
-                    Children.Insert(0, newLayer);
-                }
-
-                if (newLayer is IMapLayer mapLayer)
-                {
-                    if (mapLayer.MapBackground != null)
-                    {
-                        Background = mapLayer.MapBackground;
-                    }
-                    if (mapLayer.MapForeground != null)
-                    {
-                        Foreground = mapLayer.MapForeground;
-                    }
-                }
-            }
         }
 
         private void MapProjectionPropertyChanged(MapProjection projection)

@@ -107,6 +107,9 @@
     <Compile Include="..\Shared\MapBase.cs">
       <Link>MapBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MapBase.MapLayer.cs">
+      <Link>MapBase.MapLayer.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\MapBorderPanel.cs">
       <Link>MapBorderPanel.cs</Link>
     </Compile>
@@ -280,6 +283,9 @@
     </Compile>
     <Compile Include="..\WinUI\Tile.WinUI.cs">
       <Link>Tile.WinUI.cs</Link>
+    </Compile>
+    <Compile Include="..\WinUI\TileSourceConverter.cs">
+      <Link>TileSourceConverter.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />

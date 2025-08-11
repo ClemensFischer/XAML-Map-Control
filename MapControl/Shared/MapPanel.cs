@@ -41,8 +41,11 @@ namespace MapControl
                     {
                         mapElement.ParentMap = newValue;
                     }
-                },
-                true); // inherits
+#if UWP || WINUI
+                });
+#else
+                }, true); // inherits
+#endif
 
         public MapPanel()
         {

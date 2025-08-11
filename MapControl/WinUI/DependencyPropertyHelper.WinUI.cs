@@ -5,8 +5,6 @@ using Windows.UI.Xaml;
 using Microsoft.UI.Xaml;
 #endif
 
-#pragma warning disable IDE0060 // Remove unused parameter
-
 namespace MapControl
 {
     public static class DependencyPropertyHelper
@@ -15,8 +13,7 @@ namespace MapControl
             string name,
             Type ownerType,
             TValue defaultValue = default,
-            Action<FrameworkElement, TValue, TValue> changed = null,
-            bool inherits = false) // unused in WinUI/UWP
+            Action<FrameworkElement, TValue, TValue> changed = null)
         {
             var metadata = changed == null
                 ? new PropertyMetadata(defaultValue)
