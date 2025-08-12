@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -38,8 +37,11 @@ namespace MapControl
 
         /// <summary>
         /// Gets or sets the base map layer, which is added as first element to the Children collection.
-        /// If the layer implements IMapLayer (like MapTileLayer or MapImageLayer), its (non-null) MapBackground
-        /// and MapForeground property values are used for the MapBase Background and Foreground properties.
+        /// If the passed object is not a FrameworkElement, MapBase tries to locate a DataTemplate
+        /// resource for the object's type and generate a FrameworkElement from that DataTemplate.
+        /// If the FrameworkElement implements IMapLayer (like e.g. MapTileLayer or MapImageLayer),
+        /// its (non-null) MapBackground and MapForeground property values are used for the MapBase
+        /// Background and Foreground.
         /// </summary>
         public object MapLayer
         {
@@ -55,12 +57,11 @@ namespace MapControl
 
         private void MapLayerPropertyChanged(object oldLayer, object newLayer)
         {
-            var firstChild = Children.Cast<FrameworkElement>().FirstOrDefault();
-
             if (oldLayer != null)
             {
-                if (firstChild != null &&
-                    (firstChild == oldLayer as FrameworkElement || firstChild.DataContext == oldLayer))
+                if (Children.Count > 0 &&
+                    (Children[0] == oldLayer as FrameworkElement ||
+                    ((FrameworkElement)Children[0]).DataContext == oldLayer))
                 {
                     Children.RemoveAt(0);
                 }
@@ -81,13 +82,14 @@ namespace MapControl
 
             if (newLayer != null)
             {
-                if (firstChild == null ||
-                    firstChild != newLayer as FrameworkElement && firstChild.DataContext != newLayer)
+                if (Children.Count == 0 ||
+                    (Children[0] != newLayer as FrameworkElement &&
+                    ((FrameworkElement)Children[0]).DataContext != newLayer))
                 {
                     Children.Insert(0, GetMapLayer(newLayer));
                 }
 
-                if (Children.Cast<FrameworkElement>().FirstOrDefault() is IMapLayer mapLayer)
+                if (Children[0] is IMapLayer mapLayer)
                 {
                     if (mapLayer.MapBackground != null)
                     {
