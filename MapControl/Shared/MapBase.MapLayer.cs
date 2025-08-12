@@ -175,7 +175,7 @@ namespace MapControl
             {
                 Children.Insert(index, mapLayer);
 
-                if (index == 0)
+                if (index++ == 0)
                 {
                     MapLayer = mapLayer;
                 }
