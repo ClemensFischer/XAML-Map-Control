@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 #if WPF
@@ -99,23 +97,15 @@ namespace MapControl
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
-                        byte[] buffer = null;
+                        byte[] buffer;
 
-                        // Check for possibly unavailable Bing Maps tile.
-                        //
-                        if (!responseMessage.Headers.TryGetValues("X-VE-Tile-Info", out IEnumerable<string> tileInfo) ||
-                            !tileInfo.Contains("no-tile"))
+                        if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
                         {
-                            var content = responseMessage.Content;
-
-                            if (progress != null && content.Headers.ContentLength.HasValue)
-                            {
-                                buffer = await ReadAsByteArray(content, progress).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                buffer = await content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                            }
+                            buffer = await ReadAsByteArray(responseMessage.Content, progress).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                         }
 
                         response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
