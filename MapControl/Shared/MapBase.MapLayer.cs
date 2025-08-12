@@ -8,11 +8,9 @@ using System.Windows.Media;
 using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 #endif
 
@@ -26,8 +24,11 @@ namespace MapControl
 
     public partial class MapBase
     {
+        private bool hasMapLayerBackground;
+        private bool hasMapLayerForeground;
+
         public static readonly DependencyProperty MapLayerProperty =
-            DependencyPropertyHelper.Register<MapBase, FrameworkElement>(nameof(MapLayer), null,
+            DependencyPropertyHelper.Register<MapBase, object>(nameof(MapLayer), null,
                 (map, oldValue, newValue) => map.MapLayerPropertyChanged(oldValue, newValue));
 
         public static readonly DependencyProperty MapLayerItemsSourceProperty =
@@ -39,9 +40,9 @@ namespace MapControl
         /// If the layer implements IMapLayer (like MapTileLayer or MapImageLayer), its (non-null) MapBackground
         /// and MapForeground property values are used for the MapBase Background and Foreground properties.
         /// </summary>
-        public FrameworkElement MapLayer
+        public object MapLayer
         {
-            get => (FrameworkElement)GetValue(MapLayerProperty);
+            get => GetValue(MapLayerProperty);
             set => SetValue(MapLayerProperty, value);
         }
 
@@ -51,44 +52,52 @@ namespace MapControl
             set => SetValue(MapLayerItemsSourceProperty, value);
         }
 
-        private void MapLayerPropertyChanged(FrameworkElement oldLayer, FrameworkElement newLayer)
+        private void MapLayerPropertyChanged(object oldLayer, object newLayer)
         {
+            var firstChild = GetChildElement(0);
+
             if (oldLayer != null)
             {
-                if (Children.Count > 0 && Children[0] == oldLayer)
+                if (firstChild != null &&
+                    (firstChild == oldLayer as FrameworkElement || firstChild.DataContext == oldLayer))
                 {
-                    Children.RemoveAt(0);
+                    RemoveChildElement(0);
                 }
 
-                if (oldLayer is IMapLayer mapLayer)
+                if (hasMapLayerBackground)
                 {
-                    if (mapLayer.MapBackground != null)
-                    {
-                        ClearValue(BackgroundProperty);
-                    }
-                    if (mapLayer.MapForeground != null)
-                    {
-                        ClearValue(ForegroundProperty);
-                    }
+                    ClearValue(BackgroundProperty);
+                }
+
+                if (hasMapLayerForeground)
+                {
+                    ClearValue(ForegroundProperty);
                 }
             }
 
+            hasMapLayerBackground = false;
+            hasMapLayerForeground = false;
+
             if (newLayer != null)
             {
-                if (Children.Count == 0 || Children[0] != newLayer)
+                if (firstChild == null ||
+                    firstChild != newLayer as FrameworkElement && firstChild.DataContext != newLayer)
                 {
-                    Children.Insert(0, newLayer);
+                    InsertChildElement(0, GetMapLayer(newLayer));
                 }
 
-                if (newLayer is IMapLayer mapLayer)
+                if (GetChildElement(0) is IMapLayer mapLayer)
                 {
                     if (mapLayer.MapBackground != null)
                     {
                         Background = mapLayer.MapBackground;
+                        hasMapLayerBackground = true;
                     }
+
                     if (mapLayer.MapForeground != null)
                     {
                         Foreground = mapLayer.MapForeground;
+                        hasMapLayerForeground = true;
                     }
                 }
             }
@@ -144,31 +153,32 @@ namespace MapControl
 
         private void AddMapLayers(IEnumerable items, int index)
         {
-            var mapLayers = items.Cast<object>().Select(CreateMapLayer).ToList();
+            var mapLayers = items.Cast<object>().Select(GetMapLayer).ToList();
+
+            if (mapLayers.Count > 0)
+            {
 #if WPF
-            // Execute at DispatcherPriority.DataBind to ensure that all bindings are evaluated.
-            Dispatcher.Invoke(() => AddMapLayers(mapLayers, index), DispatcherPriority.DataBind);
+                // Execute at DispatcherPriority.DataBind to ensure that all bindings are evaluated.
+                Dispatcher.Invoke(() => AddMapLayers(mapLayers, index), DispatcherPriority.DataBind);
 #else
-            AddMapLayers(mapLayers, index);
+                AddMapLayers(mapLayers, index);
 #endif
+            }
         }
 
-        private void AddMapLayers(IEnumerable<FrameworkElement> mapLayers, int index)
+        private void AddMapLayers(List<FrameworkElement> mapLayers, int index)
         {
-            foreach (var mapLayer in mapLayers)
-            {
-                Children.Insert(index, mapLayer);
+            InsertChildElements(index, mapLayers);
 
-                if (index++ == 0)
-                {
-                    MapLayer = mapLayer;
-                }
+            if (index == 0)
+            {
+                MapLayer = mapLayers[0];
             }
         }
 
         private void RemoveMapLayers(IEnumerable items, int index)
         {
-            Children.RemoveRange(index, items.Cast<object>().Count());
+            RemoveChildElements(index, items.Cast<object>().Count());
 
             if (index == 0)
             {
@@ -176,7 +186,7 @@ namespace MapControl
             }
         }
 
-        private FrameworkElement CreateMapLayer(object item)
+        private FrameworkElement GetMapLayer(object item)
         {
             FrameworkElement mapLayer = null;
 
@@ -185,7 +195,7 @@ namespace MapControl
                 mapLayer = item as FrameworkElement ?? TryLoadDataTemplate(item);
             }
 
-            return mapLayer ?? new MapControl.MapPanel();
+            return mapLayer ?? new MapTileLayer();
         }
 
         private FrameworkElement TryLoadDataTemplate(object item)
@@ -203,7 +213,7 @@ namespace MapControl
                 element = (FrameworkElement)template.LoadContent();
             }
 #else
-            if (this.TryFindResource(item.GetType().FullName) is DataTemplate template)
+            if (TryFindResource(this, item.GetType().FullName) is DataTemplate template)
             {
                 element = (FrameworkElement)template.LoadContent();
             }
@@ -215,27 +225,16 @@ namespace MapControl
 
             return element;
         }
-    }
 
 #if UWP || WINUI
-    internal static class MapBaseExtensions
-    {
-        public static void RemoveRange(this UIElementCollection elements, int index, int count)
-        {
-            while (--count >= 0)
+            private static object TryFindResource(FrameworkElement element, object key)
             {
-                elements.RemoveAt(index);
+                return element.Resources.ContainsKey(key)
+                    ? element.Resources[key]
+                    : element.Parent is FrameworkElement parent
+                    ? TryFindResource(parent, key)
+                    : null;
             }
-        }
-
-        public static object TryFindResource(this FrameworkElement element, object key)
-        {
-            return element.Resources.ContainsKey(key)
-                ? element.Resources[key]
-                : element.Parent is FrameworkElement parent
-                ? TryFindResource(parent, key)
-                : null;
-        }
-    }
 #endif
+    }
 }
