@@ -1,4 +1,5 @@
-﻿#if WPF
+﻿using System.Linq;
+#if WPF
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -172,7 +173,7 @@ namespace MapControl
         {
             availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-            foreach (var element in ChildElements)
+            foreach (var element in Children.Cast<FrameworkElement>())
             {
                 element.Measure(availableSize);
             }
@@ -184,7 +185,7 @@ namespace MapControl
         {
             if (parentMap != null)
             {
-                foreach (var element in ChildElements)
+                foreach (var element in Children.Cast<FrameworkElement>())
                 {
                     ArrangeChildElement(element, finalSize);
                 }

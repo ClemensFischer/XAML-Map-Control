@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -54,14 +55,14 @@ namespace MapControl
 
         private void MapLayerPropertyChanged(object oldLayer, object newLayer)
         {
-            var firstChild = GetChildElement(0);
+            var firstChild = Children.Cast<FrameworkElement>().FirstOrDefault();
 
             if (oldLayer != null)
             {
                 if (firstChild != null &&
                     (firstChild == oldLayer as FrameworkElement || firstChild.DataContext == oldLayer))
                 {
-                    RemoveChildElement(0);
+                    Children.RemoveAt(0);
                 }
 
                 if (hasMapLayerBackground)
@@ -83,10 +84,10 @@ namespace MapControl
                 if (firstChild == null ||
                     firstChild != newLayer as FrameworkElement && firstChild.DataContext != newLayer)
                 {
-                    InsertChildElement(0, GetMapLayer(newLayer));
+                    Children.Insert(0, GetMapLayer(newLayer));
                 }
 
-                if (GetChildElement(0) is IMapLayer mapLayer)
+                if (Children.Cast<FrameworkElement>().FirstOrDefault() is IMapLayer mapLayer)
                 {
                     if (mapLayer.MapBackground != null)
                     {
@@ -168,17 +169,23 @@ namespace MapControl
 
         private void AddMapLayers(List<FrameworkElement> mapLayers, int index)
         {
-            InsertChildElements(index, mapLayers);
-
-            if (index == 0)
+            foreach (var mapLayer in mapLayers)
             {
-                MapLayer = mapLayers[0];
+                Children.Insert(index, mapLayer);
+
+                if (index == 0)
+                {
+                    MapLayer = mapLayer;
+                }
             }
         }
 
         private void RemoveMapLayers(IEnumerable items, int index)
         {
-            RemoveChildElements(index, items.Cast<object>().Count());
+            foreach (var _ in items)
+            {
+                Children.RemoveAt(index);
+            }
 
             if (index == 0)
             {

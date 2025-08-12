@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace MapControl
@@ -17,24 +15,6 @@ namespace MapControl
         public static readonly DependencyProperty BoundingBoxProperty =
             DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel), null,
                 FrameworkPropertyMetadataOptions.AffectsParentArrange);
-
-        protected IEnumerable<FrameworkElement> ChildElements => Children.OfType<FrameworkElement>();
-
-        protected FrameworkElement GetChildElement(int index) => index < Children.Count ? (FrameworkElement)Children[index] : null;
-
-        protected void InsertChildElement(int index, FrameworkElement element) => Children.Insert(index, element);
-
-        protected void InsertChildElements(int index, IEnumerable<FrameworkElement> elements)
-        {
-            foreach (var element in elements)
-            {
-                Children.Insert(index++, element);
-            }
-        }
-
-        protected void RemoveChildElement(int index) => Children.RemoveAt(index);
-
-        protected void RemoveChildElements(int index, int count) => Children.RemoveRange(index, count);
 
         public static MapBase GetParentMap(FrameworkElement element)
         {
