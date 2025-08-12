@@ -50,12 +50,6 @@
     <Compile Include="..\Shared\AzimuthalProjection.cs">
       <Link>AzimuthalProjection.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\BingMapsTileLayer.cs">
-      <Link>BingMapsTileLayer.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\BingMapsTileSource.cs">
-      <Link>BingMapsTileSource.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\BoundingBox.cs">
       <Link>BoundingBox.cs</Link>
     </Compile>
