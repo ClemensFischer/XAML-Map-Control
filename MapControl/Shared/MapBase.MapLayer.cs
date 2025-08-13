@@ -24,9 +24,6 @@ namespace MapControl
 
     public partial class MapBase
     {
-        private bool hasMapLayerBackground;
-        private bool hasMapLayerForeground;
-
         public static readonly DependencyProperty MapLayerProperty =
             DependencyPropertyHelper.Register<MapBase, object>(nameof(MapLayer), null,
                 (map, oldValue, newValue) => map.MapLayerPropertyChanged(oldValue, newValue));
@@ -65,52 +62,18 @@ namespace MapControl
 
         private void MapLayerPropertyChanged(object oldLayer, object newLayer)
         {
-            if (oldLayer != null)
+            bool IsMapLayer(object layer) => Children.Count > 0 &&
+                (Children[0] == layer as FrameworkElement ||
+                ((FrameworkElement)Children[0]).DataContext == layer);
+
+            if (oldLayer != null && IsMapLayer(oldLayer))
             {
-                if (Children.Count > 0 &&
-                    (Children[0] == oldLayer as FrameworkElement ||
-                    ((FrameworkElement)Children[0]).DataContext == oldLayer))
-                {
-                    Children.RemoveAt(0);
-                }
-
-                if (hasMapLayerBackground)
-                {
-                    ClearValue(BackgroundProperty);
-                }
-
-                if (hasMapLayerForeground)
-                {
-                    ClearValue(ForegroundProperty);
-                }
+                RemoveChildElement(0);
             }
 
-            hasMapLayerBackground = false;
-            hasMapLayerForeground = false;
-
-            if (newLayer != null)
+            if (newLayer != null && !IsMapLayer(newLayer))
             {
-                if (Children.Count == 0 ||
-                    (Children[0] != newLayer as FrameworkElement &&
-                    ((FrameworkElement)Children[0]).DataContext != newLayer))
-                {
-                    Children.Insert(0, GetMapLayer(newLayer));
-                }
-
-                if (Children[0] is IMapLayer mapLayer)
-                {
-                    if (mapLayer.MapBackground != null)
-                    {
-                        Background = mapLayer.MapBackground;
-                        hasMapLayerBackground = true;
-                    }
-
-                    if (mapLayer.MapForeground != null)
-                    {
-                        Foreground = mapLayer.MapForeground;
-                        hasMapLayerForeground = true;
-                    }
-                }
+                InsertChildElement(0, GetMapLayer(newLayer));
             }
         }
 
@@ -181,7 +144,7 @@ namespace MapControl
         {
             foreach (var mapLayer in mapLayers)
             {
-                Children.Insert(index, mapLayer);
+                InsertChildElement(index, mapLayer);
 
                 if (index++ == 0)
                 {
@@ -194,13 +157,49 @@ namespace MapControl
         {
             foreach (var _ in layers)
             {
-                Children.RemoveAt(index);
+                RemoveChildElement(index);
             }
 
             if (index == 0)
             {
                 MapLayer = null;
             }
+        }
+
+        private void InsertChildElement(int index, FrameworkElement element)
+        {
+            if (index == 0 && element is IMapLayer mapLayer)
+            {
+                if (mapLayer.MapBackground != null)
+                {
+                    Background = mapLayer.MapBackground;
+                }
+
+                if (mapLayer.MapForeground != null)
+                {
+                    Foreground = mapLayer.MapForeground;
+                }
+            }
+
+            Children.Insert(index, element);
+        }
+
+        private void RemoveChildElement(int index)
+        {
+            if (index == 0 && Children[0] is IMapLayer mapLayer)
+            {
+                if (mapLayer.MapBackground != null)
+                {
+                    ClearValue(BackgroundProperty);
+                }
+
+                if (mapLayer.MapForeground != null)
+                {
+                    ClearValue(ForegroundProperty);
+                }
+            }
+
+            Children.RemoveAt(index);
         }
 
         private FrameworkElement GetMapLayer(object layer)
