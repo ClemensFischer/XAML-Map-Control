@@ -31,9 +31,9 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, object>(nameof(MapLayer), null,
                 (map, oldValue, newValue) => map.MapLayerPropertyChanged(oldValue, newValue));
 
-        public static readonly DependencyProperty MapLayerItemsSourceProperty =
-            DependencyPropertyHelper.Register<MapBase, IEnumerable>(nameof(MapLayerItemsSource), null,
-                (map, oldValue, newValue) => map.MapLayerItemsSourcePropertyChanged(oldValue, newValue));
+        public static readonly DependencyProperty MapLayersSourceProperty =
+            DependencyPropertyHelper.Register<MapBase, IEnumerable>(nameof(MapLayersSource), null,
+                (map, oldValue, newValue) => map.MapLayersSourcePropertyChanged(oldValue, newValue));
 
         /// <summary>
         /// Gets or sets the base map layer, which is added as first element to the Children collection.
@@ -49,10 +49,18 @@ namespace MapControl
             set => SetValue(MapLayerProperty, value);
         }
 
-        public IEnumerable MapLayerItemsSource
+        /// <summary>
+        /// Holds a collection of map layers, either FrameworkElements or plain objects with
+        /// an associated DataTemplate resource from which a FrameworkElement can be created.
+        /// FrameworkElemens are added to the Children collection, starting at index 0.
+        /// The first element of this collection is assigned to the MapLayer property.
+        /// Subsequent changes of the MapLayer or Children properties are not reflected
+        /// by the MapLayersSource collection.
+        /// </summary>
+        public IEnumerable MapLayersSource
         {
-            get => (IEnumerable)GetValue(MapLayerItemsSourceProperty);
-            set => SetValue(MapLayerItemsSourceProperty, value);
+            get => (IEnumerable)GetValue(MapLayersSourceProperty);
+            set => SetValue(MapLayersSourceProperty, value);
         }
 
         private void MapLayerPropertyChanged(object oldLayer, object newLayer)
@@ -106,30 +114,30 @@ namespace MapControl
             }
         }
 
-        private void MapLayerItemsSourcePropertyChanged(IEnumerable oldItems, IEnumerable newItems)
+        private void MapLayersSourcePropertyChanged(IEnumerable oldLayers, IEnumerable newLayers)
         {
-            if (oldItems != null)
+            if (oldLayers != null)
             {
-                if (oldItems is INotifyCollectionChanged incc)
+                if (oldLayers is INotifyCollectionChanged incc)
                 {
-                    incc.CollectionChanged -= MapLayerItemsSourceCollectionChanged;
+                    incc.CollectionChanged -= MapLayersSourceCollectionChanged;
                 }
 
-                RemoveMapLayers(oldItems, 0);
+                RemoveMapLayers(oldLayers, 0);
             }
 
-            if (newItems != null)
+            if (newLayers != null)
             {
-                if (newItems is INotifyCollectionChanged incc)
+                if (newLayers is INotifyCollectionChanged incc)
                 {
-                    incc.CollectionChanged += MapLayerItemsSourceCollectionChanged;
+                    incc.CollectionChanged += MapLayersSourceCollectionChanged;
                 }
 
-                AddMapLayers(newItems, 0);
+                AddMapLayers(newLayers, 0);
             }
         }
 
-        private void MapLayerItemsSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void MapLayersSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
@@ -154,9 +162,9 @@ namespace MapControl
             }
         }
 
-        private void AddMapLayers(IEnumerable items, int index)
+        private void AddMapLayers(IEnumerable layers, int index)
         {
-            var mapLayers = items.Cast<object>().Select(GetMapLayer).ToList();
+            var mapLayers = layers.Cast<object>().Select(GetMapLayer).ToList();
 
             if (mapLayers.Count > 0)
             {
@@ -182,9 +190,9 @@ namespace MapControl
             }
         }
 
-        private void RemoveMapLayers(IEnumerable items, int index)
+        private void RemoveMapLayers(IEnumerable layers, int index)
         {
-            foreach (var _ in items)
+            foreach (var _ in layers)
             {
                 Children.RemoveAt(index);
             }
@@ -195,41 +203,41 @@ namespace MapControl
             }
         }
 
-        private FrameworkElement GetMapLayer(object item)
+        private FrameworkElement GetMapLayer(object layer)
         {
             FrameworkElement mapLayer = null;
 
-            if (item != null)
+            if (layer != null)
             {
-                mapLayer = item as FrameworkElement ?? TryLoadDataTemplate(item);
+                mapLayer = layer as FrameworkElement ?? TryLoadDataTemplate(layer);
             }
 
             return mapLayer ?? new MapTileLayer();
         }
 
-        private FrameworkElement TryLoadDataTemplate(object item)
+        private FrameworkElement TryLoadDataTemplate(object layer)
         {
             FrameworkElement element = null;
 #if AVALONIA
-            if (this.TryFindResource(item.GetType().FullName, out object value) &&
+            if (this.TryFindResource(layer.GetType().FullName, out object value) &&
                 value is Avalonia.Markup.Xaml.Templates.DataTemplate template)
             {
-                element = template.Build(item);
+                element = template.Build(layer);
             }
 #elif WPF
-            if (TryFindResource(new DataTemplateKey(item.GetType())) is DataTemplate template)
+            if (TryFindResource(new DataTemplateKey(layer.GetType())) is DataTemplate template)
             {
                 element = (FrameworkElement)template.LoadContent();
             }
 #else
-            if (TryFindResource(this, item.GetType().FullName) is DataTemplate template)
+            if (TryFindResource(this, layer.GetType().FullName) is DataTemplate template)
             {
                 element = (FrameworkElement)template.LoadContent();
             }
 #endif
             if (element != null)
             {
-                element.DataContext = item;
+                element.DataContext = layer;
             }
 
             return element;
