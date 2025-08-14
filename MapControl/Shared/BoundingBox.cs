@@ -40,6 +40,11 @@ namespace MapControl
 
         public virtual Location Center => new Location((South + North) / 2d, (West + East) / 2d);
 
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3}", South, West, North, East);
+        }
+
         /// <summary>
         /// Creates a BoundingBox instance from a string containing a comma-separated sequence of four or five floating point numbers.
         /// </summary>

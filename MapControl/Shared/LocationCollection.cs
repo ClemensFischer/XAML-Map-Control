@@ -48,20 +48,22 @@ namespace MapControl
             Add(new Location(latitude, longitude));
         }
 
+        public override string ToString()
+        {
+            return string.Join(" ", this.Select(l => l.ToString()));
+        }
+
         /// <summary>
         /// Creates a LocationCollection instance from a string containing a sequence
         /// of Location strings that are separated by a spaces or semicolons.
         /// </summary>
         public static LocationCollection Parse(string locations)
         {
-            if (string.IsNullOrEmpty(locations))
-            {
-                return new LocationCollection();
-            }
-
-            var strings = locations.Split(new char[] { ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            return new LocationCollection(strings.Select(l => Location.Parse(l)));
+            return string.IsNullOrEmpty(locations)
+                ? new LocationCollection()
+                : new LocationCollection(locations
+                    .Split(new char[] { ' ', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Location.Parse));
         }
 
         /// <summary>

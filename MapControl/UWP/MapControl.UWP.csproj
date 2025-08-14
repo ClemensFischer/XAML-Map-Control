@@ -278,8 +278,8 @@
     <Compile Include="..\WinUI\Tile.WinUI.cs">
       <Link>Tile.WinUI.cs</Link>
     </Compile>
-    <Compile Include="..\WinUI\TileSourceConverter.cs">
-      <Link>TileSourceConverter.cs</Link>
+    <Compile Include="..\WinUI\ValueConverters.cs">
+      <Link>ValueConverters.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />

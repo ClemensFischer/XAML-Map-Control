@@ -89,6 +89,11 @@ namespace MapControl
             return ImageLoader.LoadImageAsync(buffer);
         }
 
+        public override string ToString()
+        {
+            return UriTemplate;
+        }
+
         /// <summary>
         /// Creates a TileSource instance from an Uri template string.
         /// </summary>
