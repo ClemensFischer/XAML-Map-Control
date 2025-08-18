@@ -89,9 +89,9 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override async Task UpdateTileLayerAsync(bool tileSourceChanged)
+        protected override async Task UpdateTileLayerAsync(bool resetTiles)
         {
-            // tileSourceChanged is ignored here because it is always false.
+            // resetTiles is ignored here because it is always false.
 
             if (ParentMap == null ||
                 !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))

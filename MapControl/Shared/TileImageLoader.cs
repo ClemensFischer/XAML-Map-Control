@@ -79,9 +79,9 @@ namespace MapControl
         {
             pendingTiles?.Clear();
 
-            if (tiles != null && tileSource != null)
+            if (tileSource != null && tiles != null && (tiles = tiles.Where(tile => tile.IsPending)).Any())
             {
-                pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.IsPending).Reverse());
+                pendingTiles = new ConcurrentStack<Tile>(tiles.Reverse());
 
                 var tileCount = pendingTiles.Count;
                 var taskCount = Math.Min(tileCount, MaxLoadTasks);

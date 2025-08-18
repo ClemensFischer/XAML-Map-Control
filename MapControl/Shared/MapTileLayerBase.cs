@@ -194,13 +194,13 @@ namespace MapControl
 
         protected abstract void SetRenderTransform();
 
-        protected abstract Task UpdateTileLayerAsync(bool tileSourceChanged);
+        protected abstract Task UpdateTileLayerAsync(bool resetTiles);
 
-        private Task UpdateTileLayer(bool tileSourceChanged)
+        private Task UpdateTileLayer(bool resetTiles)
         {
             updateTimer.Stop();
 
-            return UpdateTileLayerAsync(tileSourceChanged);
+            return UpdateTileLayerAsync(resetTiles);
         }
 
         private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)

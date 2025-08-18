@@ -109,33 +109,24 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override async Task UpdateTileLayerAsync(bool tileSourceChanged)
+        protected override async Task UpdateTileLayerAsync(bool resetTiles)
         {
-            var updateTiles = false;
-
             if (ParentMap == null || ParentMap.MapProjection.Type != MapProjectionType.WebMercator)
             {
-                updateTiles = TileMatrix != null;
                 TileMatrix = null;
+                Children.Clear();
+
+                await LoadTilesAsync(null, null); // stop TileImageLoader
             }
-            else
+            else if (SetTileMatrix() || resetTiles)
             {
-                if (tileSourceChanged)
-                {
-                    Tiles = new TileCollection(); // clear all
-                    updateTiles = true;
-                }
-
-                if (SetTileMatrix())
-                {
-                    updateTiles = true;
-                }
-
                 SetRenderTransform();
-            }
 
-            if (updateTiles)
-            {
+                if (resetTiles)
+                {
+                    Tiles.Clear();
+                }
+
                 UpdateTiles();
 
                 await LoadTilesAsync(Tiles, SourceName);
