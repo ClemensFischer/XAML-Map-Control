@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
@@ -73,11 +74,11 @@ namespace MapControl
         /// Loads a tile ImageSource asynchronously from GetUri(column, row, zoomLevel).
         /// This method is called by TileImageLoader when caching is disabled.
         /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(int column, int row, int zoomLevel)
+        public virtual Task<ImageSource> LoadImageAsync(int column, int row, int zoomLevel, CancellationToken cancellationToken)
         {
             var uri = GetUri(column, row, zoomLevel);
 
-            return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
+            return uri != null ? ImageLoader.LoadImageAsync(uri, null, cancellationToken) : Task.FromResult((ImageSource)null);
         }
 
         /// <summary>

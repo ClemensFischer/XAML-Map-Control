@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Threading;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -164,7 +165,7 @@ namespace MapControl
 
             foreach (var imageOverlay in imageOverlays)
             {
-                imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
+                imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath), null, CancellationToken.None);
             }
 
             return imageOverlays;

@@ -101,7 +101,7 @@ namespace MapControl
             {
                 Children.Clear();
 
-                await LoadTilesAsync(null, null); // stop TileImageLoader
+                CancelLoadTilesAsync();
             }
             else if (UpdateChildLayers(tileMatrixSet))
             {

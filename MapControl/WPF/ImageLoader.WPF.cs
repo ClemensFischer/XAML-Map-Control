@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -45,17 +46,18 @@ namespace MapControl
             }
         }
 
-        internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
+        internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress, CancellationToken cancellationToken)
         {
             WriteableBitmap mergedBitmap = null;
             var p1 = 0d;
             var p2 = 0d;
 
             var images = await Task.WhenAll(
-                LoadImageAsync(uri1, new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); })),
-                LoadImageAsync(uri2, new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); })));
+                LoadImageAsync(uri1, new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); }), cancellationToken),
+                LoadImageAsync(uri2, new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); }), cancellationToken));
 
-            if (images.Length == 2 &&
+            if (!cancellationToken.IsCancellationRequested &&
+                images.Length == 2 &&
                 images[0] is BitmapSource bitmap1 &&
                 images[1] is BitmapSource bitmap2 &&
                 bitmap1.PixelHeight == bitmap2.PixelHeight &&

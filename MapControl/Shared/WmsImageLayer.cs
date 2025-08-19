@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Threading;
+
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -162,7 +164,7 @@ namespace MapControl
         /// <summary>
         /// Loads an ImageSource from the URL returned by GetMapRequestUri().
         /// </summary>
-        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress)
+        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress, CancellationToken cancellationToken)
         {
             ImageSource image = null;
 
@@ -185,7 +187,7 @@ namespace MapControl
 
                         if (uri != null)
                         {
-                            image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
+                            image = await ImageLoader.LoadImageAsync(new Uri(uri), progress, cancellationToken);
                         }
                     }
                     else
@@ -208,7 +210,7 @@ namespace MapControl
 
                         if (uri1 != null && uri2 != null)
                         {
-                            image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress);
+                            image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress, cancellationToken);
                         }
                     }
                 }

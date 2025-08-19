@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
@@ -53,7 +54,7 @@ namespace MapControl
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
-        private bool updateInProgress;
+        private CancellationTokenSource cancellationTokenSource;
 
         public MapImageLayer()
         {
@@ -165,39 +166,37 @@ namespace MapControl
             }
         }
 
-        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress);
+        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress, CancellationToken cancellationToken);
 
         protected async Task UpdateImageAsync()
         {
-            if (updateInProgress)
+            updateTimer.Stop();
+
+            if (cancellationTokenSource != null)
             {
-                // Update image on next tick, start timer if not running.
-                //
-                updateTimer.Run();
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource = null;
             }
-            else
+
+            if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
             {
-                updateInProgress = true;
-                updateTimer.Stop();
+                var width = ParentMap.ActualWidth * RelativeImageSize;
+                var height = ParentMap.ActualHeight * RelativeImageSize;
+                var x = (ParentMap.ActualWidth - width) / 2d;
+                var y = (ParentMap.ActualHeight - height) / 2d;
 
-                ImageSource image = null;
-                BoundingBox boundingBox = null;
+                var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
 
-                if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
+                cancellationTokenSource = new CancellationTokenSource();
+
+                var image = await GetImageAsync(boundingBox, loadingProgress, cancellationTokenSource.Token);
+
+                cancellationTokenSource = null;
+
+                if (image != null)
                 {
-                    var width = ParentMap.ActualWidth * RelativeImageSize;
-                    var height = ParentMap.ActualHeight * RelativeImageSize;
-                    var x = (ParentMap.ActualWidth - width) / 2d;
-                    var y = (ParentMap.ActualHeight - height) / 2d;
-
-                    boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
-
-                    image = await GetImageAsync(boundingBox, loadingProgress);
+                    SwapImages(image, boundingBox);
                 }
-
-                SwapImages(image, boundingBox);
-
-                updateInProgress = false;
             }
         }
 

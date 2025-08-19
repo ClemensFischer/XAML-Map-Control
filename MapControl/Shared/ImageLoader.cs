@@ -3,6 +3,8 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading;
+
 #if WPF
 using System.Windows.Media;
 #elif UWP
@@ -31,7 +33,7 @@ namespace MapControl
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
-        public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
+        public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress, CancellationToken cancellationToken)
         {
             ImageSource image = null;
 
@@ -41,7 +43,7 @@ namespace MapControl
             {
                 if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
                 {
-                    var response = await GetHttpResponseAsync(uri, progress);
+                    var response = await GetHttpResponseAsync(uri, progress, cancellationToken);
 
                     if (response?.Buffer != null)
                     {
@@ -87,13 +89,13 @@ namespace MapControl
             }
         }
 
-        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, IProgress<double> progress = null)
+        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, IProgress<double> progress, CancellationToken cancellationToken)
         {
             HttpResponse response = null;
 
             try
             {
-                using (var responseMessage = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
+                using (var responseMessage = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
@@ -115,6 +117,10 @@ namespace MapControl
                         Logger?.LogWarning("{uri}: {status} {reason}", uri, (int)responseMessage.StatusCode, responseMessage.ReasonPhrase);
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                Logger?.LogTrace("Cancelled loading image from {uri}", uri);
             }
             catch (Exception ex)
             {

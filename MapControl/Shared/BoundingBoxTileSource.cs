@@ -1,13 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Threading.Tasks;
-#if WPF
-using System.Windows.Media;
-#elif UWP
-using Windows.UI.Xaml.Media;
-#elif WINUI
-using Microsoft.UI.Xaml.Media;
-#endif
 
 namespace MapControl
 {
@@ -18,13 +10,6 @@ namespace MapControl
             GetTileBounds(column, row, zoomLevel, out double west, out double south, out double east, out double north);
 
             return GetUri(west, south, east, north);
-        }
-
-        public override Task<ImageSource> LoadImageAsync(int column, int row, int zoomLevel)
-        {
-            GetTileBounds(column, row, zoomLevel, out double west, out double south, out double east, out double north);
-
-            return LoadImageAsync(west, south, east, north);
         }
 
         protected virtual Uri GetUri(double west, double south, double east, double north)
@@ -44,13 +29,6 @@ namespace MapControl
             }
 
             return uri;
-        }
-
-        protected virtual Task<ImageSource> LoadImageAsync(double west, double south, double east, double north)
-        {
-            var uri = GetUri(west, south, east, north);
-
-            return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
 
         /// <summary>

@@ -196,6 +196,13 @@ namespace MapControl
             return TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress);
         }
 
+        protected void CancelLoadTilesAsync()
+        {
+            TileImageLoader.CancelLoadTiles();
+
+            ClearValue(LoadingProgressProperty);
+        }
+
         protected abstract void SetRenderTransform();
 
         protected abstract Task UpdateTileLayerAsync(bool resetTiles);
