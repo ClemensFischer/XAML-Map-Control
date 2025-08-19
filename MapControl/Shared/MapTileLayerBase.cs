@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
@@ -60,6 +62,7 @@ namespace MapControl
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
         private ITileImageLoader tileImageLoader;
+        private CancellationTokenSource cancellationTokenSource;
         private MapBase parentMap;
 
         protected MapTileLayerBase()
@@ -191,14 +194,24 @@ namespace MapControl
 
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
-        protected Task LoadTilesAsync(IEnumerable<Tile> tiles, string cacheName)
+        protected async Task LoadTilesAsync(IEnumerable<Tile> tiles, string cacheName)
         {
-            return TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress);
+            cancellationTokenSource?.Cancel();
+
+            if (TileSource != null && tiles != null && tiles.Any(tile => tile.IsPending))
+            {
+                using (cancellationTokenSource = new CancellationTokenSource())
+                {
+                    await TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress, cancellationTokenSource.Token);
+                }
+
+                cancellationTokenSource = null;
+            }
         }
 
         protected void CancelLoadTiles()
         {
-            TileImageLoader.CancelLoadTiles();
+            cancellationTokenSource?.Cancel();
 
             ClearValue(LoadingProgressProperty);
         }

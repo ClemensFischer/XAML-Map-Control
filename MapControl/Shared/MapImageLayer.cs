@@ -171,12 +171,7 @@ namespace MapControl
         protected async Task UpdateImageAsync()
         {
             updateTimer.Stop();
-
-            if (cancellationTokenSource != null)
-            {
-                cancellationTokenSource.Cancel();
-                cancellationTokenSource = null;
-            }
+            cancellationTokenSource?.Cancel();
 
             if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
             {
@@ -187,9 +182,12 @@ namespace MapControl
 
                 var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
 
-                cancellationTokenSource = new CancellationTokenSource();
+                ImageSource image;
 
-                var image = await GetImageAsync(boundingBox, loadingProgress, cancellationTokenSource.Token);
+                using (cancellationTokenSource = new CancellationTokenSource())
+                {
+                    image = await GetImageAsync(boundingBox, loadingProgress, cancellationTokenSource.Token);
+                }
 
                 cancellationTokenSource = null;
 
