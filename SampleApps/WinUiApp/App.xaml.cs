@@ -11,7 +11,7 @@ namespace SampleApplication
             InitializeComponent();
         }
 
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
             window = new MainWindow();
             window.Activate();
