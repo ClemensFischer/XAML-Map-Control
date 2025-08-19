@@ -193,7 +193,7 @@ namespace MapControl
 
                 cancellationTokenSource = null;
 
-                if (image != null)
+                if (image != null && Children.Count >= 2)
                 {
                     SwapImages(image, boundingBox);
                 }
@@ -211,25 +211,22 @@ namespace MapControl
 
         private void SwapImages(ImageSource image, BoundingBox boundingBox)
         {
-            if (Children.Count >= 2)
+            var topImage = (Image)Children[0];
+
+            Children.RemoveAt(0);
+            Children.Insert(1, topImage);
+
+            topImage.Source = image;
+            SetBoundingBox(topImage, boundingBox);
+
+            if (MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
-                var topImage = (Image)Children[0];
-
-                Children.RemoveAt(0);
-                Children.Insert(1, topImage);
-
-                topImage.Source = image;
-                SetBoundingBox(topImage, boundingBox);
-
-                if (MapBase.ImageFadeDuration > TimeSpan.Zero)
-                {
-                    FadeOver();
-                }
-                else
-                {
-                    topImage.Opacity = 1d;
-                    Children[0].Opacity = 0d;
-                }
+                FadeOver();
+            }
+            else
+            {
+                topImage.Opacity = 1d;
+                Children[0].Opacity = 0d;
             }
         }
     }
