@@ -196,7 +196,7 @@ namespace MapControl
             return TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress);
         }
 
-        protected void CancelLoadTilesAsync()
+        protected void CancelLoadTiles()
         {
             TileImageLoader.CancelLoadTiles();
 

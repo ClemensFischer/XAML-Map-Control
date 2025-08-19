@@ -119,7 +119,7 @@ namespace MapControl
                 TileMatrix = null;
                 Children.Clear();
 
-                CancelLoadTilesAsync();
+                CancelLoadTiles();
             }
             else if (SetTileMatrix() || resetTiles)
             {
