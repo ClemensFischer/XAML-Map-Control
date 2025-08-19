@@ -69,7 +69,7 @@ namespace MapControl
         private static ILogger logger;
         private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<TileImageLoader>());
 
-        private ConcurrentStack<Tile> pendingTiles;
+        private ConcurrentStack<Tile> pendingTiles = new ConcurrentStack<Tile>();
 
         /// <summary>
         /// Loads all pending tiles from the tiles collection. Tile image caching is enabled when the Cache
@@ -77,7 +77,11 @@ namespace MapControl
         /// </summary>
         public async Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            pendingTiles?.Clear();
+            if (!pendingTiles.IsEmpty)
+            {
+                pendingTiles.Clear();
+                progress?.Report(1d);
+            }
 
             if (tileSource != null && tiles != null && (tiles = tiles.Where(tile => tile.IsPending)).Any())
             {
@@ -104,8 +108,6 @@ namespace MapControl
                         {
                             tile.IsPending = false;
 
-                            progress?.Report((double)(tileCount - tileStack.Count) / tileCount);
-
                             try
                             {
                                 await LoadTileImage(tile, tileSource, cacheName).ConfigureAwait(false);
@@ -114,6 +116,8 @@ namespace MapControl
                             {
                                 Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                             }
+
+                            progress?.Report((double)(tileCount - tileStack.Count) / tileCount);
                         }
                     }
 
