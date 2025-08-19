@@ -17,11 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="..\Shared\TypeConverters.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <!-- Directly referencing "Microsoft.Web.WebView2 is a workaround for a bug in WindowsAppSDK, https://github.com/microsoft/WindowsAppSDK/issues/4807 -->
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />

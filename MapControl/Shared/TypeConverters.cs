@@ -1,10 +1,22 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+#if WPF
+using System.Windows.Data;
+#elif UWP
+using Windows.UI.Xaml.Data;
+#elif WINUI
+using Microsoft.UI.Xaml.Data;
+#endif
+#if UWP || WINUI
+using ConverterCulture = System.String;
+#else
+using ConverterCulture = System.Globalization.CultureInfo;
+#endif
 
 namespace MapControl
 {
-    public class LocationConverter : TypeConverter
+    public class LocationConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -13,11 +25,21 @@ namespace MapControl
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            return Location.Parse((string)value);
+            return Location.Parse(value.ToString());
+        }
+
+        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return Location.Parse(value.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return value.ToString();
         }
     }
 
-    public class LocationCollectionConverter : TypeConverter
+    public class LocationCollectionConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -26,11 +48,21 @@ namespace MapControl
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            return LocationCollection.Parse((string)value);
+            return LocationCollection.Parse(value.ToString());
+        }
+
+        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return LocationCollection.Parse(value.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return value.ToString();
         }
     }
 
-    public class BoundingBoxConverter : TypeConverter
+    public class BoundingBoxConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -39,11 +71,21 @@ namespace MapControl
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            return BoundingBox.Parse((string)value);
+            return BoundingBox.Parse(value.ToString());
+        }
+
+        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return BoundingBox.Parse(value.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return value.ToString();
         }
     }
 
-    public class TileSourceConverter : TypeConverter
+    public class TileSourceConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -52,7 +94,17 @@ namespace MapControl
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            return TileSource.Parse((string)value);
+            return TileSource.Parse(value.ToString());
+        }
+
+        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return TileSource.Parse(value.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return value.ToString();
         }
     }
 }

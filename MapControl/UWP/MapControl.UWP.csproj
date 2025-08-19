@@ -188,6 +188,9 @@
     <Compile Include="..\Shared\TransverseMercatorProjection.cs">
       <Link>TransverseMercatorProjection.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\TypeConverters.cs">
+      <Link>TypeConverters.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\ViewportChangedEventArgs.cs">
       <Link>ViewportChangedEventArgs.cs</Link>
     </Compile>
@@ -277,9 +280,6 @@
     </Compile>
     <Compile Include="..\WinUI\Tile.WinUI.cs">
       <Link>Tile.WinUI.cs</Link>
-    </Compile>
-    <Compile Include="..\WinUI\ValueConverters.cs">
-      <Link>ValueConverters.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TileImageLoader.UWP.cs" />

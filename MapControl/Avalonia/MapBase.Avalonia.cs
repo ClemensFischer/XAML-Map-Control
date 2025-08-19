@@ -4,6 +4,7 @@ global using Avalonia.Animation.Easings;
 global using Avalonia.Controls;
 global using Avalonia.Controls.Documents;
 global using Avalonia.Data;
+global using Avalonia.Data.Converters;
 global using Avalonia.Input;
 global using Avalonia.Interactivity;
 global using Avalonia.Media;
