@@ -18,6 +18,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Threading;
 #endif
 
 namespace MapControl

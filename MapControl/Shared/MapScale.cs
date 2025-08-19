@@ -21,7 +21,12 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 #elif AVALONIA
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Avalonia.Data;
+using Avalonia.Layout;
+using PointCollection = System.Collections.Generic.List<Avalonia.Point>;
 #endif
 
 namespace MapControl

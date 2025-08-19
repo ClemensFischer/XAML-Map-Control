@@ -6,6 +6,9 @@ using Windows.UI.Xaml;
 #elif WINUI
 global using DispatcherTimer = Microsoft.UI.Dispatching.DispatcherQueueTimer;
 using Microsoft.UI.Xaml;
+#elif AVALONIA
+using DependencyObject = Avalonia.AvaloniaObject;
+using Avalonia.Threading;
 #endif
 using System;
 

@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Media;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 

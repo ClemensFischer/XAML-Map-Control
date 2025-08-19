@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using System;
 
 #pragma warning disable AVP1001
 

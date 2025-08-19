@@ -7,6 +7,8 @@ using System.Windows.Data;
 using Windows.UI.Xaml.Data;
 #elif WINUI
 using Microsoft.UI.Xaml.Data;
+#elif AVALONIA
+using Avalonia.Data.Converters;
 #endif
 #if UWP || WINUI
 using ConverterCulture = System.String;

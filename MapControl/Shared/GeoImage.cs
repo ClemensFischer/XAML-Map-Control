@@ -22,7 +22,11 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Shape = Microsoft.UI.Xaml.Shapes.Shape;
 #elif AVALONIA
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using Shape = Avalonia.Controls.Shapes.Shape;
+using BitmapSource = Avalonia.Media.Imaging.Bitmap;
 #endif
 
 namespace MapControl
@@ -43,6 +47,26 @@ namespace MapControl
                 LatLonBox = projection != null
                     ? new LatLonBox(projection.MapToBoundingBox(new Rect(p1, p2)))
                     : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
+
+#if DEBUG && NET6_0_OR_GREATER && !AVALONIA
+                System.Diagnostics.Debug.WriteLine(
+                    string.Create(CultureInfo.InvariantCulture,
+                    $"proj  {projection?.CrsId ?? "-"}\n" +
+                    $"SizeX {bitmap.PixelWidth}\n" +
+                    $"SizeY {bitmap.PixelHeight}\n" +
+                    $"M11   {transform.M11}\n" +
+                    $"M22   {transform.M22}\n" +
+                    $"OfsX  {transform.OffsetX}\n" +
+                    $"OfsY  {transform.OffsetY}\n" +
+                    $"X1    {p1.X}\n" +
+                    $"Y1    {p1.Y}\n" +
+                    $"X2    {p2.X}\n" +
+                    $"Y2    {p2.Y}\n" +
+                    $"West  {LatLonBox.West}\n" +
+                    $"South {LatLonBox.South}\n" +
+                    $"East  {LatLonBox.East}\n" +
+                    $"North {LatLonBox.North}\n"));
+#endif
             }
 
             public BitmapSource BitmapSource { get; }
@@ -119,7 +143,7 @@ namespace MapControl
 
         private static async Task<GeoBitmap> LoadGeoBitmap(string sourcePath)
         {
-            var ext = Path.GetExtension(sourcePath);
+            var ext = System.IO.Path.GetExtension(sourcePath);
 
             if (ext.Length >= 4)
             {

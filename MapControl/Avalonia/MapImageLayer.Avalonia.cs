@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using Avalonia.Animation;
+using Avalonia.Styling;
+using System.Threading.Tasks;
 
 namespace MapControl
 {

@@ -1,5 +1,8 @@
-﻿using Avalonia.Controls.Presenters;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
+using Avalonia.Media;
 
 namespace MapControl
 {
@@ -40,13 +43,13 @@ namespace MapControl
         protected override void PrepareContainerForItemOverride(Control container, object item, int index)
         {
             base.PrepareContainerForItemOverride(container, item, index);
-            PrepareContainer(container, item);
+            PrepareContainer((MapItem)container, item);
         }
 
         protected override void ClearContainerForItemOverride(Control container)
         {
             base.ClearContainerForItemOverride(container);
-            ClearContainer(container);
+            ClearContainer((MapItem)container);
         }
 
         internal void UpdateSelection(MapItem mapItem, PointerEventArgs e)

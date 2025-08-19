@@ -1,29 +1,16 @@
-﻿global using Avalonia;
-global using Avalonia.Animation;
-global using Avalonia.Animation.Easings;
-global using Avalonia.Controls;
-global using Avalonia.Controls.Documents;
-global using Avalonia.Data;
-global using Avalonia.Data.Converters;
-global using Avalonia.Input;
-global using Avalonia.Interactivity;
-global using Avalonia.Media;
-global using Avalonia.Media.Imaging;
-global using Avalonia.Platform;
-global using Avalonia.Styling;
-global using Avalonia.Threading;
-global using DependencyObject = Avalonia.AvaloniaObject;
-global using DependencyProperty = Avalonia.AvaloniaProperty;
+﻿global using DependencyProperty = Avalonia.AvaloniaProperty;
 global using FrameworkElement = Avalonia.Controls.Control;
-global using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
-global using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
 global using Brush = Avalonia.Media.IBrush;
 global using ImageSource = Avalonia.Media.IImage;
-global using BitmapSource = Avalonia.Media.Imaging.Bitmap;
-global using PathFigureCollection = Avalonia.Media.PathFigures;
-global using PointCollection = System.Collections.Generic.List<Avalonia.Point>;
 global using PropertyPath = System.String;
-
+using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Data;
+using Avalonia.Media;
+using Avalonia.Styling;
 using System.Threading;
 using System.Threading.Tasks;
 

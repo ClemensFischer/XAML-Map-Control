@@ -1,4 +1,6 @@
-﻿namespace MapControl
+﻿using Avalonia;
+
+namespace MapControl
 {
     public partial class ViewTransform
     {

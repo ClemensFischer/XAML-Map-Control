@@ -1,4 +1,7 @@
-﻿namespace MapControl
+﻿using Avalonia;
+using Avalonia.Controls;
+
+namespace MapControl
 {
     /// <summary>
     /// ContentControl placed on a MapPanel at a geographic location specified by the Location property.

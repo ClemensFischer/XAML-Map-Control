@@ -1,4 +1,8 @@
-﻿namespace MapControl
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+
+namespace MapControl
 {
     public partial class MapPanel
     {

@@ -11,6 +11,10 @@ using Windows.UI.Xaml.Data;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
+#elif AVALONIA
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
 #endif
 
 namespace MapControl
@@ -118,18 +122,18 @@ namespace MapControl
             }
         }
 
-        private void PrepareContainer(DependencyObject container, object item)
+        private void PrepareContainer(MapItem mapItem, object item)
         {
-            if (LocationMemberPath != null && container is MapItem mapItem)
+            if (LocationMemberPath != null)
             {
                 mapItem.SetBinding(MapItem.LocationProperty,
                     new Binding { Source = item, Path = new PropertyPath(LocationMemberPath) });
             }
         }
 
-        private void ClearContainer(DependencyObject container)
+        private void ClearContainer(MapItem mapItem)
         {
-            if (LocationMemberPath != null && container is MapItem mapItem)
+            if (LocationMemberPath != null)
             {
                 mapItem.ClearValue(MapItem.LocationProperty);
             }

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 #if WPF
 using System.Windows;
+#elif AVALONIA
+using Avalonia;
 #endif
 
 namespace MapControl

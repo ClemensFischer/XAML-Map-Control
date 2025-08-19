@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Styling;
+using System;
 
 namespace MapControl
 {

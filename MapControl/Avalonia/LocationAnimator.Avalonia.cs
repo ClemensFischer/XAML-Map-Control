@@ -1,4 +1,6 @@
-﻿namespace MapControl
+﻿using Avalonia.Animation;
+
+namespace MapControl
 {
     public class LocationAnimator : InterpolatingAnimator<Location>
     {

@@ -7,9 +7,10 @@ using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using Avalonia.Controls;
+using Avalonia.Media;
 #endif
-
-using System;
 
 namespace MapControl
 {

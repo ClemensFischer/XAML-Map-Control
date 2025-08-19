@@ -32,13 +32,13 @@ namespace MapControl
         protected override void PrepareContainerForItemOverride(DependencyObject container, object item)
         {
             base.PrepareContainerForItemOverride(container, item);
-            PrepareContainer(container, item);
+            PrepareContainer((MapItem)container, item);
         }
 
         protected override void ClearContainerForItemOverride(DependencyObject container, object item)
         {
             base.ClearContainerForItemOverride(container, item);
-            ClearContainer(container);
+            ClearContainer((MapItem)container);
         }
     }
 }

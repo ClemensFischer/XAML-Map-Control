@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls.Shapes;
+﻿using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 
 namespace MapControl
 {

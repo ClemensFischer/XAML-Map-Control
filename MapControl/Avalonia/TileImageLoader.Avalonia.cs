@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Avalonia.Media;
+using Avalonia.Threading;
+using System;
 using System.Threading.Tasks;
 
 namespace MapControl
