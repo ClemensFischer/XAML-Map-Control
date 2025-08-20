@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 #if WPF
@@ -102,10 +103,12 @@ namespace MapControl
 
                         progress?.Report((double)(tileCount - pendingTiles.Count) / tileCount);
 
-                        var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
+                        Logger?.LogTrace("[{thread}] Loading tile image {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
 
                         try
                         {
+                            var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
+
                             await LoadTileImage(tile, tileSource, cacheName, requestCancellationToken).ConfigureAwait(false);
                         }
                         catch (Exception ex)

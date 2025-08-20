@@ -61,8 +61,8 @@ namespace MapControl
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
-        private ITileImageLoader tileImageLoader;
         private CancellationTokenSource cancellationTokenSource;
+        private ITileImageLoader tileImageLoader;
         private MapBase parentMap;
 
         protected MapTileLayerBase()

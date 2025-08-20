@@ -171,7 +171,10 @@ namespace MapControl
         protected async Task UpdateImageAsync()
         {
             updateTimer.Stop();
+
             cancellationTokenSource?.Cancel();
+
+            ClearValue(LoadingProgressProperty);
 
             if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
             {

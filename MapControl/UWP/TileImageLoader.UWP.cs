@@ -17,16 +17,16 @@ namespace MapControl
                 try
                 {
                     var image = await loadImageFunc();
-        
-                    tcs.TrySetResult(null); // tcs.Task has completed when image is loaded
 
                     if (cancellationToken.IsCancellationRequested)
                     {
                         tile.IsPending = true;
+                        tcs.TrySetCanceled(cancellationToken);
                     }
                     else
                     {
                         tile.SetImageSource(image);
+                        tcs.TrySetResult(null);
                     }
                 }
                 catch (Exception ex)
@@ -37,7 +37,7 @@ namespace MapControl
 
             if (!await tile.Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadTileImage))
             {
-                tcs.TrySetCanceled(cancellationToken);
+                tcs.TrySetCanceled(CancellationToken.None);
             }
 
             await tcs.Task;
