@@ -82,43 +82,52 @@ namespace MapControl
         /// </summary>
         public async Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress, CancellationToken cancellationToken)
         {
-            using (var semaphore = new SemaphoreSlim(MaxLoadTasks, MaxLoadTasks))
+            var pendingTiles = tiles.Where(tile => tile.IsPending).ToList();
+
+            if (pendingTiles.Count > 0)
             {
-                var pendingTiles = tiles.Where(tile => tile.IsPending).ToList();
-                var tileCount = 0;
+                var progressCount = 0;
 
-                async Task LoadTile(Tile tile)
+                if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
                 {
-                    try
-                    {
-                        await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        return;
-                    }
-
-                    tile.IsPending = false;
-
-                    progress?.Report((double)++tileCount / pendingTiles.Count);
-
-                    Logger?.LogTrace("[{thread}] Loading tile image {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
-
-                    var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
-
-                    try
-                    {
-                        await LoadTileImage(tile, tileSource, cacheName, requestCancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
-                    }
-
-                    semaphore.Release();
+                    cacheName = null; // disable tile image caching
                 }
 
-                await Task.WhenAll(pendingTiles.Select(LoadTile));
+                using (var semaphore = new SemaphoreSlim(MaxLoadTasks, MaxLoadTasks))
+                {
+                    async Task LoadTile(Tile tile)
+                    {
+                        try
+                        {
+                            await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            return;
+                        }
+
+                        tile.IsPending = false;
+
+                        progress?.Report((double)++progressCount / pendingTiles.Count);
+
+                        Logger?.LogTrace("[{thread}] Loading tile image {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
+
+                        try
+                        {
+                            var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
+
+                            await LoadTileImage(tile, tileSource, cacheName, requestCancellationToken).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
+                        }
+
+                        semaphore.Release();
+                    }
+
+                    await Task.WhenAll(pendingTiles.Select(tile => Task.Run(async () => await LoadTile(tile))));
+                }
 
                 if (cancellationToken.IsCancellationRequested)
                 {
