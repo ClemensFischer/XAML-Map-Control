@@ -102,10 +102,10 @@ namespace MapControl
 
                         progress?.Report((double)(tileCount - pendingTiles.Count) / tileCount);
 
+                        var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
+
                         try
                         {
-                            var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
-
                             await LoadTileImage(tile, tileSource, cacheName, requestCancellationToken).ConfigureAwait(false);
                         }
                         catch (Exception ex)
@@ -126,12 +126,7 @@ namespace MapControl
                         tasks[i] = Task.Run(LoadTilesFromQueueAsync, cancellationToken);
                     }
 
-                    if (!cancellationToken.IsCancellationRequested)
-                    {
-                        progress?.Report(0d);
-
-                        await Task.WhenAll(tasks);
-                    }
+                    await Task.WhenAll(tasks);
                 }
                 catch (OperationCanceledException)
                 {
@@ -140,7 +135,7 @@ namespace MapControl
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Logger?.LogTrace("Cancelled LoadTilesAsync with {count} queued tiles", pendingTiles.Count);
+                    Logger?.LogTrace("Cancelled LoadTilesAsync with {count} pending tiles", pendingTiles.Count);
                 }
             }
         }
