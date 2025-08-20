@@ -103,11 +103,11 @@ namespace MapControl
 
                         if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
                         {
-                            buffer = await ReadAsByteArray(responseMessage.Content, progress).ConfigureAwait(false);
+                            buffer = await responseMessage.Content.ReadAsByteArrayAsync(progress, cancellationToken).ConfigureAwait(false);
                         }
                         else
                         {
-                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                            buffer = await responseMessage.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
                         }
 
                         response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
@@ -129,20 +129,25 @@ namespace MapControl
 
             return response;
         }
+    }
 
-        private static async Task<byte[]> ReadAsByteArray(HttpContent content, IProgress<double> progress)
+    internal static class HttpContentExtensions
+    {
+        public static async Task<byte[]> ReadAsByteArrayAsync(this HttpContent content, IProgress<double> progress, CancellationToken cancellationToken)
         {
             var length = (int)content.Headers.ContentLength.Value;
             var buffer = new byte[length];
 
-            using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))
+            using (var stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
             {
                 int offset = 0;
                 int read;
 
                 while (offset < length &&
-                    (read = await stream.ReadAsync(buffer, offset, length - offset).ConfigureAwait(false)) > 0)
+                    (read = await stream.ReadAsync(buffer, offset, length - offset, cancellationToken).ConfigureAwait(false)) > 0)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     offset += read;
 
                     if (offset < length) // 1.0 reported by caller
@@ -154,5 +159,21 @@ namespace MapControl
 
             return buffer;
         }
+
+#if !NET
+        public static Task<byte[]> ReadAsByteArrayAsync(this HttpContent content, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return content.ReadAsByteArrayAsync();
+        }
+
+        public static Task<Stream> ReadAsStreamAsync(this HttpContent content, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return content.ReadAsStreamAsync();
+        }
+#endif
     }
 }

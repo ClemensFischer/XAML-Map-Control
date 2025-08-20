@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
@@ -7,7 +8,7 @@ namespace MapControl
 {
     public partial class TileImageLoader
     {
-        private static async Task LoadTileImage(Tile tile, Func<Task<ImageSource>> loadImageFunc)
+        private static async Task LoadTileImage(Tile tile, Func<Task<ImageSource>> loadImageFunc, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<object>();
 
@@ -19,7 +20,10 @@ namespace MapControl
         
                     tcs.TrySetResult(null); // tcs.Task has completed when image is loaded
 
-                    tile.SetImageSource(image);
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        tile.SetImageSource(image);
+                    }
                 }
                 catch (Exception ex)
                 {
