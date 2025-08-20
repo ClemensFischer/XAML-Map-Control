@@ -112,8 +112,6 @@ namespace MapControl
                         {
                             Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                         }
-
-                        tile.IsPending = cancellationToken.IsCancellationRequested && tile.Image == null;
                     }
                 }
 

@@ -20,7 +20,11 @@ namespace MapControl
         
                     tcs.TrySetResult(null); // tcs.Task has completed when image is loaded
 
-                    if (!cancellationToken.IsCancellationRequested)
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        tile.IsPending = true;
+                    }
+                    else
                     {
                         tile.SetImageSource(image);
                     }
@@ -33,7 +37,7 @@ namespace MapControl
 
             if (!await tile.Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadTileImage))
             {
-                tcs.TrySetCanceled();
+                tcs.TrySetCanceled(cancellationToken);
             }
 
             await tcs.Task;

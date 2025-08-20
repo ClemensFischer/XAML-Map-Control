@@ -12,7 +12,11 @@ namespace MapControl
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 
-            if (!cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
+            {
+                tile.IsPending = true;
+            }
+            else
             {
                 _ = Dispatcher.UIThread.InvokeAsync(() => tile.SetImageSource(image)); // no need to await InvokeAsync
             }
