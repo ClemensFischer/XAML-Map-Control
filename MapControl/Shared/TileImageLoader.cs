@@ -3,7 +3,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -83,55 +82,43 @@ namespace MapControl
         /// </summary>
         public async Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress, CancellationToken cancellationToken)
         {
-            var pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.IsPending).Reverse());
-            var tileCount = pendingTiles.Count;
-            var taskCount = Math.Min(tileCount, MaxLoadTasks);
-
-            if (taskCount > 0)
+            using (var semaphore = new SemaphoreSlim(MaxLoadTasks, MaxLoadTasks))
             {
-                if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
-                {
-                    cacheName = null; // disable tile image caching
-                }
+                var pendingTiles = tiles.Where(tile => tile.IsPending).ToList();
+                var tileCount = 0;
 
-                async Task LoadTilesFromQueueAsync()
+                async Task LoadTile(Tile tile)
                 {
-                    while (!cancellationToken.IsCancellationRequested && pendingTiles.TryPop(out var tile))
+                    try
                     {
-                        tile.IsPending = false;
-
-                        progress?.Report((double)(tileCount - pendingTiles.Count) / tileCount);
-
-                        Logger?.LogTrace("[{thread}] Loading tile image {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
-
-                        try
-                        {
-                            var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
-
-                            await LoadTileImage(tile, tileSource, cacheName, requestCancellationToken).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
-                        }
+                        await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
                     }
-                }
-
-                try
-                {
-                    var tasks = new Task[taskCount];
-
-                    for (int i = 0; i < taskCount; i++)
+                    catch (OperationCanceledException)
                     {
-                        tasks[i] = Task.Run(LoadTilesFromQueueAsync, cancellationToken);
+                        return;
                     }
 
-                    await Task.WhenAll(tasks);
+                    tile.IsPending = false;
+
+                    progress?.Report((double)++tileCount / pendingTiles.Count);
+
+                    Logger?.LogTrace("[{thread}] Loading tile image {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
+
+                    var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
+
+                    try
+                    {
+                        await LoadTileImage(tile, tileSource, cacheName, requestCancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
+                    }
+
+                    semaphore.Release();
                 }
-                catch (OperationCanceledException)
-                {
-                    // no action
-                }
+
+                await Task.WhenAll(pendingTiles.Select(LoadTile));
 
                 if (cancellationToken.IsCancellationRequested)
                 {
