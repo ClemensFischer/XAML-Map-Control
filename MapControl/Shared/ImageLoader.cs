@@ -4,7 +4,6 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Threading;
-
 #if WPF
 using System.Windows.Media;
 #elif UWP
