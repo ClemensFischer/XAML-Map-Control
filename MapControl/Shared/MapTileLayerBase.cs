@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -32,7 +30,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, TileSource>(nameof(TileSource), null,
-                async (layer, oldValue, newValue) => await layer.UpdateTileLayer(true));
+                (layer, oldValue, newValue) => layer.UpdateTileLayer(true));
 
         public static readonly DependencyProperty SourceNameProperty =
             DependencyPropertyHelper.Register<MapTileLayerBase, string>(nameof(SourceName));
@@ -61,7 +59,6 @@ namespace MapControl
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
-        private CancellationTokenSource cancellationTokenSource;
         private ITileImageLoader tileImageLoader;
         private MapBase parentMap;
 
@@ -72,7 +69,7 @@ namespace MapControl
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = this.CreateTimer(UpdateInterval);
-            updateTimer.Tick += async (s, e) => await UpdateTileLayer(false);
+            updateTimer.Tick += (s, e) => UpdateTileLayer(false);
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
 #if WPF
@@ -194,44 +191,37 @@ namespace MapControl
 
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
-        protected async Task LoadTilesAsync(IEnumerable<Tile> tiles, string cacheName)
+        protected void LoadTiles(IEnumerable<Tile> tiles, string cacheName)
         {
-            cancellationTokenSource?.Cancel();
-
             if (TileSource != null && tiles != null && tiles.Any(tile => tile.IsPending))
             {
-                using (cancellationTokenSource = new CancellationTokenSource())
-                {
-                    await TileImageLoader.LoadTilesAsync(tiles, TileSource, cacheName, loadingProgress, cancellationTokenSource.Token);
-                }
-
-                cancellationTokenSource = null;
+                TileImageLoader.LoadTiles(tiles, TileSource, cacheName, loadingProgress);
             }
         }
 
         protected void CancelLoadTiles()
         {
-            cancellationTokenSource?.Cancel();
+            TileImageLoader.CancelLoadTiles();
 
             ClearValue(LoadingProgressProperty);
         }
 
         protected abstract void SetRenderTransform();
 
-        protected abstract Task UpdateTileLayerAsync(bool resetTiles);
+        protected abstract void UpdateTileLayerAsync(bool resetTiles);
 
-        private Task UpdateTileLayer(bool resetTiles)
+        private void UpdateTileLayer(bool resetTiles)
         {
             updateTimer.Stop();
 
-            return UpdateTileLayerAsync(resetTiles);
+            UpdateTileLayerAsync(resetTiles);
         }
 
-        private async void OnViewportChanged(object sender, ViewportChangedEventArgs e)
+        private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (e.TransformCenterChanged || e.ProjectionChanged || Children.Count == 0)
             {
-                await UpdateTileLayer(false); // update immediately
+                UpdateTileLayer(false); // update immediately
             }
             else
             {

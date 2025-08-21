@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -112,7 +111,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override async Task UpdateTileLayerAsync(bool resetTiles)
+        protected override void UpdateTileLayerAsync(bool resetTiles)
         {
             if (ParentMap == null || ParentMap.MapProjection.Type != MapProjectionType.WebMercator)
             {
@@ -131,8 +130,7 @@ namespace MapControl
                 }
 
                 UpdateTiles();
-
-                await LoadTilesAsync(Tiles, SourceName);
+                LoadTiles(Tiles, SourceName);
             }
         }
 

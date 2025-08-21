@@ -24,7 +24,9 @@ namespace MapControl
     /// </summary>
     public interface ITileImageLoader
     {
-        Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress, CancellationToken cancellationToken);
+        void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
+
+        void CancelLoadTiles();
     }
 
     public partial class TileImageLoader : ITileImageLoader
@@ -70,56 +72,69 @@ namespace MapControl
         private static ILogger logger;
         private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<TileImageLoader>());
 
+        private readonly ConcurrentStack<Tile> tileStack = new ConcurrentStack<Tile>();
+        private int tileCount;
+        private int taskCount;
+
         /// <summary>
         /// Loads all pending tiles from the tiles collection. Tile image caching is enabled when the Cache
         /// property is not null and tileSource.UriFormat starts with "http" and cacheName is a non-empty string.
         /// </summary>
-        public async Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress, CancellationToken cancellationToken)
+        public void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            var pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.IsPending).Reverse());
-            var tileCount = pendingTiles.Count;
-            var taskCount = Math.Min(tileCount, MaxLoadTasks);
-
-            if (taskCount > 0)
+            if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
             {
-                if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
+                cacheName = null; // disable caching
+            }
+
+            var currentTiles = tiles.Where(tile => tile.IsPending).Reverse().ToArray();
+
+            tileStack.Clear();
+            tileStack.PushRange(currentTiles);
+            tileCount = currentTiles.Length;
+
+            var maxTasks = Math.Min(tileCount, MaxLoadTasks);
+
+            while (taskCount < maxTasks)
+            {
+                Interlocked.Increment(ref taskCount);
+                Logger?.LogTrace("Task count: {count}", taskCount);
+
+                _ = Task.Run(async () =>
                 {
-                    cacheName = null; // disable caching
-                }
+                    await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false);
 
-                async Task LoadTilesFromQueue()
-                {
-                    while (!cancellationToken.IsCancellationRequested && pendingTiles.TryPop(out var tile))
-                    {
-                        tile.IsPending = false;
+                    Interlocked.Decrement(ref taskCount);
+                    Logger?.LogTrace("Task count: {count}", taskCount);
+                });
+            }
+        }
 
-                        progress?.Report((double)(tileCount - pendingTiles.Count) / tileCount);
+        public void CancelLoadTiles()
+        {
+            tileStack.Clear();
+        }
 
-                        Logger?.LogTrace("[{thread}] Loading {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
+        private async Task LoadTilesFromStack(TileSource tileSource, string cacheName, IProgress<double> progress)
+        {
+            while (tileStack.TryPop(out var tile))
+            {
+                tile.IsPending = false;
 
-                        try
-                        {
-                            await LoadTileImage(tile, tileSource, cacheName).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger?.LogError(ex, "Failed loading {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
-                        }
-                    }
-                }
+                var tilesLoaded = tileCount - tileStack.Count;
+
+                progress?.Report((double)tilesLoaded / tileCount);
+
+                Logger?.LogTrace("[{thread}] Loading tile {loaded} of {count}: {zoom}/{column}/{row}",
+                    Environment.CurrentManagedThreadId, tilesLoaded, tileCount, tile.ZoomLevel, tile.Column, tile.Row);
 
                 try
                 {
-                    await Task.WhenAll(Enumerable.Range(0, taskCount).Select(_ => Task.Run(LoadTilesFromQueue, cancellationToken)));
+                    await LoadTileImage(tile, tileSource, cacheName).ConfigureAwait(false);
                 }
-                catch (OperationCanceledException)
+                catch (Exception ex)
                 {
-                    // no action
-                }
-
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    Logger?.LogTrace("Cancelled LoadTilesAsync with {count} pending tiles", pendingTiles.Count);
+                    Logger?.LogError(ex, "Failed loading tile {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                 }
             }
         }

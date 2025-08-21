@@ -28,7 +28,7 @@ namespace MapControl
 
         static ImageLoader()
         {
-            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
@@ -126,13 +126,13 @@ namespace MapControl
             }
             catch (OperationCanceledException ex)
             {
-                if (ex.InnerException is TimeoutException timeout)
+                if (ex.CancellationToken.IsCancellationRequested)
                 {
-                    Logger?.LogError(timeout, "Failed loading image from {uri}", uri);
+                    Logger?.LogTrace("Cancelled loading image from {uri}", uri);
                 }
                 else
                 {
-                    Logger?.LogTrace("Cancelled loading image from {uri}", uri);
+                    Logger?.LogError(ex, "Failed loading image from {uri}", uri);
                 }
             }
             catch (Exception ex)

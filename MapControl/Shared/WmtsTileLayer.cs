@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 #if WPF
 using System.Windows;
 #elif UWP
@@ -92,7 +91,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override async Task UpdateTileLayerAsync(bool resetTiles)
+        protected override void UpdateTileLayerAsync(bool resetTiles)
         {
             // resetTiles is ignored here because it is always false.
 
@@ -121,7 +120,7 @@ namespace MapControl
 
                 var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
 
-                await LoadTilesAsync(tiles, cacheName);
+                LoadTiles(tiles, cacheName);
             }
         }
 
