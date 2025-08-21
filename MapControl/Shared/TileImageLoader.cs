@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
-using static System.Net.WebRequestMethods;
 #elif UWP
 using Windows.UI.Xaml.Media;
 #elif WINUI
@@ -68,13 +67,6 @@ namespace MapControl
         /// </summary>
         public static int MaxLoadTasks { get; set; } = 4;
 
-        /// <summary>
-        /// Indicates whether HTTP requests are cancelled when the LoadTilesAsync method is cancelled.
-        /// If the property value is false, cancellation only stops dequeuing entries from the tile queue,
-        /// but lets currently running requests run to completion.
-        /// </summary>
-        public static bool RequestCancellationEnabled { get; set; }
-
         private static ILogger logger;
         private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<TileImageLoader>());
 
@@ -103,13 +95,11 @@ namespace MapControl
 
                         progress?.Report((double)(tileCount - pendingTiles.Count) / tileCount);
 
-                        Logger?.LogTrace("[{thread}] Load {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
+                        Logger?.LogTrace("[{thread}] Loading {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
 
                         try
                         {
-                            var requestCancellationToken = RequestCancellationEnabled ? cancellationToken : CancellationToken.None;
-
-                            await LoadTileImage(tile, tileSource, cacheName, requestCancellationToken).ConfigureAwait(false);
+                            await LoadTileImage(tile, tileSource, cacheName).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -120,14 +110,7 @@ namespace MapControl
 
                 try
                 {
-                    var tasks = new Task[taskCount];
-
-                    for (int i = 0; i < taskCount; i++)
-                    {
-                        tasks[i] = Task.Run(LoadTilesFromQueue, cancellationToken);
-                    }
-
-                    await Task.WhenAll(tasks);
+                    await Task.WhenAll(Enumerable.Range(0, taskCount).Select(_ => Task.Run(LoadTilesFromQueue, cancellationToken)));
                 }
                 catch (OperationCanceledException)
                 {
@@ -141,16 +124,16 @@ namespace MapControl
             }
         }
 
-        private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName, CancellationToken cancellationToken)
+        private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName)
         {
             // Pass tileSource.LoadImageAsync calls to platform-specific method
             // LoadTileImage(Tile, Func<Task<ImageSource>>) for execution on the UI thread in WinUI and UWP.
 
             if (string.IsNullOrEmpty(cacheName))
             {
-                Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel, cancellationToken);
+                Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel);
 
-                await LoadTileImage(tile, LoadImage, cancellationToken).ConfigureAwait(false);
+                await LoadTileImage(tile, LoadImage).ConfigureAwait(false);
             }
             else
             {
@@ -158,19 +141,19 @@ namespace MapControl
 
                 if (uri != null)
                 {
-                    var buffer = await LoadCachedBuffer(tile, uri, cacheName, cancellationToken).ConfigureAwait(false);
+                    var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
 
                     if (buffer != null && buffer.Length > 0)
                     {
                         Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(buffer);
 
-                        await LoadTileImage(tile, LoadImage, cancellationToken).ConfigureAwait(false);
+                        await LoadTileImage(tile, LoadImage).ConfigureAwait(false);
                     }
                 }
             }
         }
 
-        private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName, CancellationToken cancellationToken)
+        private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName)
         {
             byte[] buffer = null;
 
@@ -185,11 +168,7 @@ namespace MapControl
 
             try
             {
-                buffer = await Cache.GetAsync(cacheKey, cancellationToken).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                Logger?.LogTrace("Cancelled Cache.GetAsync({cacheKey})", cacheKey);
+                buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -198,7 +177,7 @@ namespace MapControl
 
             if (buffer == null)
             {
-                var response = await ImageLoader.GetHttpResponseAsync(uri, null, cancellationToken).ConfigureAwait(false);
+                var response = await ImageLoader.GetHttpResponseAsync(uri, null, CancellationToken.None).ConfigureAwait(false);
 
                 if (response != null)
                 {
@@ -215,11 +194,7 @@ namespace MapControl
                                 : response.MaxAge.Value
                         };
 
-                        await Cache.SetAsync(cacheKey, buffer, options, cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        Logger?.LogTrace("Cancelled Cache.SetAsync({cacheKey})", cacheKey);
+                        await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {

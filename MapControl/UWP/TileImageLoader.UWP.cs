@@ -8,7 +8,7 @@ namespace MapControl
 {
     public partial class TileImageLoader
     {
-        private static async Task LoadTileImage(Tile tile, Func<Task<ImageSource>> loadImageFunc, CancellationToken cancellationToken)
+        private static async Task LoadTileImage(Tile tile, Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource<object>();
 
@@ -16,18 +16,8 @@ namespace MapControl
             {
                 try
                 {
-                    var image = await loadImageFunc();
-
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        tile.IsPending = true;
-                        tcs.TrySetCanceled(cancellationToken);
-                    }
-                    else
-                    {
-                        tile.SetImageSource(image);
-                        tcs.TrySetResult(null);
-                    }
+                    tile.SetImageSource(await loadImageFunc());
+                    tcs.TrySetResult(null);
                 }
                 catch (Exception ex)
                 {
@@ -37,7 +27,7 @@ namespace MapControl
 
             if (!await tile.Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadTileImage))
             {
-                tcs.TrySetCanceled(CancellationToken.None);
+                tcs.TrySetCanceled();
             }
 
             await tcs.Task;

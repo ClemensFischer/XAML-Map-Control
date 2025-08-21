@@ -8,18 +8,11 @@ namespace MapControl
 {
     public partial class TileImageLoader
     {
-        private static async Task LoadTileImage(Tile tile, Func<Task<IImage>> loadImageFunc, CancellationToken cancellationToken)
+        private static async Task LoadTileImage(Tile tile, Func<Task<IImage>> loadImageFunc)
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 
-            if (cancellationToken.IsCancellationRequested)
-            {
-                tile.IsPending = true;
-            }
-            else
-            {
-                _ = Dispatcher.UIThread.InvokeAsync(() => tile.SetImageSource(image)); // no need to await InvokeAsync
-            }
+            await Dispatcher.UIThread.InvokeAsync(() => tile.SetImageSource(image));
         }
     }
 }

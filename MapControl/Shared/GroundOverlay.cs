@@ -165,7 +165,7 @@ namespace MapControl
 
             foreach (var imageOverlay in imageOverlays)
             {
-                imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath), null, CancellationToken.None);
+                imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
             }
 
             return imageOverlays;

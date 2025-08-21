@@ -32,6 +32,11 @@ namespace MapControl
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
+        public static Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
+        {
+            return LoadImageAsync(uri, progress, CancellationToken.None);
+        }
+
         public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress, CancellationToken cancellationToken)
         {
             ImageSource image = null;
@@ -94,7 +99,9 @@ namespace MapControl
 
             try
             {
-                using (var responseMessage = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
+                var completionOptions = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+
+                using (var responseMessage = await HttpClient.GetAsync(uri, completionOptions, cancellationToken).ConfigureAwait(false))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
