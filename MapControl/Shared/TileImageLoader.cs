@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
+using static System.Net.WebRequestMethods;
 #elif UWP
 using Windows.UI.Xaml.Media;
 #elif WINUI
@@ -82,35 +84,26 @@ namespace MapControl
         /// </summary>
         public async Task LoadTilesAsync(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress, CancellationToken cancellationToken)
         {
-            var pendingTiles = tiles.Where(tile => tile.IsPending).ToList();
+            var pendingTiles = new ConcurrentStack<Tile>(tiles.Where(tile => tile.IsPending).Reverse());
+            var tileCount = pendingTiles.Count;
+            var taskCount = Math.Min(tileCount, MaxLoadTasks);
 
-            if (pendingTiles.Count > 0)
+            if (taskCount > 0)
             {
-                var progressCount = 0;
-
                 if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
                 {
-                    cacheName = null; // disable tile image caching
+                    cacheName = null; // disable caching
                 }
 
-                using (var semaphore = new SemaphoreSlim(MaxLoadTasks, MaxLoadTasks))
+                async Task LoadTilesFromQueue()
                 {
-                    async Task LoadTile(Tile tile)
+                    while (!cancellationToken.IsCancellationRequested && pendingTiles.TryPop(out var tile))
                     {
-                        try
-                        {
-                            await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            return;
-                        }
-
                         tile.IsPending = false;
 
-                        progress?.Report((double)++progressCount / pendingTiles.Count);
+                        progress?.Report((double)(tileCount - pendingTiles.Count) / tileCount);
 
-                        Logger?.LogTrace("[{thread}] Loading tile image {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
+                        Logger?.LogTrace("[{thread}] Load {zoom}/{column}/{row}", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
 
                         try
                         {
@@ -120,18 +113,30 @@ namespace MapControl
                         }
                         catch (Exception ex)
                         {
-                            Logger?.LogError(ex, "Failed loading tile image {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
+                            Logger?.LogError(ex, "Failed loading {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                         }
+                    }
+                }
 
-                        semaphore.Release();
+                try
+                {
+                    var tasks = new Task[taskCount];
+
+                    for (int i = 0; i < taskCount; i++)
+                    {
+                        tasks[i] = Task.Run(LoadTilesFromQueue, cancellationToken);
                     }
 
-                    await Task.WhenAll(pendingTiles.Select(tile => Task.Run(async () => await LoadTile(tile))));
+                    await Task.WhenAll(tasks);
+                }
+                catch (OperationCanceledException)
+                {
+                    // no action
                 }
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Logger?.LogTrace("Cancelled LoadTilesAsync with {count} pending tiles", pendingTiles.Count);
+                    Logger?.LogTrace("Cancelled LoadTilesAsync with {count} queued tiles", pendingTiles.Count);
                 }
             }
         }
