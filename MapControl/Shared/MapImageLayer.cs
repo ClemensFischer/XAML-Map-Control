@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
@@ -54,7 +53,7 @@ namespace MapControl
 
         private readonly Progress<double> loadingProgress;
         private readonly DispatcherTimer updateTimer;
-        private CancellationTokenSource cancellationTokenSource;
+        private bool updateInProgress;
 
         public MapImageLayer()
         {
@@ -166,38 +165,39 @@ namespace MapControl
             }
         }
 
-        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress, CancellationToken cancellationToken);
+        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress);
 
         protected async Task UpdateImageAsync()
         {
-            updateTimer.Stop();
-
-            cancellationTokenSource?.Cancel();
-
-            ClearValue(LoadingProgressProperty);
-
-            if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
+            if (updateInProgress)
             {
-                var width = ParentMap.ActualWidth * RelativeImageSize;
-                var height = ParentMap.ActualHeight * RelativeImageSize;
-                var x = (ParentMap.ActualWidth - width) / 2d;
-                var y = (ParentMap.ActualHeight - height) / 2d;
+                // Update image on next tick, start timer if not running.
+                //
+                updateTimer.Run();
+            }
+            else
+            {
+                updateInProgress = true;
+                updateTimer.Stop();
 
-                var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
+                ImageSource image = null;
+                BoundingBox boundingBox = null;
 
-                ImageSource image;
-
-                using (cancellationTokenSource = new CancellationTokenSource())
+                if (ParentMap != null && ParentMap.ActualWidth > 0d && ParentMap.ActualHeight > 0d)
                 {
-                    image = await GetImageAsync(boundingBox, loadingProgress, cancellationTokenSource.Token);
+                    var width = ParentMap.ActualWidth * RelativeImageSize;
+                    var height = ParentMap.ActualHeight * RelativeImageSize;
+                    var x = (ParentMap.ActualWidth - width) / 2d;
+                    var y = (ParentMap.ActualHeight - height) / 2d;
+
+                    boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
+
+                    image = await GetImageAsync(boundingBox, loadingProgress);
                 }
 
-                cancellationTokenSource = null;
+                SwapImages(image, boundingBox);
 
-                if (image != null && Children.Count >= 2)
-                {
-                    SwapImages(image, boundingBox);
-                }
+                updateInProgress = false;
             }
         }
 
@@ -212,22 +212,25 @@ namespace MapControl
 
         private void SwapImages(ImageSource image, BoundingBox boundingBox)
         {
-            var topImage = (Image)Children[0];
-
-            Children.RemoveAt(0);
-            Children.Insert(1, topImage);
-
-            topImage.Source = image;
-            SetBoundingBox(topImage, boundingBox);
-
-            if (MapBase.ImageFadeDuration > TimeSpan.Zero)
+            if (Children.Count >= 2)
             {
-                FadeOver();
-            }
-            else
-            {
-                topImage.Opacity = 1d;
-                Children[0].Opacity = 0d;
+                var topImage = (Image)Children[0];
+
+                Children.RemoveAt(0);
+                Children.Insert(1, topImage);
+
+                topImage.Source = image;
+                SetBoundingBox(topImage, boundingBox);
+
+                if (MapBase.ImageFadeDuration > TimeSpan.Zero)
+                {
+                    FadeOver();
+                }
+                else
+                {
+                    topImage.Opacity = 1d;
+                    Children[0].Opacity = 0d;
+                }
             }
         }
     }

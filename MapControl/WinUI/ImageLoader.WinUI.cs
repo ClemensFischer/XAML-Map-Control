@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -67,7 +66,7 @@ namespace MapControl
             return image;
         }
 
-        internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri, IProgress<double> progress, CancellationToken cancellationToken)
+        internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri, IProgress<double> progress)
         {
             WriteableBitmap bitmap = null;
 
@@ -75,7 +74,7 @@ namespace MapControl
 
             try
             {
-                var response = await GetHttpResponseAsync(uri, progress, cancellationToken);
+                var response = await GetHttpResponseAsync(uri, progress);
 
                 if (response?.Buffer != null)
                 {
@@ -98,18 +97,17 @@ namespace MapControl
             return bitmap;
         }
 
-        internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress, CancellationToken cancellationToken)
+        internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
             WriteableBitmap mergedBitmap = null;
             var p1 = 0d;
             var p2 = 0d;
 
             var bitmaps = await Task.WhenAll(
-                LoadWriteableBitmapAsync(uri1, new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); }), cancellationToken),
-                LoadWriteableBitmapAsync(uri2, new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); }), cancellationToken));
+                LoadWriteableBitmapAsync(uri1, new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); })),
+                LoadWriteableBitmapAsync(uri2, new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); })));
 
-            if (!cancellationToken.IsCancellationRequested &&
-                bitmaps.Length == 2 &&
+            if (bitmaps.Length == 2 &&
                 bitmaps[0] != null &&
                 bitmaps[1] != null &&
                 bitmaps[0].PixelHeight == bitmaps[1].PixelHeight)

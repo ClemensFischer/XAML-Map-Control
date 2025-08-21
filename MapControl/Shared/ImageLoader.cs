@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
@@ -28,16 +27,11 @@ namespace MapControl
 
         static ImageLoader()
         {
-            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
-        public static Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
-        {
-            return LoadImageAsync(uri, progress, CancellationToken.None);
-        }
-
-        public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress, CancellationToken cancellationToken)
+        public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
         {
             ImageSource image = null;
 
@@ -47,7 +41,7 @@ namespace MapControl
             {
                 if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
                 {
-                    var response = await GetHttpResponseAsync(uri, progress, cancellationToken);
+                    var response = await GetHttpResponseAsync(uri, progress);
 
                     if (response?.Buffer != null)
                     {
@@ -93,19 +87,26 @@ namespace MapControl
             }
         }
 
-        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, IProgress<double> progress, CancellationToken cancellationToken)
+        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, IProgress<double> progress = null)
         {
             HttpResponse response = null;
 
             try
             {
-                var completionOptions = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
-
-                using (var responseMessage = await HttpClient.GetAsync(uri, completionOptions, cancellationToken).ConfigureAwait(false))
+                using (var responseMessage = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
-                        byte[] buffer = await responseMessage.Content.ReadAsByteArrayAsync(progress, cancellationToken).ConfigureAwait(false);
+                        byte[] buffer;
+
+                        if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
+                        {
+                            buffer = await ReadAsByteArray(responseMessage.Content, progress).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                        }
 
                         response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
                     }
@@ -115,17 +116,6 @@ namespace MapControl
                     }
                 }
             }
-            catch (OperationCanceledException ex)
-            {
-                if (ex.CancellationToken.IsCancellationRequested)
-                {
-                    Logger?.LogTrace("Cancelled loading image from {uri}", uri);
-                }
-                else
-                {
-                    Logger?.LogError(ex, "Failed loading image from {uri}", uri);
-                }
-            }
             catch (Exception ex)
             {
                 Logger?.LogError(ex, "Failed loading image from {uri}", uri);
@@ -133,60 +123,30 @@ namespace MapControl
 
             return response;
         }
-    }
 
-    internal static class HttpContentExtensions
-    {
-        public static async Task<byte[]> ReadAsByteArrayAsync(this HttpContent content, IProgress<double> progress, CancellationToken cancellationToken)
+        private static async Task<byte[]> ReadAsByteArray(HttpContent content, IProgress<double> progress)
         {
-            byte[] buffer;
+            var length = (int)content.Headers.ContentLength.Value;
+            var buffer = new byte[length];
 
-            if (progress != null && content.Headers.ContentLength.HasValue)
+            using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))
             {
-                var length = (int)content.Headers.ContentLength.Value;
-                buffer = new byte[length];
+                int offset = 0;
+                int read;
 
-                using (var stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+                while (offset < length &&
+                    (read = await stream.ReadAsync(buffer, offset, length - offset).ConfigureAwait(false)) > 0)
                 {
-                    int offset = 0;
-                    int read;
+                    offset += read;
 
-                    while (offset < length &&
-                        (read = await stream.ReadAsync(buffer, offset, length - offset, cancellationToken).ConfigureAwait(false)) > 0)
+                    if (offset < length) // 1.0 reported by caller
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        offset += read;
-
-                        if (offset < length) // 1.0 reported by caller
-                        {
-                            progress.Report((double)offset / length);
-                        }
+                        progress.Report((double)offset / length);
                     }
                 }
-            }
-            else
-            {
-                buffer = await content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return buffer;
         }
-
-#if !NET
-        public static Task<byte[]> ReadAsByteArrayAsync(this HttpContent content, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return content.ReadAsByteArrayAsync();
-        }
-
-        public static Task<Stream> ReadAsStreamAsync(this HttpContent content, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return content.ReadAsStreamAsync();
-        }
-#endif
     }
 }

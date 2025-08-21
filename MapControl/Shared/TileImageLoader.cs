@@ -192,7 +192,7 @@ namespace MapControl
 
             if (buffer == null)
             {
-                var response = await ImageLoader.GetHttpResponseAsync(uri, null, CancellationToken.None).ConfigureAwait(false);
+                var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
                 if (response != null)
                 {
