@@ -2,8 +2,8 @@
 using System;
 using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
 #elif UWP
@@ -105,16 +105,7 @@ namespace MapControl
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
-                        byte[] buffer;
-
-                        if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
-                        {
-                            buffer = await responseMessage.Content.ReadAsByteArrayAsync(progress, cancellationToken).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            buffer = await responseMessage.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
-                        }
+                        byte[] buffer = await responseMessage.Content.ReadAsByteArrayAsync(progress, cancellationToken).ConfigureAwait(false);
 
                         response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
                     }
@@ -148,26 +139,35 @@ namespace MapControl
     {
         public static async Task<byte[]> ReadAsByteArrayAsync(this HttpContent content, IProgress<double> progress, CancellationToken cancellationToken)
         {
-            var length = (int)content.Headers.ContentLength.Value;
-            var buffer = new byte[length];
+            byte[] buffer;
 
-            using (var stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+            if (progress != null && content.Headers.ContentLength.HasValue)
             {
-                int offset = 0;
-                int read;
+                var length = (int)content.Headers.ContentLength.Value;
+                buffer = new byte[length];
 
-                while (offset < length &&
-                    (read = await stream.ReadAsync(buffer, offset, length - offset, cancellationToken).ConfigureAwait(false)) > 0)
+                using (var stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    int offset = 0;
+                    int read;
 
-                    offset += read;
-
-                    if (offset < length) // 1.0 reported by caller
+                    while (offset < length &&
+                        (read = await stream.ReadAsync(buffer, offset, length - offset, cancellationToken).ConfigureAwait(false)) > 0)
                     {
-                        progress.Report((double)offset / length);
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        offset += read;
+
+                        if (offset < length) // 1.0 reported by caller
+                        {
+                            progress.Report((double)offset / length);
+                        }
                     }
                 }
+            }
+            else
+            {
+                buffer = await content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return buffer;
