@@ -117,9 +117,16 @@ namespace MapControl
                     }
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                Logger?.LogTrace("Cancelled loading image from {uri}", uri);
+                if (ex.InnerException is TimeoutException timeout)
+                {
+                    Logger?.LogError(timeout, "Failed loading image from {uri}", uri);
+                }
+                else
+                {
+                    Logger?.LogTrace("Cancelled loading image from {uri}", uri);
+                }
             }
             catch (Exception ex)
             {
