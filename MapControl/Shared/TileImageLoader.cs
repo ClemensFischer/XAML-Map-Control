@@ -121,12 +121,12 @@ namespace MapControl
             {
                 tile.IsPending = false;
 
-                var tilesLoaded = tileCount - tileStack.Count;
+                var tileNumber = tileCount - tileStack.Count;
 
-                progress?.Report((double)tilesLoaded / tileCount);
+                progress?.Report((double)tileNumber / tileCount);
 
-                Logger?.LogTrace("[{thread}] Loading tile {loaded} of {count}: {zoom}/{column}/{row}",
-                    Environment.CurrentManagedThreadId, tilesLoaded, tileCount, tile.ZoomLevel, tile.Column, tile.Row);
+                Logger?.LogTrace("Loading tile {number} of {count} ({zoom}/{column}/{row}) in thread {thread}",
+                    tileNumber, tileCount, tile.ZoomLevel, tile.Column, tile.Row, Environment.CurrentManagedThreadId);
 
                 try
                 {
@@ -170,8 +170,6 @@ namespace MapControl
 
         private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName)
         {
-            byte[] buffer = null;
-
             var extension = Path.GetExtension(uri.LocalPath);
 
             if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
@@ -180,6 +178,7 @@ namespace MapControl
             }
 
             var cacheKey = $"{cacheName}/{tile.ZoomLevel}/{tile.Column}/{tile.Row}{extension}";
+            byte[] buffer = null;
 
             try
             {
