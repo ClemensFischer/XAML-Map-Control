@@ -136,7 +136,7 @@ namespace MapControl
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Logger?.LogTrace("Cancelled LoadTilesAsync with {count} queued tiles", pendingTiles.Count);
+                    Logger?.LogTrace("Cancelled LoadTilesAsync with {count} pending tiles", pendingTiles.Count);
                 }
             }
         }
