@@ -195,16 +195,19 @@ namespace MapControl
                         ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
                         : maxZoomLevel;
 
-                    for (var z = minZoomLevel; z <= maxZoomLevel; z++)
+                    for (var zoomLevel = minZoomLevel; zoomLevel <= maxZoomLevel; zoomLevel++)
                     {
-                        var numTiles = 1 << z;
-                        var tileSize = 1 << (TileMatrix.ZoomLevel - z);
-                        var xMin = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
-                        var xMax = TileMatrix.XMax / tileSize; // may be greater than numTiles-1
-                        var yMin = Math.Max(TileMatrix.YMin / tileSize, 0);
-                        var yMax = Math.Min(TileMatrix.YMax / tileSize, numTiles - 1);
+                        var tileCount = 1 << zoomLevel; // per row and column
 
-                        tiles.FillMatrix(Tiles, z, xMin, yMin, xMax, yMax, numTiles);
+                        // Right-shift divides with rounding down also negative values, https://stackoverflow.com/q/55196178
+                        //
+                        var shift = TileMatrix.ZoomLevel - zoomLevel;
+                        var xMin = TileMatrix.XMin >> shift; // may be < 0
+                        var xMax = TileMatrix.XMax >> shift; // may be >= tileCount
+                        var yMin = Math.Max(TileMatrix.YMin >> shift, 0);
+                        var yMax = Math.Min(TileMatrix.YMax >> shift, tileCount - 1);
+
+                        tiles.FillMatrix(Tiles, zoomLevel, xMin, yMin, xMax, yMax, tileCount);
                     }
                 }
             }
