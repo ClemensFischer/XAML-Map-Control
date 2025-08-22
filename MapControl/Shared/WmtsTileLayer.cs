@@ -121,9 +121,7 @@ namespace MapControl
                     cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
                 }
 
-                var tiles = ChildLayers.SelectMany(layer => layer.Tiles);
-
-                LoadTiles(tiles, cacheName);
+                BeginLoadTiles(ChildLayers.SelectMany(layer => layer.Tiles), cacheName);
             }
         }
 

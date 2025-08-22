@@ -191,11 +191,11 @@ namespace MapControl
 
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
-        protected void LoadTiles(IEnumerable<Tile> tiles, string cacheName)
+        protected void BeginLoadTiles(IEnumerable<Tile> tiles, string cacheName)
         {
             if (TileSource != null && tiles != null && tiles.Any(tile => tile.IsPending))
             {
-                TileImageLoader.LoadTiles(tiles, TileSource, cacheName, loadingProgress);
+                TileImageLoader.BeginLoadTiles(tiles, TileSource, cacheName, loadingProgress);
             }
         }
 

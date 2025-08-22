@@ -130,7 +130,7 @@ namespace MapControl
                 }
 
                 UpdateTiles();
-                LoadTiles(Tiles, SourceName);
+                BeginLoadTiles(Tiles, SourceName);
             }
         }
 

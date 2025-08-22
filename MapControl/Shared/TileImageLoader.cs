@@ -24,7 +24,7 @@ namespace MapControl
     /// </summary>
     public interface ITileImageLoader
     {
-        void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
+        void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
 
         void CancelLoadTiles();
     }
@@ -80,7 +80,7 @@ namespace MapControl
         /// Loads all pending tiles from the tiles collection. Tile image caching is enabled when the Cache
         /// property is not null and tileSource.UriFormat starts with "http" and cacheName is a non-empty string.
         /// </summary>
-        public void LoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
+        public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
             if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
             {
@@ -100,13 +100,15 @@ namespace MapControl
                 Interlocked.Increment(ref taskCount);
                 Logger?.LogDebug("Task count: {count}", taskCount);
 
-                _ = Task.Run(async () =>
-                {
-                    await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false);
+                _ = Task.Run(LoadTiles);
+            }
 
-                    Interlocked.Decrement(ref taskCount);
-                    Logger?.LogDebug("Task count: {count}", taskCount);
-                });
+            async Task LoadTiles()
+            {
+                await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false);
+
+                Interlocked.Decrement(ref taskCount);
+                Logger?.LogDebug("Task count: {count}", taskCount);
             }
         }
 
