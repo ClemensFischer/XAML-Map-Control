@@ -199,24 +199,17 @@ namespace MapControl
                     {
                         var numTiles = 1 << z;
                         var tileSize = 1 << (TileMatrix.ZoomLevel - z);
-                        var x1 = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
-                        var x2 = TileMatrix.XMax / tileSize; // may be greater than numTiles-1
-                        var y1 = Math.Max(TileMatrix.YMin / tileSize, 0);
-                        var y2 = Math.Min(TileMatrix.YMax / tileSize, numTiles - 1);
+                        var xMin = (int)Math.Floor((double)TileMatrix.XMin / tileSize); // may be negative
+                        var xMax = TileMatrix.XMax / tileSize; // may be greater than numTiles-1
+                        var yMin = Math.Max(TileMatrix.YMin / tileSize, 0);
+                        var yMax = Math.Min(TileMatrix.YMax / tileSize, numTiles - 1);
 
-                        for (var y = y1; y <= y2; y++)
-                        {
-                            for (var x = x1; x <= x2; x++)
-                            {
-                                tiles.Add(Tiles.GetTile(z, x, y, numTiles));
-                            }
-                        }
+                        tiles.FillMatrix(Tiles, z, xMin, yMin, xMax, yMax, numTiles);
                     }
                 }
             }
 
             Tiles = tiles;
-
             Children.Clear();
 
             foreach (var tile in tiles)

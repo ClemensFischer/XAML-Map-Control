@@ -86,17 +86,9 @@ namespace MapControl
             TileMatrix = new TileMatrix(TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax);
 
             var tiles = new TileCollection();
-
-            for (var y = yMin; y <= yMax; y++)
-            {
-                for (var x = xMin; x <= xMax; x++)
-                {
-                    tiles.Add(Tiles.GetTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth));
-                }
-            }
+            tiles.FillMatrix(Tiles, TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax, WmtsTileMatrix.MatrixWidth);
 
             Tiles = tiles;
-
             Children.Clear();
 
             foreach (var tile in tiles)
