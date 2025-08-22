@@ -27,7 +27,7 @@ namespace MapControl
 
         static ImageLoader()
         {
-            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
@@ -59,7 +59,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed loading image from {uri}", uri);
+                Logger?.LogError(ex, "Failed loading {uri}", uri);
             }
 
             progress?.Report(1d);
@@ -93,7 +93,9 @@ namespace MapControl
 
             try
             {
-                using (var responseMessage = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
+                var completionOptions = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+
+                using (var responseMessage = await HttpClient.GetAsync(uri, completionOptions).ConfigureAwait(false))
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
@@ -112,13 +114,17 @@ namespace MapControl
                     }
                     else
                     {
-                        Logger?.LogWarning("{uri}: {status} {reason}", uri, (int)responseMessage.StatusCode, responseMessage.ReasonPhrase);
+                        Logger?.LogWarning("{status} ({reason}) from {uri}", (int)responseMessage.StatusCode, responseMessage.ReasonPhrase, uri);
                     }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                Logger?.LogWarning("Timeout while loading {uri}", uri);
+            }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed loading image from {uri}", uri);
+                Logger?.LogError(ex, "Failed loading {uri}", uri);
             }
 
             return response;

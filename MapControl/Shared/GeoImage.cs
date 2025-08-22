@@ -82,6 +82,9 @@ namespace MapControl
 
         private static string QueryString(ushort tag) => $"/ifd/{{ushort={tag}}}";
 
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger(nameof(GeoImage)));
+
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.RegisterAttached<string>("SourcePath", typeof(GeoImage), null,
                 async (element, oldValue, newValue) => await LoadGeoImageAsync(element, newValue));
@@ -136,7 +139,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    ImageLoader.LoggerFactory?.CreateLogger(typeof(GeoImage))?.LogError(ex, "Failed loading from {path}", sourcePath);
+                    Logger?.LogError(ex, "Failed loading from {path}", sourcePath);
                 }
             }
         }

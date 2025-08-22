@@ -60,7 +60,6 @@ namespace MapControl.Caching
             }
 
             logger = loggerFactory?.CreateLogger<SQLiteCache>();
-
             logger?.LogInformation("Opened database {path}", path);
 
             if (options.ExpirationScanFrequency > TimeSpan.Zero)

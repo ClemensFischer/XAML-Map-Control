@@ -1,4 +1,5 @@
 ﻿using MapControl;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -15,7 +16,13 @@ namespace SampleApplication
     {
         public MainPage()
         {
-            //TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+            //var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder,
+            //    LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Information)));
+
+            //TileImageLoader.Cache = tileCache;
+            //Unloaded += (s, e) => tileCache.Dispose();
+
+            ImageLoader.LoggerFactory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Warning));
 
             InitializeComponent();
 

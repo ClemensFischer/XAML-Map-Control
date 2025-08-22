@@ -89,7 +89,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "{uri}", uri);
+                Logger?.LogError(ex, "Failed loading {uri}", uri);
             }
 
             progress.Report(1d);

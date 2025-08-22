@@ -49,7 +49,6 @@ namespace MapControl.Caching
             rootDirectory.Create();
 
             logger = loggerFactory?.CreateLogger<ImageFileCache>();
-
             logger?.LogInformation("Started in {name}", rootDirectory.FullName);
 
             var memoryCacheOptions = new MemoryDistributedCacheOptions();
@@ -91,7 +90,7 @@ namespace MapControl.Caching
 
                             memoryCache.Set(key, value, options);
 
-                            logger?.LogTrace("Read {name}", file.FullName);
+                            logger?.LogDebug("Read {name}", file.FullName);
                         }
                     }
                     catch (Exception ex)
@@ -126,7 +125,7 @@ namespace MapControl.Caching
 
                             await memoryCache.SetAsync(key, value, options, token).ConfigureAwait(false);
 
-                            logger?.LogTrace("Read {name}", file.FullName);
+                            logger?.LogDebug("Read {name}", file.FullName);
                         }
                     }
                     catch (Exception ex)
@@ -160,7 +159,7 @@ namespace MapControl.Caching
 
                         SetExpiration(file, options);
 
-                        logger?.LogTrace("Wrote {name}", file.FullName);
+                        logger?.LogDebug("Wrote {name}", file.FullName);
                     }
                 }
                 catch (Exception ex)
@@ -191,7 +190,7 @@ namespace MapControl.Caching
 
                         SetExpiration(file, options);
 
-                        logger?.LogTrace("Wrote {name}", file.FullName);
+                        logger?.LogDebug("Wrote {name}", file.FullName);
                     }
                 }
                 catch (Exception ex)

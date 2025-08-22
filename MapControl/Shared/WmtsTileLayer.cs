@@ -22,6 +22,9 @@ namespace MapControl
     /// </summary>
     public class WmtsTileLayer : MapTileLayerBase
     {
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<WmtsTileLayer>());
+
         public static readonly DependencyProperty CapabilitiesUriProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri), null,
                 (layer, oldValue, newValue) => layer.TileMatrixSets.Clear());
@@ -202,7 +205,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    ImageLoader.LoggerFactory?.CreateLogger<WmtsTileLayer>()?.LogError(ex, "Failed reading capabilities from {uri}", CapabilitiesUri);
+                    Logger?.LogError(ex, "Failed reading capabilities from {uri}", CapabilitiesUri);
                 }
             }
         }

@@ -31,6 +31,9 @@ namespace MapControl
 
     public partial class TileImageLoader : ITileImageLoader
     {
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<TileImageLoader>());
+
         /// <summary>
         /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".
         /// </summary>
@@ -69,9 +72,6 @@ namespace MapControl
         /// </summary>
         public static int MaxLoadTasks { get; set; } = 4;
 
-        private static ILogger logger;
-        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<TileImageLoader>());
-
         private readonly ConcurrentStack<Tile> tileStack = new ConcurrentStack<Tile>();
         private int tileCount;
         private int taskCount;
@@ -98,14 +98,14 @@ namespace MapControl
             while (taskCount < maxTasks)
             {
                 Interlocked.Increment(ref taskCount);
-                Logger?.LogTrace("Task count: {count}", taskCount);
+                Logger?.LogDebug("Task count: {count}", taskCount);
 
                 _ = Task.Run(async () =>
                 {
                     await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false);
 
                     Interlocked.Decrement(ref taskCount);
-                    Logger?.LogTrace("Task count: {count}", taskCount);
+                    Logger?.LogDebug("Task count: {count}", taskCount);
                 });
             }
         }
@@ -125,7 +125,7 @@ namespace MapControl
 
                 progress?.Report((double)tileNumber / tileCount);
 
-                Logger?.LogTrace("Loading tile {number} of {count} ({zoom}/{column}/{row}) in thread {thread}",
+                Logger?.LogDebug("Loading tile {number} of {count} ({zoom}/{column}/{row}) in thread {thread}",
                     tileNumber, tileCount, tile.ZoomLevel, tile.Column, tile.Row, Environment.CurrentManagedThreadId);
 
                 try

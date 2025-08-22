@@ -44,6 +44,9 @@ namespace MapControl
             public ImageSource ImageSource { get; set; }
         }
 
+        private static ILogger logger;
+        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>());
+
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,
                 async (groundOverlay, oldValue, newValue) => await groundOverlay.LoadAsync(newValue));
@@ -84,7 +87,7 @@ namespace MapControl
                 }
                 catch (Exception ex)
                 {
-                    ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>()?.LogError(ex, "Failed loading from {path}", sourcePath);
+                    Logger?.LogError(ex, "Failed loading from {path}", sourcePath);
                 }
             }
 
