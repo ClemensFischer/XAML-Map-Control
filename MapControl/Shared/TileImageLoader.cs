@@ -71,7 +71,6 @@ namespace MapControl
         public static int MaxLoadTasks { get; set; } = 4;
 
         private readonly Queue<Tile> tileQueue = new Queue<Tile>();
-        private int tileCount;
         private int taskCount;
 
         /// <summary>
@@ -94,8 +93,7 @@ namespace MapControl
                     tileQueue.Enqueue(tile);
                 }
 
-                tileCount = tileQueue.Count;
-
+                var tileCount = tileQueue.Count;
                 var maxTasks = Math.Min(tileCount, MaxLoadTasks);
 
                 while (taskCount < maxTasks)
@@ -103,7 +101,7 @@ namespace MapControl
                     taskCount++;
                     Logger?.LogDebug("Task count: {count}", taskCount);
 
-                    _ = Task.Run(async () => await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false));
+                    _ = Task.Run(async () => await LoadTilesFromStack(tileSource, cacheName, tileCount, progress).ConfigureAwait(false));
                 }
             }
         }
@@ -113,11 +111,10 @@ namespace MapControl
             lock (tileQueue)
             {
                 tileQueue.Clear();
-                tileCount = 0;
             }
         }
 
-        private async Task LoadTilesFromStack(TileSource tileSource, string cacheName, IProgress<double> progress)
+        private async Task LoadTilesFromStack(TileSource tileSource, string cacheName, int tileCount, IProgress<double> progress)
         {
             while (true)
             {
