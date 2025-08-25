@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
@@ -123,14 +124,13 @@ namespace MapControl
 
                 lock (tileQueue)
                 {
-                    if (tileQueue.Count == 0)
+                    if (!tileQueue.TryDequeue(out tile))
                     {
                         taskCount--;
                         Logger?.LogDebug("Task count: {count}", taskCount);
                         break;
                     }
 
-                    tile = tileQueue.Dequeue();
                     tileNumber = tileCount - tileQueue.Count;
                 }
 
@@ -233,4 +233,15 @@ namespace MapControl
             return buffer;
         }
     }
+
+#if NETFRAMEWORK
+    internal static class QueueExt
+    {
+        public static bool TryDequeue<T>(this Queue<T> queue, out T item) where T : class
+        {
+            item = queue.Count > 0 ? queue.Dequeue() : null;
+            return item != null;
+        }
+    }
+#endif
 }
