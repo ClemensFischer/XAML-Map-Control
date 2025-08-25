@@ -3,11 +3,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
@@ -72,7 +70,7 @@ namespace MapControl
         /// </summary>
         public static int MaxLoadTasks { get; set; } = 4;
 
-        private readonly ConcurrentStack<Tile> tileStack = new ConcurrentStack<Tile>();
+        private readonly Queue<Tile> tileQueue = new Queue<Tile>();
         private int tileCount;
         private int taskCount;
 
@@ -87,43 +85,59 @@ namespace MapControl
                 cacheName = null; // disable caching
             }
 
-            var currentTiles = tiles.Where(tile => tile.IsPending).Reverse().ToArray();
-
-            tileStack.Clear();
-            tileStack.PushRange(currentTiles);
-            tileCount = currentTiles.Length;
-
-            var maxTasks = Math.Min(tileCount, MaxLoadTasks);
-
-            while (taskCount < maxTasks)
+            lock (tileQueue)
             {
-                Interlocked.Increment(ref taskCount);
-                Logger?.LogDebug("Task count: {count}", taskCount);
+                tileQueue.Clear();
 
-                _ = Task.Run(LoadTiles);
-            }
+                foreach (var tile in tiles.Where(tile => tile.IsPending))
+                {
+                    tileQueue.Enqueue(tile);
+                }
 
-            async Task LoadTiles()
-            {
-                await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false);
+                tileCount = tileQueue.Count;
 
-                Interlocked.Decrement(ref taskCount);
-                Logger?.LogDebug("Task count: {count}", taskCount);
+                var maxTasks = Math.Min(tileCount, MaxLoadTasks);
+
+                while (taskCount < maxTasks)
+                {
+                    taskCount++;
+                    Logger?.LogDebug("Task count: {count}", taskCount);
+
+                    _ = Task.Run(async () => await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false));
+                }
             }
         }
 
         public void CancelLoadTiles()
         {
-            tileStack.Clear();
+            lock (tileQueue)
+            {
+                tileQueue.Clear();
+                tileCount = 0;
+            }
         }
 
         private async Task LoadTilesFromStack(TileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            while (tileStack.TryPop(out var tile))
+            while (true)
             {
-                tile.IsPending = false;
+                Tile tile;
+                int tileNumber;
 
-                var tileNumber = tileCount - tileStack.Count;
+                lock (tileQueue)
+                {
+                    if (tileQueue.Count == 0)
+                    {
+                        taskCount--;
+                        Logger?.LogDebug("Task count: {count}", taskCount);
+                        break;
+                    }
+
+                    tile = tileQueue.Dequeue();
+                    tileNumber = tileCount - tileQueue.Count;
+                }
+
+                tile.IsPending = false;
 
                 progress?.Report((double)tileNumber / tileCount);
 
