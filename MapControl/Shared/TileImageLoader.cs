@@ -235,7 +235,7 @@ namespace MapControl
     }
 
 #if NETFRAMEWORK
-    internal static class QueueExt
+    internal static class QueueExtension
     {
         public static bool TryDequeue<T>(this Queue<T> queue, out T item) where T : class
         {

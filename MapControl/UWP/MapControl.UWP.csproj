@@ -59,8 +59,8 @@
     <Compile Include="..\Shared\CenteredBoundingBox.cs">
       <Link>CenteredBoundingBox.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\DispatcherTimerHelper.cs">
-      <Link>DispatcherTimerHelper.cs</Link>
+    <Compile Include="..\Shared\DispatcherTimerExtensions.cs">
+      <Link>DispatcherTimerExtensions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\EquirectangularProjection.cs">
       <Link>EquirectangularProjection.cs</Link>

@@ -14,7 +14,7 @@ using System;
 
 namespace MapControl
 {
-    internal static class DispatcherTimerHelper
+    internal static class DispatcherTimerExtensions
     {
         public static DispatcherTimer CreateTimer(this DependencyObject obj, TimeSpan interval)
         {
