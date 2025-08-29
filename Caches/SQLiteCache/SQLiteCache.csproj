@@ -7,7 +7,6 @@
         <PackageId>XAML.MapControl.SQLiteCache</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>IDistributedCache implementation for XAML Map Control, based on SQLite</Description>
-        <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
