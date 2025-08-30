@@ -21,5 +21,8 @@ dotnet_diagnostic.IDE0090.severity = silent
 # IDE0290: Use primary constructor
 dotnet_diagnostic.IDE0290.severity = silent
 
+# IDE0300: Use collection expression for array
+dotnet_diagnostic.IDE0300.severity = silent
+
 # IDE0301: Use collection expression for empty
 dotnet_diagnostic.IDE0301.severity = silent
