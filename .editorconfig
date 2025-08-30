@@ -1,6 +1,6 @@
 ﻿[*.cs]
 
-# CA1835: Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+# CA1835: Prefer the memory-based overloads of ReadAsync/WriteAsync methods in stream-based classes
 dotnet_diagnostic.CA1835.severity = silent
 
 # CsWinRT1028: Class is not marked partial
@@ -11,3 +11,12 @@ dotnet_diagnostic.CsWinRT1030.severity = silent
 
 # IDE0063: Use simple 'using' statement
 dotnet_diagnostic.IDE0063.severity = silent
+
+# IDE0090: Simplify 'new' expression
+dotnet_diagnostic.IDE0090.severity = silent
+
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = silent
+
+# IDE0301: Use collection expression for empty
+dotnet_diagnostic.IDE0301.severity = silent
