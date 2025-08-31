@@ -73,7 +73,7 @@ namespace MapControl.MBTiles
 
                     var buffer = (byte[])await command.ExecuteScalarAsync();
 
-                    if (buffer != null)
+                    if (buffer != null && buffer.Length > 0)
                     {
                         image = await LoadImageAsync(buffer);
                     }
