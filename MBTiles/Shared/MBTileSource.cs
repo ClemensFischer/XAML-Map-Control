@@ -29,7 +29,7 @@ namespace MapControl.MBTiles
         {
             Close();
 
-            connection = new SQLiteConnection("Data Source=" + Path.GetFullPath(file) + ";Read Only=True");
+            connection = new SQLiteConnection("Data Source=" + FilePath.GetFullPath(file) + ";Read Only=True");
 
             await connection.OpenAsync();
 
@@ -73,7 +73,10 @@ namespace MapControl.MBTiles
 
                     var buffer = (byte[])await command.ExecuteScalarAsync();
 
-                    image = await LoadImageAsync(buffer);
+                    if (buffer != null)
+                    {
+                        image = await LoadImageAsync(buffer);
+                    }
                 }
             }
             catch (Exception ex)
