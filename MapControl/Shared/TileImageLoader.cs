@@ -173,7 +173,7 @@ namespace MapControl
                 {
                     var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
 
-                    if (buffer != null && buffer.Length > 0)
+                    if (buffer?.Length > 0)
                     {
                         Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(buffer);
 

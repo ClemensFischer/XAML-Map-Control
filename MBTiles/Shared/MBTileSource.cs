@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
-using System.IO;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
@@ -73,7 +72,7 @@ namespace MapControl.MBTiles
 
                     var buffer = (byte[])await command.ExecuteScalarAsync();
 
-                    if (buffer != null && buffer.Length > 0)
+                    if (buffer?.Length > 0)
                     {
                         image = await LoadImageAsync(buffer);
                     }
