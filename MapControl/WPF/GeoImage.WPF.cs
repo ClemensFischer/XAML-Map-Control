@@ -11,7 +11,7 @@ namespace MapControl
     {
         private static Task<GeoBitmap> LoadGeoTiff(string sourcePath)
         {
-            return Task.Run(() =>
+            GeoBitmap LoadGeoTiff()
             {
                 BitmapSource bitmap;
                 Matrix transform;
@@ -55,7 +55,9 @@ namespace MapControl
                 }
 
                 return new GeoBitmap(bitmap, transform, projection);
-            });
+            }
+
+            return Task.Run(LoadGeoTiff);
         }
 
         private static BitmapSource ConvertTransparentPixel(BitmapSource source, int transparentPixel)
