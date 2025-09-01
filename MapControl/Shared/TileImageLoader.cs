@@ -103,7 +103,7 @@ namespace MapControl
                     taskCount++;
                     Logger?.LogDebug("Task count: {count}", taskCount);
 
-                    _ = Task.Run(async () => await LoadTilesFromStack(tileSource, cacheName, progress).ConfigureAwait(false));
+                    _ = Task.Run(() => LoadTilesFromStack(tileSource, cacheName, progress));
                 }
             }
         }
