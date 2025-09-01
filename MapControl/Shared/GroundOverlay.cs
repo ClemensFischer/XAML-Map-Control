@@ -7,7 +7,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using System.Threading;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -115,22 +114,15 @@ namespace MapControl
             using (var archive = ZipFile.OpenRead(archiveFilePath))
             {
                 var docEntry = archive.GetEntry("doc.kml") ??
-                               archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml"));
+                               archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")) ??
+                               throw new ArgumentException($"No KML entry found in {archiveFilePath}.");
 
-                if (docEntry == null)
+                List<ImageOverlay> imageOverlays;
+
+                using (var docStream = docEntry.Open())
                 {
-                    throw new ArgumentException($"No KML entry found in {archiveFilePath}.");
+                    imageOverlays = await ReadGroundOverlays(docStream);
                 }
-
-                var imageOverlays = await Task.Run(() =>
-                {
-                    using (var docStream = docEntry.Open())
-                    {
-                        var kmlDocument = XDocument.Load(docStream);
-
-                        return ReadGroundOverlays(kmlDocument.Root).ToList();
-                    }
-                });
 
                 foreach (var imageOverlay in imageOverlays)
                 {
@@ -157,14 +149,14 @@ namespace MapControl
         {
             docFilePath = FilePath.GetFullPath(docFilePath);
 
-            var docUri = new Uri(docFilePath);
+            List<ImageOverlay> imageOverlays;
 
-            var imageOverlays = await Task.Run(() =>
+            using (var docStream = File.OpenRead(docFilePath))
             {
-                var kmlDocument = XDocument.Load(docFilePath);
+                imageOverlays = await ReadGroundOverlays(docStream);
+            }
 
-                return ReadGroundOverlays(kmlDocument.Root).ToList();
-            });
+            var docUri = new Uri(docFilePath);
 
             foreach (var imageOverlay in imageOverlays)
             {
@@ -174,10 +166,17 @@ namespace MapControl
             return imageOverlays;
         }
 
-        private static IEnumerable<ImageOverlay> ReadGroundOverlays(XElement kmlElement)
+        private static async Task<List<ImageOverlay>> ReadGroundOverlays(Stream docStream)
         {
-            var ns = kmlElement.Name.Namespace;
-            var docElement = kmlElement.Element(ns + "Document") ?? kmlElement;
+#if NETFRAMEWORK
+            var document = await Task.FromResult(XDocument.Load(docStream, LoadOptions.None));
+#else
+            var document = await XDocument.LoadAsync(docStream, LoadOptions.None, System.Threading.CancellationToken.None);
+#endif
+            var rootElement = document.Root;
+            var ns = rootElement.Name.Namespace;
+            var docElement = rootElement.Element(ns + "Document") ?? rootElement;
+            var imageOverlays = new List<ImageOverlay>();
 
             foreach (var folderElement in docElement.Elements(ns + "Folder"))
             {
@@ -194,10 +193,12 @@ namespace MapControl
 
                     if (latLonBox != null && imagePath != null)
                     {
-                        yield return new ImageOverlay(imagePath, latLonBox, zIndex);
+                        imageOverlays.Add(new ImageOverlay(imagePath, latLonBox, zIndex));
                     }
                 }
             }
+
+            return imageOverlays;
         }
 
         private static LatLonBox ReadLatLonBox(XElement latLonBoxElement)

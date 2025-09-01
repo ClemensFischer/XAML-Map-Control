@@ -35,8 +35,8 @@ namespace MapControl
                          transformValues.Length == 16)
                 {
                     transform = new Matrix(transformValues[0], transformValues[1],
-                                                 transformValues[4], transformValues[5],
-                                                 transformValues[3], transformValues[7]);
+                                           transformValues[4], transformValues[5],
+                                           transformValues[3], transformValues[7]);
                 }
                 else
                 {
