@@ -37,9 +37,24 @@ namespace MapControl
                 ZIndex = zIndex;
             }
 
+            public async Task Load()
+            {
+                if (Stream != null)
+                {
+                    Stream.Seek(0, SeekOrigin.Begin);
+                    ImageSource = await ImageLoader.LoadImageAsync(Stream);
+                }
+            }
+
+            public async Task Load(Uri docUri)
+            {
+                ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, ImagePath));
+            }
+
             public string ImagePath { get; }
             public LatLonBox LatLonBox { get; }
             public int ZIndex { get; }
+            public Stream Stream { get; set; }
             public ImageSource ImageSource { get; set; }
         }
 
@@ -131,15 +146,14 @@ namespace MapControl
                     if (imageEntry != null)
                     {
                         using (var zipStream = imageEntry.Open())
-                        using (var memoryStream = new MemoryStream((int)zipStream.Length))
                         {
-                            await zipStream.CopyToAsync(memoryStream);
-                            memoryStream.Seek(0, SeekOrigin.Begin);
-
-                            imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(memoryStream);
+                            imageOverlay.Stream = new MemoryStream((int)zipStream.Length);
+                            await zipStream.CopyToAsync(imageOverlay.Stream);
                         }
                     }
                 }
+
+                Parallel.ForEach(imageOverlays, async imageOverlay => await imageOverlay.Load());
 
                 return imageOverlays;
             }
@@ -158,20 +172,8 @@ namespace MapControl
 
             var docUri = new Uri(docFilePath);
 
-#if NETFRAMEWORK
-            Parallel.ForEach(imageOverlays, async imageOverlay =>
-            {
-                imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
-            });
-#else
-            await Parallel.ForEachAsync(imageOverlays, async (imageOverlay, cancellationToken) =>
-            {
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
-                }
-            });
-#endif
+            Parallel.ForEach(imageOverlays, async imageOverlay => await imageOverlay.Load(docUri));
+
             return imageOverlays;
         }
 
