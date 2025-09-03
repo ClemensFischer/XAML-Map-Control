@@ -32,17 +32,19 @@ namespace MapControl
             return Task.FromResult(LoadImage(stream));
         }
 
-        public static Task<ImageSource> LoadImageAsync(string path)
+        public static async Task<ImageSource> LoadImageAsync(string path)
         {
-            if (!File.Exists(path))
+            ImageSource image = null;
+
+            if (File.Exists(path))
             {
-                return Task.FromResult<ImageSource>(null);
+                using (var stream = File.OpenRead(path))
+                {
+                    image = await LoadImageAsync(stream);
+                }
             }
 
-            using (var stream = File.OpenRead(path))
-            {
-                return LoadImageAsync(stream);
-            }
+            return image;
         }
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)

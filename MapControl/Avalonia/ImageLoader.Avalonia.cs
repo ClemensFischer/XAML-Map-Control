@@ -12,7 +12,7 @@ namespace MapControl
     {
         public static IImage LoadImage(Uri uri)
         {
-            return null;
+            throw new NotSupportedException();
         }
 
         public static IImage LoadImage(Stream stream)
@@ -25,17 +25,19 @@ namespace MapControl
             return Task.FromResult(LoadImage(stream));
         }
 
-        public static Task<IImage> LoadImageAsync(string path)
+        public static async Task<IImage> LoadImageAsync(string path)
         {
-            if (!File.Exists(path))
+            IImage image = null;
+
+            if (File.Exists(path))
             {
-                return Task.FromResult<IImage>(null);
+                using (var stream = File.OpenRead(path))
+                {
+                    image = await LoadImageAsync(stream);
+                }
             }
 
-            using (var stream = File.OpenRead(path))
-            {
-                return LoadImageAsync(stream);
-            }
+            return image;
         }
 
         internal static async Task<IImage> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
