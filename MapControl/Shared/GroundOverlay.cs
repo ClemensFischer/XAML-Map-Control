@@ -131,7 +131,7 @@ namespace MapControl
                     if (imageEntry != null)
                     {
                         using (var zipStream = imageEntry.Open())
-                        using (var memoryStream = new MemoryStream())
+                        using (var memoryStream = new MemoryStream((int)zipStream.Length))
                         {
                             await zipStream.CopyToAsync(memoryStream);
                             memoryStream.Seek(0, SeekOrigin.Begin);
@@ -158,11 +158,20 @@ namespace MapControl
 
             var docUri = new Uri(docFilePath);
 
-            foreach (var imageOverlay in imageOverlays)
+#if NETFRAMEWORK
+            Parallel.ForEach(imageOverlays, async imageOverlay =>
             {
                 imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
-            }
-
+            });
+#else
+            await Parallel.ForEachAsync(imageOverlays, async (imageOverlay, cancellationToken) =>
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    imageOverlay.ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imageOverlay.ImagePath));
+                }
+            });
+#endif
             return imageOverlays;
         }
 
