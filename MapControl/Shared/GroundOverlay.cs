@@ -37,7 +37,21 @@ namespace MapControl
                 ZIndex = zIndex;
             }
 
-            public async Task Load()
+            public async Task LoadStream(ZipArchive archive)
+            {
+                var entry = archive.GetEntry(ImagePath);
+
+                if (entry != null)
+                {
+                    using (var zipStream = entry.Open())
+                    {
+                        Stream = new MemoryStream((int)zipStream.Length);
+                        await zipStream.CopyToAsync(Stream);
+                    }
+                }
+            }
+
+            public async Task LoadImage()
             {
                 if (Stream != null)
                 {
@@ -46,7 +60,7 @@ namespace MapControl
                 }
             }
 
-            public async Task Load(Uri docUri)
+            public async Task LoadImage(Uri docUri)
             {
                 ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, ImagePath));
             }
@@ -141,19 +155,10 @@ namespace MapControl
 
                 foreach (var imageOverlay in imageOverlays)
                 {
-                    var imageEntry = archive.GetEntry(imageOverlay.ImagePath);
-
-                    if (imageEntry != null)
-                    {
-                        using (var zipStream = imageEntry.Open())
-                        {
-                            imageOverlay.Stream = new MemoryStream((int)zipStream.Length);
-                            await zipStream.CopyToAsync(imageOverlay.Stream);
-                        }
-                    }
+                    await imageOverlay.LoadStream(archive);
                 }
 
-                Parallel.ForEach(imageOverlays, async imageOverlay => await imageOverlay.Load());
+                await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage()));
 
                 return imageOverlays;
             }
@@ -172,7 +177,7 @@ namespace MapControl
 
             var docUri = new Uri(docFilePath);
 
-            Parallel.ForEach(imageOverlays, async imageOverlay => await imageOverlay.Load(docUri));
+            await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage(docUri)));
 
             return imageOverlays;
         }
@@ -180,7 +185,7 @@ namespace MapControl
         private static async Task<List<ImageOverlay>> ReadGroundOverlays(Stream docStream)
         {
 #if NETFRAMEWORK
-            var document = await Task.FromResult(XDocument.Load(docStream, LoadOptions.None));
+            var document = await Task.Run(() => XDocument.Load(docStream, LoadOptions.None));
 #else
             var document = await XDocument.LoadAsync(docStream, LoadOptions.None, System.Threading.CancellationToken.None);
 #endif

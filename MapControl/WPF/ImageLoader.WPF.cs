@@ -29,7 +29,7 @@ namespace MapControl
 
         public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            return Task.FromResult(LoadImage(stream));
+            return Task.Run(() => LoadImage(stream));
         }
 
         public static async Task<ImageSource> LoadImageAsync(string path)
