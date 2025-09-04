@@ -33,7 +33,6 @@ namespace MapControl
             private readonly string imagePath;
             private readonly LatLonBox boundingBox;
             private readonly int zIndex;
-            private ImageSource imageSource;
 
             public ImageOverlay(string path, LatLonBox latLonBox, int zOrder)
             {
@@ -42,7 +41,9 @@ namespace MapControl
                 zIndex = zOrder;
             }
 
-            public async Task LoadImageSource(ZipArchive archive)
+            public Image Image { get; private set; }
+
+            public async Task LoadImage(ZipArchive archive)
             {
                 var entry = archive.GetEntry(imagePath);
 
@@ -61,32 +62,23 @@ namespace MapControl
 
                     // Close Zip Stream before awaiting.
                     //
-                    imageSource = await ImageLoader.LoadImageAsync(memoryStream);
+                    CreateImage(await ImageLoader.LoadImageAsync(memoryStream));
                 }
             }
 
-            public async Task LoadImageSource(Uri docUri)
+            public async Task LoadImage(Uri docUri)
             {
-                imageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imagePath));
+                CreateImage(await ImageLoader.LoadImageAsync(new Uri(docUri, imagePath)));
             }
 
-            public Image CreateImage()
+            private void CreateImage(ImageSource image)
             {
-                Image image = null;
-
-                if (imageSource != null)
+                if (image != null)
                 {
-                    image = new Image
-                    {
-                        Source = imageSource,
-                        Stretch = Stretch.Fill
-                    };
-
-                    image.SetValue(Canvas.ZIndexProperty, zIndex);
-                    SetBoundingBox(image, boundingBox);
+                    Image = new Image { Source = image, Stretch = Stretch.Fill };
+                    Image.SetValue(Canvas.ZIndexProperty, zIndex);
+                    SetBoundingBox(Image, boundingBox);
                 }
-
-                return image;
             }
         }
 
@@ -114,7 +106,7 @@ namespace MapControl
 
         public async Task LoadAsync(string sourcePath)
         {
-            IEnumerable<ImageOverlay> imageOverlays = null;
+            List<ImageOverlay> imageOverlays = null;
 
             if (!string.IsNullOrEmpty(sourcePath))
             {
@@ -141,50 +133,46 @@ namespace MapControl
 
             if (imageOverlays != null)
             {
-                foreach (var image in imageOverlays
-                    .Select(imageOverlay => imageOverlay.CreateImage())
-                    .Where(image => image != null))
+                foreach (var image in imageOverlays.Select(imageOverlay => imageOverlay.Image).Where(image => image != null))
                 {
                     Children.Add(image);
                 }
             }
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromArchive(string archiveFilePath)
+        private static async Task<List<ImageOverlay>> LoadGroundOverlaysFromArchive(string archiveFilePath)
         {
+            List<ImageOverlay> imageOverlays;
+
             using (var archive = ZipFile.OpenRead(archiveFilePath))
             {
                 var docEntry = archive.GetEntry("doc.kml") ??
                                archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")) ??
                                throw new ArgumentException($"No KML entry found in {archiveFilePath}.");
 
-                List<ImageOverlay> imageOverlays;
-
                 using (var docStream = docEntry.Open())
                 {
                     imageOverlays = await ReadGroundOverlays(docStream);
                 }
 
-                await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImageSource(archive)));
-
-                return imageOverlays;
+                await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage(archive)));
             }
+
+            return imageOverlays;
         }
 
-        private static async Task<IEnumerable<ImageOverlay>> LoadGroundOverlaysFromFile(string docFilePath)
+        private static async Task<List<ImageOverlay>> LoadGroundOverlaysFromFile(string docFilePath)
         {
-            docFilePath = FilePath.GetFullPath(docFilePath);
-
             List<ImageOverlay> imageOverlays;
 
-            using (var docStream = File.OpenRead(docFilePath))
+            var docUri = new Uri(FilePath.GetFullPath(docFilePath));
+
+            using (var docStream = File.OpenRead(docUri.AbsolutePath))
             {
                 imageOverlays = await ReadGroundOverlays(docStream);
             }
 
-            var docUri = new Uri(docFilePath);
-
-            await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImageSource(docUri)));
+            await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage(docUri)));
 
             return imageOverlays;
         }
