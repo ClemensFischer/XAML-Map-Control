@@ -78,11 +78,9 @@ namespace MapControl
 
                 if (response?.Buffer != null)
                 {
-                    using (var memoryStream = new MemoryStream(response.Buffer))
-                    using (var randomAccessStream = memoryStream.AsRandomAccessStream())
+                    using (var stream = new MemoryStream(response.Buffer).AsRandomAccessStream())
                     {
-                        var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
-
+                        var decoder = await BitmapDecoder.CreateAsync(stream);
                         bitmap = await LoadWriteableBitmapAsync(decoder);
                     }
                 }

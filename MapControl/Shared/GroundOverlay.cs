@@ -48,13 +48,20 @@ namespace MapControl
 
                 if (entry != null)
                 {
+                    MemoryStream memoryStream;
+
+                    // ZipArchive does not support multithreading, synchronously copy ZipArchiveEntry stream to MemoryStream.
+                    //
                     using (var zipStream = entry.Open())
-                    using (var memoryStream = new MemoryStream((int)zipStream.Length))
                     {
-                        zipStream.CopyTo(memoryStream); // CopyToAsync won't work with ZipArchive
+                        memoryStream = new MemoryStream((int)zipStream.Length);
+                        zipStream.CopyTo(memoryStream);
                         memoryStream.Seek(0, SeekOrigin.Begin);
-                        imageSource = await ImageLoader.LoadImageAsync(memoryStream);
                     }
+
+                    // Close Zip Stream before awaiting.
+                    //
+                    imageSource = await ImageLoader.LoadImageAsync(memoryStream);
                 }
             }
 
