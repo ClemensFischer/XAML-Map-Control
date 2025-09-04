@@ -30,46 +30,57 @@ namespace MapControl
     {
         private class ImageOverlay
         {
-            public ImageOverlay(string imagePath, LatLonBox latLonBox, int zIndex)
+            private readonly string imagePath;
+            private readonly LatLonBox boundingBox;
+            private readonly int zIndex;
+            private ImageSource imageSource;
+
+            public ImageOverlay(string path, LatLonBox latLonBox, int zOrder)
             {
-                ImagePath = imagePath;
-                LatLonBox = latLonBox;
-                ZIndex = zIndex;
+                imagePath = path;
+                boundingBox = latLonBox;
+                zIndex = zOrder;
             }
 
-            public async Task LoadStream(ZipArchive archive)
+            public async Task LoadImageSource(ZipArchive archive)
             {
-                var entry = archive.GetEntry(ImagePath);
+                var entry = archive.GetEntry(imagePath);
 
                 if (entry != null)
                 {
                     using (var zipStream = entry.Open())
+                    using (var memoryStream = new MemoryStream((int)zipStream.Length))
                     {
-                        Stream = new MemoryStream((int)zipStream.Length);
-                        await zipStream.CopyToAsync(Stream);
+                        zipStream.CopyTo(memoryStream); // CopyToAsync won't work with ZipArchive
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        imageSource = await ImageLoader.LoadImageAsync(memoryStream);
                     }
                 }
             }
 
-            public async Task LoadImage()
+            public async Task LoadImageSource(Uri docUri)
             {
-                if (Stream != null)
+                imageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, imagePath));
+            }
+
+            public Image CreateImage()
+            {
+                Image image = null;
+
+                if (imageSource != null)
                 {
-                    Stream.Seek(0, SeekOrigin.Begin);
-                    ImageSource = await ImageLoader.LoadImageAsync(Stream);
+                    image = new Image
+                    {
+                        Source = imageSource,
+                        Stretch = Stretch.Fill
+                    };
+
+                    image.SetValue(Canvas.ZIndexProperty, zIndex);
+                    SetBoundingBox(image, boundingBox);
                 }
-            }
 
-            public async Task LoadImage(Uri docUri)
-            {
-                ImageSource = await ImageLoader.LoadImageAsync(new Uri(docUri, ImagePath));
+                return image;
             }
-
-            public string ImagePath { get; }
-            public LatLonBox LatLonBox { get; }
-            public int ZIndex { get; }
-            public Stream Stream { get; set; }
-            public ImageSource ImageSource { get; set; }
         }
 
         private static ILogger logger;
@@ -123,16 +134,10 @@ namespace MapControl
 
             if (imageOverlays != null)
             {
-                foreach (var imageOverlay in imageOverlays.Where(i => i.ImageSource != null))
+                foreach (var image in imageOverlays
+                    .Select(imageOverlay => imageOverlay.CreateImage())
+                    .Where(image => image != null))
                 {
-                    var image = new Image
-                    {
-                        Source = imageOverlay.ImageSource,
-                        Stretch = Stretch.Fill
-                    };
-
-                    image.SetValue(Canvas.ZIndexProperty, imageOverlay.ZIndex);
-                    SetBoundingBox(image, imageOverlay.LatLonBox);
                     Children.Add(image);
                 }
             }
@@ -153,12 +158,7 @@ namespace MapControl
                     imageOverlays = await ReadGroundOverlays(docStream);
                 }
 
-                foreach (var imageOverlay in imageOverlays)
-                {
-                    await imageOverlay.LoadStream(archive);
-                }
-
-                await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage()));
+                await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImageSource(archive)));
 
                 return imageOverlays;
             }
@@ -177,7 +177,7 @@ namespace MapControl
 
             var docUri = new Uri(docFilePath);
 
-            await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage(docUri)));
+            await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImageSource(docUri)));
 
             return imageOverlays;
         }
@@ -198,18 +198,18 @@ namespace MapControl
             {
                 foreach (var groundOverlayElement in folderElement.Elements(ns + "GroundOverlay"))
                 {
-                    var imagePathElement = groundOverlayElement.Element(ns + "Icon");
-                    var imagePath = imagePathElement?.Element(ns + "href")?.Value;
+                    var pathElement = groundOverlayElement.Element(ns + "Icon");
+                    var path = pathElement?.Element(ns + "href")?.Value;
 
                     var latLonBoxElement = groundOverlayElement.Element(ns + "LatLonBox");
                     var latLonBox = latLonBoxElement != null ? ReadLatLonBox(latLonBoxElement) : null;
 
                     var drawOrder = groundOverlayElement.Element(ns + "drawOrder")?.Value;
-                    var zIndex = drawOrder != null ? int.Parse(drawOrder) : 0;
+                    var zOrder = drawOrder != null ? int.Parse(drawOrder) : 0;
 
-                    if (latLonBox != null && imagePath != null)
+                    if (latLonBox != null && path != null)
                     {
-                        imageOverlays.Add(new ImageOverlay(imagePath, latLonBox, zIndex));
+                        imageOverlays.Add(new ImageOverlay(path, latLonBox, zOrder));
                     }
                 }
             }
