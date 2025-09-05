@@ -7,8 +7,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using System.IO.Pipes;
-
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -84,11 +82,9 @@ namespace MapControl
         public static async Task<GroundOverlay> CreateAsync(string sourcePath)
         {
             var groundOverlay = new GroundOverlay();
-            var sw = System.Diagnostics.Stopwatch.StartNew();
 
             await groundOverlay.LoadAsync(sourcePath);
 
-            System.Diagnostics.Debug.WriteLine(sw.ElapsedMilliseconds);
             return groundOverlay;
         }
 
