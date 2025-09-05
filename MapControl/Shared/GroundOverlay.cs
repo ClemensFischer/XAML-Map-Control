@@ -7,6 +7,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.IO.Pipes;
+
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -30,54 +32,38 @@ namespace MapControl
     {
         private class ImageOverlay
         {
-            private readonly string imagePath;
-            private readonly LatLonBox boundingBox;
-            private readonly int zIndex;
-
-            public ImageOverlay(string path, LatLonBox latLonBox, int zOrder)
+            public ImageOverlay(string path, LatLonBox latLonBox, int zIndex)
             {
-                imagePath = path;
-                boundingBox = latLonBox;
-                zIndex = zOrder;
+                ImagePath = path;
+                SetBoundingBox(Image, latLonBox);
+                Image.SetValue(Canvas.ZIndexProperty, zIndex);
             }
 
-            public Image Image { get; private set; }
+            public string ImagePath { get; }
 
-            public async Task LoadImage(ZipArchive archive)
-            {
-                var entry = archive.GetEntry(imagePath);
-
-                if (entry != null)
-                {
-                    MemoryStream memoryStream;
-
-                    // ZipArchive does not support multithreading, synchronously copy ZipArchiveEntry stream to MemoryStream.
-                    //
-                    using (var zipStream = entry.Open())
-                    {
-                        memoryStream = new MemoryStream((int)zipStream.Length);
-                        zipStream.CopyTo(memoryStream);
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-                    }
-
-                    // Close Zip Stream before awaiting.
-                    //
-                    CreateImage(await ImageLoader.LoadImageAsync(memoryStream));
-                }
-            }
+            public Image Image { get; } = new Image { Stretch = Stretch.Fill };
 
             public async Task LoadImage(Uri docUri)
             {
-                CreateImage(await ImageLoader.LoadImageAsync(new Uri(docUri, imagePath)));
+                Image.Source = await ImageLoader.LoadImageAsync(new Uri(docUri, ImagePath));
             }
 
-            private void CreateImage(ImageSource image)
+            public async Task LoadImage(ZipArchive archive)
             {
-                if (image != null)
+                var entry = archive.GetEntry(ImagePath);
+
+                if (entry != null)
                 {
-                    Image = new Image { Source = image, Stretch = Stretch.Fill };
-                    Image.SetValue(Canvas.ZIndexProperty, zIndex);
-                    SetBoundingBox(Image, boundingBox);
+                    using (var memoryStream = new MemoryStream((int)entry.Length))
+                    {
+                        using (var zipStream = entry.Open())
+                        {
+                            zipStream.CopyTo(memoryStream); // can't use CopyToAsync with ZipArchive
+                        }
+
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        Image.Source = await ImageLoader.LoadImageAsync(memoryStream);
+                    }
                 }
             }
         }
@@ -98,9 +84,11 @@ namespace MapControl
         public static async Task<GroundOverlay> CreateAsync(string sourcePath)
         {
             var groundOverlay = new GroundOverlay();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
 
             await groundOverlay.LoadAsync(sourcePath);
 
+            System.Diagnostics.Debug.WriteLine(sw.ElapsedMilliseconds);
             return groundOverlay;
         }
 
@@ -133,9 +121,9 @@ namespace MapControl
 
             if (imageOverlays != null)
             {
-                foreach (var image in imageOverlays.Select(imageOverlay => imageOverlay.Image).Where(image => image != null))
+                foreach (var imageOverlay in imageOverlays)
                 {
-                    Children.Add(image);
+                    Children.Add(imageOverlay.Image);
                 }
             }
         }
@@ -200,11 +188,11 @@ namespace MapControl
                     var latLonBox = latLonBoxElement != null ? ReadLatLonBox(latLonBoxElement) : null;
 
                     var drawOrder = groundOverlayElement.Element(ns + "drawOrder")?.Value;
-                    var zOrder = drawOrder != null ? int.Parse(drawOrder) : 0;
+                    var zIndex = drawOrder != null ? int.Parse(drawOrder) : 0;
 
                     if (latLonBox != null && path != null)
                     {
-                        imageOverlays.Add(new ImageOverlay(path, latLonBox, zOrder));
+                        imageOverlays.Add(new ImageOverlay(path, latLonBox, zIndex));
                     }
                 }
             }

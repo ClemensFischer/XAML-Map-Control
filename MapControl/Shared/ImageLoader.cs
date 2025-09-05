@@ -31,9 +31,12 @@ namespace MapControl
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
-        public static Task<ImageSource> LoadImageAsync(byte[] buffer)
+        public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
-            return LoadImageAsync(new MemoryStream(buffer));
+            using (var stream = new MemoryStream(buffer))
+            {
+                return await LoadImageAsync(stream);
+            }
         }
 
         public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
