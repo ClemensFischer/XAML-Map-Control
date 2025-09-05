@@ -4,6 +4,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl
@@ -22,7 +23,9 @@ namespace MapControl
 
         public static Task<IImage> LoadImageAsync(Stream stream)
         {
-            return Task.Run(() => LoadImage(stream));
+            return Thread.CurrentThread.IsThreadPoolThread ?
+                Task.FromResult(LoadImage(stream)) :
+                Task.Run(() => LoadImage(stream));
         }
 
         public static async Task<IImage> LoadImageAsync(string path)
