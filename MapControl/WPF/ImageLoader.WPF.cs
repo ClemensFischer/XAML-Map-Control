@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -30,9 +29,7 @@ namespace MapControl
 
         public static Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            return Thread.CurrentThread.IsThreadPoolThread ?
-                Task.FromResult(LoadImage(stream)) :
-                Task.Run(() => LoadImage(stream));
+            return Task.Run(() => LoadImage(stream));
         }
 
         public static async Task<ImageSource> LoadImageAsync(string path)
