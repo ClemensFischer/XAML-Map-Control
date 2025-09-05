@@ -67,7 +67,7 @@ namespace MapControl
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.RegisterAttached<string>("SourcePath", typeof(GeoImage), null,
-                async (element, oldValue, newValue) => await LoadGeoImageAsync(element, newValue));
+                async (element, oldValue, newValue) => await LoadGeoImage(element, newValue));
 
         public static string GetSourcePath(FrameworkElement image)
         {
@@ -83,12 +83,22 @@ namespace MapControl
         {
             var image = new Image();
 
-            await LoadGeoImageAsync(image, sourcePath);
+            await LoadGeoImage(image, sourcePath);
 
             return image;
         }
 
-        public static async Task LoadGeoImageAsync(this FrameworkElement element, string sourcePath)
+        public static Task LoadGeoImageAsync(this Image image, string sourcePath)
+        {
+            return LoadGeoImage(image, sourcePath);
+        }
+
+        public static Task LoadGeoImageAsync(this Shape shape, string sourcePath)
+        {
+            return LoadGeoImage(shape, sourcePath);
+        }
+
+        private static async Task LoadGeoImage(FrameworkElement element, string sourcePath)
         {
             if (!string.IsNullOrEmpty(sourcePath))
             {
