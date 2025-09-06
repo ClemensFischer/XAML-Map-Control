@@ -133,8 +133,8 @@ namespace MapControl
 
             if (mapLayers.Count > 0)
             {
-#if WPF
-                // Execute at DispatcherPriority.DataBind to ensure that all bindings are evaluated.
+#if WPF         // Execute at DispatcherPriority.DataBind to ensure that all bindings are evaluated.
+                //
                 Dispatcher.Invoke(() => AddMapLayers(mapLayers, index), DispatcherPriority.DataBind);
 #else
                 AddMapLayers(mapLayers, index);
