@@ -3,6 +3,9 @@
 # CA1835: Prefer the memory-based overloads of ReadAsync/WriteAsync methods in stream-based classes
 dotnet_diagnostic.CA1835.severity = silent
 
+# CA1868: Unnecessary call to 'Contains' for sets
+dotnet_diagnostic.CA1868.severity = silent
+
 # CsWinRT1028: Class is not marked partial
 dotnet_diagnostic.CsWinRT1028.severity = silent
 
