@@ -27,7 +27,7 @@ namespace MapControl.UiTools
 #if AVALONIA
         [Content]
 #endif
-        public virtual FrameworkElement MapLayer { get; set; }
+        public FrameworkElement MapLayer { get; set; }
 
         public Func<Task<FrameworkElement>> MapLayerFactory { get; set; }
 
@@ -38,12 +38,14 @@ namespace MapControl.UiTools
 
         public override async Task Execute(MapBase map)
         {
-            var layer = MapLayer ?? (MapLayer = await MapLayerFactory.Invoke());
-
-            if (layer != null)
+            if (MapLayer == null)
             {
-                map.MapLayer = layer;
-                IsChecked = true;
+                MapLayer = await MapLayerFactory?.Invoke();
+            }
+
+            if (MapLayer != null)
+            {
+                map.MapLayer = MapLayer;
             }
         }
     }
@@ -52,37 +54,38 @@ namespace MapControl.UiTools
     {
         public override async Task Execute(MapBase map)
         {
-            var layer = MapLayer ?? (MapLayer = await MapLayerFactory.Invoke());
-
-            if (layer != null)
+            if (MapLayer == null)
             {
-                if (map.Children.Contains(layer))
+                MapLayer = await MapLayerFactory?.Invoke();
+            }
+
+            if (MapLayer != null)
+            {
+                if (map.Children.Contains(MapLayer))
                 {
-                    map.Children.Remove(layer);
+                    map.Children.Remove(MapLayer);
                 }
                 else
                 {
                     var index = 1;
 
-                    foreach (var itemLayer in ParentMenuItems
+                    foreach (var mapLayer in ParentMenuItems
                         .OfType<MapOverlayMenuItem>()
                         .Select(item => item.MapLayer)
-                        .Where(itemLayer => itemLayer != null))
+                        .Where(mapLayer => mapLayer != null))
                     {
-                        if (itemLayer == layer)
+                        if (mapLayer == MapLayer)
                         {
-                            map.Children.Insert(index, itemLayer);
+                            map.Children.Insert(index, mapLayer);
                             break;
                         }
 
-                        if (map.Children.Contains(itemLayer))
+                        if (map.Children.Contains(mapLayer))
                         {
                             index++;
                         }
                     }
                 }
-
-                IsChecked = true;
             }
         }
     }

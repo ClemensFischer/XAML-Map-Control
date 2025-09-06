@@ -27,27 +27,22 @@ namespace MapControl.UiTools
 
         protected override bool GetIsChecked(MapBase map)
         {
-            return map.MapProjection.CrsId == MapProjection;
+            return map.MapProjection.ToString() == MapProjection;
         }
 
         public override Task Execute(MapBase map)
         {
-            bool success = true;
-
-            if (map.MapProjection.CrsId != MapProjection)
+            if (!GetIsChecked(map))
             {
                 try
                 {
-                    map.MapProjection = MapProjectionFactory.Instance.GetProjection(MapProjection);
+                    map.MapProjection = MapControl.MapProjection.Parse(MapProjection);
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{nameof(MapProjectionFactory)}: {ex.Message}");
-                    success = false;
+                    Debug.WriteLine($"MapProjection.Parse: {ex.Message}");
                 }
             }
-
-            IsChecked = success;
 
             return Task.CompletedTask;
         }
