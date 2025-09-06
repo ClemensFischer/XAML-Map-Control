@@ -32,7 +32,7 @@ namespace MapControl
 
         public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
         {
-            return Location.Parse(value.ToString());
+            return ConvertFrom(value.ToString());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
@@ -55,7 +55,7 @@ namespace MapControl
 
         public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
         {
-            return LocationCollection.Parse(value.ToString());
+            return ConvertFrom(value.ToString());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
@@ -78,7 +78,7 @@ namespace MapControl
 
         public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
         {
-            return BoundingBox.Parse(value.ToString());
+            return ConvertFrom(value.ToString());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
@@ -101,7 +101,30 @@ namespace MapControl
 
         public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
         {
-            return TileSource.Parse(value.ToString());
+            return ConvertFrom(value.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return value.ToString();
+        }
+    }
+
+    public class MapProjectionConverter : TypeConverter, IValueConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            return sourceType == typeof(string);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            return MapProjection.Parse(value.ToString());
+        }
+
+        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+        {
+            return ConvertFrom(value.ToString());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)

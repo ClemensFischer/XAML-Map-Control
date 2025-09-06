@@ -19,6 +19,11 @@ namespace MapControl
     /// <summary>
     /// Defines a map projection between geographic coordinates and cartesian map coordinates.
     /// </summary>
+#if UWP || WINUI
+    [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
+#else
+    [System.ComponentModel.TypeConverter(typeof(MapProjectionConverter))]
+#endif
     public abstract class MapProjection
     {
         public const double Wgs84EquatorialRadius = 6378137d;
@@ -130,6 +135,19 @@ namespace MapControl
             }
 
             return rotatedRect;
+        }
+
+        public override string ToString()
+        {
+            return CrsId;
+        }
+
+        /// <summary>
+        /// Creates a MapProjection instance from a CRS id string.
+        /// </summary>
+        public static MapProjection Parse(string crsId)
+        {
+            return MapProjectionFactory.Instance.GetProjection(crsId);
         }
     }
 }
