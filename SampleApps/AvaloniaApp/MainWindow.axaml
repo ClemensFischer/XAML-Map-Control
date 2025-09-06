@@ -6,10 +6,16 @@
         xmlns:local="clr-namespace:SampleApplication"
         x:Class="SampleApplication.MainWindow"
         Title="XAML MapControl - Avalonia Sample Application">
+
+    <Window.DataContext>
+        <local:MapViewModel/>
+    </Window.DataContext>
+
     <Grid>
         <Grid.Resources>
             <local:MapHeadingToVisibilityConverter x:Key="MapHeadingToVisibilityConverter" />
         </Grid.Resources>
+
         <map:Map x:Name="map"
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
