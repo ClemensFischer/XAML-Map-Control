@@ -13,13 +13,12 @@ namespace SampleApplication
     {
         public MainWindow()
         {
-            //var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder,
-            //    LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Information)));
+            var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Information));
+            ImageLoader.LoggerFactory = loggerFactory;
 
+            //var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
             //TileImageLoader.Cache = tileCache;
             //Closed += (s, e) => tileCache.Dispose();
-
-            ImageLoader.LoggerFactory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Warning));
 
             InitializeComponent();
 
