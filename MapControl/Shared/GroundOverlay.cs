@@ -7,6 +7,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Threading;
+
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -69,6 +71,8 @@ namespace MapControl
         private static ILogger logger;
         private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>());
 
+        public static int MaxLoadTasks { get; set; } = 4;
+
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,
                 async (groundOverlay, oldValue, newValue) => await groundOverlay.LoadAsync(newValue));
@@ -100,11 +104,11 @@ namespace MapControl
 
                     if (ext == ".kmz")
                     {
-                        imageOverlays = await LoadGroundOverlaysFromArchive(sourcePath);
+                        imageOverlays = await LoadImageOverlaysFromArchive(sourcePath);
                     }
                     else if (ext == ".kml")
                     {
-                        imageOverlays = await LoadGroundOverlaysFromFile(sourcePath);
+                        imageOverlays = await LoadImageOverlaysFromFile(sourcePath);
                     }
                 }
                 catch (Exception ex)
@@ -124,7 +128,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<List<ImageOverlay>> LoadGroundOverlaysFromArchive(string archiveFilePath)
+        private static async Task<List<ImageOverlay>> LoadImageOverlaysFromArchive(string archiveFilePath)
         {
             List<ImageOverlay> imageOverlays;
 
@@ -136,16 +140,16 @@ namespace MapControl
 
                 using (var docStream = docEntry.Open())
                 {
-                    imageOverlays = await ReadGroundOverlays(docStream);
+                    imageOverlays = await ReadImageOverlays(docStream);
                 }
 
-                await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage(archive)));
+                await LoadImageOverlays(imageOverlays, imageOverlay => imageOverlay.LoadImage(archive));
             }
 
             return imageOverlays;
         }
 
-        private static async Task<List<ImageOverlay>> LoadGroundOverlaysFromFile(string docFilePath)
+        private static async Task<List<ImageOverlay>> LoadImageOverlaysFromFile(string docFilePath)
         {
             List<ImageOverlay> imageOverlays;
 
@@ -153,15 +157,35 @@ namespace MapControl
 
             using (var docStream = File.OpenRead(docUri.AbsolutePath))
             {
-                imageOverlays = await ReadGroundOverlays(docStream);
+                imageOverlays = await ReadImageOverlays(docStream);
             }
 
-            await Task.WhenAll(imageOverlays.Select(imageOverlay => imageOverlay.LoadImage(docUri)));
+            await LoadImageOverlays(imageOverlays, imageOverlay => imageOverlay.LoadImage(docUri));
 
             return imageOverlays;
         }
 
-        private static async Task<List<ImageOverlay>> ReadGroundOverlays(Stream docStream)
+        private static Task LoadImageOverlays(List<ImageOverlay> imageOverlays, Func<ImageOverlay, Task> loadFunc)
+        {
+            var semaphore = new SemaphoreSlim(MaxLoadTasks);
+
+            var tasks = imageOverlays.Select(async imageOverlay =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    await loadFunc(imageOverlay); // no more than MaxLoadTasks parallel executions here
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            return Task.WhenAll(tasks);
+        }
+
+        private static async Task<List<ImageOverlay>> ReadImageOverlays(Stream docStream)
         {
 #if NETFRAMEWORK
             var document = await Task.Run(() => XDocument.Load(docStream, LoadOptions.None));
