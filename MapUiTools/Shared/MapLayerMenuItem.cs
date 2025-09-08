@@ -33,7 +33,7 @@ namespace MapControl.UiTools
 
         protected override bool GetIsChecked(MapBase map)
         {
-            return map.Children.Contains(MapLayer);
+            return MapLayer != null && map.Children.Contains(MapLayer);
         }
 
         public override async Task Execute(MapBase map)
@@ -52,6 +52,8 @@ namespace MapControl.UiTools
 
     public class MapOverlayMenuItem : MapLayerMenuItem
     {
+        public int InsertOrder { get; set; }
+
         public override async Task Execute(MapBase map)
         {
             if (MapLayer == null)
@@ -67,24 +69,17 @@ namespace MapControl.UiTools
                 }
                 else
                 {
-                    var index = 1;
-
-                    foreach (var mapLayer in ParentMenuItems
+                    var insertIndex = ParentMenuItems
                         .OfType<MapOverlayMenuItem>()
-                        .Select(item => item.MapLayer)
-                        .Where(mapLayer => mapLayer != null))
-                    {
-                        if (mapLayer == MapLayer)
-                        {
-                            map.Children.Insert(index, mapLayer);
-                            break;
-                        }
+                        .Where(item => item.InsertOrder <= InsertOrder && item.GetIsChecked(map))
+                        .Count();
 
-                        if (map.Children.Contains(mapLayer))
-                        {
-                            index++;
-                        }
+                    if (map.MapLayer != null)
+                    {
+                        insertIndex++;
                     }
+
+                    map.Children.Insert(insertIndex, MapLayer);
                 }
             }
         }

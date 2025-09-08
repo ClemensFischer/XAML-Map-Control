@@ -260,16 +260,16 @@
                         map:MapPanel.BoundingBox="53.54031,8.08594,53.74871,8.43750"/>
                 </tools:MapOverlayMenuItem>
                 <tools:MapOverlayMenuItem x:Name="sampleOverlayMenuItem" Text="Mount Etna KML"/>
-                <tools:MapOverlayMenuItem Text="Seamarks">
+                <tools:MapOverlayMenuItem Text="Seamarks" InsertOrder="1">
                     <map:MapTileLayer
                         TileSource="http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
                         SourceName="Seamarks"
                         MinZoomLevel="9" MaxZoomLevel="18"/>
                 </tools:MapOverlayMenuItem>
-                <tools:MapOverlayMenuItem Text="Graticule">
+                <tools:MapOverlayMenuItem Text="Graticule" InsertOrder="2">
                     <map:MapGraticule Opacity="0.7"/>
                 </tools:MapOverlayMenuItem>
-                <tools:MapOverlayMenuItem Text="Scale">
+                <tools:MapOverlayMenuItem Text="Scale" InsertOrder="2">
                     <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                 </tools:MapOverlayMenuItem>
             </tools:MenuButton>
