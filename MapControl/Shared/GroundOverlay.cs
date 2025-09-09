@@ -167,10 +167,12 @@ namespace MapControl
                 var tasks = imageOverlays.Select(
                     async imageOverlay =>
                     {
+                        // Limit number of simultaneous calls of loadFunc (in UI thread).
+                        //
                         await semaphore.WaitAsync();
                         try
                         {
-                            await loadFunc(imageOverlay); // no more than MaxLoadTasks parallel executions here
+                            await loadFunc(imageOverlay);
                         }
                         finally
                         {
@@ -268,7 +270,7 @@ namespace MapControl
 #if NETFRAMEWORK
             return Task.Run(() => XDocument.Load(docStream, LoadOptions.None));
 #else
-            return XDocument.LoadAsync(docStream, LoadOptions.None, System.Threading.CancellationToken.None);
+            return XDocument.LoadAsync(docStream, LoadOptions.None, CancellationToken.None);
 #endif
         }
     }
