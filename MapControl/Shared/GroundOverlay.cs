@@ -162,22 +162,24 @@ namespace MapControl
         {
             var imageOverlays = ReadImageOverlays(document);
 
-            var semaphore = new SemaphoreSlim(MaxLoadTasks);
-
-            var tasks = imageOverlays.Select(async imageOverlay =>
+            using (var semaphore = new SemaphoreSlim(MaxLoadTasks))
             {
-                await semaphore.WaitAsync();
-                try
-                {
-                    await loadFunc(imageOverlay); // no more than MaxLoadTasks parallel executions here
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            });
+                var tasks = imageOverlays.Select(
+                    async imageOverlay =>
+                    {
+                        await semaphore.WaitAsync();
+                        try
+                        {
+                            await loadFunc(imageOverlay); // no more than MaxLoadTasks parallel executions here
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    });
 
-            await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
+            }
 
             return imageOverlays;
         }
