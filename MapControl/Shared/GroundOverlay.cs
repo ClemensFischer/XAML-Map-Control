@@ -129,43 +129,39 @@ namespace MapControl
 
         private static async Task<List<ImageOverlay>> LoadImageOverlaysFromArchive(string archiveFilePath)
         {
-            List<ImageOverlay> imageOverlays;
-
             using (var archive = ZipFile.OpenRead(archiveFilePath))
             {
                 var docEntry = archive.GetEntry("doc.kml") ??
                                archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")) ??
                                throw new ArgumentException($"No KML entry found in {archiveFilePath}.");
+                XDocument document;
 
                 using (var docStream = docEntry.Open())
                 {
-                    imageOverlays = await ReadImageOverlays(docStream);
+                    document = await LoadXDocument(docStream);
                 }
 
-                await LoadImageOverlays(imageOverlays, imageOverlay => imageOverlay.LoadImage(archive));
+                return await LoadImageOverlays(document, imageOverlay => imageOverlay.LoadImage(archive));
             }
-
-            return imageOverlays;
         }
 
         private static async Task<List<ImageOverlay>> LoadImageOverlaysFromFile(string docFilePath)
         {
-            List<ImageOverlay> imageOverlays;
-
             var docUri = new Uri(FilePath.GetFullPath(docFilePath));
+            XDocument document;
 
             using (var docStream = File.OpenRead(docUri.AbsolutePath))
             {
-                imageOverlays = await ReadImageOverlays(docStream);
+                document = await LoadXDocument(docStream);
             }
 
-            await LoadImageOverlays(imageOverlays, imageOverlay => imageOverlay.LoadImage(docUri));
-
-            return imageOverlays;
+            return await LoadImageOverlays(document, imageOverlay => imageOverlay.LoadImage(docUri));
         }
 
-        private static Task LoadImageOverlays(List<ImageOverlay> imageOverlays, Func<ImageOverlay, Task> loadFunc)
+        private static async Task<List<ImageOverlay>> LoadImageOverlays(XDocument document, Func<ImageOverlay, Task> loadFunc)
         {
+            var imageOverlays = ReadImageOverlays(document);
+
             var semaphore = new SemaphoreSlim(MaxLoadTasks);
 
             var tasks = imageOverlays.Select(async imageOverlay =>
@@ -181,16 +177,13 @@ namespace MapControl
                 }
             });
 
-            return Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
+
+            return imageOverlays;
         }
 
-        private static async Task<List<ImageOverlay>> ReadImageOverlays(Stream docStream)
+        private static List<ImageOverlay> ReadImageOverlays(XDocument document)
         {
-#if NETFRAMEWORK
-            var document = await Task.Run(() => XDocument.Load(docStream, LoadOptions.None));
-#else
-            var document = await XDocument.LoadAsync(docStream, LoadOptions.None, System.Threading.CancellationToken.None);
-#endif
             var rootElement = document.Root;
             var ns = rootElement.Name.Namespace;
             var docElement = rootElement.Element(ns + "Document") ?? rootElement;
@@ -266,6 +259,15 @@ namespace MapControl
             }
 
             return new LatLonBox(south, west, north, east, rotation);
+        }
+
+        private static Task<XDocument> LoadXDocument(Stream docStream)
+        {
+#if NETFRAMEWORK
+            return Task.Run(() => XDocument.Load(docStream, LoadOptions.None));
+#else
+            return XDocument.LoadAsync(docStream, LoadOptions.None, System.Threading.CancellationToken.None);
+#endif
         }
     }
 }
