@@ -14,17 +14,16 @@ namespace MapControl
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 
-            await Dispatcher.UIThread.InvokeAsync(
-                () =>
-                {
-                    Image.Source = image;
+            void SetImageSource()
+            {
+                Image.Source = image;
 
-                    if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                {
+                    var fadeInAnimation = new Animation
                     {
-                        var fadeInAnimation = new Animation
-                        {
-                            Duration = MapBase.ImageFadeDuration,
-                            Children =
+                        Duration = MapBase.ImageFadeDuration,
+                        Children =
                             {
                                 new KeyFrame
                                 {
@@ -37,11 +36,13 @@ namespace MapControl
                                     Setters = { new Setter(Visual.OpacityProperty, 1d) }
                                 }
                             }
-                        };
+                    };
 
-                        _ = fadeInAnimation.RunAsync(Image);
-                    }
-                });
+                    _ = fadeInAnimation.RunAsync(Image);
+                }
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(SetImageSource);
         }
     }
 }

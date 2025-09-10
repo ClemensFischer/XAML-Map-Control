@@ -14,24 +14,25 @@ namespace MapControl
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 
-            await Image.Dispatcher.InvokeAsync(
-                () =>
-                {
-                    Image.Source = image;
+            void SetImageSource()
+            {
+                Image.Source = image;
 
-                    if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                {
+                    if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
                     {
-                        if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
-                        {
-                            bitmap.DownloadCompleted += BitmapDownloadCompleted;
-                            bitmap.DownloadFailed += BitmapDownloadFailed;
-                        }
-                        else
-                        {
-                            BeginFadeInAnimation();
-                        }
+                        bitmap.DownloadCompleted += BitmapDownloadCompleted;
+                        bitmap.DownloadFailed += BitmapDownloadFailed;
                     }
-                });
+                    else
+                    {
+                        BeginFadeInAnimation();
+                    }
+                }
+            }
+
+            await Image.Dispatcher.InvokeAsync(SetImageSource);
         }
 
         private void BeginFadeInAnimation()
