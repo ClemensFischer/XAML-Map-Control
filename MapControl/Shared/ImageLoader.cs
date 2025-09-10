@@ -49,11 +49,11 @@ namespace MapControl
             {
                 if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
                 {
-                    var response = await GetHttpResponseAsync(uri, progress);
+                    (var buffer, var _) = await GetHttpResponseAsync(uri, progress);
 
-                    if (response?.Buffer != null)
+                    if (buffer != null)
                     {
-                        image = await LoadImageAsync(response.Buffer);
+                        image = await LoadImageAsync(buffer);
                     }
                 }
                 else if (uri.IsFile || !uri.IsAbsoluteUri)
@@ -75,21 +75,10 @@ namespace MapControl
             return image;
         }
 
-        internal class HttpResponse
+        internal static async Task<(byte[], TimeSpan?)> GetHttpResponseAsync(Uri uri, IProgress<double> progress = null)
         {
-            public byte[] Buffer { get; }
-            public TimeSpan? MaxAge { get; }
-
-            public HttpResponse(byte[] buffer, TimeSpan? maxAge)
-            {
-                Buffer = buffer;
-                MaxAge = maxAge;
-            }
-        }
-
-        internal static async Task<HttpResponse> GetHttpResponseAsync(Uri uri, IProgress<double> progress = null)
-        {
-            HttpResponse response = null;
+            byte[] buffer = null;
+            TimeSpan? maxAge = null;
 
             try
             {
@@ -99,8 +88,6 @@ namespace MapControl
                 {
                     if (responseMessage.IsSuccessStatusCode)
                     {
-                        byte[] buffer;
-
                         if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
                         {
                             buffer = await ReadAsByteArray(responseMessage.Content, progress).ConfigureAwait(false);
@@ -110,7 +97,7 @@ namespace MapControl
                             buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                         }
 
-                        response = new HttpResponse(buffer, responseMessage.Headers.CacheControl?.MaxAge);
+                        maxAge = responseMessage.Headers.CacheControl?.MaxAge;
                     }
                     else
                     {
@@ -127,7 +114,7 @@ namespace MapControl
                 Logger?.LogError(ex, "Failed loading {uri}", uri);
             }
 
-            return response;
+            return (buffer, maxAge);
         }
 
         private static async Task<byte[]> ReadAsByteArray(HttpContent content, IProgress<double> progress)

@@ -138,36 +138,31 @@ namespace MapControl
 
                 try
                 {
-                    await LoadTileImage(tile, tileSource, cacheName).ConfigureAwait(false);
+                    // Pass tileSource.LoadImageAsync calls to platform-specific method
+                    // tile.LoadImageAsync(Func<Task<ImageSource>>) for completion in the UI thread.
+
+                    if (string.IsNullOrEmpty(cacheName))
+                    {
+                        await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
+
+                        if (uri != null)
+                        {
+                            var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
+
+                            if (buffer?.Length > 0)
+                            {
+                                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     Logger?.LogError(ex, "Failed loading tile {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
-                }
-            }
-        }
-
-        private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName)
-        {
-            // Pass tileSource.LoadImageAsync calls to platform-specific method
-            // tile.LoadImageAsync(Func<Task<ImageSource>>) for execution on the UI thread in WinUI and UWP.
-
-            if (string.IsNullOrEmpty(cacheName))
-            {
-                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
-            }
-            else
-            {
-                var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
-
-                if (uri != null)
-                {
-                    var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
-
-                    if (buffer?.Length > 0)
-                    {
-                        await tile.LoadImageAsync(() => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
-                    }
                 }
             }
         }
@@ -182,42 +177,41 @@ namespace MapControl
             }
 
             var cacheKey = $"{cacheName}/{tile.ZoomLevel}/{tile.Column}/{tile.Row}{extension}";
-            byte[] buffer = null;
 
             try
             {
-                buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
+                var cachedBuffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
+
+                if (cachedBuffer != null)
+                {
+                    return cachedBuffer;
+                }
             }
             catch (Exception ex)
             {
                 Logger?.LogError(ex, "Cache.GetAsync({cacheKey})", cacheKey);
             }
 
-            if (buffer == null)
+            (var buffer, var maxAge) = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
+
+            if (buffer != null)
             {
-                var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
-
-                if (response != null)
+                try
                 {
-                    buffer = response.Buffer ?? Array.Empty<byte>(); // cache even if null, when no tile available
-
-                    try
+                    var options = new DistributedCacheEntryOptions
                     {
-                        var options = new DistributedCacheEntryOptions
-                        {
-                            AbsoluteExpirationRelativeToNow =
-                                !response.MaxAge.HasValue ? DefaultCacheExpiration
-                                : response.MaxAge.Value < MinCacheExpiration ? MinCacheExpiration
-                                : response.MaxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
-                                : response.MaxAge.Value
-                        };
+                        AbsoluteExpirationRelativeToNow =
+                            !maxAge.HasValue ? DefaultCacheExpiration
+                            : maxAge.Value < MinCacheExpiration ? MinCacheExpiration
+                            : maxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
+                            : maxAge.Value
+                    };
 
-                        await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.LogError(ex, "Cache.SetAsync({cacheKey})", cacheKey);
-                    }
+                    await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.LogError(ex, "Cache.SetAsync({cacheKey})", cacheKey);
                 }
             }
 
