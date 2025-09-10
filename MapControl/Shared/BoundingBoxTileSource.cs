@@ -5,9 +5,9 @@ namespace MapControl
 {
     public class BoundingBoxTileSource : TileSource
     {
-        public override Uri GetUri(int column, int row, int zoomLevel)
+        public override Uri GetUri(int zoomLevel, int column, int row)
         {
-            GetTileBounds(column, row, zoomLevel, out double west, out double south, out double east, out double north);
+            GetTileBounds(zoomLevel, column, row, out double west, out double south, out double east, out double north);
 
             return GetUri(west, south, east, north);
         }
@@ -33,9 +33,9 @@ namespace MapControl
 
         /// <summary>
         /// Gets the bounding box in meters of a standard Web Mercator tile,
-        /// specified by grid column and row indices and zoom level.
+        /// specified by zoom level and grid column and row indices.
         /// </summary>
-        public static void GetTileBounds(int column, int row, int zoomLevel,
+        public static void GetTileBounds(int zoomLevel, int column, int row,
             out double west, out double south, out double east, out double north)
         {
             var tileSize = 360d / (1 << zoomLevel); // tile size in degrees

@@ -150,15 +150,15 @@ namespace MapControl
         private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName)
         {
             // Pass tileSource.LoadImageAsync calls to platform-specific method
-            // LoadTileImage(Tile, Func<Task<ImageSource>>) for execution on the UI thread in WinUI and UWP.
+            // tile.LoadImageAsync(Func<Task<ImageSource>>) for execution on the UI thread in WinUI and UWP.
 
             if (string.IsNullOrEmpty(cacheName))
             {
-                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel)).ConfigureAwait(false);
+                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
             }
             else
             {
-                var uri = tileSource.GetUri(tile.Column, tile.Row, tile.ZoomLevel);
+                var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
 
                 if (uri != null)
                 {

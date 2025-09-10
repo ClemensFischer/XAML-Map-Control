@@ -22,7 +22,7 @@ namespace MapControl
         {
             var tcs = new TaskCompletionSource<object>();
 
-            async void LoadImage()
+            async void LoadAndSetImageSource()
             {
                 try
                 {
@@ -51,9 +51,9 @@ namespace MapControl
                 }
             }
 #if UWP
-            if (!await Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadImage))
+            if (!await Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadAndSetImageSource))
 #else
-            if (!Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, LoadImage))
+            if (!Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, LoadAndSetImageSource))
 #endif
             {
                 tcs.TrySetCanceled();

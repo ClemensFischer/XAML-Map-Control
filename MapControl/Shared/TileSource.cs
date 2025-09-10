@@ -48,16 +48,16 @@ namespace MapControl
         /// <summary>
         /// Gets the image Uri for the specified tile indices and zoom level.
         /// </summary>
-        public virtual Uri GetUri(int column, int row, int zoomLevel)
+        public virtual Uri GetUri(int zoomLevel, int column, int row)
         {
             Uri uri = null;
 
             if (UriTemplate != null)
             {
                 var uriString = UriTemplate
+                    .Replace("{z}", zoomLevel.ToString())
                     .Replace("{x}", column.ToString())
-                    .Replace("{y}", row.ToString())
-                    .Replace("{z}", zoomLevel.ToString());
+                    .Replace("{y}", row.ToString());
 
                 if (Subdomains != null && Subdomains.Length > 0)
                 {
@@ -71,12 +71,12 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Loads a tile ImageSource asynchronously from GetUri(column, row, zoomLevel).
+        /// Loads a tile ImageSource asynchronously from GetUri(zoomLevel, column, row).
         /// This method is called by TileImageLoader when caching is disabled.
         /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(int column, int row, int zoomLevel)
+        public virtual Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
-            var uri = GetUri(column, row, zoomLevel);
+            var uri = GetUri(zoomLevel, column, row);
 
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
@@ -106,9 +106,9 @@ namespace MapControl
 
     public class TmsTileSource : TileSource
     {
-        public override Uri GetUri(int column, int row, int zoomLevel)
+        public override Uri GetUri(int zoomLevel, int column, int row)
         {
-            return base.GetUri(column, (1 << zoomLevel) - 1 - row, zoomLevel);
+            return base.GetUri(zoomLevel, column, (1 << zoomLevel) - 1 - row);
         }
     }
 }
