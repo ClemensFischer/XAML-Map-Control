@@ -1,5 +1,4 @@
-﻿using System;
-#if WPF
+﻿#if WPF
 using System.Windows.Controls;
 using System.Windows.Media;
 #elif UWP
@@ -25,25 +24,12 @@ namespace MapControl
             Column = ((x % columnCount) + columnCount) % columnCount;
         }
 
+        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
         public int ZoomLevel { get; }
         public int X { get; }
         public int Y { get; }
         public int Column { get; }
         public int Row => Y;
-
-        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
-
         public bool IsPending { get; set; } = true;
-
-        public void SetImageSource(ImageSource image)
-        {
-            IsPending = false;
-            Image.Source = image;
-
-            if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
-            {
-                FadeIn();
-            }
-        }
     }
 }

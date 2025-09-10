@@ -7,13 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-#if WPF
-using System.Windows.Media;
-#elif UWP
-using Windows.UI.Xaml.Media;
-#elif WINUI
-using Microsoft.UI.Xaml.Media;
-#endif
 
 namespace MapControl
 {
@@ -27,7 +20,7 @@ namespace MapControl
         void CancelLoadTiles();
     }
 
-    public partial class TileImageLoader : ITileImageLoader
+    public class TileImageLoader : ITileImageLoader
     {
         private static ILogger logger;
         private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<TileImageLoader>());
@@ -161,9 +154,7 @@ namespace MapControl
 
             if (string.IsNullOrEmpty(cacheName))
             {
-                Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel);
-
-                await LoadTileImage(tile, LoadImage).ConfigureAwait(false);
+                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.Column, tile.Row, tile.ZoomLevel)).ConfigureAwait(false);
             }
             else
             {
@@ -175,9 +166,7 @@ namespace MapControl
 
                     if (buffer?.Length > 0)
                     {
-                        Task<ImageSource> LoadImage() => tileSource.LoadImageAsync(buffer);
-
-                        await LoadTileImage(tile, LoadImage).ConfigureAwait(false);
+                        await tile.LoadImageAsync(() => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
                     }
                 }
             }

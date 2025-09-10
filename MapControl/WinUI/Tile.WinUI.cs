@@ -1,9 +1,15 @@
-﻿#if UWP
+﻿using System;
+using System.Threading.Tasks;
+#if UWP
+using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 #else
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 #endif
@@ -12,6 +18,50 @@ namespace MapControl
 {
     public partial class Tile
     {
+        public async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
+        {
+            var tcs = new TaskCompletionSource<object>();
+
+            async void LoadImage()
+            {
+                try
+                {
+                    var image = await loadImageFunc();
+
+                    Image.Source = image;
+
+                    if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                    {
+                        if (image is BitmapImage bitmap && bitmap.UriSource != null)
+                        {
+                            bitmap.ImageOpened += BitmapImageOpened;
+                            bitmap.ImageFailed += BitmapImageFailed;
+                        }
+                        else
+                        {
+                            BeginFadeInAnimation();
+                        }
+                    }
+
+                    tcs.TrySetResult(null);
+                }
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex);
+                }
+            }
+#if UWP
+            if (!await Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadImage))
+#else
+            if (!Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, LoadImage))
+#endif
+            {
+                tcs.TrySetCanceled();
+            }
+
+            await tcs.Task;
+        }
+
         private void BeginFadeInAnimation()
         {
             var fadeInAnimation = new DoubleAnimation
@@ -27,19 +77,6 @@ namespace MapControl
             var storyboard = new Storyboard();
             storyboard.Children.Add(fadeInAnimation);
             storyboard.Begin();
-        }
-
-        private void FadeIn()
-        {
-            if (Image.Source is BitmapImage bitmap && bitmap.UriSource != null)
-            {
-                bitmap.ImageOpened += BitmapImageOpened;
-                bitmap.ImageFailed += BitmapImageFailed;
-            }
-            else
-            {
-                BeginFadeInAnimation();
-            }
         }
 
         private void BitmapImageOpened(object sender, RoutedEventArgs e)

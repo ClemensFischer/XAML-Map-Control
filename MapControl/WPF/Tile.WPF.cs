@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,6 +10,30 @@ namespace MapControl
 {
     public partial class Tile
     {
+        public async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
+        {
+            var image = await loadImageFunc().ConfigureAwait(false);
+
+            await Image.Dispatcher.InvokeAsync(
+                () =>
+                {
+                    Image.Source = image;
+
+                    if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                    {
+                        if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
+                        {
+                            bitmap.DownloadCompleted += BitmapDownloadCompleted;
+                            bitmap.DownloadFailed += BitmapDownloadFailed;
+                        }
+                        else
+                        {
+                            BeginFadeInAnimation();
+                        }
+                    }
+                });
+        }
+
         private void BeginFadeInAnimation()
         {
             var fadeInAnimation = new DoubleAnimation
@@ -19,19 +44,6 @@ namespace MapControl
             };
 
             Image.BeginAnimation(UIElement.OpacityProperty, fadeInAnimation);
-        }
-
-        private void FadeIn()
-        {
-            if (Image.Source is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
-            {
-                bitmap.DownloadCompleted += BitmapDownloadCompleted;
-                bitmap.DownloadFailed += BitmapDownloadFailed;
-            }
-            else
-            {
-                BeginFadeInAnimation();
-            }
         }
 
         private void BitmapDownloadCompleted(object sender, EventArgs e)
