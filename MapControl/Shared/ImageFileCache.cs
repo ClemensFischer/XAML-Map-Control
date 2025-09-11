@@ -310,16 +310,18 @@ namespace MapControl.Caching
 
         private FileInfo GetFile(string key)
         {
+            FileInfo file = null;
+
             try
             {
-                return new FileInfo(Path.Combine(rootDirectory.FullName, Path.Combine(key.Split('/'))));
+                file = new FileInfo(Path.Combine(rootDirectory.FullName, Path.Combine(key.Split('/'))));
             }
             catch (Exception ex)
             {
                 logger?.LogError(ex, "Invalid key {key}", key);
             }
 
-            return null;
+            return file;
         }
 
         private static byte[] ReadAllBytes(FileInfo file)
