@@ -23,16 +23,19 @@ namespace MapControl
             return new BitmapImage(uri);
         }
 
-        public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream stream)
+        public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream randomAccessStream)
         {
             var image = new BitmapImage();
-            await image.SetSourceAsync(stream);
+            await image.SetSourceAsync(randomAccessStream);
             return image;
         }
 
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
+        public static async Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            return LoadImageAsync(stream.AsRandomAccessStream());
+            using (var randomAccessStream = stream.AsRandomAccessStream())
+            {
+                return await LoadImageAsync(randomAccessStream);
+            }
         }
 
         public static async Task<ImageSource> LoadImageAsync(string path)
@@ -74,14 +77,15 @@ namespace MapControl
 
             try
             {
-                var response = await GetHttpResponseAsync(uri, progress);
+                (var buffer, var _) = await GetHttpResponseAsync(uri, progress);
 
-                if (response?.Buffer != null)
+                if (buffer != null)
                 {
-                    using (var memoryStream = new MemoryStream(response.Buffer))
+                    using (var memoryStream = new MemoryStream(buffer))
                     using (var randomAccessStream = memoryStream.AsRandomAccessStream())
                     {
                         var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+
                         bitmap = await LoadWriteableBitmapAsync(decoder);
                     }
                 }
