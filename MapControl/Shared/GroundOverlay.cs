@@ -61,6 +61,7 @@ namespace MapControl
                         }
 
                         memoryStream.Seek(0, SeekOrigin.Begin);
+
                         Image.Source = await ImageLoader.LoadImageAsync(memoryStream);
                     }
                 }

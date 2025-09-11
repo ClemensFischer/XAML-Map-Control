@@ -28,14 +28,7 @@ namespace MapControl
             return image;
         }
 
-        public static Task<ImageSource> LoadImageAsync(Stream stream)
-        {
-            return Thread.CurrentThread.IsThreadPoolThread ?
-                Task.FromResult(LoadImage(stream)) :
-                Task.Run(() => LoadImage(stream));
-        }
-
-        public static async Task<ImageSource> LoadImageAsync(string path)
+        public static ImageSource LoadImage(string path)
         {
             ImageSource image = null;
 
@@ -43,11 +36,25 @@ namespace MapControl
             {
                 using (var stream = File.OpenRead(path))
                 {
-                    image = await LoadImageAsync(stream);
+                    image = LoadImage(stream);
                 }
             }
 
             return image;
+        }
+
+        public static Task<ImageSource> LoadImageAsync(Stream stream)
+        {
+            return Thread.CurrentThread.IsThreadPoolThread ?
+                Task.FromResult(LoadImage(stream)) :
+                Task.Run(() => LoadImage(stream));
+        }
+
+        public static Task<ImageSource> LoadImageAsync(string path)
+        {
+            return Thread.CurrentThread.IsThreadPoolThread ?
+                Task.FromResult(LoadImage(path)) :
+                Task.Run(() => LoadImage(path));
         }
 
         internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)

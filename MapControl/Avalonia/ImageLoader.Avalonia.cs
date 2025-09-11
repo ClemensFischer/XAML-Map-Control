@@ -13,12 +13,17 @@ namespace MapControl
     {
         public static IImage LoadImage(Uri uri)
         {
-            throw new NotSupportedException();
+            return new Bitmap(AssetLoader.Open(uri));
         }
 
         public static IImage LoadImage(Stream stream)
         {
             return new Bitmap(stream);
+        }
+
+        public static IImage LoadImage(string path)
+        {
+            return File.Exists(path) ? new Bitmap(path) : null;
         }
 
         public static Task<IImage> LoadImageAsync(Stream stream)
@@ -28,19 +33,11 @@ namespace MapControl
                 Task.Run(() => LoadImage(stream));
         }
 
-        public static async Task<IImage> LoadImageAsync(string path)
+        public static Task<IImage> LoadImageAsync(string path)
         {
-            IImage image = null;
-
-            if (File.Exists(path))
-            {
-                using (var stream = File.OpenRead(path))
-                {
-                    image = await LoadImageAsync(stream);
-                }
-            }
-
-            return image;
+            return Thread.CurrentThread.IsThreadPoolThread ?
+                Task.FromResult(LoadImage(path)) :
+                Task.Run(() => LoadImage(path));
         }
 
         internal static async Task<IImage> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)

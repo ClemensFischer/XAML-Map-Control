@@ -26,7 +26,9 @@ namespace MapControl
         public static async Task<ImageSource> LoadImageAsync(IRandomAccessStream randomAccessStream)
         {
             var image = new BitmapImage();
+
             await image.SetSourceAsync(randomAccessStream);
+
             return image;
         }
 
@@ -48,9 +50,9 @@ namespace MapControl
             {
                 var file = await StorageFile.GetFileFromPathAsync(path);
 
-                using (var stream = await file.OpenReadAsync())
+                using (var randomAccessStream = await file.OpenReadAsync())
                 {
-                    image = await LoadImageAsync(stream);
+                    image = await LoadImageAsync(randomAccessStream);
                 }
             }
 
@@ -60,6 +62,7 @@ namespace MapControl
         internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(BitmapDecoder decoder)
         {
             var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
+
             var pixelData = await decoder.GetPixelDataAsync(
                 BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
                 ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
