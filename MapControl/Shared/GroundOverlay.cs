@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 #if WPF
@@ -70,8 +69,6 @@ namespace MapControl
 
         private static ILogger logger;
         private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>());
-
-        public static int MaxLoadTasks { get; set; } = 4;
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,
@@ -163,26 +160,7 @@ namespace MapControl
         {
             var imageOverlays = ReadImageOverlays(document);
 
-            using (var semaphore = new SemaphoreSlim(MaxLoadTasks))
-            {
-                var tasks = imageOverlays.Select(
-                    async imageOverlay =>
-                    {
-                        // Limit number of simultaneous calls of loadFunc (in UI thread).
-                        //
-                        await semaphore.WaitAsync();
-                        try
-                        {
-                            await loadFunc(imageOverlay);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    });
-
-                await Task.WhenAll(tasks);
-            }
+            await Task.WhenAll(imageOverlays.Select(loadFunc));
 
             return imageOverlays;
         }
@@ -271,7 +249,7 @@ namespace MapControl
 #if NETFRAMEWORK
             return Task.Run(() => XDocument.Load(docStream, LoadOptions.None));
 #else
-            return XDocument.LoadAsync(docStream, LoadOptions.None, CancellationToken.None);
+            return XDocument.LoadAsync(docStream, LoadOptions.None, System.Threading.CancellationToken.None);
 #endif
         }
     }
