@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -33,9 +34,13 @@ namespace MapControl.UiTools
             {
                 DataContext = Map;
 
-                if (Items.Count > 0 && Items[0] is MapMenuItem item)
+                var initialItem =
+                    Items.OfType<MapMenuItem>().FirstOrDefault(item => item.IsChecked) ??
+                    Items.OfType<MapMenuItem>().FirstOrDefault();
+
+                if (initialItem != null)
                 {
-                    await item.Execute(Map);
+                    await initialItem.Execute(Map);
                 }
             }
         }
