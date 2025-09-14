@@ -45,8 +45,8 @@ namespace MapControl
 
         public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layer, string capabilitiesUrl)
         {
-            var contentsElement = capabilitiesElement.Element(wmts + "Contents")
-                ?? throw new ArgumentException("Contents element not found.");
+            var contentsElement = capabilitiesElement.Element(wmts + "Contents") ??
+                throw new ArgumentException("Contents element not found.");
 
             XElement layerElement;
 
@@ -77,8 +77,8 @@ namespace MapControl
 
             var styleElement = layerElement
                 .Elements(wmts + "Style")
-                .FirstOrDefault(s => s.Attribute("isDefault")?.Value == "true")
-            ?? layerElement
+                .FirstOrDefault(s => s.Attribute("isDefault")?.Value == "true") ??
+                layerElement
                 .Elements(wmts + "Style")
                 .FirstOrDefault();
 
@@ -97,8 +97,8 @@ namespace MapControl
             {
                 var tileMatrixSetElement = contentsElement
                     .Elements(wmts + "TileMatrixSet")
-                    .FirstOrDefault(s => s.Element(ows + "Identifier")?.Value == tileMatrixSetId)
-                    ?? throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layer}\".");
+                    .FirstOrDefault(s => s.Element(ows + "Identifier")?.Value == tileMatrixSetId) ??
+                    throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layer}\".");
 
                 tileMatrixSets.Add(ReadTileMatrixSet(tileMatrixSetElement));
             }

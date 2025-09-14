@@ -18,7 +18,7 @@ namespace MapControl.MBTiles
     public sealed class MBTileSource : TileSource, IDisposable
     {
         private static ILogger logger;
-        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>());
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>();
 
         private SQLiteConnection connection;
 

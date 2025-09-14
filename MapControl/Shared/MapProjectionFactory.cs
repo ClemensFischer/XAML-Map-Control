@@ -8,7 +8,7 @@ namespace MapControl
 
         public static MapProjectionFactory Instance
         {
-            get => instance ?? (instance = new MapProjectionFactory());
+            get => instance ??= new MapProjectionFactory();
             set => instance = value;
         }
 

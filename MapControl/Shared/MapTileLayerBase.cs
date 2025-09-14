@@ -82,7 +82,7 @@ namespace MapControl
 
         public ITileImageLoader TileImageLoader
         {
-            get => tileImageLoader ?? (tileImageLoader = new TileImageLoader());
+            get => tileImageLoader ??= new TileImageLoader();
             set => tileImageLoader = value;
         }
 
