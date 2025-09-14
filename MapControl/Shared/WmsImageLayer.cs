@@ -26,7 +26,7 @@ namespace MapControl
     public class WmsImageLayer : MapImageLayer
     {
         private static ILogger logger;
-        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<WmsImageLayer>());
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
 
         public static readonly DependencyProperty ServiceUriProperty =
             DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null,
@@ -112,10 +112,9 @@ namespace MapControl
                 {
                     try
                     {
-                        using (var stream = await ImageLoader.HttpClient.GetStreamAsync(uri))
-                        {
-                            element = XDocument.Load(stream).Root;
-                        }
+                        using var stream = await ImageLoader.HttpClient.GetStreamAsync(uri);
+
+                        element = XDocument.Load(stream).Root;
                     }
                     catch (Exception ex)
                     {

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net8.0-windows;net462</TargetFrameworks>
+        <LangVersion Condition="'$(TargetFramework)'=='net462'">8.0</LangVersion>
         <UseWPF>true</UseWPF>
         <DefineConstants>WPF</DefineConstants>
         <RootNamespace>MapControl</RootNamespace>
@@ -25,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9" />
     </ItemGroup>
 </Project>

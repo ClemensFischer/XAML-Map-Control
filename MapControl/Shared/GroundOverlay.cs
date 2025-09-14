@@ -52,23 +52,22 @@ namespace MapControl
 
                 if (entry != null)
                 {
-                    using (var memoryStream = new MemoryStream((int)entry.Length))
+                    using var memoryStream = new MemoryStream((int)entry.Length);
+
+                    using (var zipStream = entry.Open())
                     {
-                        using (var zipStream = entry.Open())
-                        {
-                            zipStream.CopyTo(memoryStream); // can't use CopyToAsync with ZipArchive
-                        }
-
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-
-                        Image.Source = await ImageLoader.LoadImageAsync(memoryStream);
+                        zipStream.CopyTo(memoryStream); // can't use CopyToAsync with ZipArchive
                     }
+
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    Image.Source = await ImageLoader.LoadImageAsync(memoryStream);
                 }
             }
         }
 
         private static ILogger logger;
-        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>());
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,
@@ -127,20 +126,19 @@ namespace MapControl
 
         private static async Task<List<ImageOverlay>> LoadImageOverlaysFromArchive(string archiveFilePath)
         {
-            using (var archive = ZipFile.OpenRead(archiveFilePath))
+            using var archive = ZipFile.OpenRead(archiveFilePath);
+
+            var docEntry = archive.GetEntry("doc.kml") ??
+                           archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")) ??
+                           throw new ArgumentException($"No KML entry found in {archiveFilePath}.");
+            XDocument document;
+
+            using (var docStream = docEntry.Open())
             {
-                var docEntry = archive.GetEntry("doc.kml") ??
-                               archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".kml")) ??
-                               throw new ArgumentException($"No KML entry found in {archiveFilePath}.");
-                XDocument document;
-
-                using (var docStream = docEntry.Open())
-                {
-                    document = await LoadXDocument(docStream);
-                }
-
-                return await LoadImageOverlays(document, imageOverlay => imageOverlay.LoadImage(archive));
+                document = await LoadXDocument(docStream);
             }
+
+            return await LoadImageOverlays(document, imageOverlay => imageOverlay.LoadImage(archive));
         }
 
         private static async Task<List<ImageOverlay>> LoadImageOverlaysFromFile(string docFilePath)

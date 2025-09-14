@@ -16,7 +16,7 @@ namespace MapControl
     public static partial class ImageLoader
     {
         private static ILogger logger;
-        private static ILogger Logger => logger ?? (logger = LoggerFactory?.CreateLogger(typeof(ImageLoader)));
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
 
         public static ILoggerFactory LoggerFactory { get; set; }
 
@@ -33,10 +33,9 @@ namespace MapControl
 
         public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
-            using (var stream = new MemoryStream(buffer))
-            {
-                return await LoadImageAsync(stream);
-            }
+            using var stream = new MemoryStream(buffer);
+
+            return await LoadImageAsync(stream);
         }
 
         public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
@@ -84,25 +83,24 @@ namespace MapControl
             {
                 var completionOptions = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
 
-                using (var responseMessage = await HttpClient.GetAsync(uri, completionOptions).ConfigureAwait(false))
-                {
-                    if (responseMessage.IsSuccessStatusCode)
-                    {
-                        if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
-                        {
-                            buffer = await ReadAsByteArray(responseMessage.Content, progress).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                        }
+                using var responseMessage = await HttpClient.GetAsync(uri, completionOptions).ConfigureAwait(false);
 
-                        maxAge = responseMessage.Headers.CacheControl?.MaxAge;
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
+                    {
+                        buffer = await ReadAsByteArray(responseMessage.Content, progress).ConfigureAwait(false);
                     }
                     else
                     {
-                        Logger?.LogWarning("{status} ({reason}) from {uri}", (int)responseMessage.StatusCode, responseMessage.ReasonPhrase, uri);
+                        buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                     }
+
+                    maxAge = responseMessage.Headers.CacheControl?.MaxAge;
+                }
+                else
+                {
+                    Logger?.LogWarning("{status} ({reason}) from {uri}", (int)responseMessage.StatusCode, responseMessage.ReasonPhrase, uri);
                 }
             }
             catch (TaskCanceledException)

@@ -63,7 +63,7 @@ namespace MapControl
         private static string QueryString(ushort tag) => $"/ifd/{{ushort={tag}}}";
 
         private static ILogger logger;
-        private static ILogger Logger => logger ?? (logger = ImageLoader.LoggerFactory?.CreateLogger(nameof(GeoImage)));
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.RegisterAttached<string>("SourcePath", typeof(GeoImage), null,
@@ -158,33 +158,32 @@ namespace MapControl
 
         private static async Task<Matrix> ReadWorldFileMatrix(string worldFilePath)
         {
-            using (var fileStream = File.OpenRead(worldFilePath))
-            using (var streamReader = new StreamReader(fileStream))
+            using var fileStream = File.OpenRead(worldFilePath);
+            using var streamReader = new StreamReader(fileStream);
+
+            var parameters = new double[6];
+            var index = 0;
+            string line;
+
+            while (index < 6 &&
+                (line = await streamReader.ReadLineAsync()) != null &&
+                double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double parameter))
             {
-                var parameters = new double[6];
-                var index = 0;
-                string line;
-
-                while (index < 6 &&
-                    (line = await streamReader.ReadLineAsync()) != null &&
-                    double.TryParse(line, NumberStyles.Float, CultureInfo.InvariantCulture, out double parameter))
-                {
-                    parameters[index++] = parameter;
-                }
-
-                if (index != 6)
-                {
-                    throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
-                }
-
-                return new Matrix(
-                    parameters[0],  // line 1: A or M11
-                    parameters[1],  // line 2: D or M12
-                    parameters[2],  // line 3: B or M21
-                    parameters[3],  // line 4: E or M22
-                    parameters[4],  // line 5: C or OffsetX
-                    parameters[5]); // line 6: F or OffsetY
+                parameters[index++] = parameter;
             }
+
+            if (index != 6)
+            {
+                throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
+            }
+
+            return new Matrix(
+                parameters[0],  // line 1: A or M11
+                parameters[1],  // line 2: D or M12
+                parameters[2],  // line 3: B or M21
+                parameters[3],  // line 4: E or M22
+                parameters[4],  // line 5: C or OffsetX
+                parameters[5]); // line 6: F or OffsetY
         }
 
         private static MapProjection GetProjection(short[] geoKeyDirectory)

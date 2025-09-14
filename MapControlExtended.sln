@@ -7,43 +7,41 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MapControl", "MapControl", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.WPF", "MapControl\WPF\MapControl.WPF.csproj", "{A204A102-C745-4D65-AEC8-7B96FAEDEF2D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleApps", "SampleApps", "{8F2103C2-78AF-4810-8FB9-67572F50C8FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.WinUI", "MapControl\WinUI\MapControl.WinUI.csproj", "{ACA8E56C-0F82-4010-A83E-2DBFF5D16919}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalApp", "SampleApps\UniversalApp\UniversalApp.csproj", "{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.UWP", "MapControl\UWP\MapControl.UWP.csproj", "{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MBTiles", "MBTiles", "{CEAD0EA1-A971-4F5F-9EAE-C72F75D1F737}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBTiles.WPF", "MBTiles\WPF\MBTiles.WPF.csproj", "{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.UWP", "MapControl\UWP\MapControl.UWP.csproj", "{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MBTiles.UWP", "MBTiles\UWP\MBTiles.UWP.csproj", "{DCC111E9-EC8B-492A-A09D-DF390D83AE8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.Avalonia", "MapControl\Avalonia\MapControl.Avalonia.csproj", "{0D621538-3DAD-4D3A-BB2C-220B6C580E51}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MapProjections", "MapProjections", "{7BC11E28-8D3B-4C5B-AC08-AB249CC95F6D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProjections.WPF", "MapProjections\WPF\MapProjections.WPF.csproj", "{426C21C0-5F14-491F-BCD1-6D2993510420}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApplication", "SampleApps\WpfApplication\WpfApplication.csproj", "{F92DA93D-75DB-4308-A5F9-6B4C3908A675}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProjections.UWP", "MapProjections\UWP\MapProjections.UWP.csproj", "{9EE69591-5EDC-45E3-893E-2F9A4B82D538}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.WinUI", "MapControl\WinUI\MapControl.WinUI.csproj", "{ACA8E56C-0F82-4010-A83E-2DBFF5D16919}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProjections.WinUI", "MapProjections\WinUI\MapProjections.WinUI.csproj", "{3572F71A-83FE-459D-8370-002CA28827FE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProjections.UWP", "MapProjections\UWP\MapProjections.UWP.csproj", "{9EE69591-5EDC-45E3-893E-2F9A4B82D538}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProjections.Avalonia", "MapProjections\Avalonia\MapProjections.Avalonia.csproj", "{DCBE392B-A598-4EEC-8001-30D9FC88A77C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MBTiles", "MBTiles", "{CEAD0EA1-A971-4F5F-9EAE-C72F75D1F737}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBTiles.WPF", "MBTiles\WPF\MBTiles.WPF.csproj", "{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBTiles.WinUI", "MBTiles\WinUI\MBTiles.WinUI.csproj", "{817D606F-A22D-485C-89CF-86062C8E97EF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUiApp", "SampleApps\WinUiApp\WinUiApp.csproj", "{751EF297-7CF4-4879-BA8F-42661FA68668}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBTiles.UWP", "MBTiles\UWP\MBTiles.UWP.csproj", "{DCC111E9-EC8B-492A-A09D-DF390D83AE8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectionDemo", "SampleApps\ProjectionDemo\ProjectionDemo.csproj", "{AC8C7BE0-9E72-434B-8BF3-FAEFAC2E859C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBTiles.Avalonia", "MBTiles\Avalonia\MBTiles.Avalonia.csproj", "{9E247AA8-8A3F-4562-930B-925CE2879B34}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MapUiTools", "MapUiTools", "{90C681E9-12AE-4B5F-932D-7EF5D35D8436}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapUiTools.UWP", "MapUiTools\UWP\MapUiTools.UWP.csproj", "{DFFE8E49-AA07-457E-A459-99326B44F828}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.WPF", "MapUiTools\WPF\MapUiTools.WPF.csproj", "{12430DAE-DC53-4C37-95D5-B8923B5FD3D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.UWP", "MapUiTools\UWP\MapUiTools.UWP.csproj", "{DFFE8E49-AA07-457E-A459-99326B44F828}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.WinUI", "MapUiTools\WinUI\MapUiTools.WinUI.csproj", "{C412209E-D81D-4ACB-BECD-FEEF52B93468}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.WPF", "MapUiTools\WPF\MapUiTools.WPF.csproj", "{12430DAE-DC53-4C37-95D5-B8923B5FD3D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.Avalonia", "MapUiTools\Avalonia\MapUiTools.Avalonia.csproj", "{3D61474F-2F72-47E2-87AA-2881AB552D1A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Caches", "Caches", "{69E6CD1A-5619-4549-95FF-2FD126F1A5D2}"
 EndProject
@@ -51,19 +49,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileDbCache", "Caches\FileD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQLiteCache", "Caches\SQLiteCache\SQLiteCache.csproj", "{FDD70FB5-3B6D-43DF-8C2E-04100315C8BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.Avalonia", "MapControl\Avalonia\MapControl.Avalonia.csproj", "{0D621538-3DAD-4D3A-BB2C-220B6C580E51}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleApps", "SampleApps", "{8F2103C2-78AF-4810-8FB9-67572F50C8FC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApplication", "SampleApps\WpfApplication\WpfApplication.csproj", "{F92DA93D-75DB-4308-A5F9-6B4C3908A675}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUiApp", "SampleApps\WinUiApp\WinUiApp.csproj", "{751EF297-7CF4-4879-BA8F-42661FA68668}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalApp", "SampleApps\UniversalApp\UniversalApp.csproj", "{D90514BC-38EC-7FB4-BF26-2FC775815D46}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaApp", "SampleApps\AvaloniaApp\AvaloniaApp.csproj", "{68629CA3-4599-4737-B44C-40B513DD1385}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.Avalonia", "MapUiTools\Avalonia\MapUiTools.Avalonia.csproj", "{3D61474F-2F72-47E2-87AA-2881AB552D1A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProjections.Avalonia", "MapProjections\Avalonia\MapProjections.Avalonia.csproj", "{DCBE392B-A598-4EEC-8001-30D9FC88A77C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBTiles.Avalonia", "MBTiles\Avalonia\MBTiles.Avalonia.csproj", "{9E247AA8-8A3F-4562-930B-925CE2879B34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectionDemo", "SampleApps\ProjectionDemo\ProjectionDemo.csproj", "{AC8C7BE0-9E72-434B-8BF3-FAEFAC2E859C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F6270D0A-8250-4D3A-A3E3-21B2FF18AF76}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
@@ -77,12 +76,6 @@ Global
 		{A204A102-C745-4D65-AEC8-7B96FAEDEF2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A204A102-C745-4D65-AEC8-7B96FAEDEF2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A204A102-C745-4D65-AEC8-7B96FAEDEF2D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Debug|Any CPU.Build.0 = Debug|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Debug|Any CPU.Deploy.0 = Debug|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Release|Any CPU.ActiveCfg = Release|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Release|Any CPU.Build.0 = Release|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Release|Any CPU.Deploy.0 = Release|x64
 		{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -169,13 +162,18 @@ Global
 		{9E247AA8-8A3F-4562-930B-925CE2879B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E247AA8-8A3F-4562-930B-925CE2879B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E247AA8-8A3F-4562-930B-925CE2879B34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Debug|Any CPU.Build.0 = Debug|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Release|Any CPU.ActiveCfg = Release|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Release|Any CPU.Build.0 = Release|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Release|Any CPU.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A204A102-C745-4D65-AEC8-7B96FAEDEF2D} = {52AECE49-F314-4F76-98F2-FA800F07824B}
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1} = {8F2103C2-78AF-4810-8FB9-67572F50C8FC}
 		{38B18AB6-6E70-4696-8FB4-E8C8E12BF50C} = {CEAD0EA1-A971-4F5F-9EAE-C72F75D1F737}
 		{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344} = {52AECE49-F314-4F76-98F2-FA800F07824B}
 		{DCC111E9-EC8B-492A-A09D-DF390D83AE8D} = {CEAD0EA1-A971-4F5F-9EAE-C72F75D1F737}
@@ -197,6 +195,7 @@ Global
 		{3D61474F-2F72-47E2-87AA-2881AB552D1A} = {90C681E9-12AE-4B5F-932D-7EF5D35D8436}
 		{DCBE392B-A598-4EEC-8001-30D9FC88A77C} = {7BC11E28-8D3B-4C5B-AC08-AB249CC95F6D}
 		{9E247AA8-8A3F-4562-930B-925CE2879B34} = {CEAD0EA1-A971-4F5F-9EAE-C72F75D1F737}
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46} = {8F2103C2-78AF-4810-8FB9-67572F50C8FC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {458346DD-B23F-4FDC-8F9D-A10F1882A4DB}

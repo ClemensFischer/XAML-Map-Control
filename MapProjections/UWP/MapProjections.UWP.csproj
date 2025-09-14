@@ -1,102 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9EE69591-5EDC-45E3-893E-2F9A4B82D538}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MapControl.Projections</RootNamespace>
-    <AssemblyName>MapProjections.UWP</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.26100.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;UWP</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>UWP</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\Shared\Ed50UtmProjection.cs">
-      <Link>Ed50UtmProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\Etrs89UtmProjection.cs">
-      <Link>Etrs89UtmProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\GeoApiProjection.cs">
-      <Link>GeoApiProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\GeoApiProjectionFactory.cs">
-      <Link>GeoApiProjectionFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\Nad27UtmProjection.cs">
-      <Link>Nad27UtmProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\Nad83UtmProjection.cs">
-      <Link>Nad83UtmProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\WebMercatorProjection.cs">
-      <Link>WebMercatorProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\Wgs84UtmProjection.cs">
-      <Link>Wgs84UtmProjection.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\WorldMercatorProjection.cs">
-      <Link>WorldMercatorProjection.cs</Link>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\MapProjections.UWP.rd.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.14</Version>
-    </PackageReference>
-    <PackageReference Include="ProjNET4GeoAPI">
-      <Version>1.4.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\MapControl\UWP\MapControl.UWP.csproj">
-      <Project>{9545f73c-9c35-4cf6-baae-19a0baebd344}</Project>
-      <Name>MapControl.UWP</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\MapControl.snk">
-      <Link>MapControl.snk</Link>
-    </None>
-  </ItemGroup>
-  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
-    <VisualStudioVersion>14.0</VisualStudioVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+        <UseUwp>true</UseUwp>
+        <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+        <DefaultLanguage>en-US</DefaultLanguage>
+        <DefineConstants>UWP</DefineConstants>
+        <RootNamespace>MapControl.Projections</RootNamespace>
+        <AssemblyTitle>XAML Map Control Projections Library for UWP</AssemblyTitle>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.MapProjections.UWP</PackageId>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Shared\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\UWP\MapControl.UWP.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
+    </ItemGroup>
 </Project>

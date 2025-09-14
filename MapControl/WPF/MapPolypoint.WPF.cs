@@ -54,29 +54,27 @@ namespace MapControl
 
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
-            using (var context = ((StreamGeometry)Data).Open())
-            {
-                if (ParentMap != null && locations != null)
-                {
-                    var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
+            using var context = ((StreamGeometry)Data).Open();
 
-                    AddPolylinePoints(context, locations, longitudeOffset, closed);
-                }
+            if (ParentMap != null && locations != null)
+            {
+                var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
+
+                AddPolylinePoints(context, locations, longitudeOffset, closed);
             }
         }
 
         protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
         {
-            using (var context = ((StreamGeometry)Data).Open())
-            {
-                if (ParentMap != null && polygons != null)
-                {
-                    var longitudeOffset = GetLongitudeOffset(Location);
+            using var context = ((StreamGeometry)Data).Open();
 
-                    foreach (var locations in polygons)
-                    {
-                        AddPolylinePoints(context, locations, longitudeOffset, true);
-                    }
+            if (ParentMap != null && polygons != null)
+            {
+                var longitudeOffset = GetLongitudeOffset(Location);
+
+                foreach (var locations in polygons)
+                {
+                    AddPolylinePoints(context, locations, longitudeOffset, true);
                 }
             }
         }

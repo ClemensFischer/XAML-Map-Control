@@ -3,9 +3,10 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:map="using:MapControl"
       xmlns:tools="using:MapControl.UiTools"
-      xmlns:local="using:SampleApplication">
+      xmlns:local="using:SampleApplication"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
         <Grid.Resources>
             <DataTemplate x:Key="PolylineItemTemplate">
                 <map:MapPolyline Locations="{Binding Locations}" Stroke="Red" StrokeThickness="3"/>

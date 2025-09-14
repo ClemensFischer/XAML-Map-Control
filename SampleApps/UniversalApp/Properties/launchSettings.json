@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "UniversalApp": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

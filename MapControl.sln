@@ -5,19 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MapControl", "MapControl", "{52AECE49-F314-4F76-98F2-FA800F07824B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleApps", "SampleApps", "{8F2103C2-78AF-4810-8FB9-67572F50C8FC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalApp", "SampleApps\UniversalApp\UniversalApp.csproj", "{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControl.UWP", "MapControl\UWP\MapControl.UWP.csproj", "{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.WPF", "MapControl\WPF\MapControl.WPF.csproj", "{62F1726B-3144-49F4-8BCC-94160A3B2186}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApplication", "SampleApps\WpfApplication\WpfApplication.csproj", "{CA60DFDB-0BE1-40F6-B575-CDC797A40E2E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.WinUI", "MapControl\WinUI\MapControl.WinUI.csproj", "{92894476-02E1-47CB-936E-4154023456F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUiApp", "SampleApps\WinUiApp\WinUiApp.csproj", "{579B29D7-91CA-44F3-A96D-5D9BC957BADA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl.UWP", "MapControl\UWP\MapControl.UWP.csproj", "{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MapUiTools", "MapUiTools", "{ABFA5526-FCE4-47C9-94F4-84D5F59EECA8}"
 EndProject
@@ -25,11 +17,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.WPF", "MapUiTool
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.WinUI", "MapUiTools\WinUI\MapUiTools.WinUI.csproj", "{A877A741-9FF5-453D-89C8-3BE7A94D74C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapUiTools.UWP", "MapUiTools\UWP\MapUiTools.UWP.csproj", "{DFFE8E49-AA07-457E-A459-99326B44F828}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapUiTools.UWP", "MapUiTools\UWP\MapUiTools.UWP.csproj", "{DFFE8E49-AA07-457E-A459-99326B44F828}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleApps", "SampleApps", "{8F2103C2-78AF-4810-8FB9-67572F50C8FC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApplication", "SampleApps\WpfApplication\WpfApplication.csproj", "{CA60DFDB-0BE1-40F6-B575-CDC797A40E2E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUiApp", "SampleApps\WinUiApp\WinUiApp.csproj", "{579B29D7-91CA-44F3-A96D-5D9BC957BADA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalApp", "SampleApps\UniversalApp\UniversalApp.csproj", "{D90514BC-38EC-7FB4-BF26-2FC775815D46}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2F7354B4-786D-4113-866C-E731276C6777}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
@@ -39,12 +38,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Debug|Any CPU.Build.0 = Debug|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Debug|Any CPU.Deploy.0 = Debug|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Release|Any CPU.ActiveCfg = Release|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Release|Any CPU.Build.0 = Release|x64
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1}.Release|Any CPU.Deploy.0 = Release|x64
 		{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -79,12 +72,17 @@ Global
 		{DFFE8E49-AA07-457E-A459-99326B44F828}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFFE8E49-AA07-457E-A459-99326B44F828}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFFE8E49-AA07-457E-A459-99326B44F828}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Debug|Any CPU.Build.0 = Debug|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Release|Any CPU.ActiveCfg = Release|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Release|Any CPU.Build.0 = Release|x64
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46}.Release|Any CPU.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{AA62B4AA-1CA3-4C20-BEB7-B824D0FC4BD1} = {8F2103C2-78AF-4810-8FB9-67572F50C8FC}
 		{9545F73C-9C35-4CF6-BAAE-19A0BAEBD344} = {52AECE49-F314-4F76-98F2-FA800F07824B}
 		{62F1726B-3144-49F4-8BCC-94160A3B2186} = {52AECE49-F314-4F76-98F2-FA800F07824B}
 		{CA60DFDB-0BE1-40F6-B575-CDC797A40E2E} = {8F2103C2-78AF-4810-8FB9-67572F50C8FC}
@@ -93,6 +91,7 @@ Global
 		{9B2886B0-D2A8-479B-B52E-1C7B63CAB97E} = {ABFA5526-FCE4-47C9-94F4-84D5F59EECA8}
 		{A877A741-9FF5-453D-89C8-3BE7A94D74C1} = {ABFA5526-FCE4-47C9-94F4-84D5F59EECA8}
 		{DFFE8E49-AA07-457E-A459-99326B44F828} = {ABFA5526-FCE4-47C9-94F4-84D5F59EECA8}
+		{D90514BC-38EC-7FB4-BF26-2FC775815D46} = {8F2103C2-78AF-4810-8FB9-67572F50C8FC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {458346DD-B23F-4FDC-8F9D-A10F1882A4DB}

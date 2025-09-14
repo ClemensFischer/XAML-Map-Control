@@ -31,10 +31,9 @@ namespace MapControl
 
             if (capabilitiesUri.IsAbsoluteUri && (capabilitiesUri.Scheme == "http" || capabilitiesUri.Scheme == "https"))
             {
-                using (var stream = await ImageLoader.HttpClient.GetStreamAsync(capabilitiesUri))
-                {
-                    capabilities = ReadCapabilities(XDocument.Load(stream).Root, layer, capabilitiesUri.ToString());
-                }
+                using var stream = await ImageLoader.HttpClient.GetStreamAsync(capabilitiesUri);
+
+                capabilities = ReadCapabilities(XDocument.Load(stream).Root, layer, capabilitiesUri.ToString());
             }
             else
             {
@@ -46,12 +45,8 @@ namespace MapControl
 
         public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layer, string capabilitiesUrl)
         {
-            var contentsElement = capabilitiesElement.Element(wmts + "Contents");
-
-            if (contentsElement == null)
-            {
-                throw new ArgumentException("Contents element not found.");
-            }
+            var contentsElement = capabilitiesElement.Element(wmts + "Contents")
+                ?? throw new ArgumentException("Contents element not found.");
 
             XElement layerElement;
 
@@ -102,12 +97,8 @@ namespace MapControl
             {
                 var tileMatrixSetElement = contentsElement
                     .Elements(wmts + "TileMatrixSet")
-                    .FirstOrDefault(s => s.Element(ows + "Identifier")?.Value == tileMatrixSetId);
-
-                if (tileMatrixSetElement == null)
-                {
-                    throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layer}\".");
-                }
+                    .FirstOrDefault(s => s.Element(ows + "Identifier")?.Value == tileMatrixSetId)
+                    ?? throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layer}\".");
 
                 tileMatrixSets.Add(ReadTileMatrixSet(tileMatrixSetElement));
             }
@@ -134,7 +125,7 @@ namespace MapControl
                 .ToLookup(r => r.Attribute("format").Value,
                           r => r.Attribute("template").Value);
 
-            if (resourceUrls.Any())
+            if (resourceUrls.Count != 0)
             {
                 var urlTemplates = resourceUrls.Contains(formatPng) ? resourceUrls[formatPng]
                                  : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]

@@ -34,10 +34,9 @@ namespace MapControl
 
             if (File.Exists(path))
             {
-                using (var stream = File.OpenRead(path))
-                {
-                    image = LoadImage(stream);
-                }
+                using var stream = File.OpenRead(path);
+
+                image = LoadImage(stream);
             }
 
             return image;

@@ -34,10 +34,9 @@ namespace MapControl
 
         public static async Task<ImageSource> LoadImageAsync(Stream stream)
         {
-            using (var randomAccessStream = stream.AsRandomAccessStream())
-            {
-                return await LoadImageAsync(randomAccessStream);
-            }
+            using var randomAccessStream = stream.AsRandomAccessStream();
+
+            return await LoadImageAsync(randomAccessStream);
         }
 
         public static async Task<ImageSource> LoadImageAsync(string path)
@@ -50,10 +49,9 @@ namespace MapControl
             {
                 var file = await StorageFile.GetFileFromPathAsync(path);
 
-                using (var randomAccessStream = await file.OpenReadAsync())
-                {
-                    image = await LoadImageAsync(randomAccessStream);
-                }
+                using var randomAccessStream = await file.OpenReadAsync();
+
+                image = await LoadImageAsync(randomAccessStream);
             }
 
             return image;
@@ -84,13 +82,12 @@ namespace MapControl
 
                 if (buffer != null)
                 {
-                    using (var memoryStream = new MemoryStream(buffer))
-                    using (var randomAccessStream = memoryStream.AsRandomAccessStream())
-                    {
-                        var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+                    using var memoryStream = new MemoryStream(buffer);
+                    using var randomAccessStream = memoryStream.AsRandomAccessStream();
 
-                        bitmap = await LoadWriteableBitmapAsync(decoder);
-                    }
+                    var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+
+                    bitmap = await LoadWriteableBitmapAsync(decoder);
                 }
             }
             catch (Exception ex)

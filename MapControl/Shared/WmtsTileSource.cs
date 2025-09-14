@@ -6,7 +6,7 @@ namespace MapControl
     {
         public WmtsTileMatrixSet TileMatrixSet { get; set; }
 
-        public override Uri GetUri(int column, int row, int zoomLevel)
+        public override Uri GetUri(int zoomLevel, int column, int row)
         {
             Uri uri = null;
 

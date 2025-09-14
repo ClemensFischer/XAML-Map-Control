@@ -326,34 +326,30 @@ namespace MapControl.Caching
 
         private static byte[] ReadAllBytes(FileInfo file)
         {
-            using (var stream = file.OpenRead())
+            using var stream = file.OpenRead();
+            var buffer = new byte[stream.Length];
+            var offset = 0;
+
+            while (offset < buffer.Length)
             {
-                var buffer = new byte[stream.Length];
-                var offset = 0;
-
-                while (offset < buffer.Length)
-                {
-                    offset += stream.Read(buffer, offset, buffer.Length - offset);
-                }
-
-                return buffer;
+                offset += stream.Read(buffer, offset, buffer.Length - offset);
             }
+
+            return buffer;
         }
 
         private static async Task<byte[]> ReadAllBytes(FileInfo file, CancellationToken token)
         {
-            using (var stream = file.OpenRead())
+            using var stream = file.OpenRead();
+            var buffer = new byte[stream.Length];
+            var offset = 0;
+
+            while (offset < buffer.Length)
             {
-                var buffer = new byte[stream.Length];
-                var offset = 0;
-
-                while (offset < buffer.Length)
-                {
-                    offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, token).ConfigureAwait(false);
-                }
-
-                return buffer;
+                offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, token).ConfigureAwait(false);
             }
+
+            return buffer;
         }
 
         private static void SetExpiration(FileInfo file, DistributedCacheEntryOptions options)
