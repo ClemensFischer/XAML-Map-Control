@@ -2,7 +2,6 @@
     <PropertyGroup>
         <TargetFramework>net9.0-windows10.0.17763.0</TargetFramework>
         <UseWinUI>true</UseWinUI>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants>WINUI</DefineConstants>
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for WinUI</AssemblyTitle>

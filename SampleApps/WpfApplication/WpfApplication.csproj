@@ -3,9 +3,9 @@
         <OutputType>WinExe</OutputType>
         <TargetFrameworks>net9.0-windows;net48</TargetFrameworks>
         <UseWPF>true</UseWPF>
+        <DefineConstants>WPF</DefineConstants>
         <RootNamespace>SampleApplication</RootNamespace>
         <AssemblyTitle>XAML Map Control WPF Sample Application</AssemblyTitle>
-        <DefineConstants>WPF</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

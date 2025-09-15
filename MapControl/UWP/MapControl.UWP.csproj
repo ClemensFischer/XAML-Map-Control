@@ -3,9 +3,6 @@
         <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <UseUwp>true</UseUwp>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
-        <DefaultLanguage>en-US</DefaultLanguage>
         <DefineConstants>UWP</DefineConstants>
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for UWP</AssemblyTitle>
@@ -13,6 +10,8 @@
         <PackageId>XAML.MapControl.UWP</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>A set of UWP controls for rendering raster maps from different providers like OpenStreetMap and various types of map overlays</Description>
+        <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+        <DefaultLanguage>en-US</DefaultLanguage>
     </PropertyGroup>
 
     <ItemGroup>

@@ -3,8 +3,6 @@
         <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <UseUwp>true</UseUwp>
-        <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
-        <DefaultLanguage>en-US</DefaultLanguage>
         <DefineConstants>UWP</DefineConstants>
         <RootNamespace>MapControl.Projections</RootNamespace>
         <AssemblyTitle>XAML Map Control Projections Library for UWP</AssemblyTitle>
@@ -12,6 +10,8 @@
         <PackageId>XAML.MapControl.MapProjections.UWP</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
+        <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+        <DefaultLanguage>en-US</DefaultLanguage>
     </PropertyGroup>
 
     <ItemGroup>

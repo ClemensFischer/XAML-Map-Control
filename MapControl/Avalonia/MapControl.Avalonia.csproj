@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants>AVALONIA</DefineConstants>
         <RootNamespace>MapControl</RootNamespace>
         <AssemblyTitle>XAML Map Control Library for Avalonia UI</AssemblyTitle>
@@ -9,6 +8,7 @@
         <PackageId>XAML.MapControl.Avalonia</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>A set of Avalonia UI controls for rendering raster maps from different providers like OpenStreetMap and various types of map overlays</Description>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>

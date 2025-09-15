@@ -2,8 +2,9 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
-        <RootNamespace>SampleApplication</RootNamespace>
         <DefineConstants>AVALONIA</DefineConstants>
+        <RootNamespace>SampleApplication</RootNamespace>
+        <AssemblyTitle>XAML Map Control Avalonia Sample Application</AssemblyTitle>
     </PropertyGroup>
 
     <ItemGroup>
