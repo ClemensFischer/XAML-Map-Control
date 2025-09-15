@@ -24,7 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
         <ProjectReference Include="..\..\MapUiTools\WinUI\MapUiTools.WinUI.csproj" />
     </ItemGroup>
 

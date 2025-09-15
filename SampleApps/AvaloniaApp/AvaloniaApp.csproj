@@ -27,7 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\Avalonia\MapControl.Avalonia.csproj" />
         <ProjectReference Include="..\..\MapUiTools\Avalonia\MapUiTools.Avalonia.csproj" />
     </ItemGroup>
 

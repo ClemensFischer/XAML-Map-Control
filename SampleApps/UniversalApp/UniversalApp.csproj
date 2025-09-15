@@ -23,7 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\UWP\MapControl.UWP.csproj" />
         <ProjectReference Include="..\..\MapUiTools\UWP\MapUiTools.UWP.csproj" />
     </ItemGroup>
 
