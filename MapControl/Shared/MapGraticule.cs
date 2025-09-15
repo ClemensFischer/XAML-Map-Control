@@ -24,22 +24,13 @@ namespace MapControl
     /// </summary>
     public partial class MapGraticule
     {
-        private class Label
+        private class Label(string latText, string lonText, double x, double y, double rotation)
         {
-            public Label(string latText, string lonText, double x, double y, double rotation)
-            {
-                LatitudeText = latText;
-                LongitudeText = lonText;
-                X = x;
-                Y = y;
-                Rotation = rotation;
-            }
-
-            public string LatitudeText { get; }
-            public string LongitudeText { get; }
-            public double X { get; }
-            public double Y { get; }
-            public double Rotation { get; }
+            public string LatitudeText { get; } = latText;
+            public string LongitudeText { get; } = lonText;
+            public double X { get; } = x;
+            public double Y { get; } = y;
+            public double Rotation { get; } = rotation;
         }
 
         private const double LineInterpolationResolution = 2d;

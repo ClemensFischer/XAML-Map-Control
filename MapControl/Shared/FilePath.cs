@@ -6,10 +6,10 @@ namespace MapControl
     {
         public static string GetFullPath(string path)
         {
-#if NET6_0_OR_GREATER
-            return Path.GetFullPath(path, System.AppDomain.CurrentDomain.BaseDirectory);
-#else
+#if NETFRAMEWORK
             return Path.GetFullPath(path);
+#else
+            return Path.GetFullPath(path, System.AppDomain.CurrentDomain.BaseDirectory);
 #endif
         }
     }

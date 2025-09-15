@@ -19,7 +19,7 @@ using Avalonia.Media;
 
 namespace MapControl
 {
-    public class WmtsTileMatrixLayer : Panel
+    public partial class WmtsTileMatrixLayer : Panel
     {
         // zoomLevel is index of tileMatrix in a WmtsTileMatrixSet.TileMatrixes list.
         //

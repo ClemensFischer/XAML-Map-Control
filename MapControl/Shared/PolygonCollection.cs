@@ -10,7 +10,7 @@ namespace MapControl
     /// listener to each element that implements INotifyCollectionChanged and, when such an element changes,
     /// fires its own CollectionChanged event with NotifyCollectionChangedAction.Replace for that element.
     /// </summary>
-    public class PolygonCollection : ObservableCollection<IEnumerable<Location>>
+    public partial class PolygonCollection : ObservableCollection<IEnumerable<Location>>
     {
         private void PolygonChanged(object sender, NotifyCollectionChangedEventArgs e)
         {

@@ -18,7 +18,7 @@ using ConverterCulture = System.Globalization.CultureInfo;
 
 namespace MapControl
 {
-    public class LocationConverter : TypeConverter, IValueConverter
+    public partial class LocationConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -41,7 +41,7 @@ namespace MapControl
         }
     }
 
-    public class LocationCollectionConverter : TypeConverter, IValueConverter
+    public partial class LocationCollectionConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -64,7 +64,7 @@ namespace MapControl
         }
     }
 
-    public class BoundingBoxConverter : TypeConverter, IValueConverter
+    public partial class BoundingBoxConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -87,7 +87,7 @@ namespace MapControl
         }
     }
 
-    public class TileSourceConverter : TypeConverter, IValueConverter
+    public partial class TileSourceConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {

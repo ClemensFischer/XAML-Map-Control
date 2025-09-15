@@ -16,7 +16,7 @@ namespace MapControl
     /// <summary>
     /// Base class of MapPolyline and MapPolygon.
     /// </summary>
-    public class MapPolypoint : MapPath
+    public partial class MapPolypoint : MapPath
     {
         public static readonly DependencyProperty FillRuleProperty =
             DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,

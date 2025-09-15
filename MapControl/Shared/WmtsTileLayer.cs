@@ -20,7 +20,7 @@ namespace MapControl
     /// <summary>
     /// Displays map tiles from a Web Map Tile Service (WMTS).
     /// </summary>
-    public class WmtsTileLayer : MapTileLayerBase
+    public partial class WmtsTileLayer : MapTileLayerBase
     {
         private static ILogger logger;
         private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
@@ -70,7 +70,7 @@ namespace MapControl
 
         public IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
 
-        public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = new Dictionary<string, WmtsTileMatrixSet>();
+        public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = [];
 
         protected virtual WmtsTileSource CreateTileSource(string uriTemplate) => new WmtsTileSource { UriTemplate = uriTemplate };
 

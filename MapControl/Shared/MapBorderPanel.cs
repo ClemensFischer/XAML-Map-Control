@@ -16,7 +16,7 @@ namespace MapControl
     /// Such elements are arranged at a distance of BorderWidth/2 from the edges of the
     /// MapBorderPanel in direction of their original azimuth from the map center.
     /// </summary>
-    public class MapBorderPanel : MapPanel
+    public partial class MapBorderPanel : MapPanel
     {
         public static readonly DependencyProperty BorderWidthProperty =
             DependencyPropertyHelper.Register<MapBorderPanel, double>(nameof(BorderWidth));
