@@ -11,6 +11,7 @@
         <AssemblyTitle>XAML Map Control WinUI Sample Application</AssemblyTitle>
         <EnableMsixTooling>true</EnableMsixTooling>
         <ApplicationManifest>app.manifest</ApplicationManifest>
+        <WindowsAppSdkSelfContained>true</WindowsAppSdkSelfContained>
     </PropertyGroup>
 
     <ItemGroup>
