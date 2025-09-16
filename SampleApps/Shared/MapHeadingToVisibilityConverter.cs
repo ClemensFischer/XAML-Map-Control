@@ -19,16 +19,12 @@ namespace SampleApplication
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
+            var visible = (double)value != 0d;
 #if AVALONIA
-            return (double)value != 0d;
+            return visible;
 #else
-            return (double)value != 0d ? Visibility.Visible : Visibility.Collapsed;
+            return visible ? Visibility.Visible : Visibility.Collapsed;
 #endif
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -36,9 +32,14 @@ namespace SampleApplication
             return Convert(value, targetType, parameter, culture.ToString());
         }
 
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ConvertBack(value, targetType, parameter, culture.ToString());
+            throw new NotImplementedException();
         }
     }
 }
