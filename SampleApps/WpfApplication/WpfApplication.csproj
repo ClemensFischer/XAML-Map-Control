@@ -13,10 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="..\Shared\ValueConverters.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Content Include="..\Shared\10_535_330.jpg" Link="10_535_330.jpg">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>

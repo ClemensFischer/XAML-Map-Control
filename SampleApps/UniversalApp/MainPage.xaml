@@ -168,21 +168,7 @@
                        FontFamily="Consolas" Margin="4,2" Visibility="Collapsed"/>
         </Border>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF"
-                    DataContext="{Binding MapLayer, ElementName=map}">
-            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
-                         Maximum="1" Value="{Binding LoadingProgress}">
-                <ProgressBar.Visibility>
-                    <Binding Path="Value" RelativeSource="{RelativeSource Self}">
-                        <Binding.Converter>
-                            <local:DoubleTriggerConverter Trigger="1" TriggerValue="Collapsed" DefaultValue="Visible"/>
-                        </Binding.Converter>
-                    </Binding>
-                </ProgressBar.Visibility>
-            </ProgressBar>
-
-            <TextBlock Margin="4,2" FontSize="10" local:HyperlinkText.InlinesSource="{Binding Description}"/>
-        </StackPanel>
+        <tools:MapLayerInfo MapLayer="{Binding MapLayer, ElementName=map}" Background="#AFFFFFFF"/>
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6" Background="#7FFFFFFF">
             <tools:MenuButton x:Name="mapLayersMenuButton"
@@ -271,7 +257,7 @@
                 <Button.Visibility>
                     <Binding Path="Heading" ElementName="map">
                         <Binding.Converter>
-                            <local:DoubleTriggerConverter Trigger="0" TriggerValue="Collapsed" DefaultValue="Visible"/>
+                            <local:MapHeadingToVisibilityConverter/>
                         </Binding.Converter>
                     </Binding>
                 </Button.Visibility>

@@ -11,10 +11,21 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Remove="..\Shared\HyperlinkText.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AvaloniaXaml Include="MapLayerInfo.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </AvaloniaXaml>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\MapControl\Avalonia\MapControl.Avalonia.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.6" />
+        <PackageReference Include="Markdown.Avalonia.Tight" Version="11.0.2" />
     </ItemGroup>
 </Project>

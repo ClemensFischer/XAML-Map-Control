@@ -16,7 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 #endif
 
-namespace SampleApplication
+namespace MapControl.UiTools
 {
     public static class HyperlinkText
     {
@@ -43,7 +43,7 @@ namespace SampleApplication
 
                     var link = new Hyperlink { NavigateUri = uri };
                     link.Inlines.Add(new Run { Text = match.Groups[1].Value });
-#if !WINUI && !UWP
+#if WPF
                     link.ToolTip = uri.ToString();
 
                     link.RequestNavigate += (s, e) =>

@@ -1,0 +1,44 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:md="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
+    xmlns:local="clr-namespace:MapControl.UiTools"
+    x:Class="MapControl.UiTools.MapLayerInfo"
+    x:Name="mapLayerInfo">
+
+    <UserControl.Styles>
+        <Style Selector="local|MapLayerInfo">
+            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel
+        Orientation="Horizontal"
+        Background="{Binding Background, ElementName=mapLayerInfo}"
+        DataContext="{Binding ElementName=mapLayerInfo}">
+
+        <ProgressBar
+            VerticalAlignment="Center" Margin="{Binding Padding}"
+            Maximum="1" Value="{Binding MapLayer.LoadingProgress}">
+
+            <ProgressBar.IsVisible>
+                <Binding Path="Value" RelativeSource="{RelativeSource Self}">
+                    <Binding.Converter>
+                        <local:ProgressVisibilityConverter/>
+                    </Binding.Converter>
+                </Binding>
+            </ProgressBar.IsVisible>
+        </ProgressBar>
+
+        <LayoutTransformControl Margin="{Binding Padding}">
+            <LayoutTransformControl.LayoutTransform>
+                <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
+            </LayoutTransformControl.LayoutTransform>
+
+            <md:MarkdownScrollViewer Markdown="{Binding MapLayer.Description}"/>
+        </LayoutTransformControl>
+    </StackPanel>
+</UserControl>

@@ -1,6 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:md="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
         xmlns:map="clr-namespace:MapControl;assembly=MapControl.Avalonia"
         xmlns:tools="clr-namespace:MapControl.UiTools;assembly=MapUiTools.Avalonia"
         xmlns:local="clr-namespace:SampleApplication"
@@ -12,10 +11,6 @@
     </Window.DataContext>
 
     <Grid>
-        <Grid.Resources>
-            <local:MapHeadingToVisibilityConverter x:Key="MapHeadingToVisibilityConverter" />
-        </Grid.Resources>
-
         <map:Map x:Name="map"
                  ZoomLevel="11" MinZoomLevel="3"
                  Center="53.5,8.2"
@@ -117,25 +112,8 @@
             </TextBlock.Background>
         </TextBlock>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF"
-                    DataContext="{Binding MapLayer, ElementName=map}">
-            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
-                         Maximum="1" Value="{Binding LoadingProgress}">
-                <ProgressBar.Styles>
-                    <Style Selector="ProgressBar[Value=1]">
-                        <Setter Property="IsVisible" Value="False"/>
-                    </Style>
-                </ProgressBar.Styles>
-            </ProgressBar>
-
-            <LayoutTransformControl Margin="4,2">
-                <LayoutTransformControl.LayoutTransform>
-                    <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                </LayoutTransformControl.LayoutTransform>
-                <md:MarkdownScrollViewer Markdown="{Binding Description}"/>
-            </LayoutTransformControl>
-        </StackPanel>
-
+        <tools:MapLayerInfo MapLayer="{Binding MapLayer, ElementName=map}" Background="#AFFFFFFF"/>
+    
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6" Background="#7FFFFFFF">
             <tools:MenuButton x:Name="mapLayersMenuButton"
                 Icon="&#xE81E;" Margin="2" ToolTip.Tip="Map Layers and Overlays" Map="{Binding ElementName=map}">
@@ -223,9 +201,14 @@
             <Button Margin="2" Padding="8" ToolTip.Tip="Reset Heading" Click="ResetHeadingButtonClick"
                     FontSize="20" FontFamily="Segoe MDL2 Assets" Content="&#xEBE6;"
                     HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
-                    IsVisible="{Binding ElementName=map, Path=Heading,
-                                Converter={StaticResource MapHeadingToVisibilityConverter}}">
+                    HorizontalContentAlignment="Center">
+                <Button.IsVisible>
+                    <Binding Path="Heading" ElementName="map">
+                        <Binding.Converter>
+                            <local:MapHeadingToVisibilityConverter/>
+                        </Binding.Converter>
+                    </Binding>
+                </Button.IsVisible>
             </Button>
         </StackPanel>
     </Grid>

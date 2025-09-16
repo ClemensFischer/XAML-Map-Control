@@ -170,23 +170,7 @@
             </TextBlock.Background>
         </TextBlock>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AFFFFFFF"
-                    DataContext="{Binding MapLayer, ElementName=map}">
-            <ProgressBar Width="100" Height="8" Margin="4,2" VerticalAlignment="Center"
-                         Maximum="1" Value="{Binding LoadingProgress}">
-                <ProgressBar.Style>
-                    <Style TargetType="ProgressBar">
-                        <Style.Triggers>
-                            <Trigger Property="Value" Value="1">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </ProgressBar.Style>
-            </ProgressBar>
-
-            <TextBlock Margin="4,2" FontSize="10" local:HyperlinkText.InlinesSource="{Binding Description}"/>
-        </StackPanel>
+        <tools:MapLayerInfo MapLayer="{Binding MapLayer, ElementName=map}" Background="#AFFFFFFF"/>
 
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6">
             <tools:MenuButton x:Name="mapLayersMenuButton"
@@ -275,15 +259,13 @@
 
             <Button Margin="2" Padding="8" ToolTip="Reset Heading" Click="ResetHeadingButtonClick"
                     FontSize="20" FontFamily="Segoe MDL2 Assets" Content="&#xEBE6;">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Heading, ElementName=map}" Value="0">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
+                <Button.Visibility>
+                    <Binding Path="Heading" ElementName="map">
+                        <Binding.Converter>
+                            <local:MapHeadingToVisibilityConverter/>
+                        </Binding.Converter>
+                    </Binding>
+                </Button.Visibility>
             </Button>
         </StackPanel>
     </Grid>
