@@ -40,7 +40,9 @@ namespace MapControl.UiTools
 
                 if (initialItem != null)
                 {
-                    await initialItem.Execute(Map);
+                    initialItem.IsChecked = true;
+
+                    await initialItem.ExecuteAsync(Map);
                 }
             }
         }

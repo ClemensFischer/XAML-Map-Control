@@ -11,8 +11,12 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MapControl.UiTools
 {
-    public abstract class MapMenuItem : ToggleMenuFlyoutItem
+    public abstract partial class MapMenuItem : ToggleMenuFlyoutItem
     {
+        public abstract bool GetIsChecked(MapBase map);
+
+        public abstract Task ExecuteAsync(MapBase map);
+
         protected MapMenuItem()
         {
             Loaded += (s, e) =>
@@ -29,7 +33,7 @@ namespace MapControl.UiTools
             {
                 if (DataContext is MapBase map)
                 {
-                    await Execute(map);
+                    await ExecuteAsync(map);
 
                     foreach (var item in ParentMenuItems)
                     {
@@ -40,9 +44,5 @@ namespace MapControl.UiTools
         }
 
         protected IList<MapMenuItem> ParentMenuItems { get; private set; }
-
-        protected abstract bool GetIsChecked(MapBase map);
-
-        public abstract Task Execute(MapBase map);
     }
 }

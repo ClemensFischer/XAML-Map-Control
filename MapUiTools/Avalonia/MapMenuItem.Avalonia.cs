@@ -10,6 +10,10 @@ namespace MapControl.UiTools
 {
     public abstract partial class MapMenuItem : MenuItem
     {
+        public abstract bool GetIsChecked(MapBase map);
+
+        public abstract Task ExecuteAsync(MapBase map);
+
         protected MapMenuItem()
         {
             Icon = new TextBlock
@@ -31,7 +35,7 @@ namespace MapControl.UiTools
             {
                 if (DataContext is MapBase map)
                 {
-                    await Execute(map);
+                    await ExecuteAsync(map);
 
                     foreach (var item in ParentMenuItems)
                     {
@@ -50,10 +54,6 @@ namespace MapControl.UiTools
         protected IEnumerable<MapMenuItem> ParentMenuItems => ((ItemsControl)Parent).Items.OfType<MapMenuItem>();
 
         protected override Type StyleKeyOverride => typeof(MenuItem);
-
-        protected abstract bool GetIsChecked(MapBase map);
-
-        public abstract Task Execute(MapBase map);
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs args)
         {

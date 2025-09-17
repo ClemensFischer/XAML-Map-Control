@@ -22,23 +22,27 @@ namespace MapControl.UiTools
 #elif UWP || WINUI
     [ContentProperty(Name = nameof(MapLayer))]
 #endif
-    public class MapLayerMenuItem : MapMenuItem
+    public partial class MapLayerMenuItem : MapMenuItem
     {
+        public static Func<string, Task<FrameworkElement>> MapLayerFactory { get; set; } =
+            async sourcePath => sourcePath.EndsWith(".kmz") || sourcePath.EndsWith(".kml")
+                    ? (FrameworkElement)await GroundOverlay.CreateAsync(sourcePath)
+                    : (FrameworkElement)await GeoImage.CreateAsync(sourcePath);
 #if AVALONIA
         [Content]
 #endif
         public FrameworkElement MapLayer { get; set; }
 
-        public Func<Task<FrameworkElement>> MapLayerFactory { get; set; }
+        public string SourcePath { get; set; }
 
-        protected override bool GetIsChecked(MapBase map)
+        public override bool GetIsChecked(MapBase map)
         {
             return MapLayer != null && map.Children.Contains(MapLayer);
         }
 
-        public override async Task Execute(MapBase map)
+        public override async Task ExecuteAsync(MapBase map)
         {
-            MapLayer ??= await MapLayerFactory?.Invoke();
+            MapLayer ??= await MapLayerFactory?.Invoke(SourcePath);
 
             if (MapLayer != null)
             {
@@ -47,33 +51,13 @@ namespace MapControl.UiTools
         }
     }
 
-    public class MapOverlayMenuItem : MapLayerMenuItem
+    public partial class MapOverlayMenuItem : MapLayerMenuItem
     {
-        private string sourcePath;
-
-        public string SourcePath
-        {
-            get => sourcePath;
-            set
-            {
-                sourcePath = value;
-
-                if (sourcePath.EndsWith(".kmz") || sourcePath.EndsWith(".kml"))
-                {
-                    MapLayerFactory = async () => await GroundOverlay.CreateAsync(sourcePath);
-                }
-                else
-                {
-                    MapLayerFactory = async () => await GeoImage.CreateAsync(sourcePath);
-                }
-            }
-        }
-
         public int InsertOrder { get; set; }
 
-        public override async Task Execute(MapBase map)
+        public override async Task ExecuteAsync(MapBase map)
         {
-            MapLayer ??= await MapLayerFactory?.Invoke();
+            MapLayer ??= await MapLayerFactory?.Invoke(SourcePath);
 
             if (MapLayer != null)
             {

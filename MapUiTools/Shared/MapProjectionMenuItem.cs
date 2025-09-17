@@ -18,19 +18,19 @@ namespace MapControl.UiTools
 #elif UWP || WINUI
     [ContentProperty(Name = nameof(MapProjection))]
 #endif
-    public class MapProjectionMenuItem : MapMenuItem
+    public partial class MapProjectionMenuItem : MapMenuItem
     {
 #if AVALONIA
         [Content]
 #endif
         public string MapProjection { get; set; }
 
-        protected override bool GetIsChecked(MapBase map)
+        public override bool GetIsChecked(MapBase map)
         {
             return map.MapProjection.ToString() == MapProjection;
         }
 
-        public override Task Execute(MapBase map)
+        public override Task ExecuteAsync(MapBase map)
         {
             if (!GetIsChecked(map))
             {
