@@ -38,10 +38,7 @@ namespace MapControl.UiTools
 
         public override async Task Execute(MapBase map)
         {
-            if (MapLayer == null)
-            {
-                MapLayer = await MapLayerFactory?.Invoke();
-            }
+            MapLayer ??= await MapLayerFactory?.Invoke();
 
             if (MapLayer != null)
             {
@@ -52,14 +49,31 @@ namespace MapControl.UiTools
 
     public class MapOverlayMenuItem : MapLayerMenuItem
     {
+        private string sourcePath;
+
+        public string SourcePath
+        {
+            get => sourcePath;
+            set
+            {
+                sourcePath = value;
+
+                if (sourcePath.EndsWith(".kmz") || sourcePath.EndsWith(".kml"))
+                {
+                    MapLayerFactory = async () => await GroundOverlay.CreateAsync(sourcePath);
+                }
+                else
+                {
+                    MapLayerFactory = async () => await GeoImage.CreateAsync(sourcePath);
+                }
+            }
+        }
+
         public int InsertOrder { get; set; }
 
         public override async Task Execute(MapBase map)
         {
-            if (MapLayer == null)
-            {
-                MapLayer = await MapLayerFactory?.Invoke();
-            }
+            MapLayer ??= await MapLayerFactory?.Invoke();
 
             if (MapLayer != null)
             {
