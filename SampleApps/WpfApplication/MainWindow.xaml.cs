@@ -22,9 +22,6 @@ namespace SampleApplication
             //Closed += (s, e) => tileCache.Dispose();
 
             InitializeComponent();
-
-            sampleOverlayMenuItem.MapLayerFactory = async () => await GroundOverlay.CreateAsync("etna.kml");
-
             AddTestLayers();
         }
 
