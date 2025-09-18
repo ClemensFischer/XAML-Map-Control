@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 #if WPF
@@ -24,40 +24,39 @@ namespace MapControl.UiTools
 #endif
     public partial class MapLayerMenuItem : MapMenuItem
     {
-        public static Func<string, Task<FrameworkElement>> MapLayerFactory { get; set; } =
-            async sourcePath => sourcePath.EndsWith(".kmz") || sourcePath.EndsWith(".kml")
-                    ? (FrameworkElement)await GroundOverlay.CreateAsync(sourcePath)
-                    : (FrameworkElement)await GeoImage.CreateAsync(sourcePath);
 #if AVALONIA
         [Content]
 #endif
         public FrameworkElement MapLayer { get; set; }
-
-        public string SourcePath { get; set; }
 
         public override bool GetIsChecked(MapBase map)
         {
             return MapLayer != null && map.Children.Contains(MapLayer);
         }
 
-        public override async Task ExecuteAsync(MapBase map)
+        public override Task ExecuteAsync(MapBase map)
         {
-            MapLayer ??= await MapLayerFactory?.Invoke(SourcePath);
-
             if (MapLayer != null)
             {
                 map.MapLayer = MapLayer;
             }
+
+            return Task.CompletedTask;
         }
     }
 
     public partial class MapOverlayMenuItem : MapLayerMenuItem
     {
+        public string SourcePath { get; set; }
+
         public int InsertOrder { get; set; }
 
         public override async Task ExecuteAsync(MapBase map)
         {
-            MapLayer ??= await MapLayerFactory?.Invoke(SourcePath);
+            if (MapLayer == null)
+            {
+                await CreateMapLayer();
+            }
 
             if (MapLayer != null)
             {
@@ -79,6 +78,20 @@ namespace MapControl.UiTools
 
                     map.Children.Insert(insertIndex, MapLayer);
                 }
+            }
+        }
+
+        protected virtual async Task CreateMapLayer()
+        {
+            var ext = Path.GetExtension(SourcePath).ToLower();
+
+            if (ext == ".kmz" || ext == ".kml")
+            {
+                MapLayer = await GroundOverlay.CreateAsync(SourcePath);
+            }
+            else
+            {
+                MapLayer = await GeoImage.CreateAsync(SourcePath);
             }
         }
     }
