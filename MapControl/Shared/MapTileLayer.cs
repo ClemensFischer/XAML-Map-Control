@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 #if WPF
 using System.Windows;
 using System.Windows.Media;
