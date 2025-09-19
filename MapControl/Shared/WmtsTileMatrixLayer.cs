@@ -35,7 +35,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public TileCollection Tiles { get; private set; } = new TileCollection();
+        public TileCollection Tiles { get; private set; } = [];
 
         public void SetRenderTransform(ViewTransform viewTransform)
         {

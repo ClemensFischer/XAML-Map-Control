@@ -48,7 +48,7 @@ namespace MapControl.Caching
             rootDirectory = new DirectoryInfo(!string.IsNullOrEmpty(path) ? path : "TileCache");
             rootDirectory.Create();
 
-            logger = loggerFactory?.CreateLogger<ImageFileCache>();
+            logger = loggerFactory?.CreateLogger(typeof(ImageFileCache));
             logger?.LogInformation("Started in {name}", rootDirectory.FullName);
 
             var memoryCacheOptions = new MemoryDistributedCacheOptions();

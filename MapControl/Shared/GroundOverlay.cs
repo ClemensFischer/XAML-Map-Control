@@ -67,7 +67,7 @@ namespace MapControl
         }
 
         private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(GroundOverlay));
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,

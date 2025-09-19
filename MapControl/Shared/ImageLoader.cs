@@ -16,7 +16,7 @@ namespace MapControl
     public static partial class ImageLoader
     {
         private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(ImageLoader));
 
         public static ILoggerFactory LoggerFactory { get; set; }
 
