@@ -358,7 +358,7 @@ namespace MapControl
                     var capability = capabilities.Element(ns + "Capability");
 
                     supportedCrsIds = capability
-                        .Element(ns + "Layer")
+                        .Descendants(ns + "Layer")
                         .Descendants(ns + "CRS")
                         .Select(e => e.Value)
                         .ToList();
