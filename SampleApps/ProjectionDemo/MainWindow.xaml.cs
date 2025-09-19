@@ -28,7 +28,7 @@ namespace ProjectionDemo
                 new WmsImageLayer
                 {
                     ServiceUri = new Uri("http://ows.terrestris.de/osm/service"),
-                    WmsLayers = "OSM-WMS"
+                    RequestLayers = "OSM-WMS"
                 });
 
             viewModel.Layers.Add(
@@ -36,7 +36,7 @@ namespace ProjectionDemo
                 new WmsImageLayer
                 {
                     ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_topplus_open"),
-                    WmsLayers = "web"
+                    RequestLayers = "web"
                 });
 
             viewModel.Layers.Add(
@@ -44,7 +44,7 @@ namespace ProjectionDemo
                 new WmsImageLayer
                 {
                     ServiceUri = new Uri("https://sgx.geodatenzentrum.de/wms_basemapde"),
-                    WmsLayers = "de_basemapde_web_raster_farbe"
+                    RequestLayers = "de_basemapde_web_raster_farbe"
                 });
 
             viewModel.Layers.Add(
@@ -52,7 +52,7 @@ namespace ProjectionDemo
                 new WmsImageLayer
                 {
                     ServiceUri = new Uri("https://geoportal.wiesbaden.de/cgi-bin/mapserv.fcgi?map=d:/openwimap/umn/map/orthophoto/orthophotos.map"),
-                    WmsLayers = "orthophoto2023"
+                    RequestLayers = "orthophoto2023"
                 });
 
             viewModel.CurrentProjection = viewModel.Projections[0];

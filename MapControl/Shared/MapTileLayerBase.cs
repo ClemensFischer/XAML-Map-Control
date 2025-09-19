@@ -189,6 +189,8 @@ namespace MapControl
             }
         }
 
+        public abstract IReadOnlyCollection<string> SupportedMapProjections { get; }
+
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
         protected void BeginLoadTiles(IEnumerable<Tile> tiles, string cacheName)

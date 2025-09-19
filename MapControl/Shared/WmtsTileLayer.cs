@@ -23,7 +23,7 @@ namespace MapControl
     public partial class WmtsTileLayer : MapTileLayerBase
     {
         private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
 
         public static readonly DependencyProperty CapabilitiesUriProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri), null,
@@ -68,11 +68,19 @@ namespace MapControl
             set => SetValue(PreferredTileMatrixSetsProperty, value);
         }
 
-        public IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
-
+        /// <summary>
+        /// Gets a dictionary of all tile matrix sets supported by a WMTS, with their CRS as dictionary key.
+        /// </summary>
         public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = [];
 
-        protected virtual WmtsTileSource CreateTileSource(string uriTemplate) => new WmtsTileSource { UriTemplate = uriTemplate };
+        /// <summary>
+        /// Gets a collection of all CRSs supported by a WMTS.
+        /// </summary>
+        public override IReadOnlyCollection<string> SupportedMapProjections => TileMatrixSets.Keys;
+
+        protected IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
+
+        protected virtual WmtsTileSource CreateTileSource(string uriTemplate) => new() { UriTemplate = uriTemplate };
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -192,10 +200,10 @@ namespace MapControl
                     var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
 
                     foreach (var tileMatrixSet in capabilities.TileMatrixSets
-                        .Where(s => !TileMatrixSets.ContainsKey(s.SupportedCrs) ||
+                        .Where(s => !TileMatrixSets.ContainsKey(s.SupportedMapProjection) ||
                                     PreferredTileMatrixSets != null && PreferredTileMatrixSets.Contains(s.Identifier)))
                     {
-                        TileMatrixSets[tileMatrixSet.SupportedCrs] = tileMatrixSet;
+                        TileMatrixSets[tileMatrixSet.SupportedMapProjection] = tileMatrixSet;
                     }
 
                     Layer = capabilities.Layer;

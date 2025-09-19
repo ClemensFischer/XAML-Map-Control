@@ -16,6 +16,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia;
+using Avalonia.Interactivity;
 #endif
 
 namespace MapControl
@@ -26,27 +27,24 @@ namespace MapControl
     public partial class WmsImageLayer : MapImageLayer
     {
         private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<GroundOverlay>();
+        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmsImageLayer));
 
         public static readonly DependencyProperty ServiceUriProperty =
             DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null,
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
-        public static readonly DependencyProperty WmsStylesProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsStyles), "",
+        public static readonly DependencyProperty RequestStylesProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(RequestStyles), "",
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
-        public static readonly DependencyProperty WmsLayersProperty =
-            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(WmsLayers), null,
-                async (layer, oldValue, newValue) =>
-                {
-                    // Ignore property change from GetImageAsync when WmsLayers was null.
-                    //
-                    if (oldValue != null)
-                    {
-                        await layer.UpdateImageAsync();
-                    }
-                });
+        public static readonly DependencyProperty RequestLayersProperty =
+            DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(RequestLayers), null,
+                async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
+
+        public WmsImageLayer()
+        {
+            Loaded += OnLoaded;
+        }
 
         /// <summary>
         /// The base request URL. 
@@ -60,42 +58,30 @@ namespace MapControl
         /// <summary>
         /// Comma-separated sequence of requested WMS Styles. Default is an empty string.
         /// </summary>
-        public string WmsStyles
+        public string RequestStyles
         {
-            get => (string)GetValue(WmsStylesProperty);
-            set => SetValue(WmsStylesProperty, value);
+            get => (string)GetValue(RequestStylesProperty);
+            set => SetValue(RequestStylesProperty, value);
         }
 
         /// <summary>
-        /// Comma-separated sequence of WMS Layer names to be displayed. If not set, the first Layer is displayed.
+        /// Comma-separated sequence of WMS Layer names to be displayed. If not set, the default Layer is displayed.
         /// </summary>
-        public string WmsLayers
+        public string RequestLayers
         {
-            get => (string)GetValue(WmsLayersProperty);
-            set => SetValue(WmsLayersProperty, value);
+            get => (string)GetValue(RequestLayersProperty);
+            set => SetValue(RequestLayersProperty, value);
         }
 
         /// <summary>
-        /// Gets a list of all layer names returned by a GetCapabilities response.
+        /// Gets a collection of all Layer names available in a WMS.
         /// </summary>
-        public async Task<IEnumerable<string>> GetLayerNamesAsync()
-        {
-            IEnumerable<string> layerNames = null;
+        public IReadOnlyCollection<string> AvailableLayers { get; private set; }
 
-            var capabilities = await GetCapabilitiesAsync();
-
-            if (capabilities != null)
-            {
-                var ns = capabilities.Name.Namespace;
-
-                layerNames = capabilities
-                    .Descendants(ns + "Layer")
-                    .Select(e => e.Element(ns + "Name")?.Value)
-                    .Where(n => !string.IsNullOrEmpty(n));
-            }
-
-            return layerNames;
-        }
+        /// <summary>
+        /// Gets a collection of all CRSs supported by a WMS.
+        /// </summary>
+        public override IReadOnlyCollection<string> SupportedMapProjections => mapProjections;
 
         /// <summary>
         /// Loads an XElement from the URL returned by GetCapabilitiesRequestUri().
@@ -167,48 +153,37 @@ namespace MapControl
 
             try
             {
-                if (ServiceUri != null && ParentMap?.MapProjection != null)
+                if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
+                    ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
                 {
-                    if (WmsLayers == null &&
-                        ServiceUri.OriginalString.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+                    var uri = GetMapRequestUri(boundingBox);
+
+                    if (uri != null)
                     {
-                        // Get first Layer from a GetCapabilities response.
-                        //
-                        WmsLayers = (await GetLayerNamesAsync())?.FirstOrDefault() ?? "";
+                        image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
                     }
+                }
+                else
+                {
+                    BoundingBox bbox1, bbox2;
 
-                    if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
-                        ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
+                    if (boundingBox.West < -180d)
                     {
-                        var uri = GetMapRequestUri(boundingBox);
-
-                        if (uri != null)
-                        {
-                            image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
-                        }
+                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West + 360, boundingBox.North, 180d);
+                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East);
                     }
                     else
                     {
-                        BoundingBox bbox1, bbox2;
+                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West, boundingBox.North, 180d);
+                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East - 360d);
+                    }
 
-                        if (boundingBox.West < -180d)
-                        {
-                            bbox1 = new BoundingBox(boundingBox.South, boundingBox.West + 360, boundingBox.North, 180d);
-                            bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East);
-                        }
-                        else
-                        {
-                            bbox1 = new BoundingBox(boundingBox.South, boundingBox.West, boundingBox.North, 180d);
-                            bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East - 360d);
-                        }
+                    var uri1 = GetMapRequestUri(bbox1);
+                    var uri2 = GetMapRequestUri(bbox2);
 
-                        var uri1 = GetMapRequestUri(bbox1);
-                        var uri2 = GetMapRequestUri(bbox2);
-
-                        if (uri1 != null && uri2 != null)
-                        {
-                            image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress);
-                        }
+                    if (uri1 != null && uri2 != null)
+                    {
+                        image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress);
                     }
                 }
             }
@@ -251,8 +226,8 @@ namespace MapControl
                     { "SERVICE", "WMS" },
                     { "VERSION", "1.3.0" },
                     { "REQUEST", "GetMap" },
-                    { "LAYERS", WmsLayers ?? "" },
-                    { "STYLES", WmsStyles ?? "" },
+                    { "LAYERS", RequestLayers ?? "" },
+                    { "STYLES", RequestStyles ?? "" },
                     { "FORMAT", "image/png" },
                     { "CRS", GetCrsValue() },
                     { "BBOX", GetBboxValue(boundingBox, bbox.Value) },
@@ -289,8 +264,8 @@ namespace MapControl
                     { "SERVICE", "WMS" },
                     { "VERSION", "1.3.0" },
                     { "REQUEST", "GetFeatureInfo" },
-                    { "LAYERS", WmsLayers ?? "" },
-                    { "STYLES", WmsStyles ?? "" },
+                    { "LAYERS", RequestLayers ?? "" },
+                    { "STYLES", RequestStyles ?? "" },
                     { "FORMAT", "image/png" },
                     { "INFO_FORMAT", format },
                     { "CRS", GetCrsValue() },
@@ -312,25 +287,25 @@ namespace MapControl
         protected virtual string GetCrsValue()
         {
             var projection = ParentMap.MapProjection;
-            var crsId = projection.CrsId;
+            var crs = projection.CrsId;
 
-            if (crsId.StartsWith("AUTO2:") || crsId.StartsWith("AUTO:"))
+            if (crs.StartsWith("AUTO2:") || crs.StartsWith("AUTO:"))
             {
-                crsId = string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}", crsId, projection.Center.Longitude, projection.Center.Latitude);
+                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}", crs, projection.Center.Longitude, projection.Center.Latitude);
             }
 
-            return crsId;
+            return crs;
         }
 
         protected virtual string GetBboxValue(BoundingBox boundingBox, Rect mapBoundingBox)
         {
-            var crsId = ParentMap.MapProjection.CrsId;
+            var crs = ParentMap.MapProjection.CrsId;
             string format;
             double x1, y1, x2, y2;
 
-            if (crsId == "CRS:84" || crsId == "EPSG:4326")
+            if (crs == "CRS:84" || crs == "EPSG:4326")
             {
-                format = crsId == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
+                format = crs == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
                 x1 = boundingBox.West;
                 y1 = boundingBox.South;
                 x2 = boundingBox.East;
@@ -365,6 +340,49 @@ namespace MapControl
                 + string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
             return uri.Replace(" ", "%20");
+        }
+
+        private List<string> mapProjections;
+
+        private async void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= OnLoaded;
+
+            if (AvailableLayers == null && ServiceUri != null)
+            {
+                var capabilities = await GetCapabilitiesAsync();
+
+                if (capabilities != null)
+                {
+                    var ns = capabilities.Name.Namespace;
+                    var capability = capabilities.Element(ns + "Capability");
+
+                    mapProjections = capability
+                        .Element(ns + "Layer")
+                        .Descendants(ns + "CRS")
+                        .Select(e => e.Value)
+                        .ToList();
+
+                    var layerNames = capability
+                        .Descendants(ns + "Layer")
+                        .Select(e => e.Element(ns + "Name")?.Value)
+                        .Where(n => !string.IsNullOrEmpty(n))
+                        .ToList();
+
+                    AvailableLayers = layerNames;
+
+                    if (layerNames.Count > 0 &&
+                        RequestLayers == null &&
+                        ServiceUri.OriginalString.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+                    {
+                        RequestLayers = layerNames[0];
+                    }
+                    else
+                    {
+                        await UpdateImageAsync();
+                    }
+                }
+            }
         }
     }
 }

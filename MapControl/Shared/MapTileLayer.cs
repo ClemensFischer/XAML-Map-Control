@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -33,22 +36,24 @@ namespace MapControl
 
         private const int TileSize = 256;
 
-        private static readonly Point MapTopLeft = new Point(
-            -180d * MapProjection.Wgs84MeterPerDegree, 180d * MapProjection.Wgs84MeterPerDegree);
+        private static readonly Point MapTopLeft = new(-180d * MapProjection.Wgs84MeterPerDegree,
+                                                        180d * MapProjection.Wgs84MeterPerDegree);
 
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.
         /// </summary>
-        public static MapTileLayer OpenStreetMapTileLayer => new MapTileLayer
+        public static MapTileLayer OpenStreetMapTileLayer => new()
         {
             TileSource = new TileSource { UriTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
             SourceName = "OpenStreetMap",
             Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
         };
 
+        public override IReadOnlyCollection<string> SupportedMapProjections { get; } = ["EPSG:3857"];
+
         public TileMatrix TileMatrix { get; private set; }
 
-        public TileCollection Tiles { get; private set; } = new TileCollection();
+        public TileCollection Tiles { get; private set; } = [];
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -113,7 +118,7 @@ namespace MapControl
 
         protected override void UpdateTileLayerAsync(bool resetTiles)
         {
-            if (ParentMap == null || ParentMap.MapProjection.Type != MapProjectionType.WebMercator)
+            if (ParentMap == null || !SupportedMapProjections.Contains(ParentMap.MapProjection.CrsId))
             {
                 TileMatrix = null;
                 Children.Clear();
