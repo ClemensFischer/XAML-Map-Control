@@ -10,6 +10,7 @@
         <PackageId>XAML.MapControl.UWP</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>A set of UWP controls for rendering raster maps from different providers like OpenStreetMap and various types of map overlays</Description>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
         <DefaultLanguage>en-US</DefaultLanguage>
     </PropertyGroup>

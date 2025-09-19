@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -25,25 +26,30 @@ namespace MapControl
         public string UrlTemplate { get; private set; }
         public List<WmtsTileMatrixSet> TileMatrixSets { get; private set; }
 
-        public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri capabilitiesUri, string layer)
+        public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri uri, string layer)
         {
-            WmtsCapabilities capabilities;
+            Stream xmlStream;
+            string defaultUrl = null;
 
-            if (capabilitiesUri.IsAbsoluteUri && (capabilitiesUri.Scheme == "http" || capabilitiesUri.Scheme == "https"))
+            if (uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https"))
             {
-                using var stream = await ImageLoader.HttpClient.GetStreamAsync(capabilitiesUri);
+                defaultUrl = uri.OriginalString.Split('?')[0];
 
-                capabilities = ReadCapabilities(XDocument.Load(stream).Root, layer, capabilitiesUri.ToString());
+                xmlStream = await ImageLoader.HttpClient.GetStreamAsync(uri);
             }
             else
             {
-                capabilities = ReadCapabilities(XDocument.Load(capabilitiesUri.ToString()).Root, layer, null);
+                xmlStream = File.OpenRead(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
             }
 
-            return capabilities;
+            using var stream = xmlStream;
+
+            var element = await XDocument.LoadRootElementAsync(stream);
+
+            return ReadCapabilities(element, layer, defaultUrl);
         }
 
-        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layer, string capabilitiesUrl)
+        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layer, string defaultUrl)
         {
             var contentsElement = capabilitiesElement.Element(wmts + "Contents") ??
                 throw new ArgumentException("Contents element not found.");
@@ -84,7 +90,7 @@ namespace MapControl
 
             var style = styleElement?.Element(ows + "Identifier")?.Value ?? "";
 
-            var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layer, style, capabilitiesUrl);
+            var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layer, style, defaultUrl);
 
             var tileMatrixSetIds = layerElement
                 .Elements(wmts + "TileMatrixSetLink")
@@ -111,7 +117,7 @@ namespace MapControl
             };
         }
 
-        public static string ReadUrlTemplate(XElement capabilitiesElement, XElement layerElement, string layer, string style, string capabilitiesUrl)
+        public static string ReadUrlTemplate(XElement capabilitiesElement, XElement layerElement, string layer, string style, string defaultUrl)
         {
             const string formatPng = "image/png";
             const string formatJpg = "image/jpeg";
@@ -148,14 +154,8 @@ namespace MapControl
                     .Select(g => g.Attribute(xlink + "href")?.Value)
                     .Where(h => !string.IsNullOrEmpty(h))
                     .Select(h => h.Split('?')[0])
-                    .FirstOrDefault();
-
-                if (urlTemplate == null &&
-                    capabilitiesUrl != null &&
-                    capabilitiesUrl.IndexOf("Request=GetCapabilities", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    urlTemplate = capabilitiesUrl.Split('?')[0];
-                }
+                    .FirstOrDefault() ??
+                    defaultUrl;
 
                 if (urlTemplate != null)
                 {
@@ -254,7 +254,7 @@ namespace MapControl
             string[] topLeftCornerStrings;
 
             if (string.IsNullOrEmpty(valueString) ||
-                (topLeftCornerStrings = valueString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)).Length < 2 ||
+                (topLeftCornerStrings = valueString.Split([' '], StringSplitOptions.RemoveEmptyEntries)).Length < 2 ||
                 !double.TryParse(topLeftCornerStrings[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double left) ||
                 !double.TryParse(topLeftCornerStrings[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double top))
             {

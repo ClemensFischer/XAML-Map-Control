@@ -9,6 +9,7 @@
         <PackageId>XAML.MapControl.WinUI</PackageId>
         <Title>$(AssemblyTitle)</Title>
         <Description>A set of WinUI controls for rendering raster maps from different providers like OpenStreetMap and various types of map overlays</Description>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>

@@ -114,7 +114,7 @@ namespace MapControl
                     {
                         using var stream = await ImageLoader.HttpClient.GetStreamAsync(uri);
 
-                        element = XDocument.Load(stream).Root;
+                        element = await XDocument.LoadRootElementAsync(stream);
                     }
                     catch (Exception ex)
                     {
@@ -170,7 +170,7 @@ namespace MapControl
                 if (ServiceUri != null && ParentMap?.MapProjection != null)
                 {
                     if (WmsLayers == null &&
-                        ServiceUri.ToString().IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
+                        ServiceUri.OriginalString.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
                     {
                         // Get first Layer from a GetCapabilities response.
                         //
