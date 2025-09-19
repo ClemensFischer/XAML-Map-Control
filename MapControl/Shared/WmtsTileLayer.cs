@@ -200,10 +200,10 @@ namespace MapControl
                     var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
 
                     foreach (var tileMatrixSet in capabilities.TileMatrixSets
-                        .Where(s => !TileMatrixSets.ContainsKey(s.SupportedMapProjection) ||
+                        .Where(s => !TileMatrixSets.ContainsKey(s.SupportedCrs) ||
                                     PreferredTileMatrixSets != null && PreferredTileMatrixSets.Contains(s.Identifier)))
                     {
-                        TileMatrixSets[tileMatrixSet.SupportedMapProjection] = tileMatrixSet;
+                        TileMatrixSets[tileMatrixSet.SupportedCrs] = tileMatrixSet;
                     }
 
                     Layer = capabilities.Layer;

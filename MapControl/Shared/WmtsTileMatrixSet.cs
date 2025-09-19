@@ -6,16 +6,16 @@ namespace MapControl
 {
     public class WmtsTileMatrixSet
     {
-        public WmtsTileMatrixSet(string identifier, string supportedMapProjection, IEnumerable<WmtsTileMatrix> tileMatrixes)
+        public WmtsTileMatrixSet(string identifier, string supportedCrs, IEnumerable<WmtsTileMatrix> tileMatrixes)
         {
             if (string.IsNullOrEmpty(identifier))
             {
                 throw new ArgumentException($"The {nameof(identifier)} argument must not be null or empty.", nameof(identifier));
             }
 
-            if (string.IsNullOrEmpty(supportedMapProjection))
+            if (string.IsNullOrEmpty(supportedCrs))
             {
-                throw new ArgumentException($"The {nameof(supportedMapProjection)} argument must not be null or empty.", nameof(supportedMapProjection));
+                throw new ArgumentException($"The {nameof(supportedCrs)} argument must not be null or empty.", nameof(supportedCrs));
             }
 
             if (tileMatrixes == null || !tileMatrixes.Any())
@@ -24,12 +24,12 @@ namespace MapControl
             }
 
             Identifier = identifier;
-            SupportedMapProjection = supportedMapProjection;
+            SupportedCrs = supportedCrs;
             TileMatrixes = tileMatrixes.OrderBy(m => m.Scale).ToList();
         }
 
         public string Identifier { get; }
-        public string SupportedMapProjection { get; }
+        public string SupportedCrs { get; }
         public IList<WmtsTileMatrix> TileMatrixes { get; }
     }
 }
