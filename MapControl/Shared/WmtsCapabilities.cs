@@ -31,15 +31,23 @@ namespace MapControl
             Stream xmlStream;
             string defaultUrl = null;
 
-            if (uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https"))
+            if (!uri.IsAbsoluteUri)
+            {
+                xmlStream = File.OpenRead(uri.OriginalString);
+            }
+            else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
             {
                 defaultUrl = uri.OriginalString.Split('?')[0];
 
                 xmlStream = await ImageLoader.HttpClient.GetStreamAsync(uri);
             }
+            else if (uri.IsFile)
+            {
+                xmlStream = File.OpenRead(uri.LocalPath);
+            }
             else
             {
-                xmlStream = File.OpenRead(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
+                throw new ArgumentException($"Invalid Capabilities URI: {uri}");
             }
 
             using var stream = xmlStream;

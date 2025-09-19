@@ -46,7 +46,11 @@ namespace MapControl
 
             try
             {
-                if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                if (!uri.IsAbsoluteUri)
+                {
+                    image = await LoadImageAsync(uri.OriginalString);
+                }
+                else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
                 {
                     (var buffer, var _) = await GetHttpResponseAsync(uri, progress);
 
@@ -55,9 +59,9 @@ namespace MapControl
                         image = await LoadImageAsync(buffer);
                     }
                 }
-                else if (uri.IsFile || !uri.IsAbsoluteUri)
+                else if (uri.IsFile)
                 {
-                    image = await LoadImageAsync(uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString);
+                    image = await LoadImageAsync(uri.LocalPath);
                 }
                 else
                 {
