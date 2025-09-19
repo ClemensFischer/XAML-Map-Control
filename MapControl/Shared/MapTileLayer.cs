@@ -48,7 +48,7 @@ namespace MapControl
             Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
         };
 
-        public override IReadOnlyCollection<string> SupportedMapProjections { get; } = ["EPSG:3857"];
+        public override IReadOnlyCollection<string> SupportedCrsIds { get; } = ["EPSG:3857"];
 
         public TileMatrix TileMatrix { get; private set; }
 
@@ -117,7 +117,7 @@ namespace MapControl
 
         protected override void UpdateTileLayerAsync(bool resetTiles)
         {
-            if (ParentMap == null || !SupportedMapProjections.Contains(ParentMap.MapProjection.CrsId))
+            if (ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
             {
                 TileMatrix = null;
                 Children.Clear();

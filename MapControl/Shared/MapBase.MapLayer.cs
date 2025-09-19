@@ -22,7 +22,7 @@ namespace MapControl
     {
         Brush MapBackground { get; }
         Brush MapForeground { get; }
-        IReadOnlyCollection<string> SupportedMapProjections { get; }
+        IReadOnlyCollection<string> SupportedCrsIds { get; }
     }
 
     public partial class MapBase

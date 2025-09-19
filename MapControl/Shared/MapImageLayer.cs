@@ -127,7 +127,7 @@ namespace MapControl
         /// </summary>
         public double LoadingProgress => (double)GetValue(LoadingProgressProperty);
 
-        public abstract IReadOnlyCollection<string> SupportedMapProjections { get; }
+        public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
 
         protected override void SetParentMap(MapBase map)
         {
@@ -189,8 +189,8 @@ namespace MapControl
                 if (ParentMap != null &&
                     ParentMap.ActualWidth > 0d &&
                     ParentMap.ActualHeight > 0d &&
-                    SupportedMapProjections != null &&
-                    SupportedMapProjections.Contains(ParentMap.MapProjection.CrsId))
+                    SupportedCrsIds != null &&
+                    SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
                 {
                     var width = ParentMap.ActualWidth * RelativeImageSize;
                     var height = ParentMap.ActualHeight * RelativeImageSize;

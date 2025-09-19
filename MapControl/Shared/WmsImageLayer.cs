@@ -81,7 +81,7 @@ namespace MapControl
         /// <summary>
         /// Gets a collection of all CRSs supported by a WMS.
         /// </summary>
-        public override IReadOnlyCollection<string> SupportedMapProjections => mapProjections;
+        public override IReadOnlyCollection<string> SupportedCrsIds => supportedCrsIds;
 
         /// <summary>
         /// Loads an XElement from the URL returned by GetCapabilitiesRequestUri().
@@ -342,7 +342,7 @@ namespace MapControl
             return uri.Replace(" ", "%20");
         }
 
-        private List<string> mapProjections;
+        private List<string> supportedCrsIds;
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -357,7 +357,7 @@ namespace MapControl
                     var ns = capabilities.Name.Namespace;
                     var capability = capabilities.Element(ns + "Capability");
 
-                    mapProjections = capability
+                    supportedCrsIds = capability
                         .Element(ns + "Layer")
                         .Descendants(ns + "CRS")
                         .Select(e => e.Value)

@@ -76,7 +76,7 @@ namespace MapControl
         /// <summary>
         /// Gets a collection of all CRSs supported by a WMTS.
         /// </summary>
-        public override IReadOnlyCollection<string> SupportedMapProjections => TileMatrixSets.Keys;
+        public override IReadOnlyCollection<string> SupportedCrsIds => TileMatrixSets.Keys;
 
         protected IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
 

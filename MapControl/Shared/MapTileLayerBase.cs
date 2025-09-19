@@ -189,7 +189,7 @@ namespace MapControl
             }
         }
 
-        public abstract IReadOnlyCollection<string> SupportedMapProjections { get; }
+        public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
 
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
