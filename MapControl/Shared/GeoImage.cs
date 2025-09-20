@@ -194,7 +194,7 @@ namespace MapControl
                 {
                     var epsgCode = geoKeyDirectory[i + 3];
 
-                    return MapProjectionFactory.Instance.GetProjection($"EPSG:{epsgCode}");
+                    return MapProjection.Parse($"EPSG:{epsgCode}");
                 }
             }
 
