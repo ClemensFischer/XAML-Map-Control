@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Markup;
@@ -14,20 +15,25 @@ using Avalonia.Metadata;
 namespace MapControl.UiTools
 {
 #if WPF
-    [ContentProperty(nameof(MapProjection))]
+    [ContentProperty(nameof(CrsId))]
 #elif UWP || WINUI
-    [ContentProperty(Name = nameof(MapProjection))]
+    [ContentProperty(Name = nameof(CrsId))]
 #endif
     public partial class MapProjectionMenuItem : MapMenuItem
     {
 #if AVALONIA
         [Content]
 #endif
-        public string MapProjection { get; set; }
+        public string CrsId { get; set; }
 
-        public override bool GetIsChecked(MapBase map)
+        protected override bool GetIsEnabled(MapBase map)
         {
-            return map.MapProjection.ToString() == MapProjection;
+            return map.MapLayer is not IMapLayer mapLayer || mapLayer.SupportedCrsIds.Contains(CrsId);
+        }
+
+        protected override bool GetIsChecked(MapBase map)
+        {
+            return map.MapProjection.CrsId == CrsId;
         }
 
         public override Task ExecuteAsync(MapBase map)
@@ -36,7 +42,7 @@ namespace MapControl.UiTools
             {
                 try
                 {
-                    map.MapProjection = MapControl.MapProjection.Parse(MapProjection);
+                    map.MapProjection = MapProjection.Parse(CrsId);
                 }
                 catch (Exception ex)
                 {

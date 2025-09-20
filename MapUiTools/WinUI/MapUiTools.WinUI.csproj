@@ -5,6 +5,7 @@
         <DefineConstants>WINUI</DefineConstants>
         <RootNamespace>MapControl.UiTools</RootNamespace>
         <AssemblyTitle>XAML Map Control UI Tools Library for WinUI</AssemblyTitle>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>

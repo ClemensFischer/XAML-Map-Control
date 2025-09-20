@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 #if UWP
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -13,34 +12,15 @@ namespace MapControl.UiTools
 {
     public abstract partial class MapMenuItem : ToggleMenuFlyoutItem
     {
-        public abstract bool GetIsChecked(MapBase map);
-
-        public abstract Task ExecuteAsync(MapBase map);
-
         protected MapMenuItem()
         {
             Loaded += (s, e) =>
             {
                 ParentMenuItems = ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>().ToList();
-
-                if (DataContext is MapBase map)
-                {
-                    IsChecked = GetIsChecked(map);
-                }
+                Initialize();
             };
 
-            Click += async (s, e) =>
-            {
-                if (DataContext is MapBase map)
-                {
-                    await ExecuteAsync(map);
-
-                    foreach (var item in ParentMenuItems)
-                    {
-                        item.IsChecked = item.GetIsChecked(map);
-                    }
-                }
-            };
+            Click += (s, e) => Execute();
         }
 
         protected IList<MapMenuItem> ParentMenuItems { get; private set; }

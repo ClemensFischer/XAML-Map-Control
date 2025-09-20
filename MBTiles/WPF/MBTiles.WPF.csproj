@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net9.0-windows;net462</TargetFrameworks>
-        <LangVersion Condition="'$(TargetFramework)'=='net462'">8.0</LangVersion>
+        <LangVersion Condition="'$(TargetFramework)'=='net462'">12.0</LangVersion>
         <UseWPF>true</UseWPF>
         <DefineConstants>WPF</DefineConstants>
         <RootNamespace>MapControl.MBTiles</RootNamespace>

@@ -29,7 +29,7 @@ namespace MapControl.UiTools
 #endif
         public FrameworkElement MapLayer { get; set; }
 
-        public override bool GetIsChecked(MapBase map)
+        protected override bool GetIsChecked(MapBase map)
         {
             return MapLayer != null && map.Children.Contains(MapLayer);
         }

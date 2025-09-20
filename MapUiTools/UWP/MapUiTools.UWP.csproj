@@ -6,6 +6,7 @@
         <DefineConstants>UWP</DefineConstants>
         <RootNamespace>MapControl.UiTools</RootNamespace>
         <AssemblyTitle>XAML Map Control UI Tools Library for UWP</AssemblyTitle>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
         <DefaultLanguage>en-US</DefaultLanguage>
     </PropertyGroup>
