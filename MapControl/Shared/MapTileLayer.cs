@@ -20,9 +20,9 @@ using Avalonia.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Displays a standard Web Mercator map tile grid, e.g. an OpenStreetMap tile grid.
+    /// Displays a standard Web Mercator map tile pyramid, e.g. a OpenStreetMap tiles.
     /// </summary>
-    public partial class MapTileLayer : MapTileLayerBase
+    public partial class MapTileLayer : MapTilePyramidLayer
     {
         public static readonly DependencyProperty MinZoomLevelProperty =
             DependencyPropertyHelper.Register<MapTileLayer, int>(nameof(MinZoomLevel), 0);

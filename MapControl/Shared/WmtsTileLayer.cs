@@ -20,7 +20,7 @@ namespace MapControl
     /// <summary>
     /// Displays map tiles from a Web Map Tile Service (WMTS).
     /// </summary>
-    public partial class WmtsTileLayer : MapTileLayerBase
+    public partial class WmtsTileLayer : MapTilePyramidLayer
     {
         private static ILogger logger;
         private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
@@ -174,7 +174,7 @@ namespace MapControl
             foreach (var tileMatrix in currentMatrixes)
             {
                 var layer = currentLayers.FirstOrDefault(l => l.WmtsTileMatrix == tileMatrix) ??
-                            new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
+                    new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
 
                 if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
                 {
