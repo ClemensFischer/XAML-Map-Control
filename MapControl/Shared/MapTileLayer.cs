@@ -115,7 +115,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override void UpdateTileLayerAsync(bool resetTiles)
+        protected override void UpdateTiles(bool resetTiles)
         {
             if (ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
             {

@@ -102,7 +102,7 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override void UpdateTileLayerAsync(bool resetTiles)
+        protected override void UpdateTiles(bool resetTiles)
         {
             // resetTiles is ignored here because it is always false.
 

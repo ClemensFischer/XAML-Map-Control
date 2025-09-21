@@ -30,7 +30,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTilePyramidLayer, TileSource>(nameof(TileSource), null,
-                (layer, oldValue, newValue) => layer.UpdateTileLayer(true));
+                (layer, oldValue, newValue) => layer.Update(true));
 
         public static readonly DependencyProperty SourceNameProperty =
             DependencyPropertyHelper.Register<MapTilePyramidLayer, string>(nameof(SourceName));
@@ -69,7 +69,7 @@ namespace MapControl
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = this.CreateTimer(UpdateInterval);
-            updateTimer.Tick += (s, e) => UpdateTileLayer(false);
+            updateTimer.Tick += (s, e) => Update(false);
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
 #if WPF
@@ -210,20 +210,20 @@ namespace MapControl
 
         protected abstract void SetRenderTransform();
 
-        protected abstract void UpdateTileLayerAsync(bool resetTiles);
+        protected abstract void UpdateTiles(bool resetTiles);
 
-        private void UpdateTileLayer(bool resetTiles)
+        private void Update(bool resetTiles)
         {
             updateTimer.Stop();
 
-            UpdateTileLayerAsync(resetTiles);
+            UpdateTiles(resetTiles);
         }
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (e.TransformCenterChanged || e.ProjectionChanged || Children.Count == 0)
             {
-                UpdateTileLayer(false); // update immediately
+                Update(false); // update immediately
             }
             else
             {
