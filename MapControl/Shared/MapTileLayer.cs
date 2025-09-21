@@ -48,7 +48,7 @@ namespace MapControl
             Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
         };
 
-        public override IReadOnlyCollection<string> SupportedCrsIds { get; } = ["EPSG:3857"];
+        public override IReadOnlyCollection<string> SupportedCrsIds { get; } = [WebMercatorProjection.DefaultCrsId];
 
         public TileMatrix TileMatrix { get; private set; }
 
