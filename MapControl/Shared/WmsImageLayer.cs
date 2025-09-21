@@ -342,7 +342,7 @@ namespace MapControl
             return uri.Replace(" ", "%20");
         }
 
-        private List<string> supportedCrsIds;
+        private List<string> supportedCrsIds = [];
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
