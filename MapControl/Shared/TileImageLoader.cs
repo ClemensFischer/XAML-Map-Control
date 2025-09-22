@@ -63,7 +63,7 @@ namespace MapControl
         /// </summary>
         public static int MaxLoadTasks { get; set; } = 4;
 
-        private readonly Queue<Tile> tileQueue = new Queue<Tile>();
+        private readonly Queue<Tile> tileQueue = new();
         private int tileCount;
         private int taskCount;
 
