@@ -189,8 +189,7 @@ namespace MapControl
                 if (ParentMap != null &&
                     ParentMap.ActualWidth > 0d &&
                     ParentMap.ActualHeight > 0d &&
-                    SupportedCrsIds != null &&
-                    SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
+                    (SupportedCrsIds == null || SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId)))
                 {
                     var width = ParentMap.ActualWidth * RelativeImageSize;
                     var height = ParentMap.ActualHeight * RelativeImageSize;

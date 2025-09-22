@@ -28,7 +28,9 @@ namespace MapControl.UiTools
 
         protected override bool GetIsEnabled(MapBase map)
         {
-            return map.MapLayer is not IMapLayer mapLayer || mapLayer.SupportedCrsIds.Contains(CrsId);
+            return map.MapLayer is not IMapLayer mapLayer
+                || mapLayer.SupportedCrsIds == null
+                || mapLayer.SupportedCrsIds.Contains(CrsId);
         }
 
         protected override bool GetIsChecked(MapBase map)

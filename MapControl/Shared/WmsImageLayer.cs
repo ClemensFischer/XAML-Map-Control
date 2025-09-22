@@ -41,11 +41,6 @@ namespace MapControl
             DependencyPropertyHelper.Register<WmsImageLayer, string>(nameof(RequestLayers), null,
                 async (layer, oldValue, newValue) => await layer.UpdateImageAsync());
 
-        public WmsImageLayer()
-        {
-            Loaded += OnLoaded;
-        }
-
         /// <summary>
         /// The base request URL. 
         /// </summary>
@@ -83,6 +78,64 @@ namespace MapControl
         /// </summary>
         public override IReadOnlyCollection<string> SupportedCrsIds => supportedCrsIds;
 
+        private List<string> supportedCrsIds;
+
+        private bool HasLayer =>
+            RequestLayers != null ||
+            AvailableLayers?.Count > 0 ||
+            ServiceUri.Query?.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) > 0;
+
+        public WmsImageLayer()
+        {
+            Loaded += OnLoaded;
+        }
+
+        private async void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= OnLoaded;
+
+            if (ServiceUri != null && !HasLayer)
+            {
+                await InitializeAsync();
+
+                if (AvailableLayers != null && AvailableLayers.Count > 0)
+                {
+                    await UpdateImageAsync();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes the AvailableLayers and SupportedCrsIds properties.
+        /// Calling this method is only necessary when no layer name is known in advance.
+        /// It is called internally in a Loaded event handler when the RequestLayers and AvailableLayers
+        /// properties are null and the ServiceUri.Query part does not contain a LAYERS parameter.
+        /// </summary>
+        public async Task InitializeAsync()
+        {
+            var capabilities = await GetCapabilitiesAsync();
+
+            if (capabilities != null)
+            {
+                var ns = capabilities.Name.Namespace;
+                var capability = capabilities.Element(ns + "Capability");
+
+                supportedCrsIds = capability
+                    .Descendants(ns + "Layer")
+                    .Descendants(ns + "CRS")
+                    .Select(e => e.Value)
+                    .ToList();
+
+                var layerNames = capability
+                    .Descendants(ns + "Layer")
+                    .Select(e => e.Element(ns + "Name")?.Value)
+                    .Where(n => !string.IsNullOrEmpty(n))
+                    .ToList();
+
+                AvailableLayers = layerNames;
+            }
+        }
+
         /// <summary>
         /// Loads an XElement from the URL returned by GetCapabilitiesRequestUri().
         /// </summary>
@@ -94,7 +147,7 @@ namespace MapControl
             {
                 var uri = GetCapabilitiesRequestUri();
 
-                if (!string.IsNullOrEmpty(uri))
+                if (uri != null)
                 {
                     try
                     {
@@ -120,6 +173,7 @@ namespace MapControl
             string response = null;
 
             if (ServiceUri != null &&
+                HasLayer &&
                 ParentMap?.MapProjection != null &&
                 ParentMap.ActualWidth > 0d &&
                 ParentMap.ActualHeight > 0d)
@@ -128,7 +182,7 @@ namespace MapControl
 
                 var uri = GetFeatureInfoRequestUri(boundingBox, position, format);
 
-                if (!string.IsNullOrEmpty(uri))
+                if (uri != null)
                 {
                     try
                     {
@@ -151,7 +205,7 @@ namespace MapControl
         {
             ImageSource image = null;
 
-            try
+            if (ServiceUri != null && HasLayer)
             {
                 if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
                     ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
@@ -160,7 +214,14 @@ namespace MapControl
 
                     if (uri != null)
                     {
-                        image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
+                        try
+                        {
+                            image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger?.LogError(ex, "ImageLoader.LoadImageAsync");
+                        }
                     }
                 }
                 else
@@ -183,13 +244,16 @@ namespace MapControl
 
                     if (uri1 != null && uri2 != null)
                     {
-                        image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress);
+                        try
+                        {
+                            image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger?.LogError(ex, "ImageLoader.LoadMergedImageAsync");
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex, "GetImageAsync");
             }
 
             return image;
@@ -226,7 +290,7 @@ namespace MapControl
                     { "SERVICE", "WMS" },
                     { "VERSION", "1.3.0" },
                     { "REQUEST", "GetMap" },
-                    { "LAYERS", RequestLayers ?? "" },
+                    { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
                     { "STYLES", RequestStyles ?? "" },
                     { "FORMAT", "image/png" },
                     { "CRS", GetCrsValue() },
@@ -264,7 +328,7 @@ namespace MapControl
                     { "SERVICE", "WMS" },
                     { "VERSION", "1.3.0" },
                     { "REQUEST", "GetFeatureInfo" },
-                    { "LAYERS", RequestLayers ?? "" },
+                    { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
                     { "STYLES", RequestStyles ?? "" },
                     { "FORMAT", "image/png" },
                     { "INFO_FORMAT", format },
@@ -329,6 +393,8 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(query))
             {
+                // Parameters from ServiceUri.Query take higher precedence than queryParameters.
+                //
                 foreach (var param in query.Substring(1).Split('&'))
                 {
                     var pair = param.Split('=');
@@ -340,49 +406,6 @@ namespace MapControl
                 + string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
             return uri.Replace(" ", "%20");
-        }
-
-        private List<string> supportedCrsIds = [];
-
-        private async void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= OnLoaded;
-
-            if (AvailableLayers == null && ServiceUri != null)
-            {
-                var capabilities = await GetCapabilitiesAsync();
-
-                if (capabilities != null)
-                {
-                    var ns = capabilities.Name.Namespace;
-                    var capability = capabilities.Element(ns + "Capability");
-
-                    supportedCrsIds = capability
-                        .Descendants(ns + "Layer")
-                        .Descendants(ns + "CRS")
-                        .Select(e => e.Value)
-                        .ToList();
-
-                    var layerNames = capability
-                        .Descendants(ns + "Layer")
-                        .Select(e => e.Element(ns + "Name")?.Value)
-                        .Where(n => !string.IsNullOrEmpty(n))
-                        .ToList();
-
-                    AvailableLayers = layerNames;
-
-                    if (layerNames.Count > 0 &&
-                        RequestLayers == null &&
-                        ServiceUri.OriginalString.IndexOf("LAYERS=", StringComparison.OrdinalIgnoreCase) < 0)
-                    {
-                        RequestLayers = layerNames[0];
-                    }
-                    else
-                    {
-                        await UpdateImageAsync();
-                    }
-                }
-            }
         }
     }
 }
