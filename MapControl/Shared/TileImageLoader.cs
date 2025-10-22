@@ -115,7 +115,6 @@ namespace MapControl
             while (true)
             {
                 Tile tile;
-                int tileNumber;
 
                 lock (tileQueue)
                 {
@@ -126,15 +125,13 @@ namespace MapControl
                         break;
                     }
 
-                    tileNumber = tileCount - tileQueue.Count;
+                    var tileNumber = tileCount - tileQueue.Count;
+                    progress?.Report((double)tileNumber / tileCount);
+                    Logger?.LogDebug("Loading tile {number} of {count} ({zoom}/{column}/{row}) in thread {thread}",
+                        tileNumber, tileCount, tile.ZoomLevel, tile.Column, tile.Row, Environment.CurrentManagedThreadId);
                 }
 
                 tile.IsPending = false;
-
-                progress?.Report((double)tileNumber / tileCount);
-
-                Logger?.LogDebug("Loading tile {number} of {count} ({zoom}/{column}/{row}) in thread {thread}",
-                    tileNumber, tileCount, tile.ZoomLevel, tile.Column, tile.Row, Environment.CurrentManagedThreadId);
 
                 try
                 {
