@@ -1,6 +1,6 @@
 # XAML Map Control
 
-A set of controls for WPF, WinUI and Avalonia UI for rendering raster maps from different providers and various types of map overlays.
+A set of controls for WPF, UWP, WinUI and Avalonia UI for rendering raster maps from different providers and various types of map overlays.
 
 Map providers can easily be added by specifying a template string for their map tile URLs. 
 Map overlay layers allow to draw and interact with graphical objects and pushpins on the map.
