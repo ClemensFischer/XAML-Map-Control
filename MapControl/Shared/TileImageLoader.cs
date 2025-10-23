@@ -125,13 +125,11 @@ namespace MapControl
                         break;
                     }
 
-                    var tileNumber = tileCount - tileQueue.Count;
-                    progress?.Report((double)tileNumber / tileCount);
-                    Logger?.LogDebug("Loading tile {number} of {count} ({zoom}/{column}/{row}) in thread {thread}",
-                        tileNumber, tileCount, tile.ZoomLevel, tile.Column, tile.Row, Environment.CurrentManagedThreadId);
+                    progress?.Report(1d - (double)tileQueue.Count / tileCount);
                 }
 
                 tile.IsPending = false;
+                Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
 
                 try
                 {
@@ -166,9 +164,9 @@ namespace MapControl
 
         private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName)
         {
-            var extension = Path.GetExtension(uri.LocalPath);
+            var extension = Path.GetExtension(uri.LocalPath).ToLower();
 
-            if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg"))
             {
                 extension = ".jpg";
             }
