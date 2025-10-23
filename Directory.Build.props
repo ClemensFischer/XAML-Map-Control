@@ -8,7 +8,7 @@
         <AssemblyOriginatorKeyFile>..\..\MapControl.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <DelaySign>false</DelaySign>
-        <PackageTags>XAML WPF WinUI Avalonia Map OpenStreetMap</PackageTags>
+        <PackageTags>XAML WPF UWP WinUI Avalonia Map OpenStreetMap</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/ClemensFischer/XAML-Map-Control</PackageProjectUrl>
         <Nullable>disable</Nullable>
