@@ -180,16 +180,7 @@ namespace MapControl
 
         protected async Task UpdateImageAsync()
         {
-            if (updateInProgress)
-            {
-                // Update image on next timer tick.
-                //
-                if (!updateTimer.IsEnabled)
-                {
-                    updateTimer.Start();
-                }
-            }
-            else
+            if (!updateInProgress)
             {
                 updateInProgress = true;
                 updateTimer.Stop();
@@ -215,6 +206,10 @@ namespace MapControl
                 SwapImages(image, boundingBox);
 
                 updateInProgress = false;
+            }
+            else if (!updateTimer.IsEnabled) // update on next timer tick
+            {
+                updateTimer.Start();
             }
         }
 
