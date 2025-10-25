@@ -62,7 +62,7 @@ namespace MapControl
 
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
-            updateTimer = this.CreateTimer(UpdateInterval);
+            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += async (s, e) => await UpdateImageAsync();
         }
 
@@ -164,7 +164,15 @@ namespace MapControl
             }
             else
             {
-                updateTimer.Run(!UpdateWhileViewportChanging);
+                if (!UpdateWhileViewportChanging)
+                {
+                    updateTimer.Stop();
+                }
+
+                if (!updateTimer.IsEnabled)
+                {
+                    updateTimer.Start();
+                }
             }
         }
 
@@ -174,9 +182,12 @@ namespace MapControl
         {
             if (updateInProgress)
             {
-                // Update image on next tick, start timer if not running.
+                // Update image on next timer tick.
                 //
-                updateTimer.Run();
+                if (!updateTimer.IsEnabled)
+                {
+                    updateTimer.Start();
+                }
             }
             else
             {

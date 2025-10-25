@@ -68,7 +68,7 @@ namespace MapControl
 
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
-            updateTimer = this.CreateTimer(UpdateInterval);
+            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => Update(false);
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
@@ -185,7 +185,10 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                updateTimer.Run();
+                if (!updateTimer.IsEnabled)
+                {
+                    updateTimer.Start();
+                }
             }
         }
 
@@ -229,7 +232,15 @@ namespace MapControl
             {
                 SetRenderTransform();
 
-                updateTimer.Run(!UpdateWhileViewportChanging);
+                if (!UpdateWhileViewportChanging)
+                {
+                    updateTimer.Stop();
+                }
+
+                if (!updateTimer.IsEnabled)
+                {
+                    updateTimer.Start();
+                }
             }
         }
     }
