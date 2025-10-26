@@ -53,7 +53,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(LoadingProgress), 1d);
 
         private readonly Progress<double> loadingProgress;
-        private readonly DispatcherTimer updateTimer;
+        private readonly UpdateTimer updateTimer;
         private bool updateInProgress;
 
         public MapImageLayer()
@@ -62,7 +62,7 @@ namespace MapControl
 
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
-            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
+            updateTimer = new UpdateTimer { Interval = UpdateInterval };
             updateTimer.Tick += async (s, e) => await UpdateImageAsync();
         }
 
@@ -164,15 +164,7 @@ namespace MapControl
             }
             else
             {
-                if (!UpdateWhileViewportChanging)
-                {
-                    updateTimer.Stop();
-                }
-
-                if (!updateTimer.IsEnabled)
-                {
-                    updateTimer.Start();
-                }
+                updateTimer.Run(!UpdateWhileViewportChanging);
             }
         }
 
@@ -207,9 +199,9 @@ namespace MapControl
 
                 updateInProgress = false;
             }
-            else if (!updateTimer.IsEnabled) // update on next timer tick
+            else // update on next timer tick
             {
-                updateTimer.Start();
+                updateTimer.Run();
             }
         }
 

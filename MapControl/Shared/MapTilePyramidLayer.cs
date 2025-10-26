@@ -58,7 +58,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapTilePyramidLayer, double>(nameof(LoadingProgress), 1d);
 
         private readonly Progress<double> loadingProgress;
-        private readonly DispatcherTimer updateTimer;
+        private readonly UpdateTimer updateTimer;
         private ITileImageLoader tileImageLoader;
         private MapBase parentMap;
 
@@ -68,7 +68,7 @@ namespace MapControl
 
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
-            updateTimer = new DispatcherTimer { Interval = UpdateInterval };
+            updateTimer = new UpdateTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => Update(false);
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
@@ -185,10 +185,7 @@ namespace MapControl
                     parentMap.ViewportChanged += OnViewportChanged;
                 }
 
-                if (!updateTimer.IsEnabled)
-                {
-                    updateTimer.Start();
-                }
+                updateTimer.Run();
             }
         }
 
@@ -207,7 +204,6 @@ namespace MapControl
         protected void CancelLoadTiles()
         {
             TileImageLoader.CancelLoadTiles();
-
             ClearValue(LoadingProgressProperty);
         }
 
@@ -218,7 +214,6 @@ namespace MapControl
         private void Update(bool resetTiles)
         {
             updateTimer.Stop();
-
             UpdateTiles(resetTiles);
         }
 
@@ -231,16 +226,7 @@ namespace MapControl
             else
             {
                 SetRenderTransform();
-
-                if (!UpdateWhileViewportChanging)
-                {
-                    updateTimer.Stop();
-                }
-
-                if (!updateTimer.IsEnabled)
-                {
-                    updateTimer.Start();
-                }
+                updateTimer.Run(!UpdateWhileViewportChanging);
             }
         }
     }
