@@ -159,7 +159,6 @@ namespace MapControl
             if (e.ProjectionChanged)
             {
                 ClearImages();
-
                 await UpdateImageAsync(); // update immediately
             }
             else
@@ -196,7 +195,6 @@ namespace MapControl
                 }
 
                 SwapImages(image, boundingBox);
-
                 updateInProgress = false;
             }
             else // update on next timer tick
