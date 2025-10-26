@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
@@ -21,7 +20,6 @@ using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Threading;
 #endif
 
 namespace MapControl
