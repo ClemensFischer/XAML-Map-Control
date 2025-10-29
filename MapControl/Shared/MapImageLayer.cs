@@ -125,7 +125,10 @@ namespace MapControl
         /// </summary>
         public double LoadingProgress => (double)GetValue(LoadingProgressProperty);
 
-        public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
+        /// <summary>
+        /// Gets a collection of all CRSs supported by a MapImageLayer.
+        /// </summary>
+        public IReadOnlyCollection<string> SupportedCrsIds { get; protected set; }
 
         protected override void SetParentMap(MapBase map)
         {

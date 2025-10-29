@@ -73,13 +73,6 @@ namespace MapControl
         /// </summary>
         public IReadOnlyCollection<string> AvailableLayers { get; private set; }
 
-        /// <summary>
-        /// Gets a collection of all CRSs supported by a WMS.
-        /// </summary>
-        public override IReadOnlyCollection<string> SupportedCrsIds => supportedCrsIds;
-
-        private List<string> supportedCrsIds;
-
         private bool HasLayer =>
             RequestLayers != null ||
             AvailableLayers?.Count > 0 ||
@@ -120,19 +113,17 @@ namespace MapControl
                 var ns = capabilities.Name.Namespace;
                 var capability = capabilities.Element(ns + "Capability");
 
-                supportedCrsIds = capability
+                SupportedCrsIds = capability
                     .Descendants(ns + "Layer")
                     .Descendants(ns + "CRS")
                     .Select(e => e.Value)
                     .ToList();
 
-                var layerNames = capability
+                AvailableLayers = capability
                     .Descendants(ns + "Layer")
                     .Select(e => e.Element(ns + "Name")?.Value)
                     .Where(n => !string.IsNullOrEmpty(n))
                     .ToList();
-
-                AvailableLayers = layerNames;
             }
         }
 
