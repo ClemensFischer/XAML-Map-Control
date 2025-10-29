@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 
 namespace MapControl
 {
@@ -23,9 +24,21 @@ namespace MapControl
                 var s = south.ToString("F2", CultureInfo.InvariantCulture);
                 var n = north.ToString("F2", CultureInfo.InvariantCulture);
 
-                uri = UriTemplate.Contains("{bbox}")
-                    ? new Uri(UriTemplate.Replace("{bbox}", $"{w},{s},{e},{n}"))
-                    : new Uri(UriTemplate.Replace("{west}", w).Replace("{south}", s).Replace("{east}", e).Replace("{north}", n));
+                if (UriTemplate.Contains("{bbox}"))
+                {
+                    uri = new Uri(UriTemplate.Replace("{bbox}", $"{w},{s},{e},{n}"));
+                }
+                else
+                {
+                    var uriBuilder = new StringBuilder(UriTemplate);
+
+                    uriBuilder.Replace("{west}", w);
+                    uriBuilder.Replace("{south}", s);
+                    uriBuilder.Replace("{east}", e);
+                    uriBuilder.Replace("{north}", n);
+
+                    uri = new Uri(uriBuilder.ToString());
+                }
             }
 
             return uri;

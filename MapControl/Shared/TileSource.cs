@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
@@ -54,17 +54,18 @@ namespace MapControl
 
             if (UriTemplate != null)
             {
-                var uriString = UriTemplate
-                    .Replace("{z}", zoomLevel.ToString())
-                    .Replace("{x}", column.ToString())
-                    .Replace("{y}", row.ToString());
+                var uriBuilder = new StringBuilder(UriTemplate);
+
+                uriBuilder.Replace("{z}", zoomLevel.ToString());
+                uriBuilder.Replace("{x}", column.ToString());
+                uriBuilder.Replace("{y}", row.ToString());
 
                 if (Subdomains != null && Subdomains.Length > 0)
                 {
-                    uriString = uriString.Replace("{s}", Subdomains[(column + row) % Subdomains.Length]);
+                    uriBuilder.Replace("{s}", Subdomains[(column + row) % Subdomains.Length]);
                 }
 
-                uri = new Uri(uriString, UriKind.RelativeOrAbsolute);
+                uri = new Uri(uriBuilder.ToString(), UriKind.RelativeOrAbsolute);
             }
 
             return uri;

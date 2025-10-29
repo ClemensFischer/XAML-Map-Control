@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace MapControl
 {
@@ -14,11 +15,14 @@ namespace MapControl
                 TileMatrixSet != null &&
                 TileMatrixSet.TileMatrixes.Count > zoomLevel)
             {
-                uri = new Uri(UriTemplate
-                    .Replace("{TileMatrixSet}", TileMatrixSet.Identifier)
-                    .Replace("{TileMatrix}", TileMatrixSet.TileMatrixes[zoomLevel].Identifier)
-                    .Replace("{TileCol}", column.ToString())
-                    .Replace("{TileRow}", row.ToString()));
+                var uriBuilder = new StringBuilder(UriTemplate);
+
+                uriBuilder.Replace("{TileMatrixSet}", TileMatrixSet.Identifier);
+                uriBuilder.Replace("{TileMatrix}", TileMatrixSet.TileMatrixes[zoomLevel].Identifier);
+                uriBuilder.Replace("{TileCol}", column.ToString());
+                uriBuilder.Replace("{TileRow}", row.ToString());
+
+                uri = new Uri(uriBuilder.ToString());
             }
 
             return uri;

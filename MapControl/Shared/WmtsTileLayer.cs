@@ -80,8 +80,6 @@ namespace MapControl
 
         protected IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
 
-        protected virtual WmtsTileSource CreateTileSource(string uriTemplate) => new() { UriTemplate = uriTemplate };
-
         protected override Size MeasureOverride(Size availableSize)
         {
             foreach (var layer in ChildLayers)
@@ -126,7 +124,10 @@ namespace MapControl
                         cacheName += "/" + Layer.Replace(':', '_');
                     }
 
-                    cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
+                    if (!string.IsNullOrEmpty(tileMatrixSet.Identifier))
+                    {
+                        cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
+                    }
                 }
 
                 BeginLoadTiles(ChildLayers.SelectMany(layer => layer.Tiles), cacheName);
@@ -207,7 +208,7 @@ namespace MapControl
                     }
 
                     Layer = capabilities.Layer;
-                    TileSource = CreateTileSource(capabilities.UrlTemplate);
+                    TileSource = new WmtsTileSource { UriTemplate = capabilities.UriTemplate };
                 }
                 catch (Exception ex)
                 {

@@ -23,27 +23,27 @@ namespace MapControl
         private static readonly XNamespace xlink = "http://www.w3.org/1999/xlink";
 
         public string Layer { get; private set; }
-        public string UrlTemplate { get; private set; }
+        public string UriTemplate { get; private set; }
         public List<WmtsTileMatrixSet> TileMatrixSets { get; private set; }
 
         public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri uri, string layer)
         {
             Stream xmlStream;
-            string defaultUrl = null;
+            string defaultUri = null;
 
             if (!uri.IsAbsoluteUri)
             {
                 xmlStream = File.OpenRead(uri.OriginalString);
             }
-            else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
-            {
-                defaultUrl = uri.OriginalString.Split('?')[0];
-
-                xmlStream = await ImageLoader.HttpClient.GetStreamAsync(uri);
-            }
             else if (uri.IsFile)
             {
                 xmlStream = File.OpenRead(uri.LocalPath);
+            }
+            else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+            {
+                defaultUri = uri.OriginalString.Split('?')[0];
+
+                xmlStream = await ImageLoader.HttpClient.GetStreamAsync(uri);
             }
             else
             {
@@ -54,10 +54,10 @@ namespace MapControl
 
             var element = await XDocument.LoadRootElementAsync(stream);
 
-            return ReadCapabilities(element, layer, defaultUrl);
+            return ReadCapabilities(element, layer, defaultUri);
         }
 
-        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layer, string defaultUrl)
+        public static WmtsCapabilities ReadCapabilities(XElement capabilitiesElement, string layer, string defaultUri)
         {
             var contentsElement = capabilitiesElement.Element(wmts + "Contents") ??
                 throw new ArgumentException("Contents element not found.");
@@ -68,23 +68,15 @@ namespace MapControl
             {
                 layerElement = contentsElement
                     .Elements(wmts + "Layer")
-                    .FirstOrDefault(l => l.Element(ows + "Identifier")?.Value == layer);
-
-                if (layerElement == null)
-                {
+                    .FirstOrDefault(l => l.Element(ows + "Identifier")?.Value == layer) ??
                     throw new ArgumentException($"Layer element \"{layer}\" not found.");
-                }
             }
             else
             {
                 layerElement = contentsElement
                     .Elements(wmts + "Layer")
-                    .FirstOrDefault();
-
-                if (layerElement == null)
-                {
+                    .FirstOrDefault() ??
                     throw new ArgumentException("No Layer element found.");
-                }
 
                 layer = layerElement.Element(ows + "Identifier")?.Value ?? "";
             }
@@ -98,7 +90,7 @@ namespace MapControl
 
             var style = styleElement?.Element(ows + "Identifier")?.Value ?? "";
 
-            var urlTemplate = ReadUrlTemplate(capabilitiesElement, layerElement, layer, style, defaultUrl);
+            var uriTemplate = ReadUriTemplate(capabilitiesElement, layerElement, layer, style, defaultUri);
 
             var tileMatrixSetIds = layerElement
                 .Elements(wmts + "TileMatrixSetLink")
@@ -120,16 +112,16 @@ namespace MapControl
             return new WmtsCapabilities
             {
                 Layer = layer,
-                UrlTemplate = urlTemplate,
+                UriTemplate = uriTemplate,
                 TileMatrixSets = tileMatrixSets
             };
         }
 
-        public static string ReadUrlTemplate(XElement capabilitiesElement, XElement layerElement, string layer, string style, string defaultUrl)
+        public static string ReadUriTemplate(XElement capabilitiesElement, XElement layerElement, string layer, string style, string defaultUri)
         {
             const string formatPng = "image/png";
             const string formatJpg = "image/jpeg";
-            string urlTemplate = null;
+            string uriTemplate = null;
 
             var resourceUrls = layerElement
                 .Elements(wmts + "ResourceURL")
@@ -141,15 +133,15 @@ namespace MapControl
 
             if (resourceUrls.Count != 0)
             {
-                var urlTemplates = resourceUrls.Contains(formatPng) ? resourceUrls[formatPng]
+                var uriTemplates = resourceUrls.Contains(formatPng) ? resourceUrls[formatPng]
                                  : resourceUrls.Contains(formatJpg) ? resourceUrls[formatJpg]
                                  : resourceUrls.First();
 
-                urlTemplate = urlTemplates.First().Replace("{Style}", style);
+                uriTemplate = uriTemplates.First().Replace("{Style}", style);
             }
             else
             {
-                urlTemplate = capabilitiesElement
+                uriTemplate = capabilitiesElement
                     .Elements(ows + "OperationsMetadata")
                     .Elements(ows + "Operation")
                     .Where(o => o.Attribute("name")?.Value == "GetTile")
@@ -163,9 +155,9 @@ namespace MapControl
                     .Where(h => !string.IsNullOrEmpty(h))
                     .Select(h => h.Split('?')[0])
                     .FirstOrDefault() ??
-                    defaultUrl;
+                    defaultUri;
 
-                if (urlTemplate != null)
+                if (uriTemplate != null)
                 {
                     var formats = layerElement
                         .Elements(wmts + "Format")
@@ -180,7 +172,7 @@ namespace MapControl
                         format = formatPng;
                     }
 
-                    urlTemplate += "?Service=WMTS"
+                    uriTemplate += "?Service=WMTS"
                         + "&Request=GetTile"
                         + "&Version=1.0.0"
                         + "&Layer=" + layer
@@ -193,12 +185,12 @@ namespace MapControl
                 }
             }
 
-            if (string.IsNullOrEmpty(urlTemplate))
+            if (string.IsNullOrEmpty(uriTemplate))
             {
                 throw new ArgumentException($"No ResourceURL element in Layer \"{layer}\" and no GetTile KVP Operation Metadata found.");
             }
 
-            return urlTemplate;
+            return uriTemplate;
         }
 
         public static WmtsTileMatrixSet ReadTileMatrixSet(XElement tileMatrixSetElement)
@@ -301,8 +293,12 @@ namespace MapControl
                 ? new Point(MapProjection.Wgs84MeterPerDegree * top, MapProjection.Wgs84MeterPerDegree * left)
                 : new Point(left, top);
 
-            return new WmtsTileMatrix(
-                identifier, scaleDenominator, topLeft, tileWidth, tileHeight, matrixWidth, matrixHeight);
+            // See 07-057r7_Web_Map_Tile_Service_Standard.pdf, section 6.1.a, page 8:
+            // "standardized rendering pixel size" is 0.28 mm.
+            //
+            return new WmtsTileMatrix(identifier,
+                1d / (scaleDenominator * 0.00028),
+                topLeft, tileWidth, tileHeight, matrixWidth, matrixHeight);
         }
     }
 }

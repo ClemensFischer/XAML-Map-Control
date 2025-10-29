@@ -8,11 +8,6 @@ namespace MapControl
     {
         public WmtsTileMatrixSet(string identifier, string supportedCrs, IEnumerable<WmtsTileMatrix> tileMatrixes)
         {
-            if (string.IsNullOrEmpty(identifier))
-            {
-                throw new ArgumentException($"The {nameof(identifier)} argument must not be null or empty.", nameof(identifier));
-            }
-
             if (string.IsNullOrEmpty(supportedCrs))
             {
                 throw new ArgumentException($"The {nameof(supportedCrs)} argument must not be null or empty.", nameof(supportedCrs));
