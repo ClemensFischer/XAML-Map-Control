@@ -37,7 +37,7 @@ namespace MapControl
 
         public TileCollection Tiles { get; private set; } = [];
 
-        public void SetRenderTransform(ViewTransform viewTransform)
+        public void UpdateRenderTransform(ViewTransform viewTransform)
         {
             // Tile matrix origin in pixels.
             //

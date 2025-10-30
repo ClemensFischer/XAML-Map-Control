@@ -28,7 +28,7 @@ namespace MapControl
     {
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTilePyramidLayer, TileSource>(nameof(TileSource), null,
-                (layer, oldValue, newValue) => layer.Update(true));
+                (layer, oldValue, newValue) => layer.UpdateTiles(true));
 
         public static readonly DependencyProperty SourceNameProperty =
             DependencyPropertyHelper.Register<MapTilePyramidLayer, string>(nameof(SourceName));
@@ -67,7 +67,7 @@ namespace MapControl
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = new UpdateTimer { Interval = UpdateInterval };
-            updateTimer.Tick += (s, e) => Update(false);
+            updateTimer.Tick += (s, e) => UpdateTiles();
 
             MapPanel.SetRenderTransform(this, new MatrixTransform());
 #if WPF
@@ -205,25 +205,25 @@ namespace MapControl
             ClearValue(LoadingProgressProperty);
         }
 
-        protected abstract void SetRenderTransform();
+        protected abstract void UpdateRenderTransform();
 
-        protected abstract void UpdateTiles(bool resetTiles);
+        protected abstract void UpdateTileCollection(bool reset);
 
-        private void Update(bool resetTiles)
+        private void UpdateTiles(bool reset = false)
         {
             updateTimer.Stop();
-            UpdateTiles(resetTiles);
+            UpdateTileCollection(reset);
         }
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             if (e.TransformCenterChanged || e.ProjectionChanged || Children.Count == 0)
             {
-                Update(false); // update immediately
+                UpdateTiles(); // update immediately
             }
             else
             {
-                SetRenderTransform();
+                UpdateRenderTransform();
                 updateTimer.Run(!UpdateWhileViewportChanging);
             }
         }

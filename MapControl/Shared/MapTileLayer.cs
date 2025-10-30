@@ -115,37 +115,29 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override void UpdateTiles(bool resetTiles)
+        protected override void UpdateTileCollection(bool reset)
         {
             if (ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
             {
                 TileMatrix = null;
                 Children.Clear();
-
                 CancelLoadTiles();
             }
-            else if (SetTileMatrix() || resetTiles)
+            else if (SetTileMatrix() || reset)
             {
-                SetRenderTransform();
-
-                if (resetTiles)
-                {
-                    Tiles.Clear();
-                }
-
-                UpdateTiles();
+                UpdateRenderTransform();
+                UpdateTiles(reset);
                 BeginLoadTiles(Tiles, SourceName);
             }
         }
 
-        protected override void SetRenderTransform()
+        protected override void UpdateRenderTransform()
         {
             if (TileMatrix != null)
             {
                 // Tile matrix origin in pixels.
                 //
                 var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
-
                 var tileMatrixScale = MapBase.ZoomLevelToScale(TileMatrix.ZoomLevel);
 
                 ((MatrixTransform)RenderTransform).Matrix =
@@ -158,7 +150,6 @@ namespace MapControl
             // Add 0.001 to avoid rounding issues.
             //
             var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel - ZoomLevelOffset + 0.001);
-
             var tileMatrixScale = MapBase.ZoomLevelToScale(tileMatrixZoomLevel);
 
             // Bounds in tile pixels from view size.
@@ -185,12 +176,17 @@ namespace MapControl
             return true;
         }
 
-        private void UpdateTiles()
+        private void UpdateTiles(bool reset)
         {
             var tiles = new TileCollection();
 
             if (TileSource != null && TileMatrix != null)
             {
+                if (reset)
+                {
+                    Tiles.Clear();
+                }
+
                 var maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel);
 
                 if (maxZoomLevel >= MinZoomLevel)

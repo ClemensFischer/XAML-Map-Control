@@ -100,15 +100,14 @@ namespace MapControl
             return finalSize;
         }
 
-        protected override void UpdateTiles(bool resetTiles)
+        protected override void UpdateTileCollection(bool reset)
         {
-            // resetTiles is ignored here because it is always false.
+            // reset parameter is ignored here because it is always false.
 
             if (ParentMap == null ||
                 !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
             {
                 Children.Clear();
-
                 CancelLoadTiles();
             }
             else if (UpdateChildLayers(tileMatrixSet))
@@ -134,11 +133,11 @@ namespace MapControl
             }
         }
 
-        protected override void SetRenderTransform()
+        protected override void UpdateRenderTransform()
         {
             foreach (var layer in ChildLayers)
             {
-                layer.SetRenderTransform(ParentMap.ViewTransform);
+                layer.UpdateRenderTransform(ParentMap.ViewTransform);
             }
         }
 
@@ -182,7 +181,7 @@ namespace MapControl
                     tilesChanged = true;
                 }
 
-                layer.SetRenderTransform(ParentMap.ViewTransform);
+                layer.UpdateRenderTransform(ParentMap.ViewTransform);
 
                 Children.Add(layer);
             }
