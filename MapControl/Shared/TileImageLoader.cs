@@ -110,26 +110,29 @@ namespace MapControl
             }
         }
 
-        private async Task LoadTilesFromQueue(TileSource tileSource, string cacheName, IProgress<double> progress)
+        private bool TryDequeueTile(out Tile tile)
         {
-            while (true)
+            lock (tileQueue)
             {
-                Tile tile;
-
-                lock (tileQueue)
+                if (tileQueue.TryDequeue(out tile))
                 {
-                    if (!tileQueue.TryDequeue(out tile))
-                    {
-                        taskCount--;
-                        Logger?.LogDebug("Task count: {count}", taskCount);
-                        break;
-                    }
-
-                    progress?.Report(1d - (double)tileQueue.Count / tileCount);
+                    return true;
                 }
 
+                taskCount--;
+                Logger?.LogDebug("Task count: {count}", taskCount);
+                return false;
+            }
+        }
+
+        private async Task LoadTilesFromQueue(TileSource tileSource, string cacheName, IProgress<double> progress)
+        {
+            while (TryDequeueTile(out Tile tile))
+            {
                 tile.IsPending = false;
-                Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})", Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
+
+                Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})",
+                    Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
 
                 try
                 {
@@ -159,6 +162,8 @@ namespace MapControl
                 {
                     Logger?.LogError(ex, "Failed loading tile {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                 }
+
+                progress?.Report(1d - (double)tileQueue.Count / tileCount);
             }
         }
 
