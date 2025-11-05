@@ -54,38 +54,38 @@ namespace MapControl
                 IsFilled = true
             };
 
-            figure.Segments.Add(ArcTo(x1 + r1, y1, r1));
-            figure.Segments.Add(LineTo(x2 - r2, y1));
-            figure.Segments.Add(ArcTo(x2, y1 + r2, r2));
+            figure.ArcTo(x1 + r1, y1, r1);
+            figure.LineTo(x2 - r2, y1);
+            figure.ArcTo(x2, y1 + r2, r2);
 
             if (HorizontalAlignment == HorizontalAlignment.Right)
             {
-                figure.Segments.Add(LineTo(x2, y3));
-                figure.Segments.Add(LineTo(x2 - aw, y2));
+                figure.LineTo(x2, y3);
+                figure.LineTo(x2 - aw, y2);
             }
             else
             {
-                figure.Segments.Add(LineTo(x2, y2 - r3));
-                figure.Segments.Add(ArcTo(x2 - r3, y2, r3));
+                figure.LineTo(x2, y2 - r3);
+                figure.ArcTo(x2 - r3, y2, r3);
             }
 
             if (HorizontalAlignment == HorizontalAlignment.Center)
             {
                 var c = width / 2d;
-                figure.Segments.Add(LineTo(c + aw / 2d, y2));
-                figure.Segments.Add(LineTo(c, y3));
-                figure.Segments.Add(LineTo(c - aw / 2d, y2));
+                figure.LineTo(c + aw / 2d, y2);
+                figure.LineTo(c, y3);
+                figure.LineTo(c - aw / 2d, y2);
             }
 
             if (HorizontalAlignment == HorizontalAlignment.Left || HorizontalAlignment == HorizontalAlignment.Stretch)
             {
-                figure.Segments.Add(LineTo(x1 + aw, y2));
-                figure.Segments.Add(LineTo(x1, y3));
+                figure.LineTo(x1 + aw, y2);
+                figure.LineTo(x1, y3);
             }
             else
             {
-                figure.Segments.Add(LineTo(x1 + r4, y2));
-                figure.Segments.Add(ArcTo(x1, y2 - r4, r4));
+                figure.LineTo(x1 + r4, y2);
+                figure.ArcTo(x1, y2 - r4, r4);
             }
 
             var geometry = new PathGeometry();
@@ -93,23 +93,29 @@ namespace MapControl
 
             return geometry;
         }
+    }
 
-        private static LineSegment LineTo(double x, double y)
+    internal static class PathFigureExtensions
+    {
+        public static void LineTo(this PathFigure figure, double x, double y)
         {
-            return new LineSegment
+            figure.Segments.Add(new LineSegment
             {
                 Point = new Point(x, y)
-            };
+            });
         }
 
-        private static ArcSegment ArcTo(double x, double y, double r)
+        public static void ArcTo(this PathFigure figure, double x, double y, double r)
         {
-            return new ArcSegment
+            if (r > 0d)
             {
-                Point = new Point(x, y),
-                Size = new Size(r, r),
-                SweepDirection = SweepDirection.Clockwise
-            };
+                figure.Segments.Add(new ArcSegment
+                {
+                    Point = new Point(x, y),
+                    Size = new Size(r, r),
+                    SweepDirection = SweepDirection.Clockwise
+                });
+            }
         }
     }
 }
