@@ -110,23 +110,26 @@ namespace MapControl
             }
         }
 
-        private bool TryDequeueTile(out Tile tile)
-        {
-            lock (tileQueue)
-            {
-                if (tileQueue.TryDequeue(out tile))
-                {
-                    return true;
-                }
-
-                taskCount--;
-                Logger?.LogDebug("Task count: {count}", taskCount);
-                return false;
-            }
-        }
-
         private async Task LoadTilesFromQueue(TileSource tileSource, string cacheName, IProgress<double> progress)
         {
+            bool TryDequeueTile(out Tile tile)
+            {
+                lock (tileQueue)
+                {
+                    if (tileQueue.Count > 0)
+                    {
+                        tile = tileQueue.Dequeue();
+                        return true;
+                    }
+
+                    taskCount--;
+                    Logger?.LogDebug("Task count: {count}", taskCount);
+                }
+
+                tile = null;
+                return false;
+            }
+
             while (TryDequeueTile(out Tile tile))
             {
                 tile.IsPending = false;
@@ -218,15 +221,4 @@ namespace MapControl
             return buffer;
         }
     }
-
-#if NETFRAMEWORK
-    internal static class QueueExtension
-    {
-        public static bool TryDequeue<T>(this Queue<T> queue, out T item) where T : class
-        {
-            item = queue.Count > 0 ? queue.Dequeue() : null;
-            return item != null;
-        }
-    }
-#endif
 }
