@@ -47,11 +47,11 @@ namespace MapControl
                     {
                         mapElement.ParentMap = newValue;
                     }
-#if UWP || WINUI
-                });
-#else
-                }, true); // inherits
+                }
+#if WPF || AVALONIA
+                , true // inherits, not available in WinUI/UWP
 #endif
+                );
 
         public MapPanel()
         {
