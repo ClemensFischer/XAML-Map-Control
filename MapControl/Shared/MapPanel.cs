@@ -55,8 +55,6 @@ namespace MapControl
 
         public MapPanel()
         {
-            UseLayoutRounding = false;
-
             if (this is MapBase)
             {
                 SetValue(ParentMapProperty, this);
