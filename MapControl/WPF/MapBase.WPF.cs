@@ -76,11 +76,6 @@ namespace MapControl
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MapBase), new FrameworkPropertyMetadata(typeof(MapBase)));
         }
 
-        public MapBase()
-        {
-            FlowDirection = FlowDirection.LeftToRight;
-        }
-
         /// <summary>
         /// Gets or sets the EasingFunction of the Center, ZoomLevel and Heading animations.
         /// The default value is a QuadraticEase with EasingMode.EaseOut.

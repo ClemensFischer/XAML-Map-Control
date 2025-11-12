@@ -57,6 +57,7 @@ namespace MapControl
         {
             if (this is MapBase)
             {
+                FlowDirection = FlowDirection.LeftToRight;
                 SetValue(ParentMapProperty, this);
             }
 #if UWP || WINUI

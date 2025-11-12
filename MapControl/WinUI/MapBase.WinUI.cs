@@ -78,8 +78,6 @@ namespace MapControl
             style.Seal();
             Style = style;
 
-            FlowDirection = FlowDirection.LeftToRight;
-
             SizeChanged += OnSizeChanged;
         }
 

@@ -88,11 +88,6 @@ namespace MapControl
             Animation.RegisterCustomAnimator<Location, LocationAnimator>();
         }
 
-        public MapBase()
-        {
-            FlowDirection = FlowDirection.LeftToRight;
-        }
-
         public double ActualWidth => Bounds.Width;
         public double ActualHeight => Bounds.Height;
 
