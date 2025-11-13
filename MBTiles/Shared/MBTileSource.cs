@@ -15,7 +15,7 @@ using ImageSource = Avalonia.Media.IImage;
 
 namespace MapControl.MBTiles
 {
-    public sealed partial class MBTileSource : TileSource, IDisposable
+    public sealed class MBTileSource : TileSource, IDisposable
     {
         private static ILogger logger;
         private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>();
@@ -23,6 +23,8 @@ namespace MapControl.MBTiles
         private SQLiteConnection connection;
 
         public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
+
+        public override bool Cacheable => false;
 
         public async Task OpenAsync(string file)
         {
@@ -84,6 +86,11 @@ namespace MapControl.MBTiles
             }
 
             return image;
+        }
+
+        public override Uri GetUri(int zoomLevel, int column, int row)
+        {
+            throw new NotSupportedException();
         }
     }
 }

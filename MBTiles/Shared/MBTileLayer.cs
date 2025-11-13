@@ -16,7 +16,7 @@ namespace MapControl.MBTiles
     /// <summary>
     /// MapTileLayer that uses an MBTiles SQLite Database. See https://wiki.openstreetmap.org/wiki/MBTiles.
     /// </summary>
-    public partial class MBTileLayer : MapTileLayer
+    public class MBTileLayer : MapTileLayer
     {
         private static ILogger logger;
         private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileLayer>();

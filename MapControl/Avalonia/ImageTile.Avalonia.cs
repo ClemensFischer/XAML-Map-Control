@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Animation;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
@@ -8,9 +9,12 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
-    public partial class Tile
+    public class ImageTile(int zoomLevel, int x, int y, int columnCount)
+        : Tile(zoomLevel, x, y, columnCount)
     {
-        public async Task LoadImageAsync(Func<Task<IImage>> loadImageFunc)
+        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+
+        public override async Task LoadImageAsync(Func<Task<IImage>> loadImageFunc)
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 

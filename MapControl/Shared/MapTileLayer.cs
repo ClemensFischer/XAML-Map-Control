@@ -43,7 +43,7 @@ namespace MapControl
         /// </summary>
         public static MapTileLayer OpenStreetMapTileLayer => new()
         {
-            TileSource = new TileSource { UriTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
+            TileSource = TileSource.Parse("https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
             SourceName = "OpenStreetMap",
             Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
         };
@@ -52,7 +52,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public TileCollection Tiles { get; private set; } = [];
+        public ImageTileList Tiles { get; private set; } = [];
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -178,7 +178,7 @@ namespace MapControl
 
         private void UpdateTiles(bool reset)
         {
-            var tiles = new TileCollection();
+            var tiles = new ImageTileList();
 
             if (TileSource != null && TileMatrix != null)
             {

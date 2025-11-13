@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 #if UWP
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 #else
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -16,9 +18,12 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace MapControl
 {
-    public partial class Tile
+    public class ImageTile(int zoomLevel, int x, int y, int columnCount)
+        : Tile(zoomLevel, x, y, columnCount)
     {
-        public async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
+        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+
+        public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
         {
             var tcs = new TaskCompletionSource<object>();
 

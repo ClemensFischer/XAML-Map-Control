@@ -1,20 +1,18 @@
-﻿#if WPF
-using System.Windows.Controls;
+﻿using System;
+using System.Threading.Tasks;
+#if WPF
 using System.Windows.Media;
 #elif UWP
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 #elif WINUI
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
-using Avalonia.Controls;
-using Avalonia.Media;
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl
 {
-    public partial class Tile(int zoomLevel, int x, int y, int columnCount) : ITile
+    public abstract class Tile(int zoomLevel, int x, int y, int columnCount)
     {
         public int ZoomLevel { get; } = zoomLevel;
         public int X { get; } = x;
@@ -22,6 +20,10 @@ namespace MapControl
         public int Column { get; } = ((x % columnCount) + columnCount) % columnCount;
         public int Row => Y;
         public bool IsPending { get; set; } = true;
-        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+
+        /// <summary>
+        /// Runs a tile image download Task and marshals the result to the UI thread.
+        /// </summary>
+        public abstract Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc);
     }
 }

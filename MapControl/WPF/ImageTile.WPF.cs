@@ -8,9 +8,12 @@ using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
-    public partial class Tile
+    public class ImageTile(int zoomLevel, int x, int y, int columnCount)
+        : Tile(zoomLevel, x, y, columnCount)
     {
-        public async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
+        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+
+        public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 

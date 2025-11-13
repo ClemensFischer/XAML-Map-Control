@@ -3,7 +3,7 @@ using System.Text;
 
 namespace MapControl
 {
-    public class WmtsTileSource : TileSource
+    public class WmtsTileSource : UriTileSource
     {
         public WmtsTileMatrixSet TileMatrixSet { get; set; }
 

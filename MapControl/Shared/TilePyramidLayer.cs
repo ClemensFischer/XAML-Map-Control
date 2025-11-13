@@ -192,7 +192,7 @@ namespace MapControl
 
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
-        protected void BeginLoadTiles(IEnumerable<ITile> tiles, string cacheName)
+        protected void BeginLoadTiles(IEnumerable<Tile> tiles, string cacheName)
         {
             if (TileSource != null && tiles != null && tiles.Any(tile => tile.IsPending))
             {

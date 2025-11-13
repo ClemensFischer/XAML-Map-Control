@@ -3,12 +3,12 @@ using System.Linq;
 
 namespace MapControl
 {
-    public partial class TileCollection : List<Tile>
+    public partial class ImageTileList : List<ImageTile>
     {
         /// <summary>
-        /// Adds existing Tiles from the source collection or newly created Tiles to fill the specified tile matrix.
+        /// Adds existing ImageTile from the source collection or newly created ImageTile to fill the specified tile matrix.
         /// </summary>
-        public void FillMatrix(TileCollection source, int zoomLevel, int xMin, int yMin, int xMax, int yMax, int columnCount)
+        public void FillMatrix(ImageTileList source, int zoomLevel, int xMin, int yMin, int xMax, int yMax, int columnCount)
         {
             for (var y = yMin; y <= yMax; y++)
             {
@@ -18,7 +18,7 @@ namespace MapControl
 
                     if (tile == null)
                     {
-                        tile = new Tile(zoomLevel, x, y, columnCount);
+                        tile = new ImageTile(zoomLevel, x, y, columnCount);
 
                         var equivalentTile = source.FirstOrDefault(
                             t => t.Image.Source != null && t.ZoomLevel == tile.ZoomLevel && t.Column == tile.Column && t.Row == tile.Row);

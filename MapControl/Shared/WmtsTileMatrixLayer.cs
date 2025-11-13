@@ -35,7 +35,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public TileCollection Tiles { get; private set; } = [];
+        public ImageTileList Tiles { get; private set; } = [];
 
         public void UpdateRenderTransform(ViewTransform viewTransform)
         {
@@ -85,7 +85,7 @@ namespace MapControl
 
             TileMatrix = new TileMatrix(TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax);
 
-            var tiles = new TileCollection();
+            var tiles = new ImageTileList();
             tiles.FillMatrix(Tiles, TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax, WmtsTileMatrix.MatrixWidth);
 
             Tiles = tiles;

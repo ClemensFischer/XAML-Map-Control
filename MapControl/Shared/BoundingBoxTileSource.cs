@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MapControl
 {
-    public class BoundingBoxTileSource : TileSource
+    public class BoundingBoxTileSource : UriTileSource
     {
         public override Uri GetUri(int zoomLevel, int column, int row)
         {

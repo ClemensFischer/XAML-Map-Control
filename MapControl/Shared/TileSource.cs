@@ -21,7 +21,41 @@ namespace MapControl
 #else
     [System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]
 #endif
-    public class TileSource : ITileSource
+    public abstract class TileSource
+    {
+        /// <summary>
+        /// Indicates whether tile images from this source should be cached.
+        /// </summary>
+        public abstract bool Cacheable { get; }
+
+        /// <summary>
+        /// Gets the image Uri for the specified zoom level and tile indices.
+        /// </summary>
+        public abstract Uri GetUri(int zoomLevel, int column, int row);
+
+        /// <summary>
+        /// Loads a tile image whithout caching.
+        /// </summary>
+        public abstract Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row);
+
+        /// <summary>
+        /// Loads a cacheable tile image from an encoded frame buffer.
+        /// </summary>
+        public virtual Task<ImageSource> LoadImageAsync(byte[] buffer)
+        {
+            return ImageLoader.LoadImageAsync(buffer);
+        }
+
+        /// <summary>
+        /// Creates a TileSource instance from an Uri template string.
+        /// </summary>
+        public static TileSource Parse(string uriTemplate)
+        {
+            return new UriTileSource { UriTemplate = uriTemplate };
+        }
+    }
+
+    public class UriTileSource : TileSource
     {
         private string uriTemplate;
 
@@ -44,9 +78,9 @@ namespace MapControl
 
         public string[] Subdomains { get; set; }
 
-        public bool Cacheable => UriTemplate != null && UriTemplate.StartsWith("http");
+        public override bool Cacheable => UriTemplate != null && UriTemplate.StartsWith("http");
 
-        public virtual Uri GetUri(int zoomLevel, int column, int row)
+        public override Uri GetUri(int zoomLevel, int column, int row)
         {
             Uri uri = null;
 
@@ -69,33 +103,20 @@ namespace MapControl
             return uri;
         }
 
-        public virtual Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
+        public override Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
             var uri = GetUri(zoomLevel, column, row);
 
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
 
-        public virtual Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            return ImageLoader.LoadImageAsync(buffer);
-        }
-
         public override string ToString()
         {
             return UriTemplate;
         }
-
-        /// <summary>
-        /// Creates a TileSource instance from an Uri template string.
-        /// </summary>
-        public static TileSource Parse(string uriTemplate)
-        {
-            return new TileSource { UriTemplate = uriTemplate };
-        }
     }
 
-    public class TmsTileSource : TileSource
+    public class TmsTileSource : UriTileSource
     {
         public override Uri GetUri(int zoomLevel, int column, int row)
         {
