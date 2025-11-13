@@ -57,7 +57,7 @@ namespace MapControl.MBTiles
             Close();
         }
 
-        public override async Task<ImageSource> LoadImageAsync(int x, int y, int zoomLevel)
+        public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
             ImageSource image = null;
 
@@ -66,8 +66,8 @@ namespace MapControl.MBTiles
                 using var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection);
 
                 command.Parameters.AddWithValue("@z", zoomLevel);
-                command.Parameters.AddWithValue("@x", x);
-                command.Parameters.AddWithValue("@y", (1 << zoomLevel) - y - 1);
+                command.Parameters.AddWithValue("@x", column);
+                command.Parameters.AddWithValue("@y", (1 << zoomLevel) - row - 1);
 
                 var buffer = (byte[])await command.ExecuteScalarAsync();
 
