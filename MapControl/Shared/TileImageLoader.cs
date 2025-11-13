@@ -13,13 +13,13 @@ namespace MapControl
     public interface ITileImageLoader
     {
         /// <summary>
-        /// Loads all pending tiles from the tiles collection.
-        /// Tile image caching is enabled when tileSource.UriFormat starts with "http" and cacheName is a non-empty string.
+        /// Loads all pending tiles from the tiles collection. Tile image caching is enabled
+        /// when cacheName is a non-empty string and tiles are loaded from http or https Uris.
         /// </summary>
         void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
 
         /// <summary>
-        /// Cancels a potentially ongoing tile loading task.
+        /// Terminates all running tile loading tasks.
         /// </summary>
         void CancelLoadTiles();
     }
@@ -76,7 +76,7 @@ namespace MapControl
 
         public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            if (Cache == null || !tileSource.Cacheable)
+            if (Cache == null)
             {
                 cacheName = null; // disable caching
             }
@@ -142,25 +142,26 @@ namespace MapControl
 
                 try
                 {
-                    // Pass tileSource.LoadImageAsync calls to platform-specific method
+                    // Pass image loading callbacks to platform-specific method
                     // tile.LoadImageAsync(Func<Task<ImageSource>>) for completion in the UI thread.
 
-                    if (string.IsNullOrEmpty(cacheName))
+                    var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
+
+                    if (uri == null)
                     {
                         await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
                     }
+                    else if (uri.Scheme != "http" && uri.Scheme != "https" || string.IsNullOrEmpty(cacheName))
+                    {
+                        await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(uri)).ConfigureAwait(false);
+                    }
                     else
                     {
-                        var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
+                        var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
 
-                        if (uri != null)
+                        if (buffer?.Length > 0)
                         {
-                            var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
-
-                            if (buffer?.Length > 0)
-                            {
-                                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
-                            }
+                            await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
                         }
                     }
                 }

@@ -24,8 +24,6 @@ namespace MapControl.MBTiles
 
         public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
 
-        public override bool Cacheable => false;
-
         public async Task OpenAsync(string file)
         {
             Close();
@@ -34,14 +32,13 @@ namespace MapControl.MBTiles
 
             await connection.OpenAsync();
 
-            using (var command = new SQLiteCommand("select * from metadata", connection))
-            {
-                var reader = await command.ExecuteReaderAsync();
+            using var command = new SQLiteCommand("select * from metadata", connection);
 
-                while (await reader.ReadAsync())
-                {
-                    Metadata[(string)reader["name"]] = (string)reader["value"];
-                }
+            var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                Metadata[(string)reader["name"]] = (string)reader["value"];
             }
         }
 
@@ -66,18 +63,17 @@ namespace MapControl.MBTiles
 
             try
             {
-                using (var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection))
+                using var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection);
+
+                command.Parameters.AddWithValue("@z", zoomLevel);
+                command.Parameters.AddWithValue("@x", x);
+                command.Parameters.AddWithValue("@y", (1 << zoomLevel) - y - 1);
+
+                var buffer = (byte[])await command.ExecuteScalarAsync();
+
+                if (buffer?.Length > 0)
                 {
-                    command.Parameters.AddWithValue("@z", zoomLevel);
-                    command.Parameters.AddWithValue("@x", x);
-                    command.Parameters.AddWithValue("@y", (1 << zoomLevel) - y - 1);
-
-                    var buffer = (byte[])await command.ExecuteScalarAsync();
-
-                    if (buffer?.Length > 0)
-                    {
-                        image = await LoadImageAsync(buffer);
-                    }
+                    image = await ImageLoader.LoadImageAsync(buffer);
                 }
             }
             catch (Exception ex)
@@ -86,11 +82,6 @@ namespace MapControl.MBTiles
             }
 
             return image;
-        }
-
-        public override Uri GetUri(int zoomLevel, int column, int row)
-        {
-            throw new NotSupportedException();
         }
     }
 }
