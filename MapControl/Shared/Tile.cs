@@ -14,15 +14,14 @@ using Avalonia.Media;
 
 namespace MapControl
 {
-    public partial class Tile(int zoomLevel, int x, int y, int columnCount)
+    public partial class Tile(int zoomLevel, int x, int y, int columnCount) : ITile
     {
         public int ZoomLevel { get; } = zoomLevel;
         public int X { get; } = x;
         public int Y { get; } = y;
         public int Column { get; } = ((x % columnCount) + columnCount) % columnCount;
         public int Row => Y;
-
-        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
         public bool IsPending { get; set; } = true;
+        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
     }
 }

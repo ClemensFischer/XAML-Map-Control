@@ -7,6 +7,8 @@ using System.Windows.Media;
 using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl
@@ -19,7 +21,7 @@ namespace MapControl
 #else
     [System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]
 #endif
-    public class TileSource
+    public class TileSource : ITileSource
     {
         private string uriTemplate;
 
@@ -35,19 +37,15 @@ namespace MapControl
 
                 if (uriTemplate != null && uriTemplate.Contains("{s}") && Subdomains == null)
                 {
-                    Subdomains = new string[] { "a", "b", "c" }; // default OpenStreetMap subdomains
+                    Subdomains = ["a", "b", "c"]; // default OpenStreetMap subdomains
                 }
             }
         }
 
-        /// <summary>
-        /// Gets or sets an array of request subdomain names that are replaced for the {s} format specifier.
-        /// </summary>
         public string[] Subdomains { get; set; }
 
-        /// <summary>
-        /// Gets the image Uri for the specified tile indices and zoom level.
-        /// </summary>
+        public bool Cacheable => UriTemplate != null && UriTemplate.StartsWith("http");
+
         public virtual Uri GetUri(int zoomLevel, int column, int row)
         {
             Uri uri = null;
@@ -71,10 +69,6 @@ namespace MapControl
             return uri;
         }
 
-        /// <summary>
-        /// Loads a tile ImageSource asynchronously from GetUri(zoomLevel, column, row).
-        /// This method is called by TileImageLoader when caching is disabled.
-        /// </summary>
         public virtual Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
             var uri = GetUri(zoomLevel, column, row);
@@ -82,10 +76,6 @@ namespace MapControl
             return uri != null ? ImageLoader.LoadImageAsync(uri) : Task.FromResult((ImageSource)null);
         }
 
-        /// <summary>
-        /// Loads a tile ImageSource asynchronously from an encoded frame buffer in a byte array.
-        /// This method is called by TileImageLoader when caching is enabled.
-        /// </summary>
         public virtual Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
             return ImageLoader.LoadImageAsync(buffer);

@@ -15,6 +15,7 @@ using Microsoft.UI.Xaml.Data;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using PropertyPath = System.String;
 #endif
 
 namespace MapControl

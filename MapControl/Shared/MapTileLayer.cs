@@ -22,7 +22,7 @@ namespace MapControl
     /// <summary>
     /// Displays a standard Web Mercator map tile pyramid, e.g. a OpenStreetMap tiles.
     /// </summary>
-    public partial class MapTileLayer : MapTilePyramidLayer
+    public partial class MapTileLayer : TilePyramidLayer
     {
         public static readonly DependencyProperty MinZoomLevelProperty =
             DependencyPropertyHelper.Register<MapTileLayer, int>(nameof(MinZoomLevel), 0);

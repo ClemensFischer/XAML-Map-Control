@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia.Controls;
+using Brush = Avalonia.Media.IBrush;
 #endif
 
 namespace MapControl

@@ -7,19 +7,71 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+#if WPF
+using System.Windows.Media;
+#elif UWP
+using Windows.UI.Xaml.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using ImageSource = Avalonia.Media.IImage;
+#endif
 
 namespace MapControl
 {
-    /// <summary>
-    /// Loads and optionally caches map tile images for a MapTileLayer.
-    /// </summary>
+    public interface ITile
+    {
+        int ZoomLevel { get; }
+        int Column { get; }
+        int Row { get; }
+        bool IsPending { get; set; }
+
+        /// <summary>
+        /// Runs a tile image download Task and marshals the result to the UI thread.
+        /// </summary>
+        Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc);
+    }
+
+    public interface ITileSource
+    {
+        /// <summary>
+        /// Indicates whether tile images from this source should be cached.
+        /// </summary>
+        bool Cacheable { get; }
+
+        /// <summary>
+        /// Gets the image Uri for the specified zoom level and tile indices.
+        /// </summary>
+        Uri GetUri(int zoomLevel, int column, int row);
+
+        /// <summary>
+        /// Loads a tile image whithout caching.
+        /// </summary>
+        Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row);
+
+        /// <summary>
+        /// Loads a cacheable tile image from an encoded frame buffer.
+        /// </summary>
+        Task<ImageSource> LoadImageAsync(byte[] buffer);
+    }
+
     public interface ITileImageLoader
     {
-        void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
+        /// <summary>
+        /// Loads all pending tiles from the tiles collection.
+        /// Tile image caching is enabled when tileSource.UriFormat starts with "http" and cacheName is a non-empty string.
+        /// </summary>
+        void BeginLoadTiles(IEnumerable<ITile> tiles, ITileSource tileSource, string cacheName, IProgress<double> progress);
 
+        /// <summary>
+        /// Cancels a potentially ongoing tile loading task.
+        /// </summary>
         void CancelLoadTiles();
     }
 
+    /// <summary>
+    /// Loads and optionally caches map tile images for a MapTilePyramidLayer.
+    /// </summary>
     public class TileImageLoader : ITileImageLoader
     {
         private static ILogger logger;
@@ -63,17 +115,13 @@ namespace MapControl
         /// </summary>
         public static int MaxLoadTasks { get; set; } = 4;
 
-        private readonly Queue<Tile> tileQueue = new();
+        private readonly Queue<ITile> tileQueue = new();
         private int tileCount;
         private int taskCount;
 
-        /// <summary>
-        /// Loads all pending tiles from the tiles collection. Tile image caching is enabled when the Cache
-        /// property is not null and tileSource.UriFormat starts with "http" and cacheName is a non-empty string.
-        /// </summary>
-        public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
+        public void BeginLoadTiles(IEnumerable<ITile> tiles, ITileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            if (Cache == null || tileSource.UriTemplate == null || !tileSource.UriTemplate.StartsWith("http"))
+            if (Cache == null || !tileSource.Cacheable)
             {
                 cacheName = null; // disable caching
             }
@@ -110,9 +158,9 @@ namespace MapControl
             }
         }
 
-        private async Task LoadTilesFromQueue(TileSource tileSource, string cacheName, IProgress<double> progress)
+        private async Task LoadTilesFromQueue(ITileSource tileSource, string cacheName, IProgress<double> progress)
         {
-            bool TryDequeueTile(out Tile tile)
+            bool TryDequeueTile(out ITile tile)
             {
                 lock (tileQueue)
                 {
@@ -130,7 +178,7 @@ namespace MapControl
                 return false;
             }
 
-            while (TryDequeueTile(out Tile tile))
+            while (TryDequeueTile(out ITile tile))
             {
                 tile.IsPending = false;
 
@@ -170,7 +218,7 @@ namespace MapControl
             }
         }
 
-        private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName)
+        private static async Task<byte[]> LoadCachedBuffer(ITile tile, Uri uri, string cacheName)
         {
             var extension = Path.GetExtension(uri.LocalPath).ToLower();
 

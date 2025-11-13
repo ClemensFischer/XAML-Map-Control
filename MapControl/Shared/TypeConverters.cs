@@ -110,7 +110,7 @@ namespace MapControl
         }
     }
 
-    public class MapProjectionConverter : TypeConverter, IValueConverter
+    public partial class MapProjectionConverter : TypeConverter, IValueConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {

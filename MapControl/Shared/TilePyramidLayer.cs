@@ -20,47 +20,48 @@ using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia.Controls;
 using Avalonia.Media;
+using Brush = Avalonia.Media.IBrush;
 #endif
 
 namespace MapControl
 {
-    public abstract class MapTilePyramidLayer : Panel, IMapLayer
+    public abstract class TilePyramidLayer : Panel, IMapLayer
     {
         public static readonly DependencyProperty TileSourceProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, TileSource>(nameof(TileSource), null,
+            DependencyPropertyHelper.Register<TilePyramidLayer, TileSource>(nameof(TileSource), null,
                 (layer, oldValue, newValue) => layer.UpdateTiles(true));
 
         public static readonly DependencyProperty SourceNameProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, string>(nameof(SourceName));
+            DependencyPropertyHelper.Register<TilePyramidLayer, string>(nameof(SourceName));
 
         public static readonly DependencyProperty DescriptionProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, string>(nameof(Description));
+            DependencyPropertyHelper.Register<TilePyramidLayer, string>(nameof(Description));
 
         public static readonly DependencyProperty MaxBackgroundLevelsProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, int>(nameof(MaxBackgroundLevels), 5);
+            DependencyPropertyHelper.Register<TilePyramidLayer, int>(nameof(MaxBackgroundLevels), 5);
 
         public static readonly DependencyProperty UpdateIntervalProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
+            DependencyPropertyHelper.Register<TilePyramidLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
                 (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
 
         public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, bool>(nameof(UpdateWhileViewportChanging));
+            DependencyPropertyHelper.Register<TilePyramidLayer, bool>(nameof(UpdateWhileViewportChanging));
 
         public static readonly DependencyProperty MapBackgroundProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, Brush>(nameof(MapBackground));
+            DependencyPropertyHelper.Register<TilePyramidLayer, Brush>(nameof(MapBackground));
 
         public static readonly DependencyProperty MapForegroundProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, Brush>(nameof(MapForeground));
+            DependencyPropertyHelper.Register<TilePyramidLayer, Brush>(nameof(MapForeground));
 
         public static readonly DependencyProperty LoadingProgressProperty =
-            DependencyPropertyHelper.Register<MapTilePyramidLayer, double>(nameof(LoadingProgress), 1d);
+            DependencyPropertyHelper.Register<TilePyramidLayer, double>(nameof(LoadingProgress), 1d);
 
         private readonly Progress<double> loadingProgress;
         private readonly UpdateTimer updateTimer;
         private ITileImageLoader tileImageLoader;
         private MapBase parentMap;
 
-        protected MapTilePyramidLayer()
+        protected TilePyramidLayer()
         {
             IsHitTestVisible = false;
 
@@ -191,7 +192,7 @@ namespace MapControl
 
         protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
-        protected void BeginLoadTiles(IEnumerable<Tile> tiles, string cacheName)
+        protected void BeginLoadTiles(IEnumerable<ITile> tiles, string cacheName)
         {
             if (TileSource != null && tiles != null && tiles.Any(tile => tile.IsPending))
             {

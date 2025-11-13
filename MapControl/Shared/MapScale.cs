@@ -27,6 +27,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Layout;
 using PointCollection = System.Collections.Generic.List<Avalonia.Point>;
+using PropertyPath = System.String;
 #endif
 
 namespace MapControl

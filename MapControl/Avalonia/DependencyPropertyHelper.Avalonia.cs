@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿global using DependencyProperty = Avalonia.AvaloniaProperty;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using System;

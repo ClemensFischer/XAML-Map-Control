@@ -18,6 +18,8 @@ using Microsoft.UI.Xaml.Media;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Brush = Avalonia.Media.IBrush;
+using ImageSource = Avalonia.Media.IImage;
 #endif
 
 namespace MapControl

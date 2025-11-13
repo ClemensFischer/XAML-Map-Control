@@ -1,9 +1,4 @@
-﻿global using DependencyProperty = Avalonia.AvaloniaProperty;
-global using FrameworkElement = Avalonia.Controls.Control;
-global using Brush = Avalonia.Media.IBrush;
-global using ImageSource = Avalonia.Media.IImage;
-global using PropertyPath = System.String;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
@@ -13,6 +8,7 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using System.Threading;
 using System.Threading.Tasks;
+using Brush = Avalonia.Media.IBrush;
 
 namespace MapControl
 {
