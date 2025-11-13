@@ -10,11 +10,14 @@ using System.Threading.Tasks;
 
 namespace MapControl
 {
+    /// <summary>
+    /// Loads and optionally caches map tile images for a MapTilePyramidLayer.
+    /// </summary>
     public interface ITileImageLoader
     {
         /// <summary>
-        /// Loads all pending tiles from the tiles collection. Tile image caching is enabled
-        /// when cacheName is a non-empty string and tiles are loaded from http or https Uris.
+        /// Starts asynchronous loading of all pending tiles from the tiles collection.
+        /// Caching is enabled when cacheName is a non-empty string and tiles are loaded from http or https Uris.
         /// </summary>
         void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
 
@@ -24,9 +27,6 @@ namespace MapControl
         void CancelLoadTiles();
     }
 
-    /// <summary>
-    /// Loads and optionally caches map tile images for a MapTilePyramidLayer.
-    /// </summary>
     public class TileImageLoader : ITileImageLoader
     {
         private static ILogger logger;
@@ -122,6 +122,7 @@ namespace MapControl
                     if (tileQueue.Count > 0)
                     {
                         tile = tileQueue.Dequeue();
+                        tile.IsPending = false;
                         return true;
                     }
 
@@ -135,35 +136,12 @@ namespace MapControl
 
             while (TryDequeueTile(out Tile tile))
             {
-                tile.IsPending = false;
-
-                Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})",
-                    Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
-
                 try
                 {
-                    // Pass image loading callbacks to platform-specific method
-                    // tile.LoadImageAsync(Func<Task<ImageSource>>) for completion in the UI thread.
+                    Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})",
+                        Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
 
-                    var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
-
-                    if (uri == null)
-                    {
-                        await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
-                    }
-                    else if (uri.Scheme != "http" && uri.Scheme != "https" || string.IsNullOrEmpty(cacheName))
-                    {
-                        await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(uri)).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
-
-                        if (buffer != null)
-                        {
-                            await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
-                        }
-                    }
+                    await LoadTileImage(tile, tileSource, cacheName);
                 }
                 catch (Exception ex)
                 {
@@ -171,6 +149,32 @@ namespace MapControl
                 }
 
                 progress?.Report(1d - (double)tileQueue.Count / tileCount);
+            }
+        }
+
+        private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName)
+        {
+            // Pass image loading callbacks to platform-specific method
+            // tile.LoadImageAsync(Func<Task<ImageSource>>) for completion in the UI thread.
+
+            var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
+
+            if (uri == null)
+            {
+                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
+            }
+            else if (uri.Scheme != "http" && uri.Scheme != "https" || string.IsNullOrEmpty(cacheName))
+            {
+                await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(uri)).ConfigureAwait(false);
+            }
+            else
+            {
+                var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
+
+                if (buffer != null)
+                {
+                    await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
+                }
             }
         }
 
