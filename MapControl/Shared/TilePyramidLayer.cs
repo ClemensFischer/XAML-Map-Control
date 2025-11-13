@@ -188,9 +188,9 @@ namespace MapControl
             }
         }
 
-        public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
+        public bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
 
-        protected bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
+        public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
 
         protected void BeginLoadTiles(IEnumerable<Tile> tiles, string cacheName)
         {

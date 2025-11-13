@@ -409,7 +409,7 @@ namespace MapControl
             element.Arrange(new Rect(x, y, width, height));
         }
 
-        internal static Size GetDesiredSize(FrameworkElement element)
+        private static Size GetDesiredSize(FrameworkElement element)
         {
             var width = element.DesiredSize.Width;
             var height = element.DesiredSize.Height;

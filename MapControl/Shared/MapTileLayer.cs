@@ -20,7 +20,7 @@ using Avalonia.Media;
 namespace MapControl
 {
     /// <summary>
-    /// Displays a standard Web Mercator map tile pyramid, e.g. a OpenStreetMap tiles.
+    /// Displays a Web Mercator tile pyramid.
     /// </summary>
     public partial class MapTileLayer : TilePyramidLayer
     {
