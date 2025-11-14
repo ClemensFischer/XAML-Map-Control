@@ -23,7 +23,7 @@ namespace MapControl.Caching
     /// IDistributedCache implementation that creates a single file per cache entry.
     /// The cache expiration time is stored in the file's CreationTime property.
     /// </summary>
-    public sealed partial class ImageFileCache : IDistributedCache, IDisposable
+    public sealed class ImageFileCache : IDistributedCache, IDisposable
     {
         private readonly MemoryDistributedCache memoryCache;
         private readonly DirectoryInfo rootDirectory;

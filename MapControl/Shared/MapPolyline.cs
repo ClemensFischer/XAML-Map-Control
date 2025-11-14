@@ -12,7 +12,7 @@ namespace MapControl
     /// <summary>
     /// A polyline defined by a collection of Locations.
     /// </summary>
-    public partial class MapPolyline : MapPolypoint
+    public class MapPolyline : MapPolypoint
     {
         public static readonly DependencyProperty LocationsProperty =
             DependencyPropertyHelper.Register<MapPolyline, IEnumerable<Location>>(nameof(Locations), null,

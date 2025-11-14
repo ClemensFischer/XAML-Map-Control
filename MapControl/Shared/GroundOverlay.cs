@@ -26,7 +26,7 @@ using Avalonia.Media;
 
 namespace MapControl
 {
-    public partial class GroundOverlay : MapPanel
+    public class GroundOverlay : MapPanel
     {
         private class ImageOverlay
         {

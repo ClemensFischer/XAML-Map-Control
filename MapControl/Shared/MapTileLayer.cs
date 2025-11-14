@@ -22,7 +22,7 @@ namespace MapControl
     /// <summary>
     /// Displays a Web Mercator tile pyramid.
     /// </summary>
-    public partial class MapTileLayer : TilePyramidLayer
+    public class MapTileLayer : TilePyramidLayer
     {
         private const int TileSize = 256;
 

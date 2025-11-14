@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MapControl
 {
-    public partial class ImageTileList : List<ImageTile>
+    public class ImageTileList : List<ImageTile>
     {
         /// <summary>
         /// Adds existing ImageTile from the source collection or newly created ImageTile to fill the specified tile matrix.

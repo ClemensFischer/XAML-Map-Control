@@ -13,7 +13,7 @@ namespace MapControl
 #else
     [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
-    public partial class LocationCollection : List<Location>
+    public class LocationCollection : List<Location>
     {
         public LocationCollection()
         {
