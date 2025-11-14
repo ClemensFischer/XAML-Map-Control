@@ -11,7 +11,7 @@ namespace MapControl
     public class ImageTile(int zoomLevel, int x, int y, int columnCount)
         : Tile(zoomLevel, x, y, columnCount)
     {
-        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+        public Image Image { get; } = new() { Stretch = Stretch.Fill };
 
         public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
         {

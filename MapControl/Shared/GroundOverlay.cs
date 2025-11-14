@@ -39,7 +39,7 @@ namespace MapControl
 
             public string ImagePath { get; }
 
-            public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+            public Image Image { get; } = new() { Stretch = Stretch.Fill };
 
             public async Task LoadImage(Uri docUri)
             {

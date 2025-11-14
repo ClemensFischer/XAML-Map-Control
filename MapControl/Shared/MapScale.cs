@@ -55,9 +55,9 @@ namespace MapControl
             set => SetValue(StrokeThicknessProperty, value);
         }
 
-        private readonly Polyline line = new Polyline();
+        private readonly Polyline line = new ();
 
-        private readonly TextBlock label = new TextBlock
+        private readonly TextBlock label = new()
         {
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
