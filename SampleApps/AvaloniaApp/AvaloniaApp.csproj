@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <DefineConstants>AVALONIA</DefineConstants>
         <RootNamespace>SampleApplication</RootNamespace>
         <AssemblyTitle>XAML Map Control Avalonia Sample Application</AssemblyTitle>

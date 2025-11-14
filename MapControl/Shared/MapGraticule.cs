@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia;
 using Avalonia.Media;
+using Brush = Avalonia.Media.IBrush;
 using PathFigureCollection = Avalonia.Media.PathFigures;
 #endif
 

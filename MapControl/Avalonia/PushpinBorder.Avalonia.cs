@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using System;
+using Brush = Avalonia.Media.IBrush;
 
 namespace MapControl
 {
