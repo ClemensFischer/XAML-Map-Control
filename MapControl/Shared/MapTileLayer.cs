@@ -89,8 +89,6 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
-
             foreach (var tile in Tiles)
             {
                 tile.Image.Measure(availableSize);
