@@ -55,7 +55,7 @@ namespace MapControl
             set => SetValue(StrokeThicknessProperty, value);
         }
 
-        private readonly Polyline line = new ();
+        private readonly Polyline line = new();
 
         private readonly TextBlock label = new()
         {
