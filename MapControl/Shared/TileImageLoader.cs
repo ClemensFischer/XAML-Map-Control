@@ -165,7 +165,7 @@ namespace MapControl
             }
             else if (uri.Scheme != "http" && uri.Scheme != "https" || string.IsNullOrEmpty(cacheName))
             {
-                await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(uri)).ConfigureAwait(false);
+                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(uri)).ConfigureAwait(false);
             }
             else
             {
@@ -173,7 +173,7 @@ namespace MapControl
 
                 if (buffer != null)
                 {
-                    await tile.LoadImageAsync(() => ImageLoader.LoadImageAsync(buffer)).ConfigureAwait(false);
+                    await tile.LoadImageAsync(() => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
                 }
             }
         }

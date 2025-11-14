@@ -69,8 +69,6 @@ namespace MapControl
 
             updateTimer = new UpdateTimer { Interval = UpdateInterval };
             updateTimer.Tick += (s, e) => UpdateTiles();
-
-            MapPanel.SetRenderTransform(this, new MatrixTransform());
 #if WPF
             RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
 #elif UWP || WINUI

@@ -117,12 +117,14 @@ namespace MapControl
             {
                 // Arrange tiles relative to XMin/YMin.
                 //
-                var x = WmtsTileMatrix.TileWidth * (tile.X - TileMatrix.XMin);
-                var y = WmtsTileMatrix.TileHeight * (tile.Y - TileMatrix.YMin);
+                var tileWidth = WmtsTileMatrix.TileWidth;
+                var tileHeight = WmtsTileMatrix.TileHeight;
+                var x = tileWidth * (tile.X - TileMatrix.XMin);
+                var y = tileHeight * (tile.Y - TileMatrix.YMin);
 
-                tile.Image.Width = WmtsTileMatrix.TileWidth;
-                tile.Image.Height = WmtsTileMatrix.TileHeight;
-                tile.Image.Arrange(new Rect(x, y, WmtsTileMatrix.TileWidth, WmtsTileMatrix.TileHeight));
+                tile.Image.Width = tileWidth;
+                tile.Image.Height = tileHeight;
+                tile.Image.Arrange(new Rect(x, y, tileWidth, tileHeight));
             }
 
             return finalSize;

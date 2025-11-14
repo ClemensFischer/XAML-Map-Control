@@ -24,6 +24,11 @@ namespace MapControl
     /// </summary>
     public partial class MapTileLayer : TilePyramidLayer
     {
+        private const int TileSize = 256;
+
+        private static readonly Point MapTopLeft = new(-180d * MapProjection.Wgs84MeterPerDegree,
+                                                        180d * MapProjection.Wgs84MeterPerDegree);
+
         public static readonly DependencyProperty MinZoomLevelProperty =
             DependencyPropertyHelper.Register<MapTileLayer, int>(nameof(MinZoomLevel), 0);
 
@@ -32,11 +37,6 @@ namespace MapControl
 
         public static readonly DependencyProperty ZoomLevelOffsetProperty =
             DependencyPropertyHelper.Register<MapTileLayer, double>(nameof(ZoomLevelOffset), 0d);
-
-        private const int TileSize = 256;
-
-        private static readonly Point MapTopLeft = new(-180d * MapProjection.Wgs84MeterPerDegree,
-                                                        180d * MapProjection.Wgs84MeterPerDegree);
 
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.
@@ -47,6 +47,11 @@ namespace MapControl
             SourceName = "OpenStreetMap",
             Description = "© [OpenStreetMap Contributors](http://www.openstreetmap.org/copyright)"
         };
+
+        public MapTileLayer()
+        {
+            MapPanel.SetRenderTransform(this, new MatrixTransform());
+        }
 
         public override IReadOnlyCollection<string> SupportedCrsIds { get; } = [WebMercatorProjection.DefaultCrsId];
 
