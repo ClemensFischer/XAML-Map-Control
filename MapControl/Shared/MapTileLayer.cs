@@ -103,7 +103,7 @@ namespace MapControl
             {
                 foreach (var tile in Tiles)
                 {
-                    // Arrange tiles relative to XMin/YMin.
+                    // Arrange tiles relative to TileMatrix.XMin/YMin.
                     //
                     var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
                     var x = tileSize * tile.X - TileSize * TileMatrix.XMin;

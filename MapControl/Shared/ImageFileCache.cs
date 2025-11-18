@@ -326,7 +326,7 @@ namespace MapControl.Caching
 
         private static byte[] ReadAllBytes(FileInfo file)
         {
-            using var stream = file.OpenRead();
+            using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             var buffer = new byte[stream.Length];
             var offset = 0;
 
@@ -340,7 +340,7 @@ namespace MapControl.Caching
 
         private static async Task<byte[]> ReadAllBytes(FileInfo file, CancellationToken token)
         {
-            using var stream = file.OpenRead();
+            using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             var buffer = new byte[stream.Length];
             var offset = 0;
 

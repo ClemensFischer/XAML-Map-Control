@@ -113,7 +113,7 @@ namespace MapControl
         {
             foreach (var tile in Tiles)
             {
-                // Arrange tiles relative to XMin/YMin.
+                // Arrange tiles relative to TileMatrix.XMin/YMin.
                 //
                 var tileWidth = WmtsTileMatrix.TileWidth;
                 var tileHeight = WmtsTileMatrix.TileHeight;
