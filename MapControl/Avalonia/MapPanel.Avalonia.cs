@@ -1,6 +1,4 @@
-﻿global using FrameworkElement = Avalonia.Controls.Control;
-using Avalonia;
-using Avalonia.Media;
+﻿using Avalonia;
 
 namespace MapControl
 {
@@ -23,17 +21,6 @@ namespace MapControl
         public static MapBase GetParentMap(FrameworkElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);
-        }
-
-        public static void SetRenderTransform(FrameworkElement element, Transform transform, double originX = 0d, double originY = 0d)
-        {
-            element.RenderTransform = transform;
-            element.RenderTransformOrigin = new RelativePoint(originX, originY, RelativeUnit.Relative);
-        }
-
-        private static void SetVisible(FrameworkElement element, bool visible)
-        {
-            element.IsVisible = visible;
         }
     }
 }

@@ -259,7 +259,7 @@ namespace MapControl
 
                 if (GetAutoCollapse(element))
                 {
-                    SetVisible(element, position.HasValue && parentMap.InsideViewBounds(position.Value));
+                    element.SetVisible(position.HasValue && parentMap.InsideViewBounds(position.Value));
                 }
 
                 if (position.HasValue)
@@ -320,7 +320,7 @@ namespace MapControl
                 }
                 else if (rotation != 0d)
                 {
-                    SetRenderTransform(element, new RotateTransform { Angle = rotation }, 0.5, 0.5);
+                    element.SetRenderTransform(new RotateTransform { Angle = rotation }, true);
                 }
             }
         }

@@ -50,7 +50,7 @@ namespace MapControl
 
         public MapTileLayer()
         {
-            MapPanel.SetRenderTransform(this, new MatrixTransform());
+            this.SetRenderTransform(new MatrixTransform());
         }
 
         public override IReadOnlyCollection<string> SupportedCrsIds { get; } = [WebMercatorProjection.DefaultCrsId];

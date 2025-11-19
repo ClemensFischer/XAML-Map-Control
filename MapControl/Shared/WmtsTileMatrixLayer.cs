@@ -25,8 +25,7 @@ namespace MapControl
         //
         public WmtsTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel)
         {
-            MapPanel.SetRenderTransform(this, new MatrixTransform());
-
+            this.SetRenderTransform(new MatrixTransform());
             WmtsTileMatrix = wmtsTileMatrix;
             TileMatrix = new TileMatrix(zoomLevel, 1, 1, 0, 0);
         }

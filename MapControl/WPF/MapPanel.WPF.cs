@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Media;
 
 namespace MapControl
 {
@@ -19,17 +18,6 @@ namespace MapControl
         public static MapBase GetParentMap(FrameworkElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);
-        }
-
-        public static void SetRenderTransform(FrameworkElement element, Transform transform, double originX = 0d, double originY = 0d)
-        {
-            element.RenderTransform = transform;
-            element.RenderTransformOrigin = new Point(originX, originY);
-        }
-
-        private static void SetVisible(FrameworkElement element, bool visible)
-        {
-            element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }
