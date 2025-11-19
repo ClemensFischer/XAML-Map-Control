@@ -23,11 +23,11 @@ namespace MapControl
     {
         // zoomLevel is index of tileMatrix in a WmtsTileMatrixSet.TileMatrixes list.
         //
-        public WmtsTileMatrixLayer(WmtsTileMatrix tileMatrix, int zoomLevel)
+        public WmtsTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel)
         {
             MapPanel.SetRenderTransform(this, new MatrixTransform());
 
-            WmtsTileMatrix = tileMatrix;
+            WmtsTileMatrix = wmtsTileMatrix;
             TileMatrix = new TileMatrix(zoomLevel, 1, 1, 0, 0);
         }
 
@@ -87,8 +87,8 @@ namespace MapControl
 
             var tiles = new ImageTileList();
             tiles.FillMatrix(Tiles, TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax, WmtsTileMatrix.MatrixWidth);
-
             Tiles = tiles;
+
             Children.Clear();
 
             foreach (var tile in tiles)

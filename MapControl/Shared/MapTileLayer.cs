@@ -99,20 +99,17 @@ namespace MapControl
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            if (TileMatrix != null)
+            foreach (var tile in Tiles)
             {
-                foreach (var tile in Tiles)
-                {
-                    // Arrange tiles relative to TileMatrix.XMin/YMin.
-                    //
-                    var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
-                    var x = tileSize * tile.X - TileSize * TileMatrix.XMin;
-                    var y = tileSize * tile.Y - TileSize * TileMatrix.YMin;
+                // Arrange tiles relative to TileMatrix.XMin/YMin.
+                //
+                var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
+                var x = tileSize * tile.X - TileSize * TileMatrix.XMin;
+                var y = tileSize * tile.Y - TileSize * TileMatrix.YMin;
 
-                    tile.Image.Width = tileSize;
-                    tile.Image.Height = tileSize;
-                    tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
-                }
+                tile.Image.Width = tileSize;
+                tile.Image.Height = tileSize;
+                tile.Image.Arrange(new Rect(x, y, tileSize, tileSize));
             }
 
             return finalSize;
@@ -122,9 +119,10 @@ namespace MapControl
         {
             if (ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
             {
-                TileMatrix = null;
-                Children.Clear();
                 CancelLoadTiles();
+                Children.Clear();
+                Tiles.Clear();
+                TileMatrix = null;
             }
             else if (SetTileMatrix() || reset)
             {
@@ -183,39 +181,37 @@ namespace MapControl
         {
             var tiles = new ImageTileList();
 
-            if (TileSource != null && TileMatrix != null)
+            if (reset)
             {
-                if (reset)
+                Tiles.Clear();
+            }
+
+            var maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel);
+
+            if (maxZoomLevel >= MinZoomLevel)
+            {
+                var minZoomLevel = IsBaseMapLayer
+                    ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
+                    : maxZoomLevel;
+
+                for (var zoomLevel = minZoomLevel; zoomLevel <= maxZoomLevel; zoomLevel++)
                 {
-                    Tiles.Clear();
-                }
+                    var tileCount = 1 << zoomLevel; // per row and column
 
-                var maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel);
+                    // Right-shift divides with rounding down also negative values, https://stackoverflow.com/q/55196178
+                    //
+                    var shift = TileMatrix.ZoomLevel - zoomLevel;
+                    var xMin = TileMatrix.XMin >> shift; // may be < 0
+                    var xMax = TileMatrix.XMax >> shift; // may be >= tileCount
+                    var yMin = Math.Max(TileMatrix.YMin >> shift, 0);
+                    var yMax = Math.Min(TileMatrix.YMax >> shift, tileCount - 1);
 
-                if (maxZoomLevel >= MinZoomLevel)
-                {
-                    var minZoomLevel = IsBaseMapLayer
-                        ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
-                        : maxZoomLevel;
-
-                    for (var zoomLevel = minZoomLevel; zoomLevel <= maxZoomLevel; zoomLevel++)
-                    {
-                        var tileCount = 1 << zoomLevel; // per row and column
-
-                        // Right-shift divides with rounding down also negative values, https://stackoverflow.com/q/55196178
-                        //
-                        var shift = TileMatrix.ZoomLevel - zoomLevel;
-                        var xMin = TileMatrix.XMin >> shift; // may be < 0
-                        var xMax = TileMatrix.XMax >> shift; // may be >= tileCount
-                        var yMin = Math.Max(TileMatrix.YMin >> shift, 0);
-                        var yMax = Math.Min(TileMatrix.YMax >> shift, tileCount - 1);
-
-                        tiles.FillMatrix(Tiles, zoomLevel, xMin, yMin, xMax, yMax, tileCount);
-                    }
+                    tiles.FillMatrix(Tiles, zoomLevel, xMin, yMin, xMax, yMax, tileCount);
                 }
             }
 
             Tiles = tiles;
+
             Children.Clear();
 
             foreach (var tile in tiles)

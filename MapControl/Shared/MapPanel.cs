@@ -177,7 +177,7 @@ namespace MapControl
         {
             availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
 
-            foreach (var element in Children.OfType<FrameworkElement>())
+            foreach (var element in Children.Cast<FrameworkElement>())
             {
                 element.Measure(availableSize);
             }
@@ -189,7 +189,7 @@ namespace MapControl
         {
             if (parentMap != null)
             {
-                foreach (var element in Children.OfType<FrameworkElement>())
+                foreach (var element in Children.Cast<FrameworkElement>())
                 {
                     ArrangeChildElement(element, finalSize);
                 }
