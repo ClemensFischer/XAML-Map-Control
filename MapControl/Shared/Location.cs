@@ -32,9 +32,9 @@ namespace MapControl
 
         public bool Equals(Location location)
         {
-            return location != null
-                && Math.Abs(location.Latitude - Latitude) < 1e-9
-                && Math.Abs(location.Longitude - Longitude) < 1e-9;
+            return location != null &&
+                Math.Abs(location.Latitude - Latitude) < 1e-9 &&
+                Math.Abs(location.Longitude - Longitude) < 1e-9;
         }
 
         public override bool Equals(object obj)

@@ -173,7 +173,7 @@ namespace MapControl
 
             foreach (var tileMatrix in currentMatrixes)
             {
-                var layer = currentLayers.FirstOrDefault(l => l.WmtsTileMatrix == tileMatrix) ??
+                var layer = currentLayers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
                     new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
 
                 if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
@@ -199,11 +199,12 @@ namespace MapControl
                 {
                     var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
 
-                    foreach (var tileMatrixSet in capabilities.TileMatrixSets
-                        .Where(s => !TileMatrixSets.ContainsKey(s.SupportedCrsId) ||
-                                    PreferredTileMatrixSets != null && PreferredTileMatrixSets.Contains(s.Identifier)))
+                    foreach (var tms in capabilities.TileMatrixSets
+                        .Where(tms => !TileMatrixSets.ContainsKey(tms.SupportedCrsId) ||
+                                      PreferredTileMatrixSets != null &&
+                                      PreferredTileMatrixSets.Contains(tms.Identifier)))
                     {
-                        TileMatrixSets[tileMatrixSet.SupportedCrsId] = tileMatrixSet;
+                        TileMatrixSets[tms.SupportedCrsId] = tms;
                     }
 
                     Layer = capabilities.Layer;

@@ -289,7 +289,8 @@ namespace MapControl.Caching
                 deletedFileCount = directory.EnumerateDirectories().Sum(ScanDirectory);
 
                 foreach (var file in directory.EnumerateFiles()
-                    .Where(f => f.CreationTime > f.LastWriteTime && f.CreationTime <= DateTime.Now))
+                    .Where(file => file.CreationTime > file.LastWriteTime &&
+                                   file.CreationTime <= DateTime.Now))
                 {
                     file.Delete();
                     deletedFileCount++;
