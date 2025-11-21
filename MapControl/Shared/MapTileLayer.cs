@@ -57,7 +57,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public ImageTileList Tiles { get; private set; } = [];
+        public ICollection<ImageTile> Tiles { get; private set; } = [];
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.

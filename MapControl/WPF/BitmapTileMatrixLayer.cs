@@ -46,7 +46,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; } = new TileMatrix(zoomLevel, 1, 1, 0, 0);
 
-        public List<BitmapTile> Tiles { get; private set; } = [];
+        public IEnumerable<BitmapTile> Tiles { get; private set; } = [];
 
         protected override void OnRender(DrawingContext drawingContext)
         {

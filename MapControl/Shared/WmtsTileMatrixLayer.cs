@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -34,7 +35,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; }
 
-        public ImageTileList Tiles { get; private set; } = [];
+        public IEnumerable<ImageTile> Tiles { get; private set; } = [];
 
         public void UpdateRenderTransform(ViewTransform viewTransform)
         {
