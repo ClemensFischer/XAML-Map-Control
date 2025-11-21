@@ -48,7 +48,7 @@ namespace MapControl
 
         public bool UpdateTiles(ViewTransform viewTransform, double viewWidth, double viewHeight)
         {
-            // Bounds in tile pixels from view size.
+            // Tile matrix bounds in pixels.
             //
             var bounds = viewTransform.GetTileMatrixBounds(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, viewWidth, viewHeight);
 

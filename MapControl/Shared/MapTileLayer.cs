@@ -153,7 +153,7 @@ namespace MapControl
             var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel - ZoomLevelOffset + 0.001);
             var tileMatrixScale = MapBase.ZoomLevelToScale(tileMatrixZoomLevel);
 
-            // Bounds in tile pixels from view size.
+            // Tile matrix bounds in pixels.
             //
             var bounds = ParentMap.ViewTransform.GetTileMatrixBounds(tileMatrixScale, MapTopLeft, ParentMap.ActualWidth, ParentMap.ActualHeight);
 

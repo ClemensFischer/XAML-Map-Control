@@ -123,7 +123,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the index bounds of a tile matrix.
+        /// Gets the pixel bounds of a tile matrix.
         /// </summary>
         public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, double viewWidth, double viewHeight)
         {

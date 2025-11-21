@@ -34,15 +34,13 @@ namespace MapControl
         }
     }
 
-    public class BitmapTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel) : FrameworkElement
+    public class BitmapTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel) : UIElement
     {
         private readonly ImageBrush imageBrush = new ImageBrush
         {
             ViewportUnits = BrushMappingMode.Absolute,
             Transform = new MatrixTransform()
         };
-
-        private WriteableBitmap bitmap;
 
         public WmtsTileMatrix WmtsTileMatrix { get; } = wmtsTileMatrix;
 
@@ -67,7 +65,7 @@ namespace MapControl
 
         public bool UpdateTiles(ViewTransform viewTransform, double viewWidth, double viewHeight)
         {
-            // Bounds in tile pixels from view size.
+            // Tile matrix bounds in pixels.
             //
             var bounds = viewTransform.GetTileMatrixBounds(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, viewWidth, viewHeight);
 
@@ -114,9 +112,7 @@ namespace MapControl
             var width = WmtsTileMatrix.TileWidth * (TileMatrix.XMax - TileMatrix.XMin + 1);
             var height = WmtsTileMatrix.TileHeight * (TileMatrix.YMax - TileMatrix.YMin + 1);
 
-            bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
-
-            imageBrush.ImageSource = bitmap;
+            imageBrush.ImageSource = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
             imageBrush.Viewport = new Rect(0, 0, width, height);
         }
 
@@ -167,7 +163,7 @@ namespace MapControl
                 WmtsTileMatrix.TileWidth,
                 WmtsTileMatrix.TileHeight);
 
-            bitmap.WritePixels(rect, tile.PixelBuffer, 4 * WmtsTileMatrix.TileWidth, 0);
+            ((WriteableBitmap)imageBrush.ImageSource).WritePixels(rect, tile.PixelBuffer, 4 * WmtsTileMatrix.TileWidth, 0);
         }
 
         private void OnTileCompleted(object sender, EventArgs e)
