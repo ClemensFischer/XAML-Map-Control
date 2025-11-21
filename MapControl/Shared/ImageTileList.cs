@@ -9,7 +9,7 @@ namespace MapControl
         {
         }
 
-        public ImageTileList(ImageTileList source, TileMatrix tileMatrix, int columnCount)
+        public ImageTileList(IEnumerable<ImageTile> source, TileMatrix tileMatrix, int columnCount)
         {
             FillMatrix(source, tileMatrix.ZoomLevel, tileMatrix.XMin, tileMatrix.YMin, tileMatrix.XMax, tileMatrix.YMax, columnCount);
         }
@@ -17,7 +17,7 @@ namespace MapControl
         /// <summary>
         /// Adds existing ImageTile from the source collection or newly created ImageTile to fill the specified tile matrix.
         /// </summary>
-        public void FillMatrix(ImageTileList source, int zoomLevel, int xMin, int yMin, int xMax, int yMax, int columnCount)
+        public void FillMatrix(IEnumerable<ImageTile> source, int zoomLevel, int xMin, int yMin, int xMax, int yMax, int columnCount)
         {
             for (var y = yMin; y <= yMax; y++)
             {

@@ -128,14 +128,13 @@ namespace MapControl
             {
                 for (var x = TileMatrix.XMin; x <= TileMatrix.XMax; x++)
                 {
-                    var tile = Tiles.FirstOrDefault(t => t.ZoomLevel == TileMatrix.ZoomLevel && t.X == x && t.Y == y);
+                    var tile = Tiles.FirstOrDefault(t => t.X == x && t.Y == y);
 
                     if (tile == null)
                     {
                         tile = new BitmapTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth, WmtsTileMatrix.TileWidth, WmtsTileMatrix.TileHeight);
 
-                        var equivalentTile = Tiles.FirstOrDefault(
-                            t => t.PixelBuffer != null && t.ZoomLevel == tile.ZoomLevel && t.Column == tile.Column && t.Row == tile.Row);
+                        var equivalentTile = Tiles.FirstOrDefault(t => t.PixelBuffer != null && t.Column == tile.Column && t.Row == tile.Row);
 
                         if (equivalentTile != null)
                         {
