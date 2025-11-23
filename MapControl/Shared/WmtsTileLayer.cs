@@ -100,6 +100,14 @@ namespace MapControl
             return finalSize;
         }
 
+        protected override void UpdateRenderTransform()
+        {
+            foreach (var layer in ChildLayers)
+            {
+                layer.UpdateRenderTransform(ParentMap.ViewTransform);
+            }
+        }
+
         protected override void UpdateTileCollection(bool reset)
         {
             // reset parameter is ignored here because it is always false.
@@ -130,14 +138,6 @@ namespace MapControl
                 }
 
                 BeginLoadTiles(ChildLayers.SelectMany(layer => layer.Tiles), cacheName);
-            }
-        }
-
-        protected override void UpdateRenderTransform()
-        {
-            foreach (var layer in ChildLayers)
-            {
-                layer.UpdateRenderTransform(ParentMap.ViewTransform);
             }
         }
 

@@ -115,6 +115,20 @@ namespace MapControl
             return finalSize;
         }
 
+        protected override void UpdateRenderTransform()
+        {
+            if (TileMatrix != null)
+            {
+                // Tile matrix origin in pixels.
+                //
+                var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
+                var tileMatrixScale = MapBase.ZoomLevelToScale(TileMatrix.ZoomLevel);
+
+                ((MatrixTransform)RenderTransform).Matrix =
+                    ParentMap.ViewTransform.GetTileLayerTransform(tileMatrixScale, MapTopLeft, tileMatrixOrigin);
+            }
+        }
+
         protected override void UpdateTileCollection(bool reset)
         {
             if (ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
@@ -129,20 +143,6 @@ namespace MapControl
                 UpdateRenderTransform();
                 UpdateTiles(reset);
                 BeginLoadTiles(Tiles, SourceName);
-            }
-        }
-
-        protected override void UpdateRenderTransform()
-        {
-            if (TileMatrix != null)
-            {
-                // Tile matrix origin in pixels.
-                //
-                var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
-                var tileMatrixScale = MapBase.ZoomLevelToScale(TileMatrix.ZoomLevel);
-
-                ((MatrixTransform)RenderTransform).Matrix =
-                    ParentMap.ViewTransform.GetTileLayerTransform(tileMatrixScale, MapTopLeft, tileMatrixOrigin);
             }
         }
 
