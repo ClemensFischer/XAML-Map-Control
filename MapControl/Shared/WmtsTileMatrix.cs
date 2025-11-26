@@ -1,4 +1,5 @@
-﻿#if WPF
+﻿using System;
+#if WPF
 using System.Windows;
 #elif AVALONIA
 using Avalonia;
@@ -18,10 +19,9 @@ namespace MapControl
         public int MatrixWidth => matrixWidth;
         public int MatrixHeight => matrixHeight;
 
-        // Indicates if the total width in meters covers the whole earth
-        // circumference (minus one millimeter for floating point precision).
+        // Indicates if the total width in meters matches the earth circumference.
         //
         public bool HasFullHorizontalCoverage { get; } =
-            matrixWidth * tileWidth / scale >= 360d * MapProjection.Wgs84MeterPerDegree - 1e-3;
+            Math.Abs(matrixWidth * tileWidth / scale - 360d * MapProjection.Wgs84MeterPerDegree) < 1e-3;
     }
 }
