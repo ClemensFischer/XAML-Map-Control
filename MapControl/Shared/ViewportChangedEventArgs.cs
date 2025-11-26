@@ -9,12 +9,12 @@ namespace MapControl
         /// a MapTileLayer or a MapImageLayer should be updated immediately,
         /// or MapPath Data in projected map coordinates should be recalculated.
         /// </summary>
-        public bool ProjectionChanged { get; } = projectionChanged;
+        public bool ProjectionChanged => projectionChanged;
 
         /// <summary>
         /// Indicates that the view transform center has moved across 180° longitude.
         /// Used to control when a MapTileLayer should be updated immediately.
         /// </summary>
-        public bool TransformCenterChanged { get; } = transformCenterChanged;
+        public bool TransformCenterChanged => transformCenterChanged;
     }
 }

@@ -2,10 +2,10 @@
 {
     public class TileMatrix(int zoomLevel, int xMin, int yMin, int xMax, int yMax)
     {
-        public int ZoomLevel { get; } = zoomLevel;
-        public int XMin { get; } = xMin;
-        public int YMin { get; } = yMin;
-        public int XMax { get; } = xMax;
-        public int YMax { get; } = yMax;
+        public int ZoomLevel => zoomLevel;
+        public int XMin => xMin;
+        public int YMin => yMin;
+        public int XMax => xMax;
+        public int YMax => yMax;
     }
 }

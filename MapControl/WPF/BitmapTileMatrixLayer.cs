@@ -42,7 +42,7 @@ namespace MapControl
             Transform = new MatrixTransform()
         };
 
-        public WmtsTileMatrix WmtsTileMatrix { get; } = wmtsTileMatrix;
+        public WmtsTileMatrix WmtsTileMatrix => wmtsTileMatrix;
 
         public TileMatrix TileMatrix { get; private set; } = new TileMatrix(zoomLevel, 1, 1, 0, 0);
 

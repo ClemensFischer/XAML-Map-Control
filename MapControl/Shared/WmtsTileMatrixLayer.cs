@@ -60,18 +60,16 @@ namespace MapControl
             var xMax = (int)Math.Floor((bounds.X + bounds.Width) / WmtsTileMatrix.TileWidth);
             var yMax = (int)Math.Floor((bounds.Y + bounds.Height) / WmtsTileMatrix.TileHeight);
 
-            // Total tile matrix width in meters.
-            //
-            var totalWidth = WmtsTileMatrix.MatrixWidth * WmtsTileMatrix.TileWidth / WmtsTileMatrix.Scale;
-
-            if (Math.Abs(totalWidth - 360d * MapProjection.Wgs84MeterPerDegree) > 1d)
+            if (!WmtsTileMatrix.HasFullHorizontalCoverage)
             {
-                // No full longitudinal coverage, restrict x index.
+                // Set X range limits.
                 //
                 xMin = Math.Max(xMin, 0);
                 xMax = Math.Min(Math.Max(xMax, 0), WmtsTileMatrix.MatrixWidth - 1);
             }
 
+            // Set Y range limits.
+            //
             yMin = Math.Max(yMin, 0);
             yMax = Math.Min(Math.Max(yMax, 0), WmtsTileMatrix.MatrixHeight - 1);
 

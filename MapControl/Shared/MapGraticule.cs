@@ -27,11 +27,11 @@ namespace MapControl
     {
         private class Label(string latText, string lonText, double x, double y, double rotation)
         {
-            public string LatitudeText { get; } = latText;
-            public string LongitudeText { get; } = lonText;
-            public double X { get; } = x;
-            public double Y { get; } = y;
-            public double Rotation { get; } = rotation;
+            public string LatitudeText => latText;
+            public string LongitudeText => lonText;
+            public double X => x;
+            public double Y => y;
+            public double Rotation => rotation;
         }
 
         private const double LineInterpolationResolution = 2d;

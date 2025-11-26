@@ -14,11 +14,11 @@ namespace MapControl
 {
     public abstract class Tile(int zoomLevel, int x, int y, int columnCount)
     {
-        public int ZoomLevel { get; } = zoomLevel;
-        public int X { get; } = x;
-        public int Y { get; } = y;
+        public int ZoomLevel => zoomLevel;
+        public int X => x;
+        public int Y => y;
+        public int Row => y;
         public int Column { get; } = ((x % columnCount) + columnCount) % columnCount;
-        public int Row => Y;
 
         public bool IsPending { get; set; } = true;
 
