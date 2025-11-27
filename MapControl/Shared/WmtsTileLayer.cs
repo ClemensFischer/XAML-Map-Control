@@ -143,47 +143,47 @@ namespace MapControl
 
         private bool UpdateChildLayers(WmtsTileMatrixSet tileMatrixSet)
         {
-            // Multiply scale by 1.001 to avoid rounding issues.
+            // Multiply scale by 1.001 to avoid floating point precision issues
+            // and get all WmtsTileMatrixes with Scale <= maxScale.
             //
             var maxScale = 1.001 * ParentMap.ViewTransform.Scale;
-
-            // Show all WmtsTileMatrix layers with Scale <= maxScale, at least the first layer.
-            //
-            var currentMatrixes = tileMatrixSet.TileMatrixes
-                .Where((matrix, i) => i == 0 || matrix.Scale <= maxScale)
-                .ToList();
-
-            if (!IsBaseMapLayer)
-            {
-                // Show only the last layer.
-                //
-                currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - 1).ToList();
-            }
-            else if (currentMatrixes.Count > MaxBackgroundLevels + 1)
-            {
-                // Show not more than MaxBackgroundLevels + 1 layers.
-                //
-                currentMatrixes = currentMatrixes.Skip(currentMatrixes.Count - MaxBackgroundLevels - 1).ToList();
-            }
-
-            var currentLayers = ChildLayers.Where(layer => currentMatrixes.Contains(layer.WmtsTileMatrix)).ToList();
+            var tileMatrixes = tileMatrixSet.TileMatrixes.Where(matrix => matrix.Scale <= maxScale).ToList();
+            var childLayers = ChildLayers.Where(layer => tileMatrixes.Contains(layer.WmtsTileMatrix)).ToList();
             var tilesChanged = false;
 
             Children.Clear();
 
-            foreach (var tileMatrix in currentMatrixes)
+            if (tileMatrixes.Count > 0)
             {
-                var layer = currentLayers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
-                    new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
+                var maxLayers = Math.Max(MaxBackgroundLevels, 0) + 1;
 
-                if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
+                if (!IsBaseMapLayer)
                 {
-                    tilesChanged = true;
+                    // Show only the last layer.
+                    //
+                    tileMatrixes = tileMatrixes.GetRange(tileMatrixes.Count - 1, 1);
+                }
+                else if (tileMatrixes.Count > maxLayers)
+                {
+                    // Show not more than MaxBackgroundLevels + 1 layers.
+                    //
+                    tileMatrixes = tileMatrixes.GetRange(tileMatrixes.Count - maxLayers, maxLayers);
                 }
 
-                layer.UpdateRenderTransform(ParentMap.ViewTransform);
+                foreach (var tileMatrix in tileMatrixes)
+                {
+                    var layer = childLayers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
+                        new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
 
-                Children.Add(layer);
+                    if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
+                    {
+                        tilesChanged = true;
+                    }
+
+                    layer.UpdateRenderTransform(ParentMap.ViewTransform);
+
+                    Children.Add(layer);
+                }
             }
 
             return tilesChanged;

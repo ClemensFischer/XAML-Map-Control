@@ -190,9 +190,13 @@ namespace MapControl
 
             if (maxZoomLevel >= MinZoomLevel)
             {
-                var minZoomLevel = IsBaseMapLayer
-                    ? Math.Max(TileMatrix.ZoomLevel - MaxBackgroundLevels, MinZoomLevel)
-                    : maxZoomLevel;
+                var minZoomLevel = maxZoomLevel;
+
+                if (IsBaseMapLayer)
+                {
+                    var bgLevels = Math.Max(MaxBackgroundLevels, 0);
+                    minZoomLevel = Math.Max(TileMatrix.ZoomLevel - bgLevels, MinZoomLevel);
+                }
 
                 for (var zoomLevel = minZoomLevel; zoomLevel <= maxZoomLevel; zoomLevel++)
                 {
