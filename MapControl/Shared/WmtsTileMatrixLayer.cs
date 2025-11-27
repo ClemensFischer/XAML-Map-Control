@@ -22,8 +22,6 @@ namespace MapControl
 {
     public class WmtsTileMatrixLayer : Panel
     {
-        // zoomLevel is index of tileMatrix in a WmtsTileMatrixSet.TileMatrixes list.
-        //
         public WmtsTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel)
         {
             this.SetRenderTransform(new MatrixTransform());

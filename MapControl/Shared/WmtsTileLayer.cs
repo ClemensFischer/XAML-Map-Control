@@ -172,6 +172,9 @@ namespace MapControl
 
                 foreach (var tileMatrix in tileMatrixes)
                 {
+                    // Reuse existing WmtsTileMatrixLayer or create a new one with the
+                    // index of tileMatrix in tileMatrixSet.TileMatrixes as zoom level.
+                    //
                     var layer = childLayers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
                         new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
 
