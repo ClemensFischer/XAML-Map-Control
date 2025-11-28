@@ -47,7 +47,7 @@ namespace MapControl
             }
             else
             {
-                throw new ArgumentException($"Invalid Capabilities URI: {uri}");
+                throw new ArgumentException($"Invalid Capabilities Uri: {uri}");
             }
 
             using var stream = xmlStream;

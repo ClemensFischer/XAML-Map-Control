@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 #if WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +18,6 @@ using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia.Controls;
-using Avalonia.Media;
 using Brush = Avalonia.Media.IBrush;
 #endif
 
@@ -27,10 +25,6 @@ namespace MapControl
 {
     public abstract class TilePyramidLayer : Panel, IMapLayer
     {
-        public static readonly DependencyProperty TileSourceProperty =
-            DependencyPropertyHelper.Register<TilePyramidLayer, TileSource>(nameof(TileSource), null,
-                (layer, oldValue, newValue) => layer.UpdateTiles(true));
-
         public static readonly DependencyProperty SourceNameProperty =
             DependencyPropertyHelper.Register<TilePyramidLayer, string>(nameof(SourceName));
 
@@ -81,15 +75,6 @@ namespace MapControl
         {
             get => tileImageLoader ??= new TileImageLoader();
             set => tileImageLoader = value;
-        }
-
-        /// <summary>
-        /// Provides map tile URIs or images.
-        /// </summary>
-        public TileSource TileSource
-        {
-            get => (TileSource)GetValue(TileSourceProperty);
-            set => SetValue(TileSourceProperty, value);
         }
 
         /// <summary>
@@ -190,12 +175,9 @@ namespace MapControl
 
         public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
 
-        protected void BeginLoadTiles(IEnumerable<Tile> tiles, string cacheName)
+        protected void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
         {
-            if (TileSource != null && tiles != null && tiles.Any(tile => tile.IsPending))
-            {
-                TileImageLoader.BeginLoadTiles(tiles, TileSource, cacheName, loadingProgress);
-            }
+            TileImageLoader.BeginLoadTiles(tiles, tileSource, cacheName, loadingProgress);
         }
 
         protected void CancelLoadTiles()
@@ -206,12 +188,12 @@ namespace MapControl
 
         protected abstract void UpdateRenderTransform();
 
-        protected abstract void UpdateTileCollection(bool reset);
+        protected abstract void UpdateTileCollection();
 
-        private void UpdateTiles(bool reset = false)
+        private void UpdateTiles()
         {
             updateTimer.Stop();
-            UpdateTileCollection(reset);
+            UpdateTileCollection();
         }
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)

@@ -26,8 +26,10 @@ namespace MapControl
         private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
 
         public static readonly DependencyProperty CapabilitiesUriProperty =
-            DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri), null,
-                (layer, oldValue, newValue) => layer.TileMatrixSets.Clear());
+            DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri));
+
+        public static readonly DependencyProperty TileUriTemplateProperty =
+            DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(TileUriTemplate));
 
         public static readonly DependencyProperty LayerProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(Layer));
@@ -50,7 +52,18 @@ namespace MapControl
         }
 
         /// <summary>
-        /// The Identifier of the Layer that should be displayed. If not set, the first Layer is displayed.
+        /// The Uri template string used for the UriTemplate property of WmtsTileSource instances.
+        /// Usually set internally from WmtsCapabilities requested by a Loaded event handler.
+        /// </summary>
+        public string TileUriTemplate
+        {
+            get => (string)GetValue(TileUriTemplateProperty);
+            set => SetValue(TileUriTemplateProperty, value);
+        }
+
+        /// <summary>
+        /// The Identifier of the Layer that should be displayed.
+        /// If not set, the value is defined by WmtsCapabilities.
         /// </summary>
         public string Layer
         {
@@ -108,10 +121,8 @@ namespace MapControl
             }
         }
 
-        protected override void UpdateTileCollection(bool reset)
+        protected override void UpdateTileCollection()
         {
-            // reset parameter is ignored here because it is always false.
-
             if (ParentMap == null ||
                 !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
             {
@@ -120,7 +131,11 @@ namespace MapControl
             }
             else if (UpdateChildLayers(tileMatrixSet))
             {
-                ((WmtsTileSource)TileSource).TileMatrixSet = tileMatrixSet;
+                var tileSource = new WmtsTileSource
+                {
+                    UriTemplate = TileUriTemplate,
+                    TileMatrixSet = tileMatrixSet
+                };
 
                 var cacheName = SourceName;
 
@@ -137,7 +152,7 @@ namespace MapControl
                     }
                 }
 
-                BeginLoadTiles(ChildLayers.SelectMany(layer => layer.Tiles), cacheName);
+                BeginLoadTiles(ChildLayers.SelectMany(layer => layer.Tiles), tileSource, cacheName);
             }
         }
 
@@ -216,7 +231,9 @@ namespace MapControl
                     }
 
                     Layer = capabilities.Layer;
-                    TileSource = new WmtsTileSource { UriTemplate = capabilities.UriTemplate };
+                    TileUriTemplate = capabilities.UriTemplate;
+
+                    UpdateTileCollection();
                 }
                 catch (Exception ex)
                 {

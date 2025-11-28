@@ -29,6 +29,10 @@ namespace MapControl
         private static readonly Point MapTopLeft = new(-180d * MapProjection.Wgs84MeterPerDegree,
                                                         180d * MapProjection.Wgs84MeterPerDegree);
 
+        public static readonly DependencyProperty TileSourceProperty =
+            DependencyPropertyHelper.Register<MapTileLayer, TileSource>(nameof(TileSource), null,
+                (layer, oldValue, newValue) => layer.UpdateTileCollection(true));
+
         public static readonly DependencyProperty MinZoomLevelProperty =
             DependencyPropertyHelper.Register<MapTileLayer, int>(nameof(MinZoomLevel), 0);
 
@@ -58,6 +62,15 @@ namespace MapControl
         public TileMatrix TileMatrix { get; private set; }
 
         public ICollection<ImageTile> Tiles { get; private set; } = [];
+
+        /// <summary>
+        /// Provides the ImagesSource or image request Uri for map tiles.
+        /// </summary>
+        public TileSource TileSource
+        {
+            get => (TileSource)GetValue(TileSourceProperty);
+            set => SetValue(TileSourceProperty, value);
+        }
 
         /// <summary>
         /// Minimum zoom level supported by the MapTileLayer. Default value is 0.
@@ -129,20 +142,30 @@ namespace MapControl
             }
         }
 
-        protected override void UpdateTileCollection(bool reset)
+        protected override void UpdateTileCollection()
         {
-            if (ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
+            UpdateTileCollection(false);
+        }
+
+        private void UpdateTileCollection(bool tileSourceChanged)
+        {
+            if (TileSource == null || ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
             {
                 CancelLoadTiles();
                 Children.Clear();
                 Tiles.Clear();
                 TileMatrix = null;
             }
-            else if (SetTileMatrix() || reset)
+            else if (SetTileMatrix() || tileSourceChanged)
             {
+                if (tileSourceChanged)
+                {
+                    Tiles.Clear();
+                }
+
                 UpdateRenderTransform();
-                UpdateTiles(reset);
-                BeginLoadTiles(Tiles, SourceName);
+                UpdateTiles();
+                BeginLoadTiles(Tiles, TileSource, SourceName);
             }
         }
 
@@ -177,15 +200,9 @@ namespace MapControl
             return true;
         }
 
-        private void UpdateTiles(bool reset)
+        private void UpdateTiles()
         {
             var tiles = new ImageTileList();
-
-            if (reset)
-            {
-                Tiles.Clear();
-            }
-
             var maxZoomLevel = Math.Min(TileMatrix.ZoomLevel, MaxZoomLevel);
 
             if (maxZoomLevel >= MinZoomLevel)
