@@ -148,7 +148,7 @@ namespace MapControl
 
         private bool SetTileMatrix()
         {
-            // Add 0.001 to avoid rounding issues.
+            // Add 0.001 to avoid floating point precision.
             //
             var tileMatrixZoomLevel = (int)Math.Floor(ParentMap.ZoomLevel - ZoomLevelOffset + 0.001);
             var tileMatrixScale = MapBase.ZoomLevelToScale(tileMatrixZoomLevel);
