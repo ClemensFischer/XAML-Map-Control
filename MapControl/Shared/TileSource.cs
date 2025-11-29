@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 #if WPF

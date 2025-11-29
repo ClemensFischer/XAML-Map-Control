@@ -131,12 +131,7 @@ namespace MapControl
             }
             else if (UpdateChildLayers(tileMatrixSet))
             {
-                var tileSource = new WmtsTileSource
-                {
-                    UriTemplate = TileUriTemplate,
-                    TileMatrixSet = tileMatrixSet
-                };
-
+                var tileSource = new WmtsTileSource(tileMatrixSet, TileUriTemplate);
                 var cacheName = SourceName;
 
                 if (!string.IsNullOrEmpty(cacheName))
