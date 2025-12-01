@@ -28,8 +28,8 @@ namespace MapControl
         public static readonly DependencyProperty CapabilitiesUriProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri));
 
-        public static readonly DependencyProperty TileUriTemplateProperty =
-            DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(TileUriTemplate));
+        public static readonly DependencyProperty UriTemplateProperty =
+            DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(UriTemplate));
 
         public static readonly DependencyProperty LayerProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(Layer));
@@ -55,10 +55,10 @@ namespace MapControl
         /// The Uri template string used for the UriTemplate property of WmtsTileSource instances.
         /// Usually set internally from WmtsCapabilities requested by a Loaded event handler.
         /// </summary>
-        public string TileUriTemplate
+        public string UriTemplate
         {
-            get => (string)GetValue(TileUriTemplateProperty);
-            set => SetValue(TileUriTemplateProperty, value);
+            get => (string)GetValue(UriTemplateProperty);
+            set => SetValue(UriTemplateProperty, value);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace MapControl
             }
             else if (UpdateChildLayers(tileMatrixSet))
             {
-                var tileSource = new WmtsTileSource(tileMatrixSet, TileUriTemplate);
+                var tileSource = new WmtsTileSource(UriTemplate, tileMatrixSet);
                 var cacheName = SourceName;
 
                 if (!string.IsNullOrEmpty(cacheName))
@@ -226,7 +226,7 @@ namespace MapControl
                     }
 
                     Layer = capabilities.Layer;
-                    TileUriTemplate = capabilities.UriTemplate;
+                    UriTemplate = capabilities.UriTemplate;
 
                     UpdateTileCollection();
                 }
