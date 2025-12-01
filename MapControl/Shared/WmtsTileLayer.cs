@@ -129,7 +129,7 @@ namespace MapControl
                 Children.Clear();
                 CancelLoadTiles();
             }
-            else if (UpdateChildLayers(tileMatrixSet))
+            else if (UpdateChildLayers(tileMatrixSet.TileMatrixes))
             {
                 var tileSource = new WmtsTileSource(UriTemplate, tileMatrixSet);
                 var cacheName = SourceName;
@@ -151,13 +151,13 @@ namespace MapControl
             }
         }
 
-        private bool UpdateChildLayers(WmtsTileMatrixSet tileMatrixSet)
+        private bool UpdateChildLayers(IList<WmtsTileMatrix> tileMatrixSet)
         {
             // Multiply scale by 1.001 to avoid floating point precision issues
             // and get all WmtsTileMatrixes with Scale <= maxScale.
             //
             var maxScale = 1.001 * ParentMap.ViewTransform.Scale;
-            var tileMatrixes = tileMatrixSet.TileMatrixes.Where(matrix => matrix.Scale <= maxScale).ToList();
+            var tileMatrixes = tileMatrixSet.Where(matrix => matrix.Scale <= maxScale).ToList();
 
             if (tileMatrixes.Count == 0)
             {
@@ -189,10 +189,10 @@ namespace MapControl
 
             foreach (var tileMatrix in tileMatrixes)
             {
-                // Pass index of tileMatrix in tileMatrixSet.TileMatrixes as zoom level to WmtsTileMatrixLayer ctor.
+                // Pass index of tileMatrix in tileMatrixSet as zoom level to WmtsTileMatrixLayer ctor.
                 //
                 var layer = layers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
-                    new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.TileMatrixes.IndexOf(tileMatrix));
+                    new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.IndexOf(tileMatrix));
 
                 if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
                 {
