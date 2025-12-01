@@ -18,7 +18,7 @@ namespace MapControl
         {
             Uri uri = null;
 
-            if (tileMatrixes.Count > zoomLevel)
+            if (zoomLevel < tileMatrixes.Count)
             {
                 var uriBuilder = new StringBuilder(UriTemplate);
 
