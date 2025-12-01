@@ -13,6 +13,13 @@ using Avalonia;
 
 namespace MapControl
 {
+    public class WmtsTileMatrixSet(string identifier, string supportedCrsId, IEnumerable<WmtsTileMatrix> tileMatrixes)
+    {
+        public string Identifier => identifier;
+        public string SupportedCrsId => supportedCrsId;
+        public List<WmtsTileMatrix> TileMatrixes { get; } = tileMatrixes.OrderBy(m => m.Scale).ToList();
+    }
+
     /// <summary>
     /// For reference see https://www.ogc.org/standards/wmts, 07-057r7_Web_Map_Tile_Service_Standard.pdf
     /// </summary>

@@ -217,6 +217,9 @@ namespace MapControl
                 {
                     var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
 
+                    Layer = capabilities.Layer;
+                    UriTemplate = capabilities.UriTemplate;
+
                     foreach (var tms in capabilities.TileMatrixSets
                         .Where(tms => !TileMatrixSets.ContainsKey(tms.SupportedCrsId) ||
                                       PreferredTileMatrixSets != null &&
@@ -224,9 +227,6 @@ namespace MapControl
                     {
                         TileMatrixSets[tms.SupportedCrsId] = tms;
                     }
-
-                    Layer = capabilities.Layer;
-                    UriTemplate = capabilities.UriTemplate;
 
                     UpdateTileCollection();
                 }
