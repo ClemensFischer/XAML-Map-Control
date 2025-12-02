@@ -17,7 +17,7 @@ namespace MapControl
     {
         public string Identifier => identifier;
         public string SupportedCrsId => supportedCrsId;
-        public string UriTemplate => uriTemplate;
+        public string UriTemplate { get; } = uriTemplate.Replace("{TileMatrixSet}", identifier);
         public List<WmtsTileMatrix> TileMatrixes { get; } = tileMatrixes.OrderBy(m => m.Scale).ToList();
     }
 
@@ -236,7 +236,7 @@ namespace MapControl
                 throw new ArgumentException($"No TileMatrix elements found in TileMatrixSet \"{identifier}\".");
             }
 
-            return new WmtsTileMatrixSet(identifier, supportedCrs, uriTemplate.Replace("{TileMatrixSet}", identifier), tileMatrixes);
+            return new WmtsTileMatrixSet(identifier, supportedCrs, uriTemplate, tileMatrixes);
         }
 
         public static WmtsTileMatrix ReadTileMatrix(XElement tileMatrixElement, string supportedCrs)

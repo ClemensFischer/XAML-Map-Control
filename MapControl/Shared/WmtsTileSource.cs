@@ -1,35 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MapControl
 {
-    public class WmtsTileSource : UriTileSource
+    public class WmtsTileSource(WmtsTileMatrixSet tileMatrixSet) : TileSource
     {
-        private readonly List<WmtsTileMatrix> tileMatrixes;
+        private readonly string uriFormat = tileMatrixSet.UriTemplate
+            .Replace("{TileMatrix}", "{0}")
+            .Replace("{TileCol}", "{1}")
+            .Replace("{TileRow}", "{2}");
 
-        public WmtsTileSource(WmtsTileMatrixSet tileMatrixSet)
-        {
-            UriTemplate = tileMatrixSet.UriTemplate;
-            tileMatrixes = tileMatrixSet.TileMatrixes;
-        }
+        private readonly List<WmtsTileMatrix> tileMatrixes = tileMatrixSet.TileMatrixes;
 
         public override Uri GetUri(int zoomLevel, int column, int row)
         {
-            Uri uri = null;
-
-            if (zoomLevel < tileMatrixes.Count)
-            {
-                var uriBuilder = new StringBuilder(UriTemplate);
-
-                uriBuilder.Replace("{TileMatrix}", tileMatrixes[zoomLevel].Identifier);
-                uriBuilder.Replace("{TileCol}", column.ToString());
-                uriBuilder.Replace("{TileRow}", row.ToString());
-
-                uri = new Uri(uriBuilder.ToString());
-            }
-
-            return uri;
+            return zoomLevel < tileMatrixes.Count
+                ? new Uri(string.Format(uriFormat, tileMatrixes[zoomLevel].Identifier, column, row))
+                : null;
         }
     }
 }
