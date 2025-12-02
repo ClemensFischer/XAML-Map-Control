@@ -6,11 +6,11 @@ namespace MapControl
 {
     public class WmtsTileSource : UriTileSource
     {
-        private readonly IList<WmtsTileMatrix> tileMatrixes;
+        private readonly List<WmtsTileMatrix> tileMatrixes;
 
-        public WmtsTileSource(string uriTemplate, WmtsTileMatrixSet tileMatrixSet)
+        public WmtsTileSource(WmtsTileMatrixSet tileMatrixSet)
         {
-            UriTemplate = uriTemplate.Replace("{TileMatrixSet}", tileMatrixSet.Identifier);
+            UriTemplate = tileMatrixSet.UriTemplate;
             tileMatrixes = tileMatrixSet.TileMatrixes;
         }
 

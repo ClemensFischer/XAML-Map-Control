@@ -28,9 +28,6 @@ namespace MapControl
         public static readonly DependencyProperty CapabilitiesUriProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri));
 
-        public static readonly DependencyProperty UriTemplateProperty =
-            DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(UriTemplate));
-
         public static readonly DependencyProperty LayerProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(Layer));
 
@@ -52,18 +49,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// The Uri template string used for the UriTemplate property of WmtsTileSource instances.
-        /// Usually set internally from WmtsCapabilities requested by a Loaded event handler.
-        /// </summary>
-        public string UriTemplate
-        {
-            get => (string)GetValue(UriTemplateProperty);
-            set => SetValue(UriTemplateProperty, value);
-        }
-
-        /// <summary>
         /// The Identifier of the Layer that should be displayed.
-        /// If not set, the value is defined by WmtsCapabilities.
+        /// If not set, the first Layer defined in WMTS Capabilities is displayed.
         /// </summary>
         public string Layer
         {
@@ -131,7 +118,7 @@ namespace MapControl
             }
             else if (UpdateChildLayers(tileMatrixSet.TileMatrixes))
             {
-                var tileSource = new WmtsTileSource(UriTemplate, tileMatrixSet);
+                var tileSource = new WmtsTileSource(tileMatrixSet);
                 var cacheName = SourceName;
 
                 if (!string.IsNullOrEmpty(cacheName))
@@ -218,7 +205,6 @@ namespace MapControl
                     var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
 
                     Layer = capabilities.Layer;
-                    UriTemplate = capabilities.UriTemplate;
 
                     foreach (var tms in capabilities.TileMatrixSets
                         .Where(tms => !TileMatrixSets.ContainsKey(tms.SupportedCrsId) ||

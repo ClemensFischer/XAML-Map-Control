@@ -13,10 +13,11 @@ using Avalonia;
 
 namespace MapControl
 {
-    public class WmtsTileMatrixSet(string identifier, string supportedCrsId, IEnumerable<WmtsTileMatrix> tileMatrixes)
+    public class WmtsTileMatrixSet(string identifier, string supportedCrsId, string uriTemplate, IEnumerable<WmtsTileMatrix> tileMatrixes)
     {
         public string Identifier => identifier;
         public string SupportedCrsId => supportedCrsId;
+        public string UriTemplate => uriTemplate;
         public List<WmtsTileMatrix> TileMatrixes { get; } = tileMatrixes.OrderBy(m => m.Scale).ToList();
     }
 
@@ -30,7 +31,6 @@ namespace MapControl
         private static readonly XNamespace xlink = "http://www.w3.org/1999/xlink";
 
         public string Layer { get; private set; }
-        public string UriTemplate { get; private set; }
         public List<WmtsTileMatrixSet> TileMatrixSets { get; private set; }
 
         public static async Task<WmtsCapabilities> ReadCapabilitiesAsync(Uri uri, string layer)
@@ -113,13 +113,12 @@ namespace MapControl
                     .FirstOrDefault(s => s.Element(ows + "Identifier")?.Value == tileMatrixSetId) ??
                     throw new ArgumentException($"Linked TileMatrixSet element not found in Layer \"{layer}\".");
 
-                tileMatrixSets.Add(ReadTileMatrixSet(tileMatrixSetElement));
+                tileMatrixSets.Add(ReadTileMatrixSet(tileMatrixSetElement, uriTemplate));
             }
 
             return new WmtsCapabilities
             {
                 Layer = layer,
-                UriTemplate = uriTemplate,
                 TileMatrixSets = tileMatrixSets
             };
         }
@@ -200,7 +199,7 @@ namespace MapControl
             return uriTemplate;
         }
 
-        public static WmtsTileMatrixSet ReadTileMatrixSet(XElement tileMatrixSetElement)
+        public static WmtsTileMatrixSet ReadTileMatrixSet(XElement tileMatrixSetElement, string uriTemplate)
         {
             var identifier = tileMatrixSetElement.Element(ows + "Identifier")?.Value;
 
@@ -237,7 +236,7 @@ namespace MapControl
                 throw new ArgumentException($"No TileMatrix elements found in TileMatrixSet \"{identifier}\".");
             }
 
-            return new WmtsTileMatrixSet(identifier, supportedCrs, tileMatrixes);
+            return new WmtsTileMatrixSet(identifier, supportedCrs, uriTemplate.Replace("{TileMatrixSet}", identifier), tileMatrixes);
         }
 
         public static WmtsTileMatrix ReadTileMatrix(XElement tileMatrixElement, string supportedCrs)
