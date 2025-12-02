@@ -61,7 +61,7 @@ namespace MapControl
         /// </summary>
         public static TileSource Parse(string uriTemplate)
         {
-            return new UriTileSource(uriTemplate);
+            return new UriTileSource { UriTemplate = uriTemplate };
         }
     }
 }

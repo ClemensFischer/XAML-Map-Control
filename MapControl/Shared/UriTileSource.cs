@@ -4,19 +4,25 @@ namespace MapControl
 {
     public class UriTileSource : TileSource
     {
-        private readonly string uriFormat;
+        private string uriTemplate;
+        private string uriFormat;
 
-        public UriTileSource(string uriTemplate)
+        public string UriTemplate
         {
-            uriFormat = uriTemplate
-                .Replace("{z}", "{0}")
-                .Replace("{x}", "{1}")
-                .Replace("{y}", "{2}")
-                .Replace("{s}", "{3}");
-
-            if (Subdomains == null && uriTemplate.Contains("{s}"))
+            get => uriTemplate;
+            set
             {
-                Subdomains = ["a", "b", "c"]; // default OpenStreetMap subdomains
+                uriTemplate = value;
+                uriFormat = uriTemplate
+                    .Replace("{z}", "{0}")
+                    .Replace("{x}", "{1}")
+                    .Replace("{y}", "{2}")
+                    .Replace("{s}", "{3}");
+
+                if (Subdomains == null && uriTemplate.Contains("{s}"))
+                {
+                    Subdomains = ["a", "b", "c"]; // default OpenStreetMap subdomains
+                }
             }
         }
 
@@ -39,7 +45,7 @@ namespace MapControl
         }
     }
 
-    public class TmsTileSource(string uriTemplate) : UriTileSource(uriTemplate)
+    public class TmsTileSource : UriTileSource
     {
         public override Uri GetUri(int zoomLevel, int column, int row)
         {
