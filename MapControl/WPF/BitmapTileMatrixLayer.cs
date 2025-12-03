@@ -28,9 +28,9 @@ namespace MapControl
 
                 PixelBuffer = new byte[4 * width * height];
                 bitmap.CopyPixels(PixelBuffer, 4 * width, 0);
-
-                Completed?.Invoke(this, EventArgs.Empty);
             }
+
+            Completed?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -172,14 +172,17 @@ namespace MapControl
 
             tile.Completed -= OnTileCompleted;
 
-            Dispatcher.Invoke(() =>
+            if (tile.PixelBuffer != null)
             {
-                if (tile.X >= TileMatrix.XMin && tile.X <= TileMatrix.XMax &&
-                    tile.Y >= TileMatrix.YMin && tile.Y <= TileMatrix.YMax)
+                Dispatcher.Invoke(() =>
                 {
-                    CopyTile(tile);
-                }
-            });
+                    if (tile.X >= TileMatrix.XMin && tile.X <= TileMatrix.XMax &&
+                        tile.Y >= TileMatrix.YMin && tile.Y <= TileMatrix.YMax)
+                    {
+                        CopyTile(tile);
+                    }
+                });
+            }
         }
     }
 }

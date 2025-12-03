@@ -8,8 +8,7 @@ using Avalonia;
 namespace MapControl
 {
     public class WmtsTileMatrix(
-        string identifier, double scale, Point topLeft,
-        int tileWidth, int tileHeight, int matrixWidth, int matrixHeight)
+        string identifier, double scale, Point topLeft, int tileWidth, int tileHeight, int matrixWidth, int matrixHeight)
     {
         public string Identifier => identifier;
         public double Scale => scale;
