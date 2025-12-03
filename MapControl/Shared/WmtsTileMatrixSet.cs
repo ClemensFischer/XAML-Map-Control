@@ -19,13 +19,21 @@ namespace MapControl
         public static WmtsTileMatrixSet CreateOpenStreetMapTileMatrixSet(
             string uriTemplate, int minZoomLevel = 0, int maxZoomLevel = 19)
         {
-            const int tileSize = 256;
-            const double baseScale = tileSize / (360d * MapProjection.Wgs84MeterPerDegree);
+            static WmtsTileMatrix CreateWmtsTileMatrix(int zoomLevel)
+            {
+                const int tileSize = 256;
+                const double origin = 180d * MapProjection.Wgs84MeterPerDegree;
 
-            Point mapTopLeft = new(-180d * MapProjection.Wgs84MeterPerDegree,
-                                    180d * MapProjection.Wgs84MeterPerDegree);
+                var matrixSize = 1 << zoomLevel;
+                var scale = matrixSize * tileSize / (2d * origin);
 
-            return new WmtsTileMatrixSet(null,
+                return new WmtsTileMatrix(
+                    zoomLevel.ToString(), scale, new Point(-origin, origin),
+                    tileSize, tileSize, matrixSize, matrixSize);
+            }
+
+            return new WmtsTileMatrixSet(
+                null,
                 WebMercatorProjection.DefaultCrsId,
                 uriTemplate
                     .Replace("{z}", "{0}")
@@ -33,11 +41,7 @@ namespace MapControl
                     .Replace("{y}", "{2}"),
                 Enumerable
                     .Range(minZoomLevel, maxZoomLevel - minZoomLevel + 1)
-                    .Select<int, (int zoomLevel, int matrixSize)>(z => (z, 1 << z))
-                    .Select(t => new WmtsTileMatrix(
-                        t.zoomLevel.ToString(),
-                        t.matrixSize * baseScale, mapTopLeft,
-                        tileSize, tileSize, t.matrixSize, t.matrixSize)));
+                    .Select(CreateWmtsTileMatrix));
         }
     }
 }
