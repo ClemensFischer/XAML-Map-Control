@@ -4,53 +4,37 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace MapControl
 {
-    public class BitmapTile(int zoomLevel, int x, int y, int columnCount, int width, int height)
+    public class ImageSourceTile(int zoomLevel, int x, int y, int columnCount)
         : Tile(zoomLevel, x, y, columnCount)
     {
         public event EventHandler Completed;
 
-        public byte[] PixelBuffer { get; set; }
+        public ImageSource ImageSource { get; set; }
 
         public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
         {
-            var image = await loadImageFunc().ConfigureAwait(false);
-
-            if (image is BitmapSource bitmap)
-            {
-                if (bitmap.Format != PixelFormats.Pbgra32)
-                {
-                    bitmap = new FormatConvertedBitmap(bitmap, PixelFormats.Pbgra32, null, 0d);
-                }
-
-                PixelBuffer = new byte[4 * width * height];
-                bitmap.CopyPixels(PixelBuffer, 4 * width, 0);
-            }
+            ImageSource = await loadImageFunc().ConfigureAwait(false);
 
             Completed?.Invoke(this, EventArgs.Empty);
         }
     }
 
-    public class BitmapTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel) : UIElement
+    public class DrawingTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel) : UIElement
     {
-        private readonly ImageBrush imageBrush = new ImageBrush
-        {
-            ViewportUnits = BrushMappingMode.Absolute,
-            Transform = new MatrixTransform()
-        };
-
         public WmtsTileMatrix WmtsTileMatrix => wmtsTileMatrix;
 
         public TileMatrix TileMatrix { get; private set; } = new TileMatrix(zoomLevel, 1, 1, 0, 0);
 
-        public IEnumerable<BitmapTile> Tiles { get; private set; } = [];
+        public IEnumerable<ImageSourceTile> Tiles { get; private set; } = [];
+
+        public DrawingGroup Drawing { get; } = new DrawingGroup { Transform = new MatrixTransform() };
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            drawingContext.DrawRectangle(imageBrush, null, new Rect(RenderSize));
+            drawingContext.DrawDrawing(Drawing);
         }
 
         public void UpdateRenderTransform(ViewTransform viewTransform)
@@ -59,7 +43,7 @@ namespace MapControl
             //
             var tileMatrixOrigin = new Point(WmtsTileMatrix.TileWidth * TileMatrix.XMin, WmtsTileMatrix.TileHeight * TileMatrix.YMin);
 
-            ((MatrixTransform)imageBrush.Transform).Matrix =
+            ((MatrixTransform)Drawing.Transform).Matrix =
                 viewTransform.GetTileLayerTransform(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, tileMatrixOrigin);
         }
 
@@ -99,24 +83,15 @@ namespace MapControl
 
             TileMatrix = new TileMatrix(TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax);
 
-            CreateBitmap();
+            Drawing.Children.Clear();
             CreateTiles();
 
             return true;
         }
 
-        private void CreateBitmap()
-        {
-            var width = WmtsTileMatrix.TileWidth * (TileMatrix.XMax - TileMatrix.XMin + 1);
-            var height = WmtsTileMatrix.TileHeight * (TileMatrix.YMax - TileMatrix.YMin + 1);
-
-            imageBrush.ImageSource = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
-            imageBrush.Viewport = new Rect(0, 0, width, height);
-        }
-
         private void CreateTiles()
         {
-            var tiles = new List<BitmapTile>();
+            var tiles = new List<ImageSourceTile>();
 
             for (var y = TileMatrix.YMin; y <= TileMatrix.YMax; y++)
             {
@@ -126,14 +101,14 @@ namespace MapControl
 
                     if (tile == null)
                     {
-                        tile = new BitmapTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth, WmtsTileMatrix.TileWidth, WmtsTileMatrix.TileHeight);
+                        tile = new ImageSourceTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth);
 
-                        var equivalentTile = Tiles.FirstOrDefault(t => t.PixelBuffer != null && t.Column == tile.Column && t.Row == tile.Row);
+                        var equivalentTile = Tiles.FirstOrDefault(t => t.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
 
                         if (equivalentTile != null)
                         {
                             tile.IsPending = false;
-                            tile.PixelBuffer = equivalentTile.PixelBuffer;
+                            tile.ImageSource = equivalentTile.ImageSource;
                         }
                         else
                         {
@@ -141,9 +116,9 @@ namespace MapControl
                         }
                     }
 
-                    if (tile.PixelBuffer != null)
+                    if (tile.ImageSource != null)
                     {
-                        CopyTile(tile);
+                        DrawTile(tile);
                     }
 
                     tiles.Add(tile);
@@ -153,28 +128,27 @@ namespace MapControl
             Tiles = tiles;
         }
 
-        private void CopyTile(BitmapTile tile)
+        private void DrawTile(ImageSourceTile tile)
         {
             var width = WmtsTileMatrix.TileWidth;
             var height = WmtsTileMatrix.TileHeight;
             var x = width * (tile.X - TileMatrix.XMin);
             var y = height * (tile.Y - TileMatrix.YMin);
 
-            ((WriteableBitmap)imageBrush.ImageSource).WritePixels(
-                new Int32Rect(x, y, width, height), tile.PixelBuffer, 4 * WmtsTileMatrix.TileWidth, 0);
+            Drawing.Children.Add(new ImageDrawing(tile.ImageSource, new Rect(x, y, width, height)));
         }
 
         private void OnTileCompleted(object sender, EventArgs e)
         {
-            var tile = (BitmapTile)sender;
+            var tile = (ImageSourceTile)sender;
 
             tile.Completed -= OnTileCompleted;
 
             if (tile.X >= TileMatrix.XMin && tile.X <= TileMatrix.XMax &&
                 tile.Y >= TileMatrix.YMin && tile.Y <= TileMatrix.YMax &&
-                tile.PixelBuffer != null)
+                tile.ImageSource != null)
             {
-                _ = Dispatcher.InvokeAsync(() => CopyTile(tile));
+                _ = Dispatcher.InvokeAsync(() => DrawTile(tile));
             }
         }
     }
