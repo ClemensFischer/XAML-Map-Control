@@ -92,6 +92,7 @@ namespace MapControl
         private void CreateTiles()
         {
             var tiles = new List<ImageDrawingTile>();
+            var drawings = new DrawingCollection();
 
             for (var y = TileMatrix.YMin; y <= TileMatrix.YMax; y++)
             {
@@ -119,11 +120,12 @@ namespace MapControl
                         WmtsTileMatrix.TileHeight);
 
                     tiles.Add(tile);
+                    drawings.Add(tile.Drawing);
                 }
             }
 
             Tiles = tiles;
-            Drawing.Children = [.. tiles.Select(tile => tile.Drawing)];
+            Drawing.Children = drawings;
         }
     }
 }
