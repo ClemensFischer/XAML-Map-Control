@@ -85,7 +85,6 @@ namespace MapControl
             TileMatrix = new TileMatrix(TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax);
 
             CreateTiles();
-            Drawing.Children = [.. Tiles.Select(tile => tile.Drawing)];
 
             return true;
         }
@@ -124,6 +123,7 @@ namespace MapControl
             }
 
             Tiles = tiles;
+            Drawing.Children = [.. tiles.Select(tile => tile.Drawing)];
         }
     }
 }
