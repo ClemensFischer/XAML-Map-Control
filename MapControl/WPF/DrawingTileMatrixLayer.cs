@@ -7,18 +7,19 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    public class ImageSourceTile(int zoomLevel, int x, int y, int columnCount)
+    public class ImageDrawingTile(int zoomLevel, int x, int y, int columnCount)
         : Tile(zoomLevel, x, y, columnCount)
     {
-        public event EventHandler Completed;
-
-        public ImageSource ImageSource { get; set; }
+        public ImageDrawing Drawing { get; } = new ImageDrawing();
 
         public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
         {
-            ImageSource = await loadImageFunc().ConfigureAwait(false);
+            var image = await loadImageFunc().ConfigureAwait(false);
 
-            Completed?.Invoke(this, EventArgs.Empty);
+            if (image != null)
+            {
+                await Drawing.Dispatcher.InvokeAsync(() => Drawing.ImageSource = image);
+            }
         }
     }
 
@@ -28,7 +29,7 @@ namespace MapControl
 
         public TileMatrix TileMatrix { get; private set; } = new TileMatrix(zoomLevel, 1, 1, 0, 0);
 
-        public IEnumerable<ImageSourceTile> Tiles { get; private set; } = [];
+        public IEnumerable<ImageDrawingTile> Tiles { get; private set; } = [];
 
         public DrawingGroup Drawing { get; } = new DrawingGroup { Transform = new MatrixTransform() };
 
@@ -83,15 +84,15 @@ namespace MapControl
 
             TileMatrix = new TileMatrix(TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax);
 
-            Drawing.Children.Clear();
             CreateTiles();
+            Drawing.Children = [.. Tiles.Select(tile => tile.Drawing)];
 
             return true;
         }
 
         private void CreateTiles()
         {
-            var tiles = new List<ImageSourceTile>();
+            var tiles = new List<ImageDrawingTile>();
 
             for (var y = TileMatrix.YMin; y <= TileMatrix.YMax; y++)
             {
@@ -101,55 +102,28 @@ namespace MapControl
 
                     if (tile == null)
                     {
-                        tile = new ImageSourceTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth);
+                        tile = new ImageDrawingTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth);
 
-                        var equivalentTile = Tiles.FirstOrDefault(t => t.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
+                        var equivalentTile = Tiles.FirstOrDefault(t => t.Drawing.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
 
                         if (equivalentTile != null)
                         {
                             tile.IsPending = false;
-                            tile.ImageSource = equivalentTile.ImageSource;
-                        }
-                        else
-                        {
-                            tile.Completed += OnTileCompleted;
+                            tile.Drawing.ImageSource = equivalentTile.Drawing.ImageSource;
                         }
                     }
 
-                    if (tile.ImageSource != null)
-                    {
-                        DrawTile(tile);
-                    }
+                    tile.Drawing.Rect = new Rect(
+                        WmtsTileMatrix.TileWidth * (x - TileMatrix.XMin),
+                        WmtsTileMatrix.TileHeight * (y - TileMatrix.YMin),
+                        WmtsTileMatrix.TileWidth,
+                        WmtsTileMatrix.TileHeight);
 
                     tiles.Add(tile);
                 }
             }
 
             Tiles = tiles;
-        }
-
-        private void DrawTile(ImageSourceTile tile)
-        {
-            var width = WmtsTileMatrix.TileWidth;
-            var height = WmtsTileMatrix.TileHeight;
-            var x = width * (tile.X - TileMatrix.XMin);
-            var y = height * (tile.Y - TileMatrix.YMin);
-
-            Drawing.Children.Add(new ImageDrawing(tile.ImageSource, new Rect(x, y, width, height)));
-        }
-
-        private void OnTileCompleted(object sender, EventArgs e)
-        {
-            var tile = (ImageSourceTile)sender;
-
-            tile.Completed -= OnTileCompleted;
-
-            if (tile.X >= TileMatrix.XMin && tile.X <= TileMatrix.XMax &&
-                tile.Y >= TileMatrix.YMin && tile.Y <= TileMatrix.YMax &&
-                tile.ImageSource != null)
-            {
-                _ = Dispatcher.InvokeAsync(() => DrawTile(tile));
-            }
         }
     }
 }
