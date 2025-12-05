@@ -7,5 +7,7 @@
         public int YMin => yMin;
         public int XMax => xMax;
         public int YMax => yMax;
+        public int Width => xMax - xMin + 1;
+        public int Height => yMax - yMin + 1;
     }
 }

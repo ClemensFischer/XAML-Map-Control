@@ -10,6 +10,7 @@ namespace MapControl
         }
 
         public ImageTileList(IEnumerable<ImageTile> source, TileMatrix tileMatrix, int columnCount)
+            : base(tileMatrix.Width * tileMatrix.Height)
         {
             FillMatrix(source, tileMatrix.ZoomLevel, tileMatrix.XMin, tileMatrix.YMin, tileMatrix.XMax, tileMatrix.YMax, columnCount);
         }

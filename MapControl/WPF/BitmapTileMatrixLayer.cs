@@ -107,8 +107,8 @@ namespace MapControl
 
         private void CreateBitmap()
         {
-            var width = WmtsTileMatrix.TileWidth * (TileMatrix.XMax - TileMatrix.XMin + 1);
-            var height = WmtsTileMatrix.TileHeight * (TileMatrix.YMax - TileMatrix.YMin + 1);
+            var width = WmtsTileMatrix.TileWidth * TileMatrix.Width;
+            var height = WmtsTileMatrix.TileHeight * TileMatrix.Height;
 
             imageBrush.ImageSource = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
             imageBrush.Viewport = new Rect(0, 0, width, height);
@@ -116,7 +116,7 @@ namespace MapControl
 
         private void CreateTiles()
         {
-            var tiles = new List<BitmapTile>();
+            var tiles = new List<BitmapTile>(TileMatrix.Width * TileMatrix.Height);
 
             for (var y = TileMatrix.YMin; y <= TileMatrix.YMax; y++)
             {

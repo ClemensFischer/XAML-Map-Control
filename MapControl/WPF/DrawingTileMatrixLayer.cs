@@ -91,8 +91,9 @@ namespace MapControl
 
         private void CreateTiles()
         {
-            var tiles = new List<ImageDrawingTile>();
-            var drawings = new DrawingCollection();
+            var tileCount = TileMatrix.Width * TileMatrix.Height;
+            var tiles = new List<ImageDrawingTile>(tileCount);
+            var drawings = new DrawingCollection(tileCount);
 
             for (var y = TileMatrix.YMin; y <= TileMatrix.YMax; y++)
             {
