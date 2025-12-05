@@ -13,7 +13,7 @@ namespace MapControl.UiTools
         {
             Icon = new TextBlock
             {
-                FontFamily = new("Segoe MDL2 Assets"),
+                FontFamily = new FontFamily("Segoe MDL2 Assets"),
                 FontWeight = FontWeight.Black,
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
             };

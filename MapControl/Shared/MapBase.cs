@@ -174,7 +174,7 @@ namespace MapControl
         /// Gets the ViewTransform instance that is used to transform between projected
         /// map coordinates and view coordinates.
         /// </summary>
-        public ViewTransform ViewTransform { get; } = new();
+        public ViewTransform ViewTransform { get; } = new ViewTransform();
 
         /// <summary>
         /// Gets the map scale as horizontal and vertical scaling factors from meters to

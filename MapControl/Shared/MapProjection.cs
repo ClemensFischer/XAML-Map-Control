@@ -52,12 +52,12 @@ namespace MapControl
         /// <summary>
         /// Gets or sets an optional projection center.
         /// </summary>
-        public virtual Location Center { get; protected internal set; } = new();
+        public virtual Location Center { get; protected internal set; } = new Location();
 
         /// <summary>
         /// Gets the relative map scale at the specified Location.
         /// </summary>
-        public virtual Point GetRelativeScale(Location location) => new(1d, 1d);
+        public virtual Point GetRelativeScale(Location location) => new Point(1d, 1d);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.

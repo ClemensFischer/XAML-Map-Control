@@ -26,8 +26,8 @@ namespace MapControl
     {
         private const int tileSize = 256;
 
-        private static readonly Point mapTopLeft = new(-180d * MapProjection.Wgs84MeterPerDegree,
-                                                        180d * MapProjection.Wgs84MeterPerDegree);
+        private static readonly Point mapTopLeft = new Point(-180d * MapProjection.Wgs84MeterPerDegree,
+                                                              180d * MapProjection.Wgs84MeterPerDegree);
 
         public static readonly DependencyProperty TileSourceProperty =
             DependencyPropertyHelper.Register<MapTileLayer, TileSource>(nameof(TileSource), null,
@@ -45,7 +45,7 @@ namespace MapControl
         /// <summary>
         /// A default MapTileLayer using OpenStreetMap data.
         /// </summary>
-        public static MapTileLayer OpenStreetMapTileLayer => new()
+        public static MapTileLayer OpenStreetMapTileLayer => new MapTileLayer
         {
             TileSource = TileSource.Parse("https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
             SourceName = "OpenStreetMap",

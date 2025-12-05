@@ -4,22 +4,55 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace MapControl
 {
-    public class ImageDrawingTile(int zoomLevel, int x, int y, int columnCount)
-        : Tile(zoomLevel, x, y, columnCount)
+    public class ImageDrawingTile : Tile
     {
-        public ImageDrawing Drawing { get; } = new ImageDrawing();
+        private readonly ImageDrawing imageDrawing = new ImageDrawing();
+
+        public ImageDrawingTile(int zoomLevel, int x, int y, int columnCount)
+            : base(zoomLevel, x, y, columnCount)
+        {
+            Drawing.Children.Add(imageDrawing);
+        }
+
+        public DrawingGroup Drawing { get; } = new DrawingGroup();
+
+        public ImageSource ImageSource
+        {
+            get => imageDrawing.ImageSource;
+            set => imageDrawing.ImageSource = value;
+        }
+
+        public void SetRect(int xMin, int yMin, int tileWidth, int tileHeight)
+        {
+            imageDrawing.Rect = new Rect(tileWidth * (X - xMin), tileHeight * (Y - yMin), tileWidth, tileHeight);
+        }
 
         public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
         {
             var image = await loadImageFunc().ConfigureAwait(false);
 
-            if (image != null)
+            void SetImageSource()
             {
-                await Drawing.Dispatcher.InvokeAsync(() => Drawing.ImageSource = image);
+                imageDrawing.ImageSource = image;
+
+                if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                {
+                    var fadeInAnimation = new DoubleAnimation
+                    {
+                        From = 0d,
+                        Duration = MapBase.ImageFadeDuration,
+                        FillBehavior = FillBehavior.Stop
+                    };
+
+                    Drawing.BeginAnimation(DrawingGroup.OpacityProperty, fadeInAnimation);
+                }
             }
+
+            await Drawing.Dispatcher.InvokeAsync(SetImageSource);
         }
     }
 
@@ -105,20 +138,16 @@ namespace MapControl
                     {
                         tile = new ImageDrawingTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth);
 
-                        var equivalentTile = Tiles.FirstOrDefault(t => t.Drawing.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
+                        var equivalentTile = Tiles.FirstOrDefault(t => t.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
 
                         if (equivalentTile != null)
                         {
                             tile.IsPending = false;
-                            tile.Drawing.ImageSource = equivalentTile.Drawing.ImageSource;
+                            tile.ImageSource = equivalentTile.ImageSource;
                         }
                     }
 
-                    tile.Drawing.Rect = new Rect(
-                        WmtsTileMatrix.TileWidth * (x - TileMatrix.XMin),
-                        WmtsTileMatrix.TileHeight * (y - TileMatrix.YMin),
-                        WmtsTileMatrix.TileWidth,
-                        WmtsTileMatrix.TileHeight);
+                    tile.SetRect(TileMatrix.XMin, TileMatrix.YMin, WmtsTileMatrix.TileWidth, WmtsTileMatrix.TileHeight);
 
                     tiles.Add(tile);
                     drawings.Add(tile.Drawing);

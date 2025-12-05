@@ -38,7 +38,7 @@ namespace MapControl
         public virtual double Width => East - West;
         public virtual double Height => North - South;
 
-        public virtual Location Center => new((South + North) / 2d, (West + East) / 2d);
+        public virtual Location Center => new Location((South + North) / 2d, (West + East) / 2d);
 
         public override string ToString()
         {
