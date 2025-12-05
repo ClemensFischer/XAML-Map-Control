@@ -1,68 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 
 namespace MapControl
 {
-    public class ImageDrawingTile : Tile
-    {
-        private readonly ImageDrawing imageDrawing = new ImageDrawing();
-
-        public ImageDrawingTile(int zoomLevel, int x, int y, int columnCount)
-            : base(zoomLevel, x, y, columnCount)
-        {
-            Drawing.Children.Add(imageDrawing);
-        }
-
-        public DrawingGroup Drawing { get; } = new DrawingGroup();
-
-        public ImageSource ImageSource
-        {
-            get => imageDrawing.ImageSource;
-            set => imageDrawing.ImageSource = value;
-        }
-
-        public void SetRect(int xMin, int yMin, int tileWidth, int tileHeight)
-        {
-            imageDrawing.Rect = new Rect(tileWidth * (X - xMin), tileHeight * (Y - yMin), tileWidth, tileHeight);
-        }
-
-        public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
-        {
-            var image = await loadImageFunc().ConfigureAwait(false);
-
-            void SetImageSource()
-            {
-                imageDrawing.ImageSource = image;
-
-                if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
-                {
-                    var fadeInAnimation = new DoubleAnimation
-                    {
-                        From = 0d,
-                        Duration = MapBase.ImageFadeDuration,
-                        FillBehavior = FillBehavior.Stop
-                    };
-
-                    Drawing.BeginAnimation(DrawingGroup.OpacityProperty, fadeInAnimation);
-                }
-            }
-
-            await Drawing.Dispatcher.InvokeAsync(SetImageSource);
-        }
-    }
-
     public class DrawingTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel) : UIElement
     {
         public WmtsTileMatrix WmtsTileMatrix => wmtsTileMatrix;
 
         public TileMatrix TileMatrix { get; private set; } = new TileMatrix(zoomLevel, 1, 1, 0, 0);
 
-        public IEnumerable<ImageDrawingTile> Tiles { get; private set; } = [];
+        public IEnumerable<DrawingTile> Tiles { get; private set; } = [];
 
         public DrawingGroup Drawing { get; } = new DrawingGroup { Transform = new MatrixTransform() };
 
@@ -125,7 +75,7 @@ namespace MapControl
         private void CreateTiles()
         {
             var tileCount = TileMatrix.Width * TileMatrix.Height;
-            var tiles = new List<ImageDrawingTile>(tileCount);
+            var tiles = new List<DrawingTile>(tileCount);
             var drawings = new DrawingCollection(tileCount);
 
             for (var y = TileMatrix.YMin; y <= TileMatrix.YMax; y++)
@@ -136,14 +86,14 @@ namespace MapControl
 
                     if (tile == null)
                     {
-                        tile = new ImageDrawingTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth);
+                        tile = new DrawingTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth);
 
                         var equivalentTile = Tiles.FirstOrDefault(t => t.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
 
                         if (equivalentTile != null)
                         {
                             tile.IsPending = false;
-                            tile.ImageSource = equivalentTile.ImageSource;
+                            tile.ImageSource = equivalentTile.ImageSource; // no Opacity animation
                         }
                     }
 
