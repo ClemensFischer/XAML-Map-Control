@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -9,26 +8,15 @@ namespace MapControl
 {
     public class DrawingTile : Tile
     {
-        private readonly ImageDrawing imageDrawing = new ImageDrawing();
-
         public DrawingTile(int zoomLevel, int x, int y, int columnCount)
             : base(zoomLevel, x, y, columnCount)
         {
-            Drawing.Children.Add(imageDrawing);
+            Drawing.Children.Add(ImageDrawing);
         }
 
         public DrawingGroup Drawing { get; } = new DrawingGroup();
 
-        public ImageSource ImageSource
-        {
-            get => imageDrawing.ImageSource;
-            set => imageDrawing.ImageSource = value;
-        }
-
-        public void SetRect(int xMin, int yMin, int tileWidth, int tileHeight)
-        {
-            imageDrawing.Rect = new Rect(tileWidth * (X - xMin), tileHeight * (Y - yMin), tileWidth, tileHeight);
-        }
+        public ImageDrawing ImageDrawing { get; } = new ImageDrawing();
 
         public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
         {
@@ -36,7 +24,7 @@ namespace MapControl
 
             void SetImageSource()
             {
-                imageDrawing.ImageSource = image;
+                ImageDrawing.ImageSource = image;
 
                 if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
                 {
@@ -84,7 +72,7 @@ namespace MapControl
             bitmap.DownloadCompleted -= BitmapDownloadCompleted;
             bitmap.DownloadFailed -= BitmapDownloadFailed;
 
-            imageDrawing.ImageSource = null;
+            ImageDrawing.ImageSource = null;
         }
     }
 }

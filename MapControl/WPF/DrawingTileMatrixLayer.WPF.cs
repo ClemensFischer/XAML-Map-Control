@@ -88,16 +88,20 @@ namespace MapControl
                     {
                         tile = new DrawingTile(TileMatrix.ZoomLevel, x, y, WmtsTileMatrix.MatrixWidth);
 
-                        var equivalentTile = Tiles.FirstOrDefault(t => t.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
+                        var equivalentTile = Tiles.FirstOrDefault(t => t.ImageDrawing.ImageSource != null && t.Column == tile.Column && t.Row == tile.Row);
 
                         if (equivalentTile != null)
                         {
                             tile.IsPending = false;
-                            tile.ImageSource = equivalentTile.ImageSource; // no Opacity animation
+                            tile.ImageDrawing.ImageSource = equivalentTile.ImageDrawing.ImageSource; // no Opacity animation
                         }
                     }
 
-                    tile.SetRect(TileMatrix.XMin, TileMatrix.YMin, WmtsTileMatrix.TileWidth, WmtsTileMatrix.TileHeight);
+                    tile.ImageDrawing.Rect = new Rect(
+                        WmtsTileMatrix.TileWidth * (x - TileMatrix.XMin),
+                        WmtsTileMatrix.TileHeight * (y - TileMatrix.YMin),
+                        WmtsTileMatrix.TileWidth,
+                        WmtsTileMatrix.TileHeight);
 
                     tiles.Add(tile);
                     drawings.Add(tile.Drawing);
