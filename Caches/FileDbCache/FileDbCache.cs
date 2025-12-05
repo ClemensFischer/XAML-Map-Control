@@ -23,9 +23,9 @@ namespace MapControl.Caching
     /// </summary>
     public sealed class FileDbCache : IDistributedCache, IDisposable
     {
-        private const string keyField = "Key";
-        private const string valueField = "Value";
-        private const string expiresField = "Expires";
+        private const string KeyField = "Key";
+        private const string ValueField = "Value";
+        private const string ExpiresField = "Expires";
 
         private readonly FileDb fileDb = new FileDb { AutoFlush = true };
         private readonly Timer timer;
@@ -71,9 +71,9 @@ namespace MapControl.Caching
 
                 fileDb.Create(path, new Field[]
                 {
-                    new Field(keyField, DataTypeEnum.String) { IsPrimaryKey = true },
-                    new Field(valueField, DataTypeEnum.Byte) { IsArray = true },
-                    new Field(expiresField, DataTypeEnum.DateTime)
+                    new Field(KeyField, DataTypeEnum.String) { IsPrimaryKey = true },
+                    new Field(ValueField, DataTypeEnum.Byte) { IsArray = true },
+                    new Field(ExpiresField, DataTypeEnum.DateTime)
                 });
 
                 logger?.LogInformation("Created database {path}", path);
@@ -99,7 +99,7 @@ namespace MapControl.Caching
             {
                 try
                 {
-                    var record = fileDb.GetRecordByKey(key, new string[] { valueField, expiresField }, false);
+                    var record = fileDb.GetRecordByKey(key, new string[] { ValueField, ExpiresField }, false);
 
                     if (record != null && (DateTime)record[1] > DateTime.UtcNow)
                     {
@@ -130,8 +130,8 @@ namespace MapControl.Caching
 
                 var fieldValues = new FieldValues(3)
                 {
-                    { valueField, value },
-                    { expiresField, expiration }
+                    { ValueField, value },
+                    { ExpiresField, expiration }
                 };
 
                 try
@@ -142,7 +142,7 @@ namespace MapControl.Caching
                     }
                     else
                     {
-                        fieldValues.Add(keyField, key);
+                        fieldValues.Add(KeyField, key);
                         fileDb.AddRecord(fieldValues);
                     }
                 }
@@ -193,7 +193,7 @@ namespace MapControl.Caching
 
         public void DeleteExpiredItems()
         {
-            var deletedItemsCount = fileDb.DeleteRecords(new FilterExpression(expiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
+            var deletedItemsCount = fileDb.DeleteRecords(new FilterExpression(ExpiresField, DateTime.UtcNow, ComparisonOperatorEnum.LessThanOrEqual));
 
             if (deletedItemsCount > 0)
             {

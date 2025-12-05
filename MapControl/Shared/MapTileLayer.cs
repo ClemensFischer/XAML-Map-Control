@@ -24,9 +24,9 @@ namespace MapControl
     /// </summary>
     public class MapTileLayer : TilePyramidLayer
     {
-        private const int tileSize = 256;
+        private const int TileSize = 256;
 
-        private static readonly Point mapTopLeft = new Point(-180d * MapProjection.Wgs84MeterPerDegree,
+        private static readonly Point MapTopLeft = new Point(-180d * MapProjection.Wgs84MeterPerDegree,
                                                               180d * MapProjection.Wgs84MeterPerDegree);
 
         public static readonly DependencyProperty TileSourceProperty =
@@ -116,9 +116,9 @@ namespace MapControl
             {
                 // Arrange tiles relative to TileMatrix.XMin/YMin.
                 //
-                var tileSize = MapTileLayer.tileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
-                var x = tileSize * tile.X - MapTileLayer.tileSize * TileMatrix.XMin;
-                var y = tileSize * tile.Y - MapTileLayer.tileSize * TileMatrix.YMin;
+                var tileSize = TileSize << (TileMatrix.ZoomLevel - tile.ZoomLevel);
+                var x = tileSize * tile.X - TileSize * TileMatrix.XMin;
+                var y = tileSize * tile.Y - TileSize * TileMatrix.YMin;
 
                 tile.Image.Width = tileSize;
                 tile.Image.Height = tileSize;
@@ -134,11 +134,11 @@ namespace MapControl
             {
                 // Tile matrix origin in pixels.
                 //
-                var tileMatrixOrigin = new Point(tileSize * TileMatrix.XMin, tileSize * TileMatrix.YMin);
+                var tileMatrixOrigin = new Point(TileSize * TileMatrix.XMin, TileSize * TileMatrix.YMin);
                 var tileMatrixScale = MapBase.ZoomLevelToScale(TileMatrix.ZoomLevel);
 
                 ((MatrixTransform)RenderTransform).Matrix =
-                    ParentMap.ViewTransform.GetTileLayerTransform(tileMatrixScale, mapTopLeft, tileMatrixOrigin);
+                    ParentMap.ViewTransform.GetTileLayerTransform(tileMatrixScale, MapTopLeft, tileMatrixOrigin);
             }
         }
 
@@ -178,14 +178,14 @@ namespace MapControl
 
             // Tile matrix bounds in pixels.
             //
-            var bounds = ParentMap.ViewTransform.GetTileMatrixBounds(tileMatrixScale, mapTopLeft, ParentMap.ActualWidth, ParentMap.ActualHeight);
+            var bounds = ParentMap.ViewTransform.GetTileMatrixBounds(tileMatrixScale, MapTopLeft, ParentMap.ActualWidth, ParentMap.ActualHeight);
 
             // Tile X and Y bounds.
             //
-            var xMin = (int)Math.Floor(bounds.X / tileSize);
-            var yMin = (int)Math.Floor(bounds.Y / tileSize);
-            var xMax = (int)Math.Floor((bounds.X + bounds.Width) / tileSize);
-            var yMax = (int)Math.Floor((bounds.Y + bounds.Height) / tileSize);
+            var xMin = (int)Math.Floor(bounds.X / TileSize);
+            var yMin = (int)Math.Floor(bounds.Y / TileSize);
+            var xMax = (int)Math.Floor((bounds.X + bounds.Width) / TileSize);
+            var yMax = (int)Math.Floor((bounds.Y + bounds.Height) / TileSize);
 
             if (TileMatrix != null &&
                 TileMatrix.ZoomLevel == tileMatrixZoomLevel &&
