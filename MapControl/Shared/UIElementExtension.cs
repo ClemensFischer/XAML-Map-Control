@@ -1,4 +1,5 @@
 ﻿#if AVALONIA
+global using UIElement = Avalonia.Controls.Control;
 global using FrameworkElement = Avalonia.Controls.Control;
 using Avalonia;
 using Avalonia.Media;
@@ -15,9 +16,9 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MapControl
 {
-    public static class FrameworkElementExtensions
+    public static class UIElementExtension
     {
-        public static void SetRenderTransform(this FrameworkElement element, Transform transform, bool center = false)
+        public static void SetRenderTransform(this UIElement element, Transform transform, bool center = false)
         {
             element.RenderTransform = transform;
 #if AVALONIA
@@ -30,7 +31,7 @@ namespace MapControl
 #endif
         }
 
-        public static void SetVisible(this FrameworkElement element, bool visible)
+        public static void SetVisible(this UIElement element, bool visible)
         {
 #if AVALONIA
             element.IsVisible = visible;
