@@ -33,6 +33,6 @@
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.9" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.9" />
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.9" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.1" />
     </ItemGroup>
 </Project>
