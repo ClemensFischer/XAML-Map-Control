@@ -17,6 +17,12 @@ using Avalonia.Interactivity;
 
 namespace MapControl
 {
+#if WPF
+    using TileMatrixLayer = DrawingTileMatrixLayer;
+#else
+    using TileMatrixLayer = WmtsTileMatrixLayer;
+#endif
+
     /// <summary>
     /// Displays map tiles from a Web Map Tile Service (WMTS).
     /// </summary>
@@ -78,7 +84,7 @@ namespace MapControl
         /// </summary>
         public override IReadOnlyCollection<string> SupportedCrsIds => TileMatrixSets.Keys;
 
-        protected IEnumerable<WmtsTileMatrixLayer> ChildLayers => Children.Cast<WmtsTileMatrixLayer>();
+        protected IEnumerable<TileMatrixLayer> ChildLayers => Children.Cast<TileMatrixLayer>();
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -94,7 +100,7 @@ namespace MapControl
         {
             foreach (var layer in ChildLayers)
             {
-                layer.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
+                layer.Arrange(new Rect(0d, 0d, finalSize.Width, finalSize.Height));
             }
 
             return finalSize;
@@ -176,10 +182,10 @@ namespace MapControl
 
             foreach (var tileMatrix in tileMatrixes)
             {
-                // Pass index of tileMatrix in tileMatrixSet as zoom level to WmtsTileMatrixLayer ctor.
+                // Pass index of tileMatrix in tileMatrixSet as zoom level to TileMatrixLayer ctor.
                 //
                 var layer = layers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
-                    new WmtsTileMatrixLayer(tileMatrix, tileMatrixSet.IndexOf(tileMatrix));
+                    new TileMatrixLayer(tileMatrix, tileMatrixSet.IndexOf(tileMatrix));
 
                 if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
                 {
