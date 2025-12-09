@@ -8,17 +8,22 @@ namespace MapControl
 {
     public class DrawingTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel) : UIElement
     {
+        private readonly MatrixTransform transform = new MatrixTransform();
+
         public WmtsTileMatrix WmtsTileMatrix => wmtsTileMatrix;
 
         public TileMatrix TileMatrix { get; private set; } = new TileMatrix(zoomLevel, 1, 1, 0, 0);
 
         public IEnumerable<DrawingTile> Tiles { get; private set; } = [];
 
-        public DrawingGroup Drawing { get; } = new DrawingGroup { Transform = new MatrixTransform() };
-
         protected override void OnRender(DrawingContext drawingContext)
         {
-            drawingContext.DrawDrawing(Drawing);
+            drawingContext.PushTransform(transform);
+
+            foreach (var tile in Tiles)
+            {
+                drawingContext.DrawDrawing(tile.Drawing);
+            }
         }
 
         public void UpdateRenderTransform(ViewTransform viewTransform)
@@ -27,8 +32,7 @@ namespace MapControl
             //
             var tileMatrixOrigin = new Point(WmtsTileMatrix.TileWidth * TileMatrix.XMin, WmtsTileMatrix.TileHeight * TileMatrix.YMin);
 
-            ((MatrixTransform)Drawing.Transform).Matrix =
-                viewTransform.GetTileLayerTransform(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, tileMatrixOrigin);
+            transform.Matrix = viewTransform.GetTileLayerTransform(WmtsTileMatrix.Scale, WmtsTileMatrix.TopLeft, tileMatrixOrigin);
         }
 
         public bool UpdateTiles(ViewTransform viewTransform, double viewWidth, double viewHeight)
@@ -68,15 +72,14 @@ namespace MapControl
             TileMatrix = new TileMatrix(TileMatrix.ZoomLevel, xMin, yMin, xMax, yMax);
 
             CreateTiles();
+            InvalidateVisual();
 
             return true;
         }
 
         private void CreateTiles()
         {
-            var tileCount = TileMatrix.Width * TileMatrix.Height;
-            var tiles = new List<DrawingTile>(tileCount);
-            var drawings = new DrawingCollection(tileCount);
+            var tiles = new List<DrawingTile>(TileMatrix.Width * TileMatrix.Height);
 
             for (var y = TileMatrix.YMin; y <= TileMatrix.YMax; y++)
             {
@@ -104,12 +107,10 @@ namespace MapControl
                         WmtsTileMatrix.TileHeight);
 
                     tiles.Add(tile);
-                    drawings.Add(tile.Drawing);
                 }
             }
 
             Tiles = tiles;
-            Drawing.Children = drawings;
         }
     }
 }
