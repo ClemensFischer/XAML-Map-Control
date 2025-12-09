@@ -59,7 +59,7 @@ namespace MapControl
 
             Content = grid;
 
-            SizeChanged += (s, e) => path.Data = BuildGeometry();
+            SizeChanged += (_, _) => path.Data = BuildGeometry();
         }
 
         public UIElement Child

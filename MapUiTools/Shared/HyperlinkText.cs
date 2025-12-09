@@ -46,7 +46,7 @@ namespace MapControl.UiTools
 #if WPF
                     link.ToolTip = uri.ToString();
 
-                    link.RequestNavigate += (s, e) =>
+                    link.RequestNavigate += (_, e) =>
                     {
                         try
                         {

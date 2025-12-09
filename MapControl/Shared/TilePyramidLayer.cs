@@ -62,7 +62,7 @@ namespace MapControl
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = new UpdateTimer { Interval = UpdateInterval };
-            updateTimer.Tick += (s, e) => UpdateTiles();
+            updateTimer.Tick += (_, _) => UpdateTiles();
 #if WPF
             RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
 #elif UWP || WINUI

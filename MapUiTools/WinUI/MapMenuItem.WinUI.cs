@@ -14,13 +14,13 @@ namespace MapControl.UiTools
     {
         protected MapMenuItem()
         {
-            Loaded += (s, e) =>
+            Loaded += (_, _) =>
             {
                 ParentMenuItems = ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>().ToList();
                 Initialize();
             };
 
-            Click += (s, e) => Execute();
+            Click += (_, _) => Execute();
         }
 
         protected IList<MapMenuItem> ParentMenuItems { get; private set; }

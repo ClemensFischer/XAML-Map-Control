@@ -18,8 +18,8 @@ namespace MapControl.UiTools
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
             };
 
-            Loaded += (s, e) => Initialize();
-            Click += (s, e) => Execute();
+            Loaded += (_, _) => Initialize();
+            Click += (_, _) => Execute();
         }
 
         public string Text

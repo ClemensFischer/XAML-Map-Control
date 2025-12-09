@@ -15,9 +15,9 @@ namespace MapControl.UiTools
         public MenuButton()
         {
             ContextMenu = new ContextMenu();
-            DataContextChanged += (s, e) => ContextMenu.DataContext = e.NewValue;
-            Loaded += async (s, e) => await Initialize();
-            Click += (s, e) => ContextMenu.IsOpen = true;
+            DataContextChanged += (_, e) => ContextMenu.DataContext = e.NewValue;
+            Loaded += async (_, _) => await Initialize();
+            Click += (_, _) => ContextMenu.IsOpen = true;
         }
 
         public string Icon

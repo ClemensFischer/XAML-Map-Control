@@ -15,7 +15,7 @@ namespace MapControl.UiTools
         public MenuButton()
         {
             Flyout = new MenuFlyout();
-            Loaded += async (s, e) => await Initialize();
+            Loaded += async (_, _) => await Initialize();
         }
 
         public string Icon

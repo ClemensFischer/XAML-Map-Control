@@ -26,8 +26,8 @@ namespace MapControl
             // Workaround for missing property value inheritance.
             // Loaded and Unloaded handlers set and clear the ParentMap property value.
             //
-            element.Loaded += (s, e) => GetParentMap((FrameworkElement)s);
-            element.Unloaded += (s, e) => ((FrameworkElement)s).ClearValue(ParentMapProperty);
+            element.Loaded += (_, _) => GetParentMap(element);
+            element.Unloaded += (_, _) => element.ClearValue(ParentMapProperty);
         }
 
         public static MapBase GetParentMap(FrameworkElement element)

@@ -63,7 +63,7 @@ namespace MapControl
             loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
             updateTimer = new UpdateTimer { Interval = UpdateInterval };
-            updateTimer.Tick += async (s, e) => await UpdateImageAsync();
+            updateTimer.Tick += async (_, _) => await UpdateImageAsync();
         }
 
         /// <summary>

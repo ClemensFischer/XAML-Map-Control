@@ -8,8 +8,8 @@ namespace MapControl.UiTools
     {
         protected MapMenuItem()
         {
-            Loaded += (s, e) => Initialize();
-            Click += (s, e) => Execute();
+            Loaded += (_, _) => Initialize();
+            Click += (_, _) => Execute();
         }
 
         public string Text
