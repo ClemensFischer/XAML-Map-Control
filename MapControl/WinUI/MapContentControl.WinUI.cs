@@ -13,7 +13,7 @@ namespace MapControl
     /// <summary>
     /// ContentControl placed on a MapPanel at a geographic location specified by the Location property.
     /// </summary>
-    public partial class MapContentControl : ContentControl
+    public class MapContentControl : ContentControl
     {
         public static readonly DependencyProperty AutoCollapseProperty =
             DependencyPropertyHelper.Register<MapContentControl, bool>(nameof(AutoCollapse), false,
@@ -79,7 +79,7 @@ namespace MapControl
     /// <summary>
     /// MapContentControl with a Pushpin Style.
     /// </summary>
-    public partial class Pushpin : MapContentControl
+    public class Pushpin : MapContentControl
     {
         public Pushpin()
         {
