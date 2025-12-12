@@ -1,4 +1,6 @@
-﻿#if WPF
+﻿using System.Collections.Generic;
+using System.Linq;
+#if WPF
 using System.Windows;
 #elif UWP
 using Windows.UI.Xaml;
@@ -93,12 +95,7 @@ namespace MapControl
 
         protected Point? LocationToMap(Location location, double longitudeOffset)
         {
-            if (longitudeOffset != 0d)
-            {
-                location = new Location(location.Latitude, location.Longitude + longitudeOffset);
-            }
-
-            var point = parentMap.MapProjection.LocationToMap(location);
+            var point = parentMap.MapProjection.LocationToMap(location.Latitude, location.Longitude + longitudeOffset);
 
             if (point.HasValue)
             {
@@ -125,6 +122,22 @@ namespace MapControl
             }
 
             return point;
+        }
+
+        protected IEnumerable<Point> LocationsToMap(IEnumerable<Location> locations, double longitudeOffset)
+        {
+            return locations
+                .Select(location => LocationToMap(location, longitudeOffset))
+                .Where(point => point.HasValue)
+                .Select(point => point.Value);
+        }
+
+        protected IEnumerable<Point> LocationsToView(IEnumerable<Location> locations, double longitudeOffset)
+        {
+            return locations
+                .Select(location => LocationToView(location, longitudeOffset))
+                .Where(point => point.HasValue)
+                .Select(point => point.Value);
         }
     }
 }

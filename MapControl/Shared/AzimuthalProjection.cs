@@ -37,8 +37,7 @@ namespace MapControl
         public override BoundingBox MapToBoundingBox(Rect rect)
         {
             BoundingBox boundingBox = null;
-            var rectCenter = new Point(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
-            var center = MapToLocation(rectCenter);
+            var center = MapToLocation(rect.X + rect.Width / 2d, rect.Y + rect.Height / 2d);
 
             if (center != null)
             {

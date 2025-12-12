@@ -41,13 +41,11 @@ namespace MapControl
             }
 
             UpdateData();
-            InvalidateVisual(); // necessary for StreamGeometry
         }
 
         bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
         {
             UpdateData();
-            InvalidateVisual(); // necessary for StreamGeometry
 
             return true;
         }
@@ -81,10 +79,7 @@ namespace MapControl
 
         private void AddPolylinePoints(StreamGeometryContext context, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
-            var points = locations
-                .Select(location => LocationToView(location, longitudeOffset))
-                .Where(point => point.HasValue)
-                .Select(point => point.Value);
+            var points = LocationsToView(locations, longitudeOffset);
 
             if (points.Any())
             {

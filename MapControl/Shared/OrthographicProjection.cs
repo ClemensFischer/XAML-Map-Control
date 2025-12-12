@@ -26,16 +26,17 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Point? LocationToMap(Location location)
+        public override Point? LocationToMap(double latitude, double longitude)
         {
-            if (location.Equals(Center))
+            if (Location.Equals(latitude, Center.Latitude) &&
+                Location.Equals(longitude, Center.Longitude))
             {
                 return new Point();
             }
 
             var lat0 = Center.Latitude * Math.PI / 180d;
-            var lat = location.Latitude * Math.PI / 180d;
-            var dLon = (location.Longitude - Center.Longitude) * Math.PI / 180d;
+            var lat = latitude * Math.PI / 180d;
+            var dLon = (longitude - Center.Longitude) * Math.PI / 180d;
 
             if (Math.Abs(lat - lat0) > Math.PI / 2d || Math.Abs(dLon) > Math.PI / 2d)
             {
@@ -47,15 +48,15 @@ namespace MapControl
                 Wgs84EquatorialRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
         }
 
-        public override Location MapToLocation(Point point)
+        public override Location MapToLocation(double x, double y)
         {
-            if (point.X == 0d && point.Y == 0d)
+            if (x == 0d && y == 0d)
             {
                 return new Location(Center.Latitude, Center.Longitude);
             }
 
-            var x = point.X / Wgs84EquatorialRadius;
-            var y = point.Y / Wgs84EquatorialRadius;
+            x /= Wgs84EquatorialRadius;
+            y /= Wgs84EquatorialRadius;
             var r2 = x * x + y * y;
 
             if (r2 > 1d)

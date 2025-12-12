@@ -26,50 +26,50 @@ namespace MapControl
         public double FalseNorthing { get; set; } = 2e6;
         public bool IsNorth { get; set; }
 
-        public override Point GetRelativeScale(Location location)
+        public override Point GetRelativeScale(double latitude, double longitude)
         {
-            var lat = location.Latitude * Math.PI / 180d;
+            latitude *= Math.PI / 180d;
 
             if (!IsNorth)
             {
-                lat = -lat;
+                latitude = -latitude;
             }
 
             var e = Math.Sqrt((2d - Flattening) * Flattening);
-            var eSinLat = e * Math.Sin(lat);
+            var eSinLat = e * Math.Sin(latitude);
 
-            var t = Math.Tan(Math.PI / 4d - lat / 2d)
+            var t = Math.Tan(Math.PI / 4d - latitude / 2d)
                   / Math.Pow((1d - eSinLat) / (1d + eSinLat), e / 2d); // p.161 (15-9)
             var r = 2d * EquatorialRadius * ScaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
-            var m = Math.Cos(lat) / Math.Sqrt(1d - eSinLat * eSinLat); // p.160 (14-15)
+            var m = Math.Cos(latitude) / Math.Sqrt(1d - eSinLat * eSinLat); // p.160 (14-15)
             var k = r / (EquatorialRadius * m); // p.161 (21-32)
 
             return new Point(k, k);
         }
 
-        public override Point? LocationToMap(Location location)
+        public override Point? LocationToMap(double latitude, double longitude)
         {
-            var lat = location.Latitude * Math.PI / 180d;
-            var lon = location.Longitude * Math.PI / 180d;
+            latitude *= Math.PI / 180d;
+            longitude *= Math.PI / 180d;
 
             if (!IsNorth)
             {
-                lat = -lat;
-                lon = -lon;
+                latitude = -latitude;
+                longitude = -longitude;
             }
 
             var e = Math.Sqrt((2d - Flattening) * Flattening);
-            var eSinLat = e * Math.Sin(lat);
+            var eSinLat = e * Math.Sin(latitude);
 
-            var t = Math.Tan(Math.PI / 4d - lat / 2d)
+            var t = Math.Tan(Math.PI / 4d - latitude / 2d)
                   / Math.Pow((1d - eSinLat) / (1d + eSinLat), e / 2d); // p.161 (15-9)
             var r = 2d * EquatorialRadius * ScaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
-            var x = r * Math.Sin(lon); // p.161 (21-30)
-            var y = -r * Math.Cos(lon); // p.161 (21-31)
+            var x = r * Math.Sin(longitude); // p.161 (21-30)
+            var y = -r * Math.Cos(longitude); // p.161 (21-31)
 
             if (!IsNorth)
             {
@@ -80,10 +80,10 @@ namespace MapControl
             return new Point(x + FalseEasting, y + FalseNorthing);
         }
 
-        public override Location MapToLocation(Point point)
+        public override Location MapToLocation(double x, double y)
         {
-            var x = point.X - FalseEasting;
-            var y = point.Y - FalseNorthing;
+            x -= FalseEasting;
+            y -= FalseNorthing;
 
             if (!IsNorth)
             {

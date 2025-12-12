@@ -26,30 +26,30 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Point? LocationToMap(Location location)
+        public override Point? LocationToMap(double latitude, double longitude)
         {
-            if (location.Equals(Center))
+            if (Location.Equals(latitude, Center.Latitude) &&
+                Location.Equals(longitude, Center.Longitude))
             {
                 return new Point();
             }
 
-            Center.GetAzimuthDistance(location, out double azimuth, out double distance);
+            Center.GetAzimuthDistance(latitude, longitude, out double azimuth, out double distance);
 
             var mapDistance = Math.Tan(distance / 2d) * 2d * Wgs84EquatorialRadius;
 
             return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
         }
 
-        public override Location MapToLocation(Point point)
+        public override Location MapToLocation(double x, double y)
         {
-            if (point.X == 0d && point.Y == 0d)
+            if (x == 0d && y == 0d)
             {
                 return new Location(Center.Latitude, Center.Longitude);
             }
 
-            var azimuth = Math.Atan2(point.X, point.Y);
-            var mapDistance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
-
+            var azimuth = Math.Atan2(x, y);
+            var mapDistance = Math.Sqrt(x * x + y * y);
             var distance = 2d * Math.Atan(mapDistance / (2d * Wgs84EquatorialRadius));
 
             return Center.GetLocation(azimuth, distance);

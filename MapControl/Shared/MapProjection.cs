@@ -55,21 +55,38 @@ namespace MapControl
         public virtual Location Center { get; protected internal set; } = new Location();
 
         /// <summary>
-        /// Gets the relative map scale at the specified Location.
+        /// Gets the relative map scale at the specified geographic coordinates.
         /// </summary>
-        public virtual Point GetRelativeScale(Location location) => new Point(1d, 1d);
+        public virtual Point GetRelativeScale(double latitude, double longitude) => new Point(1d, 1d);
+
+        /// <summary>
+        /// Transforms geographic coordinates to a Point in projected map coordinates.
+        /// Returns null when the location can not be transformed.
+        /// </summary>
+        public abstract Point? LocationToMap(double latitude, double longitude);
+
+        /// <summary>
+        /// Transforms projected map coordinates to a Location in geographic coordinates.
+        /// Returns null when the coordinates can not be transformed.
+        /// </summary>
+        public abstract Location MapToLocation(double x, double y);
+
+        /// <summary>
+        /// Gets the relative map scale at the specified geographic Location.
+        /// </summary>
+        public Point GetRelativeScale(Location location) => GetRelativeScale(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.
         /// Returns null when the Location can not be transformed.
         /// </summary>
-        public abstract Point? LocationToMap(Location location);
+        public Point? LocationToMap(Location location) => LocationToMap(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms a Point in projected map coordinates to a Location in geographic coordinates.
         /// Returns null when the Point can not be transformed.
         /// </summary>
-        public abstract Location MapToLocation(Point point);
+        public Location MapToLocation(Point point) => MapToLocation(point.X, point.Y);
 
         /// <summary>
         /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates.
@@ -78,9 +95,8 @@ namespace MapControl
         public virtual Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
             Rect? rect = null;
-
-            var southWest = LocationToMap(new Location(boundingBox.South, boundingBox.West));
-            var northEast = LocationToMap(new Location(boundingBox.North, boundingBox.East));
+            var southWest = LocationToMap(boundingBox.South, boundingBox.West);
+            var northEast = LocationToMap(boundingBox.North, boundingBox.East);
 
             if (southWest.HasValue && northEast.HasValue)
             {
@@ -97,8 +113,8 @@ namespace MapControl
         public virtual BoundingBox MapToBoundingBox(Rect rect)
         {
             BoundingBox boundingBox = null;
-            var southWest = MapToLocation(new Point(rect.X, rect.Y));
-            var northEast = MapToLocation(new Point(rect.X + rect.Width, rect.Y + rect.Height));
+            var southWest = MapToLocation(rect.X, rect.Y);
+            var northEast = MapToLocation(rect.X + rect.Width, rect.Y + rect.Height);
 
             if (southWest != null && northEast != null)
             {
@@ -116,13 +132,14 @@ namespace MapControl
         {
             Tuple<Rect, double> rotatedRect = null;
             Point? center, north, south, west, east;
-            var boxCenter = latLonBox.Center;
+            var centerLatitude = latLonBox.Center.Latitude;
+            var centerLongitude = latLonBox.Center.Longitude;
 
-            if ((center = LocationToMap(boxCenter)).HasValue &&
-                (north = LocationToMap(new Location(latLonBox.North, boxCenter.Longitude))).HasValue &&
-                (south = LocationToMap(new Location(latLonBox.South, boxCenter.Longitude))).HasValue &&
-                (west = LocationToMap(new Location(boxCenter.Latitude, latLonBox.West))).HasValue &&
-                (east = LocationToMap(new Location(boxCenter.Latitude, latLonBox.East))).HasValue)
+            if ((center = LocationToMap(centerLatitude, centerLongitude)).HasValue &&
+                (north = LocationToMap(latLonBox.North, centerLongitude)).HasValue &&
+                (south = LocationToMap(latLonBox.South, centerLongitude)).HasValue &&
+                (west = LocationToMap(centerLatitude, latLonBox.West)).HasValue &&
+                (east = LocationToMap(centerLatitude, latLonBox.East)).HasValue)
             {
                 var dx1 = east.Value.X - west.Value.X;
                 var dy1 = east.Value.Y - west.Value.Y;

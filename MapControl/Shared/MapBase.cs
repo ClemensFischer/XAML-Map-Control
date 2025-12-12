@@ -178,6 +178,15 @@ namespace MapControl
 
         /// <summary>
         /// Gets the map scale as horizontal and vertical scaling factors from meters to
+        /// view coordinates at the specified geographic coordinates.
+        /// </summary>
+        public Point GetScale(double latitude, double longitude)
+        {
+            return ViewTransform.GetMapScale(MapProjection.GetRelativeScale(latitude, longitude));
+        }
+
+        /// <summary>
+        /// Gets the map scale as horizontal and vertical scaling factors from meters to
         /// view coordinates at the specified location.
         /// </summary>
         public Point GetScale(Location location)
@@ -187,7 +196,7 @@ namespace MapControl
 
         /// <summary>
         /// Gets a transform Matrix from meters to view coordinates for scaling and rotating
-        /// objects that are anchored at a Location.
+        /// objects that are anchored at the specified Location.
         /// </summary>
         public Matrix GetMapTransform(Location location)
         {
@@ -195,11 +204,11 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Transforms a Location in geographic coordinates to a Point in view coordinates.
+        /// Transforms geographic coordinates to a Point in view coordinates.
         /// </summary>
-        public Point? LocationToView(Location location)
+        public Point? LocationToView(double latitude, double longitude)
         {
-            var point = MapProjection.LocationToMap(location);
+            var point = MapProjection.LocationToMap(latitude, longitude);
 
             if (point.HasValue)
             {
@@ -207,6 +216,14 @@ namespace MapControl
             }
 
             return point;
+        }
+
+        /// <summary>
+        /// Transforms a Location in geographic coordinates to a Point in view coordinates.
+        /// </summary>
+        public Point? LocationToView(Location location)
+        {
+            return LocationToView(location.Latitude, location.Longitude);
         }
 
         /// <summary>
@@ -343,8 +360,9 @@ namespace MapControl
 
             if (mapRect.HasValue)
             {
-                var rectCenter = new Point(mapRect.Value.X + mapRect.Value.Width / 2d, mapRect.Value.Y + mapRect.Value.Height / 2d);
-                var targetCenter = MapProjection.MapToLocation(rectCenter);
+                var targetCenter = MapProjection.MapToLocation(
+                    mapRect.Value.X + mapRect.Value.Width / 2d,
+                    mapRect.Value.Y + mapRect.Value.Height / 2d);
 
                 if (targetCenter != null)
                 {
@@ -428,7 +446,7 @@ namespace MapControl
 
             if (projection.Type <= MapProjectionType.NormalCylindrical)
             {
-                var maxLocation = projection.MapToLocation(new Point(0d, 180d * MapProjection.Wgs84MeterPerDegree));
+                var maxLocation = projection.MapToLocation(0d, 180d * MapProjection.Wgs84MeterPerDegree);
 
                 if (maxLocation != null && maxLocation.Latitude < 90d)
                 {

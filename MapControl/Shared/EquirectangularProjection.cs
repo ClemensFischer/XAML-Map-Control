@@ -28,25 +28,19 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Point GetRelativeScale(Location location)
+        public override Point GetRelativeScale(double latitude, double longitude)
         {
-            return new Point(
-                1d / Math.Cos(location.Latitude * Math.PI / 180d),
-                1d);
+            return new Point(1d / Math.Cos(latitude * Math.PI / 180d), 1d);
         }
 
-        public override Point? LocationToMap(Location location)
+        public override Point? LocationToMap(double latitude, double longitude)
         {
-            return new Point(
-                Wgs84MeterPerDegree * location.Longitude,
-                Wgs84MeterPerDegree * location.Latitude);
+            return new Point(Wgs84MeterPerDegree * longitude, Wgs84MeterPerDegree * latitude);
         }
 
-        public override Location MapToLocation(Point point)
+        public override Location MapToLocation(double x, double y)
         {
-            return new Location(
-                point.Y / Wgs84MeterPerDegree,
-                point.X / Wgs84MeterPerDegree);
+            return new Location(y / Wgs84MeterPerDegree, x / Wgs84MeterPerDegree);
         }
     }
 }

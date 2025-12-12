@@ -25,15 +25,15 @@ namespace MapControl
             Type = MapProjectionType.TransverseCylindrical;
         }
 
-        public override Point GetRelativeScale(Location location)
+        public override Point GetRelativeScale(double latitude, double longitude)
         {
             return new Point(ScaleFactor, ScaleFactor);
         }
 
-        public override Point? LocationToMap(Location location)
+        public override Point? LocationToMap(double latitude, double longitude)
         {
 #if NETFRAMEWORK || UWP
-            double Atanh(double x) => Math.Log((1d + x) / (1d - x)) / 2d;
+            static double Atanh(double x) => Math.Log((1d + x) / (1d - x)) / 2d;
 #else
             static double Atanh(double x) => Math.Atanh(x);
 #endif
@@ -48,10 +48,10 @@ namespace MapControl
             var alpha3 = n3 * 61d / 240d;
 
             // φ
-            var phi = location.Latitude * Math.PI / 180d;
+            var phi = latitude * Math.PI / 180d;
 
             // (λ - λ0)
-            var lambda = (location.Longitude - CentralMeridian) * Math.PI / 180d;
+            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
 
             var s = 2d * Math.Sqrt(n) / (1d + n);
             var sinPhi = Math.Sin(phi);
@@ -80,7 +80,7 @@ namespace MapControl
                 k0A * xi + FalseNorthing);
         }
 
-        public override Location MapToLocation(Point point)
+        public override Location MapToLocation(double x, double y)
         {
             var n = Flattening / (2d - Flattening);
             var n2 = n * n;
@@ -98,10 +98,10 @@ namespace MapControl
             var delta3 = n3 * 56d / 15d;
 
             // ξ
-            var xi = (point.Y - FalseNorthing) / k0A;
+            var xi = (y - FalseNorthing) / k0A;
 
             // η
-            var eta = (point.X - FalseEasting) / k0A;
+            var eta = (x - FalseEasting) / k0A;
 
             // ξ'
             var xi_ = xi

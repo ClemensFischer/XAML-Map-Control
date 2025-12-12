@@ -80,7 +80,7 @@ namespace MapControl
 
         private void SetLineDistance()
         {
-            var minDistance = MinLineDistance / PixelPerLongitudeDegree(ParentMap.Center);
+            var minDistance = MinLineDistance / PixelPerLongitudeDegree(ParentMap.Center.Latitude, ParentMap.Center.Longitude);
             var scale = minDistance < 1d / 60d ? 3600d : minDistance < 1d ? 60d : 1d;
             minDistance *= scale;
 
@@ -98,11 +98,12 @@ namespace MapControl
                         : lineDistance < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
         }
 
-        private double PixelPerLongitudeDegree(Location location)
+        private double PixelPerLongitudeDegree(double latitude, double longitude)
         {
+            var scale = ParentMap.GetScale(latitude, longitude);
+
             return Math.Max(1d, // a reasonable lower limit
-                ParentMap.GetScale(location).X *
-                Math.Cos(location.Latitude * Math.PI / 180d) * MapProjection.Wgs84MeterPerDegree);
+                scale.X * Math.Cos(latitude * Math.PI / 180d) * MapProjection.Wgs84MeterPerDegree);
         }
 
         private string GetLabelText(double value, string hemispheres)
@@ -121,7 +122,7 @@ namespace MapControl
                 labelFormat, hemisphere, seconds / 3600, seconds / 60 % 60, seconds % 60);
         }
 
-        private void AddLabel(List<Label> labels, Location location, Point position, double? rotation = null)
+        private void AddLabel(List<Label> labels, double latitude, double longitude, Point position, double? rotation = null)
         {
             if (position.X >= 0d && position.X <= ParentMap.ActualWidth &&
                 position.Y >= 0d && position.Y <= ParentMap.ActualHeight)
@@ -130,8 +131,7 @@ namespace MapControl
                 {
                     // Get rotation from second location with same latitude.
                     //
-                    var pos = ParentMap.LocationToView(
-                        new Location(location.Latitude, location.Longitude + 10d / PixelPerLongitudeDegree(location)));
+                    var pos = ParentMap.LocationToView(latitude, longitude + 10d / PixelPerLongitudeDegree(latitude, longitude));
 
                     if (pos.HasValue)
                     {
@@ -142,8 +142,8 @@ namespace MapControl
                 if (rotation.HasValue)
                 {
                     labels.Add(new Label(
-                        GetLabelText(location.Latitude, "NS"),
-                        GetLabelText(Location.NormalizeLongitude(location.Longitude), "EW"),
+                        GetLabelText(latitude, "NS"),
+                        GetLabelText(Location.NormalizeLongitude(longitude), "EW"),
                         position.X, position.Y, rotation.Value));
                 }
             }
@@ -177,8 +177,8 @@ namespace MapControl
 
             for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
             {
-                var p1 = ParentMap.LocationToView(new Location(lat, boundingBox.West));
-                var p2 = ParentMap.LocationToView(new Location(lat, boundingBox.East));
+                var p1 = ParentMap.LocationToView(lat, boundingBox.West);
+                var p2 = ParentMap.LocationToView(lat, boundingBox.East);
 
                 if (p1.HasValue && p2.HasValue)
                 {
@@ -188,8 +188,8 @@ namespace MapControl
 
             for (var lon = lonLabelStart; lon <= boundingBox.East; lon += lineDistance)
             {
-                var p1 = ParentMap.LocationToView(new Location(boundingBox.South, lon));
-                var p2 = ParentMap.LocationToView(new Location(boundingBox.North, lon));
+                var p1 = ParentMap.LocationToView(boundingBox.South, lon);
+                var p2 = ParentMap.LocationToView(boundingBox.North, lon);
 
                 if (p1.HasValue && p2.HasValue)
                 {
@@ -198,12 +198,11 @@ namespace MapControl
 
                 for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
                 {
-                    var location = new Location(lat, lon);
-                    var position = ParentMap.LocationToView(location);
+                    var position = ParentMap.LocationToView(lat, lon);
 
                     if (position.HasValue)
                     {
-                        AddLabel(labels, location, position.Value, ParentMap.ViewTransform.Rotation);
+                        AddLabel(labels, lat, lon, position.Value, ParentMap.ViewTransform.Rotation);
                     }
                 }
             }
@@ -257,14 +256,13 @@ namespace MapControl
             {
                 var lat = minLat + i * lineDistance;
                 var lon = minLon;
-                var location = new Location(lat, lon);
                 var points = new List<Point>();
-                var position = ParentMap.LocationToView(location);
+                var position = ParentMap.LocationToView(lat, lon);
 
                 if (position.HasValue)
                 {
                     points.Add(position.Value);
-                    AddLabel(labels, location, position.Value);
+                    AddLabel(labels, lat, lon, position.Value);
                 }
 
                 for (int j = 0; j < lonSegments; j++)
@@ -272,8 +270,7 @@ namespace MapControl
                     for (int k = 1; k <= interpolationCount; k++)
                     {
                         lon = minLon + j * lineDistance + k * interpolationDistance;
-                        location = new Location(lat, lon);
-                        position = ParentMap.LocationToView(location);
+                        position = ParentMap.LocationToView(lat, lon);
 
                         if (position.HasValue)
                         {
@@ -283,7 +280,7 @@ namespace MapControl
 
                     if (position.HasValue)
                     {
-                        AddLabel(labels, location, position.Value);
+                        AddLabel(labels, lat, lon, position.Value);
                     }
                 }
 
@@ -302,7 +299,7 @@ namespace MapControl
 
             for (int i = 0; i <= numPoints; i++)
             {
-                var p = ParentMap.LocationToView(new Location(startLatitude + i * deltaLatitude, longitude));
+                var p = ParentMap.LocationToView(startLatitude + i * deltaLatitude, longitude);
 
                 if (p.HasValue)
                 {
@@ -326,8 +323,8 @@ namespace MapControl
         {
             var width = ParentMap.ActualWidth;
             var height = ParentMap.ActualHeight;
-            var northPole = ParentMap.LocationToView(new Location(90d, 0d));
-            var southPole = ParentMap.LocationToView(new Location(-90d, 0d));
+            var northPole = ParentMap.LocationToView(90d, 0d);
+            var southPole = ParentMap.LocationToView(-90d, 0d);
 
             if (northPole.HasValue &&
                 northPole.Value.X >= 0d && northPole.Value.X <= width &&

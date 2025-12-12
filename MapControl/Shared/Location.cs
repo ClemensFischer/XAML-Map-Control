@@ -33,8 +33,8 @@ namespace MapControl
         public bool Equals(Location location)
         {
             return location != null &&
-                Math.Abs(location.Latitude - Latitude) < 1e-9 &&
-                Math.Abs(location.Longitude - Longitude) < 1e-9;
+                   Equals(Latitude, location.Latitude) &&
+                   Equals(Longitude, location.Longitude);
         }
 
         public override bool Equals(object obj)
@@ -50,6 +50,11 @@ namespace MapControl
         public override string ToString()
         {
             return string.Format(CultureInfo.InvariantCulture, "{0},{1}", Latitude, Longitude);
+        }
+
+        public static bool CoordinateEquals(double coordinate1, double coordinate2)
+        {
+            return Math.Abs(coordinate1 - coordinate2) < 1e-9;
         }
 
         /// <summary>
@@ -87,12 +92,12 @@ namespace MapControl
         /// <summary>
         /// Calculates great circle azimuth and distance in radians between this and the specified Location.
         /// </summary>
-        public void GetAzimuthDistance(Location location, out double azimuth, out double distance)
+        public void GetAzimuthDistance(double latitude, double longitude, out double azimuth, out double distance)
         {
             var lat1 = Latitude * Math.PI / 180d;
             var lon1 = Longitude * Math.PI / 180d;
-            var lat2 = location.Latitude * Math.PI / 180d;
-            var lon2 = location.Longitude * Math.PI / 180d;
+            var lat2 = latitude * Math.PI / 180d;
+            var lon2 = longitude * Math.PI / 180d;
             var cosLat1 = Math.Cos(lat1);
             var sinLat1 = Math.Sin(lat1);
             var cosLat2 = Math.Cos(lat2);
@@ -112,7 +117,7 @@ namespace MapControl
         /// </summary>
         public double GetDistance(Location location, double earthRadius = MapProjection.Wgs84EquatorialRadius)
         {
-            GetAzimuthDistance(location, out double _, out double distance);
+            GetAzimuthDistance(location.Latitude, location.Longitude, out _, out double distance);
 
             return earthRadius * distance;
         }
