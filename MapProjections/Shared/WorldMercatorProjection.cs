@@ -40,9 +40,9 @@ namespace MapControl.Projections
                 + "AUTHORITY[\"EPSG\",\"3395\"]]";
         }
 
-        public override Point GetRelativeScale(Location location)
+        public override Point GetRelativeScale(double latitude, double longitude)
         {
-            var lat = location.Latitude * Math.PI / 180d;
+            var lat = latitude * Math.PI / 180d;
             var eSinLat = Wgs84Eccentricity * Math.Sin(lat);
             var k = Math.Sqrt(1d - eSinLat * eSinLat) / Math.Cos(lat); // p.44 (7-8)
 

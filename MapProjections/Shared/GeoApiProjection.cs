@@ -96,21 +96,21 @@ namespace MapControl.Projections
 
         public IMathTransform MapToLocationTransform { get; private set; }
 
-        public override Point GetRelativeScale(Location location)
+        public override Point GetRelativeScale(double latitude, double longitude)
         {
             var k = coordinateSystem?.Projection?.GetParameter("scale_factor")?.Value ?? 1d;
 
             return new Point(k, k);
         }
 
-        public override Point? LocationToMap(Location location)
+        public override Point? LocationToMap(double latitude, double longitude)
         {
             if (LocationToMapTransform == null)
             {
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = LocationToMapTransform.Transform(new Coordinate(location.Longitude, location.Latitude));
+            var coordinate = LocationToMapTransform.Transform(new Coordinate(longitude, latitude));
 
             if (coordinate == null)
             {
@@ -120,14 +120,14 @@ namespace MapControl.Projections
             return new Point(coordinate.X, coordinate.Y);
         }
 
-        public override Location MapToLocation(Point point)
+        public override Location MapToLocation(double x, double y)
         {
             if (MapToLocationTransform == null)
             {
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = MapToLocationTransform.Transform(new Coordinate(point.X, point.Y));
+            var coordinate = MapToLocationTransform.Transform(new Coordinate(x, y));
 
             return new Location(coordinate.Y, coordinate.X);
         }
