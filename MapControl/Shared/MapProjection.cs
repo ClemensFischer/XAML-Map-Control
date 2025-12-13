@@ -94,16 +94,10 @@ namespace MapControl
         /// </summary>
         public virtual Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
-            Rect? rect = null;
             var southWest = LocationToMap(boundingBox.South, boundingBox.West);
             var northEast = LocationToMap(boundingBox.North, boundingBox.East);
 
-            if (southWest.HasValue && northEast.HasValue)
-            {
-                rect = new Rect(southWest.Value, northEast.Value);
-            }
-
-            return rect;
+            return southWest.HasValue && northEast.HasValue ? new Rect(southWest.Value, northEast.Value) : null;
         }
 
         /// <summary>
@@ -112,16 +106,10 @@ namespace MapControl
         /// </summary>
         public virtual BoundingBox MapToBoundingBox(Rect rect)
         {
-            BoundingBox boundingBox = null;
             var southWest = MapToLocation(rect.X, rect.Y);
             var northEast = MapToLocation(rect.X + rect.Width, rect.Y + rect.Height);
 
-            if (southWest != null && northEast != null)
-            {
-                boundingBox = new BoundingBox(southWest, northEast);
-            }
-
-            return boundingBox;
+            return southWest != null && northEast != null ? new BoundingBox(southWest, northEast) : null;
         }
 
         /// <summary>

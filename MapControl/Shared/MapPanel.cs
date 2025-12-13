@@ -220,7 +220,7 @@ namespace MapControl
         private Rect GetViewRect(Rect mapRect)
         {
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
-            var position = parentMap.ViewTransform.MapToView(center);
+            var position = parentMap.ViewTransform.MapToViewMatrix.Transform(center);
 
             if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
                 !parentMap.InsideViewBounds(position))

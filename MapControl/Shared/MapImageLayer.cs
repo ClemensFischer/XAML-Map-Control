@@ -192,7 +192,7 @@ namespace MapControl
                     var x = (ParentMap.ActualWidth - width) / 2d;
                     var y = (ParentMap.ActualHeight - height) / 2d;
 
-                    boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(x, y, width, height));
+                    boundingBox = ParentMap.ViewRectToBoundingBox(x, y, width, height);
                     image = await GetImageAsync(boundingBox, loadingProgress);
                 }
 

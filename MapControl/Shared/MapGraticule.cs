@@ -100,7 +100,7 @@ namespace MapControl
 
         private double PixelPerLongitudeDegree(double latitude, double longitude)
         {
-            var scale = ParentMap.GetScale(latitude, longitude);
+            var scale = ParentMap.GetMapScale(latitude, longitude);
 
             return Math.Max(1d, // a reasonable lower limit
                 scale.X * Math.Cos(latitude * Math.PI / 180d) * MapProjection.Wgs84MeterPerDegree);
@@ -171,14 +171,14 @@ namespace MapControl
 
         private void DrawCylindricalGraticule(PathFigureCollection figures, List<Label> labels)
         {
-            var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight));
-            var latLabelStart = Math.Ceiling(boundingBox.South / lineDistance) * lineDistance;
-            var lonLabelStart = Math.Ceiling(boundingBox.West / lineDistance) * lineDistance;
+            var bounds = ParentMap.GeoBounds;
+            var latLabelStart = Math.Ceiling(bounds.South / lineDistance) * lineDistance;
+            var lonLabelStart = Math.Ceiling(bounds.West / lineDistance) * lineDistance;
 
-            for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
+            for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
             {
-                var p1 = ParentMap.LocationToView(lat, boundingBox.West);
-                var p2 = ParentMap.LocationToView(lat, boundingBox.East);
+                var p1 = ParentMap.LocationToView(lat, bounds.West);
+                var p2 = ParentMap.LocationToView(lat, bounds.East);
 
                 if (p1.HasValue && p2.HasValue)
                 {
@@ -186,17 +186,17 @@ namespace MapControl
                 }
             }
 
-            for (var lon = lonLabelStart; lon <= boundingBox.East; lon += lineDistance)
+            for (var lon = lonLabelStart; lon <= bounds.East; lon += lineDistance)
             {
-                var p1 = ParentMap.LocationToView(boundingBox.South, lon);
-                var p2 = ParentMap.LocationToView(boundingBox.North, lon);
+                var p1 = ParentMap.LocationToView(bounds.South, lon);
+                var p2 = ParentMap.LocationToView(bounds.North, lon);
 
                 if (p1.HasValue && p2.HasValue)
                 {
                     figures.Add(CreateLineFigure(p1.Value, p2.Value));
                 }
 
-                for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
+                for (var lat = latLabelStart; lat <= bounds.North; lat += lineDistance)
                 {
                     var position = ParentMap.LocationToView(lat, lon);
 

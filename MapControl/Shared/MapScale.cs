@@ -90,7 +90,7 @@ namespace MapControl
         {
             double scale;
 
-            if (ParentMap == null || (scale = ParentMap.GetScale(ParentMap.Center).X) <= 0d)
+            if (ParentMap == null || (scale = ParentMap.GetMapScale(ParentMap.Center).X) <= 0d)
             {
                 return new Size();
             }

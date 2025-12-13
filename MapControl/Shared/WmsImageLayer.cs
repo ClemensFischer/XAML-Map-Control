@@ -170,9 +170,7 @@ namespace MapControl
                 ParentMap.ActualWidth > 0d &&
                 ParentMap.ActualHeight > 0d)
             {
-                var boundingBox = ParentMap.ViewRectToBoundingBox(new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight));
-
-                var uri = GetFeatureInfoRequestUri(boundingBox, position, format);
+                var uri = GetFeatureInfoRequestUri(ParentMap.GeoBounds, position, format);
 
                 if (uri != null)
                 {

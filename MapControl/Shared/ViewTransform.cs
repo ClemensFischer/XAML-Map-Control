@@ -38,31 +38,6 @@ namespace MapControl
         /// </summary>
         public Matrix ViewToMapMatrix { get; private set; }
 
-        /// <summary>
-        /// Transforms a Point from projected map coordinates to view coordinates.
-        /// </summary>
-        public Point MapToView(Point point)
-        {
-            return MapToViewMatrix.Transform(point);
-        }
-
-        /// <summary>
-        /// Transforms a Point from view coordinates to projected map coordinates.
-        /// </summary>
-        public Point ViewToMap(Point point)
-        {
-            return ViewToMapMatrix.Transform(point);
-        }
-
-        /// <summary>
-        /// Transform relative to absolute map scale. Returns horizontal and vertical
-        /// scaling factors from meters to view coordinates.
-        /// </summary>
-        public Point GetMapScale(Point relativeScale)
-        {
-            return new Point(Scale * relativeScale.X, Scale * relativeScale.Y);
-        }
-
 #if WPF || UWP || WINUI
         /// <summary>
         /// Initializes a ViewTransform from a map center point in projected coordinates,
@@ -90,9 +65,7 @@ namespace MapControl
         /// </summary>
         public Matrix GetMapTransform(Point relativeScale)
         {
-            var scale = GetMapScale(relativeScale);
-
-            var transform = new Matrix(scale.X, 0d, 0d, scale.Y, 0d, 0d);
+            var transform = new Matrix(Scale * relativeScale.X, 0d, 0d, Scale * relativeScale.Y, 0d, 0d);
             transform.Rotate(Rotation);
 
             return transform;
@@ -111,7 +84,7 @@ namespace MapControl
 
             // Tile matrix origin in view coordinates.
             //
-            var viewOrigin = MapToView(mapOrigin);
+            var viewOrigin = MapToViewMatrix.Transform(mapOrigin);
 
             var transformScale = Scale / tileMatrixScale;
 
@@ -129,7 +102,7 @@ namespace MapControl
         {
             // View origin in map coordinates.
             //
-            var origin = ViewToMap(new Point());
+            var origin = ViewToMapMatrix.Transform(new Point());
 
             var transformScale = tileMatrixScale / Scale;
 

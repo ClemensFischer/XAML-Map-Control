@@ -49,6 +49,8 @@ namespace MapControl
 
         private Location transformCenter;
         private Point viewCenter;
+        private Rect? mapBounds;
+        private BoundingBox geoBounds;
         private double centerLongitude;
         private double maxLatitude = 85.05112878; // default WebMercatorProjection
         private bool internalPropertyChange;
@@ -171,6 +173,27 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets the map viewport bounds in projected map coordinates.
+        /// </summary>
+        public Rect MapBounds
+        {
+            get
+            {
+                if (!mapBounds.HasValue)
+                {
+                    mapBounds = ViewRectToMap(0d, 0d, ActualWidth, ActualHeight);
+                }
+
+                return mapBounds.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the map viewport bounds in geographic coordinates.
+        /// </summary>
+        public BoundingBox GeoBounds => geoBounds ??= MapProjection.MapToBoundingBox(MapBounds);
+
+        /// <summary>
         /// Gets the ViewTransform instance that is used to transform between projected
         /// map coordinates and view coordinates.
         /// </summary>
@@ -180,18 +203,22 @@ namespace MapControl
         /// Gets the map scale as horizontal and vertical scaling factors from meters to
         /// view coordinates at the specified geographic coordinates.
         /// </summary>
-        public Point GetScale(double latitude, double longitude)
+        public Point GetMapScale(double latitude, double longitude)
         {
-            return ViewTransform.GetMapScale(MapProjection.GetRelativeScale(latitude, longitude));
+            var relativeScale = MapProjection.GetRelativeScale(latitude, longitude);
+
+            return new Point(ViewTransform.Scale * relativeScale.X, ViewTransform.Scale * relativeScale.Y);
         }
 
         /// <summary>
         /// Gets the map scale as horizontal and vertical scaling factors from meters to
         /// view coordinates at the specified location.
         /// </summary>
-        public Point GetScale(Location location)
+        public Point GetMapScale(Location location)
         {
-            return ViewTransform.GetMapScale(MapProjection.GetRelativeScale(location));
+            var relativeScale = MapProjection.GetRelativeScale(location);
+
+            return new Point(ViewTransform.Scale * relativeScale.X, ViewTransform.Scale * relativeScale.Y);
         }
 
         /// <summary>
@@ -212,7 +239,7 @@ namespace MapControl
 
             if (point.HasValue)
             {
-                point = ViewTransform.MapToView(point.Value);
+                point = ViewTransform.MapToViewMatrix.Transform(point.Value);
             }
 
             return point;
@@ -231,25 +258,35 @@ namespace MapControl
         /// </summary>
         public Location ViewToLocation(Point point)
         {
-            return MapProjection.MapToLocation(ViewTransform.ViewToMap(point));
+            return MapProjection.MapToLocation(ViewTransform.ViewToMapMatrix.Transform(point));
         }
 
         /// <summary>
-        /// Gets a BoundingBox in geographic coordinates that covers a Rect in view coordinates.
+        /// Gets a Rect in projected map coordinates that covers a rectangle in view coordinates.
         /// </summary>
-        public BoundingBox ViewRectToBoundingBox(Rect rect)
+        public Rect ViewRectToMap(double x, double y, double width, double height)
         {
-            var p1 = ViewTransform.ViewToMap(new Point(rect.X, rect.Y));
-            var p2 = ViewTransform.ViewToMap(new Point(rect.X, rect.Y + rect.Height));
-            var p3 = ViewTransform.ViewToMap(new Point(rect.X + rect.Width, rect.Y));
-            var p4 = ViewTransform.ViewToMap(new Point(rect.X + rect.Width, rect.Y + rect.Height));
+            var viewToMap = ParentMap.ViewTransform.ViewToMapMatrix;
+
+            var p1 = viewToMap.Transform(new Point(x, y));
+            var p2 = viewToMap.Transform(new Point(x, y + height));
+            var p3 = viewToMap.Transform(new Point(x + width, y));
+            var p4 = viewToMap.Transform(new Point(x + width, y + height));
 
             var x1 = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
             var y1 = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
             var x2 = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
             var y2 = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
 
-            return MapProjection.MapToBoundingBox(new Rect(x1, y1, x2 - x1, y2 - y1));
+            return new Rect(x1, y1, x2 - x1, y2 - y1);
+        }
+
+        /// <summary>
+        /// Gets a BoundingBox in geographic coordinates that covers a rectangle in view coordinates.
+        /// </summary>
+        public BoundingBox ViewRectToBoundingBox(double x, double y, double width, double height)
+        {
+            return MapProjection.MapToBoundingBox(ViewRectToMap(x, y, width, height));
         }
 
         /// <summary>
@@ -354,9 +391,9 @@ namespace MapControl
         /// Sets the TargetZoomLevel and TargetCenter properties so that the specified BoundingBox
         /// fits into the current view. The TargetHeading property is set to zero.
         /// </summary>
-        public void ZoomToBounds(BoundingBox boundingBox)
+        public void ZoomToBounds(BoundingBox bounds)
         {
-            var mapRect = MapProjection.BoundingBoxToMap(boundingBox);
+            var mapRect = MapProjection.BoundingBoxToMap(bounds);
 
             if (mapRect.HasValue)
             {
@@ -486,16 +523,16 @@ namespace MapControl
 
                     if (center != null)
                     {
-                        var centerLatitude = center.Latitude;
-                        var centerLongitude = Location.NormalizeLongitude(center.Longitude);
+                        var centerLat = center.Latitude;
+                        var centerLon = Location.NormalizeLongitude(center.Longitude);
 
-                        if (centerLatitude < -maxLatitude || centerLatitude > maxLatitude)
+                        if (centerLat < -maxLatitude || centerLat > maxLatitude)
                         {
-                            centerLatitude = Math.Min(Math.Max(centerLatitude, -maxLatitude), maxLatitude);
+                            centerLat = Math.Min(Math.Max(centerLat, -maxLatitude), maxLatitude);
                             resetTransformCenter = true;
                         }
 
-                        center = new Location(centerLatitude, centerLongitude);
+                        center = new Location(centerLat, centerLon);
 
                         SetValueInternal(CenterProperty, center);
 
@@ -538,6 +575,9 @@ namespace MapControl
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
             base.OnViewportChanged(e);
+
+            mapBounds = null;
+            geoBounds = null;
 
             ViewportChanged?.Invoke(this, e);
         }

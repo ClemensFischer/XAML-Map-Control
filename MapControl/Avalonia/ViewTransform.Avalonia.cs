@@ -14,11 +14,10 @@ namespace MapControl
             Scale = scale;
             Rotation = ((rotation % 360d) + 360d) % 360d;
 
-            MapToViewMatrix
-                = Matrix.CreateTranslation(-mapCenter.X, -mapCenter.Y)
-                * Matrix.CreateScale(scale, -scale)
-                * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
-                * Matrix.CreateTranslation(viewCenter.X, viewCenter.Y);
+            MapToViewMatrix = Matrix.CreateTranslation(-mapCenter.X, -mapCenter.Y)
+                            * Matrix.CreateScale(scale, -scale)
+                            * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
+                            * Matrix.CreateTranslation(viewCenter.X, viewCenter.Y);
 
             ViewToMapMatrix = MapToViewMatrix.Invert();
         }
@@ -28,10 +27,8 @@ namespace MapControl
         /// </summary>
         public Matrix GetMapTransform(Point relativeScale)
         {
-            var scale = GetMapScale(relativeScale);
-
-            return Matrix.CreateScale(scale.X, scale.Y)
-                * Matrix.CreateRotation(Matrix.ToRadians(Rotation));
+            return Matrix.CreateScale(Scale * relativeScale.X, Scale * relativeScale.Y)
+                 * Matrix.CreateRotation(Matrix.ToRadians(Rotation));
         }
 
         /// <summary>
@@ -47,13 +44,13 @@ namespace MapControl
 
             // Tile matrix origin in view coordinates.
             //
-            var viewOrigin = MapToView(mapOrigin);
+            var viewOrigin = MapToViewMatrix.Transform(mapOrigin);
 
             var transformScale = Scale / tileMatrixScale;
 
             return Matrix.CreateScale(transformScale, transformScale)
-                * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
-                * Matrix.CreateTranslation(viewOrigin.X, viewOrigin.Y);
+                 * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
+                 * Matrix.CreateTranslation(viewOrigin.X, viewOrigin.Y);
         }
 
         /// <summary>
@@ -63,13 +60,12 @@ namespace MapControl
         {
             // View origin in map coordinates.
             //
-            var origin = ViewToMap(new Point());
+            var origin = ViewToMapMatrix.Transform(new Point());
 
             var transformScale = tileMatrixScale / Scale;
 
-            var transform
-                = Matrix.CreateScale(transformScale, transformScale)
-                * Matrix.CreateRotation(Matrix.ToRadians(-Rotation));
+            var transform = Matrix.CreateScale(transformScale, transformScale)
+                          * Matrix.CreateRotation(Matrix.ToRadians(-Rotation));
 
             // Translate origin to tile matrix origin in pixels.
             //
@@ -88,8 +84,8 @@ namespace MapControl
             double translation2X, double translation2Y)
         {
             return Matrix.CreateTranslation(translation1X, translation1Y)
-                * Matrix.CreateRotation(Matrix.ToRadians(rotation))
-                * Matrix.CreateTranslation(translation2X, translation2Y);
+                 * Matrix.CreateRotation(Matrix.ToRadians(rotation))
+                 * Matrix.CreateTranslation(translation2X, translation2Y);
         }
     }
 }
