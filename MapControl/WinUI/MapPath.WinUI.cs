@@ -15,7 +15,7 @@ namespace MapControl
             MapPanel.InitMapElement(this);
         }
 
-        private void SetMapTransform(Matrix matrix)
+        private void SetDataTransform(Matrix matrix)
         {
             if (Data.Transform is MatrixTransform transform)
             {

@@ -21,7 +21,7 @@ namespace MapControl
 
         protected override Geometry CreateDefiningGeometry() => Data;
 
-        private void SetMapTransform(Matrix matrix)
+        private void SetDataTransform(Matrix matrix)
         {
             if (Data.Transform is MatrixTransform transform)
             {
@@ -31,8 +31,6 @@ namespace MapControl
             {
                 Data.Transform = new MatrixTransform(matrix);
             }
-
-            InvalidateVisual();
         }
     }
 }
