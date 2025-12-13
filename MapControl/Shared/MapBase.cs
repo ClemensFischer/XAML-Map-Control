@@ -266,7 +266,7 @@ namespace MapControl
         /// </summary>
         public Rect ViewRectToMap(double x, double y, double width, double height)
         {
-            var viewToMap = ParentMap.ViewTransform.ViewToMapMatrix;
+            var viewToMap = ViewTransform.ViewToMapMatrix;
 
             var p1 = viewToMap.Transform(new Point(x, y));
             var p2 = viewToMap.Transform(new Point(x, y + height));
