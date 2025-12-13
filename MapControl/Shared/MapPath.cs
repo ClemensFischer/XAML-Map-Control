@@ -70,7 +70,7 @@ namespace MapControl
         {
             if (parentMap != null && Location != null && Data != null)
             {
-                SetMapTransform(parentMap.GetMapTransform(Location));
+                SetDataTransform(parentMap.GetMapTransform(Location));
             }
 
             MapPanel.SetLocation(this, Location);

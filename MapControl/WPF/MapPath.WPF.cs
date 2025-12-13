@@ -18,6 +18,18 @@ namespace MapControl
 
         protected override Geometry DefiningGeometry => Data;
 
+        protected void SetDataTransform(Matrix matrix)
+        {
+            if (Data.Transform is MatrixTransform transform && !transform.IsFrozen)
+            {
+                transform.Matrix = matrix;
+            }
+            else
+            {
+                Data.Transform = new MatrixTransform(matrix);
+            }
+        }
+
         private void DataPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
             // Check if Data is actually a new Geometry.
@@ -34,18 +46,6 @@ namespace MapControl
                 {
                     UpdateData();
                 }
-            }
-        }
-
-        private void SetMapTransform(Matrix matrix)
-        {
-            if (Data.Transform is MatrixTransform transform && !transform.IsFrozen)
-            {
-                transform.Matrix = matrix;
-            }
-            else
-            {
-                Data.Transform = new MatrixTransform(matrix);
             }
         }
     }
