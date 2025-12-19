@@ -84,7 +84,10 @@ namespace MapControl
 
         private void AddPolylinePoints(PathFigureCollection figures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
-            var points = LocationsToView(locations, longitudeOffset);
+            var points = locations
+                .Select(location => LocationToView(location, longitudeOffset))
+                .Where(point => point.HasValue)
+                .Select(point => point.Value);
 
             if (points.Any())
             {

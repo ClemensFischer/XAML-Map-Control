@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-#if WPF
+﻿#if WPF
 using System.Windows;
 #elif UWP
 using Windows.UI.Xaml;
@@ -122,22 +120,6 @@ namespace MapControl
             }
 
             return point;
-        }
-
-        protected IEnumerable<Point> LocationsToMap(IEnumerable<Location> locations, double longitudeOffset)
-        {
-            return locations
-                .Select(location => LocationToMap(location, longitudeOffset))
-                .Where(point => point.HasValue)
-                .Select(point => point.Value);
-        }
-
-        protected IEnumerable<Point> LocationsToView(IEnumerable<Location> locations, double longitudeOffset)
-        {
-            return locations
-                .Select(location => LocationToView(location, longitudeOffset))
-                .Where(point => point.HasValue)
-                .Select(point => point.Value);
         }
     }
 }

@@ -81,7 +81,10 @@ namespace MapControl
 
         private void AddPolylinePoints(PathFigures figures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
         {
-            var points = LocationsToView(locations, longitudeOffset);
+            var points = locations
+                .Select(location => LocationToView(location, longitudeOffset))
+                .Where(point => point.HasValue)
+                .Select(point => point.Value);
 
             if (points.Any())
             {
@@ -120,8 +123,8 @@ namespace MapControl
         {
             if (figures.Count == 0)
             {
-                // Avalonia Shape seems to ignore PathGeometry with empty Figures collection
-
+                // Avalonia Shape seems to ignore PathGeometry with empty Figures collection.
+                //
                 figures.Add(new PathFigure { StartPoint = new Point(-1000, -1000) });
             }
 

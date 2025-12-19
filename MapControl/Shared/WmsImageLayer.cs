@@ -330,7 +330,7 @@ namespace MapControl
                     { "J", Math.Round(imagePos.Y).ToString("F0") }
                 };
 
-                // GetRequestUri may modify queryParameters["LAYERS"]
+                // GetRequestUri may modify queryParameters["LAYERS"].
                 //
                 uri = GetRequestUri(queryParameters) + "&QUERY_LAYERS=" + queryParameters["LAYERS"];
             }
