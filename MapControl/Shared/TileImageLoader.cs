@@ -188,41 +188,40 @@ namespace MapControl
             }
 
             var cacheKey = $"{cacheName}/{tile.ZoomLevel}/{tile.Column}/{tile.Row}{extension}";
+            byte[] buffer = null;
 
             try
             {
-                var cachedBuffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
-
-                if (cachedBuffer != null)
-                {
-                    return cachedBuffer;
-                }
+                buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 Logger?.LogError(ex, "Cache.GetAsync({cacheKey})", cacheKey);
             }
 
-            (var buffer, var maxAge) = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
-
-            if (buffer != null)
+            if (buffer == null)
             {
-                try
-                {
-                    var options = new DistributedCacheEntryOptions
-                    {
-                        AbsoluteExpirationRelativeToNow =
-                            !maxAge.HasValue ? DefaultCacheExpiration
-                            : maxAge.Value < MinCacheExpiration ? MinCacheExpiration
-                            : maxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
-                            : maxAge.Value
-                    };
+                (buffer, var maxAge) = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
-                    await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
-                }
-                catch (Exception ex)
+                if (buffer != null)
                 {
-                    Logger?.LogError(ex, "Cache.SetAsync({cacheKey})", cacheKey);
+                    try
+                    {
+                        var options = new DistributedCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow =
+                                !maxAge.HasValue ? DefaultCacheExpiration
+                                : maxAge.Value < MinCacheExpiration ? MinCacheExpiration
+                                : maxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
+                                : maxAge.Value
+                        };
+
+                        await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.LogError(ex, "Cache.SetAsync({cacheKey})", cacheKey);
+                    }
                 }
             }
 

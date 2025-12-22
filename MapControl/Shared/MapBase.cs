@@ -34,7 +34,7 @@ namespace MapControl
             return Math.Log(scale * 360d * MapProjection.Wgs84MeterPerDegree / 256d, 2d);
         }
 
-        public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.1);
+        public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.2);
 
         public static readonly DependencyProperty AnimationDurationProperty =
             DependencyPropertyHelper.Register<MapBase, TimeSpan>(nameof(AnimationDuration), TimeSpan.FromSeconds(0.3));
