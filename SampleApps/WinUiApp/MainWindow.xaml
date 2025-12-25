@@ -212,7 +212,7 @@
                 </tools:MapLayerMenuItem>
                 <tools:MapLayerMenuItem Text="OpenStreetMap French">
                     <map:MapTileLayer
-                        TileSource="http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
+                        TileSource="https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
                         SourceName="OpenStreetMap French"
                         Description="© [OpenStreetMap France](https://www.openstreetmap.fr/mentions-legales/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerMenuItem>

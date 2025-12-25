@@ -163,7 +163,7 @@ namespace MapControl
             {
                 await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
             }
-            else if (uri.Scheme != "http" && uri.Scheme != "https" || string.IsNullOrEmpty(cacheName))
+            else if (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp || string.IsNullOrEmpty(cacheName))
             {
                 await tile.LoadImageAsync(() => tileSource.LoadImageAsync(uri)).ConfigureAwait(false);
             }

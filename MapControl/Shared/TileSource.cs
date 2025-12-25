@@ -33,7 +33,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Loads a tile image without an Uri.
+        /// Loads a tile image without an Uri. Called when GetUri returns null.
         /// </summary>
         public virtual Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
@@ -41,7 +41,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Loads a tile image from an Uri.
+        /// Loads a tile image from an Uri. Called when the Uri scheme is neither
+        /// http nor https or when the TileImageLoader is not using an image cache.
         /// </summary>
         public virtual Task<ImageSource> LoadImageAsync(Uri uri)
         {
@@ -49,7 +50,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Loads a tile image from an encoded frame buffer.
+        /// Loads a tile image from an encoded image buffer. Called when the
+        /// TileImageLoader caches image buffers from http or https requests.
         /// </summary>
         public virtual Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
