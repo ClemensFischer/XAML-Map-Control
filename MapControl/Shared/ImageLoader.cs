@@ -18,12 +18,12 @@ namespace MapControl
     public static partial class ImageLoader
     {
         private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(ImageLoader));
+        private static ILogger Logger => logger ??= LoggerFactory?.CreateLogger(typeof(ImageLoader));
 
         public static ILoggerFactory LoggerFactory { get; set; }
 
         /// <summary>
-        /// The System.Net.Http.HttpClient instance used to download images via a http or https Uri.
+        /// The System.Net.Http.HttpClient instance used to download images.
         /// </summary>
         public static HttpClient HttpClient { get; set; }
 
@@ -54,7 +54,7 @@ namespace MapControl
                 }
                 else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
                 {
-                    (var buffer, var _) = await GetHttpResponseAsync(uri, progress);
+                    var buffer = await GetHttpContent(uri, progress);
 
                     if (buffer != null)
                     {
@@ -80,34 +80,19 @@ namespace MapControl
             return image;
         }
 
-        internal static async Task<(byte[], TimeSpan?)> GetHttpResponseAsync(Uri uri, IProgress<double> progress = null)
+        public static async Task<HttpResponseMessage> GetHttpResponseAsync(Uri uri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
         {
-            byte[] buffer = null;
-            TimeSpan? maxAge = null;
-
             try
             {
-                var completionOptions = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+                var response = await HttpClient.GetAsync(uri, completionOption).ConfigureAwait(false);
 
-                using var responseMessage = await HttpClient.GetAsync(uri, completionOptions).ConfigureAwait(false);
-
-                if (responseMessage.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
-                    if (progress != null && responseMessage.Content.Headers.ContentLength.HasValue)
-                    {
-                        buffer = await ReadAsByteArray(responseMessage.Content, progress).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        buffer = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                    }
+                    return response;
+                }
 
-                    maxAge = responseMessage.Headers.CacheControl?.MaxAge;
-                }
-                else
-                {
-                    Logger?.LogWarning("{status} ({reason}) from {uri}", (int)responseMessage.StatusCode, responseMessage.ReasonPhrase, uri);
-                }
+                Logger?.LogWarning("{status} ({reason}) from {uri}", (int)response.StatusCode, response.ReasonPhrase, uri);
+                response.Dispose();
             }
             catch (TaskCanceledException)
             {
@@ -118,12 +103,29 @@ namespace MapControl
                 Logger?.LogError(ex, "Failed loading {uri}", uri);
             }
 
-            return (buffer, maxAge);
+            return null;
         }
 
-        private static async Task<byte[]> ReadAsByteArray(HttpContent content, IProgress<double> progress)
+        private static async Task<byte[]> GetHttpContent(Uri uri, IProgress<double> progress)
         {
-            var length = (int)content.Headers.ContentLength.Value;
+            var completionOption = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+
+            using var response = await GetHttpResponseAsync(uri, completionOption).ConfigureAwait(false);
+
+            if (response == null)
+            {
+                return null;
+            }
+
+            var content = response.Content;
+            var contentLength = content.Headers.ContentLength;
+
+            if (progress == null || !contentLength.HasValue)
+            {
+                return await content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            }
+
+            var length = (int)contentLength.Value;
             var buffer = new byte[length];
 
             using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))

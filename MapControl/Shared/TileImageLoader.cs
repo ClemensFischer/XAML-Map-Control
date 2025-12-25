@@ -201,12 +201,15 @@ namespace MapControl
 
             if (buffer == null)
             {
-                (buffer, var maxAge) = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
+                using var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
 
-                if (buffer != null)
+                if (response != null)
                 {
+                    buffer = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+
                     try
                     {
+                        var maxAge = response.Headers.CacheControl?.MaxAge;
                         var options = new DistributedCacheEntryOptions
                         {
                             AbsoluteExpirationRelativeToNow =

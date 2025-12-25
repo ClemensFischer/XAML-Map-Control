@@ -78,7 +78,7 @@ namespace MapControl
 
             try
             {
-                (var buffer, var _) = await GetHttpResponseAsync(uri, progress);
+                var buffer = await GetHttpContent(uri, progress);
 
                 if (buffer != null)
                 {
