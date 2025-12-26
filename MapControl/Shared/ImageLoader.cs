@@ -72,7 +72,7 @@ namespace MapControl
                 }
                 else
                 {
-                    image = LoadImage(uri);
+                    image = LoadResourceImage(uri);
                 }
             }
             catch (Exception ex)

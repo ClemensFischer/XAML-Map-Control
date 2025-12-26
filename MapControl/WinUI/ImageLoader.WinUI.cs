@@ -18,7 +18,7 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        public static ImageSource LoadImage(Uri uri)
+        public static ImageSource LoadResourceImage(Uri uri)
         {
             return new BitmapImage(uri);
         }
