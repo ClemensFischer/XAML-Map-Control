@@ -33,6 +33,11 @@ namespace MapControl
             HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
         }
 
+        public static bool IsHttp(this Uri uri)
+        {
+            return uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+        }
+
         public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
         {
             using var stream = new MemoryStream(buffer);
@@ -52,7 +57,7 @@ namespace MapControl
                 {
                     image = await LoadImageAsync(uri.OriginalString);
                 }
-                else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                else if (uri.IsHttp())
                 {
                     var buffer = await GetHttpContent(uri, progress);
 

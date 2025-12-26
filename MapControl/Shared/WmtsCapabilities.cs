@@ -38,7 +38,7 @@ namespace MapControl
             {
                 xmlStream = File.OpenRead(uri.LocalPath);
             }
-            else if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+            else if (uri.IsHttp())
             {
                 defaultUri = uri.OriginalString.Split('?')[0];
 
