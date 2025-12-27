@@ -4,22 +4,21 @@ namespace MapControl
 {
     public class UriTileSource : TileSource
     {
-        private string uriTemplate;
         private string uriFormat;
 
         public string UriTemplate
         {
-            get => uriTemplate;
+            get;
             set
             {
-                uriTemplate = value;
-                uriFormat = uriTemplate
+                field = value;
+                uriFormat = field
                     .Replace("{z}", "{0}")
                     .Replace("{x}", "{1}")
                     .Replace("{y}", "{2}")
                     .Replace("{s}", "{3}");
 
-                if (Subdomains == null && uriTemplate.Contains("{s}"))
+                if (Subdomains == null && field.Contains("{s}"))
                 {
                     Subdomains = ["a", "b", "c"]; // default OpenStreetMap subdomains
                 }

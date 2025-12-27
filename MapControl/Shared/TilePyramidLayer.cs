@@ -52,8 +52,6 @@ namespace MapControl
 
         private readonly Progress<double> loadingProgress;
         private readonly UpdateTimer updateTimer;
-        private ITileImageLoader tileImageLoader;
-        private MapBase parentMap;
 
         protected TilePyramidLayer()
         {
@@ -73,8 +71,8 @@ namespace MapControl
 
         public ITileImageLoader TileImageLoader
         {
-            get => tileImageLoader ??= new TileImageLoader();
-            set => tileImageLoader = value;
+            get => field ??= new TileImageLoader();
+            set;
         }
 
         /// <summary>
@@ -152,26 +150,26 @@ namespace MapControl
         /// </summary>
         public MapBase ParentMap
         {
-            get => parentMap;
+            get;
             set
             {
-                if (parentMap != null)
+                if (field != null)
                 {
-                    parentMap.ViewportChanged -= OnViewportChanged;
+                    field.ViewportChanged -= OnViewportChanged;
                 }
 
-                parentMap = value;
+                field = value;
 
-                if (parentMap != null)
+                if (field != null)
                 {
-                    parentMap.ViewportChanged += OnViewportChanged;
+                    field.ViewportChanged += OnViewportChanged;
                 }
 
                 updateTimer.Run();
             }
         }
 
-        public bool IsBaseMapLayer => parentMap != null && parentMap.Children.Count > 0 && parentMap.Children[0] == this;
+        public bool IsBaseMapLayer => ParentMap != null && ParentMap.Children.Count > 0 && ParentMap.Children[0] == this;
 
         public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
 

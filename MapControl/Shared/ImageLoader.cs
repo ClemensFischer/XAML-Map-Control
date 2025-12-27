@@ -17,20 +17,26 @@ namespace MapControl
 {
     public static partial class ImageLoader
     {
-        private static ILogger logger;
-        private static ILogger Logger => logger ??= LoggerFactory?.CreateLogger(typeof(ImageLoader));
+        private static ILogger Logger => field ??= LoggerFactory?.CreateLogger(typeof(ImageLoader));
 
         public static ILoggerFactory LoggerFactory { get; set; }
 
         /// <summary>
         /// The System.Net.Http.HttpClient instance used to download images.
         /// </summary>
-        public static HttpClient HttpClient { get; set; }
-
-        static ImageLoader()
+        public static HttpClient HttpClient
         {
-            HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-            HttpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
+            get
+            {
+                if (field == null)
+                {
+                    field = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+                    field.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
+                }
+
+                return field;
+            }
+            set;
         }
 
         public static bool IsHttp(this Uri uri)

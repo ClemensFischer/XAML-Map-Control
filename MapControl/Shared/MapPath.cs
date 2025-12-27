@@ -20,8 +20,6 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapPath, Location>(nameof(Location), null,
                 (path, oldValue, newValue) => path.UpdateData());
 
-        private MapBase parentMap;
-
         /// <summary>
         /// Gets or sets a Location that is used as
         /// - either the origin point of a geometry specified in projected map coordinates (meters)
@@ -40,19 +38,19 @@ namespace MapControl
         /// </summary>
         public MapBase ParentMap
         {
-            get => parentMap;
+            get;
             set
             {
-                if (parentMap != null)
+                if (field != null)
                 {
-                    parentMap.ViewportChanged -= OnViewportChanged;
+                    field.ViewportChanged -= OnViewportChanged;
                 }
 
-                parentMap = value;
+                field = value;
 
-                if (parentMap != null)
+                if (field != null)
                 {
-                    parentMap.ViewportChanged += OnViewportChanged;
+                    field.ViewportChanged += OnViewportChanged;
                 }
 
                 UpdateData();
@@ -66,9 +64,9 @@ namespace MapControl
 
         protected virtual void UpdateData()
         {
-            if (parentMap != null && Location != null && Data != null)
+            if (ParentMap != null && Location != null && Data != null)
             {
-                SetDataTransform(parentMap.GetMapTransform(Location));
+                SetDataTransform(ParentMap.GetMapTransform(Location));
             }
 
             MapPanel.SetLocation(this, Location);
@@ -78,13 +76,13 @@ namespace MapControl
         {
             var longitudeOffset = 0d;
 
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical && location != null)
+            if (ParentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical && location != null)
             {
-                var position = parentMap.LocationToView(location);
+                var position = ParentMap.LocationToView(location);
 
-                if (position.HasValue && !parentMap.InsideViewBounds(position.Value))
+                if (position.HasValue && !ParentMap.InsideViewBounds(position.Value))
                 {
-                    longitudeOffset = parentMap.CoerceLongitude(location.Longitude) - location.Longitude;
+                    longitudeOffset = ParentMap.CoerceLongitude(location.Longitude) - location.Longitude;
                 }
             }
 
@@ -93,7 +91,7 @@ namespace MapControl
 
         protected Point? LocationToMap(Location location, double longitudeOffset)
         {
-            var point = parentMap.MapProjection.LocationToMap(location.Latitude, location.Longitude + longitudeOffset);
+            var point = ParentMap.MapProjection.LocationToMap(location.Latitude, location.Longitude + longitudeOffset);
 
             if (point.HasValue)
             {
@@ -116,7 +114,7 @@ namespace MapControl
 
             if (point.HasValue)
             {
-                point = parentMap.ViewTransform.MapToViewMatrix.Transform(point.Value);
+                point = ParentMap.ViewTransform.MapToViewMatrix.Transform(point.Value);
             }
 
             return point;

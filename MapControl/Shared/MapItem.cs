@@ -19,9 +19,6 @@ namespace MapControl
     /// </summary>
     public partial class MapItem : ListBoxItem, IMapElement
     {
-        private MapBase parentMap;
-        private MatrixTransform mapTransform;
-
         /// <summary>
         /// Gets/sets MapPanel.AutoCollapse.
         /// </summary>
@@ -45,21 +42,21 @@ namespace MapControl
         /// </summary>
         public MapBase ParentMap
         {
-            get => parentMap;
+            get;
             set
             {
-                if (parentMap != null)
+                if (field != null)
                 {
-                    parentMap.ViewportChanged -= OnViewportChanged;
+                    field.ViewportChanged -= OnViewportChanged;
                 }
 
-                parentMap = value;
+                field = value;
 
-                if (parentMap != null && mapTransform != null)
+                if (field != null && MapTransform != null)
                 {
                     // Attach ViewportChanged handler only if MapTransform is actually used.
                     //
-                    parentMap.ViewportChanged += OnViewportChanged;
+                    field.ViewportChanged += OnViewportChanged;
 
                     UpdateMapTransform();
                 }
@@ -70,23 +67,23 @@ namespace MapControl
         /// Gets a Transform for scaling and rotating geometries
         /// in map coordinates (meters) to view coordinates (pixels).
         /// </summary>
-        public Transform MapTransform
+        public MatrixTransform MapTransform
         {
             get
             {
-                if (mapTransform == null)
+                if (field == null)
                 {
-                    mapTransform = new MatrixTransform();
+                    field = new MatrixTransform();
 
-                    if (parentMap != null)
+                    if (ParentMap != null)
                     {
-                        parentMap.ViewportChanged += OnViewportChanged;
+                        ParentMap.ViewportChanged += OnViewportChanged;
 
                         UpdateMapTransform();
                     }
                 }
 
-                return mapTransform;
+                return field;
             }
         }
 
@@ -97,9 +94,9 @@ namespace MapControl
 
         private void UpdateMapTransform()
         {
-            if (mapTransform != null && parentMap != null && Location != null)
+            if (MapTransform != null && ParentMap != null && Location != null)
             {
-                mapTransform.Matrix = parentMap.GetMapTransform(Location);
+                MapTransform.Matrix = ParentMap.GetMapTransform(Location);
             }
         }
     }

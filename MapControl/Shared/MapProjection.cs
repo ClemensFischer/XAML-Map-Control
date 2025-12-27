@@ -31,12 +31,10 @@ namespace MapControl
         public const double Wgs84Flattening = 1d / 298.257223563;
         public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
 
-        private static MapProjectionFactory factory;
-
         public static MapProjectionFactory Factory
         {
-            get => factory ??= new MapProjectionFactory();
-            set => factory = value;
+            get => field ??= new MapProjectionFactory();
+            set;
         }
 
         /// <summary>

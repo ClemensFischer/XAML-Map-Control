@@ -28,8 +28,7 @@ namespace MapControl
     /// </summary>
     public class WmtsTileLayer : TilePyramidLayer
     {
-        private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
+        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
 
         public static readonly DependencyProperty CapabilitiesUriProperty =
             DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri));

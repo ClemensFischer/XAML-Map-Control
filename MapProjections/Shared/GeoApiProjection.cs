@@ -17,8 +17,6 @@ namespace MapControl.Projections
     /// </summary>
     public class GeoApiProjection : MapProjection
     {
-        private IProjectedCoordinateSystem coordinateSystem;
-
         protected GeoApiProjection()
         {
         }
@@ -44,23 +42,23 @@ namespace MapControl.Projections
         /// </summary>
         public IProjectedCoordinateSystem CoordinateSystem
         {
-            get => coordinateSystem;
+            get;
             protected set
             {
-                coordinateSystem = value ?? throw new ArgumentNullException(nameof(value));
+                field = value ?? throw new ArgumentNullException(nameof(value));
 
                 var transformFactory = new CoordinateTransformationFactory();
 
                 LocationToMapTransform = transformFactory
-                    .CreateFromCoordinateSystems(GeographicCoordinateSystem.WGS84, coordinateSystem)
+                    .CreateFromCoordinateSystems(GeographicCoordinateSystem.WGS84, field)
                     .MathTransform;
 
                 MapToLocationTransform = transformFactory
-                    .CreateFromCoordinateSystems(coordinateSystem, GeographicCoordinateSystem.WGS84)
+                    .CreateFromCoordinateSystems(field, GeographicCoordinateSystem.WGS84)
                     .MathTransform;
 
-                CrsId = !string.IsNullOrEmpty(coordinateSystem.Authority) && coordinateSystem.AuthorityCode > 0
-                    ? $"{coordinateSystem.Authority}:{coordinateSystem.AuthorityCode}"
+                CrsId = !string.IsNullOrEmpty(field.Authority) && field.AuthorityCode > 0
+                    ? $"{field.Authority}:{field.AuthorityCode}"
                     : string.Empty;
 
                 if (CrsId == "EPSG:3857")
@@ -69,7 +67,7 @@ namespace MapControl.Projections
                 }
                 else
                 {
-                    var projection = coordinateSystem.Projection ??
+                    var projection = field.Projection ??
                         throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
 
                     var centralMeridian = projection.GetParameter("central_meridian") ?? projection.GetParameter("longitude_of_origin");
@@ -98,7 +96,7 @@ namespace MapControl.Projections
 
         public override Point GetRelativeScale(double latitude, double longitude)
         {
-            var k = coordinateSystem?.Projection?.GetParameter("scale_factor")?.Value ?? 1d;
+            var k = CoordinateSystem?.Projection?.GetParameter("scale_factor")?.Value ?? 1d;
 
             return new Point(k, k);
         }

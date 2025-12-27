@@ -29,8 +29,7 @@ namespace MapControl
 
     public class TileImageLoader : ITileImageLoader
     {
-        private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(TileImageLoader));
+        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(TileImageLoader));
 
         /// <summary>
         /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".

@@ -27,8 +27,7 @@ namespace MapControl
     /// </summary>
     public class WmsImageLayer : MapImageLayer
     {
-        private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmsImageLayer));
+        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmsImageLayer));
 
         public static readonly DependencyProperty ServiceUriProperty =
             DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null,

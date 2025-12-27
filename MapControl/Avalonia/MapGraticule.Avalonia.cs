@@ -24,26 +24,24 @@ namespace MapControl
         public static readonly StyledProperty<double> FontSizeProperty =
             TextElement.FontSizeProperty.AddOwner<MapGraticule>(new StyledPropertyMetadata<double>(12d));
 
-        private MapBase parentMap;
-
         /// <summary>
         /// Implements IMapElement.ParentMap.
         /// </summary>
         public MapBase ParentMap
         {
-            get => parentMap;
+            get;
             set
             {
-                if (parentMap != null)
+                if (field != null)
                 {
-                    parentMap.ViewportChanged -= OnViewportChanged;
+                    field.ViewportChanged -= OnViewportChanged;
                 }
 
-                parentMap = value;
+                field = value;
 
-                if (parentMap != null)
+                if (field != null)
                 {
-                    parentMap.ViewportChanged += OnViewportChanged;
+                    field.ViewportChanged += OnViewportChanged;
                 }
             }
         }
@@ -55,7 +53,7 @@ namespace MapControl
 
         public override void Render(DrawingContext drawingContext)
         {
-            if (parentMap != null)
+            if (ParentMap != null)
             {
                 var pathGeometry = new PathGeometry();
 

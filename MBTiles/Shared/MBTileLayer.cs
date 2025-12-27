@@ -18,8 +18,7 @@ namespace MapControl.MBTiles
     /// </summary>
     public class MBTileLayer : MapTileLayer
     {
-        private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileLayer>();
+        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileLayer>();
 
         public static readonly DependencyProperty FileProperty =
             DependencyPropertyHelper.Register<MBTileLayer, string>(nameof(File), null,

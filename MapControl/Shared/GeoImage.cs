@@ -62,8 +62,7 @@ namespace MapControl
 
         private static string QueryString(ushort tag) => $"/ifd/{{ushort={tag}}}";
 
-        private static ILogger logger;
-        private static ILogger Logger => logger ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(GeoImage));
+        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(GeoImage));
 
         public static readonly DependencyProperty SourcePathProperty =
             DependencyPropertyHelper.RegisterAttached<string>("SourcePath", typeof(GeoImage), null,
