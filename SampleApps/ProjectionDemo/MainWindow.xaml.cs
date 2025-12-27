@@ -72,10 +72,6 @@ namespace ProjectionDemo
 
     public class ViewModel : INotifyPropertyChanged
     {
-        private MapProjection currentProjection;
-        private IMapLayer currentLayer;
-        private Location pushpinLocation = new();
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public List<MapProjection> Projections { get; } = [];
@@ -84,34 +80,34 @@ namespace ProjectionDemo
 
         public MapProjection CurrentProjection
         {
-            get => currentProjection;
+            get;
             set
             {
-                currentProjection = value;
+                field = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentProjection)));
             }
         }
 
         public IMapLayer CurrentLayer
         {
-            get => currentLayer;
+            get;
             set
             {
-                currentLayer = value;
+                field = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentLayer)));
             }
         }
 
         public Location PushpinLocation
         {
-            get => pushpinLocation;
+            get;
             set
             {
-                pushpinLocation = value;
+                field = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PushpinLocation)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PushpinText)));
             }
-        }
+        } = new();
 
         public string PushpinText
         {
