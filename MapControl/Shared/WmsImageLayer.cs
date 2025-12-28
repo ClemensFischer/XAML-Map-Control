@@ -327,7 +327,7 @@ namespace MapControl
         protected virtual string GetBboxValue(Rect mapBoundingBox)
         {
             var crs = ParentMap.MapProjection.CrsId;
-            var format = "{0:F2},{1:F2},{2:F2},{3:F2}";
+            var format = "{0},{1},{2},{3}";
             var x1 = mapBoundingBox.X;
             var y1 = mapBoundingBox.Y;
             var x2 = mapBoundingBox.X + mapBoundingBox.Width;
@@ -335,7 +335,11 @@ namespace MapControl
 
             if (crs == "CRS:84" || crs == "EPSG:4326")
             {
-                format = crs == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
+                if (crs == "EPSG:4326")
+                {
+                    format = "{1},{0},{3},{2}";
+                }
+
                 x1 /= MapProjection.Wgs84MeterPerDegree;
                 y1 /= MapProjection.Wgs84MeterPerDegree;
                 x2 /= MapProjection.Wgs84MeterPerDegree;
