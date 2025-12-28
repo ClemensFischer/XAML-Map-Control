@@ -83,7 +83,7 @@ namespace MapControl
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed loading {uri}", uri);
+                Logger?.LogError(ex, "Failed loading image from {uri}", uri);
             }
 
             progress?.Report(1d);
@@ -107,11 +107,11 @@ namespace MapControl
             }
             catch (TaskCanceledException)
             {
-                Logger?.LogWarning("Timeout while loading {uri}", uri);
+                Logger?.LogWarning("Timeout from {uri}", uri);
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed loading {uri}", uri);
+                Logger?.LogError(ex, "{uri}", uri);
             }
 
             return null;

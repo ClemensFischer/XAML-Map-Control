@@ -196,14 +196,7 @@ namespace MapControl
                     {
                         var uri = GetMapRequestUri(bbox.Value);
 
-                        try
-                        {
-                            image = await ImageLoader.LoadImageAsync(uri, progress);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger?.LogError(ex, "ImageLoader.LoadImageAsync");
-                        }
+                        image = await ImageLoader.LoadImageAsync(uri, progress);
                     }
                 }
                 else
@@ -231,14 +224,7 @@ namespace MapControl
                         var uri1 = GetMapRequestUri(bbox1.Value);
                         var uri2 = GetMapRequestUri(bbox2.Value);
 
-                        try
-                        {
-                            image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger?.LogError(ex, "ImageLoader.LoadMergedImageAsync");
-                        }
+                        image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
                     }
                 }
             }
