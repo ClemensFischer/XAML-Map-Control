@@ -286,17 +286,13 @@ namespace MapControl
 #endif
             var imagePos = transform.Transform(position);
 
-            var layers = RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "";
-
-            return GetRequestUri(new Dictionary<string, string>
+            var queryParameters = new Dictionary<string, string>
             {
                 { "SERVICE", "WMS" },
                 { "VERSION", "1.3.0" },
                 { "REQUEST", "GetFeatureInfo" },
-                { "LAYERS", layers },
-                { "QUERY_LAYERS", layers },
+                { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
                 { "STYLES", RequestStyles ?? "" },
-                { "FORMAT", "image/png" },
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
                 { "BBOX", GetBboxValue(mapBoundingBox) },
@@ -304,7 +300,15 @@ namespace MapControl
                 { "HEIGHT", Math.Round(height).ToString("F0") },
                 { "I", Math.Round(imagePos.X).ToString("F0") },
                 { "J", Math.Round(imagePos.Y).ToString("F0") }
-            });
+            };
+
+            // GetRequestUri may modify queryParameters["LAYERS"].
+            //
+            var uriBuilder = new UriBuilder(GetRequestUri(queryParameters));
+
+            uriBuilder.Query += "&QUERY_LAYERS=" + queryParameters["LAYERS"];
+
+            return uriBuilder.Uri;
         }
 
         protected virtual string GetCrsValue()
