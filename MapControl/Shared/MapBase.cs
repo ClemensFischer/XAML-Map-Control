@@ -49,8 +49,6 @@ namespace MapControl
 
         private Location transformCenter;
         private Point viewCenter;
-        private Rect? mapBounds;
-        private BoundingBox geoBounds;
         private double centerLongitude;
         private double maxLatitude = 85.05112878; // default WebMercatorProjection
         private bool internalPropertyChange;
@@ -171,27 +169,6 @@ namespace MapControl
             get => (double)GetValue(TargetHeadingProperty);
             set => SetValue(TargetHeadingProperty, value);
         }
-
-        /// <summary>
-        /// Gets the map viewport bounds in projected map coordinates.
-        /// </summary>
-        public Rect MapBounds
-        {
-            get
-            {
-                if (!mapBounds.HasValue)
-                {
-                    mapBounds = ViewRectToMap(0d, 0d, ActualWidth, ActualHeight);
-                }
-
-                return mapBounds.Value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the map viewport bounds in geographic coordinates.
-        /// </summary>
-        public BoundingBox GeoBounds => geoBounds ??= MapProjection.MapToBoundingBox(MapBounds);
 
         /// <summary>
         /// Gets the ViewTransform instance that is used to transform between projected
@@ -575,10 +552,6 @@ namespace MapControl
         protected override void OnViewportChanged(ViewportChangedEventArgs e)
         {
             base.OnViewportChanged(e);
-
-            mapBounds = null;
-            geoBounds = null;
-
             ViewportChanged?.Invoke(this, e);
         }
     }

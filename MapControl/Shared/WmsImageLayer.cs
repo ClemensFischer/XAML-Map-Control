@@ -169,7 +169,8 @@ namespace MapControl
                 ParentMap.ActualWidth > 0d &&
                 ParentMap.ActualHeight > 0d)
             {
-                var uri = GetFeatureInfoRequestUri(ParentMap.GeoBounds, position, format);
+                var boundingBox = ParentMap.ViewRectToBoundingBox(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
+                var uri = GetFeatureInfoRequestUri(boundingBox, position, format);
 
                 if (uri != null)
                 {
@@ -283,7 +284,7 @@ namespace MapControl
                     { "STYLES", RequestStyles ?? "" },
                     { "FORMAT", "image/png" },
                     { "CRS", GetCrsValue() },
-                    { "BBOX", GetBboxValue(boundingBox, bbox.Value) },
+                    { "BBOX", GetBboxValue(bbox.Value) },
                     { "WIDTH", Math.Round(width).ToString("F0") },
                     { "HEIGHT", Math.Round(height).ToString("F0") }
                 });
@@ -306,9 +307,11 @@ namespace MapControl
                 var height = ParentMap.ViewTransform.Scale * bbox.Value.Height;
 
                 var transform = ViewTransform.CreateTransformMatrix(
-                    -ParentMap.ActualWidth / 2d, -ParentMap.ActualWidth / 2d,
+                    -ParentMap.ActualWidth / 2d,
+                    -ParentMap.ActualHeight / 2d,
                     -ParentMap.ViewTransform.Rotation,
-                    width / 2d, height / 2d);
+                    width / 2d,
+                    height / 2d);
 
                 var imagePos = transform.Transform(position);
 
@@ -322,7 +325,7 @@ namespace MapControl
                     { "FORMAT", "image/png" },
                     { "INFO_FORMAT", format },
                     { "CRS", GetCrsValue() },
-                    { "BBOX", GetBboxValue(boundingBox, bbox.Value) },
+                    { "BBOX", GetBboxValue(bbox.Value) },
                     { "WIDTH", Math.Round(width).ToString("F0") },
                     { "HEIGHT", Math.Round(height).ToString("F0") },
                     { "I", Math.Round(imagePos.X).ToString("F0") },
@@ -350,27 +353,22 @@ namespace MapControl
             return crs;
         }
 
-        protected virtual string GetBboxValue(BoundingBox boundingBox, Rect mapBoundingBox)
+        protected virtual string GetBboxValue(Rect mapBoundingBox)
         {
             var crs = ParentMap.MapProjection.CrsId;
-            string format;
-            double x1, y1, x2, y2;
+            var format = "{0:F2},{1:F2},{2:F2},{3:F2}";
+            var x1 = mapBoundingBox.X;
+            var y1 = mapBoundingBox.Y;
+            var x2 = mapBoundingBox.X + mapBoundingBox.Width;
+            var y2 = mapBoundingBox.Y + mapBoundingBox.Height;
 
             if (crs == "CRS:84" || crs == "EPSG:4326")
             {
                 format = crs == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
-                x1 = boundingBox.West;
-                y1 = boundingBox.South;
-                x2 = boundingBox.East;
-                y2 = boundingBox.North;
-            }
-            else
-            {
-                format = "{0:F2},{1:F2},{2:F2},{3:F2}";
-                x1 = mapBoundingBox.X;
-                y1 = mapBoundingBox.Y;
-                x2 = mapBoundingBox.X + mapBoundingBox.Width;
-                y2 = mapBoundingBox.Y + mapBoundingBox.Height;
+                x1 /= MapProjection.Wgs84MeterPerDegree;
+                y1 /= MapProjection.Wgs84MeterPerDegree;
+                x2 /= MapProjection.Wgs84MeterPerDegree;
+                y2 /= MapProjection.Wgs84MeterPerDegree;
             }
 
             return string.Format(CultureInfo.InvariantCulture, format, x1, y1, x2, y2);

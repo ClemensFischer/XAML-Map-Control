@@ -101,8 +101,8 @@ namespace MapControl
                     maxY = Math.Max(maxY, point.Y);
                 }
 
-                if (maxX >= 0 && minX <= ParentMap.ActualWidth &&
-                    maxY >= 0 && minY <= ParentMap.ActualHeight)
+                if (maxX >= 0d && minX <= ParentMap.ActualWidth &&
+                    maxY >= 0d && minY <= ParentMap.ActualHeight)
                 {
                     context.BeginFigure(start, true, closed);
                     context.PolyLineTo(polyline, true, true);
