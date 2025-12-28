@@ -138,18 +138,15 @@ namespace MapControl
             {
                 var uri = GetCapabilitiesRequestUri();
 
-                if (uri != null)
+                try
                 {
-                    try
-                    {
-                        using var stream = await ImageLoader.HttpClient.GetStreamAsync(uri);
+                    using var stream = await ImageLoader.HttpClient.GetStreamAsync(uri);
 
-                        element = await XDocument.LoadRootElementAsync(stream);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.LogError(ex, "Failed reading capabilities from {uri}", uri);
-                    }
+                    element = await XDocument.LoadRootElementAsync(stream);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.LogError(ex, "Failed reading capabilities from {uri}", uri);
                 }
             }
 
@@ -163,25 +160,18 @@ namespace MapControl
         {
             string response = null;
 
-            if (ServiceUri != null &&
-                HasLayer &&
-                ParentMap?.MapProjection != null &&
-                ParentMap.ActualWidth > 0d &&
-                ParentMap.ActualHeight > 0d)
+            if (ServiceUri != null && HasLayer)
             {
-                var boundingBox = ParentMap.ViewRectToBoundingBox(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
-                var uri = GetFeatureInfoRequestUri(boundingBox, position, format);
+                var bbox = ParentMap.ViewRectToMap(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
+                var uri = GetFeatureInfoRequestUri(bbox, position, format);
 
-                if (uri != null)
+                try
                 {
-                    try
-                    {
-                        response = await ImageLoader.HttpClient.GetStringAsync(uri);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.LogError(ex, "Failed reading feature info from {uri}", uri);
-                    }
+                    response = await ImageLoader.HttpClient.GetStringAsync(uri);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.LogError(ex, "Failed reading feature info from {uri}", uri);
                 }
             }
 
@@ -200,13 +190,15 @@ namespace MapControl
                 if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
                     ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
                 {
-                    var uri = GetMapRequestUri(boundingBox);
+                    var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-                    if (uri != null)
+                    if (bbox.HasValue)
                     {
+                        var uri = GetMapRequestUri(bbox.Value);
+
                         try
                         {
-                            image = await ImageLoader.LoadImageAsync(new Uri(uri), progress);
+                            image = await ImageLoader.LoadImageAsync(uri, progress);
                         }
                         catch (Exception ex)
                         {
@@ -216,27 +208,32 @@ namespace MapControl
                 }
                 else
                 {
-                    BoundingBox bbox1, bbox2;
+                    var west = boundingBox.West;
+                    var east = boundingBox.East;
 
-                    if (boundingBox.West < -180d)
+                    if (west < -180d)
                     {
-                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West + 360, boundingBox.North, 180d);
-                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East);
+                        west += 360d;
                     }
                     else
                     {
-                        bbox1 = new BoundingBox(boundingBox.South, boundingBox.West, boundingBox.North, 180d);
-                        bbox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, boundingBox.East - 360d);
+                        east -= 360d;
                     }
 
-                    var uri1 = GetMapRequestUri(bbox1);
-                    var uri2 = GetMapRequestUri(bbox2);
+                    var boundingBox1 = new BoundingBox(boundingBox.South, west, boundingBox.North, 180d);
+                    var boundingBox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, east);
 
-                    if (uri1 != null && uri2 != null)
+                    var bbox1 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox1);
+                    var bbox2 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox2);
+
+                    if (bbox1.HasValue && bbox2.HasValue)
                     {
+                        var uri1 = GetMapRequestUri(bbox1.Value);
+                        var uri2 = GetMapRequestUri(bbox2.Value);
+
                         try
                         {
-                            image = await ImageLoader.LoadMergedImageAsync(new Uri(uri1), new Uri(uri2), progress);
+                            image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
                         }
                         catch (Exception ex)
                         {
@@ -252,7 +249,7 @@ namespace MapControl
         /// <summary>
         /// Returns a GetCapabilities request URL string.
         /// </summary>
-        protected virtual string GetCapabilitiesRequestUri()
+        protected virtual Uri GetCapabilitiesRequestUri()
         {
             return GetRequestUri(new Dictionary<string, string>
             {
@@ -265,79 +262,63 @@ namespace MapControl
         /// <summary>
         /// Returns a GetMap request URL string.
         /// </summary>
-        protected virtual string GetMapRequestUri(BoundingBox boundingBox)
+        protected virtual Uri GetMapRequestUri(Rect mapBoundingBox)
         {
-            string uri = null;
-            var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var width = ParentMap.ViewTransform.Scale * mapBoundingBox.Width;
+            var height = ParentMap.ViewTransform.Scale * mapBoundingBox.Height;
 
-            if (bbox.HasValue)
+            return GetRequestUri(new Dictionary<string, string>
             {
-                var width = ParentMap.ViewTransform.Scale * bbox.Value.Width;
-                var height = ParentMap.ViewTransform.Scale * bbox.Value.Height;
-
-                uri = GetRequestUri(new Dictionary<string, string>
-                {
-                    { "SERVICE", "WMS" },
-                    { "VERSION", "1.3.0" },
-                    { "REQUEST", "GetMap" },
-                    { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
-                    { "STYLES", RequestStyles ?? "" },
-                    { "FORMAT", "image/png" },
-                    { "CRS", GetCrsValue() },
-                    { "BBOX", GetBboxValue(bbox.Value) },
-                    { "WIDTH", Math.Round(width).ToString("F0") },
-                    { "HEIGHT", Math.Round(height).ToString("F0") }
-                });
-            }
-
-            return uri;
+                { "SERVICE", "WMS" },
+                { "VERSION", "1.3.0" },
+                { "REQUEST", "GetMap" },
+                { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
+                { "STYLES", RequestStyles ?? "" },
+                { "FORMAT", "image/png" },
+                { "CRS", GetCrsValue() },
+                { "BBOX", GetBboxValue(mapBoundingBox) },
+                { "WIDTH", Math.Round(width).ToString("F0") },
+                { "HEIGHT", Math.Round(height).ToString("F0") }
+            });
         }
 
         /// <summary>
         /// Returns a GetFeatureInfo request URL string.
         /// </summary>
-        protected virtual string GetFeatureInfoRequestUri(BoundingBox boundingBox, Point position, string format)
+        protected virtual Uri GetFeatureInfoRequestUri(Rect mapBoundingBox, Point position, string format)
         {
-            string uri = null;
-            var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var width = ParentMap.ViewTransform.Scale * mapBoundingBox.Width;
+            var height = ParentMap.ViewTransform.Scale * mapBoundingBox.Height;
+#if AVALONIA
+            var transform = Matrix.CreateTranslation(-ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d)
+                          * Matrix.CreateRotation(Matrix.ToRadians(-ParentMap.ViewTransform.Rotation))
+                          * Matrix.CreateTranslation(width / 2d, height / 2d);
+#else
+            var transform = new Matrix(1d, 0d, 0d, 1d, -ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d);
+            transform.Rotate(-ParentMap.ViewTransform.Rotation);
+            transform.Translate(width / 2d, height / 2d);
+#endif
+            var imagePos = transform.Transform(position);
 
-            if (bbox.HasValue)
+            var layers = RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "";
+
+            return GetRequestUri(new Dictionary<string, string>
             {
-                var width = ParentMap.ViewTransform.Scale * bbox.Value.Width;
-                var height = ParentMap.ViewTransform.Scale * bbox.Value.Height;
-
-                var transform = ViewTransform.CreateTransformMatrix(
-                    -ParentMap.ActualWidth / 2d,
-                    -ParentMap.ActualHeight / 2d,
-                    -ParentMap.ViewTransform.Rotation,
-                    width / 2d,
-                    height / 2d);
-
-                var imagePos = transform.Transform(position);
-
-                var queryParameters = new Dictionary<string, string>
-                {
-                    { "SERVICE", "WMS" },
-                    { "VERSION", "1.3.0" },
-                    { "REQUEST", "GetFeatureInfo" },
-                    { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
-                    { "STYLES", RequestStyles ?? "" },
-                    { "FORMAT", "image/png" },
-                    { "INFO_FORMAT", format },
-                    { "CRS", GetCrsValue() },
-                    { "BBOX", GetBboxValue(bbox.Value) },
-                    { "WIDTH", Math.Round(width).ToString("F0") },
-                    { "HEIGHT", Math.Round(height).ToString("F0") },
-                    { "I", Math.Round(imagePos.X).ToString("F0") },
-                    { "J", Math.Round(imagePos.Y).ToString("F0") }
-                };
-
-                // GetRequestUri may modify queryParameters["LAYERS"].
-                //
-                uri = GetRequestUri(queryParameters) + "&QUERY_LAYERS=" + queryParameters["LAYERS"];
-            }
-
-            return uri;
+                { "SERVICE", "WMS" },
+                { "VERSION", "1.3.0" },
+                { "REQUEST", "GetFeatureInfo" },
+                { "LAYERS", layers },
+                { "QUERY_LAYERS", layers },
+                { "STYLES", RequestStyles ?? "" },
+                { "FORMAT", "image/png" },
+                { "INFO_FORMAT", format },
+                { "CRS", GetCrsValue() },
+                { "BBOX", GetBboxValue(mapBoundingBox) },
+                { "WIDTH", Math.Round(width).ToString("F0") },
+                { "HEIGHT", Math.Round(height).ToString("F0") },
+                { "I", Math.Round(imagePos.X).ToString("F0") },
+                { "J", Math.Round(imagePos.Y).ToString("F0") }
+            });
         }
 
         protected virtual string GetCrsValue()
@@ -374,7 +355,7 @@ namespace MapControl
             return string.Format(CultureInfo.InvariantCulture, format, x1, y1, x2, y2);
         }
 
-        protected string GetRequestUri(IDictionary<string, string> queryParameters)
+        protected Uri GetRequestUri(IDictionary<string, string> queryParameters)
         {
             var query = ServiceUri.Query;
 
@@ -389,10 +370,10 @@ namespace MapControl
                 }
             }
 
-            var uri = ServiceUri.GetLeftPart(UriPartial.Path) + "?"
-                + string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
+            var uri = ServiceUri.GetLeftPart(UriPartial.Path) + "?" +
+                string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
-            return uri.Replace(" ", "%20");
+            return new Uri(uri.Replace(" ", "%20"));
         }
     }
 }

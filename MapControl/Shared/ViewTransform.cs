@@ -38,7 +38,7 @@ namespace MapControl
         /// </summary>
         public Matrix ViewToMapMatrix { get; private set; }
 
-#if WPF || UWP || WINUI
+#if !AVALONIA
         /// <summary>
         /// Initializes a ViewTransform from a map center point in projected coordinates,
         /// a view conter point, a scaling factor from projected coordinates to view coordinates
@@ -119,18 +119,6 @@ namespace MapControl
             //
             return new MatrixTransform { Matrix = transform }
                 .TransformBounds(new Rect(0d, 0d, viewWidth, viewHeight));
-        }
-
-        internal static Matrix CreateTransformMatrix(
-            double translation1X, double translation1Y,
-            double rotation,
-            double translation2X, double translation2Y)
-        {
-            var transform = new Matrix(1d, 0d, 0d, 1d, translation1X, translation1Y);
-            transform.Rotate(rotation);
-            transform.Translate(translation2X, translation2Y);
-
-            return transform;
         }
 #endif
     }

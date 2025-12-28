@@ -77,15 +77,5 @@ namespace MapControl
             //
             return new Rect(0d, 0d, viewWidth, viewHeight).TransformToAABB(transform);
         }
-
-        internal static Matrix CreateTransformMatrix(
-            double translation1X, double translation1Y,
-            double rotation,
-            double translation2X, double translation2Y)
-        {
-            return Matrix.CreateTranslation(translation1X, translation1Y)
-                 * Matrix.CreateRotation(Matrix.ToRadians(rotation))
-                 * Matrix.CreateTranslation(translation2X, translation2Y);
-        }
     }
 }
