@@ -189,10 +189,12 @@ namespace MapControl
                 if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
                     ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
                 {
-                    var uri = GetMapRequestUri(boundingBox);
+                    var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-                    if (uri != null)
+                    if (bbox.HasValue)
                     {
+                        var uri = GetMapRequestUri(bbox.Value);
+
                         image = await ImageLoader.LoadImageAsync(uri, progress);
                     }
                 }
@@ -213,11 +215,14 @@ namespace MapControl
                     var boundingBox1 = new BoundingBox(boundingBox.South, west, boundingBox.North, 180d);
                     var boundingBox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, east);
 
-                    var uri1 = GetMapRequestUri(boundingBox1);
-                    var uri2 = GetMapRequestUri(boundingBox2);
+                    var bbox1 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox1);
+                    var bbox2 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox2);
 
-                    if (uri1 != null && uri2 != null)
+                    if (bbox1.HasValue && bbox2.HasValue)
                     {
+                        var uri1 = GetMapRequestUri(bbox1.Value);
+                        var uri2 = GetMapRequestUri(bbox2.Value);
+
                         image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
                     }
                 }
@@ -242,32 +247,24 @@ namespace MapControl
         /// <summary>
         /// Returns a GetMap request URL string.
         /// </summary>
-        protected virtual Uri GetMapRequestUri(BoundingBox boundingBox)
+        protected virtual Uri GetMapRequestUri(Rect bbox)
         {
-            Uri uri = null;
-            var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var width = ParentMap.ViewTransform.Scale * bbox.Width;
+            var height = ParentMap.ViewTransform.Scale * bbox.Height;
 
-            if (bbox.HasValue)
+            return GetRequestUri(new Dictionary<string, string>
             {
-                var width = ParentMap.ViewTransform.Scale * bbox.Value.Width;
-                var height = ParentMap.ViewTransform.Scale * bbox.Value.Height;
-
-                uri = GetRequestUri(new Dictionary<string, string>
-                {
-                    { "SERVICE", "WMS" },
-                    { "VERSION", "1.3.0" },
-                    { "REQUEST", "GetMap" },
-                    { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
-                    { "STYLES", RequestStyles ?? "" },
-                    { "FORMAT", "image/png" },
-                    { "CRS", GetCrsValue() },
-                    { "BBOX", GetBboxValue(bbox.Value) },
-                    { "WIDTH", width.ToString("F0") },
-                    { "HEIGHT", height.ToString("F0") }
-                });
-            }
-
-            return uri;
+                { "SERVICE", "WMS" },
+                { "VERSION", "1.3.0" },
+                { "REQUEST", "GetMap" },
+                { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
+                { "STYLES", RequestStyles ?? "" },
+                { "FORMAT", "image/png" },
+                { "CRS", GetCrsValue() },
+                { "BBOX", GetBboxValue(bbox) },
+                { "WIDTH", width.ToString("F0") },
+                { "HEIGHT", height.ToString("F0") }
+            });
         }
 
         /// <summary>
