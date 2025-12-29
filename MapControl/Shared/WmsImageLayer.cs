@@ -162,8 +162,7 @@ namespace MapControl
 
             if (ServiceUri != null && HasLayer)
             {
-                var bbox = ParentMap.ViewRectToMap(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
-                var uri = GetFeatureInfoRequestUri(bbox, position, format);
+                var uri = GetFeatureInfoRequestUri(position, format);
 
                 try
                 {
@@ -190,12 +189,10 @@ namespace MapControl
                 if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
                     ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
                 {
-                    var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+                    var uri = GetMapRequestUri(boundingBox);
 
-                    if (bbox.HasValue)
+                    if (uri != null)
                     {
-                        var uri = GetMapRequestUri(bbox.Value);
-
                         image = await ImageLoader.LoadImageAsync(uri, progress);
                     }
                 }
@@ -216,14 +213,11 @@ namespace MapControl
                     var boundingBox1 = new BoundingBox(boundingBox.South, west, boundingBox.North, 180d);
                     var boundingBox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, east);
 
-                    var bbox1 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox1);
-                    var bbox2 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox2);
+                    var uri1 = GetMapRequestUri(boundingBox1);
+                    var uri2 = GetMapRequestUri(boundingBox2);
 
-                    if (bbox1.HasValue && bbox2.HasValue)
+                    if (uri1 != null && uri2 != null)
                     {
-                        var uri1 = GetMapRequestUri(bbox1.Value);
-                        var uri2 = GetMapRequestUri(bbox2.Value);
-
                         image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
                     }
                 }
@@ -248,33 +242,42 @@ namespace MapControl
         /// <summary>
         /// Returns a GetMap request URL string.
         /// </summary>
-        protected virtual Uri GetMapRequestUri(Rect mapBoundingBox)
+        protected virtual Uri GetMapRequestUri(BoundingBox boundingBox)
         {
-            var width = ParentMap.ViewTransform.Scale * mapBoundingBox.Width;
-            var height = ParentMap.ViewTransform.Scale * mapBoundingBox.Height;
+            Uri uri = null;
+            var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-            return GetRequestUri(new Dictionary<string, string>
+            if (bbox.HasValue)
             {
-                { "SERVICE", "WMS" },
-                { "VERSION", "1.3.0" },
-                { "REQUEST", "GetMap" },
-                { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
-                { "STYLES", RequestStyles ?? "" },
-                { "FORMAT", "image/png" },
-                { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(mapBoundingBox) },
-                { "WIDTH", Math.Round(width).ToString("F0") },
-                { "HEIGHT", Math.Round(height).ToString("F0") }
-            });
+                var width = ParentMap.ViewTransform.Scale * bbox.Value.Width;
+                var height = ParentMap.ViewTransform.Scale * bbox.Value.Height;
+
+                uri = GetRequestUri(new Dictionary<string, string>
+                {
+                    { "SERVICE", "WMS" },
+                    { "VERSION", "1.3.0" },
+                    { "REQUEST", "GetMap" },
+                    { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
+                    { "STYLES", RequestStyles ?? "" },
+                    { "FORMAT", "image/png" },
+                    { "CRS", GetCrsValue() },
+                    { "BBOX", GetBboxValue(bbox.Value) },
+                    { "WIDTH", width.ToString("F0") },
+                    { "HEIGHT", height.ToString("F0") }
+                });
+            }
+
+            return uri;
         }
 
         /// <summary>
         /// Returns a GetFeatureInfo request URL string.
         /// </summary>
-        protected virtual Uri GetFeatureInfoRequestUri(Rect mapBoundingBox, Point position, string format)
+        protected virtual Uri GetFeatureInfoRequestUri(Point position, string format)
         {
-            var width = ParentMap.ViewTransform.Scale * mapBoundingBox.Width;
-            var height = ParentMap.ViewTransform.Scale * mapBoundingBox.Height;
+            var bbox = ParentMap.ViewRectToMap(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
+            var width = ParentMap.ViewTransform.Scale * bbox.Width;
+            var height = ParentMap.ViewTransform.Scale * bbox.Height;
 #if AVALONIA
             var transform = Matrix.CreateTranslation(-ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d)
                           * Matrix.CreateRotation(Matrix.ToRadians(-ParentMap.ViewTransform.Rotation))
@@ -295,11 +298,11 @@ namespace MapControl
                 { "STYLES", RequestStyles ?? "" },
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
-                { "BBOX", GetBboxValue(mapBoundingBox) },
-                { "WIDTH", Math.Round(width).ToString("F0") },
-                { "HEIGHT", Math.Round(height).ToString("F0") },
-                { "I", Math.Round(imagePos.X).ToString("F0") },
-                { "J", Math.Round(imagePos.Y).ToString("F0") }
+                { "BBOX", GetBboxValue(bbox) },
+                { "WIDTH", width.ToString("F0") },
+                { "HEIGHT", height.ToString("F0") },
+                { "I", imagePos.X.ToString("F0") },
+                { "J", imagePos.Y.ToString("F0") }
             };
 
             // GetRequestUri may modify queryParameters["LAYERS"].
@@ -324,14 +327,14 @@ namespace MapControl
             return crs;
         }
 
-        protected virtual string GetBboxValue(Rect mapBoundingBox)
+        protected virtual string GetBboxValue(Rect bbox)
         {
             var crs = ParentMap.MapProjection.CrsId;
             var format = "{0},{1},{2},{3}";
-            var x1 = mapBoundingBox.X;
-            var y1 = mapBoundingBox.Y;
-            var x2 = mapBoundingBox.X + mapBoundingBox.Width;
-            var y2 = mapBoundingBox.Y + mapBoundingBox.Height;
+            var x1 = bbox.X;
+            var y1 = bbox.Y;
+            var x2 = bbox.X + bbox.Width;
+            var y2 = bbox.Y + bbox.Height;
 
             if (crs == "CRS:84" || crs == "EPSG:4326")
             {
