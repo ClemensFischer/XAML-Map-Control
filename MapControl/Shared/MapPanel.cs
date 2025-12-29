@@ -293,10 +293,10 @@ namespace MapControl
             {
                 var rotatedRect = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
 
-                if (rotatedRect != null)
+                if (rotatedRect.HasValue)
                 {
-                    mapRect = rotatedRect.Item1;
-                    rotation = -rotatedRect.Item2;
+                    mapRect = rotatedRect.Value.Item1;
+                    rotation = -rotatedRect.Value.Item2;
                 }
             }
             else
