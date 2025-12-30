@@ -286,18 +286,12 @@ namespace MapControl
 
         private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
         {
-            Rect? mapRect = null;
+            Rect? mapRect;
             var rotation = 0d;
 
             if (boundingBox is LatLonBox latLonBox)
             {
-                var rotatedRect = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
-
-                if (rotatedRect.HasValue)
-                {
-                    mapRect = rotatedRect.Value.Item1;
-                    rotation = -rotatedRect.Value.Item2;
-                }
+                (mapRect, rotation) = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
             }
             else
             {

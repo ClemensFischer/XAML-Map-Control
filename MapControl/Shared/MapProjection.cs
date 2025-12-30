@@ -114,12 +114,13 @@ namespace MapControl
         /// Transforms a LatLonBox in geographic coordinates to a rotated Rect in projected map coordinates.
         /// Returns null when the LatLonBox can not be transformed.
         /// </summary>
-        public virtual (Rect, double)? LatLonBoxToMap(LatLonBox latLonBox)
+        public virtual (Rect?, double) LatLonBoxToMap(LatLonBox latLonBox)
         {
-            (Rect, double)? rotatedRect = null;
-            Point? center, north, south, west, east;
+            Rect? rect = null;
+            var rotation = 0d;
             var centerLatitude = latLonBox.Center.Latitude;
             var centerLongitude = latLonBox.Center.Longitude;
+            Point? center, north, south, west, east;
 
             if ((center = LocationToMap(centerLatitude, centerLongitude)).HasValue &&
                 (north = LocationToMap(latLonBox.North, centerLongitude)).HasValue &&
@@ -142,10 +143,11 @@ namespace MapControl
                 var r1 = (Math.Atan2(dy1, dx1) * 180d / Math.PI + 180d) % 360d - 180d;
                 var r2 = (Math.Atan2(-dx2, dy2) * 180d / Math.PI + 180d) % 360d - 180d;
 
-                rotatedRect = (new Rect(x, y, width, height), latLonBox.Rotation + (r1 + r2) / 2d);
+                rect = new Rect(x, y, width, height);
+                rotation = latLonBox.Rotation + (r1 + r2) / 2d;
             }
 
-            return rotatedRect;
+            return (rect, rotation);
         }
 
         public override string ToString()
