@@ -170,7 +170,7 @@ namespace MapControl
             }
         }
 
-        protected abstract Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress);
+        protected abstract Task<ImageSource> GetImageAsync(Rect mapBoundingBox, IProgress<double> progress);
 
         protected async Task UpdateImageAsync()
         {
@@ -191,12 +191,13 @@ namespace MapControl
                     var height = ParentMap.ActualHeight * RelativeImageSize;
                     var x = (ParentMap.ActualWidth - width) / 2d;
                     var y = (ParentMap.ActualHeight - height) / 2d;
+                    var mapRect = ParentMap.ViewRectToMap(x, y, width, height);
 
-                    boundingBox = ParentMap.ViewRectToBoundingBox(x, y, width, height);
+                    boundingBox = ParentMap.MapProjection.MapToBoundingBox(mapRect);
 
                     if (boundingBox != null)
                     {
-                        image = await GetImageAsync(boundingBox, loadingProgress);
+                        image = await GetImageAsync(mapRect, loadingProgress);
                     }
                 }
 

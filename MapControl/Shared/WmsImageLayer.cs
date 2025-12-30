@@ -180,51 +180,40 @@ namespace MapControl
         /// <summary>
         /// Loads an ImageSource from the URL returned by GetMapRequestUri().
         /// </summary>
-        protected override async Task<ImageSource> GetImageAsync(BoundingBox boundingBox, IProgress<double> progress)
+        protected override async Task<ImageSource> GetImageAsync(Rect bbox, IProgress<double> progress)
         {
             ImageSource image = null;
 
             if (ServiceUri != null && HasLayer)
             {
-                if (boundingBox.West >= -180d && boundingBox.East <= 180d ||
-                    ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical)
+                var xMin = -180d * MapProjection.Wgs84MeterPerDegree;
+                var xMax = 180d * MapProjection.Wgs84MeterPerDegree;
+
+                if (ParentMap.MapProjection.Type > MapProjectionType.NormalCylindrical ||
+                    bbox.X >= xMin && bbox.X + bbox.Width <= xMax)
                 {
-                    var bbox = ParentMap.MapProjection.BoundingBoxToMap(boundingBox);
+                    var uri = GetMapRequestUri(bbox);
 
-                    if (bbox.HasValue)
-                    {
-                        var uri = GetMapRequestUri(bbox.Value);
-
-                        image = await ImageLoader.LoadImageAsync(uri, progress);
-                    }
+                    image = await ImageLoader.LoadImageAsync(uri, progress);
                 }
                 else
                 {
-                    var west = boundingBox.West;
-                    var east = boundingBox.East;
+                    var x = bbox.X;
 
-                    if (west < -180d)
+                    if (x < xMin)
                     {
-                        west += 360d;
-                    }
-                    else
-                    {
-                        east -= 360d;
+                        x += xMax - xMin;
                     }
 
-                    var boundingBox1 = new BoundingBox(boundingBox.South, west, boundingBox.North, 180d);
-                    var boundingBox2 = new BoundingBox(boundingBox.South, -180d, boundingBox.North, east);
+                    var width1 = Math.Floor(xMax * 1e3) / 1e3 - x; // round down xMax to avoid gap between images
+                    var width2 = bbox.Width - width1;
+                    var bbox1 = new Rect(x, bbox.Y, width1, bbox.Height);
+                    var bbox2 = new Rect(xMin, bbox.Y, width2, bbox.Height);
 
-                    var bbox1 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox1);
-                    var bbox2 = ParentMap.MapProjection.BoundingBoxToMap(boundingBox2);
+                    var uri1 = GetMapRequestUri(bbox1);
+                    var uri2 = GetMapRequestUri(bbox2);
 
-                    if (bbox1.HasValue && bbox2.HasValue)
-                    {
-                        var uri1 = GetMapRequestUri(bbox1.Value);
-                        var uri2 = GetMapRequestUri(bbox2.Value);
-
-                        image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
-                    }
+                    image = await ImageLoader.LoadMergedImageAsync(uri1, uri2, progress);
                 }
             }
 
@@ -327,7 +316,7 @@ namespace MapControl
         protected virtual string GetBboxValue(Rect bbox)
         {
             var crs = ParentMap.MapProjection.CrsId;
-            var format = "{0},{1},{2},{3}";
+            var format = "{0:F3},{1:F3},{2:F3},{3:F3}";
             var x1 = bbox.X;
             var y1 = bbox.Y;
             var x2 = bbox.X + bbox.Width;
@@ -335,11 +324,7 @@ namespace MapControl
 
             if (crs == "CRS:84" || crs == "EPSG:4326")
             {
-                if (crs == "EPSG:4326")
-                {
-                    format = "{1},{0},{3},{2}";
-                }
-
+                format = crs == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
                 x1 /= MapProjection.Wgs84MeterPerDegree;
                 y1 /= MapProjection.Wgs84MeterPerDegree;
                 x2 /= MapProjection.Wgs84MeterPerDegree;
