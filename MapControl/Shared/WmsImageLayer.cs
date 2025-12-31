@@ -5,8 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using System.Diagnostics.Eventing.Reader;
-
 #if WPF
 using System.Windows;
 using System.Windows.Media;
