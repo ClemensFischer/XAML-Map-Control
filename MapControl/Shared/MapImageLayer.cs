@@ -170,7 +170,7 @@ namespace MapControl
             }
         }
 
-        protected abstract Task<ImageSource> GetImageAsync(Rect mapBoundingBox, IProgress<double> progress);
+        protected abstract Task<ImageSource> GetImageAsync(Rect mapRect, IProgress<double> progress);
 
         protected async Task UpdateImageAsync()
         {

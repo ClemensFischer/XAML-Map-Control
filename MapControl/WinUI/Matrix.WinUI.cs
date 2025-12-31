@@ -39,7 +39,7 @@ namespace MapControl
             return new Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
         }
 
-        public Point Transform(Point p)
+        public readonly Point Transform(Point p)
         {
             return new Point(
                 M11 * p.X + M21 * p.Y + OffsetX,

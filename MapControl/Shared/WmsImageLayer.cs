@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Diagnostics.Eventing.Reader;
+
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -160,7 +162,9 @@ namespace MapControl
         {
             string response = null;
 
-            if (ServiceUri != null && HasLayer)
+            if (ServiceUri != null && HasLayer && ParentMap != null &&
+                position.X >= 0d && position.X <= ParentMap.ActualWidth &&
+                position.Y >= 0d && position.Y <= ParentMap.ActualHeight)
             {
                 var uri = GetFeatureInfoRequestUri(position, format);
 
@@ -261,19 +265,25 @@ namespace MapControl
         /// </summary>
         protected virtual Uri GetFeatureInfoRequestUri(Point position, string format)
         {
-            var bbox = ParentMap.ViewRectToMap(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
-            var width = ParentMap.ViewTransform.Scale * bbox.Width;
-            var height = ParentMap.ViewTransform.Scale * bbox.Height;
+            var width = ParentMap.ActualWidth;
+            var height = ParentMap.ActualHeight;
+            var bbox = ParentMap.ViewRectToMap(0d, 0d, width, height);
+
+            if (ParentMap.ViewTransform.Rotation != 0d)
+            {
+                width = ParentMap.ViewTransform.Scale * bbox.Width;
+                height = ParentMap.ViewTransform.Scale * bbox.Height;
 #if AVALONIA
-            var transform = Matrix.CreateTranslation(-ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d)
-                          * Matrix.CreateRotation(Matrix.ToRadians(-ParentMap.ViewTransform.Rotation))
-                          * Matrix.CreateTranslation(width / 2d, height / 2d);
+                var transform = Matrix.CreateTranslation(-ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d)
+                              * Matrix.CreateRotation(Matrix.ToRadians(-ParentMap.ViewTransform.Rotation))
+                              * Matrix.CreateTranslation(width / 2d, height / 2d);
 #else
-            var transform = new Matrix(1d, 0d, 0d, 1d, -ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d);
-            transform.Rotate(-ParentMap.ViewTransform.Rotation);
-            transform.Translate(width / 2d, height / 2d);
+                var transform = new Matrix(1d, 0d, 0d, 1d, -ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d);
+                transform.Rotate(-ParentMap.ViewTransform.Rotation);
+                transform.Translate(width / 2d, height / 2d);
 #endif
-            var imagePos = transform.Transform(position);
+                position = transform.Transform(position);
+            }
 
             var queryParameters = new Dictionary<string, string>
             {
@@ -287,8 +297,8 @@ namespace MapControl
                 { "BBOX", GetBboxValue(bbox) },
                 { "WIDTH", width.ToString("F0") },
                 { "HEIGHT", height.ToString("F0") },
-                { "I", imagePos.X.ToString("F0") },
-                { "J", imagePos.Y.ToString("F0") }
+                { "I", position.X.ToString("F0") },
+                { "J", position.Y.ToString("F0") }
             };
 
             // GetRequestUri may modify queryParameters["LAYERS"].
