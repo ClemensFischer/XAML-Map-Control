@@ -47,15 +47,15 @@ namespace MapControl
         {
             Scale = scale;
             Rotation = ((rotation % 360d) + 360d) % 360d;
+
+            var transform = new Matrix(scale, 0d, 0d, -scale, -scale * mapCenter.X, scale * mapCenter.Y);
 #if AVALONIA
-            MapToViewMatrix = Matrix.CreateTranslation(-mapCenter.X, -mapCenter.Y)
-                            * Matrix.CreateScale(scale, -scale)
-                            * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
-                            * Matrix.CreateTranslation(viewCenter.X, viewCenter.Y);
+            MapToViewMatrix = transform
+                * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
+                * Matrix.CreateTranslation(viewCenter.X, viewCenter.Y);
 
             ViewToMapMatrix = MapToViewMatrix.Invert();
 #else
-            var transform = new Matrix(scale, 0d, 0d, -scale, -scale * mapCenter.X, scale * mapCenter.Y);
             transform.Rotate(Rotation);
             transform.Translate(viewCenter.X, viewCenter.Y);
             MapToViewMatrix = transform;
@@ -70,11 +70,10 @@ namespace MapControl
         /// </summary>
         public Matrix GetMapTransform(Point relativeScale)
         {
-#if AVALONIA
-            return Matrix.CreateScale(Scale * relativeScale.X, Scale * relativeScale.Y)
-                 * Matrix.CreateRotation(Matrix.ToRadians(Rotation));
-#else
             var transform = new Matrix(Scale * relativeScale.X, 0d, 0d, Scale * relativeScale.Y, 0d, 0d);
+#if AVALONIA
+            return transform * Matrix.CreateRotation(Matrix.ToRadians(Rotation));
+#else
             transform.Rotate(Rotation);
             return transform;
 #endif
@@ -96,12 +95,12 @@ namespace MapControl
             var viewOrigin = MapToViewMatrix.Transform(mapOrigin);
 
             var transformScale = Scale / tileMatrixScale;
-#if AVALONIA
-            return Matrix.CreateScale(transformScale, transformScale)
-                 * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
-                 * Matrix.CreateTranslation(viewOrigin.X, viewOrigin.Y);
-#else
             var transform = new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d);
+#if AVALONIA
+            return transform
+                * Matrix.CreateRotation(Matrix.ToRadians(Rotation))
+                * Matrix.CreateTranslation(viewOrigin.X, viewOrigin.Y);
+#else
             transform.Rotate(Rotation);
             transform.Translate(viewOrigin.X, viewOrigin.Y);
             return transform;
@@ -117,31 +116,25 @@ namespace MapControl
             //
             var origin = ViewToMapMatrix.Transform(new Point());
 
+            // Translation from origin to tile matrix origin in pixels.
+            //
+            var originOffsetX = tileMatrixScale * (origin.X - tileMatrixTopLeft.X);
+            var originOffsetY = tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y);
+
             var transformScale = tileMatrixScale / Scale;
-#if AVALONIA
-            var transform = Matrix.CreateScale(transformScale, transformScale)
-                          * Matrix.CreateRotation(Matrix.ToRadians(-Rotation))
-                          * Matrix.CreateTranslation(
-                                tileMatrixScale * (origin.X - tileMatrixTopLeft.X),
-                                tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y));
-
-            // Transform view bounds to tile pixel bounds.
-            //
-            return new Rect(0d, 0d, viewWidth, viewHeight).TransformToAABB(transform);
-#else
             var transform = new Matrix(transformScale, 0d, 0d, transformScale, 0d, 0d);
+            var viewRect = new Rect(0d, 0d, viewWidth, viewHeight);
+#if AVALONIA
+            return viewRect.TransformToAABB(transform
+                * Matrix.CreateRotation(Matrix.ToRadians(-Rotation))
+                * Matrix.CreateTranslation(originOffsetX, originOffsetY));
+#else
             transform.Rotate(-Rotation);
-
-            // Translate origin to tile matrix origin in pixels.
-            //
-            transform.Translate(
-                tileMatrixScale * (origin.X - tileMatrixTopLeft.X),
-                tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y));
+            transform.Translate(originOffsetX, originOffsetY);
 
             // Transform view bounds to tile pixel bounds.
             //
-            return new MatrixTransform { Matrix = transform }
-                .TransformBounds(new Rect(0d, 0d, viewWidth, viewHeight));
+            return new MatrixTransform { Matrix = transform }.TransformBounds(viewRect);
 #endif
         }
     }
