@@ -10,24 +10,14 @@ namespace MapControl
     /// <summary>
     /// Replaces Windows.UI.Xaml.Media.Matrix for double floating point precision.
     /// </summary>
-    public struct Matrix
+    public struct Matrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)
     {
-        public Matrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)
-        {
-            M11 = m11;
-            M12 = m12;
-            M21 = m21;
-            M22 = m22;
-            OffsetX = offsetX;
-            OffsetY = offsetY;
-        }
-
-        public double M11 { get; set; }
-        public double M12 { get; set; }
-        public double M21 { get; set; }
-        public double M22 { get; set; }
-        public double OffsetX { get; set; }
-        public double OffsetY { get; set; }
+        public double M11 { get; private set; } = m11;
+        public double M12 { get; private set; } = m12;
+        public double M21 { get; private set; } = m21;
+        public double M22 { get; private set; } = m22;
+        public double OffsetX { get; private set; } = offsetX;
+        public double OffsetY { get; private set; } = offsetY;
 
         public static implicit operator WindowsUI.Xaml.Media.Matrix(Matrix m)
         {

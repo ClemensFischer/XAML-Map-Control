@@ -32,7 +32,7 @@ namespace MapControl
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-#if NETFRAMEWORK || UWP
+#if NETFRAMEWORK
             static double Atanh(double x) => Math.Log((1d + x) / (1d - x)) / 2d;
 #else
             static double Atanh(double x) => Math.Atanh(x);

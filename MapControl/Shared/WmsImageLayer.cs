@@ -308,6 +308,26 @@ namespace MapControl
             return uriBuilder.Uri;
         }
 
+        protected virtual Uri GetRequestUri(IDictionary<string, string> queryParameters)
+        {
+            var query = ServiceUri.Query;
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                // Parameters from ServiceUri.Query take higher precedence than queryParameters.
+                //
+                foreach (var param in query.Substring(1).Split('&'))
+                {
+                    var pair = param.Split('=');
+                    queryParameters[pair[0]] = pair.Length > 1 ? pair[1] : "";
+                }
+            }
+
+            query = string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
+
+            return new Uri(ServiceUri.GetLeftPart(UriPartial.Path) + "?" + query);
+        }
+
         protected virtual string GetCrsValue()
         {
             var projection = ParentMap.MapProjection;
@@ -315,7 +335,7 @@ namespace MapControl
 
             if (crs.StartsWith("AUTO2:") || crs.StartsWith("AUTO:"))
             {
-                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1},{2}", crs, projection.Center.Longitude, projection.Center.Latitude);
+                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1:F8},{2:F8}", crs, projection.Center.Longitude, projection.Center.Latitude);
             }
 
             return crs;
@@ -340,27 +360,6 @@ namespace MapControl
             }
 
             return string.Format(CultureInfo.InvariantCulture, format, x1, y1, x2, y2);
-        }
-
-        protected Uri GetRequestUri(IDictionary<string, string> queryParameters)
-        {
-            var query = ServiceUri.Query;
-
-            if (!string.IsNullOrEmpty(query))
-            {
-                // Parameters from ServiceUri.Query take higher precedence than queryParameters.
-                //
-                foreach (var param in query.Substring(1).Split('&'))
-                {
-                    var pair = param.Split('=');
-                    queryParameters[pair[0].ToUpper()] = pair.Length > 1 ? pair[1] : "";
-                }
-            }
-
-            var uri = ServiceUri.GetLeftPart(UriPartial.Path) + "?" +
-                string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
-
-            return new Uri(uri.Replace(" ", "%20"));
         }
     }
 }
