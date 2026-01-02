@@ -269,14 +269,14 @@ namespace MapControl
 
             if (ParentMap.ViewTransform.Rotation != 0d)
             {
+                var transform = new Matrix(1d, 0d, 0d, 1d, -width / 2d, -height / 2d);
                 width = ParentMap.ViewTransform.Scale * bbox.Width;
                 height = ParentMap.ViewTransform.Scale * bbox.Height;
 #if AVALONIA
-                var transform = Matrix.CreateTranslation(-ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d)
-                              * Matrix.CreateRotation(Matrix.ToRadians(-ParentMap.ViewTransform.Rotation))
-                              * Matrix.CreateTranslation(width / 2d, height / 2d);
+                transform = transform
+                    * Matrix.CreateRotation(Matrix.ToRadians(-ParentMap.ViewTransform.Rotation))
+                    * Matrix.CreateTranslation(width / 2d, height / 2d);
 #else
-                var transform = new Matrix(1d, 0d, 0d, 1d, -ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d);
                 transform.Rotate(-ParentMap.ViewTransform.Rotation);
                 transform.Translate(width / 2d, height / 2d);
 #endif
