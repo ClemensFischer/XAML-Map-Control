@@ -83,9 +83,11 @@ namespace MapControl
                         var y1 = -StrokeThickness / 2d - latText.Height;
                         var y2 = StrokeThickness / 2d;
 
-                        using var pushState = drawingContext.PushTransform(
-                            Matrix.CreateRotation(Matrix.ToRadians(label.Rotation)) *
-                            Matrix.CreateTranslation(label.X, label.Y));
+                        var transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+                        transform.Rotate(label.Rotation);
+                        transform.Translate(label.X, label.Y);
+
+                        using var pushState = drawingContext.PushTransform(transform);
 
                         drawingContext.DrawText(latText, new Point(x, y1));
                         drawingContext.DrawText(lonText, new Point(x, y2));

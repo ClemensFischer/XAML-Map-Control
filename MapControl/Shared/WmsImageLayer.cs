@@ -211,7 +211,6 @@ namespace MapControl
                     var width2 = bbox.Width - width1;
                     var bbox1 = new Rect(x, bbox.Y, width1, bbox.Height);
                     var bbox2 = new Rect(xMin, bbox.Y, width2, bbox.Height);
-
                     var uri1 = GetMapRequestUri(bbox1);
                     var uri2 = GetMapRequestUri(bbox2);
 
@@ -265,21 +264,17 @@ namespace MapControl
         {
             var width = ParentMap.ActualWidth;
             var height = ParentMap.ActualHeight;
-            var bbox = ParentMap.ViewRectToMap(0d, 0d, width, height);
+            var bbox = ParentMap.ViewTransform.ViewToMapMatrix.TransformBounds(new Rect(0d, 0d, width, height));
 
             if (ParentMap.ViewTransform.Rotation != 0d)
             {
-                var transform = new Matrix(1d, 0d, 0d, 1d, -width / 2d, -height / 2d);
                 width = ParentMap.ViewTransform.Scale * bbox.Width;
                 height = ParentMap.ViewTransform.Scale * bbox.Height;
-#if AVALONIA
-                transform = transform
-                    * Matrix.CreateRotation(Matrix.ToRadians(-ParentMap.ViewTransform.Rotation))
-                    * Matrix.CreateTranslation(width / 2d, height / 2d);
-#else
+
+                var transform = new Matrix(1d, 0d, 0d, 1d, -ParentMap.ActualWidth / 2d, -ParentMap.ActualHeight / 2d);
                 transform.Rotate(-ParentMap.ViewTransform.Rotation);
                 transform.Translate(width / 2d, height / 2d);
-#endif
+
                 position = transform.Transform(position);
             }
 

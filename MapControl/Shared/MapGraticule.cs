@@ -171,7 +171,7 @@ namespace MapControl
 
         private void DrawCylindricalGraticule(PathFigureCollection figures, List<Label> labels)
         {
-            var boundingBox = ParentMap.ViewRectToBoundingBox(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight);
+            var boundingBox = ParentMap.ViewToBoundingBox(new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight));
             var latLabelStart = Math.Ceiling(boundingBox.South / lineDistance) * lineDistance;
             var lonLabelStart = Math.Ceiling(boundingBox.West / lineDistance) * lineDistance;
 

@@ -239,31 +239,11 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets a Rect in projected map coordinates that covers a rectangle in view coordinates.
-        /// </summary>
-        public Rect ViewRectToMap(double x, double y, double width, double height)
-        {
-            var viewToMap = ViewTransform.ViewToMapMatrix;
-
-            var p1 = viewToMap.Transform(new Point(x, y));
-            var p2 = viewToMap.Transform(new Point(x, y + height));
-            var p3 = viewToMap.Transform(new Point(x + width, y));
-            var p4 = viewToMap.Transform(new Point(x + width, y + height));
-
-            var x1 = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
-            var y1 = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
-            var x2 = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
-            var y2 = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
-
-            return new Rect(x1, y1, x2 - x1, y2 - y1);
-        }
-
-        /// <summary>
         /// Gets a BoundingBox in geographic coordinates that covers a rectangle in view coordinates.
         /// </summary>
-        public BoundingBox ViewRectToBoundingBox(double x, double y, double width, double height)
+        public BoundingBox ViewToBoundingBox(Rect rect)
         {
-            return MapProjection.MapToBoundingBox(ViewRectToMap(x, y, width, height));
+            return MapProjection.MapToBoundingBox(ViewTransform.ViewToMapMatrix.TransformBounds(rect));
         }
 
         /// <summary>

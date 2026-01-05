@@ -1,14 +1,17 @@
 ﻿using System;
 #if UWP
-using WindowsUI = Windows.UI;
-#else
-using WindowsUI = Microsoft.UI;
+using PlatformMatrix = Windows.UI.Xaml.Media.Matrix;
+#elif WINUI
+using PlatformMatrix = Microsoft.UI.Xaml.Media.Matrix;
+#elif AVALONIA
+using Avalonia;
+using PlatformMatrix = Avalonia.Matrix;
 #endif
 
 namespace MapControl
 {
     /// <summary>
-    /// Replaces Windows.UI.Xaml.Media.Matrix for double floating point precision.
+    /// Replaces Windows/Microsoft.UI.Xaml.Media.Matrix to expose manipulation methods.
     /// </summary>
     public struct Matrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)
     {
@@ -19,14 +22,18 @@ namespace MapControl
         public double OffsetX { get; private set; } = offsetX;
         public double OffsetY { get; private set; } = offsetY;
 
-        public static implicit operator WindowsUI.Xaml.Media.Matrix(Matrix m)
+        public static implicit operator Matrix(PlatformMatrix m)
         {
-            return new WindowsUI.Xaml.Media.Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
+#if AVALONIA
+            return new Matrix(m.M11, m.M12, m.M21, m.M22, m.M31, m.M32);
+#else
+            return new Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
+#endif
         }
 
-        public static implicit operator Matrix(WindowsUI.Xaml.Media.Matrix m)
+        public static implicit operator PlatformMatrix(Matrix m)
         {
-            return new Matrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
+            return new PlatformMatrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
         }
 
         public readonly Point Transform(Point p)
@@ -44,15 +51,13 @@ namespace MapControl
 
         public void Rotate(double angle)
         {
-            angle = (angle % 360d) / 180d * Math.PI;
-
             if (angle != 0d)
             {
-                var cos = Math.Cos(angle);
-                var sin = Math.Sin(angle);
+                var cos = Math.Cos(angle * Math.PI / 180d);
+                var sin = Math.Sin(angle * Math.PI / 180d);
 
-                // Multiply(new Matrix(cos, sin, -sin, cos, 0d, 0d));
-
+                // equivalent to Multiply(new Matrix(cos, sin, -sin, cos, 0d, 0d));
+                //
                 SetMatrix(
                     cos * M11 - sin * M12,
                     sin * M11 + cos * M12,
