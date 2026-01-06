@@ -238,23 +238,20 @@ namespace MapControl
                 element = (FrameworkElement)template.LoadContent();
             }
 #endif
-            if (element != null)
-            {
-                element.DataContext = layer;
-            }
+            element?.DataContext = layer;
 
             return element;
         }
 
 #if UWP || WINUI
-            private static object TryFindResource(FrameworkElement element, object key)
-            {
-                return element.Resources.ContainsKey(key)
-                    ? element.Resources[key]
-                    : element.Parent is FrameworkElement parent
-                    ? TryFindResource(parent, key)
-                    : null;
-            }
+        private static object TryFindResource(FrameworkElement element, object key)
+        {
+            return element.Resources.ContainsKey(key)
+                ? element.Resources[key]
+                : element.Parent is FrameworkElement parent
+                ? TryFindResource(parent, key)
+                : null;
+        }
 #endif
     }
 }

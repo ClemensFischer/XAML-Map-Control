@@ -1,9 +1,4 @@
-﻿#if AVALONIA
-global using UIElement = Avalonia.Controls.Control;
-global using FrameworkElement = Avalonia.Controls.Control;
-using Avalonia;
-using Avalonia.Media;
-#elif WPF
+﻿#if WPF
 using System.Windows;
 using System.Windows.Media;
 #elif UWP
@@ -12,6 +7,11 @@ using Windows.UI.Xaml.Media;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+global using UIElement = Avalonia.Controls.Control;
+global using FrameworkElement = Avalonia.Controls.Control;
+using Avalonia;
+using Avalonia.Media;
 #endif
 
 namespace MapControl
