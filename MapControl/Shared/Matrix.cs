@@ -1,17 +1,18 @@
 ﻿using System;
 #if UWP
-using PlatformMatrix = Windows.UI.Xaml.Media.Matrix;
+using FrameworkMatrix = Windows.UI.Xaml.Media.Matrix;
 #elif WINUI
-using PlatformMatrix = Microsoft.UI.Xaml.Media.Matrix;
+using FrameworkMatrix = Microsoft.UI.Xaml.Media.Matrix;
 #elif AVALONIA
 using Avalonia;
-using PlatformMatrix = Avalonia.Matrix;
+using FrameworkMatrix = Avalonia.Matrix;
 #endif
 
 namespace MapControl
 {
     /// <summary>
-    /// Replaces Windows/Microsoft.UI.Xaml.Media.Matrix to expose manipulation methods.
+    /// Replaces Windows.UI.Xaml.Media.Matrix, Microsoft.UI.Xaml.Media.Matrix and Avalonia.Matrix
+    /// to expose Translate, Rotate and Invert methods.
     /// </summary>
     public struct Matrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)
     {
@@ -22,7 +23,7 @@ namespace MapControl
         public double OffsetX { get; private set; } = offsetX;
         public double OffsetY { get; private set; } = offsetY;
 
-        public static implicit operator Matrix(PlatformMatrix m)
+        public static implicit operator Matrix(FrameworkMatrix m)
         {
 #if AVALONIA
             return new Matrix(m.M11, m.M12, m.M21, m.M22, m.M31, m.M32);
@@ -31,9 +32,9 @@ namespace MapControl
 #endif
         }
 
-        public static implicit operator PlatformMatrix(Matrix m)
+        public static implicit operator FrameworkMatrix(Matrix m)
         {
-            return new PlatformMatrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
+            return new FrameworkMatrix(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
         }
 
         public readonly Point Transform(Point p)
