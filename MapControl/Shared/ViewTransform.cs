@@ -58,20 +58,14 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets a transform Matrix from meters to view coordinates for a relative map scale.
-        /// </summary>
-        public Matrix GetMapTransform(Point relativeScale)
-        {
-            var transform = new Matrix(Scale * relativeScale.X, 0d, 0d, Scale * relativeScale.Y, 0d, 0d);
-            transform.Rotate(Rotation);
-            return transform;
-        }
-
-        /// <summary>
-        /// Gets the transform Matrix for the RenderTranform of a MapTileLayer.
+        /// Gets the transform Matrix for the RenderTranform of a MapTileLayer or WmtsTileMatrixLayer.
         /// </summary>
         public Matrix GetTileLayerTransform(double tileMatrixScale, Point tileMatrixTopLeft, Point tileMatrixOrigin)
         {
+            var scale = Scale / tileMatrixScale;
+            var transform = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+            transform.Rotate(Rotation);
+
             // Tile matrix origin in map coordinates.
             //
             var mapOrigin = new Point(
@@ -81,11 +75,8 @@ namespace MapControl
             // Tile matrix origin in view coordinates.
             //
             var viewOrigin = MapToViewMatrix.Transform(mapOrigin);
-
-            var scale = Scale / tileMatrixScale;
-            var transform = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
-            transform.Rotate(Rotation);
             transform.Translate(viewOrigin.X, viewOrigin.Y);
+
             return transform;
         }
 
@@ -94,19 +85,19 @@ namespace MapControl
         /// </summary>
         public Rect GetTileMatrixBounds(double tileMatrixScale, Point tileMatrixTopLeft, double viewWidth, double viewHeight)
         {
+            var scale = tileMatrixScale / Scale;
+            var transform = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+            transform.Rotate(-Rotation);
+
             // View origin in map coordinates.
             //
             var origin = ViewToMapMatrix.Transform(new Point());
 
             // Translation from origin to tile matrix origin in pixels.
             //
-            var originOffsetX = tileMatrixScale * (origin.X - tileMatrixTopLeft.X);
-            var originOffsetY = tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y);
-
-            var scale = tileMatrixScale / Scale;
-            var transform = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
-            transform.Rotate(-Rotation);
-            transform.Translate(originOffsetX, originOffsetY);
+            transform.Translate(
+                tileMatrixScale * (origin.X - tileMatrixTopLeft.X),
+                tileMatrixScale * (tileMatrixTopLeft.Y - origin.Y));
 
             // Transform view bounds to tile pixel bounds.
             //

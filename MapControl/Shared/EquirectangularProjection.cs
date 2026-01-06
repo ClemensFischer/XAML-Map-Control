@@ -28,7 +28,7 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Point GetRelativeScale(double latitude, double longitude)
+        public override Point RelativeScale(double latitude, double longitude)
         {
             return new Point(1d / Math.Cos(latitude * Math.PI / 180d), 1d);
         }

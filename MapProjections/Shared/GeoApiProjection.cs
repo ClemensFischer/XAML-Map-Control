@@ -94,7 +94,7 @@ namespace MapControl.Projections
 
         public IMathTransform MapToLocationTransform { get; private set; }
 
-        public override Point GetRelativeScale(double latitude, double longitude)
+        public override Point RelativeScale(double latitude, double longitude)
         {
             var k = CoordinateSystem?.Projection?.GetParameter("scale_factor")?.Value ?? 1d;
 

@@ -26,7 +26,7 @@ namespace MapControl
         public double FalseNorthing { get; set; } = 2e6;
         public bool IsNorth { get; set; }
 
-        public override Point GetRelativeScale(double latitude, double longitude)
+        public override Point RelativeScale(double latitude, double longitude)
         {
             latitude *= Math.PI / 180d;
 

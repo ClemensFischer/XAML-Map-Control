@@ -2,6 +2,8 @@
 #if WPF
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -182,7 +184,7 @@ namespace MapControl
         /// </summary>
         public Point GetMapScale(double latitude, double longitude)
         {
-            var relativeScale = MapProjection.GetRelativeScale(latitude, longitude);
+            var relativeScale = MapProjection.RelativeScale(latitude, longitude);
 
             return new Point(ViewTransform.Scale * relativeScale.X, ViewTransform.Scale * relativeScale.Y);
         }
@@ -193,9 +195,7 @@ namespace MapControl
         /// </summary>
         public Point GetMapScale(Location location)
         {
-            var relativeScale = MapProjection.GetRelativeScale(location);
-
-            return new Point(ViewTransform.Scale * relativeScale.X, ViewTransform.Scale * relativeScale.Y);
+            return GetMapScale(location.Latitude, location.Longitude);
         }
 
         /// <summary>
@@ -204,7 +204,12 @@ namespace MapControl
         /// </summary>
         public Matrix GetMapTransform(Location location)
         {
-            return ViewTransform.GetMapTransform(MapProjection.GetRelativeScale(location));
+            var mapScale = GetMapScale(location);
+            var transform = new Matrix(mapScale.X, 0d, 0d, mapScale.Y, 0d, 0d);
+
+            transform.Rotate(ViewTransform.Rotation);
+
+            return transform;
         }
 
         /// <summary>

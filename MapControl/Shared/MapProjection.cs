@@ -55,7 +55,7 @@ namespace MapControl
         /// <summary>
         /// Gets the relative map scale at the specified geographic coordinates.
         /// </summary>
-        public virtual Point GetRelativeScale(double latitude, double longitude) => new Point(1d, 1d);
+        public virtual Point RelativeScale(double latitude, double longitude) => new Point(1d, 1d);
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in projected map coordinates.
@@ -72,7 +72,7 @@ namespace MapControl
         /// <summary>
         /// Gets the relative map scale at the specified geographic Location.
         /// </summary>
-        public Point GetRelativeScale(Location location) => GetRelativeScale(location.Latitude, location.Longitude);
+        public Point RelativeScale(Location location) => RelativeScale(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.

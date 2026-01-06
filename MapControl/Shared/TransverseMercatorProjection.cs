@@ -25,7 +25,7 @@ namespace MapControl
             Type = MapProjectionType.TransverseCylindrical;
         }
 
-        public override Point GetRelativeScale(double latitude, double longitude)
+        public override Point RelativeScale(double latitude, double longitude)
         {
             return new Point(ScaleFactor, ScaleFactor);
         }
