@@ -191,7 +191,7 @@ namespace MapControl
                     var height = ParentMap.ActualHeight * RelativeImageSize;
                     var x = (ParentMap.ActualWidth - width) / 2d;
                     var y = (ParentMap.ActualHeight - height) / 2d;
-                    var mapRect = ParentMap.ViewTransform.ViewToMapMatrix.TransformBounds(new Rect(x, y, width, height));
+                    var mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(x, y, width, height));
                     boundingBox = ParentMap.MapProjection.MapToBoundingBox(mapRect);
 
                     if (boundingBox != null)

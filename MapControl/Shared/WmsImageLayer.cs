@@ -264,7 +264,7 @@ namespace MapControl
         {
             var width = ParentMap.ActualWidth;
             var height = ParentMap.ActualHeight;
-            var bbox = ParentMap.ViewTransform.ViewToMapMatrix.TransformBounds(new Rect(0d, 0d, width, height));
+            var bbox = ParentMap.ViewTransform.ViewToMapBounds(new Rect(0d, 0d, width, height));
 
             if (ParentMap.ViewTransform.Rotation != 0d)
             {

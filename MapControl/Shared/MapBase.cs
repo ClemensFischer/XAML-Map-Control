@@ -221,7 +221,7 @@ namespace MapControl
 
             if (point.HasValue)
             {
-                point = ViewTransform.MapToViewMatrix.Transform(point.Value);
+                point = ViewTransform.MapToView(point.Value);
             }
 
             return point;
@@ -240,7 +240,7 @@ namespace MapControl
         /// </summary>
         public Location ViewToLocation(Point point)
         {
-            return MapProjection.MapToLocation(ViewTransform.ViewToMapMatrix.Transform(point));
+            return MapProjection.MapToLocation(ViewTransform.ViewToMap(point));
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace MapControl
         /// </summary>
         public BoundingBox ViewToBoundingBox(Rect rect)
         {
-            return MapProjection.MapToBoundingBox(ViewTransform.ViewToMapMatrix.TransformBounds(rect));
+            return MapProjection.MapToBoundingBox(ViewTransform.ViewToMapBounds(rect));
         }
 
         /// <summary>

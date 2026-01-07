@@ -39,6 +39,22 @@ namespace MapControl
         public Matrix ViewToMapMatrix { get; private set; }
 
         /// <summary>
+        /// Transforms a Point in projected map coordinates to a Point in view coordinates.
+        /// </summary>
+        public Point MapToView(Point point) => MapToViewMatrix.Transform(point);
+
+        /// <summary>
+        /// Transforms a Point in view coordinates to a Point in projected map coordinates.
+        /// </summary>
+        public Point ViewToMap(Point point) => ViewToMapMatrix.Transform(point);
+
+        /// <summary>
+        /// Gets an axis-aligned bounding box in projected map coordinates that contains
+        /// a rectangle in view coordinates.
+        /// </summary>
+        public Rect ViewToMapBounds(Rect rect) => TransformBounds(ViewToMapMatrix, rect);
+
+        /// <summary>
         /// Initializes a ViewTransform from a map center point in projected coordinates,
         /// a view conter point, a scaling factor from projected coordinates to view coordinates
         /// and a rotation angle in degrees.
@@ -101,13 +117,10 @@ namespace MapControl
 
             // Transform view bounds to tile pixel bounds.
             //
-            return transform.TransformBounds(new Rect(0d, 0d, viewWidth, viewHeight));
+            return TransformBounds(transform, new Rect(0d, 0d, viewWidth, viewHeight));
         }
-    }
 
-    public static class MatrixExtension
-    {
-        public static Rect TransformBounds(this Matrix transform, Rect rect)
+        private static Rect TransformBounds(Matrix transform, Rect rect)
         {
 #if AVALONIA
             return rect.TransformToAABB(transform);

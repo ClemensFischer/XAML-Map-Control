@@ -114,7 +114,7 @@ namespace MapControl
 
             if (point.HasValue)
             {
-                point = ParentMap.ViewTransform.MapToViewMatrix.Transform(point.Value);
+                point = ParentMap.ViewTransform.MapToView(point.Value);
             }
 
             return point;
