@@ -49,7 +49,7 @@ namespace MapControl
         /// Gets an axis-aligned bounding box in projected map coordinates that contains
         /// a rectangle in view coordinates.
         /// </summary>
-        public Rect ViewToMapBounds(Rect rect) => TransformBounds(ViewToMapMatrix, rect);
+        public Rect ViewToMapBounds(Rect rect) => TransformBounds(ViewToMapMatrix, rect.X, rect.Y, rect.Width, rect.Height);
 
         /// <summary>
         /// Initializes a ViewTransform from a map center point in projected coordinates,
@@ -114,24 +114,24 @@ namespace MapControl
 
             // Transform view bounds to tile pixel bounds.
             //
-            return TransformBounds(transform, new Rect(0d, 0d, viewWidth, viewHeight));
+            return TransformBounds(transform, 0d, 0d, viewWidth, viewHeight);
         }
 
-        private static Rect TransformBounds(Matrix transform, Rect rect)
+        private static Rect TransformBounds(Matrix transform, double x, double y, double width, double height)
         {
             if (transform.M12 == 0d && transform.M21 == 0d)
             {
                 return new Rect(
-                    rect.X * transform.M11 + transform.OffsetX,
-                    rect.Y * transform.M22 + transform.OffsetY,
-                    rect.Width * transform.M11,
-                    rect.Height * transform.M22);
+                    x * transform.M11 + transform.OffsetX,
+                    y * transform.M22 + transform.OffsetY,
+                    width * transform.M11,
+                    height * transform.M22);
             }
 
-            var p1 = transform.Transform(new Point(rect.X, rect.Y));
-            var p2 = transform.Transform(new Point(rect.X, rect.Y + rect.Height));
-            var p3 = transform.Transform(new Point(rect.X + rect.Width, rect.Y));
-            var p4 = transform.Transform(new Point(rect.X + rect.Width, rect.Y + rect.Height));
+            var p1 = transform.Transform(new Point(x, y));
+            var p2 = transform.Transform(new Point(x, y + height));
+            var p3 = transform.Transform(new Point(x + width, y));
+            var p4 = transform.Transform(new Point(x + width, y + height));
 
             var x1 = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
             var y1 = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
