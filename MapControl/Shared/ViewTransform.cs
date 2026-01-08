@@ -1,10 +1,7 @@
-﻿#if WPF
+﻿using System;
+#if WPF
 using System.Windows;
 using System.Windows.Media;
-#elif UWP
-using Windows.UI.Xaml.Media;
-#elif WINUI
-using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia;
 #endif
@@ -122,11 +119,26 @@ namespace MapControl
 
         private static Rect TransformBounds(Matrix transform, Rect rect)
         {
-#if AVALONIA
-            return rect.TransformToAABB(transform);
-#else
-            return new MatrixTransform { Matrix = transform }.TransformBounds(rect);
-#endif
+            if (transform.M12 == 0d && transform.M21 == 0d)
+            {
+                return new Rect(
+                    rect.X * transform.M11 + transform.OffsetX,
+                    rect.Y * transform.M22 + transform.OffsetY,
+                    rect.Width * transform.M11,
+                    rect.Height * transform.M22);
+            }
+
+            var p1 = transform.Transform(new Point(rect.X, rect.Y));
+            var p2 = transform.Transform(new Point(rect.X, rect.Y + rect.Height));
+            var p3 = transform.Transform(new Point(rect.X + rect.Width, rect.Y));
+            var p4 = transform.Transform(new Point(rect.X + rect.Width, rect.Y + rect.Height));
+
+            var x1 = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
+            var y1 = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
+            var x2 = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
+            var y2 = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
+
+            return new Rect(x1, y1, x2 - x1, y2 - y1);
         }
     }
 }
