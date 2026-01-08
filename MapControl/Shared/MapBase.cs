@@ -448,7 +448,6 @@ namespace MapControl
                 if (maxLocation != null && maxLocation.Latitude < 90d)
                 {
                     maxLatitude = maxLocation.Latitude;
-
                     Center = CoerceCenterProperty(Center);
                 }
             }
