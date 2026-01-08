@@ -110,12 +110,7 @@ namespace MapControl.Projections
 
             var coordinate = LocationToMapTransform.Transform(new Coordinate(longitude, latitude));
 
-            if (coordinate == null)
-            {
-                return null;
-            }
-
-            return new Point(coordinate.X, coordinate.Y);
+            return coordinate != null ? new Point(coordinate.X, coordinate.Y) : null;
         }
 
         public override Location MapToLocation(double x, double y)
