@@ -121,24 +121,25 @@ namespace MapControl
         {
             if (transform.M12 == 0d && transform.M21 == 0d)
             {
-                return new Rect(
-                    x * transform.M11 + transform.OffsetX,
-                    y * transform.M22 + transform.OffsetY,
-                    width * transform.M11,
-                    height * transform.M22);
+                x = x * transform.M11 + transform.OffsetX;
+                y = y * transform.M22 + transform.OffsetY;
+                width *= transform.M11;
+                height *= transform.M22;
+            }
+            else
+            {
+                var p1 = transform.Transform(new Point(x, y));
+                var p2 = transform.Transform(new Point(x, y + height));
+                var p3 = transform.Transform(new Point(x + width, y));
+                var p4 = transform.Transform(new Point(x + width, y + height));
+
+                x = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
+                y = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
+                width = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X))) - x;
+                height = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y))) - y;
             }
 
-            var p1 = transform.Transform(new Point(x, y));
-            var p2 = transform.Transform(new Point(x, y + height));
-            var p3 = transform.Transform(new Point(x + width, y));
-            var p4 = transform.Transform(new Point(x + width, y + height));
-
-            var x1 = Math.Min(p1.X, Math.Min(p2.X, Math.Min(p3.X, p4.X)));
-            var y1 = Math.Min(p1.Y, Math.Min(p2.Y, Math.Min(p3.Y, p4.Y)));
-            var x2 = Math.Max(p1.X, Math.Max(p2.X, Math.Max(p3.X, p4.X)));
-            var y2 = Math.Max(p1.Y, Math.Max(p2.Y, Math.Max(p3.Y, p4.Y)));
-
-            return new Rect(x1, y1, x2 - x1, y2 - y1);
+            return new Rect(x, y, width, height);
         }
     }
 }
