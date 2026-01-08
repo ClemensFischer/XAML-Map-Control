@@ -122,6 +122,7 @@ namespace MapControl
                     {
                         tile = tileQueue.Dequeue();
                         tile.IsPending = false;
+                        progress?.Report(1d - (double)tileQueue.Count / tileCount);
                         return true;
                     }
 
@@ -146,8 +147,6 @@ namespace MapControl
                 {
                     Logger?.LogError(ex, "Failed loading tile {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
                 }
-
-                progress?.Report(1d - (double)tileQueue.Count / tileCount);
             }
         }
 
