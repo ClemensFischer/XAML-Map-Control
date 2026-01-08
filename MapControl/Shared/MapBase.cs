@@ -2,8 +2,6 @@
 #if WPF
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;

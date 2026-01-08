@@ -183,20 +183,22 @@ namespace MapControl
                 BoundingBox boundingBox = null;
 
                 if (ParentMap != null &&
-                    ParentMap.ActualWidth > 0d &&
-                    ParentMap.ActualHeight > 0d &&
                     (SupportedCrsIds == null || SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId)))
                 {
                     var width = ParentMap.ActualWidth * RelativeImageSize;
                     var height = ParentMap.ActualHeight * RelativeImageSize;
-                    var x = (ParentMap.ActualWidth - width) / 2d;
-                    var y = (ParentMap.ActualHeight - height) / 2d;
-                    var mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(x, y, width, height));
-                    boundingBox = ParentMap.MapProjection.MapToBoundingBox(mapRect);
 
-                    if (boundingBox != null)
+                    if (width > 0d && height > 0d)
                     {
-                        image = await GetImageAsync(mapRect, loadingProgress);
+                        var x = (ParentMap.ActualWidth - width) / 2d;
+                        var y = (ParentMap.ActualHeight - height) / 2d;
+                        var mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(x, y, width, height));
+                        boundingBox = ParentMap.MapProjection.MapToBoundingBox(mapRect);
+
+                        if (boundingBox != null)
+                        {
+                            image = await GetImageAsync(mapRect, loadingProgress);
+                        }
                     }
                 }
 
