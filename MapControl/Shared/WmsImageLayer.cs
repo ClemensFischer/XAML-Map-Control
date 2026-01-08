@@ -252,8 +252,8 @@ namespace MapControl
                 { "FORMAT", "image/png" },
                 { "CRS", GetCrsValue() },
                 { "BBOX", GetBboxValue(bbox) },
-                { "WIDTH", width.ToString("F0") },
-                { "HEIGHT", height.ToString("F0") }
+                { "WIDTH", Math.Ceiling(width).ToString("F0") },
+                { "HEIGHT", Math.Ceiling(height).ToString("F0") }
             });
         }
 
@@ -288,8 +288,8 @@ namespace MapControl
                 { "INFO_FORMAT", format },
                 { "CRS", GetCrsValue() },
                 { "BBOX", GetBboxValue(bbox) },
-                { "WIDTH", width.ToString("F0") },
-                { "HEIGHT", height.ToString("F0") },
+                { "WIDTH", Math.Ceiling(width).ToString("F0") },
+                { "HEIGHT", Math.Ceiling(height).ToString("F0") },
                 { "I", position.X.ToString("F0") },
                 { "J", position.Y.ToString("F0") }
             };
@@ -330,7 +330,8 @@ namespace MapControl
 
             if (crs.StartsWith("AUTO2:") || crs.StartsWith("AUTO:"))
             {
-                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1:F8},{2:F8}", crs, projection.Center.Longitude, projection.Center.Latitude);
+                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1:0.########},{2:0.########}",
+                    crs, projection.Center.Longitude, projection.Center.Latitude);
             }
 
             return crs;
@@ -339,7 +340,7 @@ namespace MapControl
         protected virtual string GetBboxValue(Rect bbox)
         {
             var crs = ParentMap.MapProjection.CrsId;
-            var format = "{0:F3},{1:F3},{2:F3},{3:F3}";
+            var format = "{0:0.###},{1:0.###},{2:0.###},{3:0.###}";
             var x1 = bbox.X;
             var y1 = bbox.Y;
             var x2 = bbox.X + bbox.Width;
@@ -347,7 +348,9 @@ namespace MapControl
 
             if (crs == "CRS:84" || crs == "EPSG:4326")
             {
-                format = crs == "CRS:84" ? "{0:F8},{1:F8},{2:F8},{3:F8}" : "{1:F8},{0:F8},{3:F8},{2:F8}";
+                format = crs == "CRS:84"
+                    ? "{0:0.########},{1:0.########},{2:0.########},{3:0.########}"
+                    : "{1:0.########},{0:0.########},{3:0.########},{2:0.########}";
                 x1 /= MapProjection.Wgs84MeterPerDegree;
                 y1 /= MapProjection.Wgs84MeterPerDegree;
                 x2 /= MapProjection.Wgs84MeterPerDegree;
