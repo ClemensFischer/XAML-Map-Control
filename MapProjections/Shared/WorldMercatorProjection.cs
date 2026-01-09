@@ -43,7 +43,7 @@ namespace MapControl.Projections
         public override Point RelativeScale(double latitude, double longitude)
         {
             var lat = latitude * Math.PI / 180d;
-            var eSinLat = Wgs84Eccentricity * Math.Sin(lat);
+            var eSinLat = MapControl.WorldMercatorProjection.Wgs84Eccentricity * Math.Sin(lat);
             var k = Math.Sqrt(1d - eSinLat * eSinLat) / Math.Cos(lat); // p.44 (7-8)
 
             return new Point(k, k);

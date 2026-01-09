@@ -13,6 +13,8 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
+        public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
+
         public const string DefaultCrsId = "EPSG:3395";
 
         public WorldMercatorProjection()

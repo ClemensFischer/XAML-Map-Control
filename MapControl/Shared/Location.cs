@@ -115,7 +115,7 @@ namespace MapControl
         /// <summary>
         /// Calculates the great circle distance in meters between this and the specified Location.
         /// </summary>
-        public double GetDistance(Location location, double earthRadius = MapProjection.Wgs84EquatorialRadius)
+        public double GetDistance(Location location, double earthRadius = MapProjection.Wgs84MeanRadius)
         {
             GetAzimuthDistance(location.Latitude, location.Longitude, out _, out double distance);
 
@@ -144,7 +144,7 @@ namespace MapControl
         /// <summary>
         /// Calculates the Location on a great circle at the specified azimuth in degrees and distance in meters from this Location.
         /// </summary>
-        public Location GetLocation(double azimuth, double distance, double earthRadius = MapProjection.Wgs84EquatorialRadius)
+        public Location GetLocation(double azimuth, double distance, double earthRadius = MapProjection.Wgs84MeanRadius)
         {
             return GetLocation(azimuth * Math.PI / 180d, distance / earthRadius);
         }

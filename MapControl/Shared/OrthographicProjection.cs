@@ -44,8 +44,8 @@ namespace MapControl
             }
 
             return new Point(
-                Wgs84EquatorialRadius * Math.Cos(lat) * Math.Sin(dLon),
-                Wgs84EquatorialRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
+                Wgs84MeanRadius * Math.Cos(lat) * Math.Sin(dLon),
+                Wgs84MeanRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
         }
 
         public override Location MapToLocation(double x, double y)
@@ -55,8 +55,8 @@ namespace MapControl
                 return new Location(Center.Latitude, Center.Longitude);
             }
 
-            x /= Wgs84EquatorialRadius;
-            y /= Wgs84EquatorialRadius;
+            x /= Wgs84MeanRadius;
+            y /= Wgs84MeanRadius;
             var r2 = x * x + y * y;
 
             if (r2 > 1d)

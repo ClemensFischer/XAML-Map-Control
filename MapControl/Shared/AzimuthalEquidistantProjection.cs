@@ -36,7 +36,7 @@ namespace MapControl
 
             Center.GetAzimuthDistance(latitude, longitude, out double azimuth, out double distance);
 
-            var mapDistance = distance * Wgs84EquatorialRadius;
+            var mapDistance = distance * Wgs84MeanRadius;
 
             return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
         }
@@ -50,7 +50,7 @@ namespace MapControl
 
             var azimuth = Math.Atan2(x, y);
             var mapDistance = Math.Sqrt(x * x + y * y);
-            var distance = mapDistance / Wgs84EquatorialRadius;
+            var distance = mapDistance / Wgs84MeanRadius;
 
             return Center.GetLocation(azimuth, distance);
         }
