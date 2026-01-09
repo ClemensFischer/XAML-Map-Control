@@ -125,6 +125,18 @@ namespace MapControl
                 y = y * transform.M22 + transform.OffsetY;
                 width *= transform.M11;
                 height *= transform.M22;
+
+                if (width < 0d)
+                {
+                    width = -width;
+                    x -= width;
+                }
+
+                if (height < 0d)
+                {
+                    height = -height;
+                    y -= height;
+                }
             }
             else
             {
