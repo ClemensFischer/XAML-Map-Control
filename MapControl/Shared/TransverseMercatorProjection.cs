@@ -8,8 +8,8 @@ using Avalonia;
 namespace MapControl
 {
     /// <summary>
-    /// Universal Transverse Mercator Projection.
-    /// See https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
+    /// Transverse Mercator Projection.
+    /// See https://en.wikipedia.org/wiki/Transverse_Mercator_projection.
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
@@ -17,7 +17,7 @@ namespace MapControl
         public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.9996;
         public double CentralMeridian { get; set; }
-        public double FalseEasting { get; set; } = 5e5;
+        public double FalseEasting { get; set; }
         public double FalseNorthing { get; set; }
 
         public TransverseMercatorProjection()

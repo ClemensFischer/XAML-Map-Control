@@ -4,6 +4,7 @@ namespace MapControl
 {
     /// <summary>
     /// WGS84 UTM Projection with zone number and north/south flag.
+    /// See https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
     /// </summary>
     public class Wgs84UtmProjection : TransverseMercatorProjection
     {
@@ -66,7 +67,7 @@ namespace MapControl
             get => base.Center;
             protected internal set
             {
-                if (!Equals(base.Center, value))
+                if (!base.Center.Equals(value))
                 {
                     base.Center = value;
 

@@ -5,6 +5,7 @@ namespace MapControl.Projections
 {
     /// <summary>
     /// WGS84 UTM Projection with zone number and north/south flag.
+    /// See https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
     /// </summary>
     public class Wgs84UtmProjection : GeoApiProjection
     {
@@ -41,17 +42,16 @@ namespace MapControl.Projections
     /// </summary>
     public class Wgs84AutoUtmProjection : Wgs84UtmProjection
     {
-        private readonly string autoCrsId;
+        public Wgs84AutoUtmProjection()
+            : this(MapControl.Wgs84AutoUtmProjection.DefaultCrsId)
+        {
+            // XAML needs parameterless constructor
+        }
 
-        public Wgs84AutoUtmProjection(string crsId = MapControl.Wgs84AutoUtmProjection.DefaultCrsId)
+        public Wgs84AutoUtmProjection(string crsId)
             : base(31, true)
         {
-            autoCrsId = crsId;
-
-            if (!string.IsNullOrEmpty(autoCrsId))
-            {
-                CrsId = autoCrsId;
-            }
+            CrsId = crsId;
         }
 
         public override Location Center
@@ -59,7 +59,7 @@ namespace MapControl.Projections
             get => base.Center;
             protected set
             {
-                if (!Equals(base.Center, value))
+                if (!base.Center.Equals(value))
                 {
                     base.Center = value;
 
@@ -69,12 +69,9 @@ namespace MapControl.Projections
 
                     if (Zone != zone || IsNorth != north)
                     {
+                        var crsId = CrsId;
                         SetZone(zone, north);
-
-                        if (!string.IsNullOrEmpty(autoCrsId))
-                        {
-                            CrsId = autoCrsId;
-                        }
+                        CrsId = crsId;
                     }
                 }
             }

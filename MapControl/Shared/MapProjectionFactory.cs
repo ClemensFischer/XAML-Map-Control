@@ -36,6 +36,10 @@ namespace MapControl
                     projection = new Wgs84AutoUtmProjection();
                     break;
 
+                case Wgs84AutoTmProjection.DefaultCrsId:
+                    projection = new Wgs84AutoTmProjection();
+                    break;
+
                 case OrthographicProjection.DefaultCrsId:
                     projection = new OrthographicProjection();
                     break;
