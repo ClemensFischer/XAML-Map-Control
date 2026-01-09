@@ -49,17 +49,16 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:42001";
 
-        private readonly string autoCrsId;
+        public Wgs84AutoUtmProjection()
+            : this(DefaultCrsId)
+        {
+            // XAML needs parameterless constructor
+        }
 
-        public Wgs84AutoUtmProjection(string crsId = DefaultCrsId)
+        public Wgs84AutoUtmProjection(string crsId)
             : base(31, true)
         {
-            autoCrsId = crsId;
-
-            if (!string.IsNullOrEmpty(autoCrsId))
-            {
-                CrsId = autoCrsId;
-            }
+            CrsId = crsId;
         }
 
         public override Location Center
@@ -77,12 +76,9 @@ namespace MapControl
 
                     if (Zone != zone || IsNorth != north)
                     {
+                        var crsId = CrsId;
                         SetZone(zone, north);
-
-                        if (!string.IsNullOrEmpty(autoCrsId))
-                        {
-                            CrsId = autoCrsId;
-                        }
+                        CrsId = crsId;
                     }
                 }
             }

@@ -30,32 +30,15 @@ namespace MapControl
         public double Latitude { get; }
         public double Longitude { get; }
 
-        public bool Equals(Location location)
-        {
-            return location != null &&
-                   Equals(Latitude, location.Latitude) &&
-                   Equals(Longitude, location.Longitude);
-        }
+        public bool Equals(double latitude, double longitude) => Latitude == latitude && Longitude == longitude;
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Location);
-        }
+        public bool Equals(Location location) => location != null && Equals(location.Latitude, location.Longitude);
 
-        public override int GetHashCode()
-        {
-            return Latitude.GetHashCode() ^ Longitude.GetHashCode();
-        }
+        public override bool Equals(object obj) => Equals(obj as Location);
 
-        public override string ToString()
-        {
-            return string.Format(CultureInfo.InvariantCulture, "{0},{1}", Latitude, Longitude);
-        }
+        public override int GetHashCode() => Latitude.GetHashCode() ^ Longitude.GetHashCode();
 
-        public static bool CoordinateEquals(double coordinate1, double coordinate2)
-        {
-            return Math.Abs(coordinate1 - coordinate2) < 1e-9;
-        }
+        public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0:0.########},{1:0.########}", Latitude, Longitude);
 
         /// <summary>
         /// Creates a Location instance from a string containing a comma-separated pair of floating point numbers.
@@ -66,7 +49,7 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(location))
             {
-                values = location.Split(new char[] { ',' });
+                values = location.Split([',']);
             }
 
             if (values?.Length != 2)

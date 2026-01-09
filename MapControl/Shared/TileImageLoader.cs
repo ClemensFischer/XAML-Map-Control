@@ -180,7 +180,7 @@ namespace MapControl
         {
             var extension = Path.GetExtension(uri.LocalPath).ToLower();
 
-            if (string.IsNullOrEmpty(extension) || extension.Equals(".jpeg"))
+            if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
             {
                 extension = ".jpg";
             }

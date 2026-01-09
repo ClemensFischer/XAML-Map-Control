@@ -28,8 +28,7 @@ namespace MapControl
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            if (Location.Equals(latitude, Center.Latitude) &&
-                Location.Equals(longitude, Center.Longitude))
+            if (Center.Equals(latitude, longitude))
             {
                 return new Point();
             }
