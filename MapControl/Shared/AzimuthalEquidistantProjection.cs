@@ -15,10 +15,9 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:97003"; // proprietary CRS identifier
 
-        public AzimuthalEquidistantProjection()
+        public AzimuthalEquidistantProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
-            // XAML needs parameterless constructor
         }
 
         public AzimuthalEquidistantProjection(string crsId)

@@ -17,10 +17,9 @@ namespace MapControl
 
         public const string DefaultCrsId = "EPSG:3395";
 
-        public WorldMercatorProjection()
+        public WorldMercatorProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
-            // XAML needs parameterless constructor
         }
 
         public WorldMercatorProjection(string crsId)

@@ -16,10 +16,9 @@ namespace MapControl
     {
         public const string DefaultCrsId = "EPSG:4326";
 
-        public EquirectangularProjection()
+        public EquirectangularProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
-            // XAML needs parameterless constructor
         }
 
         public EquirectangularProjection(string crsId)

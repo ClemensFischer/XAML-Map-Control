@@ -13,10 +13,9 @@ namespace MapControl
 
         private readonly string autoCrsId;
 
-        public Wgs84AutoUtmProjection()
+        public Wgs84AutoUtmProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
-            // XAML needs parameterless constructor
         }
 
         public Wgs84AutoUtmProjection(string crsId)

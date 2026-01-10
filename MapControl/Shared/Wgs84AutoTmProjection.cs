@@ -7,10 +7,9 @@
     {
         public const string DefaultCrsId = "AUTO2:42002";
 
-        public Wgs84AutoTmProjection()
+        public Wgs84AutoTmProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
-            // XAML needs parameterless constructor
         }
 
         public Wgs84AutoTmProjection(string crsId)

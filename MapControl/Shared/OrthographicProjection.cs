@@ -15,10 +15,9 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:42003";
 
-        public OrthographicProjection()
+        public OrthographicProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
-            // XAML needs parameterless constructor
         }
 
         public OrthographicProjection(string crsId)
