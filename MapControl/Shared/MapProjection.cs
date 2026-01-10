@@ -160,7 +160,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Creates a MapProjection instance from a CRS id string.
+        /// Creates a MapProjection instance from a CRS identifier string.
         /// </summary>
         public static MapProjection Parse(string crsId)
         {

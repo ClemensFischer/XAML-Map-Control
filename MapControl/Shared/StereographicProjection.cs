@@ -13,7 +13,7 @@ namespace MapControl
     /// </summary>
     public class StereographicProjection : AzimuthalProjection
     {
-        public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS ID
+        public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS identifier
 
         public StereographicProjection()
             : this(DefaultCrsId)

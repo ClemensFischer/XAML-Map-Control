@@ -4,8 +4,8 @@ namespace MapControl.Projections
 {
     /// <summary>
     /// WGS84 Universal Transverse Mercator Projection with automatic zone selection from
-    /// the projection center. If the CRS Id passed to the constructor is null or empty,
-    /// appropriate CRS Ids EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760 are used.
+    /// the projection center. If the CRS identifier passed to the constructor is null or empty,
+    /// appropriate values from EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760 are used.
     /// </summary>
     public class Wgs84AutoUtmProjection : Wgs84UtmProjection
     {

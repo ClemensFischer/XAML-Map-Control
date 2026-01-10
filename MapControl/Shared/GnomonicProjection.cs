@@ -13,7 +13,7 @@ namespace MapControl
     /// </summary>
     public class GnomonicProjection : AzimuthalProjection
     {
-        public const string DefaultCrsId = "AUTO2:97001"; // GeoServer non-standard CRS ID
+        public const string DefaultCrsId = "AUTO2:97001"; // GeoServer non-standard CRS identifier
 
         public GnomonicProjection()
             : this(DefaultCrsId)

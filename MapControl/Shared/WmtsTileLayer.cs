@@ -74,7 +74,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets a dictionary of all tile matrix sets supported by a WMTS, with their CRS as dictionary key.
+        /// Gets a dictionary of all tile matrix sets supported by a WMTS,
+        /// with their CRS identifiers as dictionary keys.
         /// </summary>
         public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = [];
 
