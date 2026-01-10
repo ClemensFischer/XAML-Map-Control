@@ -32,10 +32,6 @@ namespace MapControl
                     projection = new UpsSouthProjection();
                     break;
 
-                case "AUTO-UTM":                   
-                    projection = new Wgs84AutoUtmProjection(null); // client-side auto zone
-                    break;
-
                 case Wgs84AutoUtmProjection.DefaultCrsId:
                     projection = new Wgs84AutoUtmProjection();
                     break;
