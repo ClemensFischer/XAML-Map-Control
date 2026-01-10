@@ -16,14 +16,14 @@ namespace MapControl.Projections
         public const int LastZoneSouthEpsgCode = 32700 + LastZone;
 
         public int Zone { get; private set; }
-        public bool IsNorth { get; private set; }
+        public Hemisphere Hemisphere { get; private set; }
 
-        public Wgs84UtmProjection(int zone, bool north)
+        public Wgs84UtmProjection(int zone, Hemisphere hemisphere)
         {
-            SetZone(zone, north);
+            SetZone(zone, hemisphere);
         }
 
-        protected void SetZone(int zone, bool north)
+        protected void SetZone(int zone, Hemisphere hemisphere)
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -31,8 +31,8 @@ namespace MapControl.Projections
             }
 
             Zone = zone;
-            IsNorth = north;
-            CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(Zone, IsNorth);
+            Hemisphere = hemisphere;
+            CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(Zone, hemisphere == Hemisphere.North);
         }
     }
 }

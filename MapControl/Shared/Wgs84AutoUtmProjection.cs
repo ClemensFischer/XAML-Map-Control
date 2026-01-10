@@ -3,8 +3,9 @@
 namespace MapControl
 {
     /// <summary>
-    /// WGS84 Universal Transverse Mercator Projection with
-    /// automatic zone selection from projection center.
+    /// WGS84 Universal Transverse Mercator Projection with automatic zone selection from
+    /// the projection center. If the CRS Id passed to the constructor is null or empty,
+    /// appropriate CRS Ids EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760 are used.
     /// </summary>
     public class Wgs84AutoUtmProjection : Wgs84UtmProjection
     {
@@ -18,11 +19,8 @@ namespace MapControl
             // XAML needs parameterless constructor
         }
 
-        /// <summary>
-        /// When the crsId parameter is null or empty, the projection will use EPSG:32***.
-        /// </summary>
         public Wgs84AutoUtmProjection(string crsId)
-            : base(31, true)
+            : base(31, Hemisphere.North)
         {
             autoCrsId = crsId;
 
@@ -43,11 +41,11 @@ namespace MapControl
 
                     var lon = Location.NormalizeLongitude(value.Longitude);
                     var zone = (int)Math.Floor(lon / 6d) + 31;
-                    var north = value.Latitude >= 0d;
+                    var hemisphere = value.Latitude >= 0d ? Hemisphere.North : Hemisphere.South;
 
-                    if (Zone != zone || IsNorth != north)
+                    if (Zone != zone || Hemisphere != hemisphere)
                     {
-                        SetZone(zone, north);
+                        SetZone(zone, hemisphere);
 
                         if (!string.IsNullOrEmpty(autoCrsId))
                         {

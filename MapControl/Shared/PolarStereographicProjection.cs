@@ -24,13 +24,13 @@ namespace MapControl
         public double ScaleFactor { get; set; } = 0.994;
         public double FalseEasting { get; set; } = 2e6;
         public double FalseNorthing { get; set; } = 2e6;
-        public bool IsNorth { get; set; }
+        public Hemisphere Hemisphere { get; set; }
 
         public override Point RelativeScale(double latitude, double longitude)
         {
             latitude *= Math.PI / 180d;
 
-            if (!IsNorth)
+            if (Hemisphere == Hemisphere.South)
             {
                 latitude = -latitude;
             }
@@ -54,7 +54,7 @@ namespace MapControl
             latitude *= Math.PI / 180d;
             longitude *= Math.PI / 180d;
 
-            if (!IsNorth)
+            if (Hemisphere == Hemisphere.South)
             {
                 latitude = -latitude;
                 longitude = -longitude;
@@ -71,7 +71,7 @@ namespace MapControl
             var x = r * Math.Sin(longitude); // p.161 (21-30)
             var y = -r * Math.Cos(longitude); // p.161 (21-31)
 
-            if (!IsNorth)
+            if (Hemisphere == Hemisphere.South)
             {
                 x = -x;
                 y = -y;
@@ -85,7 +85,7 @@ namespace MapControl
             x -= FalseEasting;
             y -= FalseNorthing;
 
-            if (!IsNorth)
+            if (Hemisphere == Hemisphere.South)
             {
                 x = -x;
                 y = -y;
@@ -99,7 +99,7 @@ namespace MapControl
             var lat = WorldMercatorProjection.ApproximateLatitude(e, t); // p.162 (3-5)
             var lon = Math.Atan2(x, -y); // p.162 (20-16)
 
-            if (!IsNorth)
+            if (Hemisphere == Hemisphere.South)
             {
                 lat = -lat;
                 lon = -lon;
@@ -125,7 +125,7 @@ namespace MapControl
         public UpsNorthProjection(string crsId)
         {
             CrsId = crsId;
-            IsNorth = true;
+            Hemisphere = Hemisphere.North;
         }
     }
 
@@ -145,7 +145,7 @@ namespace MapControl
         public UpsSouthProjection(string crsId)
         {
             CrsId = crsId;
-            IsNorth = false;
+            Hemisphere = Hemisphere.South;
         }
     }
 }
