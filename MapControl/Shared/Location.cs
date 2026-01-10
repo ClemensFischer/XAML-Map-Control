@@ -6,9 +6,9 @@ namespace MapControl
     /// <summary>
     /// A geographic location with latitude and longitude values in degrees.
     /// For calculations with azimuth and distance on great circles, see
-    /// https://en.wikipedia.org/wiki/Great_circle
-    /// https://en.wikipedia.org/wiki/Great-circle_distance
-    /// https://en.wikipedia.org/wiki/Great-circle_navigation
+    /// https://en.wikipedia.org/wiki/Great_circle,
+    /// https://en.wikipedia.org/wiki/Great-circle_distance,
+    /// https://en.wikipedia.org/wiki/Great-circle_navigation.
     /// </summary>
 #if UWP || WINUI
     [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]

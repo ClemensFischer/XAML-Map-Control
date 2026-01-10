@@ -14,7 +14,7 @@ using Avalonia;
 namespace MapControl
 {
     /// <summary>
-    /// For reference see https://www.ogc.org/standards/wmts, 07-057r7_Web_Map_Tile_Service_Standard.pdf
+    /// See https://www.ogc.org/standards/wmts, 07-057r7_Web_Map_Tile_Service_Standard.pdf.
     /// </summary>
     public class WmtsCapabilities
     {
