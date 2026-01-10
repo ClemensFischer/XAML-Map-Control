@@ -22,7 +22,7 @@ namespace MapControl
             }
 
             Zone = zone;
-            CrsId = $"EPSG:{26700 + Zone}";
+            CrsId = $"EPSG:{26700 + zone}";
 
             // Clarke 1866
             EquatorialRadius = 6378206.4;

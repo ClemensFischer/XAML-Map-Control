@@ -22,7 +22,7 @@ namespace MapControl
             }
 
             Zone = zone;
-            CrsId = $"EPSG:{26900 + Zone}";
+            CrsId = $"EPSG:{26900 + zone}";
 
             // GRS 1980
             EquatorialRadius = 6378137d;

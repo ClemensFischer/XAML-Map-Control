@@ -32,7 +32,7 @@ namespace MapControl.Projections
 
             Zone = zone;
             Hemisphere = hemisphere;
-            CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(Zone, hemisphere == Hemisphere.North);
+            CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(zone, hemisphere == Hemisphere.North);
         }
     }
 }
