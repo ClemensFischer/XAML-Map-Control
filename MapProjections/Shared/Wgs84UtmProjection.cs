@@ -4,8 +4,7 @@ using System;
 namespace MapControl.Projections
 {
     /// <summary>
-    /// WGS84 UTM Projection with zone number and north/south flag.
-    /// See https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
+    /// WGS84 Universal Transverse Mercator Projection.
     /// </summary>
     public class Wgs84UtmProjection : GeoApiProjection
     {
@@ -34,47 +33,6 @@ namespace MapControl.Projections
             Zone = zone;
             IsNorth = north;
             CoordinateSystem = ProjectedCoordinateSystem.WGS84_UTM(Zone, IsNorth);
-        }
-    }
-
-    /// <summary>
-    /// WGS84 UTM Projection with automatic zone selection from projection center.
-    /// </summary>
-    public class Wgs84AutoUtmProjection : Wgs84UtmProjection
-    {
-        public Wgs84AutoUtmProjection()
-            : this(MapControl.Wgs84AutoUtmProjection.DefaultCrsId)
-        {
-            // XAML needs parameterless constructor
-        }
-
-        public Wgs84AutoUtmProjection(string crsId)
-            : base(31, true)
-        {
-            CrsId = crsId;
-        }
-
-        public override Location Center
-        {
-            get => base.Center;
-            protected set
-            {
-                if (!base.Center.Equals(value))
-                {
-                    base.Center = value;
-
-                    var lon = Location.NormalizeLongitude(value.Longitude);
-                    var zone = (int)Math.Floor(lon / 6d) + 31;
-                    var north = value.Latitude >= 0d;
-
-                    if (Zone != zone || IsNorth != north)
-                    {
-                        var crsId = CrsId;
-                        SetZone(zone, north);
-                        CrsId = crsId;
-                    }
-                }
-            }
         }
     }
 }

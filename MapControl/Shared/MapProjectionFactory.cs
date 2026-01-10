@@ -33,7 +33,7 @@ namespace MapControl
                     break;
 
                 case Wgs84AutoUtmProjection.DefaultCrsId:
-                    projection = new Wgs84AutoUtmProjection();
+                    projection = new Wgs84AutoUtmProjection("");
                     break;
 
                 case Wgs84AutoTmProjection.DefaultCrsId:

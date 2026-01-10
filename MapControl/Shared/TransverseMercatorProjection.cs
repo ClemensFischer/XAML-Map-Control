@@ -9,7 +9,8 @@ namespace MapControl
 {
     /// <summary>
     /// Transverse Mercator Projection.
-    /// See https://en.wikipedia.org/wiki/Transverse_Mercator_projection.
+    /// See https://en.wikipedia.org/wiki/Transverse_Mercator_projection
+    /// and https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {

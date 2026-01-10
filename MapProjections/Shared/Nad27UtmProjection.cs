@@ -3,8 +3,7 @@
 namespace MapControl.Projections
 {
     /// <summary>
-    /// NAD27 UTM Projection with zone number.
-    /// Appears to be less accurate than MapControl.Nad27UtmProjection.
+    /// NAD27 Universal Transverse Mercator Projection.
     /// </summary>
     public class Nad27UtmProjection : GeoApiProjection
     {

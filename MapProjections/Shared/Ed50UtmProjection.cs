@@ -3,7 +3,7 @@
 namespace MapControl.Projections
 {
     /// <summary>
-    /// ED50 UTM Projection with zone number.
+    /// ED50 Universal Transverse Mercator Projection.
     /// </summary>
     public class Ed50UtmProjection : GeoApiProjection
     {

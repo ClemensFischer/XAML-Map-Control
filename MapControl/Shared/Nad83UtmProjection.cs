@@ -3,7 +3,7 @@
 namespace MapControl
 {
     /// <summary>
-    /// NAD83 UTM Projection with zone number.
+    /// NAD83 Universal Transverse Mercator Projection.
     /// </summary>
     public class Nad83UtmProjection : TransverseMercatorProjection
     {

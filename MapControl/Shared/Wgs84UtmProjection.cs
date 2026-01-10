@@ -3,8 +3,7 @@
 namespace MapControl
 {
     /// <summary>
-    /// WGS84 UTM Projection with zone number and north/south flag.
-    /// See https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
+    /// WGS84 Universal Transverse Mercator Projection.
     /// </summary>
     public class Wgs84UtmProjection : TransverseMercatorProjection
     {
@@ -40,49 +39,6 @@ namespace MapControl
             CrsId = $"EPSG:{(north ? 32600 : 32700) + zone}";
             CentralMeridian = zone * 6d - 183d;
             FalseNorthing = north ? 0d : 1e7;
-        }
-    }
-
-    /// <summary>
-    /// WGS84 UTM Projection with automatic zone selection from projection center.
-    /// </summary>
-    public class Wgs84AutoUtmProjection : Wgs84UtmProjection
-    {
-        public const string DefaultCrsId = "AUTO2:42001";
-
-        public Wgs84AutoUtmProjection()
-            : this(DefaultCrsId)
-        {
-            // XAML needs parameterless constructor
-        }
-
-        public Wgs84AutoUtmProjection(string crsId)
-            : base(31, true)
-        {
-            CrsId = crsId;
-        }
-
-        public override Location Center
-        {
-            get => base.Center;
-            protected internal set
-            {
-                if (!base.Center.Equals(value))
-                {
-                    base.Center = value;
-
-                    var lon = Location.NormalizeLongitude(value.Longitude);
-                    var zone = (int)Math.Floor(lon / 6d) + 31;
-                    var north = value.Latitude >= 0d;
-
-                    if (Zone != zone || IsNorth != north)
-                    {
-                        var crsId = CrsId;
-                        SetZone(zone, north);
-                        CrsId = crsId;
-                    }
-                }
-            }
         }
     }
 }

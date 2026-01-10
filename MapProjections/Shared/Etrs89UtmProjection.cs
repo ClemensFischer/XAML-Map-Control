@@ -3,7 +3,7 @@
 namespace MapControl.Projections
 {
     /// <summary>
-    /// ETRS89 UTM Projection with zone number.
+    /// ETRS89 Universal Transverse Mercator Projection.
     /// </summary>
     public class Etrs89UtmProjection : GeoApiProjection
     {
