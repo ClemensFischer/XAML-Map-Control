@@ -14,8 +14,42 @@ namespace MapControl
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
+        private readonly double[] alpha = new double[3]; // α_j
+        private readonly double[] beta = new double[3];  // β_j
+        private readonly double[] delta = new double[3]; // δ_j
+        private double f1; // A / a
+        private double f2; // 2 * sqrt(n) / (1+n)
+
+        public double Flattening
+        {
+            get;
+            set
+            {
+                field = value;
+                // n, n^2, n^3
+                var n = field / (2d - field);
+                var n2 = n * n;
+                var n3 = n * n2;
+                // A / a
+                f1 = (1d + n2 / 4d + n2 * n2 / 64d) / (1d + n);
+                // 2 * sqrt(n) / (1+n)
+                f2 = 2d * Math.Sqrt(n) / (1d + n);
+                // α_j
+                alpha[0] = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
+                alpha[1] = n2 * 13d / 48d - n3 * 3d / 5d;
+                alpha[2] = n3 * 61d / 240d;
+                // β_j
+                beta[0] = n / 2d - n2 * 2d / 3d + n3 * 37d / 96d;
+                beta[1] = n2 / 48d + n3 / 15d;
+                beta[2] = n3 * 17d / 480d;
+                // δ_j
+                delta[0] = n * 2d - n2 * 2d / 3d - n3 * 2d;
+                delta[1] = n2 * 7d / 3d - n3 * 8d / 5d;
+                delta[2] = n3 * 56d / 15d;
+            }
+        }
+
         public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
-        public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.9996;
         public double CentralMeridian { get; set; }
         public double FalseEasting { get; set; }
@@ -24,6 +58,7 @@ namespace MapControl
         public TransverseMercatorProjection()
         {
             Type = MapProjectionType.TransverseCylindrical;
+            Flattening = Wgs84Flattening;
         }
 
         public override Point RelativeScale(double latitude, double longitude)
@@ -38,43 +73,29 @@ namespace MapControl
 #else
             static double Atanh(double x) => Math.Atanh(x);
 #endif
-            var n = Flattening / (2d - Flattening);
-            var n2 = n * n;
-            var n3 = n * n2;
-            var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
-
-            // α_j
-            var alpha1 = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
-            var alpha2 = n2 * 13d / 48d - n3 * 3d / 5d;
-            var alpha3 = n3 * 61d / 240d;
-
+            // k_0 * A
+            var k0A = ScaleFactor * EquatorialRadius * f1;
             // φ
             var phi = latitude * Math.PI / 180d;
-
-            // (λ - λ0)
-            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
-
-            var s = 2d * Math.Sqrt(n) / (1d + n);
             var sinPhi = Math.Sin(phi);
-            var t = Math.Sinh(Atanh(sinPhi) - s * Atanh(s * sinPhi));
-
+            // t
+            var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
+            // λ - λ0
+            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
             // ξ'
             var xi_ = Math.Atan(t / Math.Cos(lambda));
-
             // η'
             var eta_ = Atanh(Math.Sin(lambda) / Math.Sqrt(1d + t * t));
-
             // ξ
             var xi = xi_
-                + alpha1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_)
-                + alpha2 * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_)
-                + alpha3 * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_);
-
+                + alpha[0] * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_)
+                + alpha[1] * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_)
+                + alpha[2] * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_);
             // η
             var eta = eta_
-                + alpha1 * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_)
-                + alpha2 * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_)
-                + alpha3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_);
+                + alpha[0] * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_)
+                + alpha[1] * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_)
+                + alpha[2] * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_);
 
             return new Point(
                 k0A * eta + FalseEasting,
@@ -83,49 +104,30 @@ namespace MapControl
 
         public override Location MapToLocation(double x, double y)
         {
-            var n = Flattening / (2d - Flattening);
-            var n2 = n * n;
-            var n3 = n * n2;
-            var k0A = ScaleFactor * EquatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
-
-            // β_j
-            var beta1 = n / 2d - n2 * 2d / 3d + n3 * 37d / 96d;
-            var beta2 = n2 / 48d + n3 / 15d;
-            var beta3 = n3 * 17d / 480d;
-
-            // δ_j
-            var delta1 = n * 2d - n2 * 2d / 3d - n3 * 2d;
-            var delta2 = n2 * 7d / 3d - n3 * 8d / 5d;
-            var delta3 = n3 * 56d / 15d;
-
+            // k_0 * A
+            var k0A = ScaleFactor * EquatorialRadius * f1;
             // ξ
             var xi = (y - FalseNorthing) / k0A;
-
             // η
             var eta = (x - FalseEasting) / k0A;
-
             // ξ'
             var xi_ = xi
-                - beta1 * Math.Sin(2d * xi) * Math.Cosh(2d * eta)
-                - beta2 * Math.Sin(4d * xi) * Math.Cosh(4d * eta)
-                - beta3 * Math.Sin(6d * xi) * Math.Cosh(6d * eta);
-
+                - beta[0] * Math.Sin(2d * xi) * Math.Cosh(2d * eta)
+                - beta[1] * Math.Sin(4d * xi) * Math.Cosh(4d * eta)
+                - beta[2] * Math.Sin(6d * xi) * Math.Cosh(6d * eta);
             // η'
             var eta_ = eta
-                - beta1 * Math.Cos(2d * xi) * Math.Sinh(2d * eta)
-                - beta2 * Math.Cos(4d * xi) * Math.Sinh(4d * eta)
-                - beta3 * Math.Cos(6d * xi) * Math.Sinh(6d * eta);
-
+                - beta[0] * Math.Cos(2d * xi) * Math.Sinh(2d * eta)
+                - beta[1] * Math.Cos(4d * xi) * Math.Sinh(4d * eta)
+                - beta[2] * Math.Cos(6d * xi) * Math.Sinh(6d * eta);
             // χ
             var chi = Math.Asin(Math.Sin(xi_) / Math.Cosh(eta_));
-
             // φ
             var phi = chi
-                + delta1 * Math.Sin(2d * chi)
-                + delta2 * Math.Sin(4d * chi)
-                + delta3 * Math.Sin(6d * chi);
-
-            // λ
+                + delta[0] * Math.Sin(2d * chi)
+                + delta[1] * Math.Sin(4d * chi)
+                + delta[2] * Math.Sin(6d * chi);
+            // λ - λ0
             var lambda = Math.Atan(Math.Sinh(eta_) / Math.Cos(xi_));
 
             return new Location(
