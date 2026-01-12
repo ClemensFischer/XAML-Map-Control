@@ -1,16 +1,4 @@
 .vs/
 bin/
 obj/
-Experimental/
-TestApps/
-TestData/
-Win2D/
-Caches/ZoneTreeCache/
-SampleApps/Shared/TestLayers.cs
-MapControlExperimental.sln
-MapControlTestApps.sln
 *.user
-*.nupkg
-*.pdf
-*.txt
-*.cmd

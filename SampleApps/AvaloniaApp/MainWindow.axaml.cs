@@ -16,9 +16,9 @@ namespace SampleApplication
             var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Information));
             ImageLoader.LoggerFactory = loggerFactory;
 
-            var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
-            TileImageLoader.Cache = tileCache;
-            Closed += (s, e) => tileCache.Dispose();
+            //var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
+            //TileImageLoader.Cache = tileCache;
+            //Closed += (s, e) => tileCache.Dispose();
 
             InitializeComponent();
             AddTestLayers();

@@ -10,41 +10,16 @@ using System.Windows.Input;
 
 namespace SampleApplication
 {
-#if NET
-    using System.Net.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    class HttpHandler : DelegatingHandler
-    {
-        public HttpHandler() : base(new SocketsHttpHandler())
-        {
-        }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            Debug.WriteLine(request.RequestUri);
-
-            return base.SendAsync(request, cancellationToken);
-        }
-    }
-#endif
-
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
-#if NET
-            var httpClient = new HttpClient(new HttpHandler()) { Timeout = TimeSpan.FromSeconds(10) };
-            httpClient.DefaultRequestHeaders.Add("User-Agent", $"XAML Map Control Test Application");
-            ImageLoader.HttpClient = httpClient;
-#endif
             var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Information));
             ImageLoader.LoggerFactory = loggerFactory;
 
-            var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
-            TileImageLoader.Cache = tileCache;
-            Closed += (s, e) => tileCache.Dispose();
+            //var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
+            //TileImageLoader.Cache = tileCache;
+            //Closed += (s, e) => tileCache.Dispose();
 
             InitializeComponent();
             AddTestLayers();
@@ -67,10 +42,6 @@ namespace SampleApplication
             if (e.ClickCount == 2 && e.Source == map)
             {
                 map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
-            }
-            else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
-            {
-                map.ProjectionCenter = map.ViewToLocation(e.GetPosition(map));
             }
             else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) &&
                 map.MapLayer is WmsImageLayer wmsLayer)
