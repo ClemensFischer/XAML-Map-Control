@@ -16,9 +16,9 @@ namespace SampleApplication
             var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Information));
             ImageLoader.LoggerFactory = loggerFactory;
 
-            //var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
-            //TileImageLoader.Cache = tileCache;
-            //Closed += (s, e) => tileCache.Dispose();
+            var tileCache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder, loggerFactory);
+            TileImageLoader.Cache = tileCache;
+            Closed += (s, e) => tileCache.Dispose();
 
             InitializeComponent();
             AddTestLayers();
@@ -44,13 +44,19 @@ namespace SampleApplication
             }
         }
 
-        private void MapPointerPressed(object sender, PointerPressedEventArgs e)
+        private async void MapPointerPressed(object sender, PointerPressedEventArgs e)
         {
             if (e.Pointer.Type == PointerType.Mouse)
             {
                 var point = e.GetCurrentPoint(map);
 
-                if (point.Properties.IsRightButtonPressed)
+                if (point.Properties.IsLeftButtonPressed &&
+                    e.KeyModifiers.HasFlag(KeyModifiers.Control) &&
+                    map.MapLayer is WmsImageLayer wmsLayer)
+                {
+                    Debug.WriteLine(await wmsLayer.GetFeatureInfoAsync(e.GetPosition(map)));
+                }
+                else if (point.Properties.IsRightButtonPressed)
                 {
                     e.Pointer.Capture(map);
                     var location = map.ViewToLocation(point.Position);

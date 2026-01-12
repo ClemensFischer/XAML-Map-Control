@@ -26,10 +26,6 @@ namespace MapControl
         public Wgs84UtmProjection(int zone, Hemisphere hemisphere)
         {
             SetZone(zone, hemisphere);
-
-            EquatorialRadius = Wgs84EquatorialRadius;
-            Flattening = Wgs84Flattening;
-            ScaleFactor = 0.9996;
             FalseEasting = 5e5;
         }
 
