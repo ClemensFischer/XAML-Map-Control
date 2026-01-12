@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-#if WINUI
+#if WPF
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+#elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
@@ -9,11 +14,6 @@ using Microsoft.UI.Xaml.Documents;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
-#else
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
 #endif
 
 namespace MapControl.UiTools
