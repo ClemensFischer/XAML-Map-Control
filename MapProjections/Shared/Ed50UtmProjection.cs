@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjNet.CoordinateSystems;
+using System;
 
 namespace MapControl.Projections
 {
@@ -27,18 +28,18 @@ namespace MapControl.Projections
                 + "GEOGCS[\"ED50\","
                 + "DATUM[\"European_Datum_1950\","
                 + "SPHEROID[\"International 1924\",6378388,297],TOWGS84[-87,-98,-121,0,0,0,0]],"
-                + "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"
-                + "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],"
+                + GeoApiProjectionFactory.PrimeMeridian + ","
+                + GeoApiProjectionFactory.UnitDegree + ","
                 + "AUTHORITY[\"EPSG\",\"4230\"]],"
-                + "PROJECTION[\"Transverse_Mercator\"],"
+                + GeoApiProjectionFactory.ProjectionTM + ","
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
-                + "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],"
-                + "AXIS[\"Easting\",EAST],"
-                + "AXIS[\"Northing\",NORTH],"
+                + GeoApiProjectionFactory.UnitMeter + ","
+                + GeoApiProjectionFactory.AxisEast + ","
+                + GeoApiProjectionFactory.AxisNorth + ","
                 + $"AUTHORITY[\"EPSG\",\"230{zone:00}\"]]";
         }
     }

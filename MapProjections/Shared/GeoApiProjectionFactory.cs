@@ -4,35 +4,33 @@ namespace MapControl.Projections
 {
     public class GeoApiProjectionFactory : MapProjectionFactory
     {
-        private const string SpheroidGRS1980 = "SPHEROID[\"GRS 1980\",6378137,298.257222101]";
-        private const string SpheroidGRS1967Modified = "SPHEROID[\"GRS 1967 Modified\",6378160,298.25]";
-        private const string PrimeMeridian = "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]]";
-        private const string UnitDegree = "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]";
-        private const string UnitMeter = "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]";
-        private const string ProjectionTM = "PROJECTION[\"Transverse_Mercator\"]";
-        private const string ProjectionLCC = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
-        private const string AxisEast = "AXIS[\"Easting\",EAST]";
-        private const string AxisNorth = "AXIS[\"Northing\",NORTH]";
+        internal const string SpheroidGRS1980 = "SPHEROID[\"GRS 1980\",6378137,298.257222101]";
+        internal const string SpheroidGRS1967Modified = "SPHEROID[\"GRS 1967 Modified\",6378160,298.25]";
+        internal const string PrimeMeridian = "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]]";
+        internal const string UnitDegree = "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]";
+        internal const string UnitMeter = "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]";
+        internal const string ProjectionTM = "PROJECTION[\"Transverse_Mercator\"]";
+        internal const string ProjectionLCC = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
+        internal const string AxisEast = "AXIS[\"Easting\",EAST]";
+        internal const string AxisNorth = "AXIS[\"Northing\",NORTH]";
 
-        private const string GeoGcsETRS89
+        internal const string GeoGcsETRS89
             = "GEOGCS[\"ETRS89\","
             + "DATUM[\"European_Terrestrial_Reference_System_1989\","
-            + SpheroidGRS1980 + ","
-            + "AUTHORITY[\"EPSG\",\"6258\"]],"
+            + SpheroidGRS1980 + "],"
             + PrimeMeridian + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4258\"]]";
 
-        private const string GeoGcsGGRS87
+        internal const string GeoGcsGGRS87
             = "GEOGCS[\"GGRS87\","
             + "DATUM[\"Greek_Geodetic_Reference_System_1987\","
-            + SpheroidGRS1980 + ","
-            + "TOWGS84[-199.87,74.79,246.62,0,0,0,0]],"
+            + SpheroidGRS1980 + ",TOWGS84[-199.87,74.79,246.62,0,0,0,0]],"
             + PrimeMeridian + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4121\"]]";
 
-        private const string GeoGcsETRF2000PL
+        internal const string GeoGcsETRF2000PL
             = "GEOGCS[\"ETRF2000-PL\","
             + "DATUM[\"ETRF2000_Poland\","
             + SpheroidGRS1980 + "],"
@@ -40,20 +38,18 @@ namespace MapControl.Projections
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"9702\"]]";
 
-        private const string GeoGcsSAD69A
+        internal const string GeoGcsSAD69A
             = "GEOGCS[\"SAD69\","
             + "DATUM[\"South_American_Datum_1969\","
-            + SpheroidGRS1967Modified + ","
-            + "TOWGS84[-57,1,-41,0,0,0,0]],"
+            + SpheroidGRS1967Modified + ",TOWGS84[-57,1,-41,0,0,0,0]],"
             + PrimeMeridian + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4618\"]]";
 
-        private const string GeoGcsSAD69B
+        internal const string GeoGcsSAD69B
             = "GEOGCS[\"SAD69\","
             + "DATUM[\"South_American_Datum_1969\","
-            + SpheroidGRS1967Modified + ","
-            + "TOWGS84[-67.35,3.88,-38.22,0,0,0,0]],"
+            + SpheroidGRS1967Modified + ",TOWGS84[-67.35,3.88,-38.22,0,0,0,0]],"
             + PrimeMeridian + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4618\"]]";

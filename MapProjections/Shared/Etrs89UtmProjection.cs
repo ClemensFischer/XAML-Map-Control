@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjNet.CoordinateSystems;
+using System;
 
 namespace MapControl.Projections
 {
@@ -24,21 +25,16 @@ namespace MapControl.Projections
             Zone = zone;
             CoordinateSystemWkt
                 = $"PROJCS[\"ETRS89 / UTM zone {zone}N\","
-                + "GEOGCS[\"ETRS89\","
-                + "DATUM[\"European_Terrestrial_Reference_System_1989\","
-                + "SPHEROID[\"GRS 1980\",6378137,298.257222101]],"
-                + "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],"
-                + "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],"
-                + "AUTHORITY[\"EPSG\",\"4258\"]],"
-                + "PROJECTION[\"Transverse_Mercator\"],"
+                + GeoApiProjectionFactory.GeoGcsETRS89 + ","
+                + GeoApiProjectionFactory.ProjectionTM + ","
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
-                + "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],"
-                + "AXIS[\"Easting\",EAST],"
-                + "AXIS[\"Northing\",NORTH],"
+                + GeoApiProjectionFactory.UnitMeter + ","
+                + GeoApiProjectionFactory.AxisEast + ","
+                + GeoApiProjectionFactory.AxisNorth + ","
                 + $"AUTHORITY[\"EPSG\",\"258{zone:00}\"]]";
         }
     }
