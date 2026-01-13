@@ -28,22 +28,22 @@ namespace MapControl
 
         public override Point RelativeScale(double latitude, double longitude)
         {
-            latitude *= Math.PI / 180d;
+            var phi = latitude * Math.PI / 180d;
 
             if (Hemisphere == Hemisphere.South)
             {
-                latitude = -latitude;
+                phi = -phi;
             }
 
             var e = Math.Sqrt((2d - Flattening) * Flattening);
-            var eSinLat = e * Math.Sin(latitude);
+            var eSinPhi = e * Math.Sin(phi);
 
-            var t = Math.Tan(Math.PI / 4d - latitude / 2d)
-                  / Math.Pow((1d - eSinLat) / (1d + eSinLat), e / 2d); // p.161 (15-9)
+            var t = Math.Tan(Math.PI / 4d - phi / 2d)
+                  / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
             var r = 2d * EquatorialRadius * ScaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
-            var m = Math.Cos(latitude) / Math.Sqrt(1d - eSinLat * eSinLat); // p.160 (14-15)
+            var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
             var k = r / (EquatorialRadius * m); // p.161 (21-32)
 
             return new Point(k, k);
@@ -51,25 +51,25 @@ namespace MapControl
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            latitude *= Math.PI / 180d;
-            longitude *= Math.PI / 180d;
+            var phi = latitude * Math.PI / 180d;
+            var lambda = longitude * Math.PI / 180d;
 
             if (Hemisphere == Hemisphere.South)
             {
-                latitude = -latitude;
-                longitude = -longitude;
+                phi = -phi;
+                lambda = -lambda;
             }
 
             var e = Math.Sqrt((2d - Flattening) * Flattening);
-            var eSinLat = e * Math.Sin(latitude);
+            var eSinPhi = e * Math.Sin(phi);
 
-            var t = Math.Tan(Math.PI / 4d - latitude / 2d)
-                  / Math.Pow((1d - eSinLat) / (1d + eSinLat), e / 2d); // p.161 (15-9)
+            var t = Math.Tan(Math.PI / 4d - phi / 2d)
+                  / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
             var r = 2d * EquatorialRadius * ScaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
-            var x = r * Math.Sin(longitude); // p.161 (21-30)
-            var y = -r * Math.Cos(longitude); // p.161 (21-31)
+            var x = r * Math.Sin(lambda); // p.161 (21-30)
+            var y = -r * Math.Cos(lambda); // p.161 (21-31)
 
             if (Hemisphere == Hemisphere.South)
             {
