@@ -1,5 +1,4 @@
-﻿using ProjNet.CoordinateSystems;
-using System;
+﻿using System;
 
 namespace MapControl.Projections
 {
