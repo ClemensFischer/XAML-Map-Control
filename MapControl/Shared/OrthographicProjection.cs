@@ -32,18 +32,19 @@ namespace MapControl
                 return new Point();
             }
 
-            var lat0 = Center.Latitude * Math.PI / 180d;
-            var lat = latitude * Math.PI / 180d;
-            var dLon = (longitude - Center.Longitude) * Math.PI / 180d;
+            var phi = latitude * Math.PI / 180d;
+            var phi1 = Center.Latitude * Math.PI / 180d;
+            var lambda = (longitude - Center.Longitude) * Math.PI / 180d; // λ - λ0
 
-            if (Math.Abs(lat - lat0) > Math.PI / 2d || Math.Abs(dLon) > Math.PI / 2d)
+            if (Math.Abs(phi - phi1) > Math.PI / 2d || Math.Abs(lambda) > Math.PI / 2d)
             {
                 return null;
             }
 
-            return new Point(
-                Wgs84MeanRadius * Math.Cos(lat) * Math.Sin(dLon),
-                Wgs84MeanRadius * (Math.Cos(lat0) * Math.Sin(lat) - Math.Sin(lat0) * Math.Cos(lat) * Math.Cos(dLon)));
+            var x = Wgs84MeanRadius * Math.Cos(phi) * Math.Sin(lambda); // p.149 (20-3)
+            var y = Wgs84MeanRadius * (Math.Cos(phi1) * Math.Sin(phi) -
+                                       Math.Sin(phi1) * Math.Cos(phi) * Math.Cos(lambda)); // p.149 (20-4)
+            return new Point(x, y);
         }
 
         public override Location MapToLocation(double x, double y)
@@ -66,13 +67,14 @@ namespace MapControl
             var sinC = r;
             var cosC = Math.Sqrt(1 - r2);
 
-            var lat0 = Center.Latitude * Math.PI / 180d;
-            var cosLat0 = Math.Cos(lat0);
-            var sinLat0 = Math.Sin(lat0);
+            var phi1 = Center.Latitude * Math.PI / 180d;
+            var cosPhi1 = Math.Cos(phi1);
+            var sinPhi1 = Math.Sin(phi1);
 
-            return new Location(
-                180d / Math.PI * Math.Asin(cosC * sinLat0 + y * sinC * cosLat0 / r),
-                180d / Math.PI * Math.Atan2(x * sinC, r * cosC * cosLat0 - y * sinC * sinLat0) + Center.Longitude);
+            var phi = Math.Asin(cosC * sinPhi1 + y * sinC * cosPhi1 / r); // p.150 (20-14)
+            var lambda = Math.Atan2(x * sinC, r * cosC * cosPhi1 - y * sinC * sinPhi1); // p.150 (20-15)
+
+            return new Location(180d / Math.PI * phi, 180d / Math.PI * lambda + Center.Longitude);
         }
     }
 }

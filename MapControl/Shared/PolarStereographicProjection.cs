@@ -96,16 +96,16 @@ namespace MapControl
             var t = r * Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e))
                   / (2d * EquatorialRadius * ScaleFactor); // p.162 (21-39)
 
-            var lat = WorldMercatorProjection.ApproximateLatitude(e, t); // p.162 (3-5)
-            var lon = Math.Atan2(x, -y); // p.162 (20-16)
+            var phi = WorldMercatorProjection.ApproximateLatitude(e, t); // p.162 (3-5)
+            var lambda = Math.Atan2(x, -y); // p.162 (20-16)
 
             if (Hemisphere == Hemisphere.South)
             {
-                lat = -lat;
-                lon = -lon;
+                phi = -phi;
+                lambda = -lambda;
             }
 
-            return new Location(lat * 180d / Math.PI, lon * 180d / Math.PI);
+            return new Location(phi * 180d / Math.PI, lambda * 180d / Math.PI);
         }
     }
 

@@ -241,7 +241,7 @@ namespace MapControl.Projections
         {
             MapControl.WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
             MapControl.WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
-            MapControl.Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
+            Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
             _ => base.GetProjection(crsId)
         };
 

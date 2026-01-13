@@ -1,5 +1,4 @@
-﻿using System;
-#if WPF
+﻿#if WPF
 using System.Windows;
 #elif AVALONIA
 using Avalonia;
@@ -36,9 +35,7 @@ namespace MapControl.Projections
 
         public override Point RelativeScale(double latitude, double longitude)
         {
-            var lat = latitude * Math.PI / 180d;
-            var eSinLat = MapControl.WorldMercatorProjection.Wgs84Eccentricity * Math.Sin(lat);
-            var k = Math.Sqrt(1d - eSinLat * eSinLat) / Math.Cos(lat); // p.44 (7-8)
+            var k = MapControl.WorldMercatorProjection.ScaleFactor(latitude);
 
             return new Point(k, k);
         }
