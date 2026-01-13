@@ -19,7 +19,7 @@ namespace MapControl.Projections
                 = "PROJCS[\"WGS 84 / World Mercator\","
                 + "GEOGCS[\"WGS 84\","
                 + "DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563]],"
-                + GeoApiProjectionFactory.PrimeMeridian + ","
+                + GeoApiProjectionFactory.PrimeMeridianGreenwich + ","
                 + GeoApiProjectionFactory.UnitDegree + ","
                 + "AUTHORITY[\"EPSG\",\"4326\"]],"
                 + "PROJECTION[\"Mercator_1SP\"],"
@@ -29,8 +29,8 @@ namespace MapControl.Projections
                 + "PARAMETER[\"false_easting\",0],"
                 + "PARAMETER[\"false_northing\",0],"
                 + GeoApiProjectionFactory.UnitMeter + ","
-                + GeoApiProjectionFactory.AxisEast + ","
-                + GeoApiProjectionFactory.AxisNorth + ","
+                + GeoApiProjectionFactory.AxisEasting + ","
+                + GeoApiProjectionFactory.AxisNorthing + ","
                 + "AUTHORITY[\"EPSG\",\"3395\"]]";
         }
 

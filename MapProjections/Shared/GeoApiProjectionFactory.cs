@@ -4,53 +4,53 @@ namespace MapControl.Projections
 {
     public class GeoApiProjectionFactory : MapProjectionFactory
     {
-        internal const string SpheroidGRS1980 = "SPHEROID[\"GRS 1980\",6378137,298.257222101]";
-        internal const string SpheroidGRS1967Modified = "SPHEROID[\"GRS 1967 Modified\",6378160,298.25]";
-        internal const string PrimeMeridian = "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]]";
+        internal const string SpheroidGrs1980 = "SPHEROID[\"GRS 1980\",6378137,298.257222101]";
+        internal const string SpheroidGrs1967Modified = "SPHEROID[\"GRS 1967 Modified\",6378160,298.25]";
+        internal const string PrimeMeridianGreenwich = "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]]";
         internal const string UnitDegree = "UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]";
         internal const string UnitMeter = "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]";
-        internal const string ProjectionTM = "PROJECTION[\"Transverse_Mercator\"]";
-        internal const string ProjectionLCC = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
-        internal const string AxisEast = "AXIS[\"Easting\",EAST]";
-        internal const string AxisNorth = "AXIS[\"Northing\",NORTH]";
+        internal const string ProjectionTransverseMercator = "PROJECTION[\"Transverse_Mercator\"]";
+        internal const string ProjectionLambertConformalConic = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
+        internal const string AxisEasting = "AXIS[\"Easting\",EAST]";
+        internal const string AxisNorthing = "AXIS[\"Northing\",NORTH]";
 
-        internal const string GeoGcsETRS89
+        internal const string GeoGcsEtrs89
             = "GEOGCS[\"ETRS89\","
             + "DATUM[\"European_Terrestrial_Reference_System_1989\","
-            + SpheroidGRS1980 + "],"
-            + PrimeMeridian + ","
+            + SpheroidGrs1980 + "],"
+            + PrimeMeridianGreenwich + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4258\"]]";
 
-        internal const string GeoGcsGGRS87
+        internal const string GeoGcsGgrs87
             = "GEOGCS[\"GGRS87\","
             + "DATUM[\"Greek_Geodetic_Reference_System_1987\","
-            + SpheroidGRS1980 + ",TOWGS84[-199.87,74.79,246.62,0,0,0,0]],"
-            + PrimeMeridian + ","
+            + SpheroidGrs1980 + ",TOWGS84[-199.87,74.79,246.62,0,0,0,0]],"
+            + PrimeMeridianGreenwich + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4121\"]]";
 
-        internal const string GeoGcsETRF2000PL
+        internal const string GeoGcsEtrf2000Pl
             = "GEOGCS[\"ETRF2000-PL\","
             + "DATUM[\"ETRF2000_Poland\","
-            + SpheroidGRS1980 + "],"
-            + PrimeMeridian + ","
+            + SpheroidGrs1980 + "],"
+            + PrimeMeridianGreenwich + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"9702\"]]";
 
-        internal const string GeoGcsSAD69A
+        internal const string GeoGcsSad69A
             = "GEOGCS[\"SAD69\","
             + "DATUM[\"South_American_Datum_1969\","
-            + SpheroidGRS1967Modified + ",TOWGS84[-57,1,-41,0,0,0,0]],"
-            + PrimeMeridian + ","
+            + SpheroidGrs1967Modified + ",TOWGS84[-57,1,-41,0,0,0,0]],"
+            + PrimeMeridianGreenwich + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4618\"]]";
 
-        internal const string GeoGcsSAD69B
+        internal const string GeoGcsSad69B
             = "GEOGCS[\"SAD69\","
             + "DATUM[\"South_American_Datum_1969\","
-            + SpheroidGRS1967Modified + ",TOWGS84[-67.35,3.88,-38.22,0,0,0,0]],"
-            + PrimeMeridian + ","
+            + SpheroidGrs1967Modified + ",TOWGS84[-67.35,3.88,-38.22,0,0,0,0]],"
+            + PrimeMeridianGreenwich + ","
             + UnitDegree + ","
             + "AUTHORITY[\"EPSG\",\"4618\"]]";
 
@@ -58,22 +58,22 @@ namespace MapControl.Projections
         {
             {
                 2100, "PROJCS[\"GGRS87 / Greek Grid\","
-                    + GeoGcsGGRS87 + ","
-                    + ProjectionTM + ","
+                    + GeoGcsGgrs87 + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",24],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",0],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"2100\"]]"
             },
             {
                 2180, "PROJCS[\"ETRF2000-PL / CS92\","
-                    + GeoGcsETRF2000PL + ","
-                    + ProjectionTM + ","
+                    + GeoGcsEtrf2000Pl + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",19],"
                     + "PARAMETER[\"scale_factor\",0.9993],"
@@ -84,120 +84,120 @@ namespace MapControl.Projections
             },
             {
                 4647, "PROJCS[\"ETRS89 / UTM zone 32N (zE-N)\","
-                    + GeoGcsETRS89 + ","
-                    + ProjectionTM + ","
+                    + GeoGcsEtrs89 + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",9],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",32500000],"
                     + "PARAMETER[\"false_northing\",0],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"4647\"]]"
             },
             {
                 29187, "PROJCS[\"SAD69 / UTM zone 17S\","
-                    + GeoGcsSAD69A + ","
-                    + ProjectionTM + ","
+                    + GeoGcsSad69A + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",-81],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",10000000],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"29187\"]]"
             },
             {
                 29188, "PROJCS[\"SAD69 / UTM zone 18S\","
-                    + GeoGcsSAD69A + ","
-                    + ProjectionTM + ","
+                    + GeoGcsSad69A + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",-75],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",10000000],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"29188\"]]"
             },
             {
                 29189, "PROJCS[\"SAD69 / UTM zone 19S\","
-                    + GeoGcsSAD69A + ","
-                    + ProjectionTM + ","
+                    + GeoGcsSad69A + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",-69],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",10000000],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"29189\"]]"
             },
             {
                 29190, "PROJCS[\"SAD69 / UTM zone 20S\","
-                    + GeoGcsSAD69A + ","
-                    + ProjectionTM + ","
+                    + GeoGcsSad69A + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",-63],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",10000000],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"29190\"]]"
             },
             {
                 29191, "PROJCS[\"SAD69 / UTM zone 21S\","
-                    + GeoGcsSAD69A + ","
-                    + ProjectionTM + ","
+                    + GeoGcsSad69A + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",-57],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",10000000],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"29191\"]]"
             },
             {
                 29192, "PROJCS[\"SAD69 / UTM zone 22S\","
-                    + GeoGcsSAD69B + ","
-                    + ProjectionTM + ","
+                    + GeoGcsSad69B + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",-51],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",10000000],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"29192\"]]"
             },
             {
                 29193, "PROJCS[\"SAD69 / UTM zone 23S\","
-                    + GeoGcsSAD69B + ","
-                    + ProjectionTM + ","
+                    + GeoGcsSad69B + ","
+                    + ProjectionTransverseMercator + ","
                     + "PARAMETER[\"latitude_of_origin\",0],"
                     + "PARAMETER[\"central_meridian\",-45],"
                     + "PARAMETER[\"scale_factor\",0.9996],"
                     + "PARAMETER[\"false_easting\",500000],"
                     + "PARAMETER[\"false_northing\",10000000],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"29193\"]]"
             },
             {
                 3034, "PROJCS[\"ETRS89-extended / LCC Europe\","
-                    + GeoGcsETRS89 + ","
-                    + ProjectionLCC + ","
+                    + GeoGcsEtrs89 + ","
+                    + ProjectionLambertConformalConic + ","
                     + "PARAMETER[\"latitude_of_origin\",52],"
                     + "PARAMETER[\"central_meridian\",10],"
                     + "PARAMETER[\"standard_parallel_1\",35],"
@@ -209,8 +209,8 @@ namespace MapControl.Projections
             },
             {
                 4839, "PROJCS[\"ETRS89 / LCC Germany (N-E)\","
-                    + GeoGcsETRS89 + ","
-                    + ProjectionLCC + ","
+                    + GeoGcsEtrs89 + ","
+                    + ProjectionLambertConformalConic + ","
                     + "PARAMETER[\"latitude_of_origin\",51],"
                     + "PARAMETER[\"central_meridian\",10.5],"
                     + "PARAMETER[\"standard_parallel_1\",48.6666666666667],"
@@ -222,8 +222,8 @@ namespace MapControl.Projections
             },
             {
                 5243, "PROJCS[\"ETRS89 / LCC Germany (E-N)\","
-                    + GeoGcsETRS89 + ","
-                    + ProjectionLCC + ","
+                    + GeoGcsEtrs89 + ","
+                    + ProjectionLambertConformalConic + ","
                     + "PARAMETER[\"latitude_of_origin\",51],"
                     + "PARAMETER[\"central_meridian\",10.5],"
                     + "PARAMETER[\"standard_parallel_1\",48.6666666666667],"
@@ -231,8 +231,8 @@ namespace MapControl.Projections
                     + "PARAMETER[\"false_easting\",0],"
                     + "PARAMETER[\"false_northing\",0],"
                     + UnitMeter + ","
-                    + AxisEast + ","
-                    + AxisNorth + ","
+                    + AxisEasting + ","
+                    + AxisNorthing + ","
                     + "AUTHORITY[\"EPSG\",\"5243\"]]"
             }
         };

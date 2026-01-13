@@ -27,18 +27,18 @@ namespace MapControl.Projections
                 + "GEOGCS[\"NAD83\","
                 + "DATUM[\"North_American_Datum_1983\","
                 + "SPHEROID[\"GRS 1980\",6378137,298.257222101]],"
-                + GeoApiProjectionFactory.PrimeMeridian + ","
+                + GeoApiProjectionFactory.PrimeMeridianGreenwich + ","
                 + GeoApiProjectionFactory.UnitDegree + ","
                 + "AUTHORITY[\"EPSG\",\"4269\"]],"
-                + GeoApiProjectionFactory.ProjectionTM + ","
+                + GeoApiProjectionFactory.ProjectionTransverseMercator + ","
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
                 + GeoApiProjectionFactory.UnitMeter + ","
-                + GeoApiProjectionFactory.AxisEast + ","
-                + GeoApiProjectionFactory.AxisNorth + ","
+                + GeoApiProjectionFactory.AxisEasting + ","
+                + GeoApiProjectionFactory.AxisNorthing + ","
                 + $"AUTHORITY[\"EPSG\",\"269{zone:00}\"]]";
         }
     }

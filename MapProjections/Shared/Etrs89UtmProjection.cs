@@ -24,16 +24,16 @@ namespace MapControl.Projections
             Zone = zone;
             CoordinateSystemWkt
                 = $"PROJCS[\"ETRS89 / UTM zone {zone}N\","
-                + GeoApiProjectionFactory.GeoGcsETRS89 + ","
-                + GeoApiProjectionFactory.ProjectionTM + ","
+                + GeoApiProjectionFactory.GeoGcsEtrs89 + ","
+                + GeoApiProjectionFactory.ProjectionTransverseMercator + ","
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
                 + GeoApiProjectionFactory.UnitMeter + ","
-                + GeoApiProjectionFactory.AxisEast + ","
-                + GeoApiProjectionFactory.AxisNorth + ","
+                + GeoApiProjectionFactory.AxisEasting + ","
+                + GeoApiProjectionFactory.AxisNorthing + ","
                 + $"AUTHORITY[\"EPSG\",\"258{zone:00}\"]]";
         }
     }
