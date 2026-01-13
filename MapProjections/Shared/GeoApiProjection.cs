@@ -108,9 +108,15 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = LocationToMapTransform.Transform(new Coordinate(longitude, latitude));
-
-            return coordinate != null ? new Point(coordinate.X, coordinate.Y) : null;
+            try
+            {
+                var coordinate = LocationToMapTransform.Transform(new Coordinate(longitude, latitude));
+                return new Point(coordinate.X, coordinate.Y);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public override Location MapToLocation(double x, double y)
@@ -120,9 +126,15 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = MapToLocationTransform.Transform(new Coordinate(x, y));
-
-            return new Location(coordinate.Y, coordinate.X);
+            try
+            {
+                var coordinate = MapToLocationTransform.Transform(new Coordinate(x, y));
+                return new Location(coordinate.Y, coordinate.X);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
