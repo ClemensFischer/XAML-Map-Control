@@ -210,10 +210,7 @@ namespace MapControl
 
         private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
         {
-            var minLat = 0d;
-            var maxLat = 0d;
-
-            GetLatitudeRange(lineDistance, ref minLat, ref maxLat);
+            GetLatitudeRange(lineDistance, out double minLat, out double maxLat);
 
             var latSegments = (int)Math.Round(Math.Abs(maxLat - minLat) / lineDistance);
             var interpolationCount = Math.Max(1, (int)Math.Ceiling(lineDistance / LineInterpolationResolution));
@@ -319,61 +316,34 @@ namespace MapControl
             return visible;
         }
 
-        private void GetLatitudeRange(double lineDistance, ref double minLatitude, ref double maxLatitude)
+        private void GetLatitudeRange(double lineDistance, out double minLatitude, out double maxLatitude)
         {
             var width = ParentMap.ActualWidth;
             var height = ParentMap.ActualHeight;
-            var northPole = ParentMap.LocationToView(90d, 0d);
-            var southPole = ParentMap.LocationToView(-90d, 0d);
-
-            if (northPole.HasValue &&
-                northPole.Value.X >= 0d && northPole.Value.X <= width &&
-                northPole.Value.Y >= 0d && northPole.Value.Y <= height)
+            var locations = new Location[]
             {
-                maxLatitude = 90d;
+                ParentMap.ViewToLocation(new Point(0d, 0d)),
+                ParentMap.ViewToLocation(new Point(width / 2d, 0d)),
+                ParentMap.ViewToLocation(new Point(width, 0d)),
+                ParentMap.ViewToLocation(new Point(width, height / 2d)),
+                ParentMap.ViewToLocation(new Point(width, height)),
+                ParentMap.ViewToLocation(new Point(width / 2d, height)),
+                ParentMap.ViewToLocation(new Point(0d, height)),
+                ParentMap.ViewToLocation(new Point(0d, height / 2)),
+            };
+
+            var latitudes = locations.Where(loc => loc != null).Select(loc => loc.Latitude).Distinct();
+            var south = -90d;
+            var north = 90d;
+
+            if (latitudes.Any())
+            {
+                south = latitudes.Min();
+                north = latitudes.Max();
             }
 
-            if (southPole.HasValue &&
-                southPole.Value.X >= 0d && southPole.Value.X <= width &&
-                southPole.Value.Y >= 0d && southPole.Value.Y <= height)
-            {
-                minLatitude = -90d;
-            }
-
-            if (minLatitude > -90d || maxLatitude < 90d)
-            {
-                var locations = new Location[]
-                {
-                    ParentMap.ViewToLocation(new Point(0d, 0d)),
-                    ParentMap.ViewToLocation(new Point(width / 2d, 0d)),
-                    ParentMap.ViewToLocation(new Point(width, 0d)),
-                    ParentMap.ViewToLocation(new Point(width, height / 2d)),
-                    ParentMap.ViewToLocation(new Point(width, height)),
-                    ParentMap.ViewToLocation(new Point(width / 2d, height)),
-                    ParentMap.ViewToLocation(new Point(0d, height)),
-                    ParentMap.ViewToLocation(new Point(0d, height / 2)),
-                };
-
-                var latitudes = locations.Where(loc => loc != null).Select(loc => loc.Latitude);
-                var south = -90d;
-                var north = 90d;
-
-                if (latitudes.Distinct().Count() >= 2)
-                {
-                    south = latitudes.Min();
-                    north = latitudes.Max();
-                }
-
-                if (minLatitude > -90d)
-                {
-                    minLatitude = Math.Max(Math.Floor(south / lineDistance) * lineDistance, -90d);
-                }
-
-                if (maxLatitude < 90d)
-                {
-                    maxLatitude = Math.Min(Math.Ceiling(north / lineDistance) * lineDistance, 90d);
-                }
-            }
+            minLatitude = Math.Max(Math.Floor(south / lineDistance) * lineDistance, -90d);
+            maxLatitude = Math.Min(Math.Ceiling(north / lineDistance) * lineDistance, 90d);
         }
 
         private static PathFigure CreateLineFigure(Point p1, Point p2)
