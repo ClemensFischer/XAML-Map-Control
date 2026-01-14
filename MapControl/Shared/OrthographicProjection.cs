@@ -34,16 +34,16 @@ namespace MapControl
 
             var phi = latitude * Math.PI / 180d;
             var phi1 = Center.Latitude * Math.PI / 180d;
-            var lambda = (longitude - Center.Longitude) * Math.PI / 180d; // λ - λ0
+            var dLambda = (longitude - Center.Longitude) * Math.PI / 180d; // λ - λ0
 
-            if (Math.Abs(phi - phi1) > Math.PI / 2d || Math.Abs(lambda) > Math.PI / 2d)
+            if (Math.Abs(phi - phi1) > Math.PI / 2d || Math.Abs(dLambda) > Math.PI / 2d)
             {
                 return null;
             }
 
-            var x = Wgs84MeanRadius * Math.Cos(phi) * Math.Sin(lambda); // p.149 (20-3)
+            var x = Wgs84MeanRadius * Math.Cos(phi) * Math.Sin(dLambda); // p.149 (20-3)
             var y = Wgs84MeanRadius * (Math.Cos(phi1) * Math.Sin(phi) -
-                                       Math.Sin(phi1) * Math.Cos(phi) * Math.Cos(lambda)); // p.149 (20-4)
+                                       Math.Sin(phi1) * Math.Cos(phi) * Math.Cos(dLambda)); // p.149 (20-4)
             return new Point(x, y);
         }
 
@@ -63,18 +63,18 @@ namespace MapControl
                 return null;
             }
 
-            var r = Math.Sqrt(r2);
-            var sinC = r;
-            var cosC = Math.Sqrt(1 - r2);
+            var r = Math.Sqrt(r2); // p.150 (20-18), r=ρ/R
+            var sinC = r; // p.150 (20-19)
+            var cosC = Math.Sqrt(1d - r2);
 
             var phi1 = Center.Latitude * Math.PI / 180d;
             var cosPhi1 = Math.Cos(phi1);
             var sinPhi1 = Math.Sin(phi1);
 
             var phi = Math.Asin(cosC * sinPhi1 + y * sinC * cosPhi1 / r); // p.150 (20-14)
-            var lambda = Math.Atan2(x * sinC, r * cosC * cosPhi1 - y * sinC * sinPhi1); // p.150 (20-15)
+            var dLambda = Math.Atan2(x * sinC, r * cosC * cosPhi1 - y * sinC * sinPhi1); // p.150 (20-15)
 
-            return new Location(180d / Math.PI * phi, 180d / Math.PI * lambda + Center.Longitude);
+            return new Location(180d / Math.PI * phi, 180d / Math.PI * dLambda + Center.Longitude);
         }
     }
 }
