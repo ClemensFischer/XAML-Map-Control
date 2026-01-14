@@ -81,11 +81,11 @@ namespace MapControl
             // t
             var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
             // λ - λ0
-            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
+            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
             // ξ'
-            var xi_ = Math.Atan(t / Math.Cos(lambda));
+            var xi_ = Math.Atan(t / Math.Cos(dLambda));
             // η'
-            var eta_ = Atanh(Math.Sin(lambda) / Math.Sqrt(1d + t * t));
+            var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
             // ξ
             var xi = xi_
                 + a1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_)
@@ -128,11 +128,11 @@ namespace MapControl
                 + d2 * Math.Sin(4d * chi)
                 + d3 * Math.Sin(6d * chi);
             // λ - λ0
-            var lambda = Math.Atan(Math.Sinh(eta_) / Math.Cos(xi_));
+            var dLambda = Math.Atan(Math.Sinh(eta_) / Math.Cos(xi_));
 
             return new Location(
                 phi * 180d / Math.PI,
-                lambda * 180d / Math.PI + CentralMeridian);
+                dLambda * 180d / Math.PI + CentralMeridian);
         }
     }
 }
