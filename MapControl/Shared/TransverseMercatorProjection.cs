@@ -23,8 +23,8 @@ namespace MapControl
         private double d1; // δ1
         private double d2; // δ2
         private double d3; // δ3
-        private double f1; // A / a
-        private double f2; // 2 * sqrt(n) / (1+n)
+        private double f1; // A/a
+        private double f2; // 2*sqrt(n)/(1+n)
 
         public double Flattening
         {
