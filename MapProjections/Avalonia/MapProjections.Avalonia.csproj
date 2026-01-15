@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections.Avalonia</PackageId>
         <Title>$(AssemblyTitle)</Title>
-        <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
+        <Description>Map projections library for XAML Map Control, based on ProjNET</Description>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +20,6 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.10" />
-        <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
+        <PackageReference Include="ProjNET" Version="2.1.0" />
     </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@ namespace MapControl.Projections
     /// <summary>
     /// NAD83 Universal Transverse Mercator Projection.
     /// </summary>
-    public class Nad83UtmProjection : GeoApiProjection
+    public class Nad83UtmProjection : ProjNetMapProjection
     {
         public const int FirstZone = 1;
         public const int LastZone = 23;
@@ -27,18 +27,18 @@ namespace MapControl.Projections
                 + "GEOGCS[\"NAD83\","
                 + "DATUM[\"North_American_Datum_1983\","
                 + "SPHEROID[\"GRS 1980\",6378137,298.257222101]],"
-                + GeoApiProjectionFactory.PrimeMeridianGreenwich + ","
-                + GeoApiProjectionFactory.UnitDegree + ","
+                + ProjNetMapProjectionFactory.PrimeMeridianGreenwich + ","
+                + ProjNetMapProjectionFactory.UnitDegree + ","
                 + "AUTHORITY[\"EPSG\",\"4269\"]],"
-                + GeoApiProjectionFactory.ProjectionTransverseMercator + ","
+                + ProjNetMapProjectionFactory.ProjectionTransverseMercator + ","
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
-                + GeoApiProjectionFactory.UnitMeter + ","
-                + GeoApiProjectionFactory.AxisEasting + ","
-                + GeoApiProjectionFactory.AxisNorthing + ","
+                + ProjNetMapProjectionFactory.UnitMeter + ","
+                + ProjNetMapProjectionFactory.AxisEasting + ","
+                + ProjNetMapProjectionFactory.AxisNorthing + ","
                 + $"AUTHORITY[\"EPSG\",\"269{zone:00}\"]]";
         }
     }

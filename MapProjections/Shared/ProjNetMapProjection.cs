@@ -1,7 +1,4 @@
-﻿using GeoAPI.CoordinateSystems;
-using GeoAPI.CoordinateSystems.Transformations;
-using GeoAPI.Geometries;
-using ProjNet.CoordinateSystems;
+﻿using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
 using System;
 #if WPF
@@ -13,15 +10,15 @@ using Avalonia;
 namespace MapControl.Projections
 {
     /// <summary>
-    /// MapProjection based on ProjNET4GeoApi.
+    /// MapProjection based on ProjNet.
     /// </summary>
-    public class GeoApiProjection : MapProjection
+    public class ProjNetMapProjection : MapProjection
     {
-        protected GeoApiProjection()
+        protected ProjNetMapProjection()
         {
         }
 
-        public GeoApiProjection(string coordinateSystemWkt)
+        public ProjNetMapProjection(string coordinateSystemWkt)
         {
             CoordinateSystemWkt = coordinateSystemWkt;
         }
@@ -34,13 +31,13 @@ namespace MapControl.Projections
         public string CoordinateSystemWkt
         {
             get => CoordinateSystem?.WKT;
-            protected set => CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value) as IProjectedCoordinateSystem;
+            protected set => CoordinateSystem = new CoordinateSystemFactory().CreateFromWkt(value) as ProjectedCoordinateSystem;
         }
 
         /// <summary>
         /// Gets or sets the ICoordinateSystem of the MapProjection.
         /// </summary>
-        public IProjectedCoordinateSystem CoordinateSystem
+        public ProjectedCoordinateSystem CoordinateSystem
         {
             get;
             protected set
@@ -90,9 +87,9 @@ namespace MapControl.Projections
             }
         }
 
-        public IMathTransform LocationToMapTransform { get; private set; }
+        public MathTransform LocationToMapTransform { get; private set; }
 
-        public IMathTransform MapToLocationTransform { get; private set; }
+        public MathTransform MapToLocationTransform { get; private set; }
 
         public override Point RelativeScale(double latitude, double longitude)
         {
@@ -110,8 +107,8 @@ namespace MapControl.Projections
 
             try
             {
-                var coordinate = LocationToMapTransform.Transform(new Coordinate(longitude, latitude));
-                return new Point(coordinate.X, coordinate.Y);
+                var coordinate = LocationToMapTransform.Transform([longitude, latitude]);
+                return new Point(coordinate[0], coordinate[1]);
             }
             catch
             {
@@ -128,8 +125,8 @@ namespace MapControl.Projections
 
             try
             {
-                var coordinate = MapToLocationTransform.Transform(new Coordinate(x, y));
-                return new Location(coordinate.Y, coordinate.X);
+                var coordinate = MapToLocationTransform.Transform([x, y]);
+                return new Location(coordinate[1], coordinate[0]);
             }
             catch
             {

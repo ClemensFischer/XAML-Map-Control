@@ -2,8 +2,9 @@
 
 namespace MapControl.Projections
 {
-    public class GeoApiProjectionFactory : MapProjectionFactory
+    public class ProjNetMapProjectionFactory : MapProjectionFactory
     {
+        internal const string SpheroidWgs84 = "SPHEROID[\"WGS 84\",6378137,298.257223563]";
         internal const string SpheroidGrs1980 = "SPHEROID[\"GRS 1980\",6378137,298.257222101]";
         internal const string SpheroidGrs1967Modified = "SPHEROID[\"GRS 1967 Modified\",6378160,298.25]";
         internal const string PrimeMeridianGreenwich = "PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]]";
@@ -13,6 +14,14 @@ namespace MapControl.Projections
         internal const string ProjectionLambertConformalConic = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
         internal const string AxisEasting = "AXIS[\"Easting\",EAST]";
         internal const string AxisNorthing = "AXIS[\"Northing\",NORTH]";
+
+        internal const string GeoGcsWgs84
+            = "GEOGCS[\"WGS 84\","
+            + "DATUM[\"WGS_1984\","
+            + SpheroidWgs84 + "],"
+            + PrimeMeridianGreenwich + ","
+            + UnitDegree + ","
+            + "AUTHORITY[\"EPSG\",\"4326\"]]";
 
         internal const string GeoGcsEtrs89
             = "GEOGCS[\"ETRS89\","
@@ -241,7 +250,9 @@ namespace MapControl.Projections
         {
             MapControl.WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
             MapControl.WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
-            Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
+            MapControl.Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
+            MapControl.Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
+            MapControl.Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
             _ => base.GetProjection(crsId)
         };
 
@@ -253,7 +264,7 @@ namespace MapControl.Projections
             var code when code >= Nad83UtmProjection.FirstZoneEpsgCode && code <= Nad83UtmProjection.LastZoneEpsgCode => new Nad83UtmProjection(epsgCode % 100),
             var code when code >= Wgs84UtmProjection.FirstZoneNorthEpsgCode && code <= Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(epsgCode % 100, Hemisphere.North),
             var code when code >= Wgs84UtmProjection.FirstZoneSouthEpsgCode && code <= Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(epsgCode % 100, Hemisphere.South),
-            _ => CoordinateSystemWkts.TryGetValue(epsgCode, out string wkt) ? new GeoApiProjection(wkt) : base.GetProjection(epsgCode)
+            _ => CoordinateSystemWkts.TryGetValue(epsgCode, out string wkt) ? new ProjNetMapProjection(wkt) : base.GetProjection(epsgCode)
         };
     }
 }

@@ -9,7 +9,7 @@
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MapProjections.UWP</PackageId>
         <Title>$(AssemblyTitle)</Title>
-        <Description>Map projections library for XAML Map Control, based on ProjNET4GeoAPI</Description>
+        <Description>Map projections library for XAML Map Control, based on ProjNET</Description>
         <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
         <DefaultLanguage>en-US</DefaultLanguage>
     </PropertyGroup>
@@ -23,6 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
+        <PackageReference Include="ProjNET" Version="2.1.0" />
     </ItemGroup>
 </Project>

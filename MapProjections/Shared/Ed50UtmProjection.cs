@@ -5,7 +5,7 @@ namespace MapControl.Projections
     /// <summary>
     /// ED50 Universal Transverse Mercator Projection.
     /// </summary>
-    public class Ed50UtmProjection : GeoApiProjection
+    public class Ed50UtmProjection : ProjNetMapProjection
     {
         public const int FirstZone = 28;
         public const int LastZone = 38;
@@ -27,18 +27,18 @@ namespace MapControl.Projections
                 + "GEOGCS[\"ED50\","
                 + "DATUM[\"European_Datum_1950\","
                 + "SPHEROID[\"International 1924\",6378388,297],TOWGS84[-87,-98,-121,0,0,0,0]],"
-                + GeoApiProjectionFactory.PrimeMeridianGreenwich + ","
-                + GeoApiProjectionFactory.UnitDegree + ","
+                + ProjNetMapProjectionFactory.PrimeMeridianGreenwich + ","
+                + ProjNetMapProjectionFactory.UnitDegree + ","
                 + "AUTHORITY[\"EPSG\",\"4230\"]],"
-                + GeoApiProjectionFactory.ProjectionTransverseMercator + ","
+                + ProjNetMapProjectionFactory.ProjectionTransverseMercator + ","
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
                 + "PARAMETER[\"scale_factor\",0.9996],"
                 + "PARAMETER[\"false_easting\",500000],"
                 + "PARAMETER[\"false_northing\",0],"
-                + GeoApiProjectionFactory.UnitMeter + ","
-                + GeoApiProjectionFactory.AxisEasting + ","
-                + GeoApiProjectionFactory.AxisNorthing + ","
+                + ProjNetMapProjectionFactory.UnitMeter + ","
+                + ProjNetMapProjectionFactory.AxisEasting + ","
+                + ProjNetMapProjectionFactory.AxisNorthing + ","
                 + $"AUTHORITY[\"EPSG\",\"230{zone:00}\"]]";
         }
     }

@@ -6,7 +6,7 @@ namespace MapControl.Projections
     /// <summary>
     /// WGS84 Universal Transverse Mercator Projection.
     /// </summary>
-    public class Wgs84UtmProjection : GeoApiProjection
+    public class Wgs84UtmProjection : ProjNetMapProjection
     {
         public const int FirstZone = 1;
         public const int LastZone = 60;
