@@ -12,14 +12,14 @@ namespace MapControl.Projections
         {
             CoordinateSystemWkt
                 = "PROJCS[\"WGS 84 / UPS North (N,E)\","
-                + ProjNetMapProjectionFactory.GeoGcsWgs84 + ","
+                + WktConstants.GeoGcsWgs84 + ","
                 + "PROJECTION[\"Polar_Stereographic\"],"
                 + "PARAMETER[\"latitude_of_origin\",90],"
                 + "PARAMETER[\"central_meridian\",0],"
                 + "PARAMETER[\"scale_factor\",0.994],"
                 + "PARAMETER[\"false_easting\",2000000],"
                 + "PARAMETER[\"false_northing\",2000000],"
-                + ProjNetMapProjectionFactory.UnitMeter + ","
+                + "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],"
                 + "AUTHORITY[\"EPSG\",\"32661\"]]";
 
             Type = MapProjectionType.Azimuthal;
@@ -39,14 +39,14 @@ namespace MapControl.Projections
         {
             CoordinateSystemWkt
                 = "PROJCS[\"WGS 84 / UPS South (N,E)\","
-                + ProjNetMapProjectionFactory.GeoGcsWgs84 + ","
+                + WktConstants.GeoGcsWgs84 + ","
                 + "PROJECTION[\"Polar_Stereographic\"],"
                 + "PARAMETER[\"latitude_of_origin\",-90],"
                 + "PARAMETER[\"central_meridian\",0],"
                 + "PARAMETER[\"scale_factor\",0.994],"
                 + "PARAMETER[\"false_easting\",2000000],"
                 + "PARAMETER[\"false_northing\",2000000],"
-                + ProjNetMapProjectionFactory.UnitMeter + ","
+                + "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],"
                 + "AUTHORITY[\"EPSG\",\"32761\"]]";
 
             Type = MapProjectionType.Azimuthal;
