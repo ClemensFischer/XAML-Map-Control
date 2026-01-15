@@ -30,7 +30,7 @@ namespace MapControl
 
         public override Point RelativeScale(double latitude, double longitude)
         {
-            var k = ScaleFactor(latitude);
+            var k = RelativeScale(latitude);
 
             return new Point(k, k);
         }
@@ -49,7 +49,7 @@ namespace MapControl
                 x / Wgs84MeterPerDegree);
         }
 
-        public static double ScaleFactor(double latitude)
+        public static double RelativeScale(double latitude)
         {
             var phi = latitude * Math.PI / 180d;
             var eSinPhi = Wgs84Eccentricity * Math.Sin(phi);

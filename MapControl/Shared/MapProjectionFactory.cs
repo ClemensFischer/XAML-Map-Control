@@ -24,12 +24,12 @@ namespace MapControl
                     projection = new EquirectangularProjection(crsId);
                     break;
 
-                case UpsNorthProjection.DefaultCrsId:
-                    projection = new UpsNorthProjection();
+                case Wgs84UpsNorthProjection.DefaultCrsId:
+                    projection = new Wgs84UpsNorthProjection();
                     break;
 
-                case UpsSouthProjection.DefaultCrsId:
-                    projection = new UpsSouthProjection();
+                case Wgs84UpsSouthProjection.DefaultCrsId:
+                    projection = new Wgs84UpsSouthProjection();
                     break;
 
                 case Wgs84AutoUtmProjection.DefaultCrsId:

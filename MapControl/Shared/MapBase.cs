@@ -202,7 +202,7 @@ namespace MapControl
         /// </summary>
         public Matrix GetMapTransform(Location location)
         {
-            var mapScale = GetMapScale(location);
+            var mapScale = GetMapScale(location.Latitude, location.Longitude);
             var transform = new Matrix(mapScale.X, 0d, 0d, mapScale.Y, 0d, 0d);
 
             transform.Rotate(ViewTransform.Rotation);

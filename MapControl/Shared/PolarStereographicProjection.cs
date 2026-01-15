@@ -26,70 +26,57 @@ namespace MapControl
         public double FalseNorthing { get; set; } = 2e6;
         public Hemisphere Hemisphere { get; set; }
 
-        public override Point RelativeScale(double latitude, double longitude)
+        public static double RelativeScale(Hemisphere hemisphere, double equatorialRadius, double flattening, double scaleFactor, double latitude)
         {
-            var phi = latitude * Math.PI / 180d;
+            var sign = hemisphere == Hemisphere.North ? 1d : -1d;
+            var phi = sign * latitude * Math.PI / 180d;
 
-            if (Hemisphere == Hemisphere.South)
-            {
-                phi = -phi;
-            }
-
-            var e = Math.Sqrt((2d - Flattening) * Flattening);
+            var e = Math.Sqrt((2d - flattening) * flattening);
             var eSinPhi = e * Math.Sin(phi);
 
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
-            var r = 2d * EquatorialRadius * ScaleFactor * t
+            var r = 2d * equatorialRadius * scaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
             var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
-            var k = r / (EquatorialRadius * m); // p.161 (21-32)
+
+            return r / (equatorialRadius * m); // p.161 (21-32)
+        }
+
+        public override Point RelativeScale(double latitude, double longitude)
+        {
+            var k = RelativeScale(Hemisphere, EquatorialRadius, Flattening, ScaleFactor, latitude);
 
             return new Point(k, k);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            var phi = latitude * Math.PI / 180d;
-            var lambda = longitude * Math.PI / 180d;
-
-            if (Hemisphere == Hemisphere.South)
-            {
-                phi = -phi;
-                lambda = -lambda;
-            }
+            var sign = Hemisphere == Hemisphere.North ? 1d : -1d;
+            var phi = sign * latitude * Math.PI / 180d;
+            var lambda = sign * longitude * Math.PI / 180d;
 
             var e = Math.Sqrt((2d - Flattening) * Flattening);
             var eSinPhi = e * Math.Sin(phi);
 
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
+
             var r = 2d * EquatorialRadius * ScaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
-            var x = r * Math.Sin(lambda); // p.161 (21-30)
-            var y = -r * Math.Cos(lambda); // p.161 (21-31)
-
-            if (Hemisphere == Hemisphere.South)
-            {
-                x = -x;
-                y = -y;
-            }
+            var x = sign * r * Math.Sin(lambda); // p.161 (21-30)
+            var y = sign * -r * Math.Cos(lambda); // p.161 (21-31)
 
             return new Point(x + FalseEasting, y + FalseNorthing);
         }
 
         public override Location MapToLocation(double x, double y)
         {
-            x -= FalseEasting;
-            y -= FalseNorthing;
-
-            if (Hemisphere == Hemisphere.South)
-            {
-                x = -x;
-                y = -y;
-            }
+            var sign = Hemisphere == Hemisphere.North ? 1d : -1d;
+            x = sign * (x - FalseEasting);
+            y = sign * (y - FalseNorthing);
 
             var e = Math.Sqrt((2d - Flattening) * Flattening);
             var r = Math.Sqrt(x * x + y * y); // p.162 (20-18)
@@ -99,29 +86,23 @@ namespace MapControl
             var phi = WorldMercatorProjection.ApproximateLatitude(e, t); // p.162 (3-5)
             var lambda = Math.Atan2(x, -y); // p.162 (20-16)
 
-            if (Hemisphere == Hemisphere.South)
-            {
-                phi = -phi;
-                lambda = -lambda;
-            }
-
-            return new Location(phi * 180d / Math.PI, lambda * 180d / Math.PI);
+            return new Location(sign * phi * 180d / Math.PI, sign * lambda * 180d / Math.PI);
         }
     }
 
     /// <summary>
     /// Universal Polar Stereographic North Projection - EPSG:32661.
     /// </summary>
-    public class UpsNorthProjection : PolarStereographicProjection
+    public class Wgs84UpsNorthProjection : PolarStereographicProjection
     {
         public const string DefaultCrsId = "EPSG:32661";
 
-        public UpsNorthProjection() // parameterless constructor for XAML
+        public Wgs84UpsNorthProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
         }
 
-        public UpsNorthProjection(string crsId)
+        public Wgs84UpsNorthProjection(string crsId)
         {
             CrsId = crsId;
             Hemisphere = Hemisphere.North;
@@ -131,16 +112,16 @@ namespace MapControl
     /// <summary>
     /// Universal Polar Stereographic South Projection - EPSG:32761.
     /// </summary>
-    public class UpsSouthProjection : PolarStereographicProjection
+    public class Wgs84UpsSouthProjection : PolarStereographicProjection
     {
         public const string DefaultCrsId = "EPSG:32761";
 
-        public UpsSouthProjection() // parameterless constructor for XAML
+        public Wgs84UpsSouthProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
         }
 
-        public UpsSouthProjection(string crsId)
+        public Wgs84UpsSouthProjection(string crsId)
         {
             CrsId = crsId;
             Hemisphere = Hemisphere.South;
