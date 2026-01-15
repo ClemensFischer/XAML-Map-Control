@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.10" />
+        <PackageReference Include="Avalonia" Version="11.3.11" />
         <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     </ItemGroup>
 </Project>
