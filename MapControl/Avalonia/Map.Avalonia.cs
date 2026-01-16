@@ -126,8 +126,8 @@ namespace MapControl
 
             if (ManipulationMode.HasFlag(ManipulationModes.Rotate))
             {
-                rotation = 180d / Math.PI
-                    * (Math.Atan2(newDistance.Y, newDistance.X) - Math.Atan2(oldDistance.Y, oldDistance.X));
+                rotation = 180d / Math.PI *
+                    (Math.Atan2(newDistance.Y, newDistance.X) - Math.Atan2(oldDistance.Y, oldDistance.X));
             }
 
             if (ManipulationMode.HasFlag(ManipulationModes.Scale))
