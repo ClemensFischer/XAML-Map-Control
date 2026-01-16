@@ -170,16 +170,17 @@ namespace MapControl
                         format = formatPng;
                     }
 
-                    uriTemplate += "?Service=WMTS"
-                        + "&Request=GetTile"
-                        + "&Version=1.0.0"
-                        + "&Layer=" + layer
-                        + "&Style=" + style
-                        + "&Format=" + format
-                        + "&TileMatrixSet={TileMatrixSet}"
-                        + "&TileMatrix={TileMatrix}"
-                        + "&TileRow={TileRow}"
-                        + "&TileCol={TileCol}";
+                    uriTemplate +=
+                        "?Service=WMTS" +
+                        "&Request=GetTile" +
+                        "&Version=1.0.0" +
+                        "&Layer=" + layer +
+                        "&Style=" + style +
+                        "&Format=" + format +
+                        "&TileMatrixSet={TileMatrixSet}" +
+                        "&TileMatrix={TileMatrix}" +
+                        "&TileRow={TileRow}" +
+                        "&TileCol={TileCol}";
                 }
             }
 

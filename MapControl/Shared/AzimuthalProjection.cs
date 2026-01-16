@@ -7,7 +7,7 @@ using Avalonia;
 namespace MapControl
 {
     /// <summary>
-    /// Base class for azimuthal map projections.
+    /// Base class for spherical azimuthal map projections.
     /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
@@ -15,6 +15,8 @@ namespace MapControl
         {
             Type = MapProjectionType.Azimuthal;
         }
+
+        public double EarthRadius { get; set; } = Wgs84MeanRadius;
 
         public override Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {

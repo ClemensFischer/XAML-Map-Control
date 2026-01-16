@@ -41,9 +41,9 @@ namespace MapControl
                 return null;
             }
 
-            var x = Wgs84MeanRadius * Math.Cos(phi) * Math.Sin(dLambda); // p.149 (20-3)
-            var y = Wgs84MeanRadius * (Math.Cos(phi1) * Math.Sin(phi) -
-                                       Math.Sin(phi1) * Math.Cos(phi) * Math.Cos(dLambda)); // p.149 (20-4)
+            var x = EarthRadius * Math.Cos(phi) * Math.Sin(dLambda); // p.149 (20-3)
+            var y = EarthRadius * (Math.Cos(phi1) * Math.Sin(phi) -
+                                   Math.Sin(phi1) * Math.Cos(phi) * Math.Cos(dLambda)); // p.149 (20-4)
             return new Point(x, y);
         }
 
@@ -54,8 +54,8 @@ namespace MapControl
                 return new Location(Center.Latitude, Center.Longitude);
             }
 
-            x /= Wgs84MeanRadius;
-            y /= Wgs84MeanRadius;
+            x /= EarthRadius;
+            y /= EarthRadius;
             var r2 = x * x + y * y;
 
             if (r2 > 1d)

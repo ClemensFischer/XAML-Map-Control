@@ -87,15 +87,15 @@ namespace MapControl
             // η'
             var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
             // ξ
-            var xi = xi_
-                + a1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_)
-                + a2 * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_)
-                + a3 * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_);
+            var xi = xi_ +
+                a1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_) +
+                a2 * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_) +
+                a3 * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_);
             // η
-            var eta = eta_
-                + a1 * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_)
-                + a2 * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_)
-                + a3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_);
+            var eta = eta_ +
+                a1 * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_) +
+                a2 * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_) +
+                a3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_);
 
             return new Point(
                 k0A * eta + FalseEasting,
@@ -111,22 +111,22 @@ namespace MapControl
             // η
             var eta = (x - FalseEasting) / k0A;
             // ξ'
-            var xi_ = xi
-                - b1 * Math.Sin(2d * xi) * Math.Cosh(2d * eta)
-                - b2 * Math.Sin(4d * xi) * Math.Cosh(4d * eta)
-                - b3 * Math.Sin(6d * xi) * Math.Cosh(6d * eta);
+            var xi_ = xi -
+                b1 * Math.Sin(2d * xi) * Math.Cosh(2d * eta) -
+                b2 * Math.Sin(4d * xi) * Math.Cosh(4d * eta) -
+                b3 * Math.Sin(6d * xi) * Math.Cosh(6d * eta);
             // η'
-            var eta_ = eta
-                - b1 * Math.Cos(2d * xi) * Math.Sinh(2d * eta)
-                - b2 * Math.Cos(4d * xi) * Math.Sinh(4d * eta)
-                - b3 * Math.Cos(6d * xi) * Math.Sinh(6d * eta);
+            var eta_ = eta -
+                b1 * Math.Cos(2d * xi) * Math.Sinh(2d * eta) -
+                b2 * Math.Cos(4d * xi) * Math.Sinh(4d * eta) -
+                b3 * Math.Cos(6d * xi) * Math.Sinh(6d * eta);
             // χ
             var chi = Math.Asin(Math.Sin(xi_) / Math.Cosh(eta_));
             // φ
-            var phi = chi
-                + d1 * Math.Sin(2d * chi)
-                + d2 * Math.Sin(4d * chi)
-                + d3 * Math.Sin(6d * chi);
+            var phi = chi +
+                d1 * Math.Sin(2d * chi) +
+                d2 * Math.Sin(4d * chi) +
+                d3 * Math.Sin(6d * chi);
             // λ - λ0
             var dLambda = Math.Atan(Math.Sinh(eta_) / Math.Cos(xi_));
 
