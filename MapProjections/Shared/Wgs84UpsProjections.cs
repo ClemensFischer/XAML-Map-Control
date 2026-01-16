@@ -12,7 +12,7 @@ namespace MapControl.Projections
         {
             CoordinateSystemWkt
                 = "PROJCS[\"WGS 84 / UPS North (N,E)\","
-                + WktConstants.GeoGcsWgs84 + ","
+                + WktConstants.GeogCsWgs84 + ","
                 + "PROJECTION[\"Polar_Stereographic\"],"
                 + "PARAMETER[\"latitude_of_origin\",90],"
                 + "PARAMETER[\"central_meridian\",0],"
@@ -39,7 +39,7 @@ namespace MapControl.Projections
         {
             CoordinateSystemWkt
                 = "PROJCS[\"WGS 84 / UPS South (N,E)\","
-                + WktConstants.GeoGcsWgs84 + ","
+                + WktConstants.GeogCsWgs84 + ","
                 + "PROJECTION[\"Polar_Stereographic\"],"
                 + "PARAMETER[\"latitude_of_origin\",-90],"
                 + "PARAMETER[\"central_meridian\",0],"

@@ -16,7 +16,7 @@ namespace MapControl.Projections
         {
             CoordinateSystemWkt
                 = "PROJCS[\"WGS 84 / World Mercator\","
-                + WktConstants.GeoGcsWgs84 + ","
+                + WktConstants.GeogCsWgs84 + ","
                 + "PROJECTION[\"Mercator_1SP\"],"
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + "PARAMETER[\"central_meridian\",0],"

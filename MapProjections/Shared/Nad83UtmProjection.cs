@@ -24,7 +24,7 @@ namespace MapControl.Projections
             Zone = zone;
             CoordinateSystemWkt
                 = $"PROJCS[\"NAD83 / UTM zone {zone}N\","
-                + WktConstants.GeoGcsNad83 + ","
+                + WktConstants.GeogCsNad83 + ","
                 + "PROJECTION[\"Transverse_Mercator\"],"
                 + "PARAMETER[\"latitude_of_origin\",0],"
                 + $"PARAMETER[\"central_meridian\",{6 * zone - 183}],"
