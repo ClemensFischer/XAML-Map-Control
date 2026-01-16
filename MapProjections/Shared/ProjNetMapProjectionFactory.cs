@@ -11,6 +11,7 @@ namespace MapControl.Projections
             { 2180, WktConstants.ProjCsEtrf2000Pl },
             { 3034, WktConstants.ProjCsEtrs89LccEurope },
             { 3035, WktConstants.ProjCsEtrs89LaeaEurope },
+            { 4087, WktConstants.ProjCsWgs84 },
             { 4647, WktConstants.ProjCsEtrs89Utm32NzEN },
             { 4839, WktConstants.ProjCsEtrs89LccGermanyNE },
             { 5243, WktConstants.ProjCsEtrs89LccGermanyEN },
@@ -31,6 +32,8 @@ namespace MapControl.Projections
             MapControl.Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
             MapControl.Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
             MapControl.Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
+            MapControl.OrthographicProjection.DefaultCrsId => new Wgs84OrthographicProjection(),
+            MapControl.StereographicProjection.DefaultCrsId => new Wgs84StereographicProjection(),
             _ => base.GetProjection(crsId)
         };
 

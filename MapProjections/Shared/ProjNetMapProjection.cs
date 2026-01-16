@@ -58,30 +58,32 @@ namespace MapControl.Projections
                     ? $"{field.Authority}:{field.AuthorityCode}"
                     : string.Empty;
 
-                if (CrsId == "EPSG:3857")
+                if (CrsId == MapControl.WebMercatorProjection.DefaultCrsId)
                 {
                     Type = MapProjectionType.WebMercator;
                 }
                 else
                 {
-                    var projection = field.Projection ??
+                    var name = field.Projection?.Name ??
                         throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
 
-                    var centralMeridian = projection.GetParameter("central_meridian") ?? projection.GetParameter("longitude_of_origin");
-                    var centralParallel = projection.GetParameter("central_parallel") ?? projection.GetParameter("latitude_of_origin");
-                    var falseEasting = projection.GetParameter("false_easting");
-                    var falseNorthing = projection.GetParameter("false_northing");
-
-                    if ((centralMeridian == null || centralMeridian.Value == 0d) &&
-                        (centralParallel == null || centralParallel.Value == 0d) &&
-                        (falseEasting == null || falseEasting.Value == 0d) &&
-                        (falseNorthing == null || falseNorthing.Value == 0d))
+                    if (name.StartsWith("Mercator") ||
+                        name.StartsWith("Equirectangular"))
                     {
                         Type = MapProjectionType.NormalCylindrical;
                     }
-                    else if (projection.Name.StartsWith("UTM") || projection.Name.StartsWith("Transverse"))
+                    else if (name.StartsWith("Transverse"))
                     {
                         Type = MapProjectionType.TransverseCylindrical;
+                    }
+                    else if (name.Contains("Orthographic") ||
+                             name.Contains("Stereographic"))
+                    {
+                        Type = MapProjectionType.Azimuthal;
+                    }
+                    else
+                    {
+                        Type = MapProjectionType.Other;
                     }
                 }
             }
