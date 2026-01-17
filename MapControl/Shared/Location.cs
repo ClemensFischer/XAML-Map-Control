@@ -38,7 +38,7 @@ namespace MapControl
 
         public override int GetHashCode() => Latitude.GetHashCode() ^ Longitude.GetHashCode();
 
-        public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0:0.########},{1:0.########}", Latitude, Longitude);
+        public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0},{1}", Latitude, Longitude);
 
         /// <summary>
         /// Creates a Location instance from a string containing a comma-separated pair of floating point numbers.

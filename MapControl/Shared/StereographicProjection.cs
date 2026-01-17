@@ -11,7 +11,7 @@ namespace MapControl
     /// Spherical Stereographic Projection - AUTO2:97002.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.157-160.
     /// </summary>
-    public class StereographicProjection : AzimuthalProjection
+    public class StereographicProjection : MapProjection
     {
         public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS identifier
 
@@ -22,8 +22,11 @@ namespace MapControl
 
         public StereographicProjection(string crsId)
         {
+            Type = MapProjectionType.Azimuthal;
             CrsId = crsId;
         }
+
+        public double EarthRadius { get; set; } = Wgs84MeanRadius;
 
         public override Point? LocationToMap(double latitude, double longitude)
         {

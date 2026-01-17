@@ -122,8 +122,8 @@ namespace MapControl
         {
             Rect? rect = null;
             var rotation = 0d;
-            var centerLatitude = latLonBox.Center.Latitude;
-            var centerLongitude = latLonBox.Center.Longitude;
+            var centerLatitude = (latLonBox.South + latLonBox.North) / 2d;
+            var centerLongitude = (latLonBox.West + latLonBox.East) / 2d;
             Point? center, north, south, west, east;
 
             if ((center = LocationToMap(centerLatitude, centerLongitude)).HasValue &&

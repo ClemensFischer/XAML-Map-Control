@@ -11,7 +11,7 @@ namespace MapControl
     /// Spherical Orthographic Projection - AUTO2:42003.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.148-150.
     /// </summary>
-    public class OrthographicProjection : AzimuthalProjection
+    public class OrthographicProjection : MapProjection
     {
         public const string DefaultCrsId = "AUTO2:42003";
 
@@ -22,8 +22,11 @@ namespace MapControl
 
         public OrthographicProjection(string crsId)
         {
+            Type = MapProjectionType.Azimuthal;
             CrsId = crsId;
         }
+
+        public double EarthRadius { get; set; } = Wgs84MeanRadius;
 
         public override Point? LocationToMap(double latitude, double longitude)
         {

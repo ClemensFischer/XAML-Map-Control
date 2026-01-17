@@ -11,7 +11,7 @@ namespace MapControl
     /// Spherical Gnomonic Projection - AUTO2:97001.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.165-167.
     /// </summary>
-    public class GnomonicProjection : AzimuthalProjection
+    public class GnomonicProjection : MapProjection
     {
         public const string DefaultCrsId = "AUTO2:97001"; // GeoServer non-standard CRS identifier
 
@@ -22,8 +22,11 @@ namespace MapControl
 
         public GnomonicProjection(string crsId)
         {
+            Type = MapProjectionType.Azimuthal;
             CrsId = crsId;
         }
+
+        public double EarthRadius { get; set; } = Wgs84MeanRadius;
 
         public override Point? LocationToMap(double latitude, double longitude)
         {

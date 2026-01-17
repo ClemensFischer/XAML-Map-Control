@@ -11,7 +11,7 @@ namespace MapControl
     /// Spherical Azimuthal Equidistant Projection - No standard CRS identifier.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.195-197.
     /// </summary>
-    public class AzimuthalEquidistantProjection : AzimuthalProjection
+    public class AzimuthalEquidistantProjection : MapProjection
     {
         public const string DefaultCrsId = "AUTO2:97003"; // proprietary CRS identifier
 
@@ -22,8 +22,11 @@ namespace MapControl
 
         public AzimuthalEquidistantProjection(string crsId)
         {
+            Type = MapProjectionType.Azimuthal;
             CrsId = crsId;
         }
+
+        public double EarthRadius { get; set; } = Wgs84MeanRadius;
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
