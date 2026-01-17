@@ -42,6 +42,14 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Creates a MapProjection instance from a CRS identifier string.
+        /// </summary>
+        public static MapProjection Parse(string crsId)
+        {
+            return Factory.GetProjection(crsId);
+        }
+
+        /// <summary>
         /// Gets the type of the projection.
         /// </summary>
         public MapProjectionType Type { get; protected set; } = MapProjectionType.Other;
@@ -54,7 +62,24 @@ namespace MapControl
         /// <summary>
         /// Gets or sets an optional projection center.
         /// </summary>
-        public virtual Location Center { get; protected internal set; } = new Location();
+        public Location Center
+        {
+            get => field ??= new Location();
+            protected internal set
+            {
+                var longitude = Location.NormalizeLongitude(value.Longitude);
+
+                if (field == null || !field.Equals(value.Latitude, longitude))
+                {
+                    field = new Location(value.Latitude, longitude);
+                    CenterChanged();
+                }
+            }
+        }
+
+        protected virtual void CenterChanged()
+        {
+        }
 
         /// <summary>
         /// Gets the relative map scale at the specified geographic coordinates.
@@ -157,14 +182,6 @@ namespace MapControl
         public override string ToString()
         {
             return CrsId;
-        }
-
-        /// <summary>
-        /// Creates a MapProjection instance from a CRS identifier string.
-        /// </summary>
-        public static MapProjection Parse(string crsId)
-        {
-            return Factory.GetProjection(crsId);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace MapControl.Projections
 {
@@ -7,17 +6,12 @@ namespace MapControl.Projections
     {
         public Wgs84OrthographicProjection()
         {
-            Center = base.Center;
+            CenterChanged();
         }
 
-        public override Location Center
+        protected override void CenterChanged()
         {
-            get => base.Center;
-            protected set
-            {
-                base.Center = value;
-
-                var wktFormat =
+            var wktFormat =
                     "PROJCS[\"WGS 84 / World Mercator\"," +
                     WktConstants.GeogCsWgs84 + "," +
                     "PROJECTION[\"Orthographic\"]," +
@@ -28,9 +22,8 @@ namespace MapControl.Projections
                     "AXIS[\"Northing\",NORTH]" +
                     "AUTHORITY[\"AUTO2\",\"42003\"]]";
 
-                CoordinateSystemWkt = string.Format(
-                    CultureInfo.InvariantCulture, wktFormat, value.Latitude, value.Longitude);
-            }
+            CoordinateSystemWkt = string.Format(
+                CultureInfo.InvariantCulture, wktFormat, Center.Latitude, Center.Longitude);
         }
     }
 }

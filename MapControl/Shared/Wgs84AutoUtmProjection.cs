@@ -29,28 +29,18 @@ namespace MapControl
             }
         }
 
-        public override Location Center
+        protected override void CenterChanged()
         {
-            get => base.Center;
-            protected internal set
+            var zone = (int)Math.Floor(Center.Longitude / 6d) + 31;
+            var hemisphere = Center.Latitude >= 0d ? Hemisphere.North : Hemisphere.South;
+
+            if (Zone != zone || Hemisphere != hemisphere)
             {
-                if (!base.Center.Equals(value))
+                SetZone(zone, hemisphere);
+
+                if (!string.IsNullOrEmpty(autoCrsId))
                 {
-                    base.Center = value;
-
-                    var lon = Location.NormalizeLongitude(value.Longitude);
-                    var zone = (int)Math.Floor(lon / 6d) + 31;
-                    var hemisphere = value.Latitude >= 0d ? Hemisphere.North : Hemisphere.South;
-
-                    if (Zone != zone || Hemisphere != hemisphere)
-                    {
-                        SetZone(zone, hemisphere);
-
-                        if (!string.IsNullOrEmpty(autoCrsId))
-                        {
-                            CrsId = autoCrsId;
-                        }
-                    }
+                    CrsId = autoCrsId;
                 }
             }
         }

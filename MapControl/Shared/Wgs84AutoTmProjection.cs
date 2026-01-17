@@ -17,14 +17,9 @@
             CrsId = crsId;
         }
 
-        public override Location Center
+        protected override void CenterChanged()
         {
-            get => base.Center;
-            protected internal set
-            {
-                base.Center = value;
-                CentralMeridian = value.Longitude;
-            }
+            CentralMeridian = Center.Longitude;
         }
     }
 }
