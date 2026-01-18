@@ -25,7 +25,7 @@ namespace MapControl.Projections
 
         public override Point RelativeScale(double latitude, double longitude)
         {
-            var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84EquatorialRadius, Wgs84Flattening, 0.994, latitude);
+            var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, 0.994, latitude);
 
             return new Point(k, k);
         }
@@ -50,7 +50,7 @@ namespace MapControl.Projections
 
         public override Point RelativeScale(double latitude, double longitude)
         {
-            var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84EquatorialRadius, Wgs84Flattening, 0.994, latitude);
+            var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84Flattening, 0.994, latitude);
 
             return new Point(k, k);
         }

@@ -112,24 +112,16 @@ namespace MapControl
         {
             var lat1 = Latitude * Math.PI / 180d;
             var lon1 = Longitude * Math.PI / 180d;
-            var cosD = Math.Cos(distance);
-            var sinD = Math.Sin(distance);
-            var cosA = Math.Cos(azimuth);
-            var sinA = Math.Sin(azimuth);
             var cosLat1 = Math.Cos(lat1);
             var sinLat1 = Math.Sin(lat1);
+            var cosA = Math.Cos(azimuth);
+            var sinA = Math.Sin(azimuth);
+            var cosD = Math.Cos(distance);
+            var sinD = Math.Sin(distance);
             var lat2 = Math.Asin(sinLat1 * cosD + cosLat1 * sinD * cosA);
             var lon2 = lon1 + Math.Atan2(sinD * sinA, cosLat1 * cosD - sinLat1 * sinD * cosA);
 
             return new Location(lat2 * 180d / Math.PI, lon2 * 180d / Math.PI);
-        }
-
-        /// <summary>
-        /// Calculates the Location on a great circle at the specified azimuth in degrees and distance in meters from this Location.
-        /// </summary>
-        public Location GetLocation(double azimuth, double distance, double earthRadius = MapProjection.Wgs84MeanRadius)
-        {
-            return GetLocation(azimuth * Math.PI / 180d, distance / earthRadius);
         }
     }
 }

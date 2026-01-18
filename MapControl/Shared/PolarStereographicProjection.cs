@@ -26,7 +26,7 @@ namespace MapControl
         public double FalseNorthing { get; set; } = 2e6;
         public Hemisphere Hemisphere { get; set; }
 
-        public static double RelativeScale(Hemisphere hemisphere, double equatorialRadius, double flattening, double scaleFactor, double latitude)
+        public static double RelativeScale(Hemisphere hemisphere, double flattening, double scaleFactor, double latitude)
         {
             var sign = hemisphere == Hemisphere.North ? 1d : -1d;
             var phi = sign * latitude * Math.PI / 180d;
@@ -36,17 +36,19 @@ namespace MapControl
 
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
-            var r = 2d * equatorialRadius * scaleFactor * t
+
+            // r == ρ/a
+            var r = 2d * scaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
             var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
 
-            return r / (equatorialRadius * m); // p.161 (21-32)
+            return r / m; // p.161 (21-32)
         }
 
         public override Point RelativeScale(double latitude, double longitude)
         {
-            var k = RelativeScale(Hemisphere, EquatorialRadius, Flattening, ScaleFactor, latitude);
+            var k = RelativeScale(Hemisphere, Flattening, ScaleFactor, latitude);
 
             return new Point(k, k);
         }
@@ -62,7 +64,7 @@ namespace MapControl
 
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
-
+            // ρ
             var r = 2d * EquatorialRadius * ScaleFactor * t
                   / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
 
