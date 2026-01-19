@@ -11,7 +11,7 @@ namespace MapControl
     /// Spherical Gnomonic Projection - AUTO2:97001.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.165-167.
     /// </summary>
-    public class GnomonicProjection : MapProjection
+    public class GnomonicProjection : AzimuthalProjection
     {
         public const string DefaultCrsId = "AUTO2:97001"; // GeoServer non-standard CRS identifier
 
@@ -22,40 +22,37 @@ namespace MapControl
 
         public GnomonicProjection(string crsId)
         {
-            Type = MapProjectionType.Azimuthal;
             CrsId = crsId;
         }
 
-        public double EarthRadius { get; set; } = Wgs84MeanRadius;
+        public override Point RelativeScale(double latitude, double longitude)
+        {
+            (var cosC, var _, var _) = GetPointValues(latitude, longitude);
+            var h = 1d / (cosC * cosC); // p.165 (22-2)
+
+            return new Point(h, h); // TODO: rotate
+        }
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            if (Center.Equals(latitude, longitude))
+            (var cosC, var x, var y) = GetPointValues(latitude, longitude);
+
+            if (cosC <= 0d)
             {
-                return new Point();
+                return null;
             }
 
-            Center.GetAzimuthDistance(latitude, longitude, out double azimuth, out double distance);
+            var k = 1d / cosC; // p.165 (22-3)
 
-            var mapDistance = distance < Math.PI / 2d
-                ? Math.Tan(distance) * EarthRadius
-                : double.PositiveInfinity;
-
-            return new Point(mapDistance * Math.Sin(azimuth), mapDistance * Math.Cos(azimuth));
+            return new Point(EarthRadius * k * x, EarthRadius * k * y); // p.165 (22-4/5)
         }
 
         public override Location MapToLocation(double x, double y)
         {
-            if (x == 0d && y == 0d)
-            {
-                return new Location(Center.Latitude, Center.Longitude);
-            }
+            var rho = Math.Sqrt(x * x + y * y);
+            var c = Math.Atan(rho / EarthRadius); // p.167 (22-16)
 
-            var azimuth = Math.Atan2(x, y);
-            var mapDistance = Math.Sqrt(x * x + y * y);
-            var distance = Math.Atan(mapDistance / EarthRadius);
-
-            return Center.GetLocation(azimuth, distance);
+            return GetLocation(x, y, rho, Math.Sin(c));
         }
     }
 }

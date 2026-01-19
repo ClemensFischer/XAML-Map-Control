@@ -11,7 +11,7 @@ namespace MapControl
     /// Spherical Orthographic Projection - AUTO2:42003.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.148-150.
     /// </summary>
-    public class OrthographicProjection : MapProjection
+    public class OrthographicProjection : AzimuthalProjection
     {
         public const string DefaultCrsId = "AUTO2:42003";
 
@@ -22,62 +22,30 @@ namespace MapControl
 
         public OrthographicProjection(string crsId)
         {
-            Type = MapProjectionType.Azimuthal;
             CrsId = crsId;
         }
 
-        public double EarthRadius { get; set; } = Wgs84MeanRadius;
+        public override Point RelativeScale(double latitude, double longitude)
+        {
+            (var cosC, var x, var y) = GetPointValues(latitude, longitude);
+            var h = cosC; // p.149 (20-5)
+
+            return new Point(h, h);
+        }
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            if (Center.Equals(latitude, longitude))
-            {
-                return new Point();
-            }
+            (var cosC, var x, var y) = GetPointValues(latitude, longitude);
 
-            var phi = latitude * Math.PI / 180d;
-            var phi1 = Center.Latitude * Math.PI / 180d;
-            var dLambda = (longitude - Center.Longitude) * Math.PI / 180d; // λ - λ0
-
-            if (Math.Abs(phi - phi1) > Math.PI / 2d || Math.Abs(dLambda) > Math.PI / 2d)
-            {
-                return null;
-            }
-
-            var x = EarthRadius * Math.Cos(phi) * Math.Sin(dLambda); // p.149 (20-3)
-            var y = EarthRadius * (Math.Cos(phi1) * Math.Sin(phi) -
-                                   Math.Sin(phi1) * Math.Cos(phi) * Math.Cos(dLambda)); // p.149 (20-4)
-            return new Point(x, y);
+            return cosC >= 0d ? new Point(EarthRadius * x, EarthRadius * y) : null; // p.149 (20-3/4)
         }
 
         public override Location MapToLocation(double x, double y)
         {
-            if (x == 0d && y == 0d)
-            {
-                return new Location(Center.Latitude, Center.Longitude);
-            }
+            var rho = Math.Sqrt(x * x + y * y);
+            var sinC = rho / EarthRadius; // p.150 (20-19)
 
-            x /= EarthRadius;
-            y /= EarthRadius;
-            var r2 = x * x + y * y;
-
-            if (r2 > 1d)
-            {
-                return null;
-            }
-
-            var r = Math.Sqrt(r2); // p.150 (20-18), r=ρ/R
-            var sinC = r; // p.150 (20-19)
-            var cosC = Math.Sqrt(1d - r2);
-
-            var phi1 = Center.Latitude * Math.PI / 180d;
-            var cosPhi1 = Math.Cos(phi1);
-            var sinPhi1 = Math.Sin(phi1);
-
-            var phi = Math.Asin(cosC * sinPhi1 + y * sinC * cosPhi1 / r); // p.150 (20-14)
-            var dLambda = Math.Atan2(x * sinC, r * cosC * cosPhi1 - y * sinC * sinPhi1); // p.150 (20-15)
-
-            return new Location(180d / Math.PI * phi, 180d / Math.PI * dLambda + Center.Longitude);
+            return sinC <= 1d ? GetLocation(x, y, rho, sinC) : null;
         }
     }
 }

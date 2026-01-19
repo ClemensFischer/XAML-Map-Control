@@ -83,7 +83,7 @@ namespace MapControl
             // λ - λ0
             var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
             // ξ'
-            var xi_ = Math.Atan(t / Math.Cos(dLambda));
+            var xi_ = Math.Atan2(t, Math.Cos(dLambda));
             // η'
             var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
             // ξ
@@ -128,7 +128,7 @@ namespace MapControl
                 d2 * Math.Sin(4d * chi) +
                 d3 * Math.Sin(6d * chi);
             // λ - λ0
-            var dLambda = Math.Atan(Math.Sinh(eta_) / Math.Cos(xi_));
+            var dLambda = Math.Atan2(Math.Sinh(eta_), Math.Cos(xi_));
 
             return new Location(
                 phi * 180d / Math.PI,
