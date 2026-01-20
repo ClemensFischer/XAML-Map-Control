@@ -32,7 +32,8 @@ namespace MapControl
             var k = 1d / cosC; // p.165 (22-3)
             var h = k * k; // p.165 (22-2)
 
-            var scale = new Matrix(h, 0d, 0d, h, 0d, 0d);
+            var scale = new Matrix(h, 0d, 0d, k, 0d, 0d);
+            scale.Rotate(-Math.Atan2(y, x) * 180d / Math.PI);
             return scale;
         }
 

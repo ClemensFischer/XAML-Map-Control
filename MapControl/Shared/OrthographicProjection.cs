@@ -31,7 +31,8 @@ namespace MapControl
             (var cosC, var x, var y) = GetPointValues(latitude, longitude);
             var h = cosC; // p.149 (20-5)
 
-            var scale = new Matrix(h, 0d, 0d, h, 0d, 0d);
+            var scale = new Matrix(h, 0d, 0d, 1d, 0d, 0d);
+            scale.Rotate(-Math.Atan2(y, x) * 180d / Math.PI);
             return scale;
         }
 
