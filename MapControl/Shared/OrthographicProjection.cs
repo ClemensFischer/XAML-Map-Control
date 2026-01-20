@@ -31,7 +31,7 @@ namespace MapControl
             var p = GetProjectedPoint(latitude, longitude);
             var h = p.CosC; // p.149 (20-5)
 
-            var scale = new Matrix(h, 0d, 0d, 1d, 0d, 0d);
+            var scale = new Matrix(h, 0d, 0d, 1d, 0d, 0d); // k == 1
             scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
             return scale;
         }

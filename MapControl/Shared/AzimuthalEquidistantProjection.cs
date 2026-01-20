@@ -37,7 +37,9 @@ namespace MapControl
                 k = c / Math.Sin(c); // p.195 (25-2)
             }
 
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+            var scale = new Matrix(1d, 0d, 0d, k, 0d, 0d); // h == 1
+            scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
+            return scale;
         }
 
         public override Point? LocationToMap(double latitude, double longitude)
