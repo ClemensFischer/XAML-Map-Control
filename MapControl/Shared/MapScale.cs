@@ -4,21 +4,18 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media;
 using System.Windows.Shapes;
 #elif UWP
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 #elif WINUI
 using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 #elif AVALONIA
 using Avalonia;
@@ -26,7 +23,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Layout;
-using PointCollection = System.Collections.Generic.List<Avalonia.Point>;
 using PropertyPath = System.String;
 #endif
 
@@ -88,43 +84,44 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (ParentMap == null)
+            var size = new Size();
+
+            if (ParentMap != null)
             {
-                return new Size();
+                var x0 = ParentMap.ActualWidth / 2d;
+                var y0 = ParentMap.ActualHeight / 2d;
+                var p1 = ParentMap.ViewToLocation(new Point(x0 - 50d, y0));
+                var p2 = ParentMap.ViewToLocation(new Point(x0 + 50d, y0));
+
+                if (p1 != null && p2 != null)
+                {
+                    var scale = 100d / p1.GetDistance(p2);
+                    var length = MinWidth / scale;
+                    var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
+
+                    length = length / magnitude < 2d ? 2d * magnitude
+                           : length / magnitude < 5d ? 5d * magnitude
+                           : 10d * magnitude;
+
+                    size = new Size(
+                        length * scale + StrokeThickness + Padding.Left + Padding.Right,
+                        1.5 * label.FontSize + 2 * StrokeThickness + Padding.Top + Padding.Bottom);
+
+                    var x1 = Padding.Left + StrokeThickness / 2d;
+                    var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
+                    var y1 = size.Height / 2d;
+                    var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
+
+                    line.Points = [new Point(x1, y1), new Point(x1, y2), new Point(x2, y2), new Point(x2, y1)];
+
+                    label.Text = length >= 1000d
+                        ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
+                        : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
+
+                    line.Measure(size);
+                    label.Measure(size);
+                }
             }
-
-            var p = ParentMap.GetMapToViewTransform(ParentMap.Center).Transform(new Point(1d, 0d));
-            var scale = Math.Sqrt(p.X * p.X + p.Y * p.Y);
-            var length = MinWidth / scale;
-            var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
-
-            length = length / magnitude < 2d ? 2d * magnitude
-                   : length / magnitude < 5d ? 5d * magnitude
-                   : 10d * magnitude;
-
-            var size = new Size(
-                length * scale + StrokeThickness + Padding.Left + Padding.Right,
-                1.5 * label.FontSize + 2 * StrokeThickness + Padding.Top + Padding.Bottom);
-
-            var x1 = Padding.Left + StrokeThickness / 2d;
-            var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
-            var y1 = size.Height / 2d;
-            var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
-
-            line.Points = new PointCollection
-            {
-                new Point(x1, y1),
-                new Point(x1, y2),
-                new Point(x2, y2),
-                new Point(x2, y1)
-            };
-
-            label.Text = length >= 1000d
-                ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
-                : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
-
-            line.Measure(size);
-            label.Measure(size);
 
             return size;
         }
