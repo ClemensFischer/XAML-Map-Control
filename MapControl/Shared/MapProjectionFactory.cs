@@ -6,70 +6,28 @@ namespace MapControl
     {
         public virtual MapProjection GetProjection(string crsId)
         {
-            MapProjection projection = null;
-            
-            switch (crsId)
+            MapProjection projection = crsId switch
             {
-                case WebMercatorProjection.DefaultCrsId:
-                    projection = new WebMercatorProjection();
-                    break;
-
-                case WorldMercatorProjection.DefaultCrsId:
-                    projection = new WorldMercatorProjection();
-                    break;
-
-                case EquirectangularProjection.DefaultCrsId:
-                case "CRS:84":
-                case "EPSG:4087":
-                    projection = new EquirectangularProjection(crsId);
-                    break;
-
-                case Wgs84UpsNorthProjection.DefaultCrsId:
-                    projection = new Wgs84UpsNorthProjection();
-                    break;
-
-                case Wgs84UpsSouthProjection.DefaultCrsId:
-                    projection = new Wgs84UpsSouthProjection();
-                    break;
-
-                case Wgs84AutoUtmProjection.DefaultCrsId:
-                    projection = new Wgs84AutoUtmProjection();
-                    break;
-
-                case Wgs84AutoTmProjection.DefaultCrsId:
-                    projection = new Wgs84AutoTmProjection();
-                    break;
-
-                case OrthographicProjection.DefaultCrsId:
-                    projection = new OrthographicProjection();
-                    break;
-
-                case AutoEquirectangularProjection.DefaultCrsId:
-                    projection = new AutoEquirectangularProjection();
-                    break;
-
-                case GnomonicProjection.DefaultCrsId:
-                    projection = new GnomonicProjection();
-                    break;
-
-                case StereographicProjection.DefaultCrsId:
-                    projection = new StereographicProjection();
-                    break;
-
-                case AzimuthalEquidistantProjection.DefaultCrsId:
-                    projection = new AzimuthalEquidistantProjection();
-                    break;
-
-                default:
-                    if (crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode))
-                    {
-                        projection = GetProjection(epsgCode);
-                    }
-                    break;
-            }
+                WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
+                WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
+                EquirectangularProjection.DefaultCrsId or "CRS:84" or "EPSG:4087" => new EquirectangularProjection(crsId),
+                Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
+                Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
+                Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
+                Wgs84AutoTmProjection.DefaultCrsId => new Wgs84AutoTmProjection(),
+                OrthographicProjection.DefaultCrsId => new OrthographicProjection(),
+                AutoEquirectangularProjection.DefaultCrsId => new AutoEquirectangularProjection(),
+                GnomonicProjection.DefaultCrsId => new GnomonicProjection(),
+                StereographicProjection.DefaultCrsId => new StereographicProjection(),
+                AzimuthalEquidistantProjection.DefaultCrsId => new AzimuthalEquidistantProjection(),
+                _ => GetProjectionFromEpsgCode(crsId),
+            };
 
             return projection ?? throw new NotSupportedException($"MapProjection \"{crsId}\" is not supported.");
         }
+
+        public MapProjection GetProjectionFromEpsgCode(string crsId) =>
+            crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode) ? GetProjection(epsgCode) : null;
 
         public virtual MapProjection GetProjection(int epsgCode) => epsgCode switch
         {

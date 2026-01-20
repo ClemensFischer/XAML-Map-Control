@@ -25,17 +25,22 @@ namespace MapControl.Projections
             { 29193, WktConstants.ProjCsSad69Utm23S },
         };
 
-        public override MapProjection GetProjection(string crsId) => crsId switch
+        public override MapProjection GetProjection(string crsId)
         {
-            MapControl.WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
-            MapControl.WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
-            MapControl.Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
-            MapControl.Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
-            MapControl.Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
-            MapControl.OrthographicProjection.DefaultCrsId => new Wgs84OrthographicProjection(),
-            MapControl.StereographicProjection.DefaultCrsId => new Wgs84StereographicProjection(),
-            _ => base.GetProjection(crsId)
-        };
+            MapProjection projection = crsId switch
+            {
+                MapControl.WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
+                MapControl.WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
+                MapControl.Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
+                MapControl.Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
+                MapControl.Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
+                MapControl.OrthographicProjection.DefaultCrsId => new Wgs84OrthographicProjection(),
+                MapControl.StereographicProjection.DefaultCrsId => new Wgs84StereographicProjection(),
+                _ => GetProjectionFromEpsgCode(crsId)
+            };
+
+            return projection ?? base.GetProjection(crsId);
+        }
 
         public override MapProjection GetProjection(int epsgCode) => epsgCode switch
         {
