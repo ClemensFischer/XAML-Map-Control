@@ -61,11 +61,6 @@ namespace MapControl
             Flattening = Wgs84Flattening;
         }
 
-        public override Point RelativeScale(double latitude, double longitude)
-        {
-            return new Point(ScaleFactor, ScaleFactor); // sufficiently precise
-        }
-
         public override Point? LocationToMap(double latitude, double longitude)
         {
 #if NETFRAMEWORK

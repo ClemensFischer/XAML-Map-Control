@@ -96,7 +96,7 @@ namespace MapControl
         {
             if (MapTransform != null && ParentMap != null && Location != null)
             {
-                MapTransform.Matrix = ParentMap.GetMapTransform(Location);
+                MapTransform.Matrix = ParentMap.GetMapToViewTransform(Location);
             }
         }
     }

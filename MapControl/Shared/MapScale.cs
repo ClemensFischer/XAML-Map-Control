@@ -88,13 +88,13 @@ namespace MapControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            double scale;
-
-            if (ParentMap == null || (scale = ParentMap.GetMapScale(ParentMap.Center).X) <= 0d)
+            if (ParentMap == null)
             {
                 return new Size();
             }
 
+            var p = ParentMap.GetMapToViewTransform(ParentMap.Center).Transform(new Point(1d, 0d));
+            var scale = Math.Sqrt(p.X * p.X + p.Y * p.Y);
             var length = MinWidth / scale;
             var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 

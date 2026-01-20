@@ -1,9 +1,7 @@
 ﻿using ProjNet.CoordinateSystems;
 using System;
 #if WPF
-using System.Windows;
-#elif AVALONIA
-using Avalonia;
+using System.Windows.Media;
 #endif
 
 namespace MapControl.Projections
@@ -19,11 +17,11 @@ namespace MapControl.Projections
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;
         }
 
-        public override Point RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeScale(double latitude, double longitude)
         {
             var k = 1d / Math.Cos(latitude * Math.PI / 180d); // p.44 (7-3)
 
-            return new Point(k, k);
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
     }
 }

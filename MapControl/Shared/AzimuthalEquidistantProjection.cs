@@ -1,6 +1,7 @@
 ﻿using System;
 #if WPF
 using System.Windows;
+using System.Windows.Media;
 #elif AVALONIA
 using Avalonia;
 #endif
@@ -25,7 +26,7 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Point RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeScale(double latitude, double longitude)
         {
             (var cosC, var _, var _) = GetPointValues(latitude, longitude);
             var k = 1d;
@@ -36,7 +37,7 @@ namespace MapControl
                 k = c / Math.Sin(c); // p.195 (25-2)
             }
 
-            return new Point(k, k);
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)

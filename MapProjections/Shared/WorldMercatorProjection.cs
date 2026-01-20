@@ -1,7 +1,5 @@
 ﻿#if WPF
-using System.Windows;
-#elif AVALONIA
-using Avalonia;
+using System.Windows.Media;
 #endif
 
 namespace MapControl.Projections
@@ -29,11 +27,11 @@ namespace MapControl.Projections
                 "AUTHORITY[\"EPSG\",\"3395\"]]";
         }
 
-        public override Point RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeScale(double latitude, double longitude)
         {
             var k = MapControl.WorldMercatorProjection.RelativeScale(latitude);
 
-            return new Point(k, k);
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
     }
 }

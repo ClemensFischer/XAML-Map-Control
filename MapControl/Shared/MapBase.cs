@@ -177,37 +177,25 @@ namespace MapControl
         public ViewTransform ViewTransform { get; } = new ViewTransform();
 
         /// <summary>
-        /// Gets the map scale as horizontal and vertical scaling factors from meters to
-        /// view coordinates at the specified geographic coordinates.
+        /// Gets a transform Matrix from meters to view coordinates for scaling and rotating
+        /// at the specified geographic coordinates.
         /// </summary>
-        public Point GetMapScale(double latitude, double longitude)
+        public Matrix GetMapToViewTransform(double latitude, double longitude)
         {
-            var relativeScale = MapProjection.RelativeScale(latitude, longitude);
+            var transform = MapProjection.RelativeScale(latitude, longitude);
+            transform.Scale(ViewTransform.Scale, ViewTransform.Scale);
+            transform.Rotate(ViewTransform.Rotation);
 
-            return new Point(ViewTransform.Scale * relativeScale.X, ViewTransform.Scale * relativeScale.Y);
-        }
-
-        /// <summary>
-        /// Gets the map scale as horizontal and vertical scaling factors from meters to
-        /// view coordinates at the specified location.
-        /// </summary>
-        public Point GetMapScale(Location location)
-        {
-            return GetMapScale(location.Latitude, location.Longitude);
+            return transform;
         }
 
         /// <summary>
         /// Gets a transform Matrix from meters to view coordinates for scaling and rotating
-        /// objects that are anchored at the specified Location.
+        /// at the specified Location.
         /// </summary>
-        public Matrix GetMapTransform(Location location)
+        public Matrix GetMapToViewTransform(Location location)
         {
-            var mapScale = GetMapScale(location.Latitude, location.Longitude);
-            var transform = new Matrix(mapScale.X, 0d, 0d, mapScale.Y, 0d, 0d);
-
-            transform.Rotate(ViewTransform.Rotation);
-
-            return transform;
+            return GetMapToViewTransform(location.Latitude, location.Longitude);
         }
 
         /// <summary>

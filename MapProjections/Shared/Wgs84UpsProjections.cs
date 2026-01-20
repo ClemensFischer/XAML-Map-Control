@@ -1,7 +1,5 @@
 ﻿#if WPF
-using System.Windows;
-#elif AVALONIA
-using Avalonia;
+using System.Windows.Media;
 #endif
 
 namespace MapControl.Projections
@@ -23,11 +21,11 @@ namespace MapControl.Projections
                 "AUTHORITY[\"EPSG\",\"32661\"]]";
         }
 
-        public override Point RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeScale(double latitude, double longitude)
         {
-            var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, 0.994, latitude);
+            var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, latitude);
 
-            return new Point(k, k);
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
     }
 
@@ -48,11 +46,11 @@ namespace MapControl.Projections
                 "AUTHORITY[\"EPSG\",\"32761\"]]";
         }
 
-        public override Point RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeScale(double latitude, double longitude)
         {
-            var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84Flattening, 0.994, latitude);
+            var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84Flattening, latitude);
 
-            return new Point(k, k);
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
     }
 }

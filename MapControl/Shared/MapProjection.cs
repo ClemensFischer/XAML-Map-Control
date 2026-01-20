@@ -1,6 +1,7 @@
 ﻿using System;
 #if WPF
 using System.Windows;
+using System.Windows.Media;
 #elif AVALONIA
 using Avalonia;
 #endif
@@ -82,9 +83,10 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the relative map scale at the specified geographic coordinates.
+        /// Gets the relative scale at the specified geographic coordinates.
+        /// The returned Matrix represents the local distortion of the map projection.
         /// </summary>
-        public virtual Point RelativeScale(double latitude, double longitude) => new Point(1d, 1d);
+        public virtual Matrix RelativeScale(double latitude, double longitude) => new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in projected map coordinates.
@@ -101,7 +103,7 @@ namespace MapControl
         /// <summary>
         /// Gets the relative map scale at the specified geographic Location.
         /// </summary>
-        public Point RelativeScale(Location location) => RelativeScale(location.Latitude, location.Longitude);
+        public Matrix RelativeScale(Location location) => RelativeScale(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.

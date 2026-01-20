@@ -93,13 +93,6 @@ namespace MapControl.Projections
 
         public MathTransform MapToLocationTransform { get; private set; }
 
-        public override Point RelativeScale(double latitude, double longitude)
-        {
-            var k = CoordinateSystem?.Projection?.GetParameter("scale_factor")?.Value ?? 1d;
-
-            return new Point(k, k);
-        }
-
         public override Point? LocationToMap(double latitude, double longitude)
         {
             if (LocationToMapTransform == null)

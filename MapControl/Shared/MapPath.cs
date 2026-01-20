@@ -66,7 +66,7 @@ namespace MapControl
         {
             if (ParentMap != null && Location != null && Data != null)
             {
-                SetDataTransform(ParentMap.GetMapTransform(Location));
+                SetDataTransform(ParentMap.GetMapToViewTransform(Location));
             }
 
             MapPanel.SetLocation(this, Location);

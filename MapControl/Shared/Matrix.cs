@@ -50,6 +50,19 @@ namespace MapControl
             OffsetY += y;
         }
 
+        public void Scale(double scaleX, double scaleY)
+        {
+            // equivalent to Multiply(new Matrix(scaleX, 0, 0, scaleY, 0d, 0d));
+            //
+            SetMatrix(
+                M11 * scaleX,
+                M12 * scaleY,
+                M21 * scaleX,
+                M22 * scaleY,
+                OffsetX * scaleX,
+                OffsetY * scaleY);
+        }
+
         public void Rotate(double angle)
         {
             if (angle != 0d)
@@ -60,12 +73,12 @@ namespace MapControl
                 // equivalent to Multiply(new Matrix(cos, sin, -sin, cos, 0d, 0d));
                 //
                 SetMatrix(
-                    cos * M11 - sin * M12,
-                    sin * M11 + cos * M12,
-                    cos * M21 - sin * M22,
-                    sin * M21 + cos * M22,
-                    cos * OffsetX - sin * OffsetY,
-                    sin * OffsetX + cos * OffsetY);
+                    M11 * cos - M12 * sin,
+                    M11 * sin + M12 * cos,
+                    M21 * cos - M22 * sin,
+                    M21 * sin + M22 * cos,
+                    OffsetX * cos - OffsetY * sin,
+                    OffsetX * sin + OffsetY * cos);
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 #if WPF
 using System.Windows;
+using System.Windows.Media;
 #elif AVALONIA
 using Avalonia;
 #endif
@@ -26,7 +27,7 @@ namespace MapControl
         public double FalseNorthing { get; set; } = 2e6;
         public Hemisphere Hemisphere { get; set; }
 
-        public static double RelativeScale(Hemisphere hemisphere, double flattening, double scaleFactor, double latitude)
+        public static double RelativeScale(Hemisphere hemisphere, double flattening, double latitude)
         {
             var sign = hemisphere == Hemisphere.North ? 1d : -1d;
             var phi = sign * latitude * Math.PI / 180d;
@@ -37,20 +38,18 @@ namespace MapControl
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
 
-            // r == ρ/a
-            var r = 2d * scaleFactor * t
-                  / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
-
+            // r == ρ/(a*k0), omit k0 for relative scale
+            var r = 2d * t / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
             var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
 
             return r / m; // p.161 (21-32)
         }
 
-        public override Point RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeScale(double latitude, double longitude)
         {
-            var k = RelativeScale(Hemisphere, Flattening, ScaleFactor, latitude);
+            var k = RelativeScale(Hemisphere, Flattening, latitude);
 
-            return new Point(k, k);
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)

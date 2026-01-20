@@ -75,12 +75,14 @@ namespace MapControl
             set => SetValue(FontSizeProperty, value);
         }
 
+        private double PixelPerDegree => Math.Max(1d, ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree);
+
         private double lineDistance;
         private string labelFormat;
 
         private void SetLineDistance()
         {
-            var minDistance = MinLineDistance / PixelPerLongitudeDegree(ParentMap.Center.Latitude, ParentMap.Center.Longitude);
+            var minDistance = MinLineDistance / PixelPerDegree;
             var scale = minDistance < 1d / 60d ? 3600d : minDistance < 1d ? 60d : 1d;
             minDistance *= scale;
 
@@ -96,14 +98,6 @@ namespace MapControl
 
             labelFormat = lineDistance < 1d / 60d ? "{0} {1}°{2:00}'{3:00}\""
                         : lineDistance < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
-        }
-
-        private double PixelPerLongitudeDegree(double latitude, double longitude)
-        {
-            var scale = ParentMap.GetMapScale(latitude, longitude);
-
-            return Math.Max(1d, // a reasonable lower limit
-                scale.X * Math.Cos(latitude * Math.PI / 180d) * MapProjection.Wgs84MeterPerDegree);
         }
 
         private string GetLabelText(double value, string hemispheres)
@@ -131,7 +125,7 @@ namespace MapControl
                 {
                     // Get rotation from second location with same latitude.
                     //
-                    var pos = ParentMap.LocationToView(latitude, longitude + 10d / PixelPerLongitudeDegree(latitude, longitude));
+                    var pos = ParentMap.LocationToView(latitude, longitude + 10d / PixelPerDegree);
 
                     if (pos.HasValue)
                     {
