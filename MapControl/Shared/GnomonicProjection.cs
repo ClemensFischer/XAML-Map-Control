@@ -28,27 +28,27 @@ namespace MapControl
 
         public override Matrix RelativeScale(double latitude, double longitude)
         {
-            (var cosC, var x, var y) = GetPointValues(latitude, longitude);
-            var k = 1d / cosC; // p.165 (22-3)
+            var p = GetProjectedPoint(latitude, longitude);
+            var k = 1d / p.CosC; // p.165 (22-3)
             var h = k * k; // p.165 (22-2)
 
             var scale = new Matrix(h, 0d, 0d, k, 0d, 0d);
-            scale.Rotate(-Math.Atan2(y, x) * 180d / Math.PI);
+            scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
             return scale;
         }
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            (var cosC, var x, var y) = GetPointValues(latitude, longitude);
+            var p = GetProjectedPoint(latitude, longitude);
 
-            if (cosC <= 0d)
+            if (p.CosC <= 0d)
             {
                 return null;
             }
 
-            var k = 1d / cosC; // p.165 (22-3)
+            var k = 1d / p.CosC; // p.165 (22-3)
 
-            return new Point(EarthRadius * k * x, EarthRadius * k * y); // p.165 (22-4/5)
+            return new Point(EarthRadius * k * p.X, EarthRadius * k * p.Y); // p.165 (22-4/5)
         }
 
         public override Location MapToLocation(double x, double y)

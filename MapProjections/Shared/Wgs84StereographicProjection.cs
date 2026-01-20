@@ -1,7 +1,14 @@
 ﻿using System.Globalization;
+#if WPF
+using System.Windows.Media;
+#endif
 
 namespace MapControl.Projections
 {
+    /// <summary>
+    /// Spherical Stereographic Projection - AUTO2:97002.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.157-160.
+    /// </summary>
     public class Wgs84StereographicProjection : ProjNetMapProjection
     {
         public Wgs84StereographicProjection()
@@ -24,6 +31,14 @@ namespace MapControl.Projections
 
             CoordinateSystemWkt = string.Format(
                 CultureInfo.InvariantCulture, wktFormat, Center.Latitude, Center.Longitude);
+        }
+
+        public override Matrix RelativeScale(double latitude, double longitude)
+        {
+            var p = new AzimuthalProjection.ProjectedPoint(Center.Latitude, Center.Longitude, latitude, longitude);
+            var k = 2d / (1d + p.CosC); // p.157 (21-4), k0 == 1
+
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
     }
 }

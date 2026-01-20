@@ -28,12 +28,12 @@ namespace MapControl
 
         public override Matrix RelativeScale(double latitude, double longitude)
         {
-            (var cosC, var _, var _) = GetPointValues(latitude, longitude);
+            var p = GetProjectedPoint(latitude, longitude);
             var k = 1d;
 
-            if (cosC < 1d)
+            if (p.CosC < 1d)
             {
-                var c = Math.Acos(cosC);
+                var c = Math.Acos(p.CosC);
                 k = c / Math.Sin(c); // p.195 (25-2)
             }
 
@@ -42,16 +42,16 @@ namespace MapControl
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            (var cosC, var x, var y) = GetPointValues(latitude, longitude);
+            var p = GetProjectedPoint(latitude, longitude);
             var k = 1d;
 
-            if (cosC < 1d)
+            if (p.CosC < 1d)
             {
-                var c = Math.Acos(cosC);
+                var c = Math.Acos(p.CosC);
                 k = c / Math.Sin(c); // p.195 (25-2)
             }
 
-            return new Point(EarthRadius * k * x, EarthRadius * k * y); // p.195 (22-4/5)
+            return new Point(EarthRadius * k * p.X, EarthRadius * k * p.Y); // p.195 (22-4/5)
         }
 
         public override Location MapToLocation(double x, double y)

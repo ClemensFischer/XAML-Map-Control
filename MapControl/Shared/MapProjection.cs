@@ -28,8 +28,8 @@ namespace MapControl
     public abstract class MapProjection
     {
         public const double Wgs84EquatorialRadius = 6378137d;
-        public const double Wgs84MeterPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
         public const double Wgs84Flattening = 1d / 298.257223563;
+        public const double Wgs84MeterPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
         // Arithmetic mean radius (2*a + b) / 3 == (1 - f/3) * a.
         // See https://en.wikipedia.org/wiki/Earth_radius#Arithmetic_mean_radius.

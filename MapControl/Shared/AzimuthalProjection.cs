@@ -3,7 +3,7 @@
 namespace MapControl
 {
     /// <summary>
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395).
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.141.
     /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
@@ -14,22 +14,33 @@ namespace MapControl
 
         public double EarthRadius { get; set; } = Wgs84MeanRadius;
 
-        protected (double, double, double) GetPointValues(double latitude, double longitude)
+        public readonly struct ProjectedPoint
         {
-            var phi = latitude * Math.PI / 180d;
-            var phi1 = Center.Latitude * Math.PI / 180d;
-            var dLambda = (longitude - Center.Longitude) * Math.PI / 180d; // λ - λ0
-            var cosPhi = Math.Cos(phi);
-            var sinPhi = Math.Sin(phi);
-            var cosPhi1 = Math.Cos(phi1);
-            var sinPhi1 = Math.Sin(phi1);
-            var cosLambda = Math.Cos(dLambda);
-            var sinLambda = Math.Sin(dLambda);
-            var cosC = sinPhi1 * sinPhi + cosPhi1 * cosPhi * cosLambda; // (5-3)
-            var x = cosPhi * sinLambda;
-            var y = cosPhi1 * sinPhi - sinPhi1 * cosPhi * cosLambda;
+            public double X { get; }
+            public double Y { get; }
+            public double CosC { get; }
 
-            return (cosC, x, y);
+            public ProjectedPoint(double centerLatitude, double centerLongitude, double latitude, double longitude)
+            {
+                var phi = latitude * Math.PI / 180d;
+                var phi1 = centerLatitude * Math.PI / 180d;
+                var dLambda = (longitude - centerLongitude) * Math.PI / 180d; // λ - λ0
+                var cosPhi = Math.Cos(phi);
+                var sinPhi = Math.Sin(phi);
+                var cosPhi1 = Math.Cos(phi1);
+                var sinPhi1 = Math.Sin(phi1);
+                var cosLambda = Math.Cos(dLambda);
+                var sinLambda = Math.Sin(dLambda);
+
+                X = cosPhi * sinLambda;
+                Y = cosPhi1 * sinPhi - sinPhi1 * cosPhi * cosLambda;
+                CosC = sinPhi1 * sinPhi + cosPhi1 * cosPhi * cosLambda; // (5-3)
+            }
+        }
+
+        protected ProjectedPoint GetProjectedPoint(double latitude, double longitude)
+        {
+            return new ProjectedPoint(Center.Latitude, Center.Longitude, latitude, longitude);
         }
 
         protected Location GetLocation(double x, double y, double rho, double sinC)

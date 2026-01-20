@@ -28,18 +28,18 @@ namespace MapControl
 
         public override Matrix RelativeScale(double latitude, double longitude)
         {
-            (var cosC, var _, var _) = GetPointValues(latitude, longitude);
-            var k = 2d / (1d + cosC); // p.157 (21-4), k0 == 1
+            var p = GetProjectedPoint(latitude, longitude);
+            var k = 2d / (1d + p.CosC); // p.157 (21-4), k0 == 1
 
             return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
-            (var cosC, var x, var y) = GetPointValues(latitude, longitude);
-            var k = 2d / (1d + cosC); // p.157 (21-4), k0 == 1
+            var p = GetProjectedPoint(latitude, longitude);
+            var k = 2d / (1d + p.CosC); // p.157 (21-4), k0 == 1
 
-            return new Point(EarthRadius * k * x, EarthRadius * k * y); // p.157 (21-2/3)
+            return new Point(EarthRadius * k * p.X, EarthRadius * k * p.Y); // p.157 (21-2/3)
         }
 
         public override Location MapToLocation(double x, double y)
