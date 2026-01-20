@@ -25,7 +25,7 @@ namespace MapControl
 #else
     [System.ComponentModel.TypeConverter(typeof(MapProjectionConverter))]
 #endif
-    public abstract class MapProjection
+    public abstract class MapProjection(bool hasCenter = false)
     {
         public const double Wgs84EquatorialRadius = 6378137d;
         public const double Wgs84Flattening = 1d / 298.257223563;
@@ -60,19 +60,41 @@ namespace MapControl
         /// </summary>
         public string CrsId { get; protected set; } = "";
 
+        private Location center;
+        private bool updateCenter = hasCenter;
+
         /// <summary>
-        /// Gets or sets an optional projection center.
+        /// Gets or sets an optional projection center. If the property is set to a non-null value,
+        /// it overrides the projection center set by MapBase.Center or MapBase.ProjectionCenter.
         /// </summary>
         public Location Center
         {
-            get => field ??= new Location();
-            protected internal set
+            get => center ??= new Location();
+            set
             {
+                updateCenter = true;
+
+                if (value != null)
+                {
+                    SetCenter(value);
+                    updateCenter = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called by MapBase.UpdateTransform().
+        /// </summary>
+        internal void SetCenter(Location value)
+        {
+            if (updateCenter)
+            {
+                var latitude = value.Latitude;
                 var longitude = Location.NormalizeLongitude(value.Longitude);
 
-                if (field == null || !field.Equals(value.Latitude, longitude))
+                if (center == null || !center.Equals(latitude, longitude))
                 {
-                    field = new Location(value.Latitude, longitude);
+                    center = new Location(latitude, longitude);
                     CenterChanged();
                 }
             }

@@ -87,8 +87,9 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets or sets an optional center (reference point) for azimuthal projections.
-        /// If ProjectionCenter is null, the Center property value will be used instead.
+        /// Gets or sets a projection center e.g. for azimuthal projections.
+        /// If ProjectionCenter is null, the value of the Center property is used as projection center.
+        /// This behavior is overridden when the Center property of a MapProjection is set explicitly.
         /// </summary>
         public Location ProjectionCenter
         {
@@ -456,7 +457,7 @@ namespace MapControl
             var viewScale = ZoomLevelToScale(ZoomLevel);
             var projection = MapProjection;
 
-            projection.Center = ProjectionCenter ?? Center;
+            projection.SetCenter(ProjectionCenter ?? Center);
 
             var mapCenter = projection.LocationToMap(transformCenter ?? Center);
 
@@ -496,7 +497,7 @@ namespace MapControl
 
                             ResetTransformCenter();
 
-                            projection.Center = ProjectionCenter ?? Center;
+                            projection.SetCenter(ProjectionCenter ?? Center);
 
                             mapCenter = projection.LocationToMap(center);
 

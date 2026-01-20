@@ -13,6 +13,7 @@ namespace MapControl.Projections
     public class Wgs84OrthographicProjection : ProjNetMapProjection
     {
         public Wgs84OrthographicProjection()
+            : base(true)
         {
             CenterChanged();
         }
