@@ -29,11 +29,8 @@ namespace MapControl
         public override Matrix RelativeScale(double latitude, double longitude)
         {
             var p = GetProjectedPoint(latitude, longitude);
-            var h = p.CosC; // p.149 (20-5)
 
-            var scale = new Matrix(h, 0d, 0d, 1d, 0d, 0d); // k == 1
-            scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
-            return scale;
+            return p.RelativeScale(p.CosC, 1d); // p.149 (20-5), k == 1
         }
 
         public override Point? LocationToMap(double latitude, double longitude)

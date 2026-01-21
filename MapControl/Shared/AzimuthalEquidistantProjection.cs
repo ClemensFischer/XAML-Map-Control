@@ -30,26 +30,34 @@ namespace MapControl
         {
             var p = GetProjectedPoint(latitude, longitude);
 
-            if (Math.Abs(p.CosC) >= 1d)
+            if (p.CosC == 1d)
             {
                 return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+            }
+
+            if (p.CosC == -1d)
+            {
+                return new Matrix(1d, 0d, 0d, double.PositiveInfinity, 0d, 0d);
             }
 
             var c = Math.Acos(p.CosC);
             var k = c / Math.Sin(c); // p.195 (25-2)
 
-            var scale = new Matrix(1d, 0d, 0d, k, 0d, 0d); // h == 1
-            scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
-            return scale;
+            return p.RelativeScale(1d, k);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)
         {
             var p = GetProjectedPoint(latitude, longitude);
 
-            if (Math.Abs(p.CosC) >= 1d)
+            if (p.CosC == 1d) // p.195 "If cos c = 1, ... k' = 1, and x = y = 0."
             {
                 return new Point();
+            }
+
+            if (p.CosC == -1)
+            {
+                return null; // p.195 "If cos c = -1, the point ... is plotted as a circle of radius πR."
             }
 
             var c = Math.Acos(p.CosC);

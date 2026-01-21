@@ -1,4 +1,7 @@
 ﻿using System;
+#if WPF
+using System.Windows.Media;
+#endif
 
 namespace MapControl
 {
@@ -32,10 +35,23 @@ namespace MapControl
                 var sinPhi1 = Math.Sin(phi1);
                 var cosLambda = Math.Cos(dLambda);
                 var sinLambda = Math.Sin(dLambda);
+                var cosC = sinPhi1 * sinPhi + cosPhi1 * cosPhi * cosLambda; // (5-3)
 
                 X = cosPhi * sinLambda;
                 Y = cosPhi1 * sinPhi - sinPhi1 * cosPhi * cosLambda;
-                CosC = sinPhi1 * sinPhi + cosPhi1 * cosPhi * cosLambda; // (5-3)
+                CosC = Math.Min(Math.Max(cosC, -1d), 1d); // protect against rounding errors
+            }
+
+            public Matrix RelativeScale(double radialScale, double perpendicularScale)
+            {
+                var scale = new Matrix(radialScale, 0d, 0d, perpendicularScale, 0d, 0d);
+
+                if (radialScale != perpendicularScale)
+                {
+                    scale.Rotate(-Math.Atan2(Y, X) * 180d / Math.PI);
+                }
+
+                return scale;
             }
         }
 

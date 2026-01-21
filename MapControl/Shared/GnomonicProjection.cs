@@ -32,9 +32,7 @@ namespace MapControl
             var k = 1d / p.CosC; // p.165 (22-3)
             var h = k * k; // p.165 (22-2)
 
-            var scale = new Matrix(h, 0d, 0d, k, 0d, 0d);
-            scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
-            return scale;
+            return p.RelativeScale(h, k);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)
