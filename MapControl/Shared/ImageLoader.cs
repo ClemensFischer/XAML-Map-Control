@@ -23,19 +23,15 @@ namespace MapControl
 
         /// <summary>
         /// The System.Net.Http.HttpClient instance used to download images.
+        /// An application should add a unique User-Agent value to the DefaultRequestHeaders of this
+        /// HttpClient instance (or the Headers of a HttpRequestMessage used in a HttpMessageHandler).
+        /// Failing to set a unique User-Agent value is a violation of OpenStreetMap's tile usage policy
+        /// (see https://operations.osmfoundation.org/policies/tiles/) and results in blocked access
+        /// to their tile servers.
         /// </summary>
         public static HttpClient HttpClient
         {
-            get
-            {
-                if (field == null)
-                {
-                    field = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-                    field.DefaultRequestHeaders.Add("User-Agent", $"XAML-Map-Control/{typeof(ImageLoader).Assembly.GetName().Version}");
-                }
-
-                return field;
-            }
+            get => field ??= new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
             set;
         }
 
