@@ -29,13 +29,14 @@ namespace MapControl
         public override Matrix RelativeScale(double latitude, double longitude)
         {
             var p = GetProjectedPoint(latitude, longitude);
-            var k = 1d;
 
-            if (p.CosC < 1d)
+            if (Math.Abs(p.CosC) >= 1d)
             {
-                var c = Math.Acos(p.CosC);
-                k = c / Math.Sin(c); // p.195 (25-2)
+                return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
             }
+
+            var c = Math.Acos(p.CosC);
+            var k = c / Math.Sin(c); // p.195 (25-2)
 
             var scale = new Matrix(1d, 0d, 0d, k, 0d, 0d); // h == 1
             scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
@@ -45,13 +46,14 @@ namespace MapControl
         public override Point? LocationToMap(double latitude, double longitude)
         {
             var p = GetProjectedPoint(latitude, longitude);
-            var k = 1d;
 
-            if (p.CosC < 1d)
+            if (Math.Abs(p.CosC) >= 1d)
             {
-                var c = Math.Acos(p.CosC);
-                k = c / Math.Sin(c); // p.195 (25-2)
+                return new Point();
             }
+
+            var c = Math.Acos(p.CosC);
+            var k = c / Math.Sin(c); // p.195 (25-2)
 
             return new Point(EarthRadius * k * p.X, EarthRadius * k * p.Y); // p.195 (22-4/5)
         }

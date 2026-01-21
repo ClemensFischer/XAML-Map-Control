@@ -46,14 +46,39 @@ namespace MapControl
 
         protected Location GetLocation(double x, double y, double rho, double sinC)
         {
-            var cosC = Math.Sqrt(1d - sinC * sinC);
+            var cos2C = 1d - sinC * sinC;
+
+            if (cos2C < 0d)
+            {
+                return null;
+            }
+
+            var cosC = Math.Sqrt(cos2C);
             var phi1 = Center.Latitude * Math.PI / 180d;
             var cosPhi1 = Math.Cos(phi1);
             var sinPhi1 = Math.Sin(phi1);
             var phi = Math.Asin(cosC * sinPhi1 + y * sinC * cosPhi1 / rho); // (20-14)
-            var dLambda = Math.Atan2(x * sinC, rho * cosPhi1 * cosC - y * sinPhi1 * sinC); // (20-15), λ - λ0
+            double u, v;
 
-            return new Location(phi * 180d / Math.PI, dLambda * 180d / Math.PI + Center.Longitude);
+            if (Center.Latitude == 90d) // (20-16)
+            {
+                u = x;
+                v = -y;
+            }
+            else if (Center.Latitude == -90d) // (20-17)
+            {
+                u = x;
+                v = y;
+            }
+            else // (20-15)
+            {
+                u = x * sinC;
+                v = rho * cosPhi1 * cosC - y * sinPhi1 * sinC;
+            }
+
+            return new Location(
+                phi * 180d / Math.PI,
+                Math.Atan2(u, v) * 180d / Math.PI + Center.Longitude);
         }
     }
 }

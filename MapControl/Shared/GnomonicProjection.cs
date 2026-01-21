@@ -41,7 +41,7 @@ namespace MapControl
         {
             var p = GetProjectedPoint(latitude, longitude);
 
-            if (p.CosC <= 0d)
+            if (p.CosC <= 0d) // p.167 "If cos c is zero or negative, the point is to be rejected."
             {
                 return null;
             }

@@ -40,7 +40,12 @@ namespace MapControl
         {
             var p = GetProjectedPoint(latitude, longitude);
 
-            return p.CosC >= 0d ? new Point(EarthRadius * p.X, EarthRadius * p.Y) : null; // p.149 (20-3/4)
+            if (p.CosC < 0d) // p.149 "If cos c is negative, the point is not to be plotted."
+            {
+                return null;
+            }
+
+            return new Point(EarthRadius * p.X, EarthRadius * p.Y); // p.149 (20-3/4)
         }
 
         public override Location MapToLocation(double x, double y)
@@ -48,7 +53,7 @@ namespace MapControl
             var rho = Math.Sqrt(x * x + y * y);
             var sinC = rho / EarthRadius; // p.150 (20-19)
 
-            return sinC <= 1d ? GetLocation(x, y, rho, sinC) : null;
+            return GetLocation(x, y, rho, sinC);
         }
     }
 }
