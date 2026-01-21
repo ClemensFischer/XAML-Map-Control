@@ -65,10 +65,12 @@ namespace MapControl
 
         public void Rotate(double angle)
         {
+            angle = angle % 360d * Math.PI / 180d;
+
             if (angle != 0d)
             {
-                var cos = Math.Cos(angle * Math.PI / 180d);
-                var sin = Math.Sin(angle * Math.PI / 180d);
+                var cos = Math.Cos(angle);
+                var sin = Math.Sin(angle);
 
                 // equivalent to Multiply(new Matrix(cos, sin, -sin, cos, 0d, 0d));
                 //
