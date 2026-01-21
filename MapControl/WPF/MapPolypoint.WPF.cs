@@ -1,55 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Windows;
 using System.Windows.Media;
 
 namespace MapControl
 {
-    /// <summary>
-    /// Base class of MapPolyline, MapPolygon and MapMultiPolygon.
-    /// </summary>
-    public class MapPolypoint : MapPath, IWeakEventListener
+    public partial class MapPolypoint : MapPath
     {
-        public static readonly DependencyProperty FillRuleProperty =
-            DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,
-                (polypoint, oldValue, newValue) => ((StreamGeometry)polypoint.Data).FillRule = newValue);
-
-        public FillRule FillRule
-        {
-            get => (FillRule)GetValue(FillRuleProperty);
-            set => SetValue(FillRuleProperty, value);
-        }
-
-        protected MapPolypoint()
-        {
-            Data = new StreamGeometry();
-        }
-
-        protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
-        {
-            if (oldValue is INotifyCollectionChanged oldCollection)
-            {
-                CollectionChangedEventManager.RemoveListener(oldCollection, this);
-            }
-
-            if (newValue is INotifyCollectionChanged newCollection)
-            {
-                CollectionChangedEventManager.AddListener(newCollection, this);
-            }
-
-            UpdateData();
-        }
-
-        bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
-        {
-            UpdateData();
-
-            return true;
-        }
-
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
             using var context = ((StreamGeometry)Data).Open();

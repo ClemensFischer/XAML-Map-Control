@@ -18,7 +18,6 @@
 
     <ItemGroup>
         <Compile Remove="..\Shared\Matrix.cs" />
-        <Compile Remove="..\Shared\PolygonCollection.cs" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='net462'">

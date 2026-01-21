@@ -1,58 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 #if UWP
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #endif
 
 namespace MapControl
 {
-    /// <summary>
-    /// Base class of MapPolyline and MapPolygon.
-    /// </summary>
     public partial class MapPolypoint : MapPath
     {
-        public static readonly DependencyProperty FillRuleProperty =
-            DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,
-                (polypoint, oldValue, newValue) => ((PathGeometry)polypoint.Data).FillRule = newValue);
-
-        public FillRule FillRule
-        {
-            get => (FillRule)GetValue(FillRuleProperty);
-            set => SetValue(FillRuleProperty, value);
-        }
-
-        protected MapPolypoint()
-        {
-            Data = new PathGeometry();
-        }
-
-        protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
-        {
-            if (oldValue is INotifyCollectionChanged oldCollection)
-            {
-                oldCollection.CollectionChanged -= DataCollectionChanged;
-            }
-
-            if (newValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += DataCollectionChanged;
-            }
-
-            UpdateData();
-        }
-
-        protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            UpdateData();
-        }
-
         protected void UpdateData(IEnumerable<Location> locations, bool closed)
         {
             var figures = ((PathGeometry)Data).Figures;
