@@ -15,42 +15,45 @@ For other projections, an appropriate WmtsTileLayer or WmsImageLayer could be us
 
 Main classes are
 
-- **MapBase**: The core map control. Provides properties like Center, ZoomLevel and Heading,
+- `MapBase`: The core map control. Provides properties like Center, ZoomLevel and Heading,
 which define the currently displayed map viewport.
 
-- **Map**: MapBase with basic mouse and touch input handling for zoom, pan, and rotation.
+- `Map`: MapBase with basic mouse and touch input handling for zoom, pan, and rotation.
 
-- **MapTileLayer**: Provides tiled map content (e.g. from OpenStreetMap) by means of a **TileSource**.
+- `MapTileLayer`: Provides tiled map content (e.g. from OpenStreetMap) by means of a `TileSource`.
 
-- **WmtsTileLayer**: Provides tiled map content from a Web Map Tile Service (WMTS).
+- `WmtsTileLayer`: Provides tiled map content from a Web Map Tile Service (WMTS).
 
-- **MapImageLayer**, **WmsImageLayer**: Provides single image map content, e.g. from a Web Map Service (WMS).
+- `MapImageLayer`, `WmsImageLayer`: Provides single image map content, e.g. from a Web Map Service (WMS).
 
-- **MapItemsControl**: Displays a collection of **MapItem** objects (with a geographic **Location**).
+- `MapItemsControl`: Displays a collection of `MapItem` objects (with a geographic location).
 
 ---
 
-The **TileImageLoader** class uses
-[IDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache)
+In order to use OpenStreetMap tile servers in accordance with their [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/),
+your application must set a unique HTTP `User-Agent` request header. This value can be set via the `DefaultRequestHeaders` property of the
+`HttpClient` held by the static `ImageLoader.HttpClient` property. See the sample applications for details.
+The OpenStreetMap tile usage policy also requires that an application caches map tiles locally.
+
+The `TileImageLoader` class uses
+[`IDistributedCache`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache)
 for optional caching of map tile bitmaps. By default, the cache is a
-[MemoryDistributedCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.memorydistributedcache)
+[`MemoryDistributedCache`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.memorydistributedcache)
 instance with all default options.
 
-Map Control provides three minimal IDistributedCache implementations for persistent caching:
-* ImageFileCache, an implementation that stores each cached map tile as a single image file,
+Map Control provides three minimal `IDistributedCache` implementations for persistent caching:
+* `ImageFileCache`, an implementation that stores each cached map tile as a single image file,
 in the original file format delivered by the map provider (typically PNG or JPG). ImageFileCache is part of the MapControl library.
-* FileDbCache, based on [EzTools FileDb](https://github.com/eztools-software/FileDb),
+* `FileDbCache`, based on [EzTools FileDb](https://github.com/eztools-software/FileDb),
 a simple file based No-SQL database, in a separate library FileDbCache.
-* SQLiteCache, based on [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki),
+* `SQLiteCache`, based on [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki),
 in a separate library SQLiteCache.
 
 You can of course also use a full-featured cache like
-[RedisCache](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.stackexchangeredis.rediscache).
+[`RedisCache`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.stackexchangeredis.rediscache).
 
-To try the sample application with persistent caching, add an appropriate package reference to its Visual Studio project
-and uncomment the respective TileImageLoader.Cache assignment in MainWindow.xaml.cs.
-
-Please note that some map providers may not allow persistent caching of their map data.
+To try the sample applications with `FileDbCache` or `SQLiteCache`, add an appropriate package reference to their
+Visual Studio projects and modify the `TileImageLoader.Cache` assignment accordingly in `MainWindow.xaml.cs`.
 
 ---
 
