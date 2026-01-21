@@ -67,11 +67,11 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Calculates a series of Locations on a great circle, or orthodrome, that connects the
-        /// two specified Locations, with an optional angular resolution specified in degrees.
+        /// Calculates a series of Locations on a great circle, i.e. a geodesic that connects
+        /// the two specified Locations, with an optional angular resolution specified in degrees.
         /// See https://en.wikipedia.org/wiki/Great-circle_navigation.
         /// </summary>
-        public static LocationCollection OrthodromeLocations(Location location1, Location location2, double resolution = 1d)
+        public static LocationCollection GeodesicLocations(Location location1, Location location2, double resolution = 1d)
         {
             if (resolution <= 0d)
             {
@@ -132,11 +132,11 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Calculates a series of Locations on a rhumb line, or loxodrome, that connects the
-        /// two specified Locations, with an optional angular resolution specified in degrees.
+        /// Calculates a series of Locations on a rhumb line that connects the two
+        /// specified Locations, with an optional angular resolution specified in degrees.
         /// See https://en.wikipedia.org/wiki/Rhumb_line.
         /// </summary>
-        public static LocationCollection LoxodromeLocations(Location location1, Location location2, double resolution = 1d)
+        public static LocationCollection RhumblineLocations(Location location1, Location location2, double resolution = 1d)
         {
             if (resolution <= 0d)
             {
