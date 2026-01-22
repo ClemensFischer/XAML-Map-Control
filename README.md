@@ -20,11 +20,11 @@ which define the currently displayed map viewport.
 
 - `Map`: MapBase with basic mouse and touch input handling for zoom, pan, and rotation.
 
-- `MapTileLayer`: Provides tiled map content (e.g. from OpenStreetMap) by means of a `TileSource`.
+- `MapTileLayer`: Provides [tiled map content](https://wiki.openstreetmap.org/wiki/Raster_tile_providers) (e.g. from OpenStreetMap) by means of a `TileSource`.
 
-- `WmtsTileLayer`: Provides tiled map content from a Web Map Tile Service (WMTS).
+- `WmtsTileLayer`: Provides tiled map content from a Web Map Tile Service ([WMTS](https://en.wikipedia.org/wiki/Web_Map_Tile_Service)).
 
-- `MapImageLayer`, `WmsImageLayer`: Provides single image map content, e.g. from a Web Map Service (WMS).
+- `MapImageLayer`, `WmsImageLayer`: Provides single image map content, e.g. from a Web Map Service ([WMS](https://en.wikipedia.org/wiki/Web_Map_Service)).
 
 - `MapItemsControl`: Displays a collection of `MapItem` objects (with a geographic location).
 
