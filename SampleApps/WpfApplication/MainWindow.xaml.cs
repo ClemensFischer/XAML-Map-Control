@@ -27,8 +27,7 @@ namespace SampleApplication
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Debug.WriteLine(request.RequestUri);
-
+            //Debug.WriteLine(request.RequestUri);
             return base.SendAsync(request, cancellationToken);
         }
     }
