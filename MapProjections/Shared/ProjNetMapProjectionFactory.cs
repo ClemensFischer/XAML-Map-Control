@@ -11,7 +11,6 @@ namespace MapControl.Projections
             { 2180, WktConstants.ProjCsEtrf2000Pl },
             { 3034, WktConstants.ProjCsEtrs89LccEurope },
             { 3035, WktConstants.ProjCsEtrs89LaeaEurope },
-            { 4087, WktConstants.ProjCsWgs84 },
             { 4647, WktConstants.ProjCsEtrs89Utm32NzEN },
             { 4839, WktConstants.ProjCsEtrs89LccGermanyNE },
             { 5243, WktConstants.ProjCsEtrs89LccGermanyEN },

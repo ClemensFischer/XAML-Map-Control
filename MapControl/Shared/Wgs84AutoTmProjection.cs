@@ -1,7 +1,8 @@
 ﻿namespace MapControl
 {
     /// <summary>
-    /// WGS84 Auto Transverse Mercator Projection.
+    /// WGS84 Auto Transverse Mercator Projection - AUTO2:42002.
+    /// The CentralMeridian is automatically set to the projection's Center.Longitude.
     /// </summary>
     public class Wgs84AutoTmProjection : TransverseMercatorProjection
     {

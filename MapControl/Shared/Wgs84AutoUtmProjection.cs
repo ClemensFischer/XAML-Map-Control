@@ -3,9 +3,10 @@
 namespace MapControl
 {
     /// <summary>
-    /// WGS84 Universal Transverse Mercator Projection with automatic zone selection from
-    /// the projection center. If the CRS identifier passed to the constructor is null or empty,
-    /// appropriate values from EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760 are used.
+    /// WGS84 Universal Transverse Mercator Projection - AUTO2:42002.
+    /// Zone and Hemisphere are automatically selected from the projection's Center.
+    /// If the CRS identifier passed to the constructor is null or empty, appropriate
+    /// values from EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760 are used.
     /// </summary>
     public class Wgs84AutoUtmProjection : Wgs84UtmProjection
     {

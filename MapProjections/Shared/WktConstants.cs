@@ -101,19 +101,6 @@
             UnitDegree +
             "AUTHORITY[\"EPSG\",\"4149\"]]";
 
-        public const string ProjCsWgs84 =
-            "PROJCS[\"WGS 84 / World Equidistant Cylindrical\"," +
-            GeogCsWgs84 +
-            "PROJECTION[\"Equirectangular\"]," +
-            "PARAMETER[\"standard_parallel_1\",0]," +
-            "PARAMETER[\"central_meridian\",0]," +
-            "PARAMETER[\"false_easting\",0]," +
-            "PARAMETER[\"false_northing\",0]," +
-            "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
-            "AXIS[\"Easting\",EAST]," +
-            "AXIS[\"Northing\",NORTH]," +
-            "AUTHORITY[\"EPSG\",\"4087\"]]";
-
         public const string ProjCsGgrs87 =
             "PROJCS[\"GGRS87 / Greek Grid\"," +
             GeogCsGgrs87 + "," +
