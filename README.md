@@ -31,9 +31,12 @@ which define the currently displayed map viewport.
 ---
 
 In order to use OpenStreetMap tile servers in accordance with their [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/),
-your application must set a unique HTTP `User-Agent` request header. This value can be set via the `DefaultRequestHeaders` property of the
-`HttpClient` held by the static `ImageLoader.HttpClient` property. See the sample applications for details.
-The OpenStreetMap tile usage policy also requires that an application caches map tiles locally.
+your application must set a unique HTTP `User-Agent` request header, e.g. by adding it to the `DefaultRequestHeaders`
+of the `HttpClient` instance returned by the static `ImageLoader.HttpClient` property:
+
+    ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "Your-Application/1.0");
+
+The tile usage policy also requires that an application caches map tiles locally.
 
 The `TileImageLoader` class uses
 [`IDistributedCache`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache)
