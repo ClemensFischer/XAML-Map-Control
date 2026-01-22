@@ -33,18 +33,18 @@ namespace MapControl
             {
                 field = value;
                 var n = field / (2d - field);
-                var nn = n * n;
-                var nnn = n * nn;
-                a1 = n / 2d - nn * 2d / 3d + nnn * 5d / 16d;
-                a2 = nn * 13d / 48d - nnn * 3d / 5d;
-                a3 = nnn * 61d / 240d;
-                b1 = n / 2d - nn * 2d / 3d + nnn * 37d / 96d;
-                b2 = nn / 48d + nnn / 15d;
-                b3 = nnn * 17d / 480d;
-                d1 = n * 2d - nn * 2d / 3d - nnn * 2d;
-                d2 = nn * 7d / 3d - nnn * 8d / 5d;
-                d3 = nnn * 56d / 15d;
-                f1 = (1d + nn / 4d + nn * nn / 64d) / (1d + n);
+                var n2 = n * n;
+                var n3 = n * n2;
+                a1 = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
+                a2 = n2 * 13d / 48d - n3 * 3d / 5d;
+                a3 = n3 * 61d / 240d;
+                b1 = n / 2d - n2 * 2d / 3d + n3 * 37d / 96d;
+                b2 = n2 / 48d + n3 / 15d;
+                b3 = n3 * 17d / 480d;
+                d1 = n * 2d - n2 * 2d / 3d - n3 * 2d;
+                d2 = n2 * 7d / 3d - n3 * 8d / 5d;
+                d3 = n3 * 56d / 15d;
+                f1 = (1d + n2 / 4d + n2 * n2 / 64d) / (1d + n);
                 f2 = 2d * Math.Sqrt(n) / (1d + n);
             }
         }
