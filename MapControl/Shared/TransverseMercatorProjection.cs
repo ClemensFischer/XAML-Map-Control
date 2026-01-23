@@ -11,8 +11,6 @@ namespace MapControl
     /// Transverse Mercator Projection.
     /// See https://en.wikipedia.org/wiki/Transverse_Mercator_projection
     /// and https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
-    /// Formulas from "Concise Derivation of Extensive Coordinate Conversion Formulae
-    /// in the Gauss-Krüger Projection", http://www.gsi.go.jp/common/000065826.pdf.
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
