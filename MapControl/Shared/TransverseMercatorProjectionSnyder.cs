@@ -63,15 +63,15 @@ namespace MapControl
             var e6 = e2 * e4;
 
             return EquatorialRadius *
-                ((1d - e2 / 4d - 3d * e4 / 64d - 5d * e6 / 256d) * phi -
-                (3d * e2 / 8d + 3d * e4 / 32d + 45d * e6 / 1024d) * Math.Sin(2d * phi) +
-                (15d * e4 / 256d + 45d * e6 / 1024d) * Math.Sin(4d * phi) -
-                35d * e6 / 3072d * Math.Sin(6d * phi)); // (3-21)
+                ((1d - e2 / 4d - 3d / 64d * e4 - 5d / 256d * e6) * phi -
+                (3d / 8d * e2 + 3d / 32d * e4 + 45d / 1024d * e6) * Math.Sin(2d * phi) +
+                (15d / 256d * e4 + 45d / 1024d * e6) * Math.Sin(4d * phi) -
+                35d / 3072d * e6 * Math.Sin(6d * phi)); // (3-21)
         }
 
         public override Matrix RelativeScale(double latitude, double longitude)
         {
-            var k = ScaleFactor;
+            var k = 1d; // omit k0 for relative scale
 
             if (latitude > -90d && latitude < 90d)
             {
