@@ -11,6 +11,8 @@ namespace MapControl
     /// Transverse Mercator Projection.
     /// See https://en.wikipedia.org/wiki/Transverse_Mercator_projection
     /// and https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system.
+    /// Formulas from "Concise Derivation of Extensive Coordinate Conversion Formulae
+    /// in the Gauss-Krüger Projection", http://www.gsi.go.jp/common/000065826.pdf.
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
@@ -76,12 +78,12 @@ namespace MapControl
             var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
             // k0 * A
             var k0A = ScaleFactor * EquatorialRadius * f1;
-            // E
+
             var x = FalseEasting + k0A * (eta_ +
                 a1 * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_) +
                 a2 * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_) +
                 a3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_));
-            // N
+
             var y = FalseNorthing + k0A * (xi_ +
                 a1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_) +
                 a2 * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_) +
