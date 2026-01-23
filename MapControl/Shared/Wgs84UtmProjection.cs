@@ -9,7 +9,8 @@ namespace MapControl
     }
 
     /// <summary>
-    /// WGS84 Universal Transverse Mercator Projection.
+    /// WGS84 Universal Transverse Mercator Projection -
+    /// EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760.
     /// </summary>
     public class Wgs84UtmProjection : TransverseMercatorProjection
     {

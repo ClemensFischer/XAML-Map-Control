@@ -3,7 +3,7 @@
 namespace MapControl
 {
     /// <summary>
-    /// NAD27 Universal Transverse Mercator Projection.
+    /// NAD27 Universal Transverse Mercator Projection - EPSG:26701 to EPSG:26722.
     /// </summary>
     public class Nad27UtmProjection : TransverseMercatorProjection
     {

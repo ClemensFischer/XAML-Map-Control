@@ -3,7 +3,7 @@
 namespace MapControl
 {
     /// <summary>
-    /// ETRS89 Universal Transverse Mercator Projection.
+    /// ETRS89 Universal Transverse Mercator Projection - EPSG:25828 to EPSG:25838.
     /// </summary>
     public class Etrs89UtmProjection : TransverseMercatorProjection
     {

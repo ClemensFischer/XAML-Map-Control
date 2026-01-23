@@ -56,7 +56,7 @@ namespace MapControl
             }
         }
 
-        private double MeridianDistance(double phi) // (3-21)
+        private double MeridianDistance(double phi)
         {
             var e2 = (2d - Flattening) * Flattening;
             var e4 = e2 * e2;
@@ -66,7 +66,7 @@ namespace MapControl
                 ((1d - e2 / 4d - 3d * e4 / 64d - 5d * e6 / 256d) * phi -
                 (3d * e2 / 8d + 3d * e4 / 32d + 45d * e6 / 1024d) * Math.Sin(2d * phi) +
                 (15d * e4 / 256d + 45d * e6 / 1024d) * Math.Sin(4d * phi) -
-                35d * e6 / 3072d * Math.Sin(6d * phi));
+                35d * e6 / 3072d * Math.Sin(6d * phi)); // (3-21)
         }
 
         public override Matrix RelativeScale(double latitude, double longitude)
