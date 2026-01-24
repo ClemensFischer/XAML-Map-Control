@@ -7,8 +7,9 @@ namespace MapControl
 {
     public abstract class AzimuthalProjection : MapProjection
     {
-        protected AzimuthalProjection() : base(true)
+        protected AzimuthalProjection()
         {
+            EnableCenterUpdates();
         }
 
         public readonly struct ProjectedPoint

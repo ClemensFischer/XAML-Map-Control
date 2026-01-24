@@ -14,8 +14,7 @@ namespace MapControl.Projections
     /// </summary>
     public class ProjNetMapProjection : MapProjection
     {
-        protected ProjNetMapProjection(bool hasCenter = false)
-            : base(hasCenter)
+        protected ProjNetMapProjection()
         {
         }
 

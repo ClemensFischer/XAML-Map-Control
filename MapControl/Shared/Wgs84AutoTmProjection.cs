@@ -16,6 +16,7 @@
         public Wgs84AutoTmProjection(string crsId)
         {
             CrsId = crsId;
+            EnableCenterUpdates();
         }
 
         protected override void CenterChanged()

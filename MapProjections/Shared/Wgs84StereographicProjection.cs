@@ -12,8 +12,8 @@ namespace MapControl.Projections
     public class Wgs84StereographicProjection : ProjNetMapProjection
     {
         public Wgs84StereographicProjection()
-            : base(true)
         {
+            EnableCenterUpdates();
             CenterChanged();
         }
 

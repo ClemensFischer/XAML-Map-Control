@@ -28,6 +28,8 @@ namespace MapControl
             {
                 CrsId = autoCrsId;
             }
+
+            EnableCenterUpdates();
         }
 
         protected override void CenterChanged()

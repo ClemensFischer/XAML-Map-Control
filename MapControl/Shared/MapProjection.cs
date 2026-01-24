@@ -17,7 +17,7 @@ namespace MapControl
 #else
     [System.ComponentModel.TypeConverter(typeof(MapProjectionConverter))]
 #endif
-    public abstract class MapProjection(bool hasCenter = false)
+    public abstract class MapProjection
     {
         public const double Wgs84EquatorialRadius = 6378137d;
         public const double Wgs84Flattening = 1d / 298.257223563;
@@ -56,7 +56,7 @@ namespace MapControl
         public double MeterPerDegree => EquatorialRadius * Math.PI / 180d;
 
         private Location center;
-        private bool updateCenter = hasCenter;
+        private bool updateCenter;
 
         /// <summary>
         /// Gets or sets an optional projection center. If the property is set to a non-null value,
@@ -75,6 +75,11 @@ namespace MapControl
                     updateCenter = false;
                 }
             }
+        }
+
+        protected void EnableCenterUpdates()
+        {
+            updateCenter = true;
         }
 
         /// <summary>
