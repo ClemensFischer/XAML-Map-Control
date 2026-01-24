@@ -49,9 +49,9 @@ namespace MapControl
             }
         }
 
-        public double ScaleFactor { get; set; } = 0.9996;
         public double CentralMeridian { get; set; }
-        public double FalseEasting { get; set; }
+        public double ScaleFactor { get; set; } = 0.9996;
+        public double FalseEasting { get; set; } = 5e5;
         public double FalseNorthing { get; set; }
 
         public TransverseMercatorProjection()

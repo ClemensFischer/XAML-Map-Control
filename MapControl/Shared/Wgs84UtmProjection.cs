@@ -27,7 +27,6 @@ namespace MapControl
         public Wgs84UtmProjection(int zone, Hemisphere hemisphere)
         {
             SetZone(zone, hemisphere);
-            FalseEasting = 5e5;
         }
 
         protected void SetZone(int zone, Hemisphere hemisphere)

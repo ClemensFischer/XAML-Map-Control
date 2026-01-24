@@ -17,9 +17,9 @@ namespace MapControl
         private double M0;
 
         public double Flattening { get; set; } = Wgs84Flattening;
-        public double ScaleFactor { get; set; } = 0.9996;
         public double CentralMeridian { get; set; }
-        public double FalseEasting { get; set; }
+        public double ScaleFactor { get; set; } = 0.9996;
+        public double FalseEasting { get; set; } = 5e5;
         public double FalseNorthing { get; set; }
 
         public double LatitudeOfOrigin

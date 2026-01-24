@@ -27,10 +27,7 @@ namespace MapControl
             // GRS 1980
             EquatorialRadius = 6378137d;
             Flattening = 1d / 298.257222101;
-            ScaleFactor = 0.9996;
             CentralMeridian = zone * 6d - 183d;
-            FalseEasting = 5e5;
-            FalseNorthing = 0d;
         }
     }
 }

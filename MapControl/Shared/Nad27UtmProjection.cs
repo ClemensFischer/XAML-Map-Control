@@ -27,10 +27,7 @@ namespace MapControl
             // Clarke 1866
             EquatorialRadius = 6378206.4;
             Flattening = 1d / 294.978698213898;
-            ScaleFactor = 0.9996;
             CentralMeridian = zone * 6d - 183d;
-            FalseEasting = 5e5;
-            FalseNorthing = 0d;
         }
     }
 }
