@@ -56,7 +56,6 @@ namespace MapControl
 
         public TransverseMercatorProjection()
         {
-            Type = MapProjectionType.TransverseCylindrical;
             Flattening = Wgs84Flattening;
         }
 

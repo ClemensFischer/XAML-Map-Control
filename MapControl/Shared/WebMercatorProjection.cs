@@ -23,7 +23,7 @@ namespace MapControl
 
         public WebMercatorProjection(string crsId)
         {
-            Type = MapProjectionType.WebMercator;
+            IsNormalCylindrical = true;
             CrsId = crsId;
         }
 

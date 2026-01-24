@@ -7,10 +7,8 @@ namespace MapControl
 {
     public abstract class AzimuthalProjection : MapProjection
     {
-        protected AzimuthalProjection()
-            : base(true)
+        protected AzimuthalProjection() : base(true)
         {
-            Type = MapProjectionType.Azimuthal;
         }
 
         public readonly struct ProjectedPoint

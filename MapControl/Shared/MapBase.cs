@@ -430,7 +430,7 @@ namespace MapControl
         {
             maxLatitude = 90d;
 
-            if (projection.Type <= MapProjectionType.NormalCylindrical)
+            if (projection.IsNormalCylindrical)
             {
                 var maxLocation = projection.MapToLocation(0d, 180d * MapProjection.Wgs84MeterPerDegree);
 

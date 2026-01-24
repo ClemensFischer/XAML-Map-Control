@@ -15,11 +15,6 @@ namespace MapControl
     /// </summary>
     public class PolarStereographicProjection : MapProjection
     {
-        public PolarStereographicProjection()
-        {
-            Type = MapProjectionType.Azimuthal;
-        }
-
         public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.994;
         public double FalseEasting { get; set; } = 2e6;

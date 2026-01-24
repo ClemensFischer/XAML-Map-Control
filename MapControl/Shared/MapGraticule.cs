@@ -151,7 +151,7 @@ namespace MapControl
 
             SetLineDistance();
 
-            if (ParentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical)
+            if (ParentMap.MapProjection.IsNormalCylindrical)
             {
                 DrawCylindricalGraticule(figures, labels);
             }

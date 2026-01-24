@@ -8,17 +8,9 @@ using Avalonia;
 
 namespace MapControl
 {
-    public enum MapProjectionType
-    {
-        WebMercator, // normal cylindrical projection compatible with MapTileLayer
-        NormalCylindrical,
-        TransverseCylindrical,
-        Azimuthal,
-        Other
-    }
-
     /// <summary>
-    /// Defines a map projection between geographic coordinates and cartesian map coordinates.
+    /// Implements a map projection, a transformation between geographic coordinates,
+    /// i.e. latitude and longitude in degrees, and cartesian map coordinates in meters.
     /// </summary>
 #if UWP || WINUI
     [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
@@ -46,17 +38,18 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the type of the projection.
-        /// </summary>
-        public MapProjectionType Type { get; protected set; } = MapProjectionType.Other;
-
-        /// <summary>
         /// Gets the WMS 1.3.0 CRS identifier.
         /// </summary>
         public string CrsId { get; protected set; } = "";
 
         /// <summary>
-        /// The earth ellipsoid semi-major axis, or spherical earth radius, in meters.
+        /// Indicates whether the projection is normal cylindrical, see
+        /// https://en.wikipedia.org/wiki/Map_projection#Normal_cylindrical.
+        /// </summary>
+        public bool IsNormalCylindrical { get; protected set; }
+
+        /// <summary>
+        /// The earth ellipsoid semi-major axis, or spherical earth radius respectively, in meters.
         /// </summary>
         public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
 

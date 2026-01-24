@@ -25,7 +25,7 @@ namespace MapControl
 
         public WorldMercatorProjection(string crsId)
         {
-            Type = MapProjectionType.NormalCylindrical;
+            IsNormalCylindrical = true;
             CrsId = crsId;
         }
 

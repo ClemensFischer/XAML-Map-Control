@@ -117,7 +117,7 @@ namespace MapControl
             return TransformBounds(transform, 0d, 0d, viewWidth, viewHeight);
         }
 
-        private static Rect TransformBounds(Matrix transform, double x, double y, double width, double height)
+        public static Rect TransformBounds(Matrix transform, double x, double y, double width, double height)
         {
             if (transform.M12 == 0d && transform.M21 == 0d)
             {

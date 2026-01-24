@@ -16,11 +16,6 @@ namespace MapControl
     {
         private double M0;
 
-        public TransverseMercatorProjectionSnyder()
-        {
-            Type = MapProjectionType.TransverseCylindrical;
-        }
-
         public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.9996;
         public double CentralMeridian { get; set; }

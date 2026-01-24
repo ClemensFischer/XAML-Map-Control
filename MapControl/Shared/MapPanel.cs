@@ -202,7 +202,7 @@ namespace MapControl
         {
             var position = parentMap.LocationToView(location);
 
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+            if (parentMap.MapProjection.IsNormalCylindrical &&
                 position.HasValue && !parentMap.InsideViewBounds(position.Value))
             {
                 var coercedPosition = parentMap.LocationToView(
@@ -222,7 +222,7 @@ namespace MapControl
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
 
-            if (parentMap.MapProjection.Type <= MapProjectionType.NormalCylindrical &&
+            if (parentMap.MapProjection.IsNormalCylindrical &&
                 !parentMap.InsideViewBounds(position))
             {
                 var location = parentMap.MapProjection.MapToLocation(center);

@@ -43,7 +43,15 @@ namespace MapControl.Projections
             get;
             protected set
             {
-                field = value ?? throw new ArgumentNullException(nameof(value));
+                field = value ??
+                    throw new ArgumentNullException(nameof(value));
+
+                var name = field.Projection?.Name ??
+                    throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
+
+                IsNormalCylindrical = name.StartsWith("Mercator") ||
+                    name.StartsWith("Equirectangular") ||
+                    name.Contains("Pseudo-Mercator");
 
                 var transformFactory = new CoordinateTransformationFactory();
 
@@ -58,35 +66,6 @@ namespace MapControl.Projections
                 CrsId = !string.IsNullOrEmpty(field.Authority) && field.AuthorityCode > 0
                     ? $"{field.Authority}:{field.AuthorityCode}"
                     : string.Empty;
-
-                if (CrsId == MapControl.WebMercatorProjection.DefaultCrsId)
-                {
-                    Type = MapProjectionType.WebMercator;
-                }
-                else
-                {
-                    var name = field.Projection?.Name ??
-                        throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
-
-                    if (name.StartsWith("Mercator") ||
-                        name.StartsWith("Equirectangular"))
-                    {
-                        Type = MapProjectionType.NormalCylindrical;
-                    }
-                    else if (name.StartsWith("Transverse"))
-                    {
-                        Type = MapProjectionType.TransverseCylindrical;
-                    }
-                    else if (name.Contains("Orthographic") ||
-                             name.Contains("Stereographic"))
-                    {
-                        Type = MapProjectionType.Azimuthal;
-                    }
-                    else
-                    {
-                        Type = MapProjectionType.Other;
-                    }
-                }
             }
         }
 

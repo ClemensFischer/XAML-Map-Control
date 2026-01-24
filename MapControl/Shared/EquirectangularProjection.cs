@@ -24,7 +24,7 @@ namespace MapControl
 
         public EquirectangularProjection(string crsId)
         {
-            Type = MapProjectionType.NormalCylindrical;
+            IsNormalCylindrical = true;
             CrsId = crsId;
         }
 
