@@ -39,13 +39,13 @@ namespace MapControl
             var p = GetProjectedPoint(latitude, longitude);
             var k = 2d / (1d + p.CosC); // p.157 (21-4), k0 == 1
 
-            return new Point(EarthRadius * k * p.X, EarthRadius * k * p.Y); // p.157 (21-2/3)
+            return new Point(EquatorialRadius * k * p.X, EquatorialRadius * k * p.Y); // p.157 (21-2/3)
         }
 
         public override Location MapToLocation(double x, double y)
         {
             var rho = Math.Sqrt(x * x + y * y);
-            var c = 2d * Math.Atan(rho / (2d * EarthRadius)); // p.159 (21-15), k0 == 1
+            var c = 2d * Math.Atan(rho / (2d * EquatorialRadius)); // p.159 (21-15), k0 == 1
 
             return GetLocation(x, y, rho, Math.Sin(c));
         }

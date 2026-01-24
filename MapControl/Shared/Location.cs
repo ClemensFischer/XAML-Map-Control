@@ -17,6 +17,11 @@ namespace MapControl
 #endif
     public class Location : IEquatable<Location>
     {
+        // Arithmetic mean radius (2*a + b) / 3 == (1 - f/3) * a.
+        // See https://en.wikipedia.org/wiki/Earth_radius#Arithmetic_mean_radius.
+        //
+        public const double Wgs84MeanRadius = (1d - MapProjection.Wgs84Flattening / 3d) * MapProjection.Wgs84EquatorialRadius;
+
         public Location()
         {
         }
@@ -75,7 +80,7 @@ namespace MapControl
         /// <summary>
         /// Calculates great circle azimuth in degrees and distance in meters between this and the specified Location.
         /// </summary>
-        public (double, double) GetAzimuthDistance(Location location, double earthRadius = MapProjection.Wgs84MeanRadius)
+        public (double, double) GetAzimuthDistance(Location location, double earthRadius = Wgs84MeanRadius)
         {
             var lat1 = Latitude * Math.PI / 180d;
             var lon1 = Longitude * Math.PI / 180d;
@@ -100,7 +105,7 @@ namespace MapControl
         /// <summary>
         /// Calculates great distance in meters between this and the specified Location.
         /// </summary>
-        public double GetDistance(Location location, double earthRadius = MapProjection.Wgs84MeanRadius)
+        public double GetDistance(Location location, double earthRadius = Wgs84MeanRadius)
         {
             (var _, var distance) = GetAzimuthDistance(location, earthRadius);
 
@@ -110,7 +115,7 @@ namespace MapControl
         /// <summary>
         /// Calculates the Location on a great circle at the specified azimuth in degrees and distance in meters from this Location.
         /// </summary>
-        public Location GetLocation(double azimuth, double distance, double earthRadius = MapProjection.Wgs84MeanRadius)
+        public Location GetLocation(double azimuth, double distance, double earthRadius = Wgs84MeanRadius)
         {
             var lat1 = Latitude * Math.PI / 180d;
             var lon1 = Longitude * Math.PI / 180d;

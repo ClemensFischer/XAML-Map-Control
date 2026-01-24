@@ -37,15 +37,15 @@ namespace MapControl
         public override Point? LocationToMap(double latitude, double longitude)
         {
             return new Point(
-                Wgs84MeterPerDegree * longitude,
-                Wgs84MeterPerDegree * LatitudeToY(latitude));
+                MeterPerDegree * longitude,
+                MeterPerDegree * LatitudeToY(latitude));
         }
 
         public override Location MapToLocation(double x, double y)
         {
             return new Location(
-                YToLatitude(y / Wgs84MeterPerDegree),
-                x / Wgs84MeterPerDegree);
+                YToLatitude(y / MeterPerDegree),
+                x / MeterPerDegree);
         }
 
         public static double LatitudeToY(double latitude)

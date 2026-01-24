@@ -5,9 +5,6 @@ using System.Windows.Media;
 
 namespace MapControl
 {
-    /// <summary>
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.141.
-    /// </summary>
     public abstract class AzimuthalProjection : MapProjection
     {
         protected AzimuthalProjection()
@@ -15,8 +12,6 @@ namespace MapControl
         {
             Type = MapProjectionType.Azimuthal;
         }
-
-        public double EarthRadius { get; set; } = Wgs84MeanRadius;
 
         public readonly struct ProjectedPoint
         {

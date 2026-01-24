@@ -21,30 +21,11 @@ namespace MapControl
             Type = MapProjectionType.TransverseCylindrical;
         }
 
+        public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.9996;
         public double CentralMeridian { get; set; }
         public double FalseEasting { get; set; }
         public double FalseNorthing { get; set; }
-
-        public double EquatorialRadius
-        {
-            get;
-            set
-            {
-                field = value;
-                M0 = MeridianDistance(LatitudeOfOrigin * Math.PI / 180d);
-            }
-        } = Wgs84EquatorialRadius;
-
-        public double Flattening
-        {
-            get;
-            set
-            {
-                field = value;
-                M0 = MeridianDistance(LatitudeOfOrigin * Math.PI / 180d);
-            }
-        } = Wgs84Flattening;
 
         public double LatitudeOfOrigin
         {
@@ -62,11 +43,11 @@ namespace MapControl
             var e4 = e2 * e2;
             var e6 = e2 * e4;
 
-            return EquatorialRadius *
-                ((1d - e2 / 4d - 3d / 64d * e4 - 5d / 256d * e6) * phi -
-                (3d / 8d * e2 + 3d / 32d * e4 + 45d / 1024d * e6) * Math.Sin(2d * phi) +
-                (15d / 256d * e4 + 45d / 1024d * e6) * Math.Sin(4d * phi) -
-                35d / 3072d * e6 * Math.Sin(6d * phi)); // (3-21)
+            return EquatorialRadius * (
+                (1d - e2 / 4d - e4 * 3d / 64d - e6 * 5d / 256d) * phi -
+                (e2 * 3d / 8d + e4 * 3d / 32d + e6 * 45d / 1024d) * Math.Sin(2d * phi) +
+                (e4 * 15d / 256d + e6 * 45d / 1024d) * Math.Sin(4d * phi) -
+                 e6 * 35d / 3072d * Math.Sin(6d * phi)); // (3-21)
         }
 
         public override Matrix RelativeScale(double latitude, double longitude)
@@ -146,12 +127,12 @@ namespace MapControl
             var e14 = e1 * e13;
 
             var M = M0 + (y - FalseNorthing) / ScaleFactor; // (8-20)
-            var mu = M / (EquatorialRadius * (1d - e2 / 4d - 3d * e4 / 64d - 5d * e6 / 256d)); // (7-19)
+            var mu = M / (EquatorialRadius * (1d - e2 / 4d - e4 * 3d / 64d - e6 * 5d / 256d)); // (7-19)
             var phi1 = mu +
-                (3d * e1 / 2d - 27d * e13 / 32d) * Math.Sin(2d * mu) +
-                (21d * e12 / 16d - 55d * e14 / 32d) * Math.Sin(4d * mu) +
-                151d * e13 / 96d * Math.Sin(6d * mu) +
-                1097d * e14 / 512d * Math.Sin(8d * mu); // (3-26)
+                (e1 * 3d / 2d - e13 * 27d / 32d) * Math.Sin(2d * mu) +
+                (e12 * 21d / 16d - e14 * 55d / 32d) * Math.Sin(4d * mu) +
+                 e13 * 151d / 96d * Math.Sin(6d * mu) +
+                 e14 * 1097d / 512d * Math.Sin(8d * mu); // (3-26)
 
             var sinPhi1 = Math.Sin(phi1);
             var cosPhi1 = Math.Cos(phi1);

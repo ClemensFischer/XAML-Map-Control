@@ -46,13 +46,13 @@ namespace MapControl
 
             var k = 1d / p.CosC; // p.165 (22-3)
 
-            return new Point(EarthRadius * k * p.X, EarthRadius * k * p.Y); // p.165 (22-4/5)
+            return new Point(EquatorialRadius * k * p.X, EquatorialRadius * k * p.Y); // p.165 (22-4/5)
         }
 
         public override Location MapToLocation(double x, double y)
         {
             var rho = Math.Sqrt(x * x + y * y);
-            var c = Math.Atan(rho / EarthRadius); // p.167 (22-16)
+            var c = Math.Atan(rho / EquatorialRadius); // p.167 (22-16)
 
             return GetLocation(x, y, rho, Math.Sin(c));
         }

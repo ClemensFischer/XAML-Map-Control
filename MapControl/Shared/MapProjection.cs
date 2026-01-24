@@ -31,11 +31,6 @@ namespace MapControl
         public const double Wgs84Flattening = 1d / 298.257223563;
         public const double Wgs84MeterPerDegree = Wgs84EquatorialRadius * Math.PI / 180d;
 
-        // Arithmetic mean radius (2*a + b) / 3 == (1 - f/3) * a.
-        // See https://en.wikipedia.org/wiki/Earth_radius#Arithmetic_mean_radius.
-        //
-        public const double Wgs84MeanRadius = (1d - Wgs84Flattening / 3d) * Wgs84EquatorialRadius;
-
         public static MapProjectionFactory Factory
         {
             get => field ??= new MapProjectionFactory();
@@ -59,6 +54,13 @@ namespace MapControl
         /// Gets the WMS 1.3.0 CRS identifier.
         /// </summary>
         public string CrsId { get; protected set; } = "";
+
+        /// <summary>
+        /// The earth ellipsoid semi-major axis, or spherical earth radius, in meters.
+        /// </summary>
+        public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
+
+        public double MeterPerDegree => EquatorialRadius * Math.PI / 180d;
 
         private Location center;
         private bool updateCenter = hasCenter;

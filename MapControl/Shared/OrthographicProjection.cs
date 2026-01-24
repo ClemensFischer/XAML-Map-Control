@@ -42,13 +42,13 @@ namespace MapControl
                 return null;
             }
 
-            return new Point(EarthRadius * p.X, EarthRadius * p.Y); // p.149 (20-3/4)
+            return new Point(EquatorialRadius * p.X, EquatorialRadius * p.Y); // p.149 (20-3/4)
         }
 
         public override Location MapToLocation(double x, double y)
         {
             var rho = Math.Sqrt(x * x + y * y);
-            var sinC = rho / EarthRadius; // p.150 (20-19)
+            var sinC = rho / EquatorialRadius; // p.150 (20-19)
 
             return GetLocation(x, y, rho, sinC);
         }

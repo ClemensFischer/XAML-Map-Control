@@ -49,7 +49,6 @@ namespace MapControl
             }
         }
 
-        public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
         public double ScaleFactor { get; set; } = 0.9996;
         public double CentralMeridian { get; set; }
         public double FalseEasting { get; set; }

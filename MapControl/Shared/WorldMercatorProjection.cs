@@ -39,15 +39,15 @@ namespace MapControl
         public override Point? LocationToMap(double latitude, double longitude)
         {
             return new Point(
-                Wgs84MeterPerDegree * longitude,
-                Wgs84MeterPerDegree * LatitudeToY(latitude));
+                MeterPerDegree * longitude,
+                MeterPerDegree * LatitudeToY(latitude));
         }
 
         public override Location MapToLocation(double x, double y)
         {
             return new Location(
-                YToLatitude(y / Wgs84MeterPerDegree),
-                x / Wgs84MeterPerDegree);
+                YToLatitude(y / MeterPerDegree),
+                x / MeterPerDegree);
         }
 
         public static double RelativeScale(double latitude)
@@ -93,10 +93,10 @@ namespace MapControl
             var chi = Math.PI / 2d - 2d * Math.Atan(t); // p.45 (7-13)
 
             return chi +
-                (e2 / 2d + 5d * e4 / 24d + e6 / 12d + 13d * e8 / 360d) * Math.Sin(2d * chi) +
-                (7d * e4 / 48d + 29d * e6 / 240d + 811d * e8 / 11520d) * Math.Sin(4d * chi) +
-                (7d * e6 / 120d + 81d * e8 / 1120d) * Math.Sin(6d * chi) +
-                4279d * e8 / 161280d * Math.Sin(8d * chi); // p.45 (3-5)
+                (e2 / 2d + e4 * 5d / 24d + e6 / 12d + e8 * 13d / 360d) * Math.Sin(2d * chi) +
+                (e4 * 7d / 48d + e6 * 29d / 240d + e8 * 811d / 11520d) * Math.Sin(4d * chi) +
+                (e6 * 7d / 120d + e8 * 81d / 1120d) * Math.Sin(6d * chi) +
+                 e8 * 4279d / 161280d * Math.Sin(8d * chi); // p.45 (3-5)
         }
     }
 }

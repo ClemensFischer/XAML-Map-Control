@@ -9,8 +9,8 @@ using Avalonia;
 namespace MapControl
 {
     /// <summary>
-    /// Elliptical Polar Stereographic Projection with a given scale factor at the pole and
-    /// optional false easting and northing, as used by the UPS North and UPS South projections.
+    /// Elliptical Polar Stereographic Projection with scale factor at the pole and
+    /// false easting and northing, as used by the UPS North and UPS South projections.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.154-163.
     /// </summary>
     public class PolarStereographicProjection : MapProjection
@@ -20,7 +20,6 @@ namespace MapControl
             Type = MapProjectionType.Azimuthal;
         }
 
-        public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
         public double Flattening { get; set; } = Wgs84Flattening;
         public double ScaleFactor { get; set; } = 0.994;
         public double FalseEasting { get; set; } = 2e6;
