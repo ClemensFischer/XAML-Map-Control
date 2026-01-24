@@ -39,7 +39,7 @@ namespace MapControl.Projections
             var p = new AzimuthalProjection.ProjectedPoint(Center.Latitude, Center.Longitude, latitude, longitude);
             var k = 2d / (1d + p.CosC); // p.157 (21-4), k0 == 1
 
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+            return p.RelativeScale(k, k);
         }
     }
 }

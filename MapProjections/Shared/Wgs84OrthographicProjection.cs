@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 #if WPF
 using System.Windows.Media;
 #endif
@@ -38,11 +37,8 @@ namespace MapControl.Projections
         public override Matrix RelativeScale(double latitude, double longitude)
         {
             var p = new AzimuthalProjection.ProjectedPoint(Center.Latitude, Center.Longitude, latitude, longitude);
-            var h = p.CosC; // p.149 (20-5)
 
-            var scale = new Matrix(h, 0d, 0d, 1d, 0d, 0d);
-            scale.Rotate(-Math.Atan2(p.Y, p.X) * 180d / Math.PI);
-            return scale;
+            return p.RelativeScale(p.CosC, 1d); // p.149 (20-5), k == 1
         }
     }
 }

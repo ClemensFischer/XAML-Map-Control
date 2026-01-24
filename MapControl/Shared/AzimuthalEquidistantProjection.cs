@@ -9,12 +9,12 @@ using Avalonia;
 namespace MapControl
 {
     /// <summary>
-    /// Spherical Azimuthal Equidistant Projection - No standard CRS identifier.
+    /// Spherical Azimuthal Equidistant Projection - AUTO2:97003.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.195-197.
     /// </summary>
     public class AzimuthalEquidistantProjection : AzimuthalProjection
     {
-        public const string DefaultCrsId = "AUTO2:97003"; // proprietary CRS identifier
+        public const string DefaultCrsId = "AUTO2:97003"; // GeoServer non-standard CRS identifier
 
         public AzimuthalEquidistantProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)

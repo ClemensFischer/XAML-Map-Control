@@ -49,9 +49,7 @@ namespace MapControl.Projections
                 var name = field.Projection?.Name ??
                     throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
 
-                IsNormalCylindrical = name.StartsWith("Mercator") ||
-                    name.StartsWith("Equirectangular") ||
-                    name.Contains("Pseudo-Mercator");
+                IsNormalCylindrical = name.StartsWith("Mercator") || name.Contains("Pseudo-Mercator");
 
                 var transformFactory = new CoordinateTransformationFactory();
 
