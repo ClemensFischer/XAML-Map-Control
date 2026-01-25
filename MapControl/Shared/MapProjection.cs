@@ -193,11 +193,11 @@ namespace MapControl
                 // Additional rotation caused by the projection, calculated as mean value
                 // of the two angles measured relative to the east and north axis.
                 //
-                var r1 = (Math.Atan2(dy1, dx1) * 180d / Math.PI + 180d) % 360d - 180d;
-                var r2 = (Math.Atan2(-dx2, dy2) * 180d / Math.PI + 180d) % 360d - 180d;
+                var r1 = Math.Atan2(dy1, dx1) * 180d / Math.PI;
+                var r2 = Math.Atan2(-dx2, dy2) * 180d / Math.PI;
 
                 rect = new Rect(x, y, width, height);
-                rotation = latLonBox.Rotation + (r1 + r2) / 2d;
+                rotation = latLonBox.Rotation + (r1 + r2) / 2d % 360d;
             }
 
             return (rect, rotation);

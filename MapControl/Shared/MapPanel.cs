@@ -306,7 +306,9 @@ namespace MapControl
                 element.Height = viewRect.Height;
                 element.Arrange(viewRect);
 
-                rotation += parentMap.ViewTransform.Rotation;
+                // LatLonBoxToMap rotation is counterclockwise, RotateTransform is clockwise.
+                //
+                rotation = (parentMap.ViewTransform.Rotation - rotation) % 360d;
 
                 if (element.RenderTransform is RotateTransform rotateTransform)
                 {
