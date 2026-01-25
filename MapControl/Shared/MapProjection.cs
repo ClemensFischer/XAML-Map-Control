@@ -71,7 +71,10 @@ namespace MapControl
 
                 if (value != null)
                 {
-                    SetCenter(value);
+                    var longitude = Location.NormalizeLongitude(value.Longitude);
+
+                    SetCenter(value.LongitudeEquals(longitude) ? value : new Location(value.Latitude, longitude));
+
                     updateCenter = false;
                 }
             }
@@ -89,12 +92,9 @@ namespace MapControl
         {
             if (updateCenter)
             {
-                var latitude = value.Latitude;
-                var longitude = Location.NormalizeLongitude(value.Longitude);
-
-                if (center == null || !center.Equals(latitude, longitude))
+                if (center == null || !center.Equals(value))
                 {
-                    center = new Location(latitude, longitude);
+                    center = value;
                     CenterChanged();
                 }
             }

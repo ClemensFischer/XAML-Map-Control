@@ -45,7 +45,7 @@ namespace MapControl
 
         public static readonly DependencyProperty ProjectionCenterProperty =
             DependencyPropertyHelper.Register<MapBase, Location>(nameof(ProjectionCenter), null,
-                (map, oldValue, newValue) => map.ProjectionCenterPropertyChanged());
+                (map, oldValue, newValue) => map.ProjectionCenterPropertyChanged(newValue));
 
         private Location transformCenter;
         private Point viewCenter;
@@ -365,7 +365,7 @@ namespace MapControl
             return point.X >= 0d && point.Y >= 0d && point.X <= ActualWidth && point.Y <= ActualHeight;
         }
 
-        internal double CoerceLongitude(double longitude)
+        internal double NearestLongitude(double longitude)
         {
             var offset = longitude - Center.Longitude;
 
@@ -445,10 +445,23 @@ namespace MapControl
             UpdateTransform(false, true);
         }
 
-        private void ProjectionCenterPropertyChanged()
+        private void ProjectionCenterPropertyChanged(Location center)
         {
-            ResetTransformCenter();
-            UpdateTransform();
+            if (!internalPropertyChange)
+            {
+                if (center != null)
+                {
+                    var longitude = Location.NormalizeLongitude(center.Longitude);
+
+                    if (!center.LongitudeEquals(longitude))
+                    {
+                        SetValueInternal(ProjectionCenterProperty, new Location(center.Latitude, longitude));
+                    }
+                }
+
+                ResetTransformCenter();
+                UpdateTransform();
+            }
         }
 
         private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
@@ -471,16 +484,19 @@ namespace MapControl
 
                     if (center != null)
                     {
-                        var centerLat = center.Latitude;
-                        var centerLon = Location.NormalizeLongitude(center.Longitude);
+                        var latitude = center.Latitude;
+                        var longitude = Location.NormalizeLongitude(center.Longitude);
 
-                        if (centerLat < -maxLatitude || centerLat > maxLatitude)
+                        if (latitude < -maxLatitude || latitude > maxLatitude)
                         {
-                            centerLat = Math.Min(Math.Max(centerLat, -maxLatitude), maxLatitude);
+                            latitude = Math.Min(Math.Max(latitude, -maxLatitude), maxLatitude);
                             resetTransformCenter = true;
                         }
 
-                        center = new Location(centerLat, centerLon);
+                        if (!center.Equals(latitude, longitude))
+                        {
+                            center = new Location(latitude, longitude);
+                        }
 
                         SetValueInternal(CenterProperty, center);
 

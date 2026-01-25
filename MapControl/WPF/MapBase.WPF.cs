@@ -130,7 +130,7 @@ namespace MapControl
 
                 centerAnimation = new LocationAnimation
                 {
-                    To = new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude)),
+                    To = new Location(targetCenter.Latitude, NearestLongitude(targetCenter.Longitude)),
                     Duration = AnimationDuration,
                     EasingFunction = AnimationEasingFunction
                 };

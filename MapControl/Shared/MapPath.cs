@@ -82,7 +82,7 @@ namespace MapControl
 
                 if (position.HasValue && !ParentMap.InsideViewBounds(position.Value))
                 {
-                    longitudeOffset = ParentMap.CoerceLongitude(location.Longitude) - location.Longitude;
+                    longitudeOffset = ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
                 }
             }
 

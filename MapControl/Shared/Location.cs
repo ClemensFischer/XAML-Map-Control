@@ -35,7 +35,11 @@ namespace MapControl
         public double Latitude { get; }
         public double Longitude { get; }
 
-        public bool Equals(double latitude, double longitude) => Latitude == latitude && Longitude == longitude;
+        public bool LatitudeEquals(double latitude) => Math.Abs(Latitude - latitude) < 1e-9;
+
+        public bool LongitudeEquals(double longitude) => Math.Abs(Longitude - longitude) < 1e-9;
+
+        public bool Equals(double latitude, double longitude) => LatitudeEquals(latitude) && LongitudeEquals(longitude);
 
         public bool Equals(Location location) => location != null && Equals(location.Latitude, location.Longitude);
 

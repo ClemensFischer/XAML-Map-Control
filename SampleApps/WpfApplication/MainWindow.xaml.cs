@@ -37,7 +37,7 @@ namespace SampleApplication
         public MainWindow()
         {
             var httpClient = new HttpClient(new HttpHandler()) { Timeout = TimeSpan.FromSeconds(10) };
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Avalonia Sample Application");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control WPF Sample Application");
             ImageLoader.HttpClient = httpClient;
 
             var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Information));

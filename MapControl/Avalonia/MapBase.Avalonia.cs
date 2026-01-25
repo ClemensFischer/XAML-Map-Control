@@ -136,7 +136,7 @@ namespace MapControl
 
                 centerCts?.Cancel();
 
-                centerAnimation = CreateAnimation(CenterProperty, new Location(targetCenter.Latitude, CoerceLongitude(targetCenter.Longitude)));
+                centerAnimation = CreateAnimation(CenterProperty, new Location(targetCenter.Latitude, NearestLongitude(targetCenter.Longitude)));
 
                 using (centerCts = new CancellationTokenSource())
                 {

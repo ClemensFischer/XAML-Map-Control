@@ -205,12 +205,12 @@ namespace MapControl
             if (parentMap.MapProjection.IsNormalCylindrical &&
                 position.HasValue && !parentMap.InsideViewBounds(position.Value))
             {
-                var coercedPosition = parentMap.LocationToView(
-                    location.Latitude, parentMap.CoerceLongitude(location.Longitude));
+                var nearestPosition = parentMap.LocationToView(
+                    location.Latitude, parentMap.NearestLongitude(location.Longitude));
 
-                if (coercedPosition.HasValue)
+                if (nearestPosition.HasValue)
                 {
-                    position = coercedPosition;
+                    position = nearestPosition;
                 }
             }
 
@@ -229,12 +229,12 @@ namespace MapControl
 
                 if (location != null)
                 {
-                    var coercedPosition = parentMap.LocationToView(
-                        location.Latitude, parentMap.CoerceLongitude(location.Longitude));
+                    var nearestPosition = parentMap.LocationToView(
+                        location.Latitude, parentMap.NearestLongitude(location.Longitude));
 
-                    if (coercedPosition.HasValue)
+                    if (nearestPosition.HasValue)
                     {
-                        position = coercedPosition.Value;
+                        position = nearestPosition.Value;
                     }
                 }
             }

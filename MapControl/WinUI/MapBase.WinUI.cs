@@ -155,7 +155,7 @@ namespace MapControl
                     centerAnimation = new PointAnimation
                     {
                         From = new Windows.Foundation.Point(Center.Longitude, Center.Latitude),
-                        To = new Windows.Foundation.Point(CoerceLongitude(targetCenter.Longitude), targetCenter.Latitude),
+                        To = new Windows.Foundation.Point(NearestLongitude(targetCenter.Longitude), targetCenter.Latitude),
                         Duration = AnimationDuration,
                         EasingFunction = AnimationEasingFunction,
                         EnableDependentAnimation = true
