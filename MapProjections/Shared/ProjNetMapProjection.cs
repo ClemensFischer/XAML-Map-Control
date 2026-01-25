@@ -3,6 +3,7 @@ using ProjNet.CoordinateSystems.Transformations;
 using System;
 #if WPF
 using System.Windows;
+using System.Windows.Media;
 #elif AVALONIA
 using Avalonia;
 #endif
@@ -69,6 +70,11 @@ namespace MapControl.Projections
         public MathTransform LocationToMapTransform { get; private set; }
 
         public MathTransform MapToLocationTransform { get; private set; }
+
+        public override Matrix RelativeScale(double latitude, double longitude)
+        {
+            return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+        }
 
         public override Point? LocationToMap(double latitude, double longitude)
         {

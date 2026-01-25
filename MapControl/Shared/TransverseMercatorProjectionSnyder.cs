@@ -47,8 +47,10 @@ namespace MapControl
 
         public override Matrix RelativeScale(double latitude, double longitude)
         {
-            var k = 1d; // omit k0 for relative scale
+            // h = k/k0 for relative scale
+            var h = 1d;
 
+#if TM_RELATIVE_SCALE // relative scale is usually < 1.001 and hence neglectable
             if (latitude > -90d && latitude < 90d)
             {
                 var phi = latitude * Math.PI / 180d;
@@ -64,12 +66,12 @@ namespace MapControl
                 var A4 = A2 * A2;
                 var A6 = A2 * A4;
 
-                k *= 1d + (1d + C) * A2 / 2d +
+                h = 1d + (1d + C) * A2 / 2d +
                     (5d - 4d * T + 42d * C + 13d * C * C - 28d * e_2) * A4 / 24d +
                     (61d - 148d * T + 16 * T * T) * A6 / 720d; // (8-11)
             }
-
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+#endif
+            return new Matrix(h, 0d, 0d, h, 0d, 0d);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)

@@ -108,7 +108,7 @@ namespace MapControl
         /// Gets the relative scale at the specified geographic coordinates.
         /// The returned Matrix represents the local distortion of the map projection.
         /// </summary>
-        public virtual Matrix RelativeScale(double latitude, double longitude) => new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+        public abstract Matrix RelativeScale(double latitude, double longitude);
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in projected map coordinates.
@@ -143,7 +143,7 @@ namespace MapControl
         /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates.
         /// Returns null when the BoundingBox can not be transformed.
         /// </summary>
-        public virtual Rect? BoundingBoxToMap(BoundingBox boundingBox)
+        public Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
             var southWest = LocationToMap(boundingBox.South, boundingBox.West);
             var northEast = LocationToMap(boundingBox.North, boundingBox.East);
@@ -153,9 +153,9 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a Rect in projected map coordinates to a BoundingBox in geographic coordinates.
-        /// Returns null when the MapRect can not be transformed.
+        /// Returns null when the Rect can not be transformed.
         /// </summary>
-        public virtual BoundingBox MapToBoundingBox(Rect rect)
+        public BoundingBox MapToBoundingBox(Rect rect)
         {
             var southWest = MapToLocation(rect.X, rect.Y);
             var northEast = MapToLocation(rect.X + rect.Width, rect.Y + rect.Height);
@@ -167,7 +167,7 @@ namespace MapControl
         /// Transforms a LatLonBox in geographic coordinates to a rotated Rect in projected map coordinates.
         /// Returns null when the LatLonBox can not be transformed.
         /// </summary>
-        public virtual (Rect?, double) LatLonBoxToMap(LatLonBox latLonBox)
+        public (Rect?, double) LatLonBoxToMap(LatLonBox latLonBox)
         {
             Rect? rect = null;
             var rotation = 0d;
