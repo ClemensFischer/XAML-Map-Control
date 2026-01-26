@@ -287,15 +287,16 @@ namespace MapControl
         private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
         {
             Rect? mapRect;
-            var rotation = 0d;
+            Matrix transform;
 
             if (boundingBox is LatLonBox latLonBox)
             {
-                (mapRect, rotation) = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
+                (mapRect, transform) = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
             }
             else
             {
                 mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+                transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
             }
 
             if (mapRect.HasValue)
@@ -306,17 +307,19 @@ namespace MapControl
                 element.Height = viewRect.Height;
                 element.Arrange(viewRect);
 
-                // LatLonBoxToMap rotation is counterclockwise, RotateTransform is clockwise.
-                //
-                rotation = (parentMap.ViewTransform.Rotation - rotation) % 360d;
+                transform.Rotate(parentMap.ViewTransform.Rotation);
 
-                if (element.RenderTransform is RotateTransform rotateTransform)
+                if (element.RenderTransform is MatrixTransform matrixTransform
+#if WPF
+                    && !matrixTransform.IsFrozen
+#endif
+                    )
                 {
-                    rotateTransform.Angle = rotation;
+                    matrixTransform.Matrix = transform;
                 }
-                else if (rotation != 0d)
+                else
                 {
-                    element.SetRenderTransform(new RotateTransform { Angle = rotation }, true);
+                    element.SetRenderTransform(new MatrixTransform { Matrix = transform }, true);
                 }
             }
         }

@@ -165,10 +165,10 @@ namespace MapControl
         /// Transforms a LatLonBox in geographic coordinates to a rotated Rect in projected map coordinates.
         /// Returns (null, 0d) when the LatLonBox can not be transformed.
         /// </summary>
-        public (Rect?, double) LatLonBoxToMap(LatLonBox latLonBox)
+        public (Rect?, Matrix) LatLonBoxToMap(LatLonBox latLonBox)
         {
             Rect? rect = null;
-            var rotation = 0d;
+            Matrix transform;
             var sw = LocationToMap(latLonBox.South, latLonBox.West);
             var se = LocationToMap(latLonBox.South, latLonBox.East);
             var nw = LocationToMap(latLonBox.North, latLonBox.West);
@@ -192,12 +192,17 @@ namespace MapControl
 
                 rect = new Rect(x, y, width, height);
 
-                // Additional rotation from the slope of the line segment west-east.
+                // Skew matrix with skewX = Atan(-dx2 / dy2) and skewY = Atan(-dy1 / dx1).
                 //
-                rotation = (latLonBox.Rotation + Math.Atan2(dy1, dx1) * 180d / Math.PI) % 360d;
+                transform = new Matrix(1d, -dy1 / dx1, -dx2 / dy2, 1d, 0d, 0d);
+                transform.Rotate(-latLonBox.Rotation);
+            }
+            else
+            {
+                transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
             }
 
-            return (rect, rotation);
+            return (rect, transform);
         }
 
         public override string ToString()
