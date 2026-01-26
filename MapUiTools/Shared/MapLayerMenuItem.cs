@@ -51,6 +51,8 @@ namespace MapControl.UiTools
 
         public int InsertOrder { get; set; }
 
+        public double OverlayOpacity { get; set; } = 1d;
+
         public override async Task ExecuteAsync(MapBase map)
         {
             if (MapLayer == null)
@@ -93,6 +95,8 @@ namespace MapControl.UiTools
             {
                 MapLayer = await GeoImage.CreateAsync(SourcePath);
             }
+
+            MapLayer.Opacity = OverlayOpacity;
         }
     }
 }
