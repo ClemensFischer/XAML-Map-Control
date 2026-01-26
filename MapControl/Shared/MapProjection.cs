@@ -100,9 +100,7 @@ namespace MapControl
             }
         }
 
-        protected virtual void CenterChanged()
-        {
-        }
+        protected virtual void CenterChanged() { }
 
         /// <summary>
         /// Gets the relative scale at the specified geographic coordinates.
@@ -145,10 +143,10 @@ namespace MapControl
         /// </summary>
         public Rect? BoundingBoxToMap(BoundingBox boundingBox)
         {
-            var southWest = LocationToMap(boundingBox.South, boundingBox.West);
-            var northEast = LocationToMap(boundingBox.North, boundingBox.East);
+            var sw = LocationToMap(boundingBox.South, boundingBox.West);
+            var ne = LocationToMap(boundingBox.North, boundingBox.East);
 
-            return southWest.HasValue && northEast.HasValue ? new Rect(southWest.Value, northEast.Value) : null;
+            return sw.HasValue && ne.HasValue ? new Rect(sw.Value, ne.Value) : null;
         }
 
         /// <summary>
@@ -157,47 +155,46 @@ namespace MapControl
         /// </summary>
         public BoundingBox MapToBoundingBox(Rect rect)
         {
-            var southWest = MapToLocation(rect.X, rect.Y);
-            var northEast = MapToLocation(rect.X + rect.Width, rect.Y + rect.Height);
+            var sw = MapToLocation(rect.X, rect.Y);
+            var ne = MapToLocation(rect.X + rect.Width, rect.Y + rect.Height);
 
-            return southWest != null && northEast != null ? new BoundingBox(southWest, northEast) : null;
+            return sw != null && ne != null ? new BoundingBox(sw, ne) : null;
         }
 
         /// <summary>
         /// Transforms a LatLonBox in geographic coordinates to a rotated Rect in projected map coordinates.
-        /// Returns null when the LatLonBox can not be transformed.
+        /// Returns (null, 0d) when the LatLonBox can not be transformed.
         /// </summary>
         public (Rect?, double) LatLonBoxToMap(LatLonBox latLonBox)
         {
             Rect? rect = null;
             var rotation = 0d;
-            var centerLatitude = (latLonBox.South + latLonBox.North) / 2d;
-            var centerLongitude = (latLonBox.West + latLonBox.East) / 2d;
-            Point? center, north, south, west, east;
+            var sw = LocationToMap(latLonBox.South, latLonBox.West);
+            var se = LocationToMap(latLonBox.South, latLonBox.East);
+            var nw = LocationToMap(latLonBox.North, latLonBox.West);
+            var ne = LocationToMap(latLonBox.North, latLonBox.East);
 
-            if ((center = LocationToMap(centerLatitude, centerLongitude)).HasValue &&
-                (north = LocationToMap(latLonBox.North, centerLongitude)).HasValue &&
-                (south = LocationToMap(latLonBox.South, centerLongitude)).HasValue &&
-                (west = LocationToMap(centerLatitude, latLonBox.West)).HasValue &&
-                (east = LocationToMap(centerLatitude, latLonBox.East)).HasValue)
+            if (sw.HasValue && se.HasValue && nw.HasValue && ne.HasValue)
             {
-                var dx1 = east.Value.X - west.Value.X;
-                var dy1 = east.Value.Y - west.Value.Y;
-                var dx2 = north.Value.X - south.Value.X;
-                var dy2 = north.Value.Y - south.Value.Y;
-                var width = Math.Sqrt(dx1 * dx1 + dy1 * dy1);
-                var height = Math.Sqrt(dx2 * dx2 + dy2 * dy2);
-                var x = center.Value.X - width / 2d;
-                var y = center.Value.Y - height / 2d;
-
-                // Additional rotation caused by the projection, calculated as mean value
-                // of the two angles measured relative to the east and north axis.
-                //
-                var r1 = Math.Atan2(dy1, dx1) * 180d / Math.PI;
-                var r2 = Math.Atan2(-dx2, dy2) * 180d / Math.PI;
+                var south = new Point((sw.Value.X + se.Value.X) / 2d, (sw.Value.Y + se.Value.Y) / 2d); // south midpoint
+                var north = new Point((nw.Value.X + ne.Value.X) / 2d, (nw.Value.Y + ne.Value.Y) / 2d); // north midpoint
+                var west = new Point((nw.Value.X + sw.Value.X) / 2d, (nw.Value.Y + sw.Value.Y) / 2d);  // west midpoint
+                var east = new Point((ne.Value.X + se.Value.X) / 2d, (ne.Value.Y + se.Value.Y) / 2d);  // east midpoint
+                var center = new Point((west.X + east.X) / 2d, (west.Y + east.Y) / 2d); // midpoint of segment west-east
+                var dx1 = east.X - west.X;
+                var dy1 = east.Y - west.Y;
+                var dx2 = north.X - south.X;
+                var dy2 = north.Y - south.Y;
+                var width = Math.Sqrt(dx1 * dx1 + dy1 * dy1); // distance west-east
+                var height = Math.Sqrt(dx2 * dx2 + dy2 * dy2); // distance south-north
+                var x = center.X - width / 2d;
+                var y = center.Y - height / 2d;
 
                 rect = new Rect(x, y, width, height);
-                rotation = latLonBox.Rotation + (r1 + r2) / 2d % 360d;
+
+                // Additional rotation from the slope of the line segment west-east.
+                //
+                rotation = (latLonBox.Rotation + Math.Atan2(dy1, dx1) * 180d / Math.PI) % 360d;
             }
 
             return (rect, rotation);
