@@ -163,12 +163,12 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a LatLonBox in geographic coordinates to a rotated Rect in projected map coordinates.
-        /// Returns (null, 0d) when the LatLonBox can not be transformed.
+        /// Returns (null, null) when the LatLonBox can not be transformed.
         /// </summary>
-        public (Rect?, Matrix) LatLonBoxToMap(LatLonBox latLonBox)
+        public (Rect?, Matrix?) LatLonBoxToMap(LatLonBox latLonBox)
         {
             Rect? rect = null;
-            Matrix transform;
+            Matrix? transform = null;
             var sw = LocationToMap(latLonBox.South, latLonBox.West);
             var se = LocationToMap(latLonBox.South, latLonBox.East);
             var nw = LocationToMap(latLonBox.North, latLonBox.West);
@@ -192,14 +192,14 @@ namespace MapControl
 
                 rect = new Rect(x, y, width, height);
 
-                // Skew matrix with skewX = Atan(-dx2 / dy2) and skewY = Atan(-dy1 / dx1).
-                //
-                transform = new Matrix(1d, -dy1 / dx1, -dx2 / dy2, 1d, 0d, 0d);
-                transform.Rotate(-latLonBox.Rotation);
-            }
-            else
-            {
-                transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+                if (dy1 != 0d || dx2 != 0d || latLonBox.Rotation != 0d)
+                {
+                    // Skew matrix with skewX = Atan(-dx2 / dy2) and skewY = Atan(-dy1 / dx1).
+                    //
+                    var t = new Matrix(1d, -dy1 / dx1, -dx2 / dy2, 1d, 0d, 0d);
+                    t.Rotate(-latLonBox.Rotation);
+                    transform = t;
+                }
             }
 
             return (rect, transform);

@@ -287,7 +287,7 @@ namespace MapControl
         private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
         {
             Rect? mapRect;
-            Matrix transform;
+            Matrix? transform = null;
 
             if (boundingBox is LatLonBox latLonBox)
             {
@@ -296,7 +296,6 @@ namespace MapControl
             else
             {
                 mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
-                transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
             }
 
             if (mapRect.HasValue)
@@ -307,19 +306,23 @@ namespace MapControl
                 element.Height = viewRect.Height;
                 element.Arrange(viewRect);
 
-                transform.Rotate(parentMap.ViewTransform.Rotation);
-
-                if (element.RenderTransform is MatrixTransform matrixTransform
-#if WPF
-                    && !matrixTransform.IsFrozen
-#endif
-                    )
+                if (parentMap.ViewTransform.Rotation != 0d)
                 {
-                    matrixTransform.Matrix = transform;
+                    if (!transform.HasValue)
+                    {
+                        transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+                    }
+
+                    transform.Value.Rotate(parentMap.ViewTransform.Rotation);
+                }
+
+                if (transform.HasValue)
+                {
+                    element.SetRenderTransform(new MatrixTransform { Matrix = transform.Value }, true);
                 }
                 else
                 {
-                    element.SetRenderTransform(new MatrixTransform { Matrix = transform }, true);
+                    element.ClearValue(RenderTransformProperty);
                 }
             }
         }
