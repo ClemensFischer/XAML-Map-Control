@@ -211,10 +211,8 @@
                         Description="© [BKG](https://gdz.bkg.bund.de/index.php/default/webdienste/topplus-produkte/wms-topplusopen-mit-layer-fur-normalausgabe-und-druck-wms-topplus-open.html)"/>
                 </tools:MapLayerMenuItem>
                 <tools:MapLayerMenuItem Text="OpenStreetMap WMS">
-                    <!--http://t400:8080/geoserver/terrestris/wms?service=WMS&version=1.1.0&request=GetMap&layers=terrestris%3AOSM-Overlay-WMS&bbox=-2.0037508342789244E7%2C-2.5819498513543323E7%2C2.0037508342789244E7%2C2.58194985135433E7&width=596&height=768&srs=EPSG%3A3857&styles=&format=application/openlayers-->
                     <map:WmsImageLayer
-                        ServiceUri="http://t400:8080/geoserver/terrestris/wms"
-                        RequestLayers="OSM-WMS"
+                        ServiceUri="https://ows.terrestris.de/osm/service"
                         Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerMenuItem>
 
