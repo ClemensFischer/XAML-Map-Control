@@ -58,7 +58,7 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(location))
             {
-                values = location.Split([',']);
+                values = location.Split(',');
             }
 
             if (values?.Length != 2)

@@ -342,7 +342,7 @@ namespace MapControl
         /// </summary>
         public void ZoomToBounds(BoundingBox bounds)
         {
-            var mapRect = MapProjection.BoundingBoxToMap(bounds);
+            (var mapRect, var _) = MapProjection.BoundingBoxToMap(bounds);
 
             if (mapRect.HasValue)
             {

@@ -62,7 +62,7 @@ namespace MapControl
             return string.IsNullOrEmpty(locations)
                 ? new LocationCollection()
                 : new LocationCollection(locations
-                    .Split(new char[] { ' ', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split([' ', ';'], StringSplitOptions.RemoveEmptyEntries)
                     .Select(Location.Parse));
         }
 

@@ -11,29 +11,17 @@ namespace MapControl
 #else
     [System.ComponentModel.TypeConverter(typeof(BoundingBoxConverter))]
 #endif
-    public class BoundingBox
+    public class BoundingBox(double latitude1, double longitude1, double latitude2, double longitude2, bool projectAxisAligned = false)
     {
-        protected BoundingBox()
-        {
-        }
+        public double South { get; } = Math.Min(Math.Max(Math.Min(latitude1, latitude2), -90d), 90d);
+        public double North { get; } = Math.Min(Math.Max(Math.Max(latitude1, latitude2), -90d), 90d);
+        public double West { get; } = Math.Min(longitude1, longitude2);
+        public double East { get; } = Math.Max(longitude1, longitude2);
 
-        public BoundingBox(double latitude1, double longitude1, double latitude2, double longitude2)
-        {
-            South = Math.Min(Math.Max(Math.Min(latitude1, latitude2), -90d), 90d);
-            North = Math.Min(Math.Max(Math.Max(latitude1, latitude2), -90d), 90d);
-            West = Math.Min(longitude1, longitude2);
-            East = Math.Max(longitude1, longitude2);
-        }
-
-        public BoundingBox(Location location1, Location location2)
-            : this(location1.Latitude, location1.Longitude, location2.Latitude, location2.Longitude)
-        {
-        }
-
-        public double South { get; }
-        public double North { get; }
-        public double West { get; }
-        public double East { get; }
+        /// <summary>
+        /// Indicates whether a MapProjection projects the BoundingBox to an axis-aligned or skewed rectangle.
+        /// </summary>
+        public bool ProjectAxisAligned { get; } = projectAxisAligned;
 
         public override string ToString()
         {
@@ -41,7 +29,7 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Creates a BoundingBox instance from a string containing a comma-separated sequence of four or five floating point numbers.
+        /// Creates a BoundingBox instance from a string containing a comma-separated sequence of four floating point numbers.
         /// </summary>
         public static BoundingBox Parse(string boundingBox)
         {
@@ -49,26 +37,19 @@ namespace MapControl
 
             if (!string.IsNullOrEmpty(boundingBox))
             {
-                values = boundingBox.Split(new char[] { ',' });
+                values = boundingBox.Split(',');
             }
 
             if (values == null || values.Length != 4 && values.Length != 5)
             {
-                throw new FormatException($"{nameof(BoundingBox)} string must contain a comma-separated sequence of four or five floating point numbers.");
+                throw new FormatException($"{nameof(BoundingBox)} string must contain a comma-separated sequence of four floating point numbers.");
             }
 
-            var rotation = values.Length == 5
-                ? double.Parse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture)
-                : 0d;
-
-            // Always return a LatLonBox, i.e. a BoundingBox with optional rotation, as used by GeoImage and GroundOverlay.
-            //
-            return new LatLonBox(
+            return new BoundingBox(
                 double.Parse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture),
                 double.Parse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture),
                 double.Parse(values[2], NumberStyles.Float, CultureInfo.InvariantCulture),
-                double.Parse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture),
-                rotation);
+                double.Parse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture));
         }
     }
 }

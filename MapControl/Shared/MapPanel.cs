@@ -286,17 +286,7 @@ namespace MapControl
 
         private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
         {
-            Rect? mapRect;
-            Matrix? transform = null;
-
-            if (boundingBox is LatLonBox latLonBox)
-            {
-                (mapRect, transform) = parentMap.MapProjection.LatLonBoxToMap(latLonBox);
-            }
-            else
-            {
-                mapRect = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
-            }
+            (var mapRect, var transform) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
             if (mapRect.HasValue)
             {

@@ -30,7 +30,7 @@ namespace MapControl
     {
         private class ImageOverlay
         {
-            public ImageOverlay(string path, LatLonBox latLonBox, int zIndex)
+            public ImageOverlay(string path, BoundingBox latLonBox, int zIndex)
             {
                 ImagePath = path;
                 SetBoundingBox(Image, latLonBox);
@@ -191,14 +191,13 @@ namespace MapControl
             return imageOverlays;
         }
 
-        private static LatLonBox ReadLatLonBox(XElement latLonBoxElement)
+        private static BoundingBox ReadLatLonBox(XElement latLonBoxElement)
         {
             var ns = latLonBoxElement.Name.Namespace;
             var north = double.NaN;
             var south = double.NaN;
             var east = double.NaN;
             var west = double.NaN;
-            var rotation = 0d;
 
             var value = latLonBoxElement.Element(ns + "north")?.Value;
             if (value != null)
@@ -224,12 +223,6 @@ namespace MapControl
                 west = double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
             }
 
-            value = latLonBoxElement.Element(ns + "rotation")?.Value;
-            if (value != null)
-            {
-                rotation = double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
-            }
-
             if (double.IsNaN(north) || double.IsNaN(south) ||
                 double.IsNaN(east) || double.IsNaN(west) ||
                 north <= south || east <= west)
@@ -237,7 +230,7 @@ namespace MapControl
                 throw new FormatException("Invalid LatLonBox");
             }
 
-            return new LatLonBox(south, west, north, east, rotation);
+            return new BoundingBox(south, west, north, east);
         }
     }
 }

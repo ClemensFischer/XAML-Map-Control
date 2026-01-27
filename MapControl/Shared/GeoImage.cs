@@ -44,13 +44,13 @@ namespace MapControl
                 var p2 = transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight));
 #endif
                 BitmapSource = bitmap;
-                LatLonBox = projection != null
-                    ? new LatLonBox(projection.MapToBoundingBox(new Rect(p1, p2)))
-                    : new LatLonBox(p1.Y, p1.X, p2.Y, p2.X);
+                BoundingBox = projection != null
+                    ? projection.MapToBoundingBox(new Rect(p1, p2))
+                    : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
             }
 
             public BitmapSource BitmapSource { get; }
-            public LatLonBox LatLonBox { get; }
+            public BoundingBox BoundingBox { get; }
         }
 
         private const ushort ProjectedCRSGeoKey = 3072;
@@ -124,7 +124,7 @@ namespace MapControl
                         };
                     }
 
-                    MapPanel.SetBoundingBox(element, geoBitmap.LatLonBox);
+                    MapPanel.SetBoundingBox(element, geoBitmap.BoundingBox);
                 }
                 catch (Exception ex)
                 {
