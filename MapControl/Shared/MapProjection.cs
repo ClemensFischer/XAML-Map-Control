@@ -103,10 +103,10 @@ namespace MapControl
         protected virtual void CenterChanged() { }
 
         /// <summary>
-        /// Gets the relative scale at the specified geographic coordinates.
+        /// Gets the relative transform at the specified geographic coordinates.
         /// The returned Matrix represents the local distortion of the map projection.
         /// </summary>
-        public abstract Matrix RelativeScale(double latitude, double longitude);
+        public abstract Matrix RelativeTransform(double latitude, double longitude);
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in projected map coordinates.
@@ -121,9 +121,9 @@ namespace MapControl
         public abstract Location MapToLocation(double x, double y);
 
         /// <summary>
-        /// Gets the relative map scale at the specified geographic Location.
+        /// Gets the relative transform at the specified geographic Location.
         /// </summary>
-        public Matrix RelativeScale(Location location) => RelativeScale(location.Latitude, location.Longitude);
+        public Matrix RelativeTransform(Location location) => RelativeTransform(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.

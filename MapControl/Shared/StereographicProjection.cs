@@ -26,7 +26,7 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var p = GetProjectedPoint(latitude, longitude);
             var k = 2d / (1d + p.CosC); // p.157 (21-4), k0 == 1

@@ -21,7 +21,7 @@ namespace MapControl.Projections
                 "AUTHORITY[\"EPSG\",\"32661\"]]";
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, latitude);
 
@@ -46,7 +46,7 @@ namespace MapControl.Projections
                 "AUTHORITY[\"EPSG\",\"32761\"]]";
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84Flattening, latitude);
 

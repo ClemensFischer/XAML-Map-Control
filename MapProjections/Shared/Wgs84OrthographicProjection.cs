@@ -34,7 +34,7 @@ namespace MapControl.Projections
                 CultureInfo.InvariantCulture, wktFormat, Center.Latitude, Center.Longitude);
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var p = new AzimuthalProjection.ProjectedPoint(Center.Latitude, Center.Longitude, latitude, longitude);
 

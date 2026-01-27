@@ -39,7 +39,7 @@ namespace MapControl
             return r / m; // p.161 (21-32)
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var k = RelativeScale(Hemisphere, Flattening, latitude);
 

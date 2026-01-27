@@ -60,24 +60,21 @@ namespace MapControl
             Flattening = Wgs84Flattening;
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            // h = k/k0 for relative scale
-            var h = 1d;
-
-#if TM_RELATIVE_SCALE // relative scale is usually < 1.001 and hence neglectable
             // φ
             var phi = latitude * Math.PI / 180d;
             var sinPhi = Math.Sin(phi);
-            // t
-            var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
             // λ - λ0
             var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
             var cosLambda = Math.Cos(dLambda);
+            // t
+            var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
+            var u = Math.Sqrt(1d + t * t);
             // ξ'
             var xi_ = Math.Atan2(t, cosLambda);
             // η'
-            var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
+            var eta_ = Atanh(Math.Sin(dLambda) / u);
             // σ
             var sigma = 1 +
                 2d * a1 * Math.Cos(2d * xi_) * Math.Cosh(2d * eta_) +
@@ -90,10 +87,18 @@ namespace MapControl
                 6d * a3 * Math.Sin(6d * xi_) * Math.Sinh(6d * eta_);
 
             var n = Flattening / (2d - Flattening);
-            var u = (1d - n) / (1d + n) * Math.Tan(phi);
-            h = f1 * Math.Sqrt((1d + u * u) * (sigma * sigma + tau * tau) / (t * t + cosLambda * cosLambda));
-#endif
-            return new Matrix(h, 0d, 0d, h, 0d, 0d);
+            var m = (1d - n) / (1d + n) * Math.Tan(phi);
+            // h = k/k0 for relative scale
+            var h = f1 * Math.Sqrt((1d + m * m) * (sigma * sigma + tau * tau) / (t * t + cosLambda * cosLambda));
+
+            var tanLambda = Math.Tan(dLambda);
+            // γ, meridian convergence angle
+            var gamma = Math.Atan2(tau * u + sigma * t * tanLambda, sigma * u - tau * t * tanLambda);
+
+            var transform = new Matrix(h, 0d, 0d, h, 0d, 0d);
+            transform.Rotate(-gamma * 180d / Math.PI);
+
+            return transform;
         }
 
         public override Point? LocationToMap(double latitude, double longitude)

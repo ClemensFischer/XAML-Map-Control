@@ -27,7 +27,7 @@ namespace MapControl.Projections
                 "AUTHORITY[\"EPSG\",\"3395\"]]";
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var k = MapControl.WorldMercatorProjection.RelativeScale(latitude);
 

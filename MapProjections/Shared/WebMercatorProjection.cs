@@ -17,7 +17,7 @@ namespace MapControl.Projections
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var k = 1d / Math.Cos(latitude * Math.PI / 180d); // p.44 (7-3)
 

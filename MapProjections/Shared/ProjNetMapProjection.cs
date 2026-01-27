@@ -71,7 +71,7 @@ namespace MapControl.Projections
 
         public MathTransform MapToLocationTransform { get; private set; }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
         }

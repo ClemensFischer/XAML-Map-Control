@@ -52,8 +52,6 @@ namespace MapControl
 
         public void Scale(double scaleX, double scaleY)
         {
-            // equivalent to Multiply(new Matrix(scaleX, 0, 0, scaleY, 0d, 0d));
-            //
             SetMatrix(
                 M11 * scaleX,
                 M12 * scaleY,
@@ -72,8 +70,6 @@ namespace MapControl
                 var cos = Math.Cos(angle);
                 var sin = Math.Sin(angle);
 
-                // equivalent to Multiply(new Matrix(cos, sin, -sin, cos, 0d, 0d));
-                //
                 SetMatrix(
                     M11 * cos - M12 * sin,
                     M11 * sin + M12 * cos,
@@ -99,15 +95,15 @@ namespace MapControl
                 invDet * (M12 * OffsetX - M11 * OffsetY));
         }
 
-        public void Multiply(Matrix m)
+        public static Matrix Multiply(Matrix m1, Matrix m2)
         {
-            SetMatrix(
-                M11 * m.M11 + M12 * m.M21,
-                M11 * m.M12 + M12 * m.M22,
-                M21 * m.M11 + M22 * m.M21,
-                M21 * m.M12 + M22 * m.M22,
-                OffsetX * m.M11 + OffsetY * m.M21 + m.OffsetX,
-                OffsetX * m.M12 + OffsetY * m.M22 + m.OffsetY);
+            return new Matrix(
+                m1.M11 * m2.M11 + m1.M12 * m2.M21,
+                m1.M11 * m2.M12 + m1.M12 * m2.M22,
+                m1.M21 * m2.M11 + m1.M22 * m2.M21,
+                m1.M21 * m2.M12 + m1.M22 * m2.M22,
+                m1.OffsetX * m2.M11 + m1.OffsetY * m2.M21 + m2.OffsetX,
+                m1.OffsetX * m2.M12 + m1.OffsetY * m2.M22 + m2.OffsetY);
         }
 
         private void SetMatrix(double m11, double m12, double m21, double m22, double offsetX, double offsetY)

@@ -28,7 +28,7 @@ namespace MapControl
             CrsId = crsId;
         }
 
-        public override Matrix RelativeScale(double latitude, double longitude)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
             return new Matrix(1d / Math.Cos(latitude * Math.PI / 180d), 0d, 0d, 1d, 0d, 0d);
         }

@@ -183,7 +183,7 @@ namespace MapControl
         /// </summary>
         public Matrix GetMapToViewTransform(double latitude, double longitude)
         {
-            var transform = MapProjection.RelativeScale(latitude, longitude);
+            var transform = MapProjection.RelativeTransform(latitude, longitude);
             transform.Scale(ViewTransform.Scale, ViewTransform.Scale);
             transform.Rotate(ViewTransform.Rotation);
 
