@@ -316,13 +316,21 @@ namespace MapControl
                     transform.Value.Rotate(parentMap.ViewTransform.Rotation);
                 }
 
-                if (transform.HasValue)
+                if (element.RenderTransform is MatrixTransform matrixTransform &&
+                    !matrixTransform.Matrix.IsIdentity) // not default RenderTransform in WPF/UWP/WinUI
+                {
+                    if (transform.HasValue)
+                    {
+                        matrixTransform.Matrix = transform.Value;
+                    }
+                    else
+                    {
+                        element.ClearValue(RenderTransformProperty);
+                    }
+                }
+                else if (transform.HasValue)
                 {
                     element.SetRenderTransform(new MatrixTransform { Matrix = transform.Value }, true);
-                }
-                else
-                {
-                    element.ClearValue(RenderTransformProperty);
                 }
             }
         }
