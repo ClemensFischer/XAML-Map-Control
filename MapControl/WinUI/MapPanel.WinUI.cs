@@ -21,6 +21,10 @@ namespace MapControl
             DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel), null,
                 (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
 
+        public static readonly DependencyProperty MapRectProperty =
+            DependencyPropertyHelper.RegisterAttached<MapRect>("MapRect", typeof(MapPanel), null,
+                (element, oldValue, newValue) => (element.Parent as MapPanel)?.InvalidateArrange());
+
         public static void InitMapElement(FrameworkElement element)
         {
             // Workaround for missing property value inheritance.

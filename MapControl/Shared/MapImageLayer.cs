@@ -180,7 +180,7 @@ namespace MapControl
                 updateTimer.Stop();
 
                 ImageSource image = null;
-                BoundingBox boundingBox = null;
+                MapRect mapRect = null;
 
                 if (ParentMap != null &&
                     (SupportedCrsIds == null || SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId)))
@@ -192,17 +192,13 @@ namespace MapControl
                     {
                         var x = (ParentMap.ActualWidth - width) / 2d;
                         var y = (ParentMap.ActualHeight - height) / 2d;
-                        var mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(x, y, width, height));
-                        boundingBox = ParentMap.MapProjection.MapToBoundingBox(mapRect, true);
 
-                        if (boundingBox != null)
-                        {
-                            image = await GetImageAsync(mapRect, loadingProgress);
-                        }
+                        mapRect = ParentMap.ViewToMapRect(new Rect(x, y, width, height));
+                        image = await GetImageAsync(mapRect.Rect, loadingProgress);
                     }
                 }
 
-                SwapImages(image, boundingBox);
+                SwapImages(image, mapRect);
                 updateInProgress = false;
             }
             else // update on next timer tick
@@ -215,12 +211,12 @@ namespace MapControl
         {
             foreach (var image in Children.OfType<Image>())
             {
-                image.ClearValue(BoundingBoxProperty);
+                image.ClearValue(MapRectProperty);
                 image.ClearValue(Image.SourceProperty);
             }
         }
 
-        private void SwapImages(ImageSource image, BoundingBox boundingBox)
+        private void SwapImages(ImageSource image, MapRect mapRect)
         {
             if (Children.Count >= 2)
             {
@@ -230,7 +226,7 @@ namespace MapControl
                 Children.Insert(1, topImage);
 
                 topImage.Source = image;
-                SetBoundingBox(topImage, boundingBox);
+                SetMapRect(topImage, mapRect);
 
                 if (MapBase.ImageFadeDuration > TimeSpan.Zero)
                 {

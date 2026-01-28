@@ -129,6 +129,22 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets the MapRect of an element.
+        /// </summary>
+        public static MapRect GetMapRect(FrameworkElement element)
+        {
+            return (MapRect)element.GetValue(MapRectProperty);
+        }
+
+        /// <summary>
+        /// Sets the MapRect of an element.
+        /// </summary>
+        public static void SetMapRect(FrameworkElement element, MapRect value)
+        {
+            element.SetValue(MapRectProperty, value);
+        }
+
+        /// <summary>
         /// Gets the view position of an element with Location.
         /// </summary>
         public static Point? GetViewPosition(FrameworkElement element)
@@ -271,57 +287,65 @@ namespace MapControl
             {
                 element.ClearValue(ViewPositionProperty);
 
-                var boundingBox = GetBoundingBox(element);
+                var mapRect = GetMapRect(element);
 
-                if (boundingBox != null)
+                if (mapRect != null)
                 {
-                    ArrangeElement(element, boundingBox);
+                    mapRect.Update(parentMap.MapProjection);
+
+                    ArrangeElement(element, mapRect.Rect, null);
                 }
                 else
                 {
-                    ArrangeElement(element, panelSize);
+                    var boundingBox = GetBoundingBox(element);
+
+                    if (boundingBox != null)
+                    {
+                        (var rect, var transform) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+
+                        if (rect.HasValue)
+                        {
+                            ArrangeElement(element, rect.Value, transform);
+                        }
+                    }
+                    else
+                    {
+                        ArrangeElement(element, panelSize);
+                    }
                 }
             }
         }
 
-        private void ArrangeElement(FrameworkElement element, BoundingBox boundingBox)
+        private void ArrangeElement(FrameworkElement element, Rect mapRect, Matrix? transform)
         {
-            (var mapRect, var transform) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+            var viewRect = GetViewRect(mapRect);
 
-            if (mapRect.HasValue)
+            element.Width = viewRect.Width;
+            element.Height = viewRect.Height;
+            element.Arrange(viewRect);
+
+            if (parentMap.ViewTransform.Rotation != 0d)
             {
-                var viewRect = GetViewRect(mapRect.Value);
+                var t = transform ?? new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+                t.Rotate(parentMap.ViewTransform.Rotation);
+                transform = t;
+            }
 
-                element.Width = viewRect.Width;
-                element.Height = viewRect.Height;
-                element.Arrange(viewRect);
-
-                if (parentMap.ViewTransform.Rotation != 0d)
+            if (element.RenderTransform is MatrixTransform matrixTransform &&
+                !matrixTransform.Matrix.IsIdentity) // not default RenderTransform in WPF/UWP/WinUI
+            {
+                if (transform.HasValue)
                 {
-                    if (!transform.HasValue)
-                    {
-                        transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
-                    }
-
-                    transform.Value.Rotate(parentMap.ViewTransform.Rotation);
+                    matrixTransform.Matrix = transform.Value;
                 }
-
-                if (element.RenderTransform is MatrixTransform matrixTransform &&
-                    !matrixTransform.Matrix.IsIdentity) // not default RenderTransform in WPF/UWP/WinUI
+                else
                 {
-                    if (transform.HasValue)
-                    {
-                        matrixTransform.Matrix = transform.Value;
-                    }
-                    else
-                    {
-                        element.ClearValue(RenderTransformProperty);
-                    }
+                    element.ClearValue(RenderTransformProperty);
                 }
-                else if (transform.HasValue)
-                {
-                    element.SetRenderTransform(new MatrixTransform { Matrix = transform.Value }, true);
-                }
+            }
+            else if (transform.HasValue)
+            {
+                element.SetRenderTransform(new MatrixTransform { Matrix = transform.Value }, true);
             }
         }
 

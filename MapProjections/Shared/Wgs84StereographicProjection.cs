@@ -14,7 +14,6 @@ namespace MapControl.Projections
         public Wgs84StereographicProjection()
         {
             EnableCenterUpdates();
-            CenterChanged();
         }
 
         protected override void CenterChanged()

@@ -231,6 +231,14 @@ namespace MapControl
         }
 
         /// <summary>
+        /// Gets a MapRect in projected map coordinates that covers a rectangle in view coordinates.
+        /// </summary>
+        public MapRect ViewToMapRect(Rect rect)
+        {
+            return new MapRect(ViewTransform.ViewToMapBounds(rect), MapProjection.Center);
+        }
+
+        /// <summary>
         /// Gets a BoundingBox in geographic coordinates that covers a rectangle in view coordinates.
         /// </summary>
         public BoundingBox ViewToBoundingBox(Rect rect)

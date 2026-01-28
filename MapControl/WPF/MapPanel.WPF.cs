@@ -15,6 +15,10 @@ namespace MapControl
             DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel), null,
                 FrameworkPropertyMetadataOptions.AffectsParentArrange);
 
+        public static readonly DependencyProperty MapRectProperty =
+            DependencyPropertyHelper.RegisterAttached<MapRect>("MapRect", typeof(MapPanel), null,
+                FrameworkPropertyMetadataOptions.AffectsParentArrange);
+
         public static MapBase GetParentMap(FrameworkElement element)
         {
             return (MapBase)element.GetValue(ParentMapProperty);

@@ -329,8 +329,16 @@ namespace MapControl
 
             if (crs.StartsWith("AUTO2:") || crs.StartsWith("AUTO:"))
             {
-                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1:0.########},{2:0.########}",
-                    crs, projection.Center.Longitude, projection.Center.Latitude);
+                var lon = 0d;
+                var lat = 0d; ;
+
+                if (projection.Center != null)
+                {
+                    lon = projection.Center.Longitude;
+                    lat = projection.Center.Latitude;
+                }
+
+                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1:0.########},{2:0.########}", crs, lon, lat);
             }
 
             return crs;
