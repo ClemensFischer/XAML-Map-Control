@@ -25,7 +25,7 @@ namespace MapControl.Projections
         {
             var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, 0.994, latitude);
 
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+            return RelativeTransform(latitude, longitude, k, k);
         }
     }
 
@@ -50,7 +50,7 @@ namespace MapControl.Projections
         {
             var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84Flattening, 0.994, latitude);
 
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+            return RelativeTransform(latitude, longitude, k, k);
         }
     }
 }
