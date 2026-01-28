@@ -1,7 +1,4 @@
 ﻿using System;
-#if WPF
-using System.Windows.Media;
-#endif
 
 namespace MapControl
 {
@@ -36,16 +33,26 @@ namespace MapControl
                 CosC = Math.Min(Math.Max(cosC, -1d), 1d); // protect against rounding errors
             }
 
-            public Matrix RelativeScale(double radialScale, double perpendicularScale)
+            public (double, double) RelativeScale(double radialScale, double perpendicularScale)
             {
-                var scale = new Matrix(radialScale, 0d, 0d, perpendicularScale, 0d, 0d);
+                var scaleX = radialScale;
+                var scaleY = perpendicularScale;
 
-                if (radialScale != perpendicularScale)
+                if (scaleX != scaleY)
                 {
-                    scale.Rotate(-Math.Atan2(Y, X) * 180d / Math.PI);
+                    var s = Math.Sqrt(X * X + Y * Y);
+                    // sin and cos of azimuth from projection center, i.e. Atan2(Y/X)
+                    var cos = X / s;
+                    var sin = Y / s;
+                    var x1 = scaleX * cos;
+                    var y1 = scaleY * sin;
+                    var x2 = scaleX * sin;
+                    var y2 = scaleY * cos;
+                    scaleX = Math.Sqrt(x1 * x1 + y1 * y1);
+                    scaleY = Math.Sqrt(x2 * x2 + y2 * y2);
                 }
 
-                return scale;
+                return (scaleX, scaleY);
             }
         }
 

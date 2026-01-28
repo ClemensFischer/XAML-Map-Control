@@ -31,7 +31,7 @@ namespace MapControl
             var p = GetProjectedPoint(latitude, longitude);
             var k = 2d / (1d + p.CosC); // p.157 (21-4), k0 == 1
 
-            return p.RelativeScale(k, k);
+            return RelativeTransform(latitude, longitude, k, k);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)

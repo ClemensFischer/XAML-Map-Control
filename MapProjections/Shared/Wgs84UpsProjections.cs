@@ -23,7 +23,7 @@ namespace MapControl.Projections
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, latitude);
+            var k = PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, 0.994, latitude);
 
             return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
@@ -48,7 +48,7 @@ namespace MapControl.Projections
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84Flattening, latitude);
+            var k = PolarStereographicProjection.RelativeScale(Hemisphere.South, Wgs84Flattening, 0.994, latitude);
 
             return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }

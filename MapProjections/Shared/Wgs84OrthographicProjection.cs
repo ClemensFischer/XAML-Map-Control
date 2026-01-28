@@ -37,8 +37,9 @@ namespace MapControl.Projections
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var p = new AzimuthalProjection.ProjectedPoint(Center.Latitude, Center.Longitude, latitude, longitude);
+            (var scaleX, var scaleY) = p.RelativeScale(p.CosC, 1d); // p.149 (20-5), k == 1
 
-            return p.RelativeScale(p.CosC, 1d); // p.149 (20-5), k == 1
+            return RelativeTransform(latitude, longitude, scaleX, scaleY);
         }
     }
 }

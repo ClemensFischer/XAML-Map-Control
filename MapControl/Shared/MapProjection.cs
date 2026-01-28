@@ -207,5 +207,30 @@ namespace MapControl
         {
             return CrsId;
         }
+
+        /// <summary>
+        /// Used by azimuthal projections, where local skewing can not be directly calculated.
+        /// </summary>
+        protected Matrix RelativeTransform(double latitude, double longitude, double scaleX, double scaleY)
+        {
+            var north = LocationToMap(latitude - 1e-3, longitude);
+            var south = LocationToMap(latitude + 1e-3, longitude);
+            var west = LocationToMap(latitude, longitude - 1e-3);
+            var east = LocationToMap(latitude, longitude + 1e-3);
+            var tanSkewX = 0d;
+            var tanSkewY = 0d;
+
+            if (north.HasValue && south.HasValue && west.HasValue && east.HasValue)
+            {
+                var dx1 = east.Value.X - west.Value.X;
+                var dy1 = east.Value.Y - west.Value.Y;
+                var dx2 = north.Value.X - south.Value.X;
+                var dy2 = north.Value.Y - south.Value.Y;
+                tanSkewX = -dx2 / dy2;
+                tanSkewY = -dy1 / dx1;
+            }
+
+            return new Matrix(scaleX, scaleX * tanSkewY, scaleY * tanSkewX, scaleY, 0d, 0d);
+        }
     }
 }

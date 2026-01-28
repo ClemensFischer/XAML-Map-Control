@@ -47,10 +47,8 @@ namespace MapControl
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            // h = k/k0 for relative scale
-            var h = 1d;
-            // γ, meridian convergence angle
-            var gamma = 0d;
+            var k = ScaleFactor;
+            var gamma = 0d; // γ, meridian convergence angle
 
             if (latitude > -90d && latitude < 90d)
             {
@@ -69,14 +67,14 @@ namespace MapControl
                 var A4 = A2 * A2;
                 var A6 = A2 * A4;
 
-                h = 1d + (1d + C) * A2 / 2d +
+                k *= 1d + (1d + C) * A2 / 2d +
                     (5d - 4d * T + 42d * C + 13d * C * C - 28d * e_2) * A4 / 24d +
                     (61d - 148d * T + 16 * T * T) * A6 / 720d; // (8-11)
 
                 gamma = Math.Atan(Math.Tan(dLambda) * sinPhi);
             }
 
-            var transform = new Matrix(h, 0d, 0d, h, 0d, 0d);
+            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
             transform.Rotate(-gamma * 180d / Math.PI);
 
             return transform;

@@ -29,21 +29,22 @@ namespace MapControl
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
             var p = GetProjectedPoint(latitude, longitude);
-
-            if (p.CosC == 1d)
-            {
-                return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
-            }
+            var scaleX = 1d;
+            var scaleY = 1d;
 
             if (p.CosC == -1d)
             {
-                return new Matrix(1d, 0d, 0d, double.PositiveInfinity, 0d, 0d);
+                scaleY = double.PositiveInfinity;
+            }
+            else if (p.CosC != 1d)
+            {
+                var c = Math.Acos(p.CosC);
+                var k = c / Math.Sin(c); // p.195 (25-2)
+
+                (scaleX, scaleY) = p.RelativeScale(1d, k);
             }
 
-            var c = Math.Acos(p.CosC);
-            var k = c / Math.Sin(c); // p.195 (25-2)
-
-            return p.RelativeScale(1d, k);
+            return RelativeTransform(latitude, longitude, scaleX, scaleY);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)

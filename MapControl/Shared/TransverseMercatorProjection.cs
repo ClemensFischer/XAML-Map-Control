@@ -68,6 +68,7 @@ namespace MapControl
             // λ - λ0
             var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
             var cosLambda = Math.Cos(dLambda);
+            var tanLambda = Math.Tan(dLambda);
             // t
             var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
             var u = Math.Sqrt(1d + t * t);
@@ -88,14 +89,12 @@ namespace MapControl
 
             var n = Flattening / (2d - Flattening);
             var m = (1d - n) / (1d + n) * Math.Tan(phi);
-            // h = k/k0 for relative scale
-            var h = f1 * Math.Sqrt((1d + m * m) * (sigma * sigma + tau * tau) / (t * t + cosLambda * cosLambda));
+            var k = ScaleFactor * f1 * Math.Sqrt((1d + m * m) * (sigma * sigma + tau * tau) / (t * t + cosLambda * cosLambda));
 
-            var tanLambda = Math.Tan(dLambda);
             // γ, meridian convergence angle
             var gamma = Math.Atan2(tau * u + sigma * t * tanLambda, sigma * u - tau * t * tanLambda);
 
-            var transform = new Matrix(h, 0d, 0d, h, 0d, 0d);
+            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
             transform.Rotate(-gamma * 180d / Math.PI);
 
             return transform;
