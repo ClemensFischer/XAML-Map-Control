@@ -43,7 +43,7 @@ namespace MapControl
         {
             var k = RelativeScale(Hemisphere, Flattening, ScaleFactor, latitude);
 
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+            return RelativeTransform(latitude, longitude, k, k);
         }
 
         public override Point? LocationToMap(double latitude, double longitude)
