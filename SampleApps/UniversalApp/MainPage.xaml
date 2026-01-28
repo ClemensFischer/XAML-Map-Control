@@ -157,6 +157,12 @@
                                  LocationMemberPath="Location"
                                  SelectionChanged="MapItemsControlSelectionChanged"/>
 
+            <map:MapPath Location="53.5,8.2" Stroke="Blue" StrokeThickness="3" Fill="#1F007F00" IsHitTestVisible="False">
+                <map:MapPath.Data>
+                    <EllipseGeometry RadiusX="1852" RadiusY="1852"/>
+                </map:MapPath.Data>
+            </map:MapPath>
+
             <map:Pushpin Location="53.5,8.2" AutoCollapse="True" Content="N 53°30' E 8°12'"/>
         </map:Map>
 
