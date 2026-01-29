@@ -224,7 +224,7 @@ namespace MapControl
             {
                 var longitude = parentMap.NearestLongitude(location.Longitude);
 
-                if (longitude != location.Longitude)
+                if (!location.LongitudeEquals(longitude))
                 {
                     position = parentMap.LocationToView(location.Latitude, longitude);
                 }
@@ -243,7 +243,7 @@ namespace MapControl
                 var location = parentMap.MapProjection.MapToLocation(center);
                 var longitude = parentMap.NearestLongitude(location.Longitude);
 
-                if (longitude != location.Longitude)
+                if (!location.LongitudeEquals(longitude))
                 {
                     position = parentMap.LocationToView(location.Latitude, longitude);
                 }

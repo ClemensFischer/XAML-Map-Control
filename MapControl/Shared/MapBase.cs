@@ -313,6 +313,8 @@ namespace MapControl
 
         internal double NearestLongitude(double longitude)
         {
+            longitude = Location.NormalizeLongitude(longitude);
+            
             var offset = longitude - Center.Longitude;
 
             if (offset > 180d)
