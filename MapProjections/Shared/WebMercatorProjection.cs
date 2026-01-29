@@ -1,8 +1,4 @@
 ﻿using ProjNet.CoordinateSystems;
-using System;
-#if WPF
-using System.Windows.Media;
-#endif
 
 namespace MapControl.Projections
 {
@@ -13,15 +9,9 @@ namespace MapControl.Projections
     public class WebMercatorProjection : ProjNetMapProjection
     {
         public WebMercatorProjection()
+            : base(new MapControl.WebMercatorProjection())
         {
             CoordinateSystem = ProjectedCoordinateSystem.WebMercator;
-        }
-
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            var k = 1d / Math.Cos(latitude * Math.PI / 180d); // p.44 (7-3)
-
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
     }
 }

@@ -57,9 +57,16 @@ namespace MapControl
 
         /// <summary>
         /// Gets the relative transform at the specified geographic coordinates.
-        /// The returned Matrix represents the local distortion of the map projection.
+        /// The returned Matrix represents the local relative scale and rotation.
         /// </summary>
         public abstract Matrix RelativeTransform(double latitude, double longitude);
+
+        /// <summary>
+        /// Gets the grid convergence angle in degrees at the specified projected map coordinates.
+        /// Used for rotating the Rect resulting from BoundingBoxToMap in non-normal-cylindrical
+        /// projections, i.e. Transverse Mercator and Polar Stereographic.
+        /// </summary>
+        public virtual double GridConvergence(double x, double y) => 0d;
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in projected map coordinates.
@@ -88,33 +95,42 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates
-        /// with an optional transform Matrix.
+        /// with an optional rotation angle in degrees.
         /// </summary>
-        public (Rect, Matrix?) BoundingBoxToMap(BoundingBox boundingBox)
+        public (Rect, double) BoundingBoxToMap(BoundingBox boundingBox)
         {
             Rect rect;
-            Matrix? transform = null;
+            var rotation = 0d;
+            var southWest = LocationToMap(boundingBox.South, boundingBox.West);
+            var northEast = LocationToMap(boundingBox.North, boundingBox.East);
 
             if (IsNormalCylindrical)
             {
-                var southWest = LocationToMap(boundingBox.South, boundingBox.West);
-                var northEast = LocationToMap(boundingBox.North, boundingBox.East);
-
                 rect = new Rect(southWest.X, southWest.Y, northEast.X - southWest.X, northEast.Y - southWest.Y);
             }
             else
             {
-                var latitude = (boundingBox.South + boundingBox.North) / 2d;
-                var longitude = (boundingBox.West + boundingBox.East) / 2d;
-                var center = LocationToMap(latitude, longitude);
-                var width = MeterPerDegree * (boundingBox.East - boundingBox.West) * Math.Cos(latitude * Math.PI / 180d);
-                var height = MeterPerDegree * (boundingBox.North - boundingBox.South);
+                var southEast = LocationToMap(boundingBox.South, boundingBox.East);
+                var northWest = LocationToMap(boundingBox.North, boundingBox.West);
+                var south = new Point((southWest.X + southEast.X) / 2d, (southWest.Y + southEast.Y) / 2d);
+                var north = new Point((northWest.X + northEast.X) / 2d, (northWest.Y + northEast.Y) / 2d);
+                var centerX = (south.X + north.X) / 2d;
+                var centerY = (south.Y + north.Y) / 2d;
+                var dx = north.X - south.X;
+                var dy = north.Y - south.Y;
+                var dxS = southEast.X - southWest.X;
+                var dyS = southEast.Y - southWest.Y;
+                var dxN = northEast.X - northWest.X;
+                var dyN = northEast.Y - northWest.Y;
+                var width = (Math.Sqrt(dxS * dxS + dyS * dyS) + Math.Sqrt(dxN * dxN + dyN * dyN)) / 2d;
+                var height = Math.Sqrt(dx * dx + dy * dy);
 
-                rect = new Rect(center.X - width / 2d, center.Y - height / 2d, width, height);
-                transform = RelativeTransform(latitude, longitude);
+                rect = new Rect(centerX - width / 2d, centerY - height / 2d, width, height);
+
+                rotation = -GridConvergence(centerX, centerY); // invert direction for RotateTransform
             }
 
-            return (rect, transform);
+            return (rect, rotation);
         }
 
         /// <summary>

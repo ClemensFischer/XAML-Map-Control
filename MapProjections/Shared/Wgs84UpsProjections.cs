@@ -7,6 +7,7 @@ namespace MapControl.Projections
     public class Wgs84UpsNorthProjection : ProjNetMapProjection
     {
         public Wgs84UpsNorthProjection()
+            : base(new MapControl.Wgs84UpsNorthProjection())
         {
             CoordinateSystemWkt =
                 "PROJCS[\"WGS 84 / UPS North (N,E)\"," +
@@ -20,16 +21,12 @@ namespace MapControl.Projections
                 "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
                 "AUTHORITY[\"EPSG\",\"32661\"]]";
         }
-
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            return PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, 0.994, latitude, longitude);
-        }
     }
 
     public class Wgs84UpsSouthProjection : ProjNetMapProjection
     {
         public Wgs84UpsSouthProjection()
+            : base(new MapControl.Wgs84UpsSouthProjection())
         {
             CoordinateSystemWkt =
                 "PROJCS[\"WGS 84 / UPS South (N,E)\"," +
@@ -42,11 +39,6 @@ namespace MapControl.Projections
                 "PARAMETER[\"false_northing\",2000000]," +
                 "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
                 "AUTHORITY[\"EPSG\",\"32761\"]]";
-        }
-
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            return PolarStereographicProjection.RelativeScale(Hemisphere.North, Wgs84Flattening, 0.994, latitude, longitude);
         }
     }
 }

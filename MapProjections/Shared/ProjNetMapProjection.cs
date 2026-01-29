@@ -15,8 +15,11 @@ namespace MapControl.Projections
     /// </summary>
     public class ProjNetMapProjection : MapProjection
     {
-        protected ProjNetMapProjection()
+        protected MapProjection FallbackProjection { get; }
+
+        protected ProjNetMapProjection(MapProjection fallbackProjection)
         {
+            FallbackProjection = fallbackProjection;
         }
 
         public ProjNetMapProjection(string coordinateSystemWkt)
@@ -71,11 +74,6 @@ namespace MapControl.Projections
 
         public MathTransform MapToLocationTransform { get; private set; }
 
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
-        }
-
         public override Point LocationToMap(double latitude, double longitude)
         {
             if (LocationToMapTransform == null)
@@ -98,6 +96,20 @@ namespace MapControl.Projections
             var coordinate = MapToLocationTransform.Transform([x, y]);
 
             return new Location(coordinate[1], coordinate[0]);
+        }
+
+        public override Matrix RelativeTransform(double latitude, double longitude)
+        {
+            return FallbackProjection != null
+                ? FallbackProjection.RelativeTransform(latitude, longitude)
+                : new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+        }
+
+        public override double GridConvergence(double x, double y)
+        {
+            return FallbackProjection != null
+                ? FallbackProjection.GridConvergence(x, y)
+                : 0d;
         }
     }
 }

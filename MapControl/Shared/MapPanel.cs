@@ -280,7 +280,7 @@ namespace MapControl
 
                 if (mapRect.HasValue)
                 {
-                    ArrangeElement(element, mapRect.Value, null);
+                    ArrangeElement(element, mapRect.Value, 0d);
                 }
                 else
                 {
@@ -288,9 +288,9 @@ namespace MapControl
 
                     if (boundingBox != null)
                     {
-                        (var rect, var transform) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+                        (var rect, var rotation) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-                        ArrangeElement(element, rect, transform);
+                        ArrangeElement(element, rect, rotation);
                     }
                     else
                     {
@@ -300,7 +300,7 @@ namespace MapControl
             }
         }
 
-        private void ArrangeElement(FrameworkElement element, Rect mapRect, Matrix? transform)
+        private void ArrangeElement(FrameworkElement element, Rect mapRect, double rotation)
         {
             var viewRect = GetViewRect(mapRect);
 
@@ -308,28 +308,15 @@ namespace MapControl
             element.Height = viewRect.Height;
             element.Arrange(viewRect);
 
-            if (parentMap.ViewTransform.Rotation != 0d)
-            {
-                var t = transform ?? new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
-                t.Rotate(parentMap.ViewTransform.Rotation);
-                transform = t;
-            }
+            rotation += parentMap.ViewTransform.Rotation;
 
-            if (element.RenderTransform is MatrixTransform matrixTransform &&
-                !matrixTransform.Matrix.IsIdentity) // not default RenderTransform in WPF/UWP/WinUI
+            if (element.RenderTransform is RotateTransform rotateTransform)
             {
-                if (transform.HasValue)
-                {
-                    matrixTransform.Matrix = transform.Value;
-                }
-                else
-                {
-                    element.ClearValue(RenderTransformProperty);
-                }
+                rotateTransform.Angle = rotation;
             }
-            else if (transform.HasValue)
+            else if (rotation != 0d)
             {
-                element.SetRenderTransform(new MatrixTransform { Matrix = transform.Value }, true);
+                element.SetRenderTransform(new RotateTransform { Angle = rotation }, true);
             }
         }
 

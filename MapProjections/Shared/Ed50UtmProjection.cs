@@ -15,6 +15,12 @@ namespace MapControl.Projections
         public int Zone { get; }
 
         public Ed50UtmProjection(int zone)
+            : base(new TransverseMercatorProjection
+            {
+                EquatorialRadius = 6378388d,
+                Flattening = 297,
+                CentralMeridian = 6 * zone - 183,
+            })
         {
             if (zone < FirstZone || zone > LastZone)
             {

@@ -60,6 +60,35 @@ namespace MapControl
             Flattening = Wgs84Flattening;
         }
 
+        public override Point LocationToMap(double latitude, double longitude)
+        {
+            // φ
+            var phi = latitude * Math.PI / 180d;
+            var sinPhi = Math.Sin(phi);
+            // t
+            var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
+            // λ - λ0
+            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
+            // ξ'
+            var xi_ = Math.Atan2(t, Math.Cos(dLambda));
+            // η'
+            var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
+            // k0 * A
+            var k0A = ScaleFactor * EquatorialRadius * f1;
+
+            var x = FalseEasting + k0A * (eta_ +
+                a1 * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_) +
+                a2 * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_) +
+                a3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_));
+
+            var y = FalseNorthing + k0A * (xi_ +
+                a1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_) +
+                a2 * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_) +
+                a3 * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_));
+
+            return new Point(x, y);
+        }
+
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
             // φ
@@ -100,35 +129,6 @@ namespace MapControl
             return transform;
         }
 
-        public override Point LocationToMap(double latitude, double longitude)
-        {
-            // φ
-            var phi = latitude * Math.PI / 180d;
-            var sinPhi = Math.Sin(phi);
-            // t
-            var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
-            // λ - λ0
-            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
-            // ξ'
-            var xi_ = Math.Atan2(t, Math.Cos(dLambda));
-            // η'
-            var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
-            // k0 * A
-            var k0A = ScaleFactor * EquatorialRadius * f1;
-
-            var x = FalseEasting + k0A * (eta_ +
-                a1 * Math.Cos(2d * xi_) * Math.Sinh(2d * eta_) +
-                a2 * Math.Cos(4d * xi_) * Math.Sinh(4d * eta_) +
-                a3 * Math.Cos(6d * xi_) * Math.Sinh(6d * eta_));
-
-            var y = FalseNorthing + k0A * (xi_ +
-                a1 * Math.Sin(2d * xi_) * Math.Cosh(2d * eta_) +
-                a2 * Math.Sin(4d * xi_) * Math.Cosh(4d * eta_) +
-                a3 * Math.Sin(6d * xi_) * Math.Cosh(6d * eta_));
-
-            return new Point(x, y);
-        }
-
         public override Location MapToLocation(double x, double y)
         {
             // k0 * A
@@ -160,6 +160,42 @@ namespace MapControl
             return new Location(
                 phi * 180d / Math.PI,
                 dLambda * 180d / Math.PI + CentralMeridian);
+        }
+
+        public override double GridConvergence(double x, double y)
+        {
+            // k0 * A
+            var k0A = ScaleFactor * EquatorialRadius * f1;
+            // ξ
+            var xi = (y - FalseNorthing) / k0A;
+            // η
+            var eta = (x - FalseEasting) / k0A;
+            // ξ'
+            var xi_ = xi -
+                b1 * Math.Sin(2d * xi) * Math.Cosh(2d * eta) -
+                b2 * Math.Sin(4d * xi) * Math.Cosh(4d * eta) -
+                b3 * Math.Sin(6d * xi) * Math.Cosh(6d * eta);
+            // η'
+            var eta_ = eta -
+                b1 * Math.Cos(2d * xi) * Math.Sinh(2d * eta) -
+                b2 * Math.Cos(4d * xi) * Math.Sinh(4d * eta) -
+                b3 * Math.Cos(6d * xi) * Math.Sinh(6d * eta);
+            // σ'
+            var sigma_ = 1 -
+                2d * b1 * Math.Cos(2d * xi) * Math.Cosh(2d * eta) +
+                4d * b2 * Math.Cos(4d * xi) * Math.Cosh(4d * eta) +
+                6d * b3 * Math.Cos(6d * xi) * Math.Cosh(6d * eta);
+            // τ'
+            var tau_ =
+                2d * b1 * Math.Sin(2d * xi) * Math.Sinh(2d * eta) +
+                4d * b2 * Math.Sin(4d * xi) * Math.Sinh(4d * eta) +
+                6d * b3 * Math.Sin(6d * xi) * Math.Sinh(6d * eta);
+
+            var tanXi_tanhEta_ = Math.Tan(xi_) * Math.Tanh(eta_);
+            // γ
+            var gamma = Math.Atan2(tau_ + sigma_ * tanXi_tanhEta_, sigma_ + -tau_ * tanXi_tanhEta_);
+
+            return gamma * 180d / Math.PI;
         }
 
 #if NETFRAMEWORK

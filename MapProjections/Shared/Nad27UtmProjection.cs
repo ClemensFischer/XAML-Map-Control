@@ -1,26 +1,15 @@
-﻿using System;
-
-namespace MapControl.Projections
+﻿namespace MapControl.Projections
 {
     /// <summary>
-    /// NAD27 Universal Transverse Mercator Projection.
+    /// NAD27 Universal Transverse Mercator Projection - EPSG:26701 to EPSG:26722.
     /// </summary>
     public class Nad27UtmProjection : ProjNetMapProjection
     {
-        public const int FirstZone = 1;
-        public const int LastZone = 22;
-        public const int FirstZoneEpsgCode = 26700 + FirstZone;
-        public const int LastZoneEpsgCode = 26700 + LastZone;
-
         public int Zone { get; }
 
         public Nad27UtmProjection(int zone)
+            : base(new MapControl.Nad27UtmProjection(zone))
         {
-            if (zone < FirstZone || zone > LastZone)
-            {
-                throw new ArgumentException($"Invalid NAD27 UTM zone {zone}.", nameof(zone));
-            }
-
             Zone = zone;
             CoordinateSystemWkt =
                 $"PROJCS[\"NAD27 / UTM zone {zone}N\"," +

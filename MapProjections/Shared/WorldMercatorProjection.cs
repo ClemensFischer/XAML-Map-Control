@@ -1,8 +1,4 @@
-﻿#if WPF
-using System.Windows.Media;
-#endif
-
-namespace MapControl.Projections
+﻿namespace MapControl.Projections
 {
     /// <summary>
     /// Elliptical Mercator Projection implemented by setting the WKT property of a ProjNetMapProjection.
@@ -11,6 +7,7 @@ namespace MapControl.Projections
     public class WorldMercatorProjection : ProjNetMapProjection
     {
         public WorldMercatorProjection()
+            : base(new MapControl.WorldMercatorProjection())
         {
             CoordinateSystemWkt =
                 "PROJCS[\"WGS 84 / World Mercator\"," +
@@ -25,13 +22,6 @@ namespace MapControl.Projections
                 "AXIS[\"Easting\",EAST]," +
                 "AXIS[\"Northing\",NORTH]," +
                 "AUTHORITY[\"EPSG\",\"3395\"]]";
-        }
-
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            var k = MapControl.WorldMercatorProjection.RelativeScale(latitude);
-
-            return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
     }
 }

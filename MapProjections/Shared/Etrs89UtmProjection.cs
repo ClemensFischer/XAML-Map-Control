@@ -1,26 +1,15 @@
-﻿using System;
-
-namespace MapControl.Projections
+﻿namespace MapControl.Projections
 {
     /// <summary>
-    /// ETRS89 Universal Transverse Mercator Projection.
+    /// ETRS89 Universal Transverse Mercator Projection - EPSG:25828 to EPSG:25838.
     /// </summary>
     public class Etrs89UtmProjection : ProjNetMapProjection
     {
-        public const int FirstZone = 28;
-        public const int LastZone = 38;
-        public const int FirstZoneEpsgCode = 25800 + FirstZone;
-        public const int LastZoneEpsgCode = 25800 + LastZone;
-
         public int Zone { get; }
 
         public Etrs89UtmProjection(int zone)
+            : base(new MapControl.Etrs89UtmProjection(zone))
         {
-            if (zone < FirstZone || zone > LastZone)
-            {
-                throw new ArgumentException($"Invalid ETRS89 UTM zone {zone}.", nameof(zone));
-            }
-
             Zone = zone;
             CoordinateSystemWkt =
                 $"PROJCS[\"ETRS89 / UTM zone {zone}N\"," +

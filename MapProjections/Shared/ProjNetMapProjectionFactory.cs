@@ -47,16 +47,16 @@ namespace MapControl.Projections
             {
                 var c when c is >= Ed50UtmProjection.FirstZoneEpsgCode
                             and <= Ed50UtmProjection.LastZoneEpsgCode => new Ed50UtmProjection(c % 100),
-                var c when c is >= Etrs89UtmProjection.FirstZoneEpsgCode
-                            and <= Etrs89UtmProjection.LastZoneEpsgCode => new Etrs89UtmProjection(c % 100),
-                var c when c is >= Nad27UtmProjection.FirstZoneEpsgCode
-                            and <= Nad27UtmProjection.LastZoneEpsgCode => new Nad27UtmProjection(c % 100),
-                var c when c is >= Nad83UtmProjection.FirstZoneEpsgCode
-                            and <= Nad83UtmProjection.LastZoneEpsgCode => new Nad83UtmProjection(c % 100),
-                var c when c is >= Wgs84UtmProjection.FirstZoneNorthEpsgCode
-                            and <= Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.North),
-                var c when c is >= Wgs84UtmProjection.FirstZoneSouthEpsgCode
-                            and <= Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.South),
+                var c when c is >= MapControl.Etrs89UtmProjection.FirstZoneEpsgCode
+                            and <= MapControl.Etrs89UtmProjection.LastZoneEpsgCode => new Etrs89UtmProjection(c % 100),
+                var c when c is >= MapControl.Nad27UtmProjection.FirstZoneEpsgCode
+                            and <= MapControl.Nad27UtmProjection.LastZoneEpsgCode => new Nad27UtmProjection(c % 100),
+                var c when c is >= MapControl.Nad83UtmProjection.FirstZoneEpsgCode
+                            and <= MapControl.Nad83UtmProjection.LastZoneEpsgCode => new Nad83UtmProjection(c % 100),
+                var c when c is >= MapControl.Wgs84UtmProjection.FirstZoneNorthEpsgCode
+                            and <= MapControl.Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.North),
+                var c when c is >= MapControl.Wgs84UtmProjection.FirstZoneSouthEpsgCode
+                            and <= MapControl.Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.South),
                 _ => base.GetProjection(epsgCode)
             };
         }
