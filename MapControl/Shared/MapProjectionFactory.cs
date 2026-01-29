@@ -13,12 +13,6 @@ namespace MapControl
                 EquirectangularProjection.DefaultCrsId or "CRS:84" => new EquirectangularProjection(crsId),
                 Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
                 Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
-                Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
-                Wgs84AutoTmProjection.DefaultCrsId => new Wgs84AutoTmProjection(),
-                OrthographicProjection.DefaultCrsId => new OrthographicProjection(),
-                GnomonicProjection.DefaultCrsId => new GnomonicProjection(),
-                StereographicProjection.DefaultCrsId => new StereographicProjection(),
-                AzimuthalEquidistantProjection.DefaultCrsId => new AzimuthalEquidistantProjection(),
                 _ => GetProjectionFromEpsgCode(crsId),
             };
 

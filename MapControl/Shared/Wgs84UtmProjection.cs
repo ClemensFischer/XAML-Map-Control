@@ -29,7 +29,7 @@ namespace MapControl
             SetZone(zone, hemisphere);
         }
 
-        protected void SetZone(int zone, Hemisphere hemisphere)
+        public void SetZone(int zone, Hemisphere hemisphere)
         {
             if (zone < FirstZone || zone > LastZone)
             {

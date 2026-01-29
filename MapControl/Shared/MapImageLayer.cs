@@ -180,7 +180,7 @@ namespace MapControl
                 updateTimer.Stop();
 
                 ImageSource image = null;
-                MapRect mapRect = null;
+                Rect? mapRect = null;
 
                 if (ParentMap != null &&
                     (SupportedCrsIds == null || SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId)))
@@ -193,8 +193,8 @@ namespace MapControl
                         var x = (ParentMap.ActualWidth - width) / 2d;
                         var y = (ParentMap.ActualHeight - height) / 2d;
 
-                        mapRect = ParentMap.ViewToMapRect(new Rect(x, y, width, height));
-                        image = await GetImageAsync(mapRect.Rect, loadingProgress);
+                        mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(x, y, width, height));
+                        image = await GetImageAsync(mapRect.Value, loadingProgress);
                     }
                 }
 
@@ -216,7 +216,7 @@ namespace MapControl
             }
         }
 
-        private void SwapImages(ImageSource image, MapRect mapRect)
+        private void SwapImages(ImageSource image, Rect? mapRect)
         {
             if (Children.Count >= 2)
             {

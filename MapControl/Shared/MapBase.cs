@@ -43,10 +43,6 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, MapProjection>(nameof(MapProjection), new WebMercatorProjection(),
                 (map, oldValue, newValue) => map.MapProjectionPropertyChanged(newValue));
 
-        public static readonly DependencyProperty ProjectionCenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Location>(nameof(ProjectionCenter), null,
-                (map, oldValue, newValue) => map.ProjectionCenterPropertyChanged(newValue));
-
         private Location transformCenter;
         private Point viewCenter;
         private double centerLongitude;
@@ -84,17 +80,6 @@ namespace MapControl
         {
             get => (MapProjection)GetValue(MapProjectionProperty);
             set => SetValue(MapProjectionProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets a projection center e.g. for azimuthal projections.
-        /// If ProjectionCenter is null, the value of the Center property is used as projection center.
-        /// This behavior is overridden when the Center property of a MapProjection is set explicitly.
-        /// </summary>
-        public Location ProjectionCenter
-        {
-            get => (Location)GetValue(ProjectionCenterProperty);
-            set => SetValue(ProjectionCenterProperty, value);
         }
 
         /// <summary>
@@ -172,8 +157,8 @@ namespace MapControl
         }
 
         /// <summary>
-        /// Gets the ViewTransform instance that is used to transform between projected
-        /// map coordinates and view coordinates.
+        /// Gets the ViewTransform instance that is used to transform between
+        /// projected map coordinates and view coordinates.
         /// </summary>
         public ViewTransform ViewTransform { get; } = new ViewTransform();
 
@@ -186,7 +171,6 @@ namespace MapControl
             var transform = MapProjection.RelativeTransform(latitude, longitude);
             transform.Scale(ViewTransform.Scale, ViewTransform.Scale);
             transform.Rotate(ViewTransform.Rotation);
-
             return transform;
         }
 
@@ -194,57 +178,27 @@ namespace MapControl
         /// Gets a transform Matrix from meters to view coordinates for scaling and rotating
         /// at the specified Location.
         /// </summary>
-        public Matrix GetMapToViewTransform(Location location)
-        {
-            return GetMapToViewTransform(location.Latitude, location.Longitude);
-        }
+        public Matrix GetMapToViewTransform(Location location) => GetMapToViewTransform(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in view coordinates.
         /// </summary>
-        public Point? LocationToView(double latitude, double longitude)
-        {
-            var point = MapProjection.LocationToMap(latitude, longitude);
-
-            if (point.HasValue)
-            {
-                point = ViewTransform.MapToView(point.Value);
-            }
-
-            return point;
-        }
+        public Point LocationToView(double latitude, double longitude) => ViewTransform.MapToView(MapProjection.LocationToMap(latitude, longitude));
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in view coordinates.
         /// </summary>
-        public Point? LocationToView(Location location)
-        {
-            return LocationToView(location.Latitude, location.Longitude);
-        }
+        public Point LocationToView(Location location) => LocationToView(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms a Point in view coordinates to a Location in geographic coordinates.
         /// </summary>
-        public Location ViewToLocation(Point point)
-        {
-            return MapProjection.MapToLocation(ViewTransform.ViewToMap(point));
-        }
-
-        /// <summary>
-        /// Gets a MapRect in projected map coordinates that covers a rectangle in view coordinates.
-        /// </summary>
-        public MapRect ViewToMapRect(Rect rect)
-        {
-            return new MapRect(ViewTransform.ViewToMapBounds(rect), MapProjection.Center);
-        }
+        public Location ViewToLocation(Point point) => MapProjection.MapToLocation(ViewTransform.ViewToMap(point));
 
         /// <summary>
         /// Gets a BoundingBox in geographic coordinates that covers a rectangle in view coordinates.
         /// </summary>
-        public BoundingBox ViewToBoundingBox(Rect rect)
-        {
-            return MapProjection.MapToBoundingBox(ViewTransform.ViewToMapBounds(rect));
-        }
+        public BoundingBox ViewToBoundingBox(Rect rect) => MapProjection.MapToBoundingBox(ViewTransform.ViewToMapBounds(rect));
 
         /// <summary>
         /// Sets a temporary center point in view coordinates for scaling and rotation transformations.
@@ -253,8 +207,8 @@ namespace MapControl
         /// </summary>
         public void SetTransformCenter(Point center)
         {
+            viewCenter = center;
             transformCenter = ViewToLocation(center);
-            viewCenter = transformCenter != null ? center : new Point(ActualWidth / 2d, ActualHeight / 2d);
         }
 
         /// <summary>
@@ -262,8 +216,8 @@ namespace MapControl
         /// </summary>
         public void ResetTransformCenter()
         {
-            transformCenter = null;
             viewCenter = new Point(ActualWidth / 2d, ActualHeight / 2d);
+            transformCenter = null;
         }
 
         /// <summary>
@@ -273,12 +227,7 @@ namespace MapControl
         {
             if (translation.X != 0d || translation.Y != 0d)
             {
-                var center = ViewToLocation(new Point(viewCenter.X - translation.X, viewCenter.Y - translation.Y));
-
-                if (center != null)
-                {
-                    Center = center;
-                }
+                Center = ViewToLocation(new Point(viewCenter.X - translation.X, viewCenter.Y - translation.Y));
             }
         }
 
@@ -350,22 +299,11 @@ namespace MapControl
         /// </summary>
         public void ZoomToBounds(BoundingBox bounds)
         {
-            (var mapRect, var _) = MapProjection.BoundingBoxToMap(bounds);
-
-            if (mapRect.HasValue)
-            {
-                var targetCenter = MapProjection.MapToLocation(
-                    mapRect.Value.X + mapRect.Value.Width / 2d,
-                    mapRect.Value.Y + mapRect.Value.Height / 2d);
-
-                if (targetCenter != null)
-                {
-                    var scale = Math.Min(ActualWidth / mapRect.Value.Width, ActualHeight / mapRect.Value.Height);
-                    TargetZoomLevel = ScaleToZoomLevel(scale);
-                    TargetCenter = targetCenter;
-                    TargetHeading = 0d;
-                }
-            }
+            (var rect, var _) = MapProjection.BoundingBoxToMap(bounds);
+            var scale = Math.Min(ActualWidth / rect.Width, ActualHeight / rect.Height);
+            TargetZoomLevel = ScaleToZoomLevel(scale);
+            TargetCenter = new Location((bounds.South + bounds.North) / 2d, (bounds.West + bounds.East) / 2d);
+            TargetHeading = 0d;
         }
 
         internal bool InsideViewBounds(Point point)
@@ -441,107 +379,65 @@ namespace MapControl
             if (projection.IsNormalCylindrical)
             {
                 var maxLocation = projection.MapToLocation(0d, 180d * MapProjection.Wgs84MeterPerDegree);
-
-                if (maxLocation != null && maxLocation.Latitude < 90d)
-                {
-                    maxLatitude = maxLocation.Latitude;
-                    Center = CoerceCenterProperty(Center);
-                }
+                maxLatitude = maxLocation.Latitude;
+                Center = CoerceCenterProperty(Center);
             }
 
             ResetTransformCenter();
             UpdateTransform(false, true);
         }
 
-        private void ProjectionCenterPropertyChanged(Location center)
-        {
-            if (!internalPropertyChange)
-            {
-                if (center != null)
-                {
-                    var longitude = Location.NormalizeLongitude(center.Longitude);
-
-                    if (!center.LongitudeEquals(longitude))
-                    {
-                        SetValueInternal(ProjectionCenterProperty, new Location(center.Latitude, longitude));
-                    }
-                }
-
-                ResetTransformCenter();
-                UpdateTransform();
-            }
-        }
-
         private void UpdateTransform(bool resetTransformCenter = false, bool projectionChanged = false)
         {
             var transformCenterChanged = false;
             var viewScale = ZoomLevelToScale(ZoomLevel);
-            var projection = MapProjection;
+            var mapCenter = MapProjection.LocationToMap(transformCenter ?? Center);
 
-            projection.SetCenter(ProjectionCenter ?? Center);
+            ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
 
-            var mapCenter = projection.LocationToMap(transformCenter ?? Center);
-
-            if (mapCenter.HasValue)
+            if (transformCenter != null)
             {
-                ViewTransform.SetTransform(mapCenter.Value, viewCenter, viewScale, -Heading);
+                var center = ViewToLocation(new Point(ActualWidth / 2d, ActualHeight / 2d));
+                var latitude = center.Latitude;
+                var longitude = Location.NormalizeLongitude(center.Longitude);
 
-                if (transformCenter != null)
+                if (latitude < -maxLatitude || latitude > maxLatitude)
                 {
-                    var center = ViewToLocation(new Point(ActualWidth / 2d, ActualHeight / 2d));
-
-                    if (center != null)
-                    {
-                        var latitude = center.Latitude;
-                        var longitude = Location.NormalizeLongitude(center.Longitude);
-
-                        if (latitude < -maxLatitude || latitude > maxLatitude)
-                        {
-                            latitude = Math.Min(Math.Max(latitude, -maxLatitude), maxLatitude);
-                            resetTransformCenter = true;
-                        }
-
-                        if (!center.Equals(latitude, longitude))
-                        {
-                            center = new Location(latitude, longitude);
-                        }
-
-                        SetValueInternal(CenterProperty, center);
-
-                        if (centerAnimation == null)
-                        {
-                            SetValueInternal(TargetCenterProperty, center);
-                        }
-
-                        if (resetTransformCenter)
-                        {
-                            // Check if transform center has moved across 180° longitude.
-                            //
-                            transformCenterChanged = Math.Abs(center.Longitude - transformCenter.Longitude) > 180d;
-
-                            ResetTransformCenter();
-
-                            projection.SetCenter(ProjectionCenter ?? Center);
-
-                            mapCenter = projection.LocationToMap(center);
-
-                            if (mapCenter.HasValue)
-                            {
-                                ViewTransform.SetTransform(mapCenter.Value, viewCenter, viewScale, -Heading);
-                            }
-                        }
-                    }
+                    latitude = Math.Min(Math.Max(latitude, -maxLatitude), maxLatitude);
+                    resetTransformCenter = true;
                 }
 
-                ViewScale = ViewTransform.Scale;
+                if (!center.Equals(latitude, longitude))
+                {
+                    center = new Location(latitude, longitude);
+                }
 
-                // Check if view center has moved across 180° longitude.
-                //
-                transformCenterChanged = transformCenterChanged || Math.Abs(Center.Longitude - centerLongitude) > 180d;
-                centerLongitude = Center.Longitude;
+                SetValueInternal(CenterProperty, center);
 
-                OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, transformCenterChanged));
+                if (centerAnimation == null)
+                {
+                    SetValueInternal(TargetCenterProperty, center);
+                }
+
+                if (resetTransformCenter)
+                {
+                    // Check if transform center has moved across 180° longitude.
+                    //
+                    transformCenterChanged = Math.Abs(center.Longitude - transformCenter.Longitude) > 180d;
+                    ResetTransformCenter();
+                    mapCenter = MapProjection.LocationToMap(center);
+                    ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
+                }
             }
+
+            ViewScale = ViewTransform.Scale;
+
+            // Check if view center has moved across 180° longitude.
+            //
+            transformCenterChanged = transformCenterChanged || Math.Abs(Center.Longitude - centerLongitude) > 180d;
+            centerLongitude = Center.Longitude;
+
+            OnViewportChanged(new ViewportChangedEventArgs(projectionChanged, transformCenterChanged));
         }
 
         protected override void OnViewportChanged(ViewportChangedEventArgs e)

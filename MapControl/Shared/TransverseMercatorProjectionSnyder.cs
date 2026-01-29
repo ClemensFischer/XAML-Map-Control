@@ -80,7 +80,7 @@ namespace MapControl
             return transform;
         }
 
-        public override Point? LocationToMap(double latitude, double longitude)
+        public override Point LocationToMap(double latitude, double longitude)
         {
             var phi = latitude * Math.PI / 180d;
             var M = MeridianDistance(phi);

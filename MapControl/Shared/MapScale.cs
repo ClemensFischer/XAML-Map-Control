@@ -92,35 +92,31 @@ namespace MapControl
                 var y0 = ParentMap.ActualHeight / 2d;
                 var p1 = ParentMap.ViewToLocation(new Point(x0 - 50d, y0));
                 var p2 = ParentMap.ViewToLocation(new Point(x0 + 50d, y0));
+                var scale = 100d / p1.GetDistance(p2);
+                var length = MinWidth / scale;
+                var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 
-                if (p1 != null && p2 != null)
-                {
-                    var scale = 100d / p1.GetDistance(p2);
-                    var length = MinWidth / scale;
-                    var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
+                length = length / magnitude < 2d ? 2d * magnitude
+                       : length / magnitude < 5d ? 5d * magnitude
+                       : 10d * magnitude;
 
-                    length = length / magnitude < 2d ? 2d * magnitude
-                           : length / magnitude < 5d ? 5d * magnitude
-                           : 10d * magnitude;
+                size = new Size(
+                    length * scale + StrokeThickness + Padding.Left + Padding.Right,
+                    1.5 * label.FontSize + 2 * StrokeThickness + Padding.Top + Padding.Bottom);
 
-                    size = new Size(
-                        length * scale + StrokeThickness + Padding.Left + Padding.Right,
-                        1.5 * label.FontSize + 2 * StrokeThickness + Padding.Top + Padding.Bottom);
+                var x1 = Padding.Left + StrokeThickness / 2d;
+                var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
+                var y1 = size.Height / 2d;
+                var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
 
-                    var x1 = Padding.Left + StrokeThickness / 2d;
-                    var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
-                    var y1 = size.Height / 2d;
-                    var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
+                line.Points = [new Point(x1, y1), new Point(x1, y2), new Point(x2, y2), new Point(x2, y1)];
 
-                    line.Points = [new Point(x1, y1), new Point(x1, y2), new Point(x2, y2), new Point(x2, y1)];
+                label.Text = length >= 1000d
+                    ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
+                    : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
 
-                    label.Text = length >= 1000d
-                        ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
-                        : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
-
-                    line.Measure(size);
-                    label.Measure(size);
-                }
+                line.Measure(size);
+                label.Measure(size);
             }
 
             return size;

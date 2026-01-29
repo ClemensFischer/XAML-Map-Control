@@ -34,7 +34,7 @@ namespace MapControl
             return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
 
-        public override Point? LocationToMap(double latitude, double longitude)
+        public override Point LocationToMap(double latitude, double longitude)
         {
             return new Point(
                 MeterPerDegree * longitude,

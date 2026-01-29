@@ -80,7 +80,7 @@ namespace MapControl
             {
                 var position = ParentMap.LocationToView(location);
 
-                if (position.HasValue && !ParentMap.InsideViewBounds(position.Value))
+                if (!ParentMap.InsideViewBounds(position))
                 {
                     longitudeOffset = ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
                 }
@@ -89,35 +89,25 @@ namespace MapControl
             return longitudeOffset;
         }
 
-        protected Point? LocationToMap(Location location, double longitudeOffset)
+        protected Point LocationToMap(Location location, double longitudeOffset)
         {
             var point = ParentMap.MapProjection.LocationToMap(location.Latitude, location.Longitude + longitudeOffset);
 
-            if (point.HasValue)
+            if (point.Y == double.PositiveInfinity)
             {
-                if (point.Value.Y == double.PositiveInfinity)
-                {
-                    point = new Point(point.Value.X, 1e9);
-                }
-                else if (point.Value.Y == double.NegativeInfinity)
-                {
-                    point = new Point(point.Value.X, -1e9);
-                }
+                point = new Point(point.X, 1e9);
+            }
+            else if (point.Y == double.NegativeInfinity)
+            {
+                point = new Point(point.X, -1e9);
             }
 
             return point;
         }
 
-        protected Point? LocationToView(Location location, double longitudeOffset)
+        protected Point LocationToView(Location location, double longitudeOffset)
         {
-            var point = LocationToMap(location, longitudeOffset);
-
-            if (point.HasValue)
-            {
-                point = ParentMap.ViewTransform.MapToView(point.Value);
-            }
-
-            return point;
+            return ParentMap.ViewTransform.MapToView(LocationToMap(location, longitudeOffset));
         }
     }
 }

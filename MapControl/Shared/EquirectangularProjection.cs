@@ -33,7 +33,7 @@ namespace MapControl
             return new Matrix(1d / Math.Cos(latitude * Math.PI / 180d), 0d, 0d, 1d, 0d, 0d);
         }
 
-        public override Point? LocationToMap(double latitude, double longitude)
+        public override Point LocationToMap(double latitude, double longitude)
         {
             return new Point(MeterPerDegree * longitude, MeterPerDegree * latitude);
         }

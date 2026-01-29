@@ -32,9 +32,6 @@ namespace MapControl.Projections
                 MapControl.WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
                 MapControl.Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
                 MapControl.Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
-                MapControl.Wgs84AutoUtmProjection.DefaultCrsId => new Wgs84AutoUtmProjection(),
-                MapControl.OrthographicProjection.DefaultCrsId => new Wgs84OrthographicProjection(),
-                MapControl.StereographicProjection.DefaultCrsId => new Wgs84StereographicProjection(),
                 _ => GetProjectionFromEpsgCode(crsId) ?? base.GetProjection(crsId)
             };
         }

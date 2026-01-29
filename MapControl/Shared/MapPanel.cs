@@ -131,15 +131,15 @@ namespace MapControl
         /// <summary>
         /// Gets the MapRect of an element.
         /// </summary>
-        public static MapRect GetMapRect(FrameworkElement element)
+        public static Rect? GetMapRect(FrameworkElement element)
         {
-            return (MapRect)element.GetValue(MapRectProperty);
+            return (Rect?)element.GetValue(MapRectProperty);
         }
 
         /// <summary>
         /// Sets the MapRect of an element.
         /// </summary>
-        public static void SetMapRect(FrameworkElement element, MapRect value)
+        public static void SetMapRect(FrameworkElement element, Rect? value)
         {
             element.SetValue(MapRectProperty, value);
         }
@@ -157,9 +157,11 @@ namespace MapControl
         /// ArrangeOverride and may be overridden to modify the actual view position value.
         /// An overridden method should call this method to set the attached property.
         /// </summary>
-        protected virtual void SetViewPosition(FrameworkElement element, ref Point? position)
+        protected virtual Point SetViewPosition(FrameworkElement element, Point position)
         {
             element.SetValue(ViewPositionProperty, position);
+
+            return position;
         }
 
         protected virtual void SetParentMap(MapBase map)
@@ -214,19 +216,17 @@ namespace MapControl
             return finalSize;
         }
 
-        private Point? GetViewPosition(Location location)
+        private Point GetViewPosition(Location location)
         {
             var position = parentMap.LocationToView(location);
 
-            if (parentMap.MapProjection.IsNormalCylindrical &&
-                position.HasValue && !parentMap.InsideViewBounds(position.Value))
+            if (parentMap.MapProjection.IsNormalCylindrical && !parentMap.InsideViewBounds(position))
             {
-                var nearestPosition = parentMap.LocationToView(
-                    location.Latitude, parentMap.NearestLongitude(location.Longitude));
+                var longitude = parentMap.NearestLongitude(location.Longitude);
 
-                if (nearestPosition.HasValue)
+                if (longitude != location.Longitude)
                 {
-                    position = nearestPosition;
+                    position = parentMap.LocationToView(location.Latitude, longitude);
                 }
             }
 
@@ -238,20 +238,14 @@ namespace MapControl
             var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
             var position = parentMap.ViewTransform.MapToView(center);
 
-            if (parentMap.MapProjection.IsNormalCylindrical &&
-                !parentMap.InsideViewBounds(position))
+            if (parentMap.MapProjection.IsNormalCylindrical && !parentMap.InsideViewBounds(position))
             {
                 var location = parentMap.MapProjection.MapToLocation(center);
+                var longitude = parentMap.NearestLongitude(location.Longitude);
 
-                if (location != null)
+                if (longitude != location.Longitude)
                 {
-                    var nearestPosition = parentMap.LocationToView(
-                        location.Latitude, parentMap.NearestLongitude(location.Longitude));
-
-                    if (nearestPosition.HasValue)
-                    {
-                        position = nearestPosition.Value;
-                    }
+                    position = parentMap.LocationToView(location.Latitude, longitude);
                 }
             }
 
@@ -269,19 +263,14 @@ namespace MapControl
 
             if (location != null)
             {
-                var position = GetViewPosition(location);
-
-                SetViewPosition(element, ref position);
+                var position = SetViewPosition(element, GetViewPosition(location));
 
                 if (GetAutoCollapse(element))
                 {
-                    element.SetVisible(position.HasValue && parentMap.InsideViewBounds(position.Value));
+                    element.SetVisible(parentMap.InsideViewBounds(position));
                 }
 
-                if (position.HasValue)
-                {
-                    ArrangeElement(element, position.Value);
-                }
+                ArrangeElement(element, position);
             }
             else
             {
@@ -289,11 +278,9 @@ namespace MapControl
 
                 var mapRect = GetMapRect(element);
 
-                if (mapRect != null)
+                if (mapRect.HasValue)
                 {
-                    mapRect.Update(parentMap.MapProjection);
-
-                    ArrangeElement(element, mapRect.Rect, null);
+                    ArrangeElement(element, mapRect.Value, null);
                 }
                 else
                 {
@@ -303,10 +290,7 @@ namespace MapControl
                     {
                         (var rect, var transform) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-                        if (rect.HasValue)
-                        {
-                            ArrangeElement(element, rect.Value, transform);
-                        }
+                        ArrangeElement(element, rect, transform);
                     }
                     else
                     {

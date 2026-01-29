@@ -76,22 +76,16 @@ namespace MapControl.Projections
             return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
         }
 
-        public override Point? LocationToMap(double latitude, double longitude)
+        public override Point LocationToMap(double latitude, double longitude)
         {
             if (LocationToMapTransform == null)
             {
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            try
-            {
-                var coordinate = LocationToMapTransform.Transform([longitude, latitude]);
-                return new Point(coordinate[0], coordinate[1]);
-            }
-            catch
-            {
-                return null;
-            }
+            var coordinate = LocationToMapTransform.Transform([longitude, latitude]);
+
+            return new Point(coordinate[0], coordinate[1]);
         }
 
         public override Location MapToLocation(double x, double y)
@@ -101,15 +95,9 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            try
-            {
-                var coordinate = MapToLocationTransform.Transform([x, y]);
-                return new Location(coordinate[1], coordinate[0]);
-            }
-            catch
-            {
-                return null;
-            }
+            var coordinate = MapToLocationTransform.Transform([x, y]);
+
+            return new Location(coordinate[1], coordinate[0]);
         }
     }
 }

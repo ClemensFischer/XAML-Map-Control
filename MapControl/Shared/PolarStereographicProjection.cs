@@ -21,7 +21,7 @@ namespace MapControl
         public double FalseNorthing { get; set; } = 2e6;
         public Hemisphere Hemisphere { get; set; }
 
-        public static double RelativeScale(Hemisphere hemisphere, double flattening, double scaleFactor, double latitude)
+        public static Matrix RelativeScale(Hemisphere hemisphere, double flattening, double scaleFactor, double latitude, double longitude)
         {
             var sign = hemisphere == Hemisphere.North ? 1d : -1d;
             var phi = sign * latitude * Math.PI / 180d;
@@ -33,20 +33,21 @@ namespace MapControl
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
 
             // r == ρ/a
-            var r = scaleFactor * 2d * t / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
+            var r = 2d * scaleFactor * t / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
             var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
+            var k = r / m; // p.161 (21-32)
 
-            return r / m; // p.161 (21-32)
+            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
+            transform.Rotate(-sign * longitude);
+            return transform;
         }
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            var k = RelativeScale(Hemisphere, Flattening, ScaleFactor, latitude);
-
-            return RelativeTransform(latitude, longitude, k, k);
+            return RelativeScale(Hemisphere, Flattening, ScaleFactor, latitude, longitude);
         }
 
-        public override Point? LocationToMap(double latitude, double longitude)
+        public override Point LocationToMap(double latitude, double longitude)
         {
             var sign = Hemisphere == Hemisphere.North ? 1d : -1d;
             var phi = sign * latitude * Math.PI / 180d;

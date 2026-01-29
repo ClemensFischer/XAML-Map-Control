@@ -127,10 +127,7 @@ namespace MapControl
                     //
                     var pos = ParentMap.LocationToView(latitude, longitude + 10d / PixelPerDegree);
 
-                    if (pos.HasValue)
-                    {
-                        rotation = Math.Atan2(pos.Value.Y - position.Y, pos.Value.X - position.X) * 180d / Math.PI;
-                    }
+                    rotation = Math.Atan2(pos.Y - position.Y, pos.X - position.X) * 180d / Math.PI;
                 }
 
                 if (rotation.HasValue)
@@ -173,31 +170,19 @@ namespace MapControl
             {
                 var p1 = ParentMap.LocationToView(lat, boundingBox.West);
                 var p2 = ParentMap.LocationToView(lat, boundingBox.East);
-
-                if (p1.HasValue && p2.HasValue)
-                {
-                    figures.Add(CreateLineFigure(p1.Value, p2.Value));
-                }
+                figures.Add(CreateLineFigure(p1, p2));
             }
 
             for (var lon = lonLabelStart; lon <= boundingBox.East; lon += lineDistance)
             {
                 var p1 = ParentMap.LocationToView(boundingBox.South, lon);
                 var p2 = ParentMap.LocationToView(boundingBox.North, lon);
-
-                if (p1.HasValue && p2.HasValue)
-                {
-                    figures.Add(CreateLineFigure(p1.Value, p2.Value));
-                }
+                figures.Add(CreateLineFigure(p1, p2));
 
                 for (var lat = latLabelStart; lat <= boundingBox.North; lat += lineDistance)
                 {
                     var position = ParentMap.LocationToView(lat, lon);
-
-                    if (position.HasValue)
-                    {
-                        AddLabel(labels, lat, lon, position.Value, ParentMap.ViewTransform.Rotation);
-                    }
+                    AddLabel(labels, lat, lon, position, ParentMap.ViewTransform.Rotation);
                 }
             }
         }
@@ -210,7 +195,6 @@ namespace MapControl
             var interpolationCount = Math.Max(1, (int)Math.Ceiling(lineDistance / LineInterpolationResolution));
             var interpolationDistance = lineDistance / interpolationCount;
             var latPoints = latSegments * interpolationCount;
-
             var centerLon = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
             var minLon = centerLon - lineDistance;
             var maxLon = centerLon + lineDistance;
@@ -239,11 +223,8 @@ namespace MapControl
                 var points = new List<Point>();
                 var position = ParentMap.LocationToView(lat, lon);
 
-                if (position.HasValue)
-                {
-                    points.Add(position.Value);
-                    AddLabel(labels, lat, lon, position.Value);
-                }
+                points.Add(position);
+                AddLabel(labels, lat, lon, position);
 
                 for (int j = 0; j < lonSegments; j++)
                 {
@@ -251,17 +232,10 @@ namespace MapControl
                     {
                         lon = minLon + j * lineDistance + k * interpolationDistance;
                         position = ParentMap.LocationToView(lat, lon);
-
-                        if (position.HasValue)
-                        {
-                            points.Add(position.Value);
-                        }
+                        points.Add(position);
                     }
 
-                    if (position.HasValue)
-                    {
-                        AddLabel(labels, lat, lon, position.Value);
-                    }
+                    AddLabel(labels, lat, lon, position);
                 }
 
                 if (points.Count >= 2)
@@ -281,14 +255,11 @@ namespace MapControl
             {
                 var p = ParentMap.LocationToView(startLatitude + i * deltaLatitude, longitude);
 
-                if (p.HasValue)
-                {
-                    visible = visible ||
-                        p.Value.X >= 0d && p.Value.X <= ParentMap.ActualWidth &&
-                        p.Value.Y >= 0d && p.Value.Y <= ParentMap.ActualHeight;
+                visible = visible ||
+                    p.X >= 0d && p.X <= ParentMap.ActualWidth &&
+                    p.Y >= 0d && p.Y <= ParentMap.ActualHeight;
 
-                    points.Add(p.Value);
-                }
+                points.Add(p);
             }
 
             if (points.Count >= 2)

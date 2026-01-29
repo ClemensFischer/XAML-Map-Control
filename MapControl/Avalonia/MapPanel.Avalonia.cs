@@ -13,8 +13,8 @@ namespace MapControl
         public static readonly AttachedProperty<BoundingBox> BoundingBoxProperty =
             DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel));
 
-        public static readonly AttachedProperty<MapRect> MapRectProperty =
-            DependencyPropertyHelper.RegisterAttached<MapRect>("MapRect", typeof(MapPanel));
+        public static readonly AttachedProperty<Rect?> MapRectProperty =
+            DependencyPropertyHelper.RegisterAttached<Rect?>("MapRect", typeof(MapPanel));
 
         static MapPanel()
         {

@@ -16,7 +16,7 @@ namespace MapControl
                 FrameworkPropertyMetadataOptions.AffectsParentArrange);
 
         public static readonly DependencyProperty MapRectProperty =
-            DependencyPropertyHelper.RegisterAttached<MapRect>("MapRect", typeof(MapPanel), null,
+            DependencyPropertyHelper.RegisterAttached<Rect?>("MapRect", typeof(MapPanel), null,
                 FrameworkPropertyMetadataOptions.AffectsParentArrange);
 
         public static MapBase GetParentMap(FrameworkElement element)

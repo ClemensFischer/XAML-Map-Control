@@ -35,7 +35,7 @@ namespace MapControl
             return (bool)element.GetValue(OnBorderProperty);
         }
 
-        protected override void SetViewPosition(FrameworkElement element, ref Point? position)
+        protected override Point SetViewPosition(FrameworkElement element, Point position)
         {
             var onBorder = false;
             var w = ParentMap.ActualWidth;
@@ -45,12 +45,11 @@ namespace MapControl
             var maxX = w - BorderWidth / 2d;
             var maxY = h - BorderWidth / 2d;
 
-            if (position.HasValue &&
-                (position.Value.X < minX || position.Value.X > maxX ||
-                 position.Value.Y < minY || position.Value.Y > maxY))
+            if (position.X < minX || position.X > maxX ||
+                position.Y < minY || position.Y > maxY)
             {
-                var dx = position.Value.X - w / 2d;
-                var dy = position.Value.Y - h / 2d;
+                var dx = position.X - w / 2d;
+                var dy = position.Y - h / 2d;
                 var cx = (maxX - minX) / 2d;
                 var cy = (maxY - minY) / 2d;
                 double x, y;
@@ -86,7 +85,7 @@ namespace MapControl
 
             element.SetValue(OnBorderProperty, onBorder);
 
-            base.SetViewPosition(element, ref position);
+            return base.SetViewPosition(element, position);
         }
     }
 }

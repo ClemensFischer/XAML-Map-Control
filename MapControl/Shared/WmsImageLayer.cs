@@ -249,7 +249,7 @@ namespace MapControl
                 { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
                 { "STYLES", RequestStyles ?? "" },
                 { "FORMAT", "image/png" },
-                { "CRS", GetCrsValue() },
+                { "CRS", ParentMap.MapProjection.CrsId },
                 { "BBOX", GetBboxValue(bbox) },
                 { "WIDTH", Math.Ceiling(width).ToString("F0") },
                 { "HEIGHT", Math.Ceiling(height).ToString("F0") }
@@ -285,7 +285,7 @@ namespace MapControl
                 { "LAYERS", RequestLayers ?? AvailableLayers?.FirstOrDefault() ?? "" },
                 { "STYLES", RequestStyles ?? "" },
                 { "INFO_FORMAT", format },
-                { "CRS", GetCrsValue() },
+                { "CRS", ParentMap.MapProjection.CrsId },
                 { "BBOX", GetBboxValue(bbox) },
                 { "WIDTH", Math.Ceiling(width).ToString("F0") },
                 { "HEIGHT", Math.Ceiling(height).ToString("F0") },
@@ -320,28 +320,6 @@ namespace MapControl
             query = string.Join("&", queryParameters.Select(kv => kv.Key + "=" + kv.Value));
 
             return new Uri(ServiceUri.GetLeftPart(UriPartial.Path) + "?" + query);
-        }
-
-        protected virtual string GetCrsValue()
-        {
-            var projection = ParentMap.MapProjection;
-            var crs = projection.CrsId;
-
-            if (crs.StartsWith("AUTO2:") || crs.StartsWith("AUTO:"))
-            {
-                var lon = 0d;
-                var lat = 0d; ;
-
-                if (projection.Center != null)
-                {
-                    lon = projection.Center.Longitude;
-                    lat = projection.Center.Latitude;
-                }
-
-                crs = string.Format(CultureInfo.InvariantCulture, "{0},1,{1:0.########},{2:0.########}", crs, lon, lat);
-            }
-
-            return crs;
         }
 
         protected virtual string GetBboxValue(Rect bbox)

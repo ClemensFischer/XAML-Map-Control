@@ -55,54 +55,6 @@ namespace MapControl
 
         public double MeterPerDegree => EquatorialRadius * Math.PI / 180d;
 
-        private Location center;
-        private bool updateCenter;
-
-        /// <summary>
-        /// Gets or sets an optional projection center. If the property is set to a non-null value,
-        /// it overrides the projection center set by MapBase.Center or MapBase.ProjectionCenter.
-        /// </summary>
-        public Location Center
-        {
-            get => center;
-            set
-            {
-                updateCenter = true;
-
-                if (value != null)
-                {
-                    var longitude = Location.NormalizeLongitude(value.Longitude);
-
-                    SetCenter(value.LongitudeEquals(longitude) ? value : new Location(value.Latitude, longitude));
-
-                    updateCenter = false;
-                }
-            }
-        }
-
-        protected void EnableCenterUpdates()
-        {
-            updateCenter = true;
-            SetCenter(new Location());
-        }
-
-        /// <summary>
-        /// Called by MapBase.UpdateTransform().
-        /// </summary>
-        internal void SetCenter(Location value)
-        {
-            if (updateCenter)
-            {
-                if (center == null || !center.Equals(value))
-                {
-                    center = value;
-                    CenterChanged();
-                }
-            }
-        }
-
-        protected virtual void CenterChanged() { }
-
         /// <summary>
         /// Gets the relative transform at the specified geographic coordinates.
         /// The returned Matrix represents the local distortion of the map projection.
@@ -111,13 +63,11 @@ namespace MapControl
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in projected map coordinates.
-        /// Returns null when the location can not be transformed.
         /// </summary>
-        public abstract Point? LocationToMap(double latitude, double longitude);
+        public abstract Point LocationToMap(double latitude, double longitude);
 
         /// <summary>
         /// Transforms projected map coordinates to a Location in geographic coordinates.
-        /// Returns null when the coordinates can not be transformed.
         /// </summary>
         public abstract Location MapToLocation(double x, double y);
 
@@ -128,51 +78,40 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a Location in geographic coordinates to a Point in projected map coordinates.
-        /// Returns null when the Location can not be transformed.
         /// </summary>
-        public Point? LocationToMap(Location location) => LocationToMap(location.Latitude, location.Longitude);
+        public Point LocationToMap(Location location) => LocationToMap(location.Latitude, location.Longitude);
 
         /// <summary>
         /// Transforms a Point in projected map coordinates to a Location in geographic coordinates.
-        /// Returns null when the Point can not be transformed.
         /// </summary>
         public Location MapToLocation(Point point) => MapToLocation(point.X, point.Y);
 
         /// <summary>
-        /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates with
-        /// an optional transform Matrix. Returns (null, null) when the BoundingBox can not be transformed.
+        /// Transforms a BoundingBox in geographic coordinates to a Rect in projected map coordinates
+        /// with an optional transform Matrix.
         /// </summary>
-        public (Rect?, Matrix?) BoundingBoxToMap(BoundingBox boundingBox)
+        public (Rect, Matrix?) BoundingBoxToMap(BoundingBox boundingBox)
         {
-            Rect? rect = null;
+            Rect rect;
             Matrix? transform = null;
-            var sw = LocationToMap(boundingBox.South, boundingBox.West);
-            var se = LocationToMap(boundingBox.South, boundingBox.East);
-            var nw = LocationToMap(boundingBox.North, boundingBox.West);
-            var ne = LocationToMap(boundingBox.North, boundingBox.East);
 
-            if (sw.HasValue && se.HasValue && nw.HasValue && ne.HasValue)
+            if (IsNormalCylindrical)
             {
-                var south = new Point((sw.Value.X + se.Value.X) / 2d, (sw.Value.Y + se.Value.Y) / 2d); // south midpoint
-                var north = new Point((nw.Value.X + ne.Value.X) / 2d, (nw.Value.Y + ne.Value.Y) / 2d); // north midpoint
-                var west = new Point((nw.Value.X + sw.Value.X) / 2d, (nw.Value.Y + sw.Value.Y) / 2d);  // west midpoint
-                var east = new Point((ne.Value.X + se.Value.X) / 2d, (ne.Value.Y + se.Value.Y) / 2d);  // east midpoint
-                var center = new Point((west.X + east.X) / 2d, (west.Y + east.Y) / 2d); // midpoint of segment west-east
-                var dx1 = east.X - west.X;
-                var dy1 = east.Y - west.Y;
-                var dx2 = north.X - south.X;
-                var dy2 = north.Y - south.Y;
-                var width = Math.Sqrt(dx1 * dx1 + dy1 * dy1); // distance west-east
-                var height = Math.Sqrt(dx2 * dx2 + dy2 * dy2); // distance south-north
+                var southWest = LocationToMap(boundingBox.South, boundingBox.West);
+                var northEast = LocationToMap(boundingBox.North, boundingBox.East);
+
+                rect = new Rect(southWest.X, southWest.Y, northEast.X - southWest.X, northEast.Y - southWest.Y);
+            }
+            else
+            {
+                var latitude = (boundingBox.South + boundingBox.North) / 2d;
+                var longitude = (boundingBox.West + boundingBox.East) / 2d;
+                var center = LocationToMap(latitude, longitude);
+                var width = MeterPerDegree * (boundingBox.East - boundingBox.West) * Math.Cos(latitude * Math.PI / 180d);
+                var height = MeterPerDegree * (boundingBox.North - boundingBox.South);
 
                 rect = new Rect(center.X - width / 2d, center.Y - height / 2d, width, height);
-
-                if (dy1 != 0d || dx2 != 0d)
-                {
-                    // Skew matrix with skewX = Atan(-dx2 / dy2) and skewY = Atan(-dy1 / dx1).
-                    //
-                    transform = new Matrix(1d, -dy1 / dx1, -dx2 / dy2, 1d, 0d, 0d);
-                }
+                transform = RelativeTransform(latitude, longitude);
             }
 
             return (rect, transform);
@@ -180,44 +119,18 @@ namespace MapControl
 
         /// <summary>
         /// Transforms a Rect in projected map coordinates to a BoundingBox in geographic coordinates.
-        /// Returns null when the Rect can not be transformed.
         /// </summary>
         public BoundingBox MapToBoundingBox(Rect rect)
         {
-            var sw = MapToLocation(rect.X, rect.Y);
-            var ne = MapToLocation(rect.X + rect.Width, rect.Y + rect.Height);
+            var southWest = MapToLocation(rect.X, rect.Y);
+            var northEast = MapToLocation(rect.X + rect.Width, rect.Y + rect.Height);
 
-            return sw != null && ne != null ? new BoundingBox(sw.Latitude, sw.Longitude, ne.Latitude, ne.Longitude) : null;
+            return new BoundingBox(southWest.Latitude, southWest.Longitude, northEast.Latitude, northEast.Longitude);
         }
 
         public override string ToString()
         {
             return CrsId;
-        }
-
-        /// <summary>
-        /// Used by azimuthal projections, where local skewing can not be directly calculated.
-        /// </summary>
-        protected Matrix RelativeTransform(double latitude, double longitude, double scaleX, double scaleY)
-        {
-            var north = LocationToMap(latitude - 1e-3, longitude);
-            var south = LocationToMap(latitude + 1e-3, longitude);
-            var west = LocationToMap(latitude, longitude - 1e-3);
-            var east = LocationToMap(latitude, longitude + 1e-3);
-            var tanSkewX = 0d;
-            var tanSkewY = 0d;
-
-            if (north.HasValue && south.HasValue && west.HasValue && east.HasValue)
-            {
-                var dx1 = east.Value.X - west.Value.X;
-                var dy1 = east.Value.Y - west.Value.Y;
-                var dx2 = north.Value.X - south.Value.X;
-                var dy2 = north.Value.Y - south.Value.Y;
-                tanSkewX = -dx2 / dy2;
-                tanSkewY = -dy1 / dx1;
-            }
-
-            return new Matrix(scaleX, scaleX * tanSkewY, scaleY * tanSkewX, scaleY, 0d, 0d);
         }
     }
 }
