@@ -69,12 +69,13 @@ namespace MapControl
             x = sign * (x - FalseEasting);
             y = sign * (y - FalseNorthing);
 
-            var e = Math.Sqrt((2d - Flattening) * Flattening);
+            var e2 = (2d - Flattening) * Flattening;
+            var e = Math.Sqrt(e2);
             var r = Math.Sqrt(x * x + y * y); // p.162 (20-18)
             var t = r * Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e))
                   / (2d * EquatorialRadius * ScaleFactor); // p.162 (21-39)
 
-            var phi = WorldMercatorProjection.ApproximateLatitude(e, t); // p.162 (3-5)
+            var phi = WorldMercatorProjection.ApproximateLatitude(e2, t); // p.162 (3-5)
             var lambda = Math.Atan2(x, -y); // p.162 (20-16)
 
             return new Location(sign * phi * 180d / Math.PI, sign * lambda * 180d / Math.PI);

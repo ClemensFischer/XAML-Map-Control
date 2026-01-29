@@ -14,9 +14,9 @@ namespace MapControl
     /// </summary>
     public class WorldMercatorProjection : MapProjection
     {
-        public static readonly double Wgs84Eccentricity = Math.Sqrt((2d - Wgs84Flattening) * Wgs84Flattening);
-
         public const string DefaultCrsId = "EPSG:3395";
+
+        public double Flattening { get; set; } = Wgs84Flattening;
 
         public WorldMercatorProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
@@ -31,62 +31,51 @@ namespace MapControl
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            var k = RelativeScale(latitude);
+            var phi = latitude * Math.PI / 180d;
+            var e2 = (2d - Flattening) * Flattening;
+            var sinPhi = Math.Sin(phi);
+            var k = Math.Sqrt(1d - e2 * sinPhi * sinPhi) / Math.Cos(phi); // p.44 (7-8)
 
             return new Matrix(k, 0d, 0d, k, 0d, 0d);
         }
 
         public override Point LocationToMap(double latitude, double longitude)
         {
-            return new Point(
-                EquatorialRadius * Math.PI / 180d * longitude,
-                EquatorialRadius * Math.PI / 180d * LatitudeToY(latitude));
+            var x = EquatorialRadius * longitude * Math.PI / 180d;
+            double y;
+
+            if (latitude <= -90d)
+            {
+                y = double.NegativeInfinity;
+            }
+            else if (latitude >= 90d)
+            {
+                y = double.PositiveInfinity;
+            }
+            else
+            {
+                var phi = latitude * Math.PI / 180d;
+                var e = Math.Sqrt((2d - Flattening) * Flattening);
+                var eSinPhi = e * Math.Sin(phi);
+                var f = Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d);
+
+                y = EquatorialRadius * Math.Log(Math.Tan(phi / 2d + Math.PI / 4d) * f); // p.44 (7-7)
+            }
+
+            return new Point(x, y);
         }
 
         public override Location MapToLocation(double x, double y)
         {
-            return new Location(
-                YToLatitude(y / EquatorialRadius * 180d / Math.PI),
-                x / EquatorialRadius * 180d / Math.PI);
+            var t = Math.Exp(-y / EquatorialRadius); // p.44 (7-10)
+            var phi = ApproximateLatitude((2d - Flattening) * Flattening, t); // p.45 (3-5)
+            var lambda = x / EquatorialRadius;
+
+            return new Location(phi * 180d / Math.PI, lambda * 180d / Math.PI);
         }
 
-        public static double RelativeScale(double latitude)
+        internal static double ApproximateLatitude(double e2, double t)
         {
-            var phi = latitude * Math.PI / 180d;
-            var eSinPhi = Wgs84Eccentricity * Math.Sin(phi);
-
-            return Math.Sqrt(1d - eSinPhi * eSinPhi) / Math.Cos(phi); // p.44 (7-8)
-        }
-
-        public static double LatitudeToY(double latitude)
-        {
-            if (latitude <= -90d)
-            {
-                return double.NegativeInfinity;
-            }
-
-            if (latitude >= 90d)
-            {
-                return double.PositiveInfinity;
-            }
-
-            var phi = latitude * Math.PI / 180d;
-            var eSinPhi = Wgs84Eccentricity * Math.Sin(phi);
-            var f = Math.Pow((1d - eSinPhi) / (1d + eSinPhi), Wgs84Eccentricity / 2d);
-
-            return Math.Log(Math.Tan(phi / 2d + Math.PI / 4d) * f) * 180d / Math.PI; // p.44 (7-7)
-        }
-
-        public static double YToLatitude(double y)
-        {
-            var t = Math.Exp(-y * Math.PI / 180d); // p.44 (7-10)
-
-            return ApproximateLatitude(Wgs84Eccentricity, t) * 180d / Math.PI;
-        }
-
-        internal static double ApproximateLatitude(double e, double t)
-        {
-            var e2 = e * e;
             var e4 = e2 * e2;
             var e6 = e2 * e4;
             var e8 = e2 * e6;

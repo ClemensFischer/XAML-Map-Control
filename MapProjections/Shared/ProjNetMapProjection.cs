@@ -15,7 +15,7 @@ namespace MapControl.Projections
     /// </summary>
     public class ProjNetMapProjection : MapProjection
     {
-        protected MapProjection FallbackProjection { get; }
+        protected MapProjection FallbackProjection { get; private set; }
 
         protected ProjNetMapProjection(MapProjection fallbackProjection)
         {
@@ -49,10 +49,10 @@ namespace MapControl.Projections
                 field = value ??
                     throw new ArgumentNullException(nameof(value));
 
-                var name = field.Projection?.Name ??
+                var projection = field.Projection ??
                     throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
 
-                IsNormalCylindrical = name.StartsWith("Mercator") || name.Contains("Pseudo-Mercator");
+                IsNormalCylindrical = projection.Name.StartsWith("Mercator") || projection.Name.Contains("Pseudo-Mercator");
 
                 var transformFactory = new CoordinateTransformationFactory();
 
@@ -67,6 +67,48 @@ namespace MapControl.Projections
                 CrsId = !string.IsNullOrEmpty(field.Authority) && field.AuthorityCode > 0
                     ? $"{field.Authority}:{field.AuthorityCode}"
                     : string.Empty;
+
+                var ellipsoid = field.GeographicCoordinateSystem.HorizontalDatum.Ellipsoid;
+
+                if (projection.Name.Contains("Pseudo-Mercator"))
+                {
+                    FallbackProjection = new MapControl.WebMercatorProjection
+                    {
+                        EquatorialRadius = ellipsoid.SemiMajorAxis
+                    };
+                }
+                else if (projection.Name.StartsWith("Mercator"))
+                {
+                    FallbackProjection = new MapControl.WorldMercatorProjection
+                    {
+                        EquatorialRadius = ellipsoid.SemiMajorAxis,
+                        Flattening = 1d / ellipsoid.InverseFlattening
+                    };
+                }
+                else if (projection.Name.StartsWith("Transverse_Mercator"))
+                {
+                    FallbackProjection = new TransverseMercatorProjection
+                    {
+                        EquatorialRadius = ellipsoid.SemiMajorAxis,
+                        Flattening = 1d / ellipsoid.InverseFlattening,
+                        CentralMeridian = projection.GetParameter("central_meridian").Value,
+                        ScaleFactor = projection.GetParameter("scale_factor").Value,
+                        FalseEasting = projection.GetParameter("false_easting").Value,
+                        FalseNorthing = projection.GetParameter("false_northing").Value
+                    };
+                }
+                else if (projection.Name.StartsWith("Polar_Stereographic"))
+                {
+                    FallbackProjection = new PolarStereographicProjection
+                    {
+                        EquatorialRadius = ellipsoid.SemiMajorAxis,
+                        Flattening = 1d / ellipsoid.InverseFlattening,
+                        ScaleFactor = projection.GetParameter("scale_factor").Value,
+                        FalseEasting = projection.GetParameter("false_easting").Value,
+                        FalseNorthing = projection.GetParameter("false_northing").Value,
+                        Hemisphere = projection.GetParameter("latitude_of_origin").Value >= 0 ? Hemisphere.North : Hemisphere.South
+                    };
+                }
             }
         }
 

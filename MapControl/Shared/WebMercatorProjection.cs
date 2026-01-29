@@ -43,8 +43,8 @@ namespace MapControl
 
         public override Location MapToLocation(double x, double y)
         {
-            return new Location(
-                YToLatitude(y / EquatorialRadius * 180d / Math.PI),
+            return new Location(YToLatitude(
+                y / EquatorialRadius * 180d / Math.PI),
                 x / EquatorialRadius * 180d / Math.PI);
         }
 
