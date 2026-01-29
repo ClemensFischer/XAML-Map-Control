@@ -21,15 +21,10 @@ namespace MapControl
         public const int FirstZoneSouthEpsgCode = 32700 + FirstZone;
         public const int LastZoneSouthEpsgCode = 32700 + LastZone;
 
-        public int Zone { get; private set; }
-        public Hemisphere Hemisphere { get; private set; }
+        public int Zone { get; }
+        public Hemisphere Hemisphere { get; }
 
         public Wgs84UtmProjection(int zone, Hemisphere hemisphere)
-        {
-            SetZone(zone, hemisphere);
-        }
-
-        public void SetZone(int zone, Hemisphere hemisphere)
         {
             if (zone < FirstZone || zone > LastZone)
             {
