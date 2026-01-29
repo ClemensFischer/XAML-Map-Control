@@ -69,10 +69,6 @@ namespace SampleApplication
             {
                 map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
             }
-            else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
-            {
-                map.ProjectionCenter = map.ViewToLocation(e.GetPosition(map));
-            }
             else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) &&
                 map.MapLayer is WmsImageLayer wmsLayer)
             {
