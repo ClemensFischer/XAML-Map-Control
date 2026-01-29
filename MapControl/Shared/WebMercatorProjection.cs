@@ -37,15 +37,15 @@ namespace MapControl
         public override Point LocationToMap(double latitude, double longitude)
         {
             return new Point(
-                MeterPerDegree * longitude,
-                MeterPerDegree * LatitudeToY(latitude));
+                EquatorialRadius * Math.PI / 180d * longitude,
+                EquatorialRadius * Math.PI / 180d * LatitudeToY(latitude));
         }
 
         public override Location MapToLocation(double x, double y)
         {
             return new Location(
-                YToLatitude(y / MeterPerDegree),
-                x / MeterPerDegree);
+                YToLatitude(y / EquatorialRadius * 180d / Math.PI),
+                x / EquatorialRadius * 180d / Math.PI);
         }
 
         public static double LatitudeToY(double latitude)

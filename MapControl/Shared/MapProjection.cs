@@ -53,8 +53,6 @@ namespace MapControl
         /// </summary>
         public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
 
-        public double MeterPerDegree => EquatorialRadius * Math.PI / 180d;
-
         /// <summary>
         /// Gets the relative transform at the specified geographic coordinates.
         /// The returned Matrix represents the local relative scale and rotation.
