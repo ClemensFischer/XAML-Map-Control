@@ -20,7 +20,7 @@ using Avalonia.Media;
 
 namespace MapControl
 {
-    public class WmtsTileMatrixLayer : Panel
+    public partial class WmtsTileMatrixLayer : Panel
     {
         public WmtsTileMatrixLayer(WmtsTileMatrix wmtsTileMatrix, int zoomLevel)
         {

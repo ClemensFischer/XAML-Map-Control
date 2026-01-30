@@ -12,7 +12,7 @@ namespace MapControl
     /// <summary>
     /// A polygon defined by a collection of Locations.
     /// </summary>
-    public class MapPolygon : MapPolypoint
+    public partial class MapPolygon : MapPolypoint
     {
         public static readonly DependencyProperty LocationsProperty =
             DependencyPropertyHelper.Register<MapPolygon, IEnumerable<Location>>(nameof(Locations), null,

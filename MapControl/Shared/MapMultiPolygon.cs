@@ -17,7 +17,7 @@ namespace MapControl
     /// for the Polygons property if collection changes of the property itself and its
     /// elements are both supposed to trigger UI updates.
     /// </summary>
-    public class MapMultiPolygon : MapPolypoint
+    public partial class MapMultiPolygon : MapPolypoint
     {
         public static readonly DependencyProperty PolygonsProperty =
             DependencyPropertyHelper.Register<MapMultiPolygon, IEnumerable<IEnumerable<Location>>>(nameof(Polygons), null,

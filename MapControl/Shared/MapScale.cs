@@ -31,7 +31,7 @@ namespace MapControl
     /// <summary>
     /// Draws a map scale overlay.
     /// </summary>
-    public class MapScale : MapPanel
+    public partial class MapScale : MapPanel
     {
         public static readonly DependencyProperty PaddingProperty =
             DependencyPropertyHelper.Register<MapScale, Thickness>(nameof(Padding), new Thickness(4));

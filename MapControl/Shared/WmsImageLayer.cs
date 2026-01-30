@@ -25,7 +25,7 @@ namespace MapControl
     /// <summary>
     /// Displays a single map image from a Web Map Service (WMS).
     /// </summary>
-    public class WmsImageLayer : MapImageLayer
+    public partial class WmsImageLayer : MapImageLayer
     {
         private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmsImageLayer));
 

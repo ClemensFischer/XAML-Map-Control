@@ -26,7 +26,7 @@ namespace MapControl
     /// <summary>
     /// Displays map tiles from a Web Map Tile Service (WMTS).
     /// </summary>
-    public class WmtsTileLayer : TilePyramidLayer
+    public partial class WmtsTileLayer : TilePyramidLayer
     {
         private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
 

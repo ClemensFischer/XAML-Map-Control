@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MapControl
 {
-    public class ImageTileList : List<ImageTile>
+    public partial class ImageTileList : List<ImageTile>
     {
         public ImageTileList()
         {
