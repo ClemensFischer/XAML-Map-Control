@@ -193,12 +193,8 @@ namespace MapControl
             for (int i = 0; i <= numPoints; i++)
             {
                 var p = ParentMap.LocationToView(startLatitude + i * deltaLatitude, longitude);
-
-                visible = visible ||
-                    p.X >= 0d && p.X <= ParentMap.ActualWidth &&
-                    p.Y >= 0d && p.Y <= ParentMap.ActualHeight;
-
                 points.Add(p);
+                visible = visible || ParentMap.InsideViewBounds(p);
             }
 
             if (visible && points.Count >= 2)
@@ -211,44 +207,42 @@ namespace MapControl
 
         private void GetLatitudeRange(double lineDistance, out double minLatitude, out double maxLatitude)
         {
-            var width = ParentMap.ActualWidth;
-            var height = ParentMap.ActualHeight;
-            var locations = new List<Location>
-            {
-                ParentMap.ViewToLocation(new Point(0d, 0d)),
-                ParentMap.ViewToLocation(new Point(width, 0d)),
-                ParentMap.ViewToLocation(new Point(0d, height)),
-                ParentMap.ViewToLocation(new Point(width, height)),
-                ParentMap.ViewToLocation(new Point(width / 2d, 0d)),
-                ParentMap.ViewToLocation(new Point(width / 2d, height)),
-                ParentMap.ViewToLocation(new Point(0d, height / 2d)),
-                ParentMap.ViewToLocation(new Point(width, height / 2d)),
-            };
+            var minLat = 90d;
+            var maxLat = -90d;
 
-            var pole = ParentMap.LocationToView(90d, 0d);
-            if (pole.X >= 0d && pole.X <= width && pole.Y >= 0d && pole.Y <= height)
+            if (ParentMap.InsideViewBounds(ParentMap.LocationToView(90d, 0d)))
             {
-                locations.Add(new Location(90d, 0d));
+                maxLat = 90d;
             }
 
-            pole = ParentMap.LocationToView(-90d, 0d);
-            if (pole.X >= 0d && pole.X <= width && pole.Y >= 0d && pole.Y <= height)
+            if (ParentMap.InsideViewBounds(ParentMap.LocationToView(-90d, 0d)))
             {
-                locations.Add(new Location(-90d, 0d));
+                minLat = -90d;
             }
 
-            var latitudes = locations.Select(loc => loc.Latitude).Distinct();
-            var south = -90d;
-            var north = 90d;
-
-            if (latitudes.Any())
+            if (minLat > -90d || maxLat < 90d)
             {
-                south = latitudes.Min();
-                north = latitudes.Max();
+                var width = ParentMap.ActualWidth;
+                var height = ParentMap.ActualHeight;
+                var locations = new Location[]
+                {
+                    ParentMap.ViewToLocation(new Point(0d, 0d)),
+                    ParentMap.ViewToLocation(new Point(width, 0d)),
+                    ParentMap.ViewToLocation(new Point(0d, height)),
+                    ParentMap.ViewToLocation(new Point(width, height)),
+                    ParentMap.ViewToLocation(new Point(width / 2d, 0d)),
+                    ParentMap.ViewToLocation(new Point(width / 2d, height)),
+                    ParentMap.ViewToLocation(new Point(0d, height / 2d)),
+                    ParentMap.ViewToLocation(new Point(width, height / 2d)),
+                };
+
+                var latitudes = locations.Select(loc => loc.Latitude).Distinct();
+                minLat = Math.Min(minLat, latitudes.Min());
+                maxLat = Math.Max(maxLat, latitudes.Max());
             }
 
-            minLatitude = Math.Max(Math.Floor(south / lineDistance - 1d) * lineDistance, -90d);
-            maxLatitude = Math.Min(Math.Ceiling(north / lineDistance + 1d) * lineDistance, 90d);
+            minLatitude = Math.Max(Math.Floor(minLat / lineDistance - 1d) * lineDistance, -90d);
+            maxLatitude = Math.Min(Math.Ceiling(maxLat / lineDistance + 1d) * lineDistance, 90d);
         }
 
         private double GetLineDistance()
@@ -272,13 +266,12 @@ namespace MapControl
                 i++;
             }
 
-            return Math.Min(lineDistances[i] / scale, 60d);
+            return Math.Min(lineDistances[i] / scale, 30d);
         }
 
         private void AddLabel(List<Label> labels, string labelFormat, double latitude, double longitude, Point position, double rotation = 0d)
         {
-            if (position.X >= 0d && position.X <= ParentMap.ActualWidth &&
-                position.Y >= 0d && position.Y <= ParentMap.ActualHeight)
+            if (ParentMap.InsideViewBounds(position))
             {
                 rotation = (rotation + ParentMap.ViewTransform.Rotation) % 360d;
 

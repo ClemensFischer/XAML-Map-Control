@@ -160,9 +160,8 @@ namespace MapControl
         {
             string response = null;
 
-            if (ServiceUri != null && HasLayer && ParentMap != null &&
-                position.X >= 0d && position.X <= ParentMap.ActualWidth &&
-                position.Y >= 0d && position.Y <= ParentMap.ActualHeight)
+            if (ServiceUri != null && HasLayer &&
+                ParentMap != null && ParentMap.InsideViewBounds(position))
             {
                 var uri = GetFeatureInfoRequestUri(position, format);
 
