@@ -44,9 +44,17 @@ namespace MapControl
                 var p2 = transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight));
 #endif
                 BitmapSource = bitmap;
-                BoundingBox = projection != null
-                    ? projection.MapToBoundingBox(new Rect(p1, p2))
-                    : new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
+
+                if (projection != null)
+                {
+                    var sw = projection.MapToLocation(p1);
+                    var ne = projection.MapToLocation(p2);
+                    BoundingBox = new BoundingBox(sw.Latitude, sw.Longitude, ne.Latitude, ne.Longitude);
+                }
+                else
+                {
+                    BoundingBox = new BoundingBox(p1.Y, p1.X, p2.Y, p2.X);
+                }
             }
 
             public BitmapSource BitmapSource { get; }

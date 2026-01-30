@@ -196,11 +196,6 @@ namespace MapControl
         public Location ViewToLocation(Point point) => MapProjection.MapToLocation(ViewTransform.ViewToMap(point));
 
         /// <summary>
-        /// Gets a BoundingBox in geographic coordinates that covers a rectangle in view coordinates.
-        /// </summary>
-        public BoundingBox ViewToBoundingBox(Rect rect) => MapProjection.MapToBoundingBox(ViewTransform.ViewToMapBounds(rect));
-
-        /// <summary>
         /// Sets a temporary center point in view coordinates for scaling and rotation transformations.
         /// This center point is automatically reset when the Center property is set by application code
         /// or by the methods TranslateMap, TransformMap, ZoomMap and ZoomToBounds.
