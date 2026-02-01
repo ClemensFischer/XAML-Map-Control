@@ -15,10 +15,13 @@ namespace MapControl
     /// </summary>
     public class PolarStereographicProjection : MapProjection
     {
-        public double Flattening { get; set; } = Wgs84Flattening;
-        public double ScaleFactor { get; set; } = 0.994;
-        public double FalseEasting { get; set; } = 2e6;
-        public double FalseNorthing { get; set; } = 2e6;
+        public PolarStereographicProjection(bool north)
+        {
+            LatitudeOfOrigin = north ? 90d : -90d;
+            ScaleFactor = 0.994;
+            FalseEasting = 2e6;
+            FalseNorthing = 2e6;
+        }
 
         public override double GridConvergence(double latitude, double longitude)
         {
@@ -29,20 +32,17 @@ namespace MapControl
         {
             var sign = Math.Sign(LatitudeOfOrigin);
             var phi = sign * latitude * Math.PI / 180d;
-
             var e = Math.Sqrt((2d - Flattening) * Flattening);
             var eSinPhi = e * Math.Sin(phi);
-
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
-
             // r == ρ/a
             var r = 2d * ScaleFactor * t / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
             var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
             var k = r / m; // p.161 (21-32)
 
             var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
-            transform.Rotate(-sign * longitude);
+            transform.Rotate(-sign * (longitude - CentralMeridian));
 
             return transform;
         }
@@ -99,10 +99,9 @@ namespace MapControl
         {
         }
 
-        public Wgs84UpsNorthProjection(string crsId)
+        public Wgs84UpsNorthProjection(string crsId) : base(true)
         {
             CrsId = crsId;
-            LatitudeOfOrigin = 90d;
         }
     }
 
@@ -118,10 +117,9 @@ namespace MapControl
         {
         }
 
-        public Wgs84UpsSouthProjection(string crsId)
+        public Wgs84UpsSouthProjection(string crsId) : base(false)
         {
             CrsId = crsId;
-            LatitudeOfOrigin = -90d;
         }
     }
 }

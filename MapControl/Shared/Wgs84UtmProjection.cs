@@ -2,12 +2,6 @@
 
 namespace MapControl
 {
-    public enum Hemisphere
-    {
-        North,
-        South
-    }
-
     /// <summary>
     /// WGS84 Universal Transverse Mercator Projection -
     /// EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760.
@@ -22,9 +16,8 @@ namespace MapControl
         public const int LastZoneSouthEpsgCode = 32700 + LastZone;
 
         public int Zone { get; }
-        public Hemisphere Hemisphere { get; }
 
-        public Wgs84UtmProjection(int zone, Hemisphere hemisphere)
+        public Wgs84UtmProjection(int zone, bool north) : base(zone)
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -32,10 +25,8 @@ namespace MapControl
             }
 
             Zone = zone;
-            Hemisphere = hemisphere;
-            CrsId = $"EPSG:{(hemisphere == Hemisphere.North ? 32600 : 32700) + zone}";
-            CentralMeridian = zone * 6d - 183d;
-            FalseNorthing = hemisphere == Hemisphere.North ? 0d : 1e7;
+            CrsId = $"EPSG:{(north ? 32600 : 32700) + zone}";
+            FalseNorthing = north ? 0d : 1e7;
         }
     }
 }

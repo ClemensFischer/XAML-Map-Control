@@ -15,10 +15,16 @@ namespace MapControl
     /// </summary>
     public class TransverseMercatorProjectionSnyder : MapProjection
     {
-        public double Flattening { get; set; } = Wgs84Flattening;
-        public double ScaleFactor { get; set; } = 0.9996;
-        public double FalseEasting { get; set; } = 5e5;
-        public double FalseNorthing { get; set; }
+        public TransverseMercatorProjectionSnyder()
+        {
+        }
+
+        public TransverseMercatorProjectionSnyder(int utmZone) : this()
+        {
+            CentralMeridian = utmZone * 6d - 183d;
+            ScaleFactor = 0.9996;
+            FalseEasting = 5e5;
+        }
 
         public override double GridConvergence(double latitude, double longitude)
         {

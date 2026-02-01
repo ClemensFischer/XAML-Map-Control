@@ -25,7 +25,7 @@ namespace MapControl
                 "{0},1,{1:0.########},{2:0.########}", crsId, centerLongitude, centerLatitude);
         }
 
-        public override double GridConvergence(double latitude, double longitude)
+        private void GetScaleAndGridConvergence(double latitude, double longitude, out double scale, out double gamma)
         {
             var phi0 = LatitudeOfOrigin * Math.PI / 180d; // φ1
             var phi1 = latitude * Math.PI / 180d;
@@ -44,13 +44,26 @@ namespace MapControl
             var dCosPhi = k2 * cosPhi2 - k1 * cosPhi1;
             var dSinPhi = k2 * sinPhi2 - k1 * sinPhi1;
 
-            return Math.Atan2(-sinLambda * dCosPhi,
+            scale = k1;
+            gamma = Math.Atan2(-sinLambda * dCosPhi,
                 cosPhi0 * dSinPhi - sinPhi0 * cosLambda * dCosPhi) * 180d / Math.PI;
+        }
+
+        public override double GridConvergence(double latitude, double longitude)
+        {
+            GetScaleAndGridConvergence(latitude, longitude, out double _, out double gamma);
+
+            return gamma;
         }
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            return new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+            GetScaleAndGridConvergence(latitude, longitude, out double scale, out double gamma);
+
+            var transform = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+            transform.Rotate(-gamma);
+
+            return transform;
         }
 
         public override Point LocationToMap(double latitude, double longitude)

@@ -43,15 +43,14 @@ namespace MapControl
         /// </summary>
         public string CrsId { get; protected set; }
 
-        /// <summary>
-        /// Indicates whether the projection is normal cylindrical, see
-        /// https://en.wikipedia.org/wiki/Map_projection#Normal_cylindrical.
-        /// </summary>
+        public double EquatorialRadius { get; protected set; } = Wgs84EquatorialRadius;
+        public double Flattening { get; protected set; } = Wgs84Flattening;
+        public double ScaleFactor { get; protected set; } = 1d;
+        public double CentralMeridian { get; protected set; }
+        public double LatitudeOfOrigin { get; protected set; }
+        public double FalseEasting { get; protected set; }
+        public double FalseNorthing { get; protected set; }
         public bool IsNormalCylindrical { get; protected set; }
-
-        public double EquatorialRadius { get; set; } = Wgs84EquatorialRadius;
-        public double CentralMeridian { get; set; }
-        public double LatitudeOfOrigin { get; set; }
 
         /// <summary>
         /// Gets the grid convergence angle in degrees at the specified geographic coordinates.
@@ -64,7 +63,12 @@ namespace MapControl
         /// Gets the relative transform at the specified geographic coordinates.
         /// The returned Matrix represents the local relative scale and rotation.
         /// </summary>
-        public abstract Matrix RelativeTransform(double latitude, double longitude);
+        public virtual Matrix RelativeTransform(double latitude, double longitude)
+        {
+            var transform = new Matrix(ScaleFactor, 0d, 0d, ScaleFactor, 0d, 0d);
+            transform.Rotate(-GridConvergence(latitude, longitude));
+            return transform;
+        }
 
         /// <summary>
         /// Transforms geographic coordinates to a Point in projected map coordinates.

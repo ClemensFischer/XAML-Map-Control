@@ -16,6 +16,8 @@ namespace MapControl
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
+        private double f;
+        private double n;
         private double a1; // α1
         private double a2; // α2
         private double a3; // α3
@@ -28,37 +30,35 @@ namespace MapControl
         private double f1; // A/a
         private double f2; // 2*sqrt(n)/(1+n)
 
+        private void InitializeParameters()
+        {
+            f = Flattening;
+            n = f / (2d - f);
+            var n2 = n * n;
+            var n3 = n * n2;
+            a1 = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
+            a2 = n2 * 13d / 48d - n3 * 3d / 5d;
+            a3 = n3 * 61d / 240d;
+            b1 = n / 2d - n2 * 2d / 3d + n3 * 37d / 96d;
+            b2 = n2 / 48d + n3 / 15d;
+            b3 = n3 * 17d / 480d;
+            d1 = n * 2d - n2 * 2d / 3d - n3 * 2d;
+            d2 = n2 * 7d / 3d - n3 * 8d / 5d;
+            d3 = n3 * 56d / 15d;
+            f1 = (1d + n2 / 4d + n2 * n2 / 64d) / (1d + n);
+            f2 = 2d * Math.Sqrt(n) / (1d + n);
+        }
+
         public TransverseMercatorProjection()
         {
-            Flattening = Wgs84Flattening;
         }
 
-        public double Flattening
+        public TransverseMercatorProjection(int utmZone) : this()
         {
-            get;
-            set
-            {
-                field = value;
-                var n = field / (2d - field);
-                var n2 = n * n;
-                var n3 = n * n2;
-                a1 = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
-                a2 = n2 * 13d / 48d - n3 * 3d / 5d;
-                a3 = n3 * 61d / 240d;
-                b1 = n / 2d - n2 * 2d / 3d + n3 * 37d / 96d;
-                b2 = n2 / 48d + n3 / 15d;
-                b3 = n3 * 17d / 480d;
-                d1 = n * 2d - n2 * 2d / 3d - n3 * 2d;
-                d2 = n2 * 7d / 3d - n3 * 8d / 5d;
-                d3 = n3 * 56d / 15d;
-                f1 = (1d + n2 / 4d + n2 * n2 / 64d) / (1d + n);
-                f2 = 2d * Math.Sqrt(n) / (1d + n);
-            }
+            CentralMeridian = utmZone * 6d - 183d;
+            ScaleFactor = 0.9996;
+            FalseEasting = 5e5;
         }
-
-        public double ScaleFactor { get; set; } = 0.9996;
-        public double FalseEasting { get; set; } = 5e5;
-        public double FalseNorthing { get; set; }
 
         public override double GridConvergence(double latitude, double longitude)
         {
@@ -74,6 +74,11 @@ namespace MapControl
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
+            if (f != Flattening)
+            {
+                InitializeParameters();
+            }
+
             // φ
             var phi = latitude * Math.PI / 180d;
             var sinPhi = Math.Sin(phi);
@@ -99,7 +104,6 @@ namespace MapControl
                 4d * a2 * Math.Sin(4d * xi_) * Math.Sinh(4d * eta_) +
                 6d * a3 * Math.Sin(6d * xi_) * Math.Sinh(6d * eta_);
 
-            var n = Flattening / (2d - Flattening);
             var m = (1d - n) / (1d + n) * Math.Tan(phi);
             var k = ScaleFactor * f1 * Math.Sqrt((1d + m * m) * (sigma * sigma + tau * tau) / (t * t + cosLambda * cosLambda));
 
@@ -114,6 +118,11 @@ namespace MapControl
 
         public override Point LocationToMap(double latitude, double longitude)
         {
+            if (f != Flattening)
+            {
+                InitializeParameters();
+            }
+
             // φ
             var phi = latitude * Math.PI / 180d;
             var sinPhi = Math.Sin(phi);
@@ -143,6 +152,11 @@ namespace MapControl
 
         public override Location MapToLocation(double x, double y)
         {
+            if (f != Flattening)
+            {
+                InitializeParameters();
+            }
+
             // k0 * A
             var k0A = ScaleFactor * EquatorialRadius * f1;
             // ξ

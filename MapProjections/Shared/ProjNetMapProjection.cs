@@ -15,11 +15,9 @@ namespace MapControl.Projections
     /// </summary>
     public class ProjNetMapProjection : MapProjection
     {
-        protected MapProjection FallbackProjection { get; private set; }
-
-        protected ProjNetMapProjection(MapProjection fallbackProjection)
+        public ProjNetMapProjection(ProjectedCoordinateSystem coordinateSystem)
         {
-            FallbackProjection = fallbackProjection;
+            CoordinateSystem = coordinateSystem;
         }
 
         public ProjNetMapProjection(string coordinateSystemWkt)
@@ -52,7 +50,9 @@ namespace MapControl.Projections
                 var projection = field.Projection ??
                     throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
 
-                var ellipsoid = field.GeographicCoordinateSystem.HorizontalDatum.Ellipsoid;
+                IsNormalCylindrical = projection.Name.Contains("Pseudo-Mercator") ||
+                                      projection.Name.StartsWith("Mercator");
+
                 var transformFactory = new CoordinateTransformationFactory();
 
                 CrsId = !string.IsNullOrEmpty(field.Authority) && field.AuthorityCode > 0
@@ -67,47 +67,24 @@ namespace MapControl.Projections
                     .CreateFromCoordinateSystems(field, GeographicCoordinateSystem.WGS84)
                     .MathTransform;
 
-                if (projection.Name.Contains("Pseudo-Mercator"))
-                {
-                    IsNormalCylindrical = true;
-                    FallbackProjection = new MapControl.WebMercatorProjection
-                    {
-                        EquatorialRadius = ellipsoid.SemiMajorAxis
-                    };
-                }
-                else if (projection.Name.StartsWith("Mercator"))
-                {
-                    IsNormalCylindrical = true;
-                    FallbackProjection = new MapControl.WorldMercatorProjection
-                    {
-                        EquatorialRadius = ellipsoid.SemiMajorAxis,
-                        Flattening = 1d / ellipsoid.InverseFlattening
-                    };
-                }
-                else if (projection.Name.StartsWith("Transverse_Mercator"))
-                {
-                    FallbackProjection = new TransverseMercatorProjection
-                    {
-                        EquatorialRadius = ellipsoid.SemiMajorAxis,
-                        Flattening = 1d / ellipsoid.InverseFlattening,
-                        CentralMeridian = projection.GetParameter("central_meridian").Value,
-                        ScaleFactor = projection.GetParameter("scale_factor").Value,
-                        FalseEasting = projection.GetParameter("false_easting").Value,
-                        FalseNorthing = projection.GetParameter("false_northing").Value
-                    };
-                }
-                else if (projection.Name.StartsWith("Polar_Stereographic"))
-                {
-                    FallbackProjection = new PolarStereographicProjection
-                    {
-                        EquatorialRadius = ellipsoid.SemiMajorAxis,
-                        Flattening = 1d / ellipsoid.InverseFlattening,
-                        ScaleFactor = projection.GetParameter("scale_factor").Value,
-                        FalseEasting = projection.GetParameter("false_easting").Value,
-                        FalseNorthing = projection.GetParameter("false_northing").Value,
-                        LatitudeOfOrigin = projection.GetParameter("latitude_of_origin").Value
-                    };
-                }
+                var ellipsoid = field.HorizontalDatum.Ellipsoid;
+                EquatorialRadius = ellipsoid.SemiMajorAxis;
+                Flattening = 1d / ellipsoid.InverseFlattening;
+
+                var parameter = projection.GetParameter("scale_factor");
+                ScaleFactor = parameter != null ? parameter.Value : 1d;
+
+                parameter = projection.GetParameter("central_meridian");
+                CentralMeridian = parameter != null ? parameter.Value : 0d;
+
+                parameter = projection.GetParameter("latitude_of_origin");
+                LatitudeOfOrigin = parameter != null ? parameter.Value : 0d;
+
+                parameter = projection.GetParameter("false_easting");
+                FalseEasting = parameter != null ? parameter.Value : 0d;
+
+                parameter = projection.GetParameter("false_northing");
+                FalseNorthing = parameter != null ? parameter.Value : 0d;
             }
         }
 
@@ -139,18 +116,91 @@ namespace MapControl.Projections
             return new Location(coordinate[1], coordinate[0]);
         }
 
-        public override Matrix RelativeTransform(double latitude, double longitude)
+        public override double GridConvergence(double latitude, double longitude)
         {
-            return FallbackProjection != null
-                ? FallbackProjection.RelativeTransform(latitude, longitude)
-                : new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
+            var projection = CoordinateSystem.Projection.Name;
+
+            if (projection.StartsWith("Transverse_Mercator"))
+            {
+                return TransverseMercatorGridConvergence(latitude, longitude);
+            }
+
+            if (projection.StartsWith("Polar_Stereographic"))
+            {
+                return PolarStereographicGridConvergence(longitude);
+            }
+
+            return base.GridConvergence(latitude, longitude);
         }
 
-        public override double GridConvergence(double x, double y)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            return FallbackProjection != null
-                ? FallbackProjection.GridConvergence(x, y)
-                : 0d;
+            var projection = CoordinateSystem.Projection.Name;
+
+            if (projection.Contains("Pseudo-Mercator"))
+            {
+                return WebMercatorRelativeTransform(latitude);
+            }
+
+            if (projection.StartsWith("Mercator"))
+            {
+                return WorldMercatorRelativeTransform(latitude);
+            }
+
+            if (projection.StartsWith("Polar_Stereographic"))
+            {
+                return PolarStereographicRelativeTransform(latitude, longitude);
+            }
+
+            return base.RelativeTransform(latitude, longitude);
+        }
+
+        protected static Matrix WebMercatorRelativeTransform(double latitude)
+        {
+            var k = 1d / Math.Cos(latitude * Math.PI / 180d); // p.44 (7-3)
+
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+        }
+
+        protected Matrix WorldMercatorRelativeTransform(double latitude)
+        {
+            var e2 = (2d - Flattening) * Flattening;
+            var phi = latitude * Math.PI / 180d;
+            var sinPhi = Math.Sin(phi);
+            var k = Math.Sqrt(1d - e2 * sinPhi * sinPhi) / Math.Cos(phi); // p.44 (7-8)
+
+            return new Matrix(k, 0d, 0d, k, 0d, 0d);
+        }
+
+        protected double TransverseMercatorGridConvergence(double latitude, double longitude)
+        {
+            return 180d / Math.PI * Math.Atan(
+                Math.Tan((longitude - CentralMeridian) * Math.PI / 180d) *
+                Math.Sin(latitude * Math.PI / 180d));
+        }
+
+        protected double PolarStereographicGridConvergence(double longitude)
+        {
+            return Math.Sign(LatitudeOfOrigin) * (longitude - CentralMeridian);
+        }
+
+        protected Matrix PolarStereographicRelativeTransform(double latitude, double longitude)
+        {
+            var sign = Math.Sign(LatitudeOfOrigin);
+            var phi = sign * latitude * Math.PI / 180d;
+            var e = Math.Sqrt((2d - Flattening) * Flattening);
+            var eSinPhi = e * Math.Sin(phi);
+            var t = Math.Tan(Math.PI / 4d - phi / 2d)
+                  / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
+            // r == ρ/a
+            var r = 2d * ScaleFactor * t / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
+            var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
+            var k = r / m; // p.161 (21-32)
+
+            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
+            transform.Rotate(-sign * (longitude - CentralMeridian));
+
+            return transform;
         }
     }
 }

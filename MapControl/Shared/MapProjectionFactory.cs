@@ -59,9 +59,9 @@ namespace MapControl
                 var c when c is >= Nad83UtmProjection.FirstZoneEpsgCode
                             and <= Nad83UtmProjection.LastZoneEpsgCode => new Nad83UtmProjection(c % 100),
                 var c when c is >= Wgs84UtmProjection.FirstZoneNorthEpsgCode
-                            and <= Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.North),
+                            and <= Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(c % 100, true),
                 var c when c is >= Wgs84UtmProjection.FirstZoneSouthEpsgCode
-                            and <= Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.South),
+                            and <= Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, false),
                 _ => null
             };
         }

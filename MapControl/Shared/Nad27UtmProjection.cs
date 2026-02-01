@@ -14,7 +14,7 @@ namespace MapControl
 
         public int Zone { get; }
 
-        public Nad27UtmProjection(int zone)
+        public Nad27UtmProjection(int zone) : base(zone)
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -27,7 +27,6 @@ namespace MapControl
             // Clarke 1866
             EquatorialRadius = 6378206.4;
             Flattening = 1d / 294.978698213898;
-            CentralMeridian = zone * 6d - 183d;
         }
     }
 }

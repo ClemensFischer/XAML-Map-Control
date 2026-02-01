@@ -16,8 +16,6 @@ namespace MapControl
     {
         public const string DefaultCrsId = "EPSG:3395";
 
-        public double Flattening { get; set; } = Wgs84Flattening;
-
         public WorldMercatorProjection() // parameterless constructor for XAML
             : this(DefaultCrsId)
         {
@@ -31,8 +29,8 @@ namespace MapControl
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            var phi = latitude * Math.PI / 180d;
             var e2 = (2d - Flattening) * Flattening;
+            var phi = latitude * Math.PI / 180d;
             var sinPhi = Math.Sin(phi);
             var k = Math.Sqrt(1d - e2 * sinPhi * sinPhi) / Math.Cos(phi); // p.44 (7-8)
 
