@@ -107,12 +107,17 @@ namespace ProjectionDemo
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PushpinLocation)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PushpinText)));
             }
-        } = new();
+        }
 
         public string PushpinText
         {
             get
             {
+                if (PushpinLocation == null)
+                {
+                    return null;
+                }
+
                 var latitude = (int)Math.Round(PushpinLocation.Latitude * 36000);
                 var longitude = (int)Math.Round(Location.NormalizeLongitude(PushpinLocation.Longitude) * 36000);
                 var latHemisphere = 'N';
