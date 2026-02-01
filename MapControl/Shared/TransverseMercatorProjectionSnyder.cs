@@ -15,15 +15,24 @@ namespace MapControl
     /// </summary>
     public class TransverseMercatorProjectionSnyder : MapProjection
     {
-        public TransverseMercatorProjectionSnyder()
+        public TransverseMercatorProjectionSnyder(
+            double equatorialRadius, double flattening, double scaleFactor,
+            double centralMeridian, double latitudeOfOrigin,
+            double falseEasting, double falseNorthing = 0d)
         {
+            EquatorialRadius = equatorialRadius;
+            Flattening = flattening;
+            ScaleFactor = scaleFactor;
+            CentralMeridian = centralMeridian;
+            LatitudeOfOrigin = latitudeOfOrigin;
+            FalseEasting = falseEasting;
+            FalseNorthing = falseNorthing;
         }
 
-        public TransverseMercatorProjectionSnyder(int utmZone) : this()
+        public TransverseMercatorProjectionSnyder(int utmZone, bool north = true)
+            : this(Wgs84EquatorialRadius, Wgs84Flattening,
+                  0.9996, utmZone * 6d - 183d, 0d, 5e5, north ? 0d : 1e7)
         {
-            CentralMeridian = utmZone * 6d - 183d;
-            ScaleFactor = 0.9996;
-            FalseEasting = 5e5;
         }
 
         public override double GridConvergence(double latitude, double longitude)

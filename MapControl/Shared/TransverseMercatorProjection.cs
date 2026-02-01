@@ -16,24 +16,32 @@ namespace MapControl
     /// </summary>
     public class TransverseMercatorProjection : MapProjection
     {
-        private double f;
-        private double n;
-        private double a1; // α1
-        private double a2; // α2
-        private double a3; // α3
-        private double b1; // β1
-        private double b2; // β2
-        private double b3; // β3
-        private double d1; // δ1
-        private double d2; // δ2
-        private double d3; // δ3
-        private double f1; // A/a
-        private double f2; // 2*sqrt(n)/(1+n)
+        private readonly double n;
+        private readonly double a1; // α1
+        private readonly double a2; // α2
+        private readonly double a3; // α3
+        private readonly double b1; // β1
+        private readonly double b2; // β2
+        private readonly double b3; // β3
+        private readonly double d1; // δ1
+        private readonly double d2; // δ2
+        private readonly double d3; // δ3
+        private readonly double f1; // A/a
+        private readonly double f2; // 2*sqrt(n)/(1+n)
 
-        private void InitializeParameters()
+        public TransverseMercatorProjection(
+            double equatorialRadius, double flattening,
+            double scaleFactor, double centralMeridian,
+            double falseEasting, double falseNorthing = 0d)
         {
-            f = Flattening;
-            n = f / (2d - f);
+            EquatorialRadius = equatorialRadius;
+            Flattening = flattening;
+            ScaleFactor = scaleFactor;
+            CentralMeridian = centralMeridian;
+            FalseEasting = falseEasting;
+            FalseNorthing = falseNorthing;
+
+            n = flattening / (2d - flattening);
             var n2 = n * n;
             var n3 = n * n2;
             a1 = n / 2d - n2 * 2d / 3d + n3 * 5d / 16d;
@@ -49,15 +57,12 @@ namespace MapControl
             f2 = 2d * Math.Sqrt(n) / (1d + n);
         }
 
-        public TransverseMercatorProjection()
+        public TransverseMercatorProjection(
+            double equatorialRadius, double flattening,
+            double scaleFactor, int utmZone, bool north = true)
+            : this(equatorialRadius, flattening,
+                  scaleFactor, utmZone * 6d - 183d, 5e5, north ? 0d : 1e7)
         {
-        }
-
-        public TransverseMercatorProjection(int utmZone) : this()
-        {
-            CentralMeridian = utmZone * 6d - 183d;
-            ScaleFactor = 0.9996;
-            FalseEasting = 5e5;
         }
 
         public override double GridConvergence(double latitude, double longitude)
@@ -74,11 +79,6 @@ namespace MapControl
 
         public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            if (f != Flattening)
-            {
-                InitializeParameters();
-            }
-
             // φ
             var phi = latitude * Math.PI / 180d;
             var sinPhi = Math.Sin(phi);
@@ -118,11 +118,6 @@ namespace MapControl
 
         public override Point LocationToMap(double latitude, double longitude)
         {
-            if (f != Flattening)
-            {
-                InitializeParameters();
-            }
-
             // φ
             var phi = latitude * Math.PI / 180d;
             var sinPhi = Math.Sin(phi);
@@ -152,11 +147,6 @@ namespace MapControl
 
         public override Location MapToLocation(double x, double y)
         {
-            if (f != Flattening)
-            {
-                InitializeParameters();
-            }
-
             // k0 * A
             var k0A = ScaleFactor * EquatorialRadius * f1;
             // ξ
