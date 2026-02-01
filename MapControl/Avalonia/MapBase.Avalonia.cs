@@ -21,13 +21,13 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, Easing>(nameof(AnimationEasing), new QuadraticEaseOut());
 
         public static readonly StyledProperty<Location> CenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(),
+            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(0d, 0d),
                 (map, oldValue, newValue) => map.CenterPropertyChanged(newValue),
                 (map, value) => map.CoerceCenterProperty(value),
                 true);
 
         public static readonly StyledProperty<Location> TargetCenterProperty =
-           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(),
+           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(0d, 0d),
                 async (map, oldValue, newValue) => await map.TargetCenterPropertyChanged(newValue),
                 (map, value) => map.CoerceCenterProperty(value),
                 true);

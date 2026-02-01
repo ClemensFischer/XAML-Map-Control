@@ -59,11 +59,8 @@ namespace SampleApplication
                 {
                     var location = map.ViewToLocation(point.Position);
 
-                    if (location != null)
-                    {
-                        measurementLine.Visibility = Visibility.Visible;
-                        measurementLine.Locations = new LocationCollection(location);
-                    }
+                    measurementLine.Visibility = Visibility.Visible;
+                    measurementLine.Locations = new LocationCollection(location);
                 }
                 else if (e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control) && map.MapLayer is WmsImageLayer wmsLayer)
                 {
@@ -87,23 +84,14 @@ namespace SampleApplication
             var point = e.GetCurrentPoint(map);
             var location = map.ViewToLocation(point.Position);
 
-            if (location != null)
-            {
-                mouseLocation.Visibility = Visibility.Visible;
-                mouseLocation.Text = GetLatLonText(location);
+            mouseLocation.Visibility = Visibility.Visible;
+            mouseLocation.Text = GetLatLonText(location);
 
-                var start = measurementLine.Locations?.FirstOrDefault();
-
-                if (start != null)
-                {
-                    measurementLine.Locations = LocationCollection.GeodesicLocations(start, location);
-                    mouseLocation.Text += GetDistanceText(location.GetDistance(start));
-                }
-            }
-            else
+            if (measurementLine.Locations != null)
             {
-                mouseLocation.Visibility = Visibility.Collapsed;
-                mouseLocation.Text = "";
+                var start = measurementLine.Locations.First();
+                measurementLine.Locations = LocationCollection.GeodesicLocations(start, location);
+                mouseLocation.Text += GetDistanceText(location.GetDistance(start));
             }
         }
 

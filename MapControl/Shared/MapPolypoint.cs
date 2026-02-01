@@ -1,5 +1,8 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
+
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -37,6 +40,7 @@ namespace MapControl
         protected MapPolypoint()
         {
             Data = new PolypointGeometry();
+            Location = new Location(0d, double.NaN);
         }
 
         protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
@@ -57,6 +61,36 @@ namespace MapControl
         protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateData();
+        }
+
+        protected double GetLongitudeOffset(IEnumerable<Location> locations)
+        {
+            if (!ParentMap.MapProjection.IsNormalCylindrical)
+            {
+                return 0d;
+            }
+
+            Location location;
+
+            if (!double.IsNaN(Location.Longitude))
+            {
+                location = Location;
+            }
+            else if (locations != null && locations.Any())
+            {
+                location = locations.First();
+            }
+            else
+            {
+                return 0d;
+            }
+
+            if (ParentMap.InsideViewBounds(ParentMap.LocationToView(location)))
+            {
+                return 0d;
+            }
+
+            return ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
         }
     }
 }

@@ -23,11 +23,11 @@ namespace MapControl
                 new QuadraticEase { EasingMode = EasingMode.EaseOut });
 
         public static readonly DependencyProperty CenterProperty =
-            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(),
+            DependencyPropertyHelper.Register<MapBase, Location>(nameof(Center), new Location(0d, 0d),
                 (map, oldValue, newValue) => map.CenterPropertyChanged(newValue));
 
         public static readonly DependencyProperty TargetCenterProperty =
-           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(),
+           DependencyPropertyHelper.Register<MapBase, Location>(nameof(TargetCenter), new Location(0d, 0d),
                 (map, oldValue, newValue) => map.TargetCenterPropertyChanged(newValue));
 
         public static readonly DependencyProperty MinZoomLevelProperty =

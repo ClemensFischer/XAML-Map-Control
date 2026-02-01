@@ -63,12 +63,9 @@ namespace SampleApplication
                     e.Pointer.Capture(map);
                     var location = map.ViewToLocation(point.Position);
 
-                    if (location != null)
-                    {
-                        map.Cursor = new Cursor(StandardCursorType.Cross);
-                        measurementLine.IsVisible = true;
-                        measurementLine.Locations = new LocationCollection(location);
-                    }
+                    map.Cursor = new Cursor(StandardCursorType.Cross);
+                    measurementLine.IsVisible = true;
+                    measurementLine.Locations = new LocationCollection(location);
                 }
             }
         }
@@ -88,23 +85,14 @@ namespace SampleApplication
         {
             var location = map.ViewToLocation(e.GetPosition(map));
 
-            if (location != null)
-            {
-                mouseLocation.IsVisible = true;
-                mouseLocation.Text = GetLatLonText(location);
+            mouseLocation.IsVisible = true;
+            mouseLocation.Text = GetLatLonText(location);
 
-                var start = measurementLine.Locations?.FirstOrDefault();
-
-                if (start != null)
-                {
-                    measurementLine.Locations = LocationCollection.GeodesicLocations(start, location);
-                    mouseLocation.Text += GetDistanceText(location.GetDistance(start));
-                }
-            }
-            else
+            if (measurementLine.Locations != null)
             {
-                mouseLocation.IsVisible = false;
-                mouseLocation.Text = "";
+                var start = measurementLine.Locations.First();
+                measurementLine.Locations = LocationCollection.GeodesicLocations(start, location);
+                mouseLocation.Text += GetDistanceText(location.GetDistance(start));
             }
         }
 

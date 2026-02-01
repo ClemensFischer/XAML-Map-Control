@@ -17,15 +17,15 @@ namespace MapControl
     public partial class MapPath : IMapElement
     {
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.Register<MapPath, Location>(nameof(Location), null,
+            DependencyPropertyHelper.Register<MapPath, Location>(nameof(Location), default,
                 (path, oldValue, newValue) => path.UpdateData());
 
         /// <summary>
-        /// Gets or sets a Location that is used as
-        /// - either the origin point of a geometry specified in projected map coordinates (meters)
-        /// - or as an optional anchor point to constrain the view position of MapPaths with multiple
-        ///   Locations (like MapPolyline or MapPolygon) to the visible map viewport, as done
-        ///   for elements where the MapPanel.Location property is set.
+        /// Gets or sets a Location that is either used as
+        /// - the origin point of a geometry specified in projected map coordinates (meters) or
+        /// - as an optional anchor point to constrain the view position of MapPaths with
+        ///   multiple Locations (like MapPolyline or MapPolygon) to the visible map viewport,
+        ///   as done for elements where the MapPanel.Location property is set.
         /// </summary>
         public Location Location
         {
@@ -64,29 +64,12 @@ namespace MapControl
 
         protected virtual void UpdateData()
         {
-            if (ParentMap != null && Location != null && Data != null)
+            if (ParentMap != null && Data != null)
             {
                 SetDataTransform(ParentMap.GetMapToViewTransform(Location));
             }
 
             MapPanel.SetLocation(this, Location);
-        }
-
-        protected double GetLongitudeOffset(Location location)
-        {
-            var longitudeOffset = 0d;
-
-            if (location != null != ParentMap.MapProjection.IsNormalCylindrical)
-            {
-                var position = ParentMap.LocationToView(location);
-
-                if (!ParentMap.InsideViewBounds(position))
-                {
-                    longitudeOffset = ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
-                }
-            }
-
-            return longitudeOffset;
         }
 
         protected Point LocationToMap(Location location, double longitudeOffset)

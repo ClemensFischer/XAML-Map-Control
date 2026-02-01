@@ -13,7 +13,7 @@ namespace MapControl
 
             if (ParentMap != null && locations != null)
             {
-                var longitudeOffset = GetLongitudeOffset(Location ?? locations.FirstOrDefault());
+                var longitudeOffset = GetLongitudeOffset(locations);
 
                 AddPolylinePoints(context, locations, longitudeOffset, closed);
             }
@@ -25,7 +25,7 @@ namespace MapControl
 
             if (ParentMap != null && polygons != null)
             {
-                var longitudeOffset = GetLongitudeOffset(Location);
+                var longitudeOffset = GetLongitudeOffset(polygons.FirstOrDefault());
 
                 foreach (var locations in polygons)
                 {

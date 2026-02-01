@@ -5,35 +5,20 @@ namespace MapControl
 {
     /// <summary>
     /// A geographic location with latitude and longitude values in degrees.
-    /// For calculations with azimuth and distance on great circles, see
-    /// https://en.wikipedia.org/wiki/Great_circle,
-    /// https://en.wikipedia.org/wiki/Great-circle_distance,
-    /// https://en.wikipedia.org/wiki/Great-circle_navigation.
     /// </summary>
 #if UWP || WINUI
     [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
 #else
     [System.ComponentModel.TypeConverter(typeof(LocationConverter))]
 #endif
-    public class Location : IEquatable<Location>
+    public readonly struct Location(double latitude, double longitude) : IEquatable<Location>
     {
-        // Arithmetic mean radius (2*a + b) / 3 == (1 - f/3) * a.
-        // See https://en.wikipedia.org/wiki/Earth_radius#Arithmetic_mean_radius.
-        //
-        public const double Wgs84MeanRadius = (1d - MapProjection.Wgs84Flattening / 3d) * MapProjection.Wgs84EquatorialRadius;
+        public double Latitude { get; } = Math.Min(Math.Max(latitude, -90d), 90d);
+        public double Longitude => longitude;
 
-        public Location()
-        {
-        }
+        public static bool operator ==(Location loc1, Location loc2) => loc1.Equals(loc2);
 
-        public Location(double latitude, double longitude)
-        {
-            Latitude = Math.Min(Math.Max(latitude, -90d), 90d);
-            Longitude = longitude;
-        }
-
-        public double Latitude { get; }
-        public double Longitude { get; }
+        public static bool operator !=(Location loc1, Location loc2) => !loc1.Equals(loc2);
 
         public bool LatitudeEquals(double latitude) => Math.Abs(Latitude - latitude) < 1e-9;
 
@@ -41,9 +26,9 @@ namespace MapControl
 
         public bool Equals(double latitude, double longitude) => LatitudeEquals(latitude) && LongitudeEquals(longitude);
 
-        public bool Equals(Location location) => location != null && Equals(location.Latitude, location.Longitude);
+        public bool Equals(Location location) => Equals(location.Latitude, location.Longitude);
 
-        public override bool Equals(object obj) => Equals(obj as Location);
+        public override bool Equals(object obj) => obj is Location location && Equals(location);
 
         public override int GetHashCode() => Latitude.GetHashCode() ^ Longitude.GetHashCode();
 
@@ -81,8 +66,14 @@ namespace MapControl
             return x < 0d ? x + 180d : x - 180d;
         }
 
+        // Arithmetic mean radius (2*a + b) / 3 == (1 - f/3) * a.
+        // See https://en.wikipedia.org/wiki/Earth_radius#Arithmetic_mean_radius.
+        //
+        public const double Wgs84MeanRadius = (1d - MapProjection.Wgs84Flattening / 3d) * MapProjection.Wgs84EquatorialRadius;
+
         /// <summary>
         /// Calculates great circle azimuth in degrees and distance in meters between this and the specified Location.
+        /// See https://en.wikipedia.org/wiki/Great-circle_navigation#Course.
         /// </summary>
         public (double, double) GetAzimuthDistance(Location location, double earthRadius = Wgs84MeanRadius)
         {
@@ -108,6 +99,7 @@ namespace MapControl
 
         /// <summary>
         /// Calculates great distance in meters between this and the specified Location.
+        /// See https://en.wikipedia.org/wiki/Great-circle_navigation#Course.
         /// </summary>
         public double GetDistance(Location location, double earthRadius = Wgs84MeanRadius)
         {
@@ -118,6 +110,7 @@ namespace MapControl
 
         /// <summary>
         /// Calculates the Location on a great circle at the specified azimuth in degrees and distance in meters from this Location.
+        /// See https://en.wikipedia.org/wiki/Great-circle_navigation#Finding_way-points.
         /// </summary>
         public Location GetLocation(double azimuth, double distance, double earthRadius = Wgs84MeanRadius)
         {
