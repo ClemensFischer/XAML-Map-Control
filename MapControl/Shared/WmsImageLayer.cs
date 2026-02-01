@@ -190,7 +190,8 @@ namespace MapControl
                 var xMin = -180d * MapProjection.Wgs84MeterPerDegree;
                 var xMax = 180d * MapProjection.Wgs84MeterPerDegree;
 
-                if (bbox.X >= xMin && bbox.X + bbox.Width <= xMax || !ParentMap.MapProjection.IsNormalCylindrical)
+                if (!ParentMap.MapProjection.IsNormalCylindrical ||
+                    bbox.X >= xMin && bbox.X + bbox.Width <= xMax)
                 {
                     var uri = GetMapRequestUri(bbox);
 

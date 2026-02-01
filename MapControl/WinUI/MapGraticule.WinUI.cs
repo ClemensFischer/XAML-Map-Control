@@ -1,6 +1,5 @@
 ﻿using Windows.Foundation;
 using System.Collections.Generic;
-using System.Linq;
 #if UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -112,24 +111,16 @@ namespace MapControl
             base.OnViewportChanged(e);
         }
 
-        private static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
+        private static PolyLineSegment CreatePolyLineSegment(IEnumerable<Point> points)
         {
-            var figure = new PathFigure
-            {
-                StartPoint = points.First(),
-                IsClosed = false,
-                IsFilled = false
-            };
-
             var polyline = new PolyLineSegment();
 
-            foreach (var p in points.Skip(1))
+            foreach (var p in points)
             {
                 polyline.Points.Add(p);
             }
 
-            figure.Segments.Add(polyline);
-            return figure;
+            return polyline;
         }
     }
 }

@@ -10,45 +10,68 @@ namespace MapControl
 {
     /// <summary>
     /// Elliptical Transverse Mercator Projection.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.60-64.
+    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.60-64,
+    /// and https://en.wikipedia.org/wiki/Transverse_Mercator_projection#Convergence.
     /// </summary>
     public class TransverseMercatorProjectionSnyder : MapProjection
     {
-        private double M0;
-
         public double Flattening { get; set; } = Wgs84Flattening;
-        public double CentralMeridian { get; set; }
         public double ScaleFactor { get; set; } = 0.9996;
         public double FalseEasting { get; set; } = 5e5;
         public double FalseNorthing { get; set; }
 
-        public double LatitudeOfOrigin
+        public override double GridConvergence(double latitude, double longitude)
         {
-            get;
-            set
-            {
-                field = value;
-                M0 = MeridianDistance(value * Math.PI / 180d);
-            }
+            // φ
+            var phi = latitude * Math.PI / 180d;
+            // λ - λ0
+            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
+
+            // γ calculation for the sphere is sufficiently accurate
+            //
+            return Math.Atan(Math.Tan(dLambda) * Math.Sin(phi)) * 180d / Math.PI;
         }
 
-        private double MeridianDistance(double phi)
+        public override Matrix RelativeTransform(double latitude, double longitude)
         {
-            var e2 = (2d - Flattening) * Flattening;
-            var e4 = e2 * e2;
-            var e6 = e2 * e4;
+            var k = ScaleFactor;
+            var gamma = 0d; // γ
 
-            return EquatorialRadius * (
-                (1d - e2 / 4d - e4 * 3d / 64d - e6 * 5d / 256d) * phi -
-                (e2 * 3d / 8d + e4 * 3d / 32d + e6 * 45d / 1024d) * Math.Sin(2d * phi) +
-                (e4 * 15d / 256d + e6 * 45d / 1024d) * Math.Sin(4d * phi) -
-                 e6 * 35d / 3072d * Math.Sin(6d * phi)); // (3-21)
+            if (latitude > -90d && latitude < 90d)
+            {
+                var phi = latitude * Math.PI / 180d;
+                var sinPhi = Math.Sin(phi);
+                var cosPhi = Math.Cos(phi);
+                var tanPhi = sinPhi / cosPhi;
+                var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
+
+                var e2 = (2d - Flattening) * Flattening;
+                var e_2 = e2 / (1d - e2); // (8-12)
+                var T = tanPhi * tanPhi; // (8-13)
+                var C = e_2 * cosPhi * cosPhi; // (8-14)
+                var A = dLambda * cosPhi; // (8-15)
+                var A2 = A * A;
+                var A4 = A2 * A2;
+                var A6 = A2 * A4;
+
+                k *= 1d + (1d + C) * A2 / 2d +
+                    (5d - 4d * T + 42d * C + 13d * C * C - 28d * e_2) * A4 / 24d +
+                    (61d - 148d * T + 16 * T * T) * A6 / 720d; // (8-11)
+
+                gamma = Math.Atan(Math.Tan(dLambda) * sinPhi) * 180d / Math.PI;
+            }
+
+            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
+            transform.Rotate(-gamma);
+
+            return transform;
         }
 
         public override Point LocationToMap(double latitude, double longitude)
         {
             var phi = latitude * Math.PI / 180d;
             var M = MeridianDistance(phi);
+            var M0 = MeridianDistance(LatitudeOfOrigin * Math.PI / 180d);
             double x, y;
 
             if (latitude > -90d && latitude < 90d)
@@ -83,41 +106,6 @@ namespace MapControl
             return new Point(x + FalseEasting, y + FalseNorthing);
         }
 
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            var k = ScaleFactor;
-            var gamma = 0d; // γ, https://en.wikipedia.org/wiki/Transverse_Mercator_projection#Convergence
-
-            if (latitude > -90d && latitude < 90d)
-            {
-                var phi = latitude * Math.PI / 180d;
-                var sinPhi = Math.Sin(phi);
-                var cosPhi = Math.Cos(phi);
-                var tanPhi = sinPhi / cosPhi;
-                var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
-
-                var e2 = (2d - Flattening) * Flattening;
-                var e_2 = e2 / (1d - e2); // (8-12)
-                var T = tanPhi * tanPhi; // (8-13)
-                var C = e_2 * cosPhi * cosPhi; // (8-14)
-                var A = dLambda * cosPhi; // (8-15)
-                var A2 = A * A;
-                var A4 = A2 * A2;
-                var A6 = A2 * A4;
-
-                k *= 1d + (1d + C) * A2 / 2d +
-                    (5d - 4d * T + 42d * C + 13d * C * C - 28d * e_2) * A4 / 24d +
-                    (61d - 148d * T + 16 * T * T) * A6 / 720d; // (8-11)
-
-                gamma = Math.Atan(Math.Tan(dLambda) * sinPhi) * 180d / Math.PI;
-            }
-
-            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
-            transform.Rotate(-gamma);
-
-            return transform;
-        }
-
         public override Location MapToLocation(double x, double y)
         {
             var e2 = (2d - Flattening) * Flattening;
@@ -129,6 +117,7 @@ namespace MapControl
             var e13 = e1 * e12;
             var e14 = e1 * e13;
 
+            var M0 = MeridianDistance(LatitudeOfOrigin * Math.PI / 180d);
             var M = M0 + (y - FalseNorthing) / ScaleFactor; // (8-20)
             var mu = M / (EquatorialRadius * (1d - e2 / 4d - e4 * 3d / 64d - e6 * 5d / 256d)); // (7-19)
             var phi1 = mu +
@@ -165,51 +154,17 @@ namespace MapControl
                 dLambda * 180d / Math.PI + CentralMeridian);
         }
 
-        public override double GridConvergence(double x, double y)
+        private double MeridianDistance(double phi)
         {
             var e2 = (2d - Flattening) * Flattening;
             var e4 = e2 * e2;
             var e6 = e2 * e4;
-            var s = Math.Sqrt(1d - e2);
-            var e1 = (1d - s) / (1d + s); // (3-24)
-            var e12 = e1 * e1;
-            var e13 = e1 * e12;
-            var e14 = e1 * e13;
 
-            var M = M0 + (y - FalseNorthing) / ScaleFactor; // (8-20)
-            var mu = M / (EquatorialRadius * (1d - e2 / 4d - e4 * 3d / 64d - e6 * 5d / 256d)); // (7-19)
-            var phi1 = mu +
-                (e1 * 3d / 2d - e13 * 27d / 32d) * Math.Sin(2d * mu) +
-                (e12 * 21d / 16d - e14 * 55d / 32d) * Math.Sin(4d * mu) +
-                 e13 * 151d / 96d * Math.Sin(6d * mu) +
-                 e14 * 1097d / 512d * Math.Sin(8d * mu); // (3-26)
-
-            var sinPhi1 = Math.Sin(phi1);
-            var cosPhi1 = Math.Cos(phi1);
-            var tanPhi1 = sinPhi1 / cosPhi1;
-
-            var e_2 = e2 / (1d - e2); // (8-12)
-            var C1 = e_2 * cosPhi1 * cosPhi1; // (8-21)
-            var T1 = sinPhi1 * sinPhi1 / (cosPhi1 * cosPhi1); // (8-22)
-            s = Math.Sqrt(1d - e2 * sinPhi1 * sinPhi1);
-            var N1 = EquatorialRadius / s; // (8-23)
-            var R1 = EquatorialRadius * (1d - e2) / (s * s * s); // (8-24)
-            var D = (x - FalseEasting) / (N1 * ScaleFactor); // (8-25)
-            var D2 = D * D;
-            var D3 = D * D2;
-            var D4 = D * D3;
-            var D5 = D * D4;
-            var D6 = D * D5;
-
-            var phi = phi1 - N1 * tanPhi1 / R1 * (D2 / 2d - (5d + 3d * T1 + 10d * C1 - 4d * C1 * C1 - 9d * e_2) * D4 / 24d +
-                (61d + 90d * T1 + 45d * T1 * T1 + 298 * C1 - 3d * C1 * C1 - 252d * e_2) * D6 / 720d); // (8-17)
-
-            var dLambda = (D - (1d + 2d * T1 + C1) * D3 / 6d +
-                (5d - 2d * C1 - 3d * C1 * C1 + 28d * T1 + 24d * T1 * T1 + 8d * e_2) * D5 / 120d) / cosPhi1; // (8-18)
-
-            // γ, https://en.wikipedia.org/wiki/Transverse_Mercator_projection#Convergence
-            //
-            return Math.Atan(Math.Tan(dLambda) * Math.Sin(phi)) * 180d / Math.PI;
+            return EquatorialRadius * (
+                (1d - e2 / 4d - e4 * 3d / 64d - e6 * 5d / 256d) * phi -
+                (e2 * 3d / 8d + e4 * 3d / 32d + e6 * 45d / 1024d) * Math.Sin(2d * phi) +
+                (e4 * 15d / 256d + e6 * 45d / 1024d) * Math.Sin(4d * phi) -
+                 e6 * 35d / 3072d * Math.Sin(6d * phi)); // (3-21)
         }
     }
 }

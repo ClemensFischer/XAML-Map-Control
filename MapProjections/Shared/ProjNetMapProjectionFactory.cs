@@ -24,7 +24,7 @@ namespace MapControl.Projections
             { 29193, WktConstants.ProjCsSad69Utm23S },
         };
 
-        public override MapProjection GetProjection(string crsId)
+        protected override MapProjection CreateProjection(string crsId)
         {
             return crsId switch
             {
@@ -32,11 +32,11 @@ namespace MapControl.Projections
                 MapControl.WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
                 MapControl.Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
                 MapControl.Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
-                _ => GetProjectionFromEpsgCode(crsId) ?? base.GetProjection(crsId)
+                _ => base.CreateProjection(crsId)
             };
         }
 
-        public override MapProjection GetProjection(int epsgCode)
+        protected override MapProjection CreateProjection(int epsgCode)
         {
             if (CoordinateSystemWkts.TryGetValue(epsgCode, out string wkt))
             {
@@ -57,7 +57,7 @@ namespace MapControl.Projections
                             and <= MapControl.Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.North),
                 var c when c is >= MapControl.Wgs84UtmProjection.FirstZoneSouthEpsgCode
                             and <= MapControl.Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.South),
-                _ => base.GetProjection(epsgCode)
+                _ => base.CreateProjection(epsgCode)
             };
         }
     }

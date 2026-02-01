@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -87,17 +86,9 @@ namespace MapControl
             }
         }
 
-        private static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
+        private static PolyLineSegment CreatePolyLineSegment(IEnumerable<Point> points)
         {
-            var figure = new PathFigure
-            {
-                StartPoint = points.First(),
-                IsClosed = false,
-                IsFilled = false
-            };
-
-            figure.Segments.Add(new PolyLineSegment(points.Skip(1), true));
-            return figure;
+            return new PolyLineSegment(points, true);
         }
     }
 }

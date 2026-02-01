@@ -184,13 +184,13 @@ namespace MapControl
                 throw new ArgumentException($"Insufficient number of parameters in world file {worldFilePath}.");
             }
 
-            return new Matrix(
-                parameters[0],  // line 1: A or M11
-                parameters[1],  // line 2: D or M12
-                parameters[2],  // line 3: B or M21
-                parameters[3],  // line 4: E or M22
-                parameters[4],  // line 5: C or OffsetX
-                parameters[5]); // line 6: F or OffsetY
+            return new Matrix(  // https://en.wikipedia.org/wiki/World_file
+                parameters[0],  // line 1: A
+                parameters[1],  // line 2: D
+                parameters[2],  // line 3: B
+                parameters[3],  // line 4: E
+                parameters[4],  // line 5: C
+                parameters[5]); // line 6: F
         }
 
         private static MapProjection GetProjection(short[] geoKeyDirectory)

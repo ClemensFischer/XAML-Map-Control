@@ -1,25 +1,54 @@
 ﻿using System;
+using System.Globalization;
 
 namespace MapControl
 {
     public class MapProjectionFactory
     {
-        public virtual MapProjection GetProjection(string crsId)
+        public MapProjection GetProjection(string crsId)
         {
-            var projection = crsId switch
+            var projection = CreateProjection(crsId);
+
+            if (projection == null &&
+                crsId.StartsWith("EPSG:") &&
+                int.TryParse(crsId.Substring(5), out int epsgCode))
             {
-                WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
-                WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
-                EquirectangularProjection.DefaultCrsId or "CRS:84" => new EquirectangularProjection(crsId),
-                Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
-                Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
-                _ => GetProjectionFromEpsgCode(crsId),
-            };
+                projection = CreateProjection(epsgCode);
+            }
 
             return projection ?? throw new NotSupportedException($"MapProjection \"{crsId}\" is not supported.");
         }
 
-        public virtual MapProjection GetProjection(int epsgCode)
+        protected virtual MapProjection CreateProjection(string crsId)
+        {
+            MapProjection projection = crsId switch
+            {
+                WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
+                WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
+                Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
+                Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
+                EquirectangularProjection.DefaultCrsId or "CRS:84" => new EquirectangularProjection(crsId),
+                _ => null,
+            };
+
+            if (projection == null && crsId.StartsWith(StereographicProjection.DefaultCrsId))
+            {
+                var parameters = crsId.Split(',');
+
+                if (parameters.Length == 4 &&
+                    parameters[0] == StereographicProjection.DefaultCrsId &&
+                    parameters[1] == "1" &&
+                    double.TryParse(parameters[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double longitude) &&
+                    double.TryParse(parameters[3], NumberStyles.Float, CultureInfo.InvariantCulture, out double latitude))
+                {
+                    projection = new StereographicProjection(longitude, latitude);
+                }
+            }
+
+            return projection;
+        }
+
+        protected virtual MapProjection CreateProjection(int epsgCode)
         {
             return epsgCode switch
             {
@@ -35,11 +64,6 @@ namespace MapControl
                             and <= Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, Hemisphere.South),
                 _ => null
             };
-        }
-
-        protected MapProjection GetProjectionFromEpsgCode(string crsId)
-        {
-            return crsId.StartsWith("EPSG:") && int.TryParse(crsId.Substring(5), out int epsgCode) ? GetProjection(epsgCode) : null;
         }
     }
 }

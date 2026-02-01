@@ -40,6 +40,12 @@ namespace MapControl
         public static readonly DependencyProperty StrokeThicknessProperty =
             DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
 
+        private static readonly double[] lineDistances = [
+            1d/3600d, 1d/1800d, 1d/720d, 1d/360d, 1d/240d, 1d/120d,
+            1d/60d, 1d/30d, 1d/12d, 1d/6d, 1d/4d, 1d/2d,
+            1d, 2d, 5d, 10d, 15d, 30d];
+
+
         /// <summary>
         /// Minimum graticule line distance in pixels. The default value is 150.
         /// </summary>
@@ -75,32 +81,31 @@ namespace MapControl
 
         private List<Label> DrawGraticule(PathFigureCollection figures)
         {
-            figures.Clear();
-
             var labels = new List<Label>();
-            var lineDistance = GetLineDistance();
-            var labelFormat = lineDistance < 1d / 60d ? "{0} {1}°{2:00}'{3:00}\""
-                            : lineDistance < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
+
+            figures.Clear();
 
             if (ParentMap.MapProjection.IsNormalCylindrical)
             {
-                DrawCylindricalGraticule(figures, labels, lineDistance, labelFormat);
+                DrawNormalCylindrical(figures, labels);
             }
             else
             {
-                DrawGraticule(figures, labels, lineDistance, labelFormat);
+                DrawGraticule(figures, labels);
             }
 
             return labels;
         }
 
-        private void DrawCylindricalGraticule(PathFigureCollection figures, List<Label> labels, double lineDistance, string labelFormat)
+        private void DrawNormalCylindrical(PathFigureCollection figures, List<Label> labels)
         {
             var southWest = ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight));
             var northEast = ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, 0d));
-
+            var lineDistance = GetLineDistance(MinLineDistance /
+                (ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree));
             var latLabelStart = Math.Ceiling(southWest.Latitude / lineDistance) * lineDistance;
             var lonLabelStart = Math.Ceiling(southWest.Longitude / lineDistance) * lineDistance;
+            var labelFormat = GetLabelFormat(Math.Min(lineDistance, lineDistance));
 
             for (var lat = latLabelStart; lat <= northEast.Latitude; lat += lineDistance)
             {
@@ -122,43 +127,52 @@ namespace MapControl
             }
         }
 
-        private void DrawGraticule(PathFigureCollection figures, List<Label> labels, double lineDistance, string labelFormat)
+        private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
         {
+            var lineDistance = GetLineDistance(MinLineDistance /
+                (ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree * Math.Cos(ParentMap.Center.Latitude * Math.PI / 180d)));
+            var labelFormat = GetLabelFormat(Math.Min(lineDistance, lineDistance));
+
             GetLatitudeRange(lineDistance, out double minLat, out double maxLat);
 
-            var latSegments = (int)Math.Round(Math.Abs(maxLat - minLat) / lineDistance);
+            var latSegments = (int)Math.Ceiling(Math.Abs(maxLat - minLat) / lineDistance);
             var interpolationCount = Math.Max(1, (int)Math.Ceiling(lineDistance));
-            var interpolationDistance = lineDistance / interpolationCount;
-            var latPoints = latSegments * interpolationCount;
+            var interpolationStep = lineDistance / interpolationCount;
+
+            var latStep = lineDistance;
+            var startLat = minLat;
+
+            if (Math.Abs(minLat) > Math.Abs(maxLat))
+            {
+                startLat = maxLat;
+                latStep = -lineDistance;
+            }
+
             var centerLon = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
-            var minLon = centerLon - lineDistance;
+            var minLon = centerLon;
             var maxLon = centerLon + lineDistance;
 
-            if (DrawMeridian(figures, centerLon, minLat, interpolationDistance, latPoints))
+            while (DrawMeridian(figures, minLon, minLat, interpolationStep, latSegments * interpolationCount) &&
+                minLon > centerLon - 180d)
             {
-                while (DrawMeridian(figures, minLon, minLat, interpolationDistance, latPoints) &&
-                    minLon > centerLon - 180d)
-                {
-                    minLon -= lineDistance;
-                }
+                minLon -= lineDistance;
+            }
 
-                while (DrawMeridian(figures, maxLon, minLat, interpolationDistance, latPoints) &&
-                    maxLon < centerLon + 180d)
-                {
-                    maxLon += lineDistance;
-                }
+            while (DrawMeridian(figures, maxLon, minLat, interpolationStep, latSegments * interpolationCount) &&
+                maxLon < centerLon + 180d)
+            {
+                maxLon += lineDistance;
             }
 
             var lonSegments = (int)Math.Round(Math.Abs(maxLon - minLon) / lineDistance);
 
             for (var i = 1; i < latSegments; i++)
             {
-                var lat = minLat + i * lineDistance;
+                var lat = startLat + i * latStep;
                 var lon = minLon;
                 var points = new List<Point>();
-                var mapPoint = ParentMap.MapProjection.LocationToMap(lat, lon);
-                var position = ParentMap.ViewTransform.MapToView(mapPoint);
-                var rotation = -ParentMap.MapProjection.GridConvergence(mapPoint.X, mapPoint.Y);
+                var position = ParentMap.LocationToView(lat, lon);
+                var rotation = -ParentMap.MapProjection.GridConvergence(lat, lon);
 
                 points.Add(position);
                 AddLabel(labels, labelFormat, lat, lon, position, rotation);
@@ -167,13 +181,12 @@ namespace MapControl
                 {
                     for (int k = 1; k <= interpolationCount; k++)
                     {
-                        lon = minLon + j * lineDistance + k * interpolationDistance;
-                        mapPoint = ParentMap.MapProjection.LocationToMap(lat, lon);
-                        position = ParentMap.ViewTransform.MapToView(mapPoint);
+                        lon = minLon + j * lineDistance + k * interpolationStep;
+                        position = ParentMap.LocationToView(lat, lon);
                         points.Add(position);
                     }
 
-                    rotation = -ParentMap.MapProjection.GridConvergence(mapPoint.X, mapPoint.Y);
+                    rotation = -ParentMap.MapProjection.GridConvergence(lat, lon);
                     AddLabel(labels, labelFormat, lat, lon, position, rotation);
                 }
 
@@ -222,18 +235,16 @@ namespace MapControl
 
             if (minLat > -90d || maxLat < 90d)
             {
-                var width = ParentMap.ActualWidth;
-                var height = ParentMap.ActualHeight;
                 var locations = new Location[]
                 {
                     ParentMap.ViewToLocation(new Point(0d, 0d)),
-                    ParentMap.ViewToLocation(new Point(width, 0d)),
-                    ParentMap.ViewToLocation(new Point(0d, height)),
-                    ParentMap.ViewToLocation(new Point(width, height)),
-                    ParentMap.ViewToLocation(new Point(width / 2d, 0d)),
-                    ParentMap.ViewToLocation(new Point(width / 2d, height)),
-                    ParentMap.ViewToLocation(new Point(0d, height / 2d)),
-                    ParentMap.ViewToLocation(new Point(width, height / 2d)),
+                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, 0d)),
+                    ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight)),
+                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, ParentMap.ActualHeight)),
+                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth / 2d, 0d)),
+                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth / 2d, ParentMap.ActualHeight)),
+                    ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight / 2d)),
+                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, ParentMap.ActualHeight / 2d)),
                 };
 
                 var latitudes = locations.Select(loc => loc.Latitude).Distinct();
@@ -241,32 +252,8 @@ namespace MapControl
                 maxLat = Math.Max(maxLat, latitudes.Max());
             }
 
-            minLatitude = Math.Max(Math.Floor(minLat / lineDistance - 1d) * lineDistance, -90d);
-            maxLatitude = Math.Min(Math.Ceiling(maxLat / lineDistance + 1d) * lineDistance, 90d);
-        }
-
-        private double GetLineDistance()
-        {
-            var pixelPerDegree = ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree;
-
-            if (!ParentMap.MapProjection.IsNormalCylindrical)
-            {
-                pixelPerDegree *= Math.Cos(ParentMap.Center.Latitude * Math.PI / 180d);
-            }
-
-            var minDistance = MinLineDistance / Math.Max(1d, pixelPerDegree);
-            var scale = minDistance < 1d / 60d ? 3600d : minDistance < 1d ? 60d : 1d;
-            minDistance *= scale;
-
-            var lineDistances = new double[] { 1d, 2d, 5d, 10d, 15d, 30d, 60d };
-            var i = 0;
-
-            while (i < lineDistances.Length - 1 && lineDistances[i] < minDistance)
-            {
-                i++;
-            }
-
-            return Math.Min(lineDistances[i] / scale, 30d);
+            minLatitude = Math.Max(Math.Floor(minLat / lineDistance) * lineDistance, -90d);
+            maxLatitude = Math.Min(Math.Ceiling(maxLat / lineDistance) * lineDistance, 90d);
         }
 
         private void AddLabel(List<Label> labels, string labelFormat, double latitude, double longitude, Point position, double rotation = 0d)
@@ -289,6 +276,20 @@ namespace MapControl
                     GetLabelText(Location.NormalizeLongitude(longitude), labelFormat, "EW"),
                     position.X, position.Y, rotation));
             }
+        }
+
+        private static double GetLineDistance(double minDistance)
+        {
+            minDistance = Math.Max(minDistance, lineDistances.First());
+            minDistance = Math.Min(minDistance, lineDistances.Last());
+
+            return lineDistances.First(d => d >= minDistance);
+        }
+
+        private static string GetLabelFormat(double lineDistance)
+        {
+            return lineDistance < 1d / 60d ? "{0} {1}°{2:00}'{3:00}\"" :
+                   lineDistance < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
         }
 
         private static string GetLabelText(double value, string labelFormat, string hemispheres)
@@ -316,6 +317,19 @@ namespace MapControl
             };
 
             figure.Segments.Add(new LineSegment { Point = p2 });
+            return figure;
+        }
+
+        private static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
+        {
+            var figure = new PathFigure
+            {
+                StartPoint = points.First(),
+                IsClosed = false,
+                IsFilled = false
+            };
+
+            figure.Segments.Add(CreatePolyLineSegment(points.Skip(1)));
             return figure;
         }
     }

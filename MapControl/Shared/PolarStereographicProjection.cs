@@ -19,11 +19,37 @@ namespace MapControl
         public double ScaleFactor { get; set; } = 0.994;
         public double FalseEasting { get; set; } = 2e6;
         public double FalseNorthing { get; set; } = 2e6;
-        public Hemisphere Hemisphere { get; set; }
+
+        public override double GridConvergence(double latitude, double longitude)
+        {
+            return Math.Sign(LatitudeOfOrigin) * (longitude - CentralMeridian);
+        }
+
+        public override Matrix RelativeTransform(double latitude, double longitude)
+        {
+            var sign = Math.Sign(LatitudeOfOrigin);
+            var phi = sign * latitude * Math.PI / 180d;
+
+            var e = Math.Sqrt((2d - Flattening) * Flattening);
+            var eSinPhi = e * Math.Sin(phi);
+
+            var t = Math.Tan(Math.PI / 4d - phi / 2d)
+                  / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
+
+            // r == ρ/a
+            var r = 2d * ScaleFactor * t / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
+            var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
+            var k = r / m; // p.161 (21-32)
+
+            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
+            transform.Rotate(-sign * longitude);
+
+            return transform;
+        }
 
         public override Point LocationToMap(double latitude, double longitude)
         {
-            var sign = Hemisphere == Hemisphere.North ? 1d : -1d;
+            var sign = Math.Sign(LatitudeOfOrigin);
             var phi = sign * latitude * Math.PI / 180d;
             var lambda = sign * longitude * Math.PI / 180d;
 
@@ -42,30 +68,9 @@ namespace MapControl
             return new Point(x + FalseEasting, y + FalseNorthing);
         }
 
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            var sign = Hemisphere == Hemisphere.North ? 1d : -1d;
-            var phi = sign * latitude * Math.PI / 180d;
-
-            var e = Math.Sqrt((2d - Flattening) * Flattening);
-            var eSinPhi = e * Math.Sin(phi);
-
-            var t = Math.Tan(Math.PI / 4d - phi / 2d)
-                  / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
-
-            // r == ρ/a
-            var r = 2d * ScaleFactor * t / Math.Sqrt(Math.Pow(1d + e, 1d + e) * Math.Pow(1d - e, 1d - e)); // p.161 (21-33)
-            var m = Math.Cos(phi) / Math.Sqrt(1d - eSinPhi * eSinPhi); // p.160 (14-15)
-            var k = r / m; // p.161 (21-32)
-
-            var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
-            transform.Rotate(-sign * longitude);
-            return transform;
-        }
-
         public override Location MapToLocation(double x, double y)
         {
-            var sign = Hemisphere == Hemisphere.North ? 1d : -1d;
+            var sign = Math.Sign(LatitudeOfOrigin);
             x = sign * (x - FalseEasting);
             y = sign * (y - FalseNorthing);
 
@@ -79,17 +84,6 @@ namespace MapControl
             var lambda = Math.Atan2(x, -y); // p.162 (20-16)
 
             return new Location(sign * phi * 180d / Math.PI, sign * lambda * 180d / Math.PI);
-        }
-
-        public override double GridConvergence(double x, double y)
-        {
-            var sign = Hemisphere == Hemisphere.North ? 1d : -1d;
-            x = sign * (x - FalseEasting);
-            y = sign * (y - FalseNorthing);
-
-            var lambda = Math.Atan2(x, -y); // p.162 (20-16)
-
-            return lambda * 180d / Math.PI;
         }
     }
 
@@ -108,7 +102,7 @@ namespace MapControl
         public Wgs84UpsNorthProjection(string crsId)
         {
             CrsId = crsId;
-            Hemisphere = Hemisphere.North;
+            LatitudeOfOrigin = 90d;
         }
     }
 
@@ -127,7 +121,7 @@ namespace MapControl
         public Wgs84UpsSouthProjection(string crsId)
         {
             CrsId = crsId;
-            Hemisphere = Hemisphere.South;
+            LatitudeOfOrigin = -90d;
         }
     }
 }

@@ -375,8 +375,7 @@ namespace MapControl
 
             if (projection.IsNormalCylindrical)
             {
-                var maxLocation = projection.MapToLocation(0d, 180d * MapProjection.Wgs84MeterPerDegree);
-                maxLatitude = maxLocation.Latitude;
+                maxLatitude = projection.MapToLocation(0d, 180d * MapProjection.Wgs84MeterPerDegree).Latitude;
                 Center = CoerceCenterProperty(Center);
             }
 

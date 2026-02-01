@@ -52,9 +52,12 @@ namespace MapControl.Projections
                 var projection = field.Projection ??
                     throw new ArgumentException("CoordinateSystem.Projection must not be null.", nameof(value));
 
-                IsNormalCylindrical = projection.Name.StartsWith("Mercator") || projection.Name.Contains("Pseudo-Mercator");
-
+                var ellipsoid = field.GeographicCoordinateSystem.HorizontalDatum.Ellipsoid;
                 var transformFactory = new CoordinateTransformationFactory();
+
+                CrsId = !string.IsNullOrEmpty(field.Authority) && field.AuthorityCode > 0
+                    ? $"{field.Authority}:{field.AuthorityCode}"
+                    : string.Empty;
 
                 LocationToMapTransform = transformFactory
                     .CreateFromCoordinateSystems(GeographicCoordinateSystem.WGS84, field)
@@ -64,14 +67,9 @@ namespace MapControl.Projections
                     .CreateFromCoordinateSystems(field, GeographicCoordinateSystem.WGS84)
                     .MathTransform;
 
-                CrsId = !string.IsNullOrEmpty(field.Authority) && field.AuthorityCode > 0
-                    ? $"{field.Authority}:{field.AuthorityCode}"
-                    : string.Empty;
-
-                var ellipsoid = field.GeographicCoordinateSystem.HorizontalDatum.Ellipsoid;
-
                 if (projection.Name.Contains("Pseudo-Mercator"))
                 {
+                    IsNormalCylindrical = true;
                     FallbackProjection = new MapControl.WebMercatorProjection
                     {
                         EquatorialRadius = ellipsoid.SemiMajorAxis
@@ -79,6 +77,7 @@ namespace MapControl.Projections
                 }
                 else if (projection.Name.StartsWith("Mercator"))
                 {
+                    IsNormalCylindrical = true;
                     FallbackProjection = new MapControl.WorldMercatorProjection
                     {
                         EquatorialRadius = ellipsoid.SemiMajorAxis,
@@ -106,7 +105,7 @@ namespace MapControl.Projections
                         ScaleFactor = projection.GetParameter("scale_factor").Value,
                         FalseEasting = projection.GetParameter("false_easting").Value,
                         FalseNorthing = projection.GetParameter("false_northing").Value,
-                        Hemisphere = projection.GetParameter("latitude_of_origin").Value >= 0 ? Hemisphere.North : Hemisphere.South
+                        LatitudeOfOrigin = projection.GetParameter("latitude_of_origin").Value
                     };
                 }
             }

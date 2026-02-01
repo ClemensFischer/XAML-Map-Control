@@ -4,7 +4,6 @@ using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace MapControl
 {
@@ -96,17 +95,9 @@ namespace MapControl
             }
         }
 
-        private static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
+        private static PolyLineSegment CreatePolyLineSegment(IEnumerable<Point> points)
         {
-            var figure = new PathFigure
-            {
-                StartPoint = points.First(),
-                IsClosed = false,
-                IsFilled = false
-            };
-
-            figure.Segments.Add(new PolyLineSegment(points.Skip(1)));
-            return figure;
+            return new PolyLineSegment(points);
         }
     }
 }
