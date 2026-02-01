@@ -120,20 +120,20 @@ namespace MapControl
             var M0 = MeridianDistance(LatitudeOfOrigin * Math.PI / 180d);
             var M = M0 + (y - FalseNorthing) / ScaleFactor; // (8-20)
             var mu = M / (EquatorialRadius * (1d - e2 / 4d - e4 * 3d / 64d - e6 * 5d / 256d)); // (7-19)
-            var phi1 = mu +
+            var phi0 = mu +
                 (e1 * 3d / 2d - e13 * 27d / 32d) * Math.Sin(2d * mu) +
                 (e12 * 21d / 16d - e14 * 55d / 32d) * Math.Sin(4d * mu) +
                  e13 * 151d / 96d * Math.Sin(6d * mu) +
                  e14 * 1097d / 512d * Math.Sin(8d * mu); // (3-26)
 
-            var sinPhi1 = Math.Sin(phi1);
-            var cosPhi1 = Math.Cos(phi1);
-            var tanPhi1 = sinPhi1 / cosPhi1;
+            var sinPhi0 = Math.Sin(phi0);
+            var cosPhi0 = Math.Cos(phi0);
+            var tanPhi0 = sinPhi0 / cosPhi0;
 
             var e_2 = e2 / (1d - e2); // (8-12)
-            var C1 = e_2 * cosPhi1 * cosPhi1; // (8-21)
-            var T1 = sinPhi1 * sinPhi1 / (cosPhi1 * cosPhi1); // (8-22)
-            s = Math.Sqrt(1d - e2 * sinPhi1 * sinPhi1);
+            var C1 = e_2 * cosPhi0 * cosPhi0; // (8-21)
+            var T1 = sinPhi0 * sinPhi0 / (cosPhi0 * cosPhi0); // (8-22)
+            s = Math.Sqrt(1d - e2 * sinPhi0 * sinPhi0);
             var N1 = EquatorialRadius / s; // (8-23)
             var R1 = EquatorialRadius * (1d - e2) / (s * s * s); // (8-24)
             var D = (x - FalseEasting) / (N1 * ScaleFactor); // (8-25)
@@ -143,11 +143,11 @@ namespace MapControl
             var D5 = D * D4;
             var D6 = D * D5;
 
-            var phi = phi1 - N1 * tanPhi1 / R1 * (D2 / 2d - (5d + 3d * T1 + 10d * C1 - 4d * C1 * C1 - 9d * e_2) * D4 / 24d +
+            var phi = phi0 - N1 * tanPhi0 / R1 * (D2 / 2d - (5d + 3d * T1 + 10d * C1 - 4d * C1 * C1 - 9d * e_2) * D4 / 24d +
                 (61d + 90d * T1 + 45d * T1 * T1 + 298 * C1 - 3d * C1 * C1 - 252d * e_2) * D6 / 720d); // (8-17)
 
             var dLambda = (D - (1d + 2d * T1 + C1) * D3 / 6d +
-                (5d - 2d * C1 - 3d * C1 * C1 + 28d * T1 + 24d * T1 * T1 + 8d * e_2) * D5 / 120d) / cosPhi1; // (8-18)
+                (5d - 2d * C1 - 3d * C1 * C1 + 28d * T1 + 24d * T1 * T1 + 8d * e_2) * D5 / 120d) / cosPhi0; // (8-18)
 
             return new Location(
                 phi * 180d / Math.PI,
