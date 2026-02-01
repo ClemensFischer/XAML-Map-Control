@@ -38,6 +38,8 @@ namespace MapControl
             return Factory.GetProjection(crsId);
         }
 
+        public override string ToString() => CrsId;
+
         /// <summary>
         /// Gets the WMS 1.3.0 CRS identifier.
         /// </summary>
@@ -137,11 +139,6 @@ namespace MapControl
             }
 
             return (rect, rotation);
-        }
-
-        public override string ToString()
-        {
-            return CrsId;
         }
     }
 }
