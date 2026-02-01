@@ -99,15 +99,15 @@ namespace MapControl
         /// <summary>
         /// Gets the Location of an element.
         /// </summary>
-        public static Location? GetLocation(FrameworkElement element)
+        public static Location GetLocation(FrameworkElement element)
         {
-            return (Location?)element.GetValue(LocationProperty);
+            return (Location)element.GetValue(LocationProperty);
         }
 
         /// <summary>
         /// Sets the Location of an element.
         /// </summary>
-        public static void SetLocation(FrameworkElement element, Location? value)
+        public static void SetLocation(FrameworkElement element, Location value)
         {
             element.SetValue(LocationProperty, value);
         }
@@ -261,9 +261,9 @@ namespace MapControl
         {
             var location = GetLocation(element);
 
-            if (location.HasValue)
+            if (location != null)
             {
-                var position = SetViewPosition(element, GetViewPosition(location.Value));
+                var position = SetViewPosition(element, GetViewPosition(location));
 
                 if (GetAutoCollapse(element))
                 {

@@ -11,14 +11,10 @@ namespace MapControl
 #else
     [System.ComponentModel.TypeConverter(typeof(LocationConverter))]
 #endif
-    public readonly struct Location(double latitude, double longitude) : IEquatable<Location>
+    public class Location(double latitude, double longitude) : IEquatable<Location>
     {
         public double Latitude { get; } = Math.Min(Math.Max(latitude, -90d), 90d);
         public double Longitude => longitude;
-
-        public static bool operator ==(Location loc1, Location loc2) => loc1.Equals(loc2);
-
-        public static bool operator !=(Location loc1, Location loc2) => !loc1.Equals(loc2);
 
         public bool LatitudeEquals(double latitude) => Math.Abs(Latitude - latitude) < 1e-9;
 
@@ -26,9 +22,9 @@ namespace MapControl
 
         public bool Equals(double latitude, double longitude) => LatitudeEquals(latitude) && LongitudeEquals(longitude);
 
-        public bool Equals(Location location) => Equals(location.Latitude, location.Longitude);
+        public bool Equals(Location location) => location != null && Equals(location.Latitude, location.Longitude);
 
-        public override bool Equals(object obj) => obj is Location location && Equals(location);
+        public override bool Equals(object obj) => Equals(obj as Location);
 
         public override int GetHashCode() => Latitude.GetHashCode() ^ Longitude.GetHashCode();
 

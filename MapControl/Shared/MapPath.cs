@@ -17,7 +17,7 @@ namespace MapControl
     public partial class MapPath : IMapElement
     {
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.Register<MapPath, Location>(nameof(Location), default,
+            DependencyPropertyHelper.Register<MapPath, Location>(nameof(Location), null,
                 (path, oldValue, newValue) => path.UpdateData());
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace MapControl
 
         protected virtual void UpdateData()
         {
-            if (ParentMap != null && Data != null)
+            if (Data != null && ParentMap != null && Location != null)
             {
                 SetDataTransform(ParentMap.GetMapToViewTransform(Location));
             }

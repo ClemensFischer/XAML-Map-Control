@@ -23,7 +23,7 @@ namespace MapControl
     public partial class MapItem : ListBoxItem, IMapElement
     {
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.Register<MapItem, Location>(nameof(Location), default,
+            DependencyPropertyHelper.Register<MapItem, Location>(nameof(Location), null,
                 (item, oldValue, newValue) =>
                 {
                     MapPanel.SetLocation(item, newValue);
@@ -109,7 +109,7 @@ namespace MapControl
 
         private void UpdateMapTransform()
         {
-            if (MapTransform != null && ParentMap != null)
+            if (MapTransform != null && ParentMap != null && Location != null)
             {
                 MapTransform.Matrix = ParentMap.GetMapToViewTransform(Location);
             }

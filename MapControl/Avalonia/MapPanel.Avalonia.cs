@@ -7,8 +7,8 @@ namespace MapControl
         public static readonly AttachedProperty<bool> AutoCollapseProperty =
             DependencyPropertyHelper.RegisterAttached<bool>("AutoCollapse", typeof(MapPanel));
 
-        public static readonly AttachedProperty<Location?> LocationProperty =
-            DependencyPropertyHelper.RegisterAttached<Location?>("Location", typeof(MapPanel));
+        public static readonly AttachedProperty<Location> LocationProperty =
+            DependencyPropertyHelper.RegisterAttached<Location>("Location", typeof(MapPanel));
 
         public static readonly AttachedProperty<BoundingBox> BoundingBoxProperty =
             DependencyPropertyHelper.RegisterAttached<BoundingBox>("BoundingBox", typeof(MapPanel));

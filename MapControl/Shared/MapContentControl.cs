@@ -19,7 +19,7 @@ namespace MapControl
     public partial class MapContentControl : ContentControl
     {
         public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.Register<MapContentControl, Location>(nameof(Location), default,
+            DependencyPropertyHelper.Register<MapContentControl, Location>(nameof(Location), null,
                 (control, oldValue, newValue) => MapPanel.SetLocation(control, newValue));
 
         public static readonly DependencyProperty AutoCollapseProperty =

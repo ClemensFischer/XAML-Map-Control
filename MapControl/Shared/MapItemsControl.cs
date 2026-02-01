@@ -68,7 +68,7 @@ namespace MapControl
             {
                 var location = MapPanel.GetLocation(ContainerFromItem(item));
 
-                return location.HasValue && predicate(location.Value);
+                return location!= null && predicate(location);
             });
         }
 

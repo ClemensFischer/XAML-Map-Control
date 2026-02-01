@@ -40,7 +40,6 @@ namespace MapControl
         protected MapPolypoint()
         {
             Data = new PolypointGeometry();
-            Location = new Location(0d, double.NaN);
         }
 
         protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
@@ -65,32 +64,20 @@ namespace MapControl
 
         protected double GetLongitudeOffset(IEnumerable<Location> locations)
         {
-            if (!ParentMap.MapProjection.IsNormalCylindrical)
+            var longitudeOffset = 0d;
+
+            if (ParentMap.MapProjection.IsNormalCylindrical)
             {
-                return 0d;
+                var location = Location ?? locations?.FirstOrDefault();
+
+                if (location != null &&
+                    !ParentMap.InsideViewBounds(ParentMap.LocationToView(location)))
+                {
+                    longitudeOffset = ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
+                }
             }
 
-            Location location;
-
-            if (!double.IsNaN(Location.Longitude))
-            {
-                location = Location;
-            }
-            else if (locations != null && locations.Any())
-            {
-                location = locations.First();
-            }
-            else
-            {
-                return 0d;
-            }
-
-            if (ParentMap.InsideViewBounds(ParentMap.LocationToView(location)))
-            {
-                return 0d;
-            }
-
-            return ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
+            return longitudeOffset;
         }
     }
 }

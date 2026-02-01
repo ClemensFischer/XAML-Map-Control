@@ -43,7 +43,7 @@ namespace MapControl
             DependencyPropertyHelper.Register<MapBase, MapProjection>(nameof(MapProjection), new WebMercatorProjection(),
                 (map, oldValue, newValue) => map.MapProjectionPropertyChanged(newValue));
 
-        private Location? transformCenter;
+        private Location transformCenter;
         private Point viewCenter;
         private double centerLongitude;
         private double maxLatitude = 85.05112878; // default WebMercatorProjection
@@ -326,8 +326,12 @@ namespace MapControl
 
         private Location CoerceCenterProperty(Location center)
         {
-            if (center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
-                center.Longitude < -180d || center.Longitude > 180d)
+            if (center == null) 
+            {
+                center = new Location(0d, 0d);
+            }
+            else if (center.Latitude < -maxLatitude || center.Latitude > maxLatitude ||
+                     center.Longitude < -180d || center.Longitude > 180d)
             {
                 center = new Location(
                     Math.Min(Math.Max(center.Latitude, -maxLatitude), maxLatitude),
@@ -386,7 +390,7 @@ namespace MapControl
 
             ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
 
-            if (transformCenter.HasValue)
+            if (transformCenter != null)
             {
                 var center = ViewToLocation(new Point(ActualWidth / 2d, ActualHeight / 2d));
                 var latitude = center.Latitude;
@@ -414,7 +418,7 @@ namespace MapControl
                 {
                     // Check if transform center has moved across 180° longitude.
                     //
-                    transformCenterChanged = Math.Abs(center.Longitude - transformCenter.Value.Longitude) > 180d;
+                    transformCenterChanged = Math.Abs(center.Longitude - transformCenter.Longitude) > 180d;
                     ResetTransformCenter();
                     mapCenter = MapProjection.LocationToMap(center);
                     ViewTransform.SetTransform(mapCenter, viewCenter, viewScale, -Heading);
