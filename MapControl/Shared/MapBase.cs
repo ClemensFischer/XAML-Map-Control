@@ -16,10 +16,9 @@ using Brush = Avalonia.Media.IBrush;
 namespace MapControl
 {
     /// <summary>
-    /// The map control. Displays map content provided by one or more tile or image layers,
-    /// such as MapTileLayerBase or MapImageLayer instances.
-    /// The visible map area is defined by the Center and ZoomLevel properties.
-    /// The map can be rotated by an angle that is given by the Heading property.
+    /// The map control. Displays map content provided by one or more layers like MapTileLayer,
+    /// WmtsTileLayer or WmsImageLayer. The visible map area is defined by the Center and
+    /// ZoomLevel properties. The map can be rotated by an angle provided by the Heading property.
     /// MapBase can contain map overlay child elements like other MapPanels or MapItemsControls.
     /// </summary>
     public partial class MapBase : MapPanel
