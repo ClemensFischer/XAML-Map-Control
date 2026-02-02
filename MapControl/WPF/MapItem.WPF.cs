@@ -6,13 +6,6 @@ namespace MapControl
 {
     public partial class MapItem
     {
-        public static readonly DependencyProperty LocationProperty =
-            DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty,
-                (item, oldValue, newValue) => item.UpdateMapTransform());
-
-        public static readonly DependencyProperty AutoCollapseProperty =
-            DependencyPropertyHelper.AddOwner<MapItem, bool>(MapPanel.AutoCollapseProperty);
-
         static MapItem()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(MapItem), new FrameworkPropertyMetadata(typeof(MapItem)));

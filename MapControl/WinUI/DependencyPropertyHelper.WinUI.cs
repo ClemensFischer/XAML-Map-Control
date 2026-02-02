@@ -40,5 +40,20 @@ namespace MapControl
 
             return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
         }
+
+        public static DependencyProperty AddOwner<TOwner, TValue>(
+            string name,
+            DependencyProperty source,
+            Action<TOwner, TValue, TValue> changed = null)
+            where TOwner : DependencyObject
+        {
+            var metadata = new PropertyMetadata(default, (o, e) =>
+            {
+                o.SetValue(source, e.NewValue);
+                changed?.Invoke((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue);
+            });
+
+            return DependencyProperty.Register(name, typeof(TValue), typeof(TOwner), metadata);
+        }
     }
 }

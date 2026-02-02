@@ -104,10 +104,25 @@ namespace MapControl
 
         public static DependencyProperty AddOwner<TOwner, TValue>(
             DependencyProperty source,
-            Action<TOwner, TValue, TValue> changed = null) where TOwner : DependencyObject
+            Action<TOwner, TValue, TValue> changed) where TOwner : DependencyObject
         {
             return source.AddOwner(typeof(TOwner), new FrameworkPropertyMetadata(
                 (o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue)));
+        }
+
+        public static DependencyProperty AddOwner<TOwner, TValue>(
+            string _, // for compatibility with WinUI/UWP DependencyPropertyHelper
+            DependencyProperty source) where TOwner : DependencyObject
+        {
+            return AddOwner<TOwner, TValue>(source);
+        }
+
+        public static DependencyProperty AddOwner<TOwner, TValue>(
+            string _, // for compatibility with WinUI/UWP DependencyPropertyHelper
+            DependencyProperty source,
+            Action<TOwner, TValue, TValue> changed) where TOwner : DependencyObject
+        {
+            return AddOwner(source, changed);
         }
     }
 }

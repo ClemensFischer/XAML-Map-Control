@@ -78,8 +78,8 @@ namespace MapControl
 
         static MapBase()
         {
-            BackgroundProperty.OverrideDefaultValue(typeof(MapBase), Brushes.White);
-            ClipToBoundsProperty.OverrideDefaultValue(typeof(MapBase), true);
+            BackgroundProperty.OverrideDefaultValue<MapBase>(Brushes.White);
+            ClipToBoundsProperty.OverrideDefaultValue<MapBase>(true);
 
             Animation.RegisterCustomAnimator<Location, LocationAnimator>();
         }

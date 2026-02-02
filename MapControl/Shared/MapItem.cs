@@ -1,10 +1,13 @@
 ﻿#if WPF
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 #elif UWP
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 #elif WINUI
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
@@ -19,6 +22,14 @@ namespace MapControl
     /// </summary>
     public partial class MapItem : ListBoxItem, IMapElement
     {
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.AddOwner<MapItem, Location>(
+                nameof(Location), MapPanel.LocationProperty, (item, _, _) => item.UpdateMapTransform());
+
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.AddOwner<MapItem, bool>(
+                nameof(AutoCollapse), MapPanel.AutoCollapseProperty);
+
         /// <summary>
         /// Gets/sets MapPanel.Location.
         /// </summary>
