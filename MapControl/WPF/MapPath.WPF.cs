@@ -7,8 +7,8 @@ namespace MapControl
     public partial class MapPath : Shape
     {
         public static readonly DependencyProperty DataProperty =
-            Path.DataProperty.AddOwner(typeof(MapPath),
-                new FrameworkPropertyMetadata(null, (o, e) => ((MapPath)o).DataPropertyChanged(e)));
+            DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty,
+                (path, oldValue, newValue) => path.DataPropertyChanged(oldValue, newValue));
 
         public Geometry Data
         {
@@ -18,29 +18,15 @@ namespace MapControl
 
         protected override Geometry DefiningGeometry => Data;
 
-        protected void SetDataTransform(Matrix matrix)
-        {
-            if (Data.Transform is MatrixTransform transform && !transform.IsFrozen)
-            {
-                transform.Matrix = matrix;
-            }
-            else
-            {
-                Data.Transform = new MatrixTransform(matrix);
-            }
-        }
-
-        private void DataPropertyChanged(DependencyPropertyChangedEventArgs e)
+        private void DataPropertyChanged(Geometry oldValue, Geometry newValue)
         {
             // Check if Data is actually a new Geometry.
             //
-            if (e.NewValue != null && !ReferenceEquals(e.NewValue, e.OldValue))
+            if (newValue != null && !ReferenceEquals(newValue, oldValue))
             {
-                var data = (Geometry)e.NewValue;
-
-                if (data.IsFrozen)
+                if (newValue.IsFrozen)
                 {
-                    Data = data.Clone(); // DataPropertyChanged called again
+                    Data = newValue.Clone(); // DataPropertyChanged called again
                 }
                 else
                 {

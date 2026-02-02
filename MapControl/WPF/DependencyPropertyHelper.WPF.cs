@@ -88,5 +88,26 @@ namespace MapControl
         {
             return DependencyProperty.RegisterReadOnly(name, typeof(TValue), typeof(TOwner), new PropertyMetadata(defaultValue));
         }
+
+        public static DependencyProperty AddOwner<TOwner, TValue>(
+            DependencyProperty source) where TOwner : DependencyObject
+        {
+            return source.AddOwner(typeof(TOwner));
+        }
+
+        public static DependencyProperty AddOwner<TOwner, TValue>(
+            DependencyProperty source,
+            TValue defaultValue) where TOwner : DependencyObject
+        {
+            return source.AddOwner(typeof(TOwner), new FrameworkPropertyMetadata(defaultValue));
+        }
+
+        public static DependencyProperty AddOwner<TOwner, TValue>(
+            DependencyProperty source,
+            Action<TOwner, TValue, TValue> changed = null) where TOwner : DependencyObject
+        {
+            return source.AddOwner(typeof(TOwner), new FrameworkPropertyMetadata(
+                (o, e) => changed((TOwner)o, (TValue)e.OldValue, (TValue)e.NewValue)));
+        }
     }
 }

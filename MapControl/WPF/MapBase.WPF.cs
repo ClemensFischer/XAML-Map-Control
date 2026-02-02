@@ -8,7 +8,7 @@ namespace MapControl
     public partial class MapBase
     {
         public static readonly DependencyProperty ForegroundProperty =
-            TextElement.ForegroundProperty.AddOwner(typeof(MapBase), new FrameworkPropertyMetadata(Brushes.Black));
+            DependencyPropertyHelper.AddOwner<MapBase, Brush>(TextElement.ForegroundProperty, Brushes.Black);
 
         public static readonly DependencyProperty AnimationEasingFunctionProperty =
             DependencyPropertyHelper.Register<MapBase, IEasingFunction>(nameof(AnimationEasingFunction),

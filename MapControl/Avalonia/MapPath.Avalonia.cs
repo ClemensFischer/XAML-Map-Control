@@ -6,12 +6,9 @@ namespace MapControl
 {
     public partial class MapPath : Shape
     {
-        public static readonly StyledProperty<Geometry> DataProperty = Path.DataProperty.AddOwner<MapPath>();
-
-        static MapPath()
-        {
-            DataProperty.Changed.AddClassHandler<MapPath, Geometry>((path, e) => path.UpdateData());
-        }
+        public static readonly StyledProperty<Geometry> DataProperty =
+            DependencyPropertyHelper.AddOwner<MapPath, Geometry>(Path.DataProperty,
+                (path, oldValue, newValue) => path.UpdateData());
 
         public Geometry Data
         {
@@ -20,17 +17,5 @@ namespace MapControl
         }
 
         protected override Geometry CreateDefiningGeometry() => Data;
-
-        private void SetDataTransform(Matrix matrix)
-        {
-            if (Data.Transform is MatrixTransform transform)
-            {
-                transform.Matrix = matrix;
-            }
-            else
-            {
-                Data.Transform = new MatrixTransform(matrix);
-            }
-        }
     }
 }

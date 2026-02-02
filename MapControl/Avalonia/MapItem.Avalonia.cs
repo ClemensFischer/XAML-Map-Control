@@ -1,10 +1,18 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 
 namespace MapControl
 {
     public partial class MapItem
     {
+        public static readonly StyledProperty<Location> LocationProperty =
+            DependencyPropertyHelper.AddOwner<MapItem, Location>(MapPanel.LocationProperty,
+                (item, oldValue, newValue) => item.UpdateMapTransform());
+
+        public static readonly StyledProperty<bool> AutoCollapseProperty =
+            DependencyPropertyHelper.AddOwner<MapItem, bool>(MapPanel.AutoCollapseProperty);
+
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
             if (e.Pointer.Type != PointerType.Mouse &&

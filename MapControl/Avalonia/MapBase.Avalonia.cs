@@ -15,7 +15,7 @@ namespace MapControl
     public partial class MapBase
     {
         public static readonly StyledProperty<Brush> ForegroundProperty =
-            TextElement.ForegroundProperty.AddOwner<MapBase>(new StyledPropertyMetadata<Brush>(new Optional<Brush>(Brushes.Black)));
+            DependencyPropertyHelper.AddOwner<MapBase, Brush>(TextElement.ForegroundProperty, Brushes.Black);
 
         public static readonly StyledProperty<Easing> AnimationEasingProperty =
             DependencyPropertyHelper.Register<MapBase, Easing>(nameof(AnimationEasing), new QuadraticEaseOut());

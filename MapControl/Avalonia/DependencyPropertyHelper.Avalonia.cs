@@ -56,6 +56,29 @@ namespace MapControl
             return property;
         }
 
+        public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
+            StyledProperty<TValue> source) where TOwner : AvaloniaObject
+        {
+            return source.AddOwner<TOwner>();
+        }
+
+        public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
+            StyledProperty<TValue> source,
+            TValue defaultValue) where TOwner : AvaloniaObject
+        {
+            return source.AddOwner<TOwner>(new StyledPropertyMetadata<TValue>(new Optional<TValue>(defaultValue)));
+        }
+
+        public static StyledProperty<TValue> AddOwner<TOwner, TValue>(
+            StyledProperty<TValue> source,
+            Action<TOwner, TValue, TValue> changed) where TOwner : AvaloniaObject
+        {
+            var property = source.AddOwner<TOwner>();
+            property.Changed.AddClassHandler<TOwner, TValue>((o, e) => changed(o, e.OldValue.Value, e.NewValue.Value));
+
+            return property;
+        }
+
         public static void SetBinding(this AvaloniaObject target, AvaloniaProperty property, Binding binding)
         {
             target.Bind(property, binding);

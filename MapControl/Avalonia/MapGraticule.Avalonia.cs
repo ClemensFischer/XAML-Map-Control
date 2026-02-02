@@ -15,13 +15,13 @@ namespace MapControl
         }
 
         public static readonly StyledProperty<IBrush> ForegroundProperty =
-            TextElement.ForegroundProperty.AddOwner<MapGraticule>();
+            DependencyPropertyHelper.AddOwner<MapGraticule, IBrush>(TextElement.ForegroundProperty);
 
         public static readonly StyledProperty<FontFamily> FontFamilyProperty =
-            TextElement.FontFamilyProperty.AddOwner<MapGraticule>();
+            DependencyPropertyHelper.AddOwner<MapGraticule, FontFamily>(TextElement.FontFamilyProperty);
 
         public static readonly StyledProperty<double> FontSizeProperty =
-            TextElement.FontSizeProperty.AddOwner<MapGraticule>(new StyledPropertyMetadata<double>(12d));
+            DependencyPropertyHelper.AddOwner<MapGraticule, double>(TextElement.FontSizeProperty, 12d);
 
         /// <summary>
         /// Implements IMapElement.ParentMap.

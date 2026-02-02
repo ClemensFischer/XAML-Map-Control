@@ -1,15 +1,43 @@
 ﻿#if UWP
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 #else
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 #endif
 
 namespace MapControl
 {
-    public partial class MapContentControl
+    public partial class MapContentControl : ContentControl
     {
+        public static readonly DependencyProperty LocationProperty =
+            DependencyPropertyHelper.Register<MapContentControl, Location>(nameof(Location), null,
+                (control, oldValue, newValue) => MapPanel.SetLocation(control, newValue));
+
+        public static readonly DependencyProperty AutoCollapseProperty =
+            DependencyPropertyHelper.Register<MapContentControl, bool>(nameof(AutoCollapse), false,
+                (control, oldValue, newValue) => MapPanel.SetAutoCollapse(control, newValue));
+
+        /// <summary>
+        /// Gets/sets MapPanel.Location.
+        /// </summary>
+        public Location Location
+        {
+            get => (Location)GetValue(LocationProperty);
+            set => SetValue(LocationProperty, value);
+        }
+
+        /// <summary>
+        /// Gets/sets MapPanel.AutoCollapse.
+        /// </summary>
+        public bool AutoCollapse
+        {
+            get => (bool)GetValue(AutoCollapseProperty);
+            set => SetValue(AutoCollapseProperty, value);
+        }
+
         public MapContentControl()
         {
             DefaultStyleKey = typeof(MapContentControl);
@@ -45,6 +73,9 @@ namespace MapControl
         }
     }
 
+    /// <summary>
+    /// MapContentControl with a Pushpin Style.
+    /// </summary>
     public partial class Pushpin : MapContentControl
     {
         public Pushpin()

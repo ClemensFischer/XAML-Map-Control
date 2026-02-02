@@ -9,13 +9,13 @@ namespace MapControl
     public partial class MapGraticule : FrameworkElement, IMapElement
     {
         public static readonly DependencyProperty ForegroundProperty =
-            TextElement.ForegroundProperty.AddOwner(typeof(MapGraticule));
+            DependencyPropertyHelper.AddOwner<MapGraticule, Brush>(TextElement.ForegroundProperty);
 
         public static readonly DependencyProperty FontFamilyProperty =
-            TextElement.FontFamilyProperty.AddOwner(typeof(MapGraticule));
+            DependencyPropertyHelper.AddOwner<MapGraticule, FontFamily>(TextElement.FontFamilyProperty);
 
         public static readonly DependencyProperty FontSizeProperty =
-            TextElement.FontSizeProperty.AddOwner(typeof(MapGraticule), new FrameworkPropertyMetadata(12d));
+            DependencyPropertyHelper.AddOwner<MapGraticule, double>(TextElement.FontSizeProperty, 12d);
 
         /// <summary>
         /// Implements IMapElement.ParentMap.
