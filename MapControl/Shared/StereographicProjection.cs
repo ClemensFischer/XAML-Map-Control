@@ -17,12 +17,32 @@ namespace MapControl
     {
         public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS identifier
 
-        public StereographicProjection(double centerLongitude, double centerLatitude, string crsId = DefaultCrsId)
+        public StereographicProjection(string crsId)
         {
+            var parameters = crsId.Split(',');
+
+            if (parameters.Length != 4 ||
+                string.IsNullOrEmpty(parameters[0]) ||
+                !double.TryParse(parameters[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double scaleFactor) ||
+                !double.TryParse(parameters[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double longitude) ||
+                !double.TryParse(parameters[3], NumberStyles.Float, CultureInfo.InvariantCulture, out double latitude))
+            {
+                throw new ArgumentException($"Invalid CRS Identifier {crsId}.", nameof(crsId));
+            }
+
+            CrsId = crsId;
+            ScaleFactor = scaleFactor;
+            CentralMeridian = longitude;
+            LatitudeOfOrigin = latitude;
+        }
+
+        public StereographicProjection(double centerLatitude, double centerLongitude, double scaleFactor = 1d, string crsId = DefaultCrsId)
+        {
+            CrsId = string.Format(CultureInfo.InvariantCulture,
+                "{0},{1:0.########},{2:0.########},{3:0.########}", crsId, scaleFactor, centerLongitude, centerLatitude);
+            ScaleFactor = scaleFactor;
             CentralMeridian = centerLongitude;
             LatitudeOfOrigin = centerLatitude;
-            CrsId = string.Format(CultureInfo.InvariantCulture,
-                "{0},1,{1:0.########},{2:0.########}", crsId, centerLongitude, centerLatitude);
         }
 
         private void GetScaleAndGridConvergence(double latitude, double longitude, out double scale, out double gamma)
@@ -41,12 +61,11 @@ namespace MapControl
             var cosLambda = Math.Cos(dLambda);
             var k1 = 2d / (1d + sinPhi0 * sinPhi1 + cosPhi0 * cosPhi1 * cosLambda);
             var k2 = 2d / (1d + sinPhi0 * sinPhi2 + cosPhi0 * cosPhi2 * cosLambda);
-            var dCosPhi = k2 * cosPhi2 - k1 * cosPhi1;
-            var dSinPhi = k2 * sinPhi2 - k1 * sinPhi1;
+            var c = k2 * cosPhi2 - k1 * cosPhi1;
+            var s = k2 * sinPhi2 - k1 * sinPhi1;
 
             scale = k1;
-            gamma = Math.Atan2(-sinLambda * dCosPhi,
-                cosPhi0 * dSinPhi - sinPhi0 * cosLambda * dCosPhi) * 180d / Math.PI;
+            gamma = Math.Atan2(-sinLambda * c, cosPhi0 * s - sinPhi0 * cosLambda * c) * 180d / Math.PI;
         }
 
         public override double GridConvergence(double latitude, double longitude)

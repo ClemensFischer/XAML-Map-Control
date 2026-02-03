@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 
 namespace MapControl
 {
@@ -33,16 +32,7 @@ namespace MapControl
 
             if (projection == null && crsId.StartsWith(StereographicProjection.DefaultCrsId))
             {
-                var parameters = crsId.Split(',');
-
-                if (parameters.Length == 4 &&
-                    parameters[0] == StereographicProjection.DefaultCrsId &&
-                    parameters[1] == "1" &&
-                    double.TryParse(parameters[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double longitude) &&
-                    double.TryParse(parameters[3], NumberStyles.Float, CultureInfo.InvariantCulture, out double latitude))
-                {
-                    projection = new StereographicProjection(longitude, latitude);
-                }
+                projection = new StereographicProjection(crsId);
             }
 
             return projection;
