@@ -70,11 +70,11 @@ namespace MapControl
             // φ
             var phi = latitude * Math.PI / 180d;
             // λ - λ0
-            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
+            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
 
             // γ calculation for the sphere is sufficiently accurate
             //
-            return Math.Atan(Math.Tan(dLambda) * Math.Sin(phi)) * 180d / Math.PI;
+            return Math.Atan(Math.Tan(lambda) * Math.Sin(phi)) * 180d / Math.PI;
         }
 
         public override Matrix RelativeTransform(double latitude, double longitude)
@@ -83,16 +83,16 @@ namespace MapControl
             var phi = latitude * Math.PI / 180d;
             var sinPhi = Math.Sin(phi);
             // λ - λ0
-            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
-            var cosLambda = Math.Cos(dLambda);
-            var tanLambda = Math.Tan(dLambda);
+            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
+            var cosLambda = Math.Cos(lambda);
+            var tanLambda = Math.Tan(lambda);
             // t
             var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
             var u = Math.Sqrt(1d + t * t);
             // ξ'
             var xi_ = Math.Atan2(t, cosLambda);
             // η'
-            var eta_ = Atanh(Math.Sin(dLambda) / u);
+            var eta_ = Atanh(Math.Sin(lambda) / u);
             // σ
             var sigma = 1 +
                 2d * a1 * Math.Cos(2d * xi_) * Math.Cosh(2d * eta_) +
@@ -124,11 +124,11 @@ namespace MapControl
             // t
             var t = Math.Sinh(Atanh(sinPhi) - f2 * Atanh(f2 * sinPhi));
             // λ - λ0
-            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
+            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
             // ξ'
-            var xi_ = Math.Atan2(t, Math.Cos(dLambda));
+            var xi_ = Math.Atan2(t, Math.Cos(lambda));
             // η'
-            var eta_ = Atanh(Math.Sin(dLambda) / Math.Sqrt(1d + t * t));
+            var eta_ = Atanh(Math.Sin(lambda) / Math.Sqrt(1d + t * t));
             // k0 * A
             var k0A = ScaleFactor * EquatorialRadius * f1;
 
@@ -171,11 +171,11 @@ namespace MapControl
                 d2 * Math.Sin(4d * chi) +
                 d3 * Math.Sin(6d * chi);
             // λ - λ0
-            var dLambda = Math.Atan2(Math.Sinh(eta_), Math.Cos(xi_));
+            var lambda = Math.Atan2(Math.Sinh(eta_), Math.Cos(xi_));
 
             return new Location(
                 phi * 180d / Math.PI,
-                dLambda * 180d / Math.PI + CentralMeridian);
+                lambda * 180d / Math.PI + CentralMeridian);
         }
 
 #if NETFRAMEWORK

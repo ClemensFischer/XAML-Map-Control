@@ -40,11 +40,11 @@ namespace MapControl
             // φ
             var phi = latitude * Math.PI / 180d;
             // λ - λ0
-            var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
+            var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
 
             // γ calculation for the sphere is sufficiently accurate
             //
-            return Math.Atan(Math.Tan(dLambda) * Math.Sin(phi)) * 180d / Math.PI;
+            return Math.Atan(Math.Tan(lambda) * Math.Sin(phi)) * 180d / Math.PI;
         }
 
         public override Matrix RelativeTransform(double latitude, double longitude)
@@ -58,13 +58,13 @@ namespace MapControl
                 var sinPhi = Math.Sin(phi);
                 var cosPhi = Math.Cos(phi);
                 var tanPhi = sinPhi / cosPhi;
-                var dLambda = (longitude - CentralMeridian) * Math.PI / 180d;
+                var lambda = (longitude - CentralMeridian) * Math.PI / 180d;
 
                 var e2 = (2d - Flattening) * Flattening;
                 var e_2 = e2 / (1d - e2); // (8-12)
                 var T = tanPhi * tanPhi; // (8-13)
                 var C = e_2 * cosPhi * cosPhi; // (8-14)
-                var A = dLambda * cosPhi; // (8-15)
+                var A = lambda * cosPhi; // (8-15)
                 var A2 = A * A;
                 var A4 = A2 * A2;
                 var A6 = A2 * A4;
@@ -73,7 +73,7 @@ namespace MapControl
                     (5d - 4d * T + 42d * C + 13d * C * C - 28d * e_2) * A4 / 24d +
                     (61d - 148d * T + 16 * T * T) * A6 / 720d; // (8-11)
 
-                gamma = Math.Atan(Math.Tan(dLambda) * sinPhi) * 180d / Math.PI;
+                gamma = Math.Atan(Math.Tan(lambda) * sinPhi) * 180d / Math.PI;
             }
 
             var transform = new Matrix(k, 0d, 0d, k, 0d, 0d);
@@ -161,12 +161,12 @@ namespace MapControl
             var phi = phi0 - N1 * tanPhi0 / R1 * (D2 / 2d - (5d + 3d * T1 + 10d * C1 - 4d * C1 * C1 - 9d * e_2) * D4 / 24d +
                 (61d + 90d * T1 + 45d * T1 * T1 + 298 * C1 - 3d * C1 * C1 - 252d * e_2) * D6 / 720d); // (8-17)
 
-            var dLambda = (D - (1d + 2d * T1 + C1) * D3 / 6d +
+            var lambda = (D - (1d + 2d * T1 + C1) * D3 / 6d +
                 (5d - 2d * C1 - 3d * C1 * C1 + 28d * T1 + 24d * T1 * T1 + 8d * e_2) * D5 / 120d) / cosPhi0; // (8-18)
 
             return new Location(
                 phi * 180d / Math.PI,
-                dLambda * 180d / Math.PI + CentralMeridian);
+                lambda * 180d / Math.PI + CentralMeridian);
         }
 
         private double MeridianDistance(double phi)
