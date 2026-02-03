@@ -55,9 +55,9 @@ namespace MapControl
                 var phi = latitude * Math.PI / 180d;
                 var e = Math.Sqrt((2d - Flattening) * Flattening);
                 var eSinPhi = e * Math.Sin(phi);
-                var f = Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d);
+                var p = Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d);
 
-                y = EquatorialRadius * Math.Log(Math.Tan(phi / 2d + Math.PI / 4d) * f); // p.44 (7-7)
+                y = EquatorialRadius * Math.Log(Math.Tan(phi / 2d + Math.PI / 4d) * p); // p.44 (7-7)
             }
 
             return new Point(x, y);
