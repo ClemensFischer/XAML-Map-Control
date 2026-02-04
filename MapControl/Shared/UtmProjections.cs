@@ -18,7 +18,7 @@ namespace MapControl
         public int Zone { get; }
 
         public Wgs84UtmProjection(int zone, bool north)
-            : base(Wgs84EquatorialRadius, Wgs84Flattening, 0.9996, zone, north)
+            : base($"EPSG:{(north ? 32600 : 32700) + zone}", Wgs84EquatorialRadius, Wgs84Flattening, zone, north)
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -26,7 +26,6 @@ namespace MapControl
             }
 
             Zone = zone;
-            CrsId = $"EPSG:{(north ? 32600 : 32700) + zone}";
         }
     }
 
@@ -43,7 +42,7 @@ namespace MapControl
         public int Zone { get; }
 
         public Etrs89UtmProjection(int zone)
-            : base(6378137d, 1d / 298.257222101, 0.9996, zone) // GRS 1980
+            : base($"EPSG:{25800 + zone}", 6378137d, 1d / 298.257222101, zone) // GRS 1980
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -51,7 +50,6 @@ namespace MapControl
             }
 
             Zone = zone;
-            CrsId = $"EPSG:{25800 + zone}";
         }
     }
 
@@ -68,7 +66,7 @@ namespace MapControl
         public int Zone { get; }
 
         public Nad83UtmProjection(int zone)
-            : base(6378137d, 1d / 298.257222101, 0.9996, zone) // GRS 1980
+            : base($"EPSG:{26900 + zone}", 6378137d, 1d / 298.257222101, zone) // GRS 1980
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -76,7 +74,6 @@ namespace MapControl
             }
 
             Zone = zone;
-            CrsId = $"EPSG:{26900 + zone}";
         }
     }
 
@@ -93,7 +90,7 @@ namespace MapControl
         public int Zone { get; }
 
         public Nad27UtmProjection(int zone)
-            : base(6378206.4, 1d / 294.978698213898, 0.9996, zone) // Clarke 1866
+            : base($"EPSG:{26700 + zone}", 6378206.4, 1d / 294.978698213898, zone) // Clarke 1866
         {
             if (zone < FirstZone || zone > LastZone)
             {
@@ -101,7 +98,6 @@ namespace MapControl
             }
 
             Zone = zone;
-            CrsId = $"EPSG:{26700 + zone}";
         }
     }
 }

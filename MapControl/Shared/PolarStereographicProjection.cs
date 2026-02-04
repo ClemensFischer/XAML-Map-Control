@@ -15,14 +15,6 @@ namespace MapControl
     /// </summary>
     public class PolarStereographicProjection : MapProjection
     {
-        public PolarStereographicProjection(bool north)
-        {
-            LatitudeOfOrigin = north ? 90d : -90d;
-            ScaleFactor = 0.994;
-            FalseEasting = 2e6;
-            FalseNorthing = 2e6;
-        }
-
         public override double GridConvergence(double latitude, double longitude)
         {
             return Math.Sign(LatitudeOfOrigin) * (longitude - CentralMeridian);
@@ -99,9 +91,13 @@ namespace MapControl
         {
         }
 
-        public Wgs84UpsNorthProjection(string crsId) : base(true)
+        public Wgs84UpsNorthProjection(string crsId)
         {
             CrsId = crsId;
+            ScaleFactor = 0.994;
+            LatitudeOfOrigin = 90d;
+            FalseEasting = 2e6;
+            FalseNorthing = 2e6;
         }
     }
 
@@ -117,9 +113,13 @@ namespace MapControl
         {
         }
 
-        public Wgs84UpsSouthProjection(string crsId) : base(false)
+        public Wgs84UpsSouthProjection(string crsId)
         {
             CrsId = crsId;
+            ScaleFactor = 0.994;
+            LatitudeOfOrigin = -90d;
+            FalseEasting = 2e6;
+            FalseNorthing = 2e6;
         }
     }
 }

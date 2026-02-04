@@ -29,17 +29,10 @@ namespace MapControl
         private readonly double d3; // δ3
         private readonly double A;
 
-        public TransverseMercatorProjection(
-            double equatorialRadius, double flattening,
-            double scaleFactor, double centralMeridian,
-            double falseEasting, double falseNorthing = 0d)
+        protected TransverseMercatorProjection(double equatorialRadius, double flattening)
         {
             EquatorialRadius = equatorialRadius;
             Flattening = flattening;
-            ScaleFactor = scaleFactor;
-            CentralMeridian = centralMeridian;
-            FalseEasting = falseEasting;
-            FalseNorthing = falseNorthing;
 
             n = flattening / (2d - flattening);
             m = 2d * Math.Sqrt(n) / (1d + n);
@@ -58,12 +51,14 @@ namespace MapControl
             A = equatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
         }
 
-        public TransverseMercatorProjection(
-            double equatorialRadius, double flattening,
-            double scaleFactor, int utmZone, bool north = true)
-            : this(equatorialRadius, flattening,
-                  scaleFactor, utmZone * 6d - 183d, 5e5, north ? 0d : 1e7)
+        public TransverseMercatorProjection(string crsId, double equatorialRadius, double flattening, int utmZone, bool north = true)
+            : this(equatorialRadius, flattening)
         {
+            CrsId = crsId;
+            ScaleFactor = 0.9996;
+            CentralMeridian = utmZone * 6d - 183d;
+            FalseEasting = 5e5;
+            FalseNorthing = north ? 0d : 1e7;
         }
 
         public override double GridConvergence(double latitude, double longitude)
