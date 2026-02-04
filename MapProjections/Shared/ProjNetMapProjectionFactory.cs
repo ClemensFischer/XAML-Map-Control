@@ -29,10 +29,10 @@ namespace MapControl.Projections
         {
             return crsId switch
             {
-                MapControl.WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
-                MapControl.WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
-                MapControl.Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
-                MapControl.Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
+                WebMercatorProjection.DefaultCrsId => new WebMercatorProjection(),
+                WorldMercatorProjection.DefaultCrsId => new WorldMercatorProjection(),
+                Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
+                Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
                 _ => base.CreateProjection(crsId)
             };
         }
@@ -48,16 +48,16 @@ namespace MapControl.Projections
             {
                 var c when c is >= Ed50UtmProjection.FirstZoneEpsgCode
                             and <= Ed50UtmProjection.LastZoneEpsgCode => new Ed50UtmProjection(c % 100),
-                var c when c is >= MapControl.Etrs89UtmProjection.FirstZoneEpsgCode
-                            and <= MapControl.Etrs89UtmProjection.LastZoneEpsgCode => new Etrs89UtmProjection(c % 100),
-                var c when c is >= MapControl.Nad27UtmProjection.FirstZoneEpsgCode
-                            and <= MapControl.Nad27UtmProjection.LastZoneEpsgCode => new Nad27UtmProjection(c % 100),
-                var c when c is >= MapControl.Nad83UtmProjection.FirstZoneEpsgCode
-                            and <= MapControl.Nad83UtmProjection.LastZoneEpsgCode => new Nad83UtmProjection(c % 100),
-                var c when c is >= MapControl.Wgs84UtmProjection.FirstZoneNorthEpsgCode
-                            and <= MapControl.Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(c % 100, true),
-                var c when c is >= MapControl.Wgs84UtmProjection.FirstZoneSouthEpsgCode
-                            and <= MapControl.Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, false),
+                var c when c is >= Etrs89UtmProjection.FirstZoneEpsgCode
+                            and <= Etrs89UtmProjection.LastZoneEpsgCode => new Etrs89UtmProjection(c % 100),
+                var c when c is >= Nad27UtmProjection.FirstZoneEpsgCode
+                            and <= Nad27UtmProjection.LastZoneEpsgCode => new Nad27UtmProjection(c % 100),
+                var c when c is >= Nad83UtmProjection.FirstZoneEpsgCode
+                            and <= Nad83UtmProjection.LastZoneEpsgCode => new Nad83UtmProjection(c % 100),
+                var c when c is >= Wgs84UtmProjection.FirstZoneNorthEpsgCode
+                            and <= Wgs84UtmProjection.LastZoneNorthEpsgCode => new Wgs84UtmProjection(c % 100, true),
+                var c when c is >= Wgs84UtmProjection.FirstZoneSouthEpsgCode
+                            and <= Wgs84UtmProjection.LastZoneSouthEpsgCode => new Wgs84UtmProjection(c % 100, false),
                 _ => base.CreateProjection(epsgCode)
             };
         }
@@ -67,12 +67,9 @@ namespace MapControl.Projections
     /// implemented by setting the CoordinateSystem property of a ProjNetMapProjection.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.41-44.
     /// </summary>
-    public class WebMercatorProjection : ProjNetMapProjection
+    public class WebMercatorProjection() : ProjNetMapProjection(ProjectedCoordinateSystem.WebMercator)
     {
-        public WebMercatorProjection()
-            : base(ProjectedCoordinateSystem.WebMercator)
-        {
-        }
+        public const string DefaultCrsId = "EPSG:3857";
     }
 
     /// <summary>
@@ -80,23 +77,21 @@ namespace MapControl.Projections
     /// implemented by setting the CoordinateSystemWkt property of a ProjNetMapProjection.
     /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/pp/1395/report.pdf), p.44-45.
     /// </summary>
-    public class WorldMercatorProjection : ProjNetMapProjection
+    public class WorldMercatorProjection() : ProjNetMapProjection(
+        "PROJCS[\"WGS 84 / World Mercator\"," +
+        WktConstants.GeogCsWgs84 + "," +
+        "PROJECTION[\"Mercator_1SP\"]," +
+        "PARAMETER[\"latitude_of_origin\",0]," +
+        "PARAMETER[\"central_meridian\",0]," +
+        "PARAMETER[\"scale_factor\",1]," +
+        "PARAMETER[\"false_easting\",0]," +
+        "PARAMETER[\"false_northing\",0]," +
+        "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
+        "AXIS[\"Easting\",EAST]," +
+        "AXIS[\"Northing\",NORTH]," +
+        "AUTHORITY[\"EPSG\",\"3395\"]]")
     {
-        public WorldMercatorProjection() : base(
-            "PROJCS[\"WGS 84 / World Mercator\"," +
-            WktConstants.GeogCsWgs84 + "," +
-            "PROJECTION[\"Mercator_1SP\"]," +
-            "PARAMETER[\"latitude_of_origin\",0]," +
-            "PARAMETER[\"central_meridian\",0]," +
-            "PARAMETER[\"scale_factor\",1]," +
-            "PARAMETER[\"false_easting\",0]," +
-            "PARAMETER[\"false_northing\",0]," +
-            "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
-            "AXIS[\"Easting\",EAST]," +
-            "AXIS[\"Northing\",NORTH]," +
-            "AUTHORITY[\"EPSG\",\"3395\"]]")
-        {
-        }
+        public const string DefaultCrsId = "EPSG:3395";
     }
 
     /// <summary>
@@ -106,6 +101,13 @@ namespace MapControl.Projections
     public class Wgs84UtmProjection(int zone, bool north) : ProjNetMapProjection(
         ProjectedCoordinateSystem.WGS84_UTM(zone, north))
     {
+        public const int FirstZone = 1;
+        public const int LastZone = 60;
+        public const int FirstZoneNorthEpsgCode = 32600 + FirstZone;
+        public const int LastZoneNorthEpsgCode = 32600 + LastZone;
+        public const int FirstZoneSouthEpsgCode = 32700 + FirstZone;
+        public const int LastZoneSouthEpsgCode = 32700 + LastZone;
+
         public int Zone => zone;
     }
 
@@ -126,6 +128,36 @@ namespace MapControl.Projections
         "AXIS[\"Northing\",NORTH]," +
         $"AUTHORITY[\"EPSG\",\"258{zone:00}\"]]")
     {
+        public const int FirstZone = 28;
+        public const int LastZone = 38;
+        public const int FirstZoneEpsgCode = 25800 + FirstZone;
+        public const int LastZoneEpsgCode = 25800 + LastZone;
+
+        public int Zone => zone;
+    }
+
+    /// <summary>
+    /// NAD83 Universal Transverse Mercator Projection - EPSG:26901 to EPSG:26923.
+    /// </summary>
+    public class Nad83UtmProjection(int zone) : ProjNetMapProjection(
+        $"PROJCS[\"NAD83 / UTM zone {zone}N\"," +
+        WktConstants.GeogCsNad83 + "," +
+        "PROJECTION[\"Transverse_Mercator\"]," +
+        "PARAMETER[\"latitude_of_origin\",0]," +
+        $"PARAMETER[\"central_meridian\",{6 * zone - 183}]," +
+        "PARAMETER[\"scale_factor\",0.9996]," +
+        "PARAMETER[\"false_easting\",500000]," +
+        "PARAMETER[\"false_northing\",0]," +
+        "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
+        "AXIS[\"Easting\",EAST]," +
+        "AXIS[\"Northing\",NORTH]," +
+        $"AUTHORITY[\"EPSG\",\"269{zone:00}\"]]")
+    {
+        public const int FirstZone = 1;
+        public const int LastZone = 23;
+        public const int FirstZoneEpsgCode = 26900 + FirstZone;
+        public const int LastZoneEpsgCode = 26900 + LastZone;
+
         public int Zone => zone;
     }
 
@@ -146,25 +178,11 @@ namespace MapControl.Projections
         "AXIS[\"Northing\",NORTH]," +
         $"AUTHORITY[\"EPSG\",\"267{zone:00}\"]]")
     {
-        public int Zone => zone;
-    }
-    /// <summary>
-    /// NAD83 Universal Transverse Mercator Projection - EPSG:26901 to EPSG:26923.
-    /// </summary>
-    public class Nad83UtmProjection(int zone) : ProjNetMapProjection(
-        $"PROJCS[\"NAD83 / UTM zone {zone}N\"," +
-        WktConstants.GeogCsNad83 + "," +
-        "PROJECTION[\"Transverse_Mercator\"]," +
-        "PARAMETER[\"latitude_of_origin\",0]," +
-        $"PARAMETER[\"central_meridian\",{6 * zone - 183}]," +
-        "PARAMETER[\"scale_factor\",0.9996]," +
-        "PARAMETER[\"false_easting\",500000]," +
-        "PARAMETER[\"false_northing\",0]," +
-        "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
-        "AXIS[\"Easting\",EAST]," +
-        "AXIS[\"Northing\",NORTH]," +
-        $"AUTHORITY[\"EPSG\",\"269{zone:00}\"]]")
-    {
+        public const int FirstZone = 1;
+        public const int LastZone = 22;
+        public const int FirstZoneEpsgCode = 26700 + FirstZone;
+        public const int LastZoneEpsgCode = 26700 + LastZone;
+
         public int Zone => zone;
     }
 
@@ -193,37 +211,33 @@ namespace MapControl.Projections
         public int Zone { get; } = zone;
     }
 
-    public class Wgs84UpsNorthProjection : ProjNetMapProjection
+    public class Wgs84UpsNorthProjection() : ProjNetMapProjection(
+        "PROJCS[\"WGS 84 / UPS North (N,E)\"," +
+        WktConstants.GeogCsWgs84 + "," +
+        "PROJECTION[\"Polar_Stereographic\"]," +
+        "PARAMETER[\"latitude_of_origin\",90]," +
+        "PARAMETER[\"central_meridian\",0]," +
+        "PARAMETER[\"scale_factor\",0.994]," +
+        "PARAMETER[\"false_easting\",2000000]," +
+        "PARAMETER[\"false_northing\",2000000]," +
+        "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
+        "AUTHORITY[\"EPSG\",\"32661\"]]")
     {
-        public Wgs84UpsNorthProjection() : base(
-            "PROJCS[\"WGS 84 / UPS North (N,E)\"," +
-            WktConstants.GeogCsWgs84 + "," +
-            "PROJECTION[\"Polar_Stereographic\"]," +
-            "PARAMETER[\"latitude_of_origin\",90]," +
-            "PARAMETER[\"central_meridian\",0]," +
-            "PARAMETER[\"scale_factor\",0.994]," +
-            "PARAMETER[\"false_easting\",2000000]," +
-            "PARAMETER[\"false_northing\",2000000]," +
-            "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
-            "AUTHORITY[\"EPSG\",\"32661\"]]")
-        {
-        }
+        public const string DefaultCrsId = "EPSG:32661";
     }
 
-    public class Wgs84UpsSouthProjection : ProjNetMapProjection
+    public class Wgs84UpsSouthProjection() : ProjNetMapProjection(
+        "PROJCS[\"WGS 84 / UPS South (N,E)\"," +
+        WktConstants.GeogCsWgs84 + "," +
+        "PROJECTION[\"Polar_Stereographic\"]," +
+        "PARAMETER[\"latitude_of_origin\",-90]," +
+        "PARAMETER[\"central_meridian\",0]," +
+        "PARAMETER[\"scale_factor\",0.994]," +
+        "PARAMETER[\"false_easting\",2000000]," +
+        "PARAMETER[\"false_northing\",2000000]," +
+        "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
+        "AUTHORITY[\"EPSG\",\"32761\"]]")
     {
-        public Wgs84UpsSouthProjection() : base(
-            "PROJCS[\"WGS 84 / UPS South (N,E)\"," +
-            WktConstants.GeogCsWgs84 + "," +
-            "PROJECTION[\"Polar_Stereographic\"]," +
-            "PARAMETER[\"latitude_of_origin\",-90]," +
-            "PARAMETER[\"central_meridian\",0]," +
-            "PARAMETER[\"scale_factor\",0.994]," +
-            "PARAMETER[\"false_easting\",2000000]," +
-            "PARAMETER[\"false_northing\",2000000]," +
-            "UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]]," +
-            "AUTHORITY[\"EPSG\",\"32761\"]]")
-        {
-        }
+        public const string DefaultCrsId = "EPSG:32761";
     }
 }
