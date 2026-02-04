@@ -27,7 +27,7 @@ namespace MapControl
                 Wgs84UpsNorthProjection.DefaultCrsId => new Wgs84UpsNorthProjection(),
                 Wgs84UpsSouthProjection.DefaultCrsId => new Wgs84UpsSouthProjection(),
                 EquirectangularProjection.DefaultCrsId or "CRS:84" => new EquirectangularProjection(crsId),
-                _ => null,
+                _ => null
             };
 
             if (projection == null && crsId.StartsWith(StereographicProjection.DefaultCrsId))
@@ -44,8 +44,6 @@ namespace MapControl
             {
                 var c when c is >= Etrs89UtmProjection.FirstZoneEpsgCode
                             and <= Etrs89UtmProjection.LastZoneEpsgCode => new Etrs89UtmProjection(c % 100),
-                var c when c is >= Nad27UtmProjection.FirstZoneEpsgCode
-                            and <= Nad27UtmProjection.LastZoneEpsgCode => new Nad27UtmProjection(c % 100),
                 var c when c is >= Nad83UtmProjection.FirstZoneEpsgCode
                             and <= Nad83UtmProjection.LastZoneEpsgCode => new Nad83UtmProjection(c % 100),
                 var c when c is >= Wgs84UtmProjection.FirstZoneNorthEpsgCode

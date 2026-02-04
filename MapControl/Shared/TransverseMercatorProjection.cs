@@ -51,16 +51,6 @@ namespace MapControl
             A = equatorialRadius / (1d + n) * (1d + n2 / 4d + n2 * n2 / 64d);
         }
 
-        public TransverseMercatorProjection(string crsId, double equatorialRadius, double flattening, int utmZone, bool north = true)
-            : this(equatorialRadius, flattening)
-        {
-            CrsId = crsId;
-            ScaleFactor = 0.9996;
-            CentralMeridian = utmZone * 6d - 183d;
-            FalseEasting = 5e5;
-            FalseNorthing = north ? 0d : 1e7;
-        }
-
         public override double GridConvergence(double latitude, double longitude)
         {
             // φ
