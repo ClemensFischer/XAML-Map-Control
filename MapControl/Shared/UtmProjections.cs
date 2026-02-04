@@ -2,11 +2,24 @@
 
 namespace MapControl
 {
+    public class UtmProjection : TransverseMercatorProjection
+    {
+        public UtmProjection(string crsId, double equatorialRadius, double flattening, int utmZone, bool north = true)
+            : base(equatorialRadius, flattening)
+        {
+            CrsId = crsId;
+            ScaleFactor = 0.9996;
+            CentralMeridian = utmZone * 6d - 183d;
+            FalseEasting = 5e5;
+            FalseNorthing = north ? 0d : 1e7;
+        }
+    }
+
     /// <summary>
     /// WGS84 Universal Transverse Mercator Projection -
     /// EPSG:32601 to EPSG:32660 and EPSG:32701 to EPSG:32760.
     /// </summary>
-    public class Wgs84UtmProjection : TransverseMercatorProjection
+    public class Wgs84UtmProjection : UtmProjection
     {
         public const int FirstZone = 1;
         public const int LastZone = 60;
@@ -32,7 +45,7 @@ namespace MapControl
     /// <summary>
     /// ETRS89 Universal Transverse Mercator Projection - EPSG:25828 to EPSG:25838.
     /// </summary>
-    public class Etrs89UtmProjection : TransverseMercatorProjection
+    public class Etrs89UtmProjection : UtmProjection
     {
         public const int FirstZone = 28;
         public const int LastZone = 38;
@@ -56,7 +69,7 @@ namespace MapControl
     /// <summary>
     /// NAD83 Universal Transverse Mercator Projection - EPSG:26901 to EPSG:26923.
     /// </summary>
-    public class Nad83UtmProjection : TransverseMercatorProjection
+    public class Nad83UtmProjection : UtmProjection
     {
         public const int FirstZone = 1;
         public const int LastZone = 23;
@@ -71,30 +84,6 @@ namespace MapControl
             if (zone < FirstZone || zone > LastZone)
             {
                 throw new ArgumentException($"Invalid NAD83 UTM zone {zone}.", nameof(zone));
-            }
-
-            Zone = zone;
-        }
-    }
-
-    /// <summary>
-    /// NAD27 Universal Transverse Mercator Projection - EPSG:26701 to EPSG:26722.
-    /// </summary>
-    public class Nad27UtmProjection : TransverseMercatorProjection
-    {
-        public const int FirstZone = 1;
-        public const int LastZone = 22;
-        public const int FirstZoneEpsgCode = 26700 + FirstZone;
-        public const int LastZoneEpsgCode = 26700 + LastZone;
-
-        public int Zone { get; }
-
-        public Nad27UtmProjection(int zone)
-            : base($"EPSG:{26700 + zone}", 6378206.4, 1d / 294.978698213898, zone) // Clarke 1866
-        {
-            if (zone < FirstZone || zone > LastZone)
-            {
-                throw new ArgumentException($"Invalid NAD27 UTM zone {zone}.", nameof(zone));
             }
 
             Zone = zone;
