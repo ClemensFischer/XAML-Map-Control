@@ -99,9 +99,20 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = LocationToMapTransform.Transform([longitude, latitude]);
+            double x, y;
 
-            return new Point(coordinate[0], coordinate[1]);
+            try
+            {
+
+                (x, y) = LocationToMapTransform.Transform(longitude, latitude);
+            }
+            catch (ArgumentException)
+            {
+                x = 0d;
+                y = latitude >= 0d ? double.PositiveInfinity : double.NegativeInfinity;
+            }
+
+            return new Point(x, y);
         }
 
         public override Location MapToLocation(double x, double y)
@@ -111,9 +122,9 @@ namespace MapControl.Projections
                 throw new InvalidOperationException("The CoordinateSystem property is not set.");
             }
 
-            var coordinate = MapToLocationTransform.Transform([x, y]);
+            (var lon, var lat) = MapToLocationTransform.Transform(x, y);
 
-            return new Location(coordinate[1], coordinate[0]);
+            return new Location(lat, lon);
         }
 
         public override double GridConvergence(double latitude, double longitude)
