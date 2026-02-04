@@ -116,26 +116,21 @@ namespace MapControl
             {
                 var southEast = LocationToMap(boundingBox.South, boundingBox.East);
                 var northWest = LocationToMap(boundingBox.North, boundingBox.West);
+                var west = new Point((southWest.X + northWest.X) / 2d, (southWest.Y + northWest.Y) / 2d);
+                var east = new Point((southEast.X + northEast.X) / 2d, (southEast.Y + northEast.Y) / 2d);
                 var south = new Point((southWest.X + southEast.X) / 2d, (southWest.Y + southEast.Y) / 2d);
                 var north = new Point((northWest.X + northEast.X) / 2d, (northWest.Y + northEast.Y) / 2d);
                 var centerX = (south.X + north.X) / 2d;
                 var centerY = (south.Y + north.Y) / 2d;
-                var dxW = northWest.X - southWest.X;
-                var dyW = northWest.Y - southWest.Y;
-                var dxE = northEast.X - southEast.X;
-                var dyE = northEast.Y - southEast.Y;
-                var dxS = southEast.X - southWest.X;
-                var dyS = southEast.Y - southWest.Y;
-                var dxN = northEast.X - northWest.X;
-                var dyN = northEast.Y - northWest.Y;
-                var width = (Math.Sqrt(dxS * dxS + dyS * dyS) + Math.Sqrt(dxN * dxN + dyN * dyN)) / 2d;
-                var height = (Math.Sqrt(dxW * dxW + dyW * dyW) + Math.Sqrt(dxE * dxE + dyE * dyE)) / 2d;
+                var dxw = east.X - west.X;
+                var dyw = east.Y - west.Y;
+                var dxh = north.X - south.X;
+                var dyh = north.Y - south.Y;
+                var width = Math.Sqrt(dxw * dxw + dyw * dyw);
+                var height = Math.Sqrt(dxh * dxh + dyh * dyh);
 
                 rect = new Rect(centerX - width / 2d, centerY - height / 2d, width, height);
-
-                rotation = -GridConvergence( // invert direction for RotateTransform
-                    (boundingBox.South + boundingBox.North) / 2d,
-                    (boundingBox.West + boundingBox.East) / 2d);
+                rotation = -Math.Atan2(-dxh, dyh) * 180d / Math.PI; // invert direction for RotateTransform
             }
 
             return (rect, rotation);
