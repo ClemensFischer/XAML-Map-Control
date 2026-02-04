@@ -63,12 +63,11 @@ namespace MapControl
 
                 field = value;
 
-                if (field != null && MapTransform != null)
+                if (field != null && mapTransform != null)
                 {
                     // Attach ViewportChanged handler only if MapTransform is actually used.
                     //
                     field.ViewportChanged += OnViewportChanged;
-
                     UpdateMapTransform();
                 }
             }
@@ -82,9 +81,9 @@ namespace MapControl
         {
             get
             {
-                if (field == null)
+                if (mapTransform == null)
                 {
-                    field = new MatrixTransform();
+                    mapTransform = new MatrixTransform();
 
                     if (ParentMap != null)
                     {
@@ -94,21 +93,23 @@ namespace MapControl
                     }
                 }
 
-                return field;
+                return mapTransform;
+            }
+        }
+
+        private MatrixTransform mapTransform;
+
+        private void UpdateMapTransform()
+        {
+            if (mapTransform != null && ParentMap != null && Location != null)
+            {
+                mapTransform.Matrix = ParentMap.GetMapToViewTransform(Location);
             }
         }
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
             UpdateMapTransform();
-        }
-
-        private void UpdateMapTransform()
-        {
-            if (MapTransform != null && ParentMap != null && Location != null)
-            {
-                MapTransform.Matrix = ParentMap.GetMapToViewTransform(Location);
-            }
         }
     }
 }
