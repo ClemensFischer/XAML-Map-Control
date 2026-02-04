@@ -32,6 +32,7 @@ namespace MapControl
         {
             var sign = Math.Sign(LatitudeOfOrigin);
             var phi = sign * latitude * Math.PI / 180d;
+
             var e = Math.Sqrt((2d - Flattening) * Flattening);
             var eSinPhi = e * Math.Sin(phi);
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
@@ -55,7 +56,6 @@ namespace MapControl
 
             var e = Math.Sqrt((2d - Flattening) * Flattening);
             var eSinPhi = e * Math.Sin(phi);
-
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
                   / Math.Pow((1d - eSinPhi) / (1d + eSinPhi), e / 2d); // p.161 (15-9)
             // ρ
