@@ -120,17 +120,17 @@ namespace MapControl
                 var east = new Point((southEast.X + northEast.X) / 2d, (southEast.Y + northEast.Y) / 2d);
                 var south = new Point((southWest.X + southEast.X) / 2d, (southWest.Y + southEast.Y) / 2d);
                 var north = new Point((northWest.X + northEast.X) / 2d, (northWest.Y + northEast.Y) / 2d);
-                var centerX = (south.X + north.X) / 2d;
-                var centerY = (south.Y + north.Y) / 2d;
-                var dxw = east.X - west.X;
-                var dyw = east.Y - west.Y;
-                var dxh = north.X - south.X;
-                var dyh = north.Y - south.Y;
-                var width = Math.Sqrt(dxw * dxw + dyw * dyw);
-                var height = Math.Sqrt(dxh * dxh + dyh * dyh);
+                var dxWidth = east.X - west.X;
+                var dyWidth = east.Y - west.Y;
+                var dxHeight = north.X - south.X;
+                var dyHeight = north.Y - south.Y;
+                var width = Math.Sqrt(dxWidth * dxWidth + dyWidth * dyWidth);
+                var height = Math.Sqrt(dxHeight * dxHeight + dyHeight * dyHeight);
+                var x = (south.X + north.X - width) / 2d;  // cx-w/2
+                var y = (south.Y + north.Y - height) / 2d; // cy-h/2
 
-                rect = new Rect(centerX - width / 2d, centerY - height / 2d, width, height);
-                rotation = -Math.Atan2(-dxh, dyh) * 180d / Math.PI; // invert direction for RotateTransform
+                rect = new Rect(x, y, width, height);
+                rotation = Math.Atan2(-dxHeight, dyHeight) * 180d / Math.PI;
             }
 
             return (rect, rotation);

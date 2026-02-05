@@ -290,7 +290,7 @@ namespace MapControl
                     {
                         (var rect, var rotation) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
 
-                        ArrangeElement(element, rect, rotation);
+                        ArrangeElement(element, rect, -rotation);
                     }
                     else
                     {
