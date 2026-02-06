@@ -101,11 +101,10 @@ namespace MapControl
         {
             var southWest = ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight));
             var northEast = ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, 0d));
-            var lineDistance = GetLineDistance(MinLineDistance /
-                (ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree));
+            var lineDistance = GetLineDistance(false);
             var latLabelStart = Math.Ceiling(southWest.Latitude / lineDistance) * lineDistance;
             var lonLabelStart = Math.Ceiling(southWest.Longitude / lineDistance) * lineDistance;
-            var labelFormat = GetLabelFormat(Math.Min(lineDistance, lineDistance));
+            var labelFormat = GetLabelFormat(lineDistance);
 
             for (var lat = latLabelStart; lat <= northEast.Latitude; lat += lineDistance)
             {
@@ -129,9 +128,8 @@ namespace MapControl
 
         private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
         {
-            var lineDistance = GetLineDistance(MinLineDistance /
-                (ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree * Math.Cos(ParentMap.Center.Latitude * Math.PI / 180d)));
-            var labelFormat = GetLabelFormat(Math.Min(lineDistance, lineDistance));
+            var lineDistance = GetLineDistance(true);
+            var labelFormat = GetLabelFormat(lineDistance);
 
             GetLatitudeRange(lineDistance, out double minLat, out double maxLat);
 
@@ -278,8 +276,15 @@ namespace MapControl
             }
         }
 
-        private static double GetLineDistance(double minDistance)
+        private double GetLineDistance(bool scaleByLatitude)
         {
+            var minDistance = MinLineDistance / (ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree);
+
+            if (scaleByLatitude)
+            {
+                minDistance /= Math.Cos(ParentMap.Center.Latitude * Math.PI / 180d);
+            }
+                            
             minDistance = Math.Max(minDistance, lineDistances.First());
             minDistance = Math.Min(minDistance, lineDistances.Last());
 
