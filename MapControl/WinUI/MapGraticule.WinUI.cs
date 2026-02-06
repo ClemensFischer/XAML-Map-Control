@@ -59,8 +59,12 @@ namespace MapControl
                 path = (Path)Children[0];
             }
 
-            var labels = DrawGraticule(((PathGeometry)path.Data).Figures);
             var childrenCount = 1;
+            var labels = new List<Label>();
+            var figures = ((PathGeometry)path.Data).Figures;
+            figures.Clear();
+
+            DrawGraticule(figures, labels);
 
             foreach (var label in labels)
             {

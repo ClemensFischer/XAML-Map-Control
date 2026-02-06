@@ -49,14 +49,14 @@ namespace MapControl
             if (ParentMap != null)
             {
                 var pathGeometry = new PathGeometry();
-
-                var labels = DrawGraticule(pathGeometry.Figures);
-
+                var labels = new List<Label>();
                 var pen = new Pen
                 {
                     Brush = Foreground,
                     Thickness = StrokeThickness,
                 };
+
+                DrawGraticule(pathGeometry.Figures, labels);
 
                 drawingContext.DrawGeometry(null, pen, pathGeometry);
 

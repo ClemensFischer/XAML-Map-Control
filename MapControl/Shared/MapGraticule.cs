@@ -79,25 +79,19 @@ namespace MapControl
             set => SetValue(FontSizeProperty, value);
         }
 
-        private List<Label> DrawGraticule(PathFigureCollection figures)
+        private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
         {
-            var labels = new List<Label>();
-
-            figures.Clear();
-
             if (ParentMap.MapProjection.IsNormalCylindrical)
             {
-                DrawNormalCylindrical(figures, labels);
+                DrawNormalGraticule(figures, labels);
             }
             else
             {
-                DrawGraticule(figures, labels);
+                DrawNonNormalGraticule(figures, labels);
             }
-
-            return labels;
         }
 
-        private void DrawNormalCylindrical(PathFigureCollection figures, List<Label> labels)
+        private void DrawNormalGraticule(PathFigureCollection figures, List<Label> labels)
         {
             var southWest = ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight));
             var northEast = ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, 0d));
@@ -126,66 +120,63 @@ namespace MapControl
             }
         }
 
-        private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
+        private void DrawNonNormalGraticule(PathFigureCollection figures, List<Label> labels)
         {
             var lineDistance = GetLineDistance(true);
             var labelFormat = GetLabelFormat(lineDistance);
+            var pointDistance = Math.Min(lineDistance, 1d);
+            var interpolationCount = (int)(lineDistance / pointDistance);
+            var centerLat = Math.Round(ParentMap.Center.Latitude / pointDistance) * pointDistance;
+            var centerLon = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
+            var minLat = centerLat;
+            var maxLat = centerLat;
+            var minLon = centerLon;
+            var maxLon = centerLon;
 
-            GetLatitudeRange(lineDistance, out double minLat, out double maxLat);
-
-            var latSegments = (int)Math.Ceiling(Math.Abs(maxLat - minLat) / lineDistance);
-            var interpolationCount = Math.Max(1, (int)Math.Ceiling(lineDistance));
-            var interpolationStep = lineDistance / interpolationCount;
-
-            var latStep = lineDistance;
-            var startLat = minLat;
-
-            if (Math.Abs(minLat) > Math.Abs(maxLat))
+            for (var lon = centerLon;
+                lon >= centerLon - 180d && DrawMeridian(figures, lon, pointDistance, ref minLat, ref maxLat);
+                lon -= lineDistance)
             {
-                startLat = maxLat;
-                latStep = -lineDistance;
+                minLon = lon;
             }
 
-            var centerLon = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
-            var minLon = centerLon;
-            var maxLon = centerLon + lineDistance;
+            for (var lon = centerLon + lineDistance;
+                lon < centerLon + 180d && DrawMeridian(figures, lon, pointDistance, ref minLat, ref maxLat);
+                lon += lineDistance)
+            {
+                maxLon = lon;
+            }
 
-            while (DrawMeridian(figures, minLon, minLat, interpolationStep, latSegments * interpolationCount) &&
-                minLon > centerLon - 180d)
+            minLat = Math.Ceiling(minLat / lineDistance) * lineDistance;
+            maxLat = Math.Floor(maxLat / lineDistance) * lineDistance;
+
+            if (minLon + 360d > maxLon)
             {
                 minLon -= lineDistance;
             }
 
-            while (DrawMeridian(figures, maxLon, minLat, interpolationStep, latSegments * interpolationCount) &&
-                maxLon < centerLon + 180d)
+            if (maxLon - 360d < minLon)
             {
                 maxLon += lineDistance;
             }
 
-            var lonSegments = (int)Math.Round(Math.Abs(maxLon - minLon) / lineDistance);
+            var lonSegments = (int)((maxLon - minLon) / lineDistance);
 
-            for (var i = 1; i < latSegments; i++)
+            for (var lat = minLat; lat <= maxLat; lat += lineDistance)
             {
-                var lat = startLat + i * latStep;
-                var lon = minLon;
                 var points = new List<Point>();
-                var position = ParentMap.LocationToView(lat, lon);
-                var rotation = -ParentMap.MapProjection.GridConvergence(lat, lon);
 
-                points.Add(position);
-                AddLabel(labels, labelFormat, lat, lon, position, rotation);
-
-                for (int j = 0; j < lonSegments; j++)
+                for (int i = 0; i <= lonSegments; i++)
                 {
-                    for (int k = 1; k <= interpolationCount; k++)
-                    {
-                        lon = minLon + j * lineDistance + k * interpolationStep;
-                        position = ParentMap.LocationToView(lat, lon);
-                        points.Add(position);
-                    }
+                    var lon = minLon + i * lineDistance;
+                    var p = ParentMap.LocationToView(lat, lon);
+                    points.Add(p);
+                    AddLabel(labels, labelFormat, lat, lon, p);
 
-                    rotation = -ParentMap.MapProjection.GridConvergence(lat, lon);
-                    AddLabel(labels, labelFormat, lat, lon, position, rotation);
+                    for (int j = 1; j < interpolationCount; j++)
+                    {
+                        points.Add(ParentMap.LocationToView(lat, lon + j * pointDistance));
+                    }
                 }
 
                 if (points.Count >= 2)
@@ -195,17 +186,35 @@ namespace MapControl
             }
         }
 
-        private bool DrawMeridian(PathFigureCollection figures,
-            double longitude, double startLatitude, double deltaLatitude, int numPoints)
+        private bool DrawMeridian(PathFigureCollection figures, double lon,
+            double latStep, ref double minLat, ref double maxLat)
         {
             var points = new List<Point>();
             var visible = false;
 
-            for (int i = 0; i <= numPoints; i++)
+            for (var lat = minLat + latStep; lat < maxLat; lat += latStep)
             {
-                var p = ParentMap.LocationToView(startLatitude + i * deltaLatitude, longitude);
+                var p = ParentMap.LocationToView(lat, lon);
                 points.Add(p);
                 visible = visible || ParentMap.InsideViewBounds(p);
+            }
+
+            for (var lat = minLat; lat >= -90d; lat -= latStep)
+            {
+                var p = ParentMap.LocationToView(lat, lon);
+                points.Insert(0, p);
+                if (!ParentMap.InsideViewBounds(p)) break;
+                minLat = lat;
+                visible = true;
+            }
+
+            for (var lat = maxLat; lat <= 90d; lat += latStep)
+            {
+                var p = ParentMap.LocationToView(lat, lon);
+                points.Add(p);
+                if (!ParentMap.InsideViewBounds(p)) break;
+                maxLat = lat;
+                visible = true;
             }
 
             if (visible && points.Count >= 2)
@@ -216,49 +225,11 @@ namespace MapControl
             return visible;
         }
 
-        private void GetLatitudeRange(double lineDistance, out double minLatitude, out double maxLatitude)
+        private void AddLabel(List<Label> labels, string labelFormat, double lat, double lon, Point position)
         {
-            var minLat = 90d;
-            var maxLat = -90d;
-
-            if (ParentMap.InsideViewBounds(ParentMap.LocationToView(90d, 0d)))
+            if (lat > -90d && lat < 90d && ParentMap.InsideViewBounds(position))
             {
-                maxLat = 90d;
-            }
-
-            if (ParentMap.InsideViewBounds(ParentMap.LocationToView(-90d, 0d)))
-            {
-                minLat = -90d;
-            }
-
-            if (minLat > -90d || maxLat < 90d)
-            {
-                var locations = new Location[]
-                {
-                    ParentMap.ViewToLocation(new Point(0d, 0d)),
-                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, 0d)),
-                    ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight)),
-                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, ParentMap.ActualHeight)),
-                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth / 2d, 0d)),
-                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth / 2d, ParentMap.ActualHeight)),
-                    ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight / 2d)),
-                    ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, ParentMap.ActualHeight / 2d)),
-                };
-
-                var latitudes = locations.Select(loc => loc.Latitude).Distinct();
-                minLat = Math.Min(minLat, latitudes.Min());
-                maxLat = Math.Max(maxLat, latitudes.Max());
-            }
-
-            minLatitude = Math.Max(Math.Floor(minLat / lineDistance) * lineDistance, -90d);
-            maxLatitude = Math.Min(Math.Ceiling(maxLat / lineDistance) * lineDistance, 90d);
-        }
-
-        private void AddLabel(List<Label> labels, string labelFormat, double latitude, double longitude, Point position, double rotation = 0d)
-        {
-            if (ParentMap.InsideViewBounds(position))
-            {
-                rotation = (rotation + ParentMap.ViewTransform.Rotation) % 360d;
+                var rotation = (ParentMap.ViewTransform.Rotation - ParentMap.MapProjection.GridConvergence(lat, lon)) % 360d;
 
                 if (rotation < -90d)
                 {
@@ -270,8 +241,8 @@ namespace MapControl
                 }
 
                 labels.Add(new Label(
-                    GetLabelText(latitude, labelFormat, "NS"),
-                    GetLabelText(Location.NormalizeLongitude(longitude), labelFormat, "EW"),
+                    GetLabelText(lat, labelFormat, "NS"),
+                    GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW"),
                     position.X, position.Y, rotation));
             }
         }
@@ -284,7 +255,7 @@ namespace MapControl
             {
                 minDistance /= Math.Cos(ParentMap.Center.Latitude * Math.PI / 180d);
             }
-                            
+
             minDistance = Math.Max(minDistance, lineDistances.First());
             minDistance = Math.Min(minDistance, lineDistances.Last());
 
