@@ -95,8 +95,9 @@ namespace MapControl
         {
             var lineDistance = GetLineDistance(false);
             var labelFormat = GetLabelFormat(lineDistance);
-            var southWest = ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight));
-            var northEast = ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, 0d));
+            var mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight));
+            var southWest = ParentMap.MapProjection.MapToLocation(mapRect.X, mapRect.Y);
+            var northEast = ParentMap.MapProjection.MapToLocation(mapRect.X + mapRect.Width, mapRect.Y + mapRect.Height);
             var latLabelStart = Math.Ceiling(southWest.Latitude / lineDistance) * lineDistance;
             var lonLabelStart = Math.Ceiling(southWest.Longitude / lineDistance) * lineDistance;
 
@@ -115,7 +116,7 @@ namespace MapControl
 
                 for (var lat = latLabelStart; lat <= northEast.Latitude; lat += lineDistance)
                 {
-                    AddLabel(labels, labelFormat, lat, lon, ParentMap.LocationToView(lat, lon));
+                    AddLabel(labels, labelFormat, lat, lon, ParentMap.LocationToView(lat, lon), 0d);
                 }
             }
         }
@@ -167,7 +168,7 @@ namespace MapControl
                 {
                     var p = ParentMap.LocationToView(lat, lon);
                     points.Add(p);
-                    AddLabel(labels, labelFormat, lat, lon, p);
+                    AddLabel(labels, labelFormat, lat, lon, p, -ParentMap.MapProjection.GridConvergence(lat, lon));
 
                     for (int j = 1; j < interpolationCount; j++)
                     {
@@ -225,11 +226,11 @@ namespace MapControl
             return visible;
         }
 
-        private void AddLabel(List<Label> labels, string labelFormat, double lat, double lon, Point position)
+        private void AddLabel(List<Label> labels, string labelFormat, double lat, double lon, Point position, double rotation)
         {
             if (lat > -90d && lat < 90d && ParentMap.InsideViewBounds(position))
             {
-                var rotation = (ParentMap.ViewTransform.Rotation - ParentMap.MapProjection.GridConvergence(lat, lon)) % 360d;
+                rotation = ((rotation + ParentMap.ViewTransform.Rotation) % 360d + 540d) % 360d - 180d;
 
                 if (rotation < -90d)
                 {
