@@ -98,23 +98,23 @@ namespace MapControl
             var mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(0d, 0d, ParentMap.ActualWidth, ParentMap.ActualHeight));
             var southWest = ParentMap.MapProjection.MapToLocation(mapRect.X, mapRect.Y);
             var northEast = ParentMap.MapProjection.MapToLocation(mapRect.X + mapRect.Width, mapRect.Y + mapRect.Height);
-            var latLabelStart = Math.Ceiling(southWest.Latitude / lineDistance) * lineDistance;
-            var lonLabelStart = Math.Ceiling(southWest.Longitude / lineDistance) * lineDistance;
+            var minLat = Math.Ceiling(southWest.Latitude / lineDistance) * lineDistance;
+            var minLon = Math.Ceiling(southWest.Longitude / lineDistance) * lineDistance;
 
-            for (var lat = latLabelStart; lat <= northEast.Latitude; lat += lineDistance)
+            for (var lat = minLat; lat <= northEast.Latitude; lat += lineDistance)
             {
                 var p1 = ParentMap.LocationToView(lat, southWest.Longitude);
                 var p2 = ParentMap.LocationToView(lat, northEast.Longitude);
                 figures.Add(CreateLineFigure(p1, p2));
             }
 
-            for (var lon = lonLabelStart; lon <= northEast.Longitude; lon += lineDistance)
+            for (var lon = minLon; lon <= northEast.Longitude; lon += lineDistance)
             {
                 var p1 = ParentMap.LocationToView(southWest.Latitude, lon);
                 var p2 = ParentMap.LocationToView(northEast.Latitude, lon);
                 figures.Add(CreateLineFigure(p1, p2));
 
-                for (var lat = latLabelStart; lat <= northEast.Latitude; lat += lineDistance)
+                for (var lat = minLat; lat <= northEast.Latitude; lat += lineDistance)
                 {
                     AddLabel(labels, labelFormat, lat, lon, ParentMap.LocationToView(lat, lon), 0d);
                 }
@@ -290,6 +290,7 @@ namespace MapControl
             var figure = new PathFigure
             {
                 StartPoint = p1,
+                IsClosed = false,
                 IsFilled = false
             };
 
