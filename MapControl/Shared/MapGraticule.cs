@@ -93,12 +93,12 @@ namespace MapControl
 
         private void DrawNormalGraticule(PathFigureCollection figures, List<Label> labels)
         {
+            var lineDistance = GetLineDistance(false);
+            var labelFormat = GetLabelFormat(lineDistance);
             var southWest = ParentMap.ViewToLocation(new Point(0d, ParentMap.ActualHeight));
             var northEast = ParentMap.ViewToLocation(new Point(ParentMap.ActualWidth, 0d));
-            var lineDistance = GetLineDistance(false);
             var latLabelStart = Math.Ceiling(southWest.Latitude / lineDistance) * lineDistance;
             var lonLabelStart = Math.Ceiling(southWest.Longitude / lineDistance) * lineDistance;
-            var labelFormat = GetLabelFormat(lineDistance);
 
             for (var lat = latLabelStart; lat <= northEast.Latitude; lat += lineDistance)
             {
@@ -126,29 +126,25 @@ namespace MapControl
             var labelFormat = GetLabelFormat(lineDistance);
             var pointDistance = Math.Min(lineDistance, 1d);
             var interpolationCount = (int)(lineDistance / pointDistance);
-            var centerLat = Math.Round(ParentMap.Center.Latitude / pointDistance) * pointDistance;
-            var centerLon = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
-            var minLat = centerLat;
-            var maxLat = centerLat;
-            var minLon = centerLon;
-            var maxLon = centerLon;
+            var center = Math.Round(ParentMap.Center.Longitude / lineDistance) * lineDistance;
+            var minLat = Math.Round(ParentMap.Center.Latitude / pointDistance) * pointDistance;
+            var maxLat = minLat;
+            var minLon = center;
+            var maxLon = center;
 
-            for (var lon = centerLon;
-                lon >= centerLon - 180d && DrawMeridian(figures, lon, pointDistance, ref minLat, ref maxLat);
+            for (var lon = center;
+                lon >= center - 180d && DrawMeridian(figures, lon, pointDistance, ref minLat, ref maxLat);
                 lon -= lineDistance)
             {
                 minLon = lon;
             }
 
-            for (var lon = centerLon + lineDistance;
-                lon < centerLon + 180d && DrawMeridian(figures, lon, pointDistance, ref minLat, ref maxLat);
+            for (var lon = center + lineDistance;
+                lon < center + 180d && DrawMeridian(figures, lon, pointDistance, ref minLat, ref maxLat);
                 lon += lineDistance)
             {
                 maxLon = lon;
             }
-
-            minLat = Math.Ceiling(minLat / lineDistance) * lineDistance;
-            maxLat = Math.Floor(maxLat / lineDistance) * lineDistance;
 
             if (minLon + 360d > maxLon)
             {
@@ -160,15 +156,15 @@ namespace MapControl
                 maxLon += lineDistance;
             }
 
-            var lonSegments = (int)((maxLon - minLon) / lineDistance);
+            minLat = Math.Ceiling(minLat / lineDistance) * lineDistance;
+            maxLat = Math.Floor(maxLat / lineDistance) * lineDistance;
 
             for (var lat = minLat; lat <= maxLat; lat += lineDistance)
             {
                 var points = new List<Point>();
 
-                for (int i = 0; i <= lonSegments; i++)
+                for (var lon = minLon; lon <= maxLon; lon += lineDistance)
                 {
-                    var lon = minLon + i * lineDistance;
                     var p = ParentMap.LocationToView(lat, lon);
                     points.Add(p);
                     AddLabel(labels, labelFormat, lat, lon, p);
@@ -203,7 +199,9 @@ namespace MapControl
             {
                 var p = ParentMap.LocationToView(lat, lon);
                 points.Insert(0, p);
+
                 if (!ParentMap.InsideViewBounds(p)) break;
+
                 minLat = lat;
                 visible = true;
             }
@@ -212,7 +210,9 @@ namespace MapControl
             {
                 var p = ParentMap.LocationToView(lat, lon);
                 points.Add(p);
+
                 if (!ParentMap.InsideViewBounds(p)) break;
+
                 maxLat = lat;
                 visible = true;
             }
