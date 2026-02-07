@@ -4,15 +4,18 @@ namespace MapControl
 {
     public class UtmProjection : TransverseMercatorProjection
     {
-        public UtmProjection(string crsId, double equatorialRadius, double flattening, int utmZone, bool north = true)
+        public UtmProjection(string crsId, double equatorialRadius, double flattening, int zone, bool north = true)
             : base(equatorialRadius, flattening)
         {
             CrsId = crsId;
             ScaleFactor = 0.9996;
-            CentralMeridian = utmZone * 6d - 183d;
+            CentralMeridian = zone * 6 - 183;
             FalseEasting = 5e5;
             FalseNorthing = north ? 0d : 1e7;
+            Zone = zone;
         }
+
+        public int Zone { get; }
     }
 
     /// <summary>
@@ -28,8 +31,6 @@ namespace MapControl
         public const int FirstZoneSouthEpsgCode = 32700 + FirstZone;
         public const int LastZoneSouthEpsgCode = 32700 + LastZone;
 
-        public int Zone { get; }
-
         public Wgs84UtmProjection(int zone, bool north)
             : base($"EPSG:{(north ? 32600 : 32700) + zone}", Wgs84EquatorialRadius, Wgs84Flattening, zone, north)
         {
@@ -37,8 +38,6 @@ namespace MapControl
             {
                 throw new ArgumentException($"Invalid WGS84 UTM zone {zone}.", nameof(zone));
             }
-
-            Zone = zone;
         }
     }
 
@@ -52,8 +51,6 @@ namespace MapControl
         public const int FirstZoneEpsgCode = 25800 + FirstZone;
         public const int LastZoneEpsgCode = 25800 + LastZone;
 
-        public int Zone { get; }
-
         public Etrs89UtmProjection(int zone)
             : base($"EPSG:{25800 + zone}", 6378137d, 1d / 298.257222101, zone) // GRS 1980
         {
@@ -61,8 +58,6 @@ namespace MapControl
             {
                 throw new ArgumentException($"Invalid ETRS89 UTM zone {zone}.", nameof(zone));
             }
-
-            Zone = zone;
         }
     }
 
@@ -76,8 +71,6 @@ namespace MapControl
         public const int FirstZoneEpsgCode = 26900 + FirstZone;
         public const int LastZoneEpsgCode = 26900 + LastZone;
 
-        public int Zone { get; }
-
         public Nad83UtmProjection(int zone)
             : base($"EPSG:{26900 + zone}", 6378137d, 1d / 298.257222101, zone) // GRS 1980
         {
@@ -85,8 +78,6 @@ namespace MapControl
             {
                 throw new ArgumentException($"Invalid NAD83 UTM zone {zone}.", nameof(zone));
             }
-
-            Zone = zone;
         }
     }
 }

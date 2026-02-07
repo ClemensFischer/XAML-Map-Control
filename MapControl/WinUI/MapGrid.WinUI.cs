@@ -16,16 +16,16 @@ using Microsoft.UI.Xaml.Shapes;
 
 namespace MapControl
 {
-    public partial class MapGraticule : MapPanel
+    public partial class MapGrid : MapPanel
     {
         public static readonly DependencyProperty ForegroundProperty =
-            DependencyPropertyHelper.Register<MapGraticule, Brush>(nameof(Foreground));
+            DependencyPropertyHelper.Register<MapGrid, Brush>(nameof(Foreground));
 
         public static readonly DependencyProperty FontFamilyProperty =
-            DependencyPropertyHelper.Register<MapGraticule, FontFamily>(nameof(FontFamily));
+            DependencyPropertyHelper.Register<MapGrid, FontFamily>(nameof(FontFamily));
 
         public static readonly DependencyProperty FontSizeProperty =
-            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(FontSize), 12d);
+            DependencyPropertyHelper.Register<MapGrid, double>(nameof(FontSize), 12d);
 
         protected override void SetParentMap(MapBase map)
         {
@@ -64,7 +64,7 @@ namespace MapControl
             var figures = ((PathGeometry)path.Data).Figures;
             figures.Clear();
 
-            DrawGraticule(figures, labels);
+            DrawGrid(figures, labels);
 
             foreach (var label in labels)
             {
@@ -93,11 +93,10 @@ namespace MapControl
                     Children.Add(textBlock);
                 }
 
-                textBlock.Text = label.LatitudeText + "\n" + label.LongitudeText;
+                textBlock.Text = label.Text;
                 textBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
                 var matrix = new Matrix(1, 0, 0, 1, 0, 0);
-
                 matrix.Translate(StrokeThickness / 2d + 2d, -textBlock.DesiredSize.Height / 2d);
                 matrix.Rotate(label.Rotation);
                 matrix.Translate(label.X, label.Y);

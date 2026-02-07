@@ -2,26 +2,27 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
 namespace MapControl
 {
-    public partial class MapGraticule : Control, IMapElement
+    public partial class MapGrid : Control, IMapElement
     {
-        static MapGraticule()
+        static MapGrid()
         {
-            AffectsRender<MapGraticule>(ForegroundProperty);
+            AffectsRender<MapGrid>(ForegroundProperty);
         }
 
         public static readonly StyledProperty<IBrush> ForegroundProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, IBrush>(TextElement.ForegroundProperty);
+            DependencyPropertyHelper.AddOwner<MapGrid, IBrush>(TextElement.ForegroundProperty);
 
         public static readonly StyledProperty<FontFamily> FontFamilyProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, FontFamily>(TextElement.FontFamilyProperty);
+            DependencyPropertyHelper.AddOwner<MapGrid, FontFamily>(TextElement.FontFamilyProperty);
 
         public static readonly StyledProperty<double> FontSizeProperty =
-            DependencyPropertyHelper.AddOwner<MapGraticule, double>(TextElement.FontSizeProperty, 12d);
+            DependencyPropertyHelper.AddOwner<MapGrid, double>(TextElement.FontSizeProperty, 12d);
 
         /// <summary>
         /// Implements IMapElement.ParentMap.
@@ -47,6 +48,11 @@ namespace MapControl
 
         private void OnViewportChanged(object sender, ViewportChangedEventArgs e)
         {
+            OnViewportChanged(e);
+        }
+
+        protected virtual void OnViewportChanged(ViewportChangedEventArgs e)
+        {
             InvalidateVisual();
         }
 
@@ -62,7 +68,7 @@ namespace MapControl
                     Thickness = StrokeThickness,
                 };
 
-                DrawGraticule(pathGeometry.Figures, labels);
+                DrawGrid(pathGeometry.Figures, labels);
 
                 drawingContext.DrawGeometry(null, pen, pathGeometry);
 
@@ -72,24 +78,24 @@ namespace MapControl
 
                     foreach (var label in labels)
                     {
-                        var latText = new FormattedText(label.LatitudeText,
+                        var text = new FormattedText(label.Text,
                             CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
+                        var x = label.X + StrokeThickness / 2d + 2d;
+                        var y = label.Y - text.Height / 2d;
 
-                        var lonText = new FormattedText(label.LongitudeText,
-                            CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
+                        if (label.Rotation != 0d)
+                        {
+                            var transform = Avalonia.Matrix.CreateRotation(
+                                label.Rotation * Math.PI / 180d, new Point(label.X, label.Y));
 
-                        var x = StrokeThickness / 2d + 2d;
-                        var y1 = -StrokeThickness / 2d - latText.Height;
-                        var y2 = StrokeThickness / 2d;
+                            using var pushedState = drawingContext.PushTransform(transform);
 
-                        var transform = new Matrix(1d, 0d, 0d, 1d, 0d, 0d);
-                        transform.Rotate(label.Rotation);
-                        transform.Translate(label.X, label.Y);
-
-                        using var pushState = drawingContext.PushTransform(transform);
-
-                        drawingContext.DrawText(latText, new Point(x, y1));
-                        drawingContext.DrawText(lonText, new Point(x, y2));
+                            drawingContext.DrawText(text, new Point(x, y));
+                        }
+                        else
+                        {
+                            drawingContext.DrawText(text, new Point(x, y));
+                        }
                     }
                 }
             }

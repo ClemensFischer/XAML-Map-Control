@@ -6,80 +6,22 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 #elif UWP
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #elif WINUI
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia;
-using Avalonia.Media;
-using Brush = Avalonia.Media.IBrush;
 using PathFigureCollection = Avalonia.Media.PathFigures;
 #endif
 
 namespace MapControl
 {
     /// <summary>
-    /// Draws a graticule overlay.
+    /// Draws a map graticule, i.e. a lat/lon grid overlay.
     /// </summary>
-    public partial class MapGraticule
+    public partial class MapGraticule : MapGrid
     {
-        private class Label(string latText, string lonText, double x, double y, double rotation)
-        {
-            public string LatitudeText => latText;
-            public string LongitudeText => lonText;
-            public double X => x;
-            public double Y => y;
-            public double Rotation => rotation;
-        }
-
-        public static readonly DependencyProperty MinLineDistanceProperty =
-            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(MinLineDistance), 150d);
-
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.Register<MapGraticule, double>(nameof(StrokeThickness), 0.5);
-
-        private static readonly double[] lineDistances = [
-            1d/3600d, 1d/1800d, 1d/720d, 1d/360d, 1d/240d, 1d/120d,
-            1d/60d, 1d/30d, 1d/12d, 1d/6d, 1d/4d, 1d/2d,
-            1d, 2d, 5d, 10d, 15d, 30d];
-
-
-        /// <summary>
-        /// Minimum graticule line distance in pixels. The default value is 150.
-        /// </summary>
-        public double MinLineDistance
-        {
-            get => (double)GetValue(MinLineDistanceProperty);
-            set => SetValue(MinLineDistanceProperty, value);
-        }
-
-        public double StrokeThickness
-        {
-            get => (double)GetValue(StrokeThicknessProperty);
-            set => SetValue(StrokeThicknessProperty, value);
-        }
-
-        public Brush Foreground
-        {
-            get => (Brush)GetValue(ForegroundProperty);
-            set => SetValue(ForegroundProperty, value);
-        }
-
-        public FontFamily FontFamily
-        {
-            get => (FontFamily)GetValue(FontFamilyProperty);
-            set => SetValue(FontFamilyProperty, value);
-        }
-
-        public double FontSize
-        {
-            get => (double)GetValue(FontSizeProperty);
-            set => SetValue(FontSizeProperty, value);
-        }
-
-        private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
+        protected override void DrawGrid(PathFigureCollection figures, List<Label> labels)
         {
             if (ParentMap.MapProjection.IsNormalCylindrical)
             {
@@ -87,8 +29,34 @@ namespace MapControl
             }
             else
             {
-                DrawNonNormalGraticule(figures, labels);
+                DrawGraticule(figures, labels);
             }
+        }
+
+        private static readonly double[] lineDistances = [
+            1d/3600d, 1d/1800d, 1d/720d, 1d/360d, 1d/240d, 1d/120d,
+            1d/60d, 1d/30d, 1d/12d, 1d/6d, 1d/4d, 1d/2d,
+            1d, 2d, 5d, 10d, 15d, 30d];
+
+        private static string GetLabelFormat(double lineDistance)
+        {
+            return lineDistance < 1d / 60d ? "{0} {1}°{2:00}'{3:00}\"" :
+                   lineDistance < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
+        }
+
+        private double GetLineDistance(bool scaleByLatitude)
+        {
+            var minDistance = MinLineDistance / (ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree);
+
+            if (scaleByLatitude)
+            {
+                minDistance /= Math.Cos(ParentMap.Center.Latitude * Math.PI / 180d);
+            }
+
+            minDistance = Math.Max(minDistance, lineDistances.First());
+            minDistance = Math.Min(minDistance, lineDistances.Last());
+
+            return lineDistances.First(d => d >= minDistance);
         }
 
         private void DrawNormalGraticule(PathFigureCollection figures, List<Label> labels)
@@ -121,7 +89,7 @@ namespace MapControl
             }
         }
 
-        private void DrawNonNormalGraticule(PathFigureCollection figures, List<Label> labels)
+        private void DrawGraticule(PathFigureCollection figures, List<Label> labels)
         {
             var lineDistance = GetLineDistance(true);
             var labelFormat = GetLabelFormat(lineDistance);
@@ -241,74 +209,27 @@ namespace MapControl
                     rotation -= 180d;
                 }
 
-                labels.Add(new Label(
-                    GetLabelText(lat, labelFormat, "NS"),
-                    GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW"),
-                    position.X, position.Y, rotation));
-            }
-        }
+                var text = GetLabelText(lat, labelFormat, "NS") +
+                    "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
 
-        private double GetLineDistance(bool scaleByLatitude)
-        {
-            var minDistance = MinLineDistance / (ParentMap.ViewTransform.Scale * MapProjection.Wgs84MeterPerDegree);
-
-            if (scaleByLatitude)
-            {
-                minDistance /= Math.Cos(ParentMap.Center.Latitude * Math.PI / 180d);
+                labels.Add(new Label(text, position.X, position.Y, rotation));
             }
 
-            minDistance = Math.Max(minDistance, lineDistances.First());
-            minDistance = Math.Min(minDistance, lineDistances.Last());
-
-            return lineDistances.First(d => d >= minDistance);
-        }
-
-        private static string GetLabelFormat(double lineDistance)
-        {
-            return lineDistance < 1d / 60d ? "{0} {1}°{2:00}'{3:00}\"" :
-                   lineDistance < 1d ? "{0} {1}°{2:00}'" : "{0} {1}°";
-        }
-
-        private static string GetLabelText(double value, string labelFormat, string hemispheres)
-        {
-            var hemisphere = hemispheres[0];
-
-            if (value < -1e-8) // ~1 mm
+            static string GetLabelText(double value, string labelFormat, string hemispheres)
             {
-                value = -value;
-                hemisphere = hemispheres[1];
+                var hemisphere = hemispheres[0];
+
+                if (value < -1e-8) // ~1 mm
+                {
+                    value = -value;
+                    hemisphere = hemispheres[1];
+                }
+
+                var seconds = (int)Math.Round(value * 3600d);
+
+                return string.Format(CultureInfo.InvariantCulture,
+                    labelFormat, hemisphere, seconds / 3600, seconds / 60 % 60, seconds % 60);
             }
-
-            var seconds = (int)Math.Round(value * 3600d);
-
-            return string.Format(CultureInfo.InvariantCulture,
-                labelFormat, hemisphere, seconds / 3600, seconds / 60 % 60, seconds % 60);
-        }
-
-        private static PathFigure CreateLineFigure(Point p1, Point p2)
-        {
-            var figure = new PathFigure
-            {
-                StartPoint = p1,
-                IsClosed = false,
-                IsFilled = false
-            };
-
-            figure.Segments.Add(new LineSegment { Point = p2 });
-            return figure;
-        }
-
-        private static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
-        {
-            var figure = new PathFigure
-            {
-                StartPoint = points.First(),
-                IsClosed = false,
-                IsFilled = false
-            };
-
-            figure.Segments.Add(CreatePolyLineSegment(points.Skip(1)));
-            return figure;
         }
     }
 }
