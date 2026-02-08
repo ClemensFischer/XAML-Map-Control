@@ -74,8 +74,20 @@ namespace MapControl
                     {
                         var text = new FormattedText(label.Text,
                             CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground, pixelsPerDip);
-                        var x = label.X + StrokeThickness / 2d + 2d;
-                        var y = label.Y - text.Height / 2d;
+                        var x = label.X +
+                            label.HorizontalAlignment switch
+                            {
+                                HorizontalAlignment.Left => 2d,
+                                HorizontalAlignment.Right => -text.Width - 2d,
+                                _ => -text.Width / 2d
+                            };
+                        var y = label.Y +
+                            label.VerticalAlignment switch
+                            {
+                                VerticalAlignment.Top => 0,
+                                VerticalAlignment.Bottom => -text.Height,
+                                _ => -text.Height / 2d
+                            };
 
                         if (label.Rotation != 0d)
                         {

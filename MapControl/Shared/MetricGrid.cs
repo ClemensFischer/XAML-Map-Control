@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 #elif UWP
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #elif WINUI
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia;
+using Avalonia.Layout;
 using PathFigureCollection = Avalonia.Media.PathFigures;
 #endif
 
@@ -43,6 +46,10 @@ namespace MapControl
                 var p1 = ParentMap.ViewTransform.MapToView(new Point(x, mapRect.Y));
                 var p2 = ParentMap.ViewTransform.MapToView(new Point(x, mapRect.Y + mapRect.Height));
                 figures.Add(CreateLineFigure(p1, p2));
+
+                var text = string.Format("{0:F0}", x);
+                labels.Add(new Label(text, p1.X, p1.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Bottom));
+                labels.Add(new Label(text, p2.X, p2.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Top));
             }
 
             for (var y = minY; y <= mapRect.Y + mapRect.Height; y += lineDistance)
@@ -51,33 +58,9 @@ namespace MapControl
                 var p2 = ParentMap.ViewTransform.MapToView(new Point(mapRect.X + mapRect.Width, y));
                 figures.Add(CreateLineFigure(p1, p2));
 
-                for (var x = minX; x <= mapRect.X + mapRect.Width; x += lineDistance)
-                {
-                    AddLabel(labels, x, y);
-                }
-            }
-        }
-
-        private void AddLabel(List<Label> labels, double x, double y)
-        {
-            var position = ParentMap.ViewTransform.MapToView(new Point(x, y));
-
-            if (ParentMap.InsideViewBounds(position))
-            {
-                var rotation = ParentMap.ViewTransform.Rotation;
-
-                if (rotation < -90d)
-                {
-                    rotation += 180d;
-                }
-                else if (rotation > 90d)
-                {
-                    rotation -= 180d;
-                }
-
-                var text = string.Format("{0:F0}\n{1:F0}", y, x);
-
-                labels.Add(new Label(text, position.X, position.Y, rotation));
+                var text = string.Format("{0:F0}", y);
+                labels.Add(new Label(text, p1.X, p1.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Bottom));
+                labels.Add(new Label(text, p2.X, p2.Y, 0d, HorizontalAlignment.Right, VerticalAlignment.Bottom));
             }
         }
     }

@@ -6,11 +6,14 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 #elif UWP
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #elif WINUI
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia;
+using Avalonia.Layout;
 using PathFigureCollection = Avalonia.Media.PathFigures;
 #endif
 
@@ -74,6 +77,13 @@ namespace MapControl
                 var p1 = ParentMap.LocationToView(lat, southWest.Longitude);
                 var p2 = ParentMap.LocationToView(lat, northEast.Longitude);
                 figures.Add(CreateLineFigure(p1, p2));
+
+                if (ParentMap.ViewTransform.Rotation == 0d)
+                {
+                    var text = GetLatitudeLabelText(lat, labelFormat);
+                    labels.Add(new Label(text, p1.X, p1.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Bottom));
+                    labels.Add(new Label(text, p2.X, p2.Y, 0d, HorizontalAlignment.Right, VerticalAlignment.Bottom));
+                }
             }
 
             for (var lon = minLon; lon <= northEast.Longitude; lon += lineDistance)
@@ -82,9 +92,18 @@ namespace MapControl
                 var p2 = ParentMap.LocationToView(northEast.Latitude, lon);
                 figures.Add(CreateLineFigure(p1, p2));
 
-                for (var lat = minLat; lat <= northEast.Latitude; lat += lineDistance)
+                if (ParentMap.ViewTransform.Rotation == 0d)
                 {
-                    AddLabel(labels, labelFormat, lat, lon, ParentMap.LocationToView(lat, lon), 0d);
+                    var text = GetLongitudeLabelText(lon, labelFormat);
+                    labels.Add(new Label(text, p1.X, p1.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Bottom));
+                    labels.Add(new Label(text, p2.X, p2.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Top));
+                }
+                else
+                {
+                    for (var lat = minLat; lat <= northEast.Latitude; lat += lineDistance)
+                    {
+                        AddLabel(labels, labelFormat, lat, lon, ParentMap.LocationToView(lat, lon), 0d);
+                    }
                 }
             }
         }
@@ -125,8 +144,14 @@ namespace MapControl
                 maxLon += lineDistance;
             }
 
-            minLat = Math.Ceiling(minLat / lineDistance) * lineDistance;
-            maxLat = Math.Floor(maxLat / lineDistance) * lineDistance;
+            if (pointDistance < lineDistance)
+            {
+                minLat = Math.Ceiling(minLat / lineDistance - 1e-6) * lineDistance;
+                maxLat = Math.Floor(maxLat / lineDistance + 1e-6) * lineDistance;
+            }
+
+            maxLat += 1e-6;
+            maxLon += 1e-6;
 
             for (var lat = minLat; lat <= maxLat; lat += lineDistance)
             {
@@ -209,27 +234,37 @@ namespace MapControl
                     rotation -= 180d;
                 }
 
-                var text = GetLabelText(lat, labelFormat, "NS") +
-                    "\n" + GetLabelText(Location.NormalizeLongitude(lon), labelFormat, "EW");
+                var text = GetLatitudeLabelText(lat, labelFormat) +
+                    "\n" + GetLongitudeLabelText(lon, labelFormat);
 
                 labels.Add(new Label(text, position.X, position.Y, rotation));
             }
+        }
 
-            static string GetLabelText(double value, string labelFormat, string hemispheres)
+        private static string GetLatitudeLabelText(double value, string labelFormat)
+        {
+            return GetLabelText(value, labelFormat, "NS");
+        }
+
+        private static string GetLongitudeLabelText(double value, string labelFormat)
+        {
+            return GetLabelText(Location.NormalizeLongitude(value), labelFormat, "EW");
+        }
+
+        private static string GetLabelText(double value, string labelFormat, string hemispheres)
+        {
+            var hemisphere = hemispheres[0];
+
+            if (value < -1e-8) // ~1 mm
             {
-                var hemisphere = hemispheres[0];
-
-                if (value < -1e-8) // ~1 mm
-                {
-                    value = -value;
-                    hemisphere = hemispheres[1];
-                }
-
-                var seconds = (int)Math.Round(value * 3600d);
-
-                return string.Format(CultureInfo.InvariantCulture,
-                    labelFormat, hemisphere, seconds / 3600, seconds / 60 % 60, seconds % 60);
+                value = -value;
+                hemisphere = hemispheres[1];
             }
+
+            var seconds = (int)Math.Round(value * 3600d);
+
+            return string.Format(CultureInfo.InvariantCulture,
+                labelFormat, hemisphere, seconds / 3600, seconds / 60 % 60, seconds % 60);
         }
     }
 }

@@ -96,8 +96,21 @@ namespace MapControl
                 textBlock.Text = label.Text;
                 textBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
+                var x = label.HorizontalAlignment switch
+                {
+                    HorizontalAlignment.Left => 2d,
+                    HorizontalAlignment.Right => -textBlock.DesiredSize.Width - 2d,
+                    _ => -textBlock.DesiredSize.Width / 2d
+                };
+                var y = label.VerticalAlignment switch
+                {
+                    VerticalAlignment.Top => 0d,
+                    VerticalAlignment.Bottom => -textBlock.DesiredSize.Height,
+                    _ => -textBlock.DesiredSize.Height / 2d,
+                };
+
                 var matrix = new Matrix(1, 0, 0, 1, 0, 0);
-                matrix.Translate(StrokeThickness / 2d + 2d, -textBlock.DesiredSize.Height / 2d);
+                matrix.Translate(x, y);
                 matrix.Rotate(label.Rotation);
                 matrix.Translate(label.X, label.Y);
 

@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Brush = Avalonia.Media.IBrush;
 using PathFigureCollection = Avalonia.Media.PathFigures;
@@ -23,12 +24,16 @@ namespace MapControl
     /// </summary>
     public abstract partial class MapGrid
     {
-        protected class Label(string text, double x, double y, double rotation)
+        protected class Label(string text, double x, double y, double rotation,
+                              HorizontalAlignment horizontalAlignment = HorizontalAlignment.Left,
+                              VerticalAlignment verticalAlignment = VerticalAlignment.Center)
         {
             public string Text => text;
             public double X => x;
             public double Y => y;
             public double Rotation => rotation;
+            public HorizontalAlignment HorizontalAlignment => horizontalAlignment;
+            public VerticalAlignment VerticalAlignment => verticalAlignment;
         }
 
         public static readonly DependencyProperty MinLineDistanceProperty =
