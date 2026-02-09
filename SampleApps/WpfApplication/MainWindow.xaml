@@ -213,7 +213,7 @@
                 <tools:MapLayerMenuItem Text="OpenStreetMap WMS">
                     <map:WmsImageLayer
                         ServiceUri="https://ows.terrestris.de/osm/service"
-                        Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                        Description="© [terrestris](http://terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerMenuItem>
 
                 <Separator/>
@@ -231,6 +231,9 @@
                 </tools:MapOverlayMenuItem>
                 <tools:MapOverlayMenuItem Text="Graticule" InsertOrder="2">
                     <map:MapGraticule Opacity="0.7"/>
+                </tools:MapOverlayMenuItem>
+                <tools:MapOverlayMenuItem Text="Metric Grid" InsertOrder="2">
+                    <map:MetricGrid Opacity="0.7" Foreground="Orange"/>
                 </tools:MapOverlayMenuItem>
                 <tools:MapOverlayMenuItem Text="Scale" InsertOrder="2">
                     <map:MapScale HorizontalAlignment="Center" VerticalAlignment="Bottom"/>

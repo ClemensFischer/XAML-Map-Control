@@ -236,7 +236,7 @@
                 <tools:MapLayerMenuItem Text="OpenStreetMap WMS">
                     <map:WmsImageLayer
                         ServiceUri="https://ows.terrestris.de/osm/service"
-                        Description="© [terrestris GmbH &amp; Co. KG](http://ows.terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
+                        Description="© [terrestris](http://terrestris.de/) © [OpenStreetMap contributors](http://www.openstreetmap.org/copyright)"/>
                 </tools:MapLayerMenuItem>
 
                 <MenuFlyoutSeparator/>
