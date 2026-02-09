@@ -24,7 +24,7 @@ namespace MapControl
     {
         protected override void DrawGrid(PathFigureCollection figures, List<Label> labels)
         {
-            var minLineDistance = MinLineDistance / ParentMap.ViewTransform.Scale;
+            var minLineDistance = Math.Max(MinLineDistance / ParentMap.ViewTransform.Scale, 1d);
             var lineDistance = Math.Pow(10d, Math.Ceiling(Math.Log10(minLineDistance)));
 
             if (lineDistance * 0.5 >= minLineDistance)
