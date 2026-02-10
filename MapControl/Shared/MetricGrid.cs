@@ -47,7 +47,7 @@ namespace MapControl
                 var p2 = ParentMap.ViewTransform.MapToView(new Point(x, mapRect.Y + mapRect.Height));
                 figures.Add(CreateLineFigure(p1, p2));
 
-                var text = string.Format("{0:F0}", x);
+                var text = x.ToString("F0");
                 labels.Add(new Label(text, p1.X, p1.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Bottom));
                 labels.Add(new Label(text, p2.X, p2.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Top));
             }
@@ -58,7 +58,7 @@ namespace MapControl
                 var p2 = ParentMap.ViewTransform.MapToView(new Point(mapRect.X + mapRect.Width, y));
                 figures.Add(CreateLineFigure(p1, p2));
 
-                var text = string.Format("{0:F0}", y);
+                var text = y.ToString("F0");
                 labels.Add(new Label(text, p1.X, p1.Y, 0d, HorizontalAlignment.Left, VerticalAlignment.Bottom));
                 labels.Add(new Label(text, p2.X, p2.Y, 0d, HorizontalAlignment.Right, VerticalAlignment.Bottom));
             }

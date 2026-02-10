@@ -199,6 +199,7 @@ namespace MapControl.Projections
         {
             var sign = Math.Sign(LatitudeOfOrigin);
             var phi = sign * latitude * Math.PI / 180d;
+
             var e = Math.Sqrt((2d - Flattening) * Flattening);
             var eSinPhi = e * Math.Sin(phi);
             var t = Math.Tan(Math.PI / 4d - phi / 2d)
