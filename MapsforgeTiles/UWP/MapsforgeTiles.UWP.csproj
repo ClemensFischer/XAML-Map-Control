@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+        <UseUwp>true</UseUwp>
+        <DefineConstants>UWP</DefineConstants>
+        <RootNamespace>MapControl.MapsforgeTiles</RootNamespace>
+        <AssemblyTitle>XAML Map Control Mapsforge Library for UWP</AssemblyTitle>
+        <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+        <DefaultLanguage>en-US</DefaultLanguage>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Shared\*.cs" />
+        <Compile Include="..\WinUI\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\UWP\MapControl.UWP.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.15.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <IkvmReference Include="..\target\mapsforge-tilerenderer-0.1.0-jar-with-dependencies.jar" />
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="cd ..&#xD;&#xA;mvn package" />
+    </Target>
+</Project>

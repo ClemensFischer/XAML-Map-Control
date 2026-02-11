@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <DefineConstants>WPF</DefineConstants>
+        <RootNamespace>MapControl.MapsforgeTiles</RootNamespace>
+        <AssemblyTitle>XAML Map Control Mapsforge Library for WPF</AssemblyTitle>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Shared\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\WPF\MapControl.WPF.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.15.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <IkvmReference Include="..\target\mapsforge-tilerenderer-0.1.0-jar-with-dependencies.jar" />
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="cd ..&#xD;&#xA;mvn package" />
+    </Target>
+</Project>
