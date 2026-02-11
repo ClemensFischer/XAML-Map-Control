@@ -8,7 +8,7 @@
         <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
         <PackageId>XAML.MapControl.MBTiles.WinUI</PackageId>
         <Title>$(AssemblyTitle)</Title>
-        <Description>MBTiles library for XAML Map Control</Description>
+        <Description>MBTiles support library for XAML Map Control</Description>
     </PropertyGroup>
 
     <ItemGroup>
