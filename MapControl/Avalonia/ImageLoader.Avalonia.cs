@@ -42,7 +42,7 @@ namespace MapControl
 
         internal static async Task<IImage> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
         {
-            WriteableBitmap mergedBitmap = null;
+            Bitmap mergedBitmap = null;
             var p1 = 0d;
             var p2 = 0d;
 
@@ -74,7 +74,7 @@ namespace MapControl
                         bitmap1.CopyPixels(new PixelRect(bitmap1.PixelSize), buffer, bufferSize, stride);
                         bitmap2.CopyPixels(new PixelRect(bitmap2.PixelSize), buffer + stride1, bufferSize, stride);
 
-                        mergedBitmap = new WriteableBitmap(bitmap1.Format.Value, bitmap1.AlphaFormat.Value, buffer, pixelSize, bitmap1.Dpi, stride);
+                        mergedBitmap = new Bitmap(bitmap1.Format.Value, bitmap1.AlphaFormat.Value, buffer, pixelSize, bitmap1.Dpi, stride);
                     }
                 }
             }
