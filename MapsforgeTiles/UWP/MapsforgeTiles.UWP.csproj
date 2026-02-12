@@ -11,23 +11,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\Shared\*.cs" />
         <Compile Include="..\WinUI\*.cs" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\UWP\MapControl.UWP.csproj" />
+        <ProjectReference Include="..\MapsforgeWrapper\MapsforgeWrapper.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.15.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <IkvmReference Include="..\target\mapsforge-tilerenderer-0.1.0-jar-with-dependencies.jar" />
-    </ItemGroup>
-
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Command="cd ..&#xD;&#xA;mvn package" />
-    </Target>
 </Project>

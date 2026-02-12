@@ -5,11 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xaml.mapcontrol</groupId>
-    <artifactId>mapsforge-tilerenderer</artifactId>
-    <version>0.1.0</version>
+    <artifactId>mapsforge-dependencies</artifactId>
+    <version>0.27.0</version>
 
     <properties>
-        <maven.compiler.release>8</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -46,6 +45,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
