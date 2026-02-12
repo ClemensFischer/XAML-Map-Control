@@ -4,6 +4,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Remove="target\**" />
+        <EmbeddedResource Remove="target\**" />
+        <None Remove="target\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="IKVM" Version="8.15.0" />
     </ItemGroup>
 

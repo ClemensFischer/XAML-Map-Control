@@ -1,4 +1,5 @@
-﻿using org.mapsforge.map.awt.graphics;
+﻿using org.mapsforge.core.model;
+using org.mapsforge.map.awt.graphics;
 using org.mapsforge.map.datastore;
 using org.mapsforge.map.layer.cache;
 using org.mapsforge.map.layer.renderer;
@@ -54,7 +55,7 @@ namespace MapsforgeWrapper
             }
 
             int[] imageBuffer = null;
-            var tile = new org.mapsforge.core.model.Tile(column, row, (byte)zoomLevel, displayModel.getTileSize());
+            var tile = new Tile(column, row, (byte)zoomLevel, displayModel.getTileSize());
             var job = new RendererJob(tile, dataStore, renderThemeFuture, displayModel, 1f, false, false);
             var bitmap = tileCache.get(job) ?? renderer.executeJob(job);
 
