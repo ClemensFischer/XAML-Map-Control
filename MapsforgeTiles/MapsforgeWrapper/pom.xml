@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xaml.mapcontrol</groupId>
-    <artifactId>mapsforge-dependencies</artifactId>
+    <artifactId>mapsforge</artifactId>
     <version>0.27.0</version>
 
     <properties>
@@ -40,7 +40,6 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>

@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <IkvmReference Include="target\mapsforge-dependencies-0.27.0.jar" />
+        <IkvmReference Include="target\mapsforge-0.27.0-jar-with-dependencies.jar" />
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
