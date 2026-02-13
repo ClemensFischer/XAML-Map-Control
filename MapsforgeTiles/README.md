@@ -29,12 +29,12 @@ map.MapLayer = new MapTileLayer
 
 ---
 
-Apparently, IKVM's `MavenReference` does not work with other Maven repositories than Maven Central.
-Mapsforge however, is hosted by JitPack. So the currently only working way to utilize Mapsforge is
-by creating a local JAR file with all dependencies required by `TileRenderer` and reference it via
-`IkvmReference`.
+Building MapsforgeWrapper with IKVM's `MavenReference` fails - apparently because a dependency
+on the XML Pull Parser library could not properly be resolved. So the currently only working way
+to use Mapsforge is by creating a local JAR file with all dependencies required by MapsforgeWrapper
+and reference it via `IkvmReference`.
 
-This means that you need [Maven](https://maven.apache.org/) to build the MapsforgeWrapper library.
+This means that [Maven](https://maven.apache.org/) is needed to build the MapsforgeWrapper library.
 There is a custom `PreBuild` event in `MapsforgeWrapper.csproj` which executes the command
 ```
 mvn package

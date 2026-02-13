@@ -28,11 +28,12 @@ namespace MapsforgeWrapper
             else
             {
                 var multiMapDataStore = new MultiMapDataStore(MultiMapDataStore.DataPolicy.DEDUPLICATE);
+                dataStore = multiMapDataStore;
+
                 foreach (var file in Directory.EnumerateFiles(mapFilePath, "*.map"))
                 {
                     multiMapDataStore.addMapDataStore(new MapFile(file), false, false);
                 }
-                dataStore = multiMapDataStore;
             }
         }
 

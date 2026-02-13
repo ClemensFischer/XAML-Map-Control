@@ -22,11 +22,6 @@
     <dependencies>
         <dependency>
             <groupId>com.github.mapsforge.mapsforge</groupId>
-            <artifactId>mapsforge-core</artifactId>
-            <version>0.27.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.mapsforge.mapsforge</groupId>
             <artifactId>mapsforge-map-awt</artifactId>
             <version>0.27.0</version>
         </dependency>
