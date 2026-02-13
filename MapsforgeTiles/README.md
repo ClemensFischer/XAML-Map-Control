@@ -29,10 +29,9 @@ map.MapLayer = new MapTileLayer
 
 ---
 
-Building MapsforgeWrapper with IKVM's `MavenReference` fails - apparently because a dependency
-on the XML Pull Parser library could not properly be resolved. So the currently only working way
-to use Mapsforge is by creating a local JAR file with all dependencies required by MapsforgeWrapper
-and reference it via `IkvmReference`.
+While building MapsforgeWrapper with IKVM's `MavenReference` succeeds, resolving render theme assets
+in `mapsforge-themes/src/main/resources/assets` fails at runtime. An alternative approach is to import
+Mapsforge by an `IkvmReference` that references a local JAR file with all required dependencies.
 
 This means that [Maven](https://maven.apache.org/) is needed to build the MapsforgeWrapper library.
 There is a custom `PreBuild` event in `MapsforgeWrapper.csproj` which executes the command
