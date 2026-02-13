@@ -30,7 +30,7 @@ map.MapLayer = new MapTileLayer
 ---
 
 While building MapsforgeWrapper with IKVM's `MavenReference` succeeds, running a `RenderThemeFuture`
-always fails with a `NoClassDefFoundError` exception for `org.xmlpull.v1.XmlPullParserException`.
+always fails with a `NoClassDefFoundError` exception for `org.xmlpull.v1.XmlPullParserFactory`.
 
 An alternative approach is to import Mapsforge classes by an `IkvmReference` that references
 a local JAR file with all required dependencies. This JAR is built from `pom.xml` in the project
