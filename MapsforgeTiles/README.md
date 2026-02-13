@@ -29,13 +29,15 @@ map.MapLayer = new MapTileLayer
 
 ---
 
-While building MapsforgeWrapper with IKVM's `MavenReference` succeeds, resolving render theme assets
-in `mapsforge-themes/src/main/resources/assets` fails at runtime. An alternative approach is to import
-Mapsforge by an `IkvmReference` that references a local JAR file with all required dependencies.
+While building MapsforgeWrapper with IKVM's `MavenReference` succeeds, running a `RenderThemeFuture`
+always fails with a `NoClassDefFoundError` exception for `org.xmlpull.v1.XmlPullParserException`.
 
-This means that [Maven](https://maven.apache.org/) is needed to build the MapsforgeWrapper library.
-There is a custom `PreBuild` event in `MapsforgeWrapper.csproj` which executes the command
+An alternative approach is to import Mapsforge classes by an `IkvmReference` that references
+a local JAR file with all required dependencies. This JAR is built from `pom.xml` in the project
+directory, by a custom `PreBuild` event in `MapsforgeWrapper.csproj` which executes the command
 ```
 mvn package
 ```
-in the project file's directory.
+
+So in order to build one of the MapsforgeTiles libraries, a [Maven](https://maven.apache.org/)
+installation is required.
