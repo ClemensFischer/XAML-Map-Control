@@ -5,10 +5,37 @@
         <DefineConstants>WINUI</DefineConstants>
         <RootNamespace>MapControl.MapsforgeTiles</RootNamespace>
         <AssemblyTitle>XAML Map Control Mapsforge Library for WinUI</AssemblyTitle>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.MapsforgeTiles.WinUI</PackageId>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>Mapsforge support library for XAML Map Control</Description>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
-        <ProjectReference Include="..\MapsforgeWrapper\MapsforgeWrapper.csproj" />
+        <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.15.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <IkvmReference Include="..\target\mapsforge-0.27.0-jar-with-dependencies.jar" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(OutDir)\mapsforge.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib\net10.0-windows10.0.17763</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent"
+            Outputs="..\target\mapsforge-0.27.0-jar-with-dependencies.jar">
+        <Exec Command="mvn package" WorkingDirectory=".."/>
+    </Target>
 </Project>

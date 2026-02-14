@@ -6,16 +6,40 @@
         <DefineConstants>UWP</DefineConstants>
         <RootNamespace>MapControl.MapsforgeTiles</RootNamespace>
         <AssemblyTitle>XAML Map Control Mapsforge Library for UWP</AssemblyTitle>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.MapsforgeTiles.UWP</PackageId>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>Mapsforge support library for XAML Map Control</Description>
         <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
         <DefaultLanguage>en-US</DefaultLanguage>
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="..\Shared\*.cs" />
         <Compile Include="..\WinUI\*.cs" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\UWP\MapControl.UWP.csproj" />
-        <ProjectReference Include="..\MapsforgeWrapper\MapsforgeWrapper.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.15.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <IkvmReference Include="..\target\mapsforge-0.27.0-jar-with-dependencies.jar" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(OutDir)\mapsforge.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib\net10.0-windows10.0.26100</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent"
+            Outputs="..\target\mapsforge-0.27.0-jar-with-dependencies.jar">
+        <Exec Command="mvn package" WorkingDirectory=".."/>
+    </Target>
 </Project>

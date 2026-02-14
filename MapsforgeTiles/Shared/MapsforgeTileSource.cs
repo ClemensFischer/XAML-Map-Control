@@ -1,12 +1,17 @@
-﻿using MapsforgeWrapper;
-using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+#if WPF
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
+#elif UWP
+using Windows.UI.Xaml.Media;
+#elif WINUI
+using Microsoft.UI.Xaml.Media;
+#elif AVALONIA
+using ImageSource=Avalonia.Media.IImage;
+#endif
 
 namespace MapControl.MapsforgeTiles
 {
-    public class MapsforgeTileSource(string theme, int cacheCapacity = 200) : TileSource
+    public partial class MapsforgeTileSource(string theme, int cacheCapacity = 200) : TileSource
     {
         private readonly TileRenderer renderer = new(theme, cacheCapacity);
 
@@ -21,14 +26,6 @@ namespace MapControl.MapsforgeTiles
             ImageSource image = pixels != null ? CreateImage(pixels) : null;
 
             return Task.FromResult(image);
-        }
-
-        private static BitmapSource CreateImage(int[] pixels)
-        {
-            var size = (int)Math.Sqrt(pixels.Length);
-            var image = BitmapSource.Create(size, size, 96d, 96d, PixelFormats.Bgra32, null, pixels, size * 4);
-            image.Freeze();
-            return image;
         }
     }
 }

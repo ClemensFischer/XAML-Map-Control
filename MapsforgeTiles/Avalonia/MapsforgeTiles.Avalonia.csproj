@@ -4,11 +4,38 @@
         <DefineConstants>AVALONIA</DefineConstants>
         <RootNamespace>MapControl.MapsforgeTiles</RootNamespace>
         <AssemblyTitle>XAML Map Control Mapsforge Library for Avalonia</AssemblyTitle>
+        <GeneratePackageOnBuild>$(GeneratePackage)</GeneratePackageOnBuild>
+        <PackageId>XAML.MapControl.MapsforgeTiles.Avalonia</PackageId>
+        <Title>$(AssemblyTitle)</Title>
+        <Description>Mapsforge support library for XAML Map Control</Description>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MapControl\Avalonia\MapControl.Avalonia.csproj" />
-        <ProjectReference Include="..\MapsforgeWrapper\MapsforgeWrapper.csproj" />
+        <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MapControl\Avalonia\MapControl.Avalonia.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.15.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <IkvmReference Include="..\target\mapsforge-0.27.0-jar-with-dependencies.jar" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(OutDir)\mapsforge.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib\net10.0</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent"
+            Outputs="..\target\mapsforge-0.27.0-jar-with-dependencies.jar">
+        <Exec Command="mvn package" WorkingDirectory=".."/>
+    </Target>
 </Project>
