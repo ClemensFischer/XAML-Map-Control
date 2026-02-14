@@ -5,6 +5,7 @@ using org.mapsforge.map.layer.cache;
 using org.mapsforge.map.layer.renderer;
 using org.mapsforge.map.model;
 using org.mapsforge.map.reader;
+using org.mapsforge.map.rendertheme;
 using org.mapsforge.map.rendertheme.@internal;
 using org.mapsforge.map.rendertheme.rule;
 using System.IO;
@@ -43,9 +44,20 @@ namespace MapsforgeWrapper
 
         public TileRenderer(string theme, int cacheCapacity = 200)
         {
+            XmlRenderTheme renderTheme;
+
+            if (theme.EndsWith(".xml"))
+            {
+                renderTheme = new ExternalRenderTheme(theme);
+            }
+            else
+            {
+                renderTheme = MapsforgeThemes.valueOf(theme.ToUpper());
+            }
+
             tileCache = new InMemoryTileCache(cacheCapacity);
             renderer = new DatabaseRenderer(dataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
-            renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, MapsforgeThemes.valueOf(theme.ToUpper()), displayModel);
+            renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, renderTheme, displayModel);
         }
 
         public int[] RenderTile(int zoomLevel, int column, int row)
