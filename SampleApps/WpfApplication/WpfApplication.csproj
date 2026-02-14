@@ -2,6 +2,7 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFrameworks>net10.0-windows;net48</TargetFrameworks>
+        <LangVersion Condition="'$(TargetFramework)'=='net48'">14.0</LangVersion>
         <UseWPF>true</UseWPF>
         <DefineConstants>WPF</DefineConstants>
         <RootNamespace>SampleApplication</RootNamespace>
@@ -30,6 +31,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
     </ItemGroup>
 </Project>

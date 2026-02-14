@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.11" />
+        <PackageReference Include="Avalonia" Version="11.3.12" />
         <PackageReference Include="ProjNET" Version="2.1.0" />
     </ItemGroup>
 </Project>

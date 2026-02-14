@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.11" />
+        <PackageReference Include="Avalonia" Version="11.3.12" />
         <PackageReference Include="Markdown.Avalonia.Tight" Version="11.0.2" />
     </ItemGroup>
 </Project>
