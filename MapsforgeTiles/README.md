@@ -6,7 +6,7 @@ The `MapsforgeTileSource` classes in these libraries make use of a `TileRenderer
 .NET class library called MapsforgeWrapper. `TileRenderer` uses the [Mapsforge](https://github.com/mapsforge/mapsforge)
 Java library, which is made accessible to .NET via [IKVM](https://github.com/ikvmnet/ikvm), a Java Virtual Machine for .NET.
 [Mapsforge](https://github.com/mapsforge/mapsforge) is published under a simplified variant of the
-[LGPL v3 license](https://www.gnu.org/licenses/lgpl-3.0). Copies of the LGPL and GPL are included here.
+[LGPL v3 license](https://www.gnu.org/licenses/lgpl-3.0).
 
 Map files can be downloaded from the [Mapsforge Download Server](https://download.mapsforge.org/).
 
