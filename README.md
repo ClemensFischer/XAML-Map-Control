@@ -66,22 +66,33 @@ XAML Map Control is available on NuGet, as a set of framework-specific packages 
 * [XAML.MapControl.WinUI](https://www.nuget.org/packages/XAML.MapControl.WinUI/),
 * [XAML.MapControl.Avalonia](https://www.nuget.org/packages/XAML.MapControl.Avalonia/).
 
+FileDbCache and SQLiteCache are available as
+* [XAML.MapControl.FileDbCache](https://www.nuget.org/packages/XAML.MapControl.FileDbCache/),
+* [XAML.MapControl.SQLiteCache](https://www.nuget.org/packages/XAML.MapControl.SQLiteCache/).
+
 There are also packages for an extension library with additional map projections, based on
-[ProjNET4GeoAPI](https://github.com/NetTopologySuite/ProjNet4GeoAPI), with Package Ids
+[ProjNET4GeoAPI](https://github.com/NetTopologySuite/ProjNet4GeoAPI), with these ids:
 * [XAML.MapControl.MapProjections.WPF](https://www.nuget.org/packages/XAML.MapControl.MapProjections.WPF/),
 * [XAML.MapControl.MapProjections.UWP](https://www.nuget.org/packages/XAML.MapControl.MapProjections.UWP/),
 * [XAML.MapControl.MapProjections.WinUI](https://www.nuget.org/packages/XAML.MapControl.MapProjections.WinUI/),
 * [XAML.MapControl.MapProjections.Avalonia](https://www.nuget.org/packages/XAML.MapControl.MapProjections.Avalonia/),
 
-and a library for [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles) support, with Package Ids
+For loading map tiles from [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles) files,
+these extension library packages are available:
 * [XAML.MapControl.MBTiles.WPF](https://www.nuget.org/packages/XAML.MapControl.MBTiles.WPF/),
 * [XAML.MapControl.MBTiles.UWP](https://www.nuget.org/packages/XAML.MapControl.MBTiles.UWP/),
 * [XAML.MapControl.MBTiles.WinUI](https://www.nuget.org/packages/XAML.MapControl.MBTiles.WinUI/),
-* [XAML.MapControl.MBTiles.Avalonia](https://www.nuget.org/packages/XAML.MapControl.MBTiles.Avalonia/),
+* [XAML.MapControl.MBTiles.Avalonia](https://www.nuget.org/packages/XAML.MapControl.MBTiles.Avalonia/).
 
-FileDbCache and SQLiteCache are available with Package Ids
-* [XAML.MapControl.FileDbCache](https://www.nuget.org/packages/XAML.MapControl.FileDbCache/),
-* [XAML.MapControl.SQLiteCache](https://www.nuget.org/packages/XAML.MapControl.SQLiteCache/).
+Since version 16 there is an extension library for loading map tiles from local vector map data,
+which reads compact [Mapsforge](https://github.com/mapsforge/mapsforge) `.map` files.
+The library uses parts of the Mapsforge Java library via [IKVM](https://github.com/ikvmnet/ikvm).
+See [MapsforgeTiles/README.md](https://github.com/ClemensFischer/XAML-Map-Control/blob/master/MapsforgeTiles/README.md) for details.
+Package Ids are:
+* [XAML.MapControl.MapsforgeTiles.WPF](https://www.nuget.org/packages/XAML.MapControl.MapsforgeTiles.WPF/),
+* [XAML.MapControl.MapsforgeTiles.UWP](https://www.nuget.org/packages/XAML.MapControl.MapsforgeTiles.UWP/),
+* [XAML.MapControl.MapsforgeTiles.WinUI](https://www.nuget.org/packages/XAML.MapControl.MapsforgeTiles.WinUI/),
+* [XAML.MapControl.MapsforgeTiles.Avalonia](https://www.nuget.org/packages/XAML.MapControl.MapsforgeTiles.Avalonia/).
 
 ---
 
