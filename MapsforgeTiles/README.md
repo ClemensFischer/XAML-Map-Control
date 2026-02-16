@@ -2,9 +2,9 @@
 
 Tile source libraries for loading map content from vector map files.
 
-The `MapsforgeTileSource` classes in these libraries make use of a `TileRenderer` class in a separate platform-independent
-.NET class library called MapsforgeWrapper. `TileRenderer` uses the [Mapsforge](https://github.com/mapsforge/mapsforge)
-Java library, which is made accessible to .NET via [IKVM](https://github.com/ikvmnet/ikvm), a Java Virtual Machine for .NET.
+The `MapsforgeTileSource` classes in these libraries make use of a `TileRenderer` class that wraps the
+[Mapsforge](https://github.com/mapsforge/mapsforge) Java library, which is made accessible to .NET via
+[IKVM](https://github.com/ikvmnet/ikvm), a Java Virtual Machine for .NET.
 [Mapsforge](https://github.com/mapsforge/mapsforge) is published under a simplified variant of the
 [LGPL v3 license](https://www.gnu.org/licenses/lgpl-3.0).
 
@@ -29,15 +29,15 @@ map.MapLayer = new MapTileLayer
 
 ---
 
-While building MapsforgeWrapper with IKVM's `MavenReference` succeeds, running a `RenderThemeFuture`
+While building with IKVM's `MavenReference` succeeds, running a `RenderThemeFuture`
 always fails with a `NoClassDefFoundError` exception for `org.xmlpull.v1.XmlPullParserFactory`.
 
-An alternative approach is to import Mapsforge classes by an `IkvmReference` that references
-a local JAR file with all required dependencies. This JAR is built from `pom.xml` in the project
-directory, by a custom `PreBuild` event in `MapsforgeWrapper.csproj` which executes the command
+An alternative approach is to import Mapsforge classes by an `IkvmReference` that references a
+local JAR file with all required dependencies. This JAR is built from `pom.xml` in the MapsforgeTiles
+directory, by a custom PreBuild event in the project files which executes the command
 ```
 mvn package
 ```
 
-So in order to build one of the MapsforgeTiles libraries, a [Maven](https://maven.apache.org/)
+So in order to build the MapsforgeTiles libraries, a [Maven](https://maven.apache.org/)
 installation is required.
