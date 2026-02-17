@@ -1,4 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 #if WPF
 using System.Windows.Media;
 #elif UWP
@@ -11,19 +16,53 @@ using ImageSource=Avalonia.Media.IImage;
 
 namespace MapControl.MapsforgeTiles
 {
-    public partial class MapsforgeTileSource(string theme, int cacheCapacity = 200) : TileSource
+    public partial class MapsforgeTileSource(string theme, int cacheCapacity = 200, float textScale = 1f) : TileSource
     {
-        private readonly TileRenderer renderer = new(theme, cacheCapacity);
+        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MapsforgeTileSource>();
+
+        private readonly TileRenderer renderer = new(theme, cacheCapacity, textScale);
 
         public static void Initialize(string mapFilePath, float dpiScale)
         {
-            TileRenderer.Initialize(mapFilePath, dpiScale);
+            List<string> mapFiles;
+
+            if (mapFilePath.EndsWith(".map"))
+            {
+                mapFiles = [mapFilePath];
+            }
+            else
+            {
+                mapFiles = [.. Directory.EnumerateFiles(mapFilePath, "*.map")];
+            }
+
+            foreach (var mapFile in mapFiles)
+            {
+                Logger?.LogInformation("Loading {mapFile}", mapFile);
+            }
+
+            TileRenderer.Initialize(mapFiles, dpiScale);
         }
 
         public override Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
-            var pixels = renderer.RenderTile(zoomLevel, column, row);
-            ImageSource image = pixels != null ? CreateImage(pixels) : null;
+            ImageSource image = null;
+
+            try
+            {
+                var sw = Stopwatch.StartNew();
+                var pixels = renderer.RenderTile(zoomLevel, column, row);
+
+                Debug.WriteLine(sw.ElapsedMilliseconds);
+
+                if (pixels != null)
+                {
+                    image = CreateImage(pixels);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "LoadImageAsync");
+            }
 
             return Task.FromResult(image);
         }

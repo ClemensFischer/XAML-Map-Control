@@ -7,7 +7,7 @@ using org.mapsforge.map.reader;
 using org.mapsforge.map.rendertheme;
 using org.mapsforge.map.rendertheme.@internal;
 using org.mapsforge.map.rendertheme.rule;
-using System.IO;
+using System.Collections.Generic;
 
 namespace MapControl.MapsforgeTiles
 {
@@ -16,23 +16,23 @@ namespace MapControl.MapsforgeTiles
         private static DisplayModel displayModel;
         private static MapDataStore dataStore;
 
-        public static void Initialize(string mapFilePath, float dpiScale)
+        public static void Initialize(List<string> mapFiles, float dpiScale)
         {
             DisplayModel.setDeviceScaleFactor(dpiScale);
             displayModel = new DisplayModel();
 
-            if (mapFilePath.EndsWith(".map"))
+            if (mapFiles.Count == 1)
             {
-                dataStore = new MapFile(mapFilePath);
+                dataStore = new MapFile(mapFiles[0]);
             }
             else
             {
                 var multiMapDataStore = new MultiMapDataStore(MultiMapDataStore.DataPolicy.DEDUPLICATE);
                 dataStore = multiMapDataStore;
 
-                foreach (var file in Directory.EnumerateFiles(mapFilePath, "*.map"))
+                foreach (var mapFile in mapFiles)
                 {
-                    multiMapDataStore.addMapDataStore(new MapFile(file), false, false);
+                    multiMapDataStore.addMapDataStore(new MapFile(mapFile), false, false);
                 }
             }
         }
@@ -40,8 +40,9 @@ namespace MapControl.MapsforgeTiles
         private readonly InMemoryTileCache tileCache;
         private readonly DatabaseRenderer renderer;
         private readonly RenderThemeFuture renderThemeFuture;
+        private readonly float textScale;
 
-        public TileRenderer(string theme, int cacheCapacity = 200)
+        public TileRenderer(string theme, int cacheCapacity, float renderTextScale)
         {
             XmlRenderTheme renderTheme;
 
@@ -57,6 +58,7 @@ namespace MapControl.MapsforgeTiles
             tileCache = new InMemoryTileCache(cacheCapacity);
             renderer = new DatabaseRenderer(dataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
             renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, renderTheme, displayModel);
+            textScale = renderTextScale;
         }
 
         public int[] RenderTile(int zoomLevel, int column, int row)
@@ -68,7 +70,7 @@ namespace MapControl.MapsforgeTiles
 
             int[] imageBuffer = null;
             var tile = new org.mapsforge.core.model.Tile(column, row, (byte)zoomLevel, displayModel.getTileSize());
-            var job = new RendererJob(tile, dataStore, renderThemeFuture, displayModel, 1f, false, false);
+            var job = new RendererJob(tile, dataStore, renderThemeFuture, displayModel, textScale, false, false);
             var bitmap = tileCache.get(job) ?? renderer.executeJob(job);
 
             if (bitmap != null)
