@@ -15,7 +15,7 @@ using ImageSource = Avalonia.Media.IImage;
 
 namespace MapControl.MBTiles
 {
-    public sealed class MBTileSource : TileSource, IDisposable
+    public sealed partial class MBTileSource : TileSource, IDisposable
     {
         private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>();
 
