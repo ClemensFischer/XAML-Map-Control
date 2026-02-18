@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 #if WPF
@@ -49,10 +48,7 @@ namespace MapControl.MapsforgeTiles
 
             try
             {
-                var sw = Stopwatch.StartNew();
                 var pixels = renderer.RenderTile(zoomLevel, column, row);
-
-                Debug.WriteLine(sw.ElapsedMilliseconds);
 
                 if (pixels != null)
                 {
