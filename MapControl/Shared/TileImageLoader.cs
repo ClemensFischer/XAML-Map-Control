@@ -31,6 +31,10 @@ namespace MapControl
     {
         private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(TileImageLoader));
 
+        private readonly Queue<Tile> tileQueue = new Queue<Tile>();
+        private int tileCount;
+        private int taskCount;
+
         /// <summary>
         /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".
         /// </summary>
@@ -67,11 +71,7 @@ namespace MapControl
         /// <summary>
         /// Maximum number of parallel tile loading tasks. The default value is 4.
         /// </summary>
-        public static int MaxLoadTasks { get; set; } = 4;
-
-        private readonly Queue<Tile> tileQueue = new Queue<Tile>();
-        private int tileCount;
-        private int taskCount;
+        public int MaxLoadTasks { get; set; } = 4;
 
         public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
         {
