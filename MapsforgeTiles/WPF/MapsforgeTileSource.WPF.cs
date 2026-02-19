@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -6,12 +8,28 @@ namespace MapControl.MapsforgeTiles
 {
     public partial class MapsforgeTileSource
     {
-        private static BitmapSource CreateImage(int[] pixels)
+        public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
-            var size = (int)Math.Sqrt(pixels.Length);
-            var image = BitmapSource.Create(size, size, 96d, 96d, PixelFormats.Bgra32, null, pixels, size * 4);
-            image.Freeze();
-            return image;
+            BitmapSource bitmap = null;
+
+            try
+            {
+                var pixels = tileRenderer.RenderTile(zoomLevel, column, row);
+
+                if (pixels != null)
+                {
+                    var size = TileRenderer.TileSize;
+
+                    bitmap = BitmapSource.Create(size, size, 96d, 96d, PixelFormats.Bgra32, null, pixels, size * 4);
+                    bitmap.Freeze();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "LoadImageAsync");
+            }
+
+            return bitmap;
         }
     }
 }

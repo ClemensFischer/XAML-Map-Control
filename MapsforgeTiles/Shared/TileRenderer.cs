@@ -14,7 +14,9 @@ namespace MapControl.MapsforgeTiles
     public class TileRenderer
     {
         private static DisplayModel displayModel;
-        private static MapDataStore dataStore;
+        private static MapDataStore mapDataStore;
+
+        public static int TileSize => displayModel.getTileSize();
 
         public static void Initialize(List<string> mapFiles, float dpiScale)
         {
@@ -23,12 +25,12 @@ namespace MapControl.MapsforgeTiles
 
             if (mapFiles.Count == 1)
             {
-                dataStore = new MapFile(mapFiles[0]);
+                mapDataStore = new MapFile(mapFiles[0]);
             }
             else
             {
                 var multiMapDataStore = new MultiMapDataStore(MultiMapDataStore.DataPolicy.DEDUPLICATE);
-                dataStore = multiMapDataStore;
+                mapDataStore = multiMapDataStore;
 
                 foreach (var mapFile in mapFiles)
                 {
@@ -56,7 +58,7 @@ namespace MapControl.MapsforgeTiles
             }
 
             tileCache = new InMemoryTileCache(cacheCapacity);
-            renderer = new DatabaseRenderer(dataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
+            renderer = new DatabaseRenderer(mapDataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
             renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, renderTheme, displayModel);
             textScale = renderTextScale;
         }
@@ -70,7 +72,7 @@ namespace MapControl.MapsforgeTiles
 
             int[] imageBuffer = null;
             var tile = new org.mapsforge.core.model.Tile(column, row, (byte)zoomLevel, displayModel.getTileSize());
-            var job = new RendererJob(tile, dataStore, renderThemeFuture, displayModel, textScale, false, false);
+            var job = new RendererJob(tile, mapDataStore, renderThemeFuture, displayModel, textScale, false, false);
             var bitmap = tileCache.get(job) ?? renderer.executeJob(job);
 
             if (bitmap != null)

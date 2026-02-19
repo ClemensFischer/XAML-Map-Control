@@ -1,17 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
-#if WPF
-using System.Windows.Media;
-#elif UWP
-using Windows.UI.Xaml.Media;
-#elif WINUI
-using Microsoft.UI.Xaml.Media;
-#elif AVALONIA
-using ImageSource=Avalonia.Media.IImage;
-#endif
 
 namespace MapControl.MapsforgeTiles
 {
@@ -19,7 +8,7 @@ namespace MapControl.MapsforgeTiles
     {
         private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MapsforgeTileSource>();
 
-        private readonly TileRenderer renderer = new(theme, cacheCapacity, textScale);
+        private readonly TileRenderer tileRenderer = new(theme, cacheCapacity, textScale);
 
         public static void Initialize(string mapFilePath, float dpiScale)
         {
@@ -40,27 +29,6 @@ namespace MapControl.MapsforgeTiles
             }
 
             TileRenderer.Initialize(mapFiles, dpiScale);
-        }
-
-        public override Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
-        {
-            ImageSource image = null;
-
-            try
-            {
-                var pixels = renderer.RenderTile(zoomLevel, column, row);
-
-                if (pixels != null)
-                {
-                    image = CreateImage(pixels);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex, "LoadImageAsync");
-            }
-
-            return Task.FromResult(image);
         }
     }
 }
