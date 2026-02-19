@@ -8,7 +8,7 @@ namespace MapControl.MapsforgeTiles
     {
         private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MapsforgeTileSource>();
 
-        private readonly TileRenderer tileRenderer = new(theme, cacheCapacity, textScale);
+        private readonly TileRenderer tileRenderer = new TileRenderer(theme, cacheCapacity, textScale);
 
         public static void Initialize(string mapFilePath, float dpiScale)
         {
