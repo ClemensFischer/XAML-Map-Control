@@ -16,11 +16,11 @@ namespace MapControl.MapsforgeTiles
 
             try
             {
-                var pixels = tileRenderer.RenderTile(zoomLevel, column, row);
+                var pixels = RenderTile(zoomLevel, column, row);
 
                 if (pixels != null)
                 {
-                    var size = TileRenderer.TileSize;
+                    var size = displayModel.getTileSize();
 
                     unsafe
                     {

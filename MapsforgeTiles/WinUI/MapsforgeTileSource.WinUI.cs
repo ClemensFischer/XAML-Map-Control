@@ -19,7 +19,7 @@ namespace MapControl.MapsforgeTiles
         public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
             ImageSource image = null;
-            var size = TileRenderer.TileSize;
+            var size = displayModel.getTileSize();
             var bitmap = new WriteableBitmap(size, size);
             using var stream = bitmap.PixelBuffer.AsStream();
 
@@ -29,7 +29,7 @@ namespace MapControl.MapsforgeTiles
                 //
                 await Task.Run(() =>
                 {
-                    var pixels = tileRenderer.RenderTile(zoomLevel, column, row);
+                    var pixels = RenderTile(zoomLevel, column, row);
 
                     if (pixels != null)
                     {

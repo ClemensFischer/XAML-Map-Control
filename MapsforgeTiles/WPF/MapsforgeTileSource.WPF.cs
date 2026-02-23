@@ -14,11 +14,11 @@ namespace MapControl.MapsforgeTiles
 
             try
             {
-                var pixels = tileRenderer.RenderTile(zoomLevel, column, row);
+                var pixels = RenderTile(zoomLevel, column, row);
 
                 if (pixels != null)
                 {
-                    var size = TileRenderer.TileSize;
+                    var size = displayModel.getTileSize();
 
                     bitmap = BitmapSource.Create(size, size, 96d, 96d, PixelFormats.Bgra32, null, pixels, size * 4);
                     bitmap.Freeze();
