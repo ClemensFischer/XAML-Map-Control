@@ -9,18 +9,17 @@ Java library, which is made accessible to .NET via [IKVM](https://github.com/ikv
 
 Map files can be downloaded from the [Mapsforge Download Server](https://download.mapsforge.org/).
 
-`MapsforgeTileSource` is initialized by a static `Initialize` method that takes the file path to either a single map file
-or a directory containing multiple map files, and a DPI scale factor that controls the size of the rendered map tiles.
+`MapsforgeTileSource` is initialized by a static `LoadMaps` method that takes the file path to either a single map file
+or a directory containing multiple map files.
 
 The `MapsforgeTileSource` instance constructor takes a string parameter that specifies a Mapsforge theme. This is either
 the full path of an XML `rendertheme` file, or the name of one of the built-in themes (ignoring case), e.g. `Default`.
 See [MapsforgeThemes.java](https://github.com/mapsforge/mapsforge/blob/master/mapsforge-themes/src/main/java/org/mapsforge/map/rendertheme/internal/MapsforgeThemes.java)
-for available theme names. The second and third optional constructor parameters specify the size of the tile source's
-internal tile cache and the relative scale of rendered text.
+for available theme names. An additional constructor parameters specifies the size of the tile source's internal cache.
 
 Code sample:
 ```
-MapControl.MapsforgeTiles.MapsforgeTileSource.Initialize(".\mapfiles", 1.5f);
+MapControl.MapsforgeTiles.MapsforgeTileSource.Initialize(".\mapfiles");
 
 map.MapLayer = new MapTileLayer
 {

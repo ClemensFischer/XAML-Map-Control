@@ -19,8 +19,7 @@ namespace MapControl.MapsforgeTiles
         public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
         {
             ImageSource image = null;
-            var size = displayModel.getTileSize();
-            var bitmap = new WriteableBitmap(size, size);
+            var bitmap = new WriteableBitmap(TileSize, TileSize);
             using var stream = bitmap.PixelBuffer.AsStream();
 
             try

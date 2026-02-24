@@ -20,14 +20,12 @@ namespace MapControl.MapsforgeTiles
 
                 if (pixels != null)
                 {
-                    var size = displayModel.getTileSize();
-
                     unsafe
                     {
                         fixed (int* ptr = pixels)
                         {
                             return new Bitmap(PixelFormat.Bgra8888, AlphaFormat.Opaque, (nint)ptr,
-                                new PixelSize(size, size), new Vector(96d, 96d), size * 4);
+                                new PixelSize(TileSize, TileSize), new Vector(96d, 96d), TileSize * 4);
                         }
                     }
                 }

@@ -18,9 +18,7 @@ namespace MapControl.MapsforgeTiles
 
                 if (pixels != null)
                 {
-                    var size = displayModel.getTileSize();
-
-                    bitmap = BitmapSource.Create(size, size, 96d, 96d, PixelFormats.Bgra32, null, pixels, size * 4);
+                    bitmap = BitmapSource.Create(TileSize, TileSize, 96d, 96d, PixelFormats.Bgra32, null, pixels, TileSize * 4);
                     bitmap.Freeze();
                 }
             }
