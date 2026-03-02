@@ -19,7 +19,7 @@ for available theme names. An additional constructor parameters specifies the si
 
 Code sample:
 ```
-MapControl.MapsforgeTiles.MapsforgeTileSource.Initialize(".\mapfiles");
+MapControl.MapsforgeTiles.MapsforgeTileSource.LoadMaps(".\mapfiles");
 
 map.MapLayer = new MapTileLayer
 {
