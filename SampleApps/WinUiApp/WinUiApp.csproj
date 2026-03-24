@@ -28,8 +28,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
         <Manifest Include="$(ApplicationManifest)" />
     </ItemGroup>
 </Project>
