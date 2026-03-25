@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using java.io;
+using java.util.zip;
+using Microsoft.Extensions.Logging;
 using org.mapsforge.map.awt.graphics;
 using org.mapsforge.map.datastore;
 using org.mapsforge.map.layer.cache;
@@ -8,6 +10,7 @@ using org.mapsforge.map.reader;
 using org.mapsforge.map.rendertheme;
 using org.mapsforge.map.rendertheme.@internal;
 using org.mapsforge.map.rendertheme.rule;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -19,10 +22,10 @@ namespace MapControl.MapsforgeTiles
 
         private static MapDataStore mapDataStore;
 
-        private readonly DisplayModel displayModel;
-        private readonly InMemoryTileCache tileCache;
-        private readonly DatabaseRenderer renderer;
-        private readonly RenderThemeFuture renderThemeFuture;
+        private readonly DisplayModel displayModel = new();
+        private InMemoryTileCache tileCache;
+        private DatabaseRenderer renderer;
+        private RenderThemeFuture renderThemeFuture;
 
         public static void LoadMaps(string mapFileOrDirectory)
         {
@@ -62,24 +65,9 @@ namespace MapControl.MapsforgeTiles
             }
         }
 
-        public MapsforgeTileSource(string theme, int cacheCapacity = 200)
-        {
-            XmlRenderTheme renderTheme;
+        public string Theme { get; set; } = "Default";
 
-            if (theme.EndsWith(".xml"))
-            {
-                renderTheme = new ExternalRenderTheme(theme);
-            }
-            else
-            {
-                renderTheme = MapsforgeThemes.valueOf(theme.ToUpper());
-            }
-
-            displayModel = new DisplayModel();
-            tileCache = new InMemoryTileCache(cacheCapacity);
-            renderer = new DatabaseRenderer(mapDataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
-            renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, renderTheme, displayModel);
-        }
+        public int CacheCapacity { get; set; } = 200;
 
         public float TextScale { get; set; } = 1f;
 
@@ -93,14 +81,44 @@ namespace MapControl.MapsforgeTiles
 
         public int[] RenderTile(int zoomLevel, int column, int row)
         {
-            if (!renderThemeFuture.isDone())
+            if (renderThemeFuture == null)
             {
-                lock (renderThemeFuture)
+                lock (displayModel)
                 {
-                    if (!renderThemeFuture.isDone())
+                    if (renderThemeFuture == null)
                     {
-                        Logger?.LogInformation("Loading render theme...");
+                        if (mapDataStore == null)
+                        {
+                            throw new InvalidOperationException("No map files loaded.");
+                        }
+
+                        Logger?.LogInformation("Loading render theme \"{theme}\".", Theme);
+
+                        ZipInputStream zipInputStream = null;
+                        XmlRenderTheme renderTheme;
+
+                        if (Theme.EndsWith(".zip"))
+                        {
+                            zipInputStream = new ZipInputStream(new FileInputStream(Theme));
+                            renderTheme = new ZipRenderTheme(
+                                Path.GetFileName(Theme).Replace(".zip", ".xml"),
+                                new ZipXmlThemeResourceProvider(zipInputStream));
+                        }
+                        else if (Theme.EndsWith(".xml"))
+                        {
+                            renderTheme = new ExternalRenderTheme(Theme);
+                        }
+                        else
+                        {
+                            renderTheme = MapsforgeThemes.valueOf(Theme.ToUpper());
+                        }
+
+                        tileCache = new InMemoryTileCache(CacheCapacity);
+                        renderer = new DatabaseRenderer(mapDataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
+                        renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, renderTheme, displayModel);
                         renderThemeFuture.run();
+                        zipInputStream?.close();
+
                         Logger?.LogInformation("Loading render theme done.");
                     }
                 }
