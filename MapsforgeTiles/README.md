@@ -12,19 +12,18 @@ Map files can be downloaded from the [Mapsforge Download Server](https://downloa
 `MapsforgeTileSource` is initialized by a static `LoadMaps` method that takes the file path to either a single map file
 or a directory containing multiple map files.
 
-The `MapsforgeTileSource` instance constructor takes a string parameter that specifies a Mapsforge theme. This is either
-the full path of an XML `rendertheme` file, or the name of one of the built-in themes (ignoring case), e.g. `Default`.
+The class has a `Theme` property that specifies a Mapsforge theme. This is either the path of an XML `rendertheme` file,
+the path of a ZIP file containing a render theme, or the name of one of the built-in themes (ignoring case), e.g. `Default`.
 See [MapsforgeThemes.java](https://github.com/mapsforge/mapsforge/blob/master/mapsforge-themes/src/main/java/org/mapsforge/map/rendertheme/internal/MapsforgeThemes.java)
-for available theme names. An additional constructor parameters specifies the size of the tile source's internal cache.
+for available theme names.
 
 Code sample:
 ```
 MapControl.MapsforgeTiles.MapsforgeTileSource.LoadMaps(".\mapfiles");
 
-map.MapLayer = new MapTileLayer
-{
-    TileSource = new MapControl.MapsforgeTiles.MapsforgeTileSource("Default")
-};
+var tileSource = new MapControl.MapsforgeTiles.MapsforgeTileSource { Theme = "Default" };
+
+map.MapLayer = new MapTileLayer { TileSource = tileSource };
 ```
 
 ---

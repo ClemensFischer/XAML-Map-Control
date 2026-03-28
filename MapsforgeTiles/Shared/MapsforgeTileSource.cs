@@ -83,45 +83,7 @@ namespace MapControl.MapsforgeTiles
         {
             if (renderThemeFuture == null)
             {
-                lock (displayModel)
-                {
-                    if (renderThemeFuture == null)
-                    {
-                        if (mapDataStore == null)
-                        {
-                            throw new InvalidOperationException("No map files loaded.");
-                        }
-
-                        Logger?.LogInformation("Loading render theme \"{theme}\".", Theme);
-
-                        ZipInputStream zipInputStream = null;
-                        XmlRenderTheme renderTheme;
-
-                        if (Theme.EndsWith(".zip"))
-                        {
-                            zipInputStream = new ZipInputStream(new FileInputStream(Theme));
-                            renderTheme = new ZipRenderTheme(
-                                Path.GetFileName(Theme).Replace(".zip", ".xml"),
-                                new ZipXmlThemeResourceProvider(zipInputStream));
-                        }
-                        else if (Theme.EndsWith(".xml"))
-                        {
-                            renderTheme = new ExternalRenderTheme(Theme);
-                        }
-                        else
-                        {
-                            renderTheme = MapsforgeThemes.valueOf(Theme.ToUpper());
-                        }
-
-                        tileCache = new InMemoryTileCache(CacheCapacity);
-                        renderer = new DatabaseRenderer(mapDataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
-                        renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, renderTheme, displayModel);
-                        renderThemeFuture.run();
-                        zipInputStream?.close();
-
-                        Logger?.LogInformation("Loading render theme done.");
-                    }
-                }
+                Initialize();
             }
 
             int[] imageBuffer = null;
@@ -140,6 +102,49 @@ namespace MapControl.MapsforgeTiles
             }
 
             return imageBuffer;
+        }
+
+        private void Initialize()
+        {
+            lock (displayModel)
+            {
+                if (renderThemeFuture == null)
+                {
+                    if (mapDataStore == null)
+                    {
+                        throw new InvalidOperationException("No map files loaded.");
+                    }
+
+                    Logger?.LogInformation("Loading render theme \"{theme}\".", Theme);
+
+                    ZipInputStream zipInputStream = null;
+                    XmlRenderTheme renderTheme;
+
+                    if (Theme.EndsWith(".zip"))
+                    {
+                        zipInputStream = new ZipInputStream(new FileInputStream(Theme));
+                        renderTheme = new ZipRenderTheme(
+                            Path.GetFileName(Theme).Replace(".zip", ".xml"),
+                            new ZipXmlThemeResourceProvider(zipInputStream));
+                    }
+                    else if (Theme.EndsWith(".xml"))
+                    {
+                        renderTheme = new ExternalRenderTheme(Theme);
+                    }
+                    else
+                    {
+                        renderTheme = MapsforgeThemes.valueOf(Theme.ToUpper());
+                    }
+
+                    tileCache = new InMemoryTileCache(CacheCapacity);
+                    renderer = new DatabaseRenderer(mapDataStore, AwtGraphicFactory.INSTANCE, tileCache, null, true, false, null);
+                    renderThemeFuture = new RenderThemeFuture(AwtGraphicFactory.INSTANCE, renderTheme, displayModel);
+                    renderThemeFuture.run();
+                    zipInputStream?.close();
+
+                    Logger?.LogInformation("Loading render theme done.");
+                }
+            }
         }
     }
 }
