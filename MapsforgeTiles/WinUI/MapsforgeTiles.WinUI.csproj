@@ -35,6 +35,7 @@
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent"
+            Inputs="..\pom.xml"
             Outputs="..\target\mapsforge-0.27.0-jar-with-dependencies.jar">
         <Exec Command="mvn package" WorkingDirectory=".."/>
     </Target>
