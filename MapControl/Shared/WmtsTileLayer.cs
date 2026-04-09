@@ -79,11 +79,6 @@ namespace MapControl
         /// </summary>
         public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = [];
 
-        /// <summary>
-        /// Gets a collection of all CRSs supported by a WMTS.
-        /// </summary>
-        public override IReadOnlyCollection<string> SupportedCrsIds => TileMatrixSets.Keys;
-
         protected IEnumerable<TileMatrixLayer> ChildLayers => Children.Cast<TileMatrixLayer>();
 
         protected override Size MeasureOverride(Size availableSize)

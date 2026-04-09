@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 #if WPF
@@ -127,11 +126,6 @@ namespace MapControl
         /// </summary>
         public double LoadingProgress => (double)GetValue(LoadingProgressProperty);
 
-        /// <summary>
-        /// Gets a collection of all CRSs supported by a MapImageLayer.
-        /// </summary>
-        public IReadOnlyCollection<string> SupportedCrsIds { get; protected set; }
-
         protected override void SetParentMap(MapBase map)
         {
             if (map != null)
@@ -182,8 +176,7 @@ namespace MapControl
                 ImageSource image = null;
                 Rect? mapRect = null;
 
-                if (ParentMap != null &&
-                    (SupportedCrsIds == null || SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId)))
+                if (ParentMap != null)
                 {
                     var width = ParentMap.ActualWidth * RelativeImageSize;
                     var height = ParentMap.ActualHeight * RelativeImageSize;

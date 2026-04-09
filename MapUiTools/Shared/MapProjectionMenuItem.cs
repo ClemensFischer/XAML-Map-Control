@@ -28,9 +28,15 @@ namespace MapControl.UiTools
 
         protected override bool GetIsEnabled(MapBase map)
         {
-            return map.MapLayer is not IMapLayer mapLayer
-                || mapLayer.SupportedCrsIds == null
-                || mapLayer.SupportedCrsIds.Contains(CrsId);
+            var supportedCrsIds = map.MapLayer switch
+            {
+                WmsImageLayer wmsImageLayer => wmsImageLayer.SupportedCrsIds,
+                WmtsTileLayer wmtsTileLayer => wmtsTileLayer.TileMatrixSets.Keys,
+                MapTileLayer => [WebMercatorProjection.DefaultCrsId],
+                _ => null
+            };
+
+            return supportedCrsIds == null || supportedCrsIds.Contains(CrsId);
         }
 
         protected override bool GetIsChecked(MapBase map)

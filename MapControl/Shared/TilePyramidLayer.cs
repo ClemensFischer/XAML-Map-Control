@@ -171,8 +171,6 @@ namespace MapControl
 
         public bool IsBaseMapLayer => ParentMap != null && ParentMap.Children.Count > 0 && ParentMap.Children[0] == this;
 
-        public abstract IReadOnlyCollection<string> SupportedCrsIds { get; }
-
         protected void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName)
         {
             TileImageLoader.BeginLoadTiles(tiles, tileSource, cacheName, loadingProgress);

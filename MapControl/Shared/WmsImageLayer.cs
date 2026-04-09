@@ -73,6 +73,11 @@ namespace MapControl
         /// </summary>
         public IReadOnlyCollection<string> AvailableLayers { get; private set; }
 
+        /// <summary>
+        /// Gets a collection of all CRSs supported by a WMS.
+        /// </summary>
+        public IReadOnlyCollection<string> SupportedCrsIds { get; private set; }
+
         private bool HasLayer =>
             RequestLayers != null ||
             AvailableLayers?.Count > 0 ||
@@ -113,16 +118,16 @@ namespace MapControl
                 var ns = capabilities.Name.Namespace;
                 var capability = capabilities.Element(ns + "Capability");
 
-                SupportedCrsIds = capability
-                    .Descendants(ns + "Layer")
-                    .Descendants(ns + "CRS")
-                    .Select(e => e.Value)
-                    .ToList();
-
                 AvailableLayers = capability
                     .Descendants(ns + "Layer")
                     .Select(e => e.Element(ns + "Name")?.Value)
                     .Where(n => !string.IsNullOrEmpty(n))
+                    .ToList();
+
+                SupportedCrsIds = capability
+                    .Descendants(ns + "Layer")
+                    .Descendants(ns + "CRS")
+                    .Select(e => e.Value)
                     .ToList();
             }
         }
@@ -161,7 +166,8 @@ namespace MapControl
             string response = null;
 
             if (ServiceUri != null && HasLayer &&
-                ParentMap != null && ParentMap.InsideViewBounds(position))
+                ParentMap != null && ParentMap.InsideViewBounds(position) &&
+                (SupportedCrsIds == null || SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId)))
             {
                 var uri = GetFeatureInfoRequestUri(position, format);
 
@@ -185,7 +191,8 @@ namespace MapControl
         {
             ImageSource image = null;
 
-            if (ServiceUri != null && HasLayer)
+            if (ServiceUri != null && HasLayer &&
+                (SupportedCrsIds == null || SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId)))
             {
                 var xMin = -180d * MapProjection.Wgs84MeterPerDegree;
                 var xMax = 180d * MapProjection.Wgs84MeterPerDegree;

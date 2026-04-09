@@ -23,7 +23,6 @@ namespace MapControl
     {
         Brush MapBackground { get; }
         Brush MapForeground { get; }
-        IReadOnlyCollection<string> SupportedCrsIds { get; }
     }
 
     public partial class MapBase
@@ -40,7 +39,7 @@ namespace MapControl
         /// Gets or sets the base map layer, which is added as first element to the Children collection.
         /// If the passed object is not a FrameworkElement, MapBase tries to locate a DataTemplate
         /// resource for the object's type and generate a FrameworkElement from that DataTemplate.
-        /// If the FrameworkElement implements IMapLayer (like e.g. MapTileLayer or MapImageLayer),
+        /// If the FrameworkElement implements IMapLayer (like e.g. TilePyramidLayer or MapImageLayer),
         /// its (non-null) MapBackground and MapForeground property values are used for the MapBase
         /// Background and Foreground.
         /// </summary>

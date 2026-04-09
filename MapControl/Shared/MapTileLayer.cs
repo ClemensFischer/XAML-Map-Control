@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 #if WPF
 using System.Windows;
 using System.Windows.Media;
@@ -56,8 +55,6 @@ namespace MapControl
         {
             this.SetRenderTransform(new MatrixTransform());
         }
-
-        public override IReadOnlyCollection<string> SupportedCrsIds { get; } = [WebMercatorProjection.DefaultCrsId];
 
         public TileMatrix TileMatrix { get; private set; }
 
@@ -149,7 +146,7 @@ namespace MapControl
 
         private void UpdateTileCollection(bool tileSourceChanged)
         {
-            if (TileSource == null || ParentMap == null || !SupportedCrsIds.Contains(ParentMap.MapProjection.CrsId))
+            if (TileSource == null || ParentMap?.MapProjection.CrsId != WebMercatorProjection.DefaultCrsId)
             {
                 CancelLoadTiles();
                 Children.Clear();
