@@ -5,6 +5,7 @@
         <DefineConstants>AVALONIA</DefineConstants>
         <RootNamespace>SampleApplication</RootNamespace>
         <AssemblyTitle>XAML Map Control Avalonia Sample Application</AssemblyTitle>
+        <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,11 +29,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.13" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.13" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.13" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.13" />
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.13" />
+        <PackageReference Include="Avalonia" Version="12.0.0" />
+        <PackageReference Include="Avalonia.Desktop" Version="12.0.0" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.0" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
+        <!-- avoid package vulnerability warning, will be fixed with Avalonia 12.0.1 -->
+        <PackageReference Include="Tmds.DBus.Protocol" Version="0.92.0" />
     </ItemGroup>
 </Project>

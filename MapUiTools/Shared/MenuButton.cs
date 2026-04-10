@@ -9,7 +9,7 @@ using Windows.UI.Xaml.Controls;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-#else
+#elif AVALONIA
 using Avalonia.Controls;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif

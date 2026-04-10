@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Markup;
 #elif WINUI
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Markup;
-#else
+#elif AVALONIA
 using Avalonia.Metadata;
 using FrameworkElement = Avalonia.Controls.Control;
 #endif

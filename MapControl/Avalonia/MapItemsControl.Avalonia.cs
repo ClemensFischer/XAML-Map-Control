@@ -1,7 +1,9 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 
 namespace MapControl
@@ -52,17 +54,22 @@ namespace MapControl
             ClearContainer((MapItem)container);
         }
 
-        internal void UpdateSelection(MapItem mapItem, PointerEventArgs e)
+        protected override bool ShouldTriggerSelection(Visual selectable, PointerEventArgs eventArgs)
         {
-            if (SelectionMode != SelectionMode.Single &&
+            return true;
+        }
+
+        public override bool UpdateSelectionFromEvent(UIElement container, RoutedEventArgs eventArgs)
+        {
+            if (SelectionMode == SelectionMode.Multiple &&
+                eventArgs is PointerEventArgs e &&
                 e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                SelectItemsInRange(mapItem);
+                SelectItemsInRange((MapItem)container);
+                return true;
             }
-            else
-            {
-                UpdateSelection(mapItem, true, false, e.KeyModifiers.HasFlag(KeyModifiers.Control));
-            }
+
+            return base.UpdateSelectionFromEvent(container, eventArgs);
         }
     }
 }

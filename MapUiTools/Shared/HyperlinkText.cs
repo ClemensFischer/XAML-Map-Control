@@ -14,6 +14,12 @@ using Microsoft.UI.Xaml.Documents;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
+#elif AVALONIA
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Media;
+using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
 namespace MapControl.UiTools
@@ -38,14 +44,39 @@ namespace MapControl.UiTools
                     match.Groups.Count == 3 &&
                     Uri.TryCreate(match.Groups[2].Value, UriKind.Absolute, out Uri uri))
                 {
-                    inlines.Add(new Run { Text = text.Substring(0, match.Index) });
+                    inlines.Add(new Run
+                    {
+                        Text = text.Substring(0, match.Index),
+#if WPF || AVALONIA
+                        BaselineAlignment = BaselineAlignment.Center
+#endif
+                    });
+
                     text = text.Substring(match.Index + match.Length);
 
-                    var link = new Hyperlink { NavigateUri = uri };
-                    link.Inlines.Add(new Run { Text = match.Groups[1].Value });
-#if WPF
-                    link.ToolTip = uri.ToString();
+                    var hyperlinkText = match.Groups[1].Value;
+#if AVALONIA
+                    var button = new HyperlinkButton
+                    {
+                        Content = hyperlinkText,
+                        NavigateUri = uri,
+                        Padding = new Thickness(0),
+                        Margin = new Thickness(0)
+                    };
 
+                    var link = new InlineUIContainer
+                    {
+                        Child = button,
+                        BaselineAlignment = BaselineAlignment.Center
+                    };
+#else
+                    var run = new Run { Text = hyperlinkText };
+                    var link = new Hyperlink { NavigateUri = uri };
+                    link.Inlines.Add(run);
+#if WPF
+                    run.BaselineAlignment = BaselineAlignment.Center;
+                    link.BaselineAlignment = BaselineAlignment.Center;
+                    link.ToolTip = uri.ToString();
                     link.RequestNavigate += (_, e) =>
                     {
                         try
@@ -57,6 +88,7 @@ namespace MapControl.UiTools
                             Debug.WriteLine($"{e.Uri}: {ex}");
                         }
                     };
+#endif
 #endif
                     inlines.Add(link);
                 }
@@ -70,41 +102,29 @@ namespace MapControl.UiTools
             return inlines;
         }
 
-        public static readonly DependencyProperty InlinesSourceProperty = DependencyProperty.RegisterAttached(
-            "InlinesSource", typeof(string), typeof(HyperlinkText), new PropertyMetadata(null, InlinesSourcePropertyChanged));
+        public static readonly DependencyProperty InlinesSourceProperty =
+            DependencyPropertyHelper.RegisterAttached<string>("InlinesSource", typeof(HyperlinkText), null,
+                (element, oldValue, newValue) =>
+                {
+                    if (element is TextBlock textBlock)
+                    {
+                        textBlock.Inlines.Clear();
 
-        public static string GetInlinesSource(DependencyObject element)
+                        foreach (var inline in TextToInlines(newValue))
+                        {
+                            textBlock.Inlines.Add(inline);
+                        }
+                    }
+                });
+
+        public static string GetInlinesSource(TextBlock element)
         {
             return (string)element.GetValue(InlinesSourceProperty);
         }
 
-        public static void SetInlinesSource(DependencyObject element, string value)
+        public static void SetInlinesSource(TextBlock element, string value)
         {
             element.SetValue(InlinesSourceProperty, value);
-        }
-
-        private static void InlinesSourcePropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-        {
-            InlineCollection inlines = null;
-
-            if (obj is TextBlock block)
-            {
-                inlines = block.Inlines;
-            }
-            else if (obj is Paragraph paragraph)
-            {
-                inlines = paragraph.Inlines;
-            }
-
-            if (inlines != null)
-            {
-                inlines.Clear();
-
-                foreach (var inline in TextToInlines((string)e.NewValue))
-                {
-                    inlines.Add(inline);
-                }
-            }
         }
     }
 }

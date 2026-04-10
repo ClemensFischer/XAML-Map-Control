@@ -4,14 +4,11 @@
         <DefineConstants>AVALONIA</DefineConstants>
         <RootNamespace>MapControl.UiTools</RootNamespace>
         <AssemblyTitle>XAML Map Control UI Tools Library for Avalonia UI</AssemblyTitle>
+        <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     </PropertyGroup>
 
     <ItemGroup>
         <Compile Include="..\Shared\*.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Remove="..\Shared\HyperlinkText.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,7 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.13" />
-        <PackageReference Include="Markdown.Avalonia.Tight" Version="11.0.2" />
+        <PackageReference Include="Avalonia" Version="12.0.0" />
     </ItemGroup>
 </Project>

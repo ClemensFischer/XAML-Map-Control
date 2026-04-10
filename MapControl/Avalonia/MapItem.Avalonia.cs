@@ -10,7 +10,7 @@ namespace MapControl
             if (e.Pointer.Type != PointerType.Mouse &&
                 ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
             {
-                mapItemsControl.UpdateSelection(this, e);
+                mapItemsControl.UpdateSelectionFromEvent(this, e);
             }
 
             e.Handled = true;
@@ -22,7 +22,7 @@ namespace MapControl
                 e.InitialPressMouseButton == MouseButton.Left &&
                 ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
             {
-                mapItemsControl.UpdateSelection(this, e);
+                mapItemsControl.UpdateSelectionFromEvent(this, e);
             }
 
             e.Handled = true;

@@ -8,7 +8,7 @@ using System.Windows.Markup;
 using Windows.UI.Xaml.Markup;
 #elif WINUI
 using Microsoft.UI.Xaml.Markup;
-#else
+#elif AVALONIA
 using Avalonia.Metadata;
 #endif
 
