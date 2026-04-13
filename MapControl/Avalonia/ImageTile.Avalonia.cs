@@ -3,7 +3,6 @@ using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using System;
 using System.Threading.Tasks;
 
@@ -46,7 +45,7 @@ namespace MapControl
                 }
             }
 
-            await Dispatcher.UIThread.InvokeAsync(SetImageSource);
+            await Image.Dispatcher.InvokeAsync(SetImageSource);
         }
     }
 }
