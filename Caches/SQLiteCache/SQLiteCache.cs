@@ -82,10 +82,9 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
         {
             try
             {
-                using (var command = GetItemCommand(key))
-                {
-                    value = (byte[])command.ExecuteScalar();
-                }
+                using var command = GetItemCommand(key);
+
+                value = (byte[])command.ExecuteScalar();
             }
             catch (Exception ex)
             {
@@ -104,10 +103,9 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
         {
             try
             {
-                using (var command = GetItemCommand(key))
-                {
-                    value = (byte[])await command.ExecuteScalarAsync();
-                }
+                using var command = GetItemCommand(key);
+
+                value = (byte[])await command.ExecuteScalarAsync();
             }
             catch (Exception ex)
             {
@@ -124,10 +122,9 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
         {
             try
             {
-                using (var command = SetItemCommand(key, value, options))
-                {
-                    command.ExecuteNonQuery();
-                }
+                using var command = SetItemCommand(key, value, options);
+
+                command.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -142,10 +139,9 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
         {
             try
             {
-                using (var command = SetItemCommand(key, value, options))
-                {
-                    await command.ExecuteNonQueryAsync(token);
-                }
+                using var command = SetItemCommand(key, value, options);
+
+                await command.ExecuteNonQueryAsync(token);
             }
             catch (Exception ex)
             {
@@ -169,10 +165,9 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
         {
             try
             {
-                using (var command = DeleteItemCommand(key))
-                {
-                    command.ExecuteNonQuery();
-                }
+                using var command = DeleteItemCommand(key);
+
+                command.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -187,10 +182,9 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
         {
             try
             {
-                using (var command = DeleteItemCommand(key))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
+                using var command = DeleteItemCommand(key);
+
+                await command.ExecuteNonQueryAsync();
             }
             catch (Exception ex)
             {
