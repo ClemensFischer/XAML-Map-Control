@@ -12,80 +12,79 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+public partial class MapItem
 {
-    public partial class MapItem
+    private Windows.Foundation.Point? pointerPressedPosition;
+
+    public MapItem()
     {
-        private Windows.Foundation.Point? pointerPressedPosition;
+        DefaultStyleKey = typeof(MapItem);
+        MapPanel.InitMapElement(this);
+    }
 
-        public MapItem()
-        {
-            DefaultStyleKey = typeof(MapItem);
-            MapPanel.InitMapElement(this);
-        }
+    protected override void OnPointerPressed(PointerRoutedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        pointerPressedPosition = e.GetCurrentPoint(null).Position;
+        e.Handled = true;
+    }
 
-        protected override void OnPointerPressed(PointerRoutedEventArgs e)
+    protected override void OnPointerReleased(PointerRoutedEventArgs e)
+    {
+        if (pointerPressedPosition.HasValue)
         {
-            base.OnPointerPressed(e);
-            pointerPressedPosition = e.GetCurrentPoint(null).Position;
-            e.Handled = true;
-        }
+            const float pointerMovementThreshold = 2f;
+            var p = e.GetCurrentPoint(null).Position;
 
-        protected override void OnPointerReleased(PointerRoutedEventArgs e)
-        {
-            if (pointerPressedPosition.HasValue)
+            // Perform selection only when no significant pointer movement occured.
+            //
+            if (Math.Abs(p.X - pointerPressedPosition.Value.X) <= pointerMovementThreshold &&
+                Math.Abs(p.Y - pointerPressedPosition.Value.Y) <= pointerMovementThreshold &&
+                ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
             {
-                const float pointerMovementThreshold = 2f;
-                var p = e.GetCurrentPoint(null).Position;
-
-                // Perform selection only when no significant pointer movement occured.
-                //
-                if (Math.Abs(p.X - pointerPressedPosition.Value.X) <= pointerMovementThreshold &&
-                    Math.Abs(p.Y - pointerPressedPosition.Value.Y) <= pointerMovementThreshold &&
-                    ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
+                if (mapItemsControl.SelectionMode == SelectionMode.Extended &&
+                    e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
                 {
-                    if (mapItemsControl.SelectionMode == SelectionMode.Extended &&
-                        e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
-                    {
-                        mapItemsControl.SelectItemsInRange(this);
-                    }
-                    else
-                    {
-                        base.OnPointerReleased(e);
-                    }
+                    mapItemsControl.SelectItemsInRange(this);
                 }
-
-                pointerPressedPosition = null;
+                else
+                {
+                    base.OnPointerReleased(e);
+                }
             }
 
-            e.Handled = true;
+            pointerPressedPosition = null;
         }
 
-        protected override void OnApplyTemplate()
+        e.Handled = true;
+    }
+
+    protected override void OnApplyTemplate()
+    {
+        base.OnApplyTemplate();
+
+        var parentMap = MapPanel.GetParentMap(this);
+
+        if (parentMap != null)
         {
-            base.OnApplyTemplate();
-
-            var parentMap = MapPanel.GetParentMap(this);
-
-            if (parentMap != null)
+            // Workaround for missing RelativeSource AncestorType=MapBase Bindings in default Style.
+            //
+            if (Background == null)
             {
-                // Workaround for missing RelativeSource AncestorType=MapBase Bindings in default Style.
-                //
-                if (Background == null)
-                {
-                    SetBinding(BackgroundProperty,
-                        new Binding { Source = parentMap, Path = new PropertyPath(nameof(Background)) });
-                }
-                if (Foreground == null)
-                {
-                    SetBinding(ForegroundProperty,
-                        new Binding { Source = parentMap, Path = new PropertyPath(nameof(Foreground)) });
-                }
-                if (BorderBrush == null)
-                {
-                    SetBinding(BorderBrushProperty,
-                        new Binding { Source = parentMap, Path = new PropertyPath(nameof(Foreground)) });
-                }
+                SetBinding(BackgroundProperty,
+                    new Binding { Source = parentMap, Path = new PropertyPath(nameof(Background)) });
+            }
+            if (Foreground == null)
+            {
+                SetBinding(ForegroundProperty,
+                    new Binding { Source = parentMap, Path = new PropertyPath(nameof(Foreground)) });
+            }
+            if (BorderBrush == null)
+            {
+                SetBinding(BorderBrushProperty,
+                    new Binding { Source = parentMap, Path = new PropertyPath(nameof(Foreground)) });
             }
         }
     }

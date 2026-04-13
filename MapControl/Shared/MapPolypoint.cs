@@ -20,64 +20,63 @@ using Avalonia.Media;
 using PolypointGeometry = Avalonia.Media.PathGeometry;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Base class of MapPolyline and MapPolygon and MapMultiPolygon.
+/// </summary>
+public partial class MapPolypoint
 {
-    /// <summary>
-    /// Base class of MapPolyline and MapPolygon and MapMultiPolygon.
-    /// </summary>
-    public partial class MapPolypoint
+    public static readonly DependencyProperty FillRuleProperty =
+        DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,
+            (polypoint, oldValue, newValue) => ((PolypointGeometry)polypoint.Data).FillRule = newValue);
+
+    public FillRule FillRule
     {
-        public static readonly DependencyProperty FillRuleProperty =
-            DependencyPropertyHelper.Register<MapPolygon, FillRule>(nameof(FillRule), FillRule.EvenOdd,
-                (polypoint, oldValue, newValue) => ((PolypointGeometry)polypoint.Data).FillRule = newValue);
+        get => (FillRule)GetValue(FillRuleProperty);
+        set => SetValue(FillRuleProperty, value);
+    }
 
-        public FillRule FillRule
+    protected MapPolypoint()
+    {
+        Data = new PolypointGeometry();
+    }
+
+    protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
+    {
+        if (oldValue is INotifyCollectionChanged oldCollection)
         {
-            get => (FillRule)GetValue(FillRuleProperty);
-            set => SetValue(FillRuleProperty, value);
+            oldCollection.CollectionChanged -= DataCollectionChanged;
         }
 
-        protected MapPolypoint()
+        if (newValue is INotifyCollectionChanged newCollection)
         {
-            Data = new PolypointGeometry();
+            newCollection.CollectionChanged += DataCollectionChanged;
         }
 
-        protected void DataCollectionPropertyChanged(IEnumerable oldValue, IEnumerable newValue)
+        UpdateData();
+    }
+
+    protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdateData();
+    }
+
+    protected double GetLongitudeOffset(IEnumerable<Location> locations)
+    {
+        var longitudeOffset = 0d;
+
+        if (ParentMap.MapProjection.IsNormalCylindrical)
         {
-            if (oldValue is INotifyCollectionChanged oldCollection)
+            var location = Location ?? locations?.FirstOrDefault();
+
+            if (location != null &&
+                !ParentMap.InsideViewBounds(ParentMap.LocationToView(location)))
             {
-                oldCollection.CollectionChanged -= DataCollectionChanged;
+                longitudeOffset = ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
             }
-
-            if (newValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += DataCollectionChanged;
-            }
-
-            UpdateData();
         }
 
-        protected void DataCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            UpdateData();
-        }
-
-        protected double GetLongitudeOffset(IEnumerable<Location> locations)
-        {
-            var longitudeOffset = 0d;
-
-            if (ParentMap.MapProjection.IsNormalCylindrical)
-            {
-                var location = Location ?? locations?.FirstOrDefault();
-
-                if (location != null &&
-                    !ParentMap.InsideViewBounds(ParentMap.LocationToView(location)))
-                {
-                    longitudeOffset = ParentMap.NearestLongitude(location.Longitude) - location.Longitude;
-                }
-            }
-
-            return longitudeOffset;
-        }
+        return longitudeOffset;
     }
 }

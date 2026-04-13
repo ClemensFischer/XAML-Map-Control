@@ -8,225 +8,224 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Loads and optionally caches map tile images for a MapTilePyramidLayer.
+/// </summary>
+public interface ITileImageLoader
 {
     /// <summary>
-    /// Loads and optionally caches map tile images for a MapTilePyramidLayer.
+    /// Starts asynchronous loading of all pending tiles from the tiles collection.
+    /// Caching is enabled when cacheName is a non-empty string and tiles are loaded from http or https Uris.
     /// </summary>
-    public interface ITileImageLoader
-    {
-        /// <summary>
-        /// Starts asynchronous loading of all pending tiles from the tiles collection.
-        /// Caching is enabled when cacheName is a non-empty string and tiles are loaded from http or https Uris.
-        /// </summary>
-        void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
+    void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress);
 
-        /// <summary>
-        /// Terminates all running tile loading tasks.
-        /// </summary>
-        void CancelLoadTiles();
+    /// <summary>
+    /// Terminates all running tile loading tasks.
+    /// </summary>
+    void CancelLoadTiles();
+}
+
+public class TileImageLoader : ITileImageLoader
+{
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(TileImageLoader));
+
+    private readonly Queue<Tile> tileQueue = new Queue<Tile>();
+    private int tileCount;
+    private int taskCount;
+
+    /// <summary>
+    /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".
+    /// </summary>
+    public static string DefaultCacheFolder =>
+#if UWP
+        Path.Combine(Windows.Storage.ApplicationData.Current.LocalCacheFolder.Path, "TileCache");
+#else
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
+#endif
+    /// <summary>
+    /// An IDistributedCache implementation used to cache tile images.
+    /// The default value is a MemoryDistributedCache instance.
+    /// </summary>
+    public static IDistributedCache Cache { get; set; } = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+
+    /// <summary>
+    /// Default expiration time for cached tile images. Used when no expiration time
+    /// was transmitted on download. The default value is one day.
+    /// </summary>
+    public static TimeSpan DefaultCacheExpiration { get; set; } = TimeSpan.FromDays(1);
+
+    /// <summary>
+    /// Minimum expiration time for cached tile images. A transmitted expiration time
+    /// that falls below this value is ignored. The default value is TimeSpan.Zero.
+    /// </summary>
+    public static TimeSpan MinCacheExpiration { get; set; } = TimeSpan.Zero;
+
+    /// <summary>
+    /// Maximum expiration time for cached tile images. A transmitted expiration time
+    /// that exceeds this value is ignored. The default value is ten days.
+    /// </summary>
+    public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
+
+    /// <summary>
+    /// Maximum number of parallel tile loading tasks. The default value is 4.
+    /// </summary>
+    public int MaxLoadTasks { get; set; } = 4;
+
+    public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
+    {
+        if (Cache == null)
+        {
+            cacheName = null; // disable caching
+        }
+
+        lock (tileQueue)
+        {
+            tileQueue.Clear();
+
+            foreach (var tile in tiles.Where(tile => tile.IsPending))
+            {
+                tileQueue.Enqueue(tile);
+            }
+
+            tileCount = tileQueue.Count;
+
+            var maxTasks = Math.Min(tileCount, MaxLoadTasks);
+
+            while (taskCount < maxTasks)
+            {
+                taskCount++;
+                Logger?.LogDebug("Task count: {count}", taskCount);
+
+                _ = Task.Run(() => LoadTilesFromQueue(tileSource, cacheName, progress));
+            }
+        }
     }
 
-    public class TileImageLoader : ITileImageLoader
+    public void CancelLoadTiles()
     {
-        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(TileImageLoader));
-
-        private readonly Queue<Tile> tileQueue = new Queue<Tile>();
-        private int tileCount;
-        private int taskCount;
-
-        /// <summary>
-        /// Default folder path where a persistent cache implementation may save data, i.e. "C:\ProgramData\MapControl\TileCache".
-        /// </summary>
-        public static string DefaultCacheFolder =>
-#if UWP
-            Path.Combine(Windows.Storage.ApplicationData.Current.LocalCacheFolder.Path, "TileCache");
-#else
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MapControl", "TileCache");
-#endif
-        /// <summary>
-        /// An IDistributedCache implementation used to cache tile images.
-        /// The default value is a MemoryDistributedCache instance.
-        /// </summary>
-        public static IDistributedCache Cache { get; set; } = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
-
-        /// <summary>
-        /// Default expiration time for cached tile images. Used when no expiration time
-        /// was transmitted on download. The default value is one day.
-        /// </summary>
-        public static TimeSpan DefaultCacheExpiration { get; set; } = TimeSpan.FromDays(1);
-
-        /// <summary>
-        /// Minimum expiration time for cached tile images. A transmitted expiration time
-        /// that falls below this value is ignored. The default value is TimeSpan.Zero.
-        /// </summary>
-        public static TimeSpan MinCacheExpiration { get; set; } = TimeSpan.Zero;
-
-        /// <summary>
-        /// Maximum expiration time for cached tile images. A transmitted expiration time
-        /// that exceeds this value is ignored. The default value is ten days.
-        /// </summary>
-        public static TimeSpan MaxCacheExpiration { get; set; } = TimeSpan.FromDays(10);
-
-        /// <summary>
-        /// Maximum number of parallel tile loading tasks. The default value is 4.
-        /// </summary>
-        public int MaxLoadTasks { get; set; } = 4;
-
-        public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
+        lock (tileQueue)
         {
-            if (Cache == null)
-            {
-                cacheName = null; // disable caching
-            }
-
-            lock (tileQueue)
-            {
-                tileQueue.Clear();
-
-                foreach (var tile in tiles.Where(tile => tile.IsPending))
-                {
-                    tileQueue.Enqueue(tile);
-                }
-
-                tileCount = tileQueue.Count;
-
-                var maxTasks = Math.Min(tileCount, MaxLoadTasks);
-
-                while (taskCount < maxTasks)
-                {
-                    taskCount++;
-                    Logger?.LogDebug("Task count: {count}", taskCount);
-
-                    _ = Task.Run(() => LoadTilesFromQueue(tileSource, cacheName, progress));
-                }
-            }
+            tileQueue.Clear();
+            tileCount = 0;
         }
+    }
 
-        public void CancelLoadTiles()
+    private async Task LoadTilesFromQueue(TileSource tileSource, string cacheName, IProgress<double> progress)
+    {
+        bool TryDequeueTile(out Tile tile)
         {
             lock (tileQueue)
             {
-                tileQueue.Clear();
-                tileCount = 0;
+                if (tileQueue.Count > 0)
+                {
+                    tile = tileQueue.Dequeue();
+                    tile.IsPending = false;
+                    progress?.Report(1d - (double)tileQueue.Count / tileCount);
+                    return true;
+                }
+
+                taskCount--;
+                Logger?.LogDebug("Task count: {count}", taskCount);
             }
+
+            tile = null;
+            return false;
         }
 
-        private async Task LoadTilesFromQueue(TileSource tileSource, string cacheName, IProgress<double> progress)
+        while (TryDequeueTile(out Tile tile))
         {
-            bool TryDequeueTile(out Tile tile)
-            {
-                lock (tileQueue)
-                {
-                    if (tileQueue.Count > 0)
-                    {
-                        tile = tileQueue.Dequeue();
-                        tile.IsPending = false;
-                        progress?.Report(1d - (double)tileQueue.Count / tileCount);
-                        return true;
-                    }
-
-                    taskCount--;
-                    Logger?.LogDebug("Task count: {count}", taskCount);
-                }
-
-                tile = null;
-                return false;
-            }
-
-            while (TryDequeueTile(out Tile tile))
-            {
-                try
-                {
-                    Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})",
-                        Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
-
-                    await LoadTileImage(tile, tileSource, cacheName);
-                }
-                catch (Exception ex)
-                {
-                    Logger?.LogError(ex, "Failed loading tile {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
-                }
-            }
-        }
-
-        private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName)
-        {
-            // Pass image loading callbacks to platform-specific method
-            // tile.LoadImageAsync(Func<Task<ImageSource>>) for completion in the UI thread.
-
-            var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
-
-            if (uri == null)
-            {
-                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
-            }
-            else if (!uri.IsHttp() || string.IsNullOrEmpty(cacheName))
-            {
-                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(uri)).ConfigureAwait(false);
-            }
-            else
-            {
-                var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
-
-                if (buffer != null)
-                {
-                    await tile.LoadImageAsync(() => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName)
-        {
-            var extension = Path.GetExtension(uri.LocalPath).ToLower();
-
-            if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
-            {
-                extension = ".jpg";
-            }
-
-            var cacheKey = $"{cacheName}/{tile.ZoomLevel}/{tile.Column}/{tile.Row}{extension}";
-            byte[] buffer = null;
-
             try
             {
-                buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
+                Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})",
+                    Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
+
+                await LoadTileImage(tile, tileSource, cacheName);
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Cache.GetAsync({cacheKey})", cacheKey);
+                Logger?.LogError(ex, "Failed loading tile {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
             }
+        }
+    }
 
-            if (buffer == null)
+    private static async Task LoadTileImage(Tile tile, TileSource tileSource, string cacheName)
+    {
+        // Pass image loading callbacks to platform-specific method
+        // tile.LoadImageAsync(Func<Task<ImageSource>>) for completion in the UI thread.
+
+        var uri = tileSource.GetUri(tile.ZoomLevel, tile.Column, tile.Row);
+
+        if (uri == null)
+        {
+            await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
+        }
+        else if (!uri.IsHttp() || string.IsNullOrEmpty(cacheName))
+        {
+            await tile.LoadImageAsync(() => tileSource.LoadImageAsync(uri)).ConfigureAwait(false);
+        }
+        else
+        {
+            var buffer = await LoadCachedBuffer(tile, uri, cacheName).ConfigureAwait(false);
+
+            if (buffer != null)
             {
-                using var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
+                await tile.LoadImageAsync(() => tileSource.LoadImageAsync(buffer)).ConfigureAwait(false);
+            }
+        }
+    }
 
-                if (response != null)
+    private static async Task<byte[]> LoadCachedBuffer(Tile tile, Uri uri, string cacheName)
+    {
+        var extension = Path.GetExtension(uri.LocalPath).ToLower();
+
+        if (string.IsNullOrEmpty(extension) || extension == ".jpeg")
+        {
+            extension = ".jpg";
+        }
+
+        var cacheKey = $"{cacheName}/{tile.ZoomLevel}/{tile.Column}/{tile.Row}{extension}";
+        byte[] buffer = null;
+
+        try
+        {
+            buffer = await Cache.GetAsync(cacheKey).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Cache.GetAsync({cacheKey})", cacheKey);
+        }
+
+        if (buffer == null)
+        {
+            using var response = await ImageLoader.GetHttpResponseAsync(uri).ConfigureAwait(false);
+
+            if (response != null)
+            {
+                buffer = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+
+                try
                 {
-                    buffer = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-
-                    try
+                    var maxAge = response.Headers.CacheControl?.MaxAge;
+                    var options = new DistributedCacheEntryOptions
                     {
-                        var maxAge = response.Headers.CacheControl?.MaxAge;
-                        var options = new DistributedCacheEntryOptions
-                        {
-                            AbsoluteExpirationRelativeToNow =
-                                !maxAge.HasValue ? DefaultCacheExpiration
-                                : maxAge.Value < MinCacheExpiration ? MinCacheExpiration
-                                : maxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
-                                : maxAge.Value
-                        };
+                        AbsoluteExpirationRelativeToNow =
+                            !maxAge.HasValue ? DefaultCacheExpiration
+                            : maxAge.Value < MinCacheExpiration ? MinCacheExpiration
+                            : maxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
+                            : maxAge.Value
+                    };
 
-                        await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.LogError(ex, "Cache.SetAsync({cacheKey})", cacheKey);
-                    }
+                    await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.LogError(ex, "Cache.SetAsync({cacheKey})", cacheKey);
                 }
             }
-
-            return buffer;
         }
+
+        return buffer;
     }
 }

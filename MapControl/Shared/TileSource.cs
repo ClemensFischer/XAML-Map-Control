@@ -10,60 +10,59 @@ using Microsoft.UI.Xaml.Media;
 using ImageSource = Avalonia.Media.IImage;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Provides the download Uri or ImageSource of map tiles. Used by TileImageLoader.
+/// </summary>
+#if UWP || WINUI
+[Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
+#else
+[System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]
+#endif
+public class TileSource
 {
     /// <summary>
-    /// Provides the download Uri or ImageSource of map tiles. Used by TileImageLoader.
+    /// Gets an image request Uri for the specified zoom level and tile indices.
+    /// May return null when the image shall be loaded by
+    /// the LoadImageAsync(zoomLevel, column, row) method.
     /// </summary>
-#if UWP || WINUI
-    [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
-#else
-    [System.ComponentModel.TypeConverter(typeof(TileSourceConverter))]
-#endif
-    public class TileSource
+    public virtual Uri GetUri(int zoomLevel, int column, int row)
     {
-        /// <summary>
-        /// Gets an image request Uri for the specified zoom level and tile indices.
-        /// May return null when the image shall be loaded by
-        /// the LoadImageAsync(zoomLevel, column, row) method.
-        /// </summary>
-        public virtual Uri GetUri(int zoomLevel, int column, int row)
-        {
-            return null;
-        }
+        return null;
+    }
 
-        /// <summary>
-        /// Loads a tile image without an Uri. Called when GetUri returns null.
-        /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
-        {
-            return null;
-        }
+    /// <summary>
+    /// Loads a tile image without an Uri. Called when GetUri returns null.
+    /// </summary>
+    public virtual Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
+    {
+        return null;
+    }
 
-        /// <summary>
-        /// Loads a tile image from an Uri. Called when the Uri scheme is neither
-        /// http nor https or when the TileImageLoader is not using an image cache.
-        /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(Uri uri)
-        {
-            return ImageLoader.LoadImageAsync(uri);
-        }
+    /// <summary>
+    /// Loads a tile image from an Uri. Called when the Uri scheme is neither
+    /// http nor https or when the TileImageLoader is not using an image cache.
+    /// </summary>
+    public virtual Task<ImageSource> LoadImageAsync(Uri uri)
+    {
+        return ImageLoader.LoadImageAsync(uri);
+    }
 
-        /// <summary>
-        /// Loads a tile image from an encoded image buffer. Called when the
-        /// TileImageLoader caches image buffers from http or https requests.
-        /// </summary>
-        public virtual Task<ImageSource> LoadImageAsync(byte[] buffer)
-        {
-            return ImageLoader.LoadImageAsync(buffer);
-        }
+    /// <summary>
+    /// Loads a tile image from an encoded image buffer. Called when the
+    /// TileImageLoader caches image buffers from http or https requests.
+    /// </summary>
+    public virtual Task<ImageSource> LoadImageAsync(byte[] buffer)
+    {
+        return ImageLoader.LoadImageAsync(buffer);
+    }
 
-        /// <summary>
-        /// Creates a TileSource instance from an Uri template string.
-        /// </summary>
-        public static TileSource Parse(string uriTemplate)
-        {
-            return new UriTileSource { UriTemplate = uriTemplate };
-        }
+    /// <summary>
+    /// Creates a TileSource instance from an Uri template string.
+    /// </summary>
+    public static TileSource Parse(string uriTemplate)
+    {
+        return new UriTileSource { UriTemplate = uriTemplate };
     }
 }

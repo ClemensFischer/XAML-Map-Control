@@ -12,37 +12,36 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 #endif
 
-namespace MapControl.MapsforgeTiles
+namespace MapControl.MapsforgeTiles;
+
+public partial class MapsforgeTileSource
 {
-    public partial class MapsforgeTileSource
+    public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
     {
-        public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
+        ImageSource image = null;
+        var bitmap = new WriteableBitmap(TileSize, TileSize);
+        using var stream = bitmap.PixelBuffer.AsStream();
+
+        try
         {
-            ImageSource image = null;
-            var bitmap = new WriteableBitmap(TileSize, TileSize);
-            using var stream = bitmap.PixelBuffer.AsStream();
-
-            try
+            // Run a Task because in WinUI/UWP LoadImageAsync is called in the UI thread.
+            //
+            await Task.Run(() =>
             {
-                // Run a Task because in WinUI/UWP LoadImageAsync is called in the UI thread.
-                //
-                await Task.Run(() =>
+                var pixels = RenderTile(zoomLevel, column, row);
+
+                if (pixels != null)
                 {
-                    var pixels = RenderTile(zoomLevel, column, row);
-
-                    if (pixels != null)
-                    {
-                        stream.Write(MemoryMarshal.AsBytes(pixels.AsSpan()));
-                        image = bitmap;
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex, "LoadImageAsync");
-            }
-
-            return image;
+                    stream.Write(MemoryMarshal.AsBytes(pixels.AsSpan()));
+                    image = bitmap;
+                }
+            });
         }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "LoadImageAsync");
+        }
+
+        return image;
     }
 }

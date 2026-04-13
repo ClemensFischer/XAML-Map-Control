@@ -8,21 +8,20 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 #endif
 
-namespace MapControl.UiTools
+namespace MapControl.UiTools;
+
+public abstract partial class MapMenuItem : ToggleMenuFlyoutItem
 {
-    public abstract partial class MapMenuItem : ToggleMenuFlyoutItem
+    protected MapMenuItem()
     {
-        protected MapMenuItem()
+        Loaded += (_, _) =>
         {
-            Loaded += (_, _) =>
-            {
-                ParentMenuItems = ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>().ToList();
-                Initialize();
-            };
+            ParentMenuItems = ((Panel)VisualTreeHelper.GetParent(this)).Children.OfType<MapMenuItem>().ToList();
+            Initialize();
+        };
 
-            Click += (_, _) => Execute();
-        }
-
-        protected IList<MapMenuItem> ParentMenuItems { get; private set; }
+        Click += (_, _) => Execute();
     }
+
+    protected IList<MapMenuItem> ParentMenuItems { get; private set; }
 }

@@ -7,74 +7,73 @@ using Windows.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+public partial class MapPolypoint : MapPath
 {
-    public partial class MapPolypoint : MapPath
+    protected void UpdateData(IEnumerable<Location> locations, bool closed)
     {
-        protected void UpdateData(IEnumerable<Location> locations, bool closed)
+        var figures = ((PathGeometry)Data).Figures;
+        figures.Clear();
+
+        if (ParentMap != null && locations != null)
         {
-            var figures = ((PathGeometry)Data).Figures;
-            figures.Clear();
+            var longitudeOffset = GetLongitudeOffset(locations);
 
-            if (ParentMap != null && locations != null)
+            AddPolylinePoints(figures, locations, longitudeOffset, closed);
+        }
+    }
+
+    protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
+    {
+        var figures = ((PathGeometry)Data).Figures;
+        figures.Clear();
+
+        if (ParentMap != null && polygons != null)
+        {
+            var longitudeOffset = GetLongitudeOffset(polygons.FirstOrDefault());
+
+            foreach (var locations in polygons)
             {
-                var longitudeOffset = GetLongitudeOffset(locations);
-
-                AddPolylinePoints(figures, locations, longitudeOffset, closed);
+                AddPolylinePoints(figures, locations, longitudeOffset, true);
             }
         }
+    }
 
-        protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
+    private void AddPolylinePoints(PathFigureCollection figures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+    {
+        var points = locations.Select(location => LocationToView(location, longitudeOffset));
+
+        if (points.Any())
         {
-            var figures = ((PathGeometry)Data).Figures;
-            figures.Clear();
+            var start = points.First();
+            var polyline = new PolyLineSegment();
+            var minX = start.X;
+            var maxX = start.X;
+            var minY = start.Y;
+            var maxY = start.Y;
 
-            if (ParentMap != null && polygons != null)
+            foreach (var point in points.Skip(1))
             {
-                var longitudeOffset = GetLongitudeOffset(polygons.FirstOrDefault());
-
-                foreach (var locations in polygons)
-                {
-                    AddPolylinePoints(figures, locations, longitudeOffset, true);
-                }
+                polyline.Points.Add(point);
+                minX = Math.Min(minX, point.X);
+                maxX = Math.Max(maxX, point.X);
+                minY = Math.Min(minY, point.Y);
+                maxY = Math.Max(maxY, point.Y);
             }
-        }
 
-        private void AddPolylinePoints(PathFigureCollection figures, IEnumerable<Location> locations, double longitudeOffset, bool closed)
-        {
-            var points = locations.Select(location => LocationToView(location, longitudeOffset));
-
-            if (points.Any())
+            if (maxX >= 0d && minX <= ParentMap.ActualWidth &&
+                maxY >= 0d && minY <= ParentMap.ActualHeight)
             {
-                var start = points.First();
-                var polyline = new PolyLineSegment();
-                var minX = start.X;
-                var maxX = start.X;
-                var minY = start.Y;
-                var maxY = start.Y;
-
-                foreach (var point in points.Skip(1))
+                var figure = new PathFigure
                 {
-                    polyline.Points.Add(point);
-                    minX = Math.Min(minX, point.X);
-                    maxX = Math.Max(maxX, point.X);
-                    minY = Math.Min(minY, point.Y);
-                    maxY = Math.Max(maxY, point.Y);
-                }
+                    StartPoint = start,
+                    IsClosed = closed,
+                    IsFilled = true
+                };
 
-                if (maxX >= 0d && minX <= ParentMap.ActualWidth &&
-                    maxY >= 0d && minY <= ParentMap.ActualHeight)
-                {
-                    var figure = new PathFigure
-                    {
-                        StartPoint = start,
-                        IsClosed = closed,
-                        IsFilled = true
-                    };
-
-                    figure.Segments.Add(polyline);
-                    figures.Add(figure);
-                }
+                figure.Segments.Add(polyline);
+                figures.Add(figure);
             }
         }
     }

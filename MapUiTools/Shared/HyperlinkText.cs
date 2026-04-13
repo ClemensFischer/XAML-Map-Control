@@ -22,109 +22,108 @@ using Avalonia.Media;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
-namespace MapControl.UiTools
+namespace MapControl.UiTools;
+
+public static class HyperlinkText
 {
-    public static class HyperlinkText
+    private static readonly Regex regex = new Regex(@"\[([^\]]+)\]\(([^\)]+)\)");
+
+    /// <summary>
+    /// Converts text containing hyperlinks in markdown syntax [text](url)
+    /// to a collection of Run and Hyperlink inlines.
+    /// </summary>
+    public static IEnumerable<Inline> TextToInlines(this string text)
     {
-        private static readonly Regex regex = new Regex(@"\[([^\]]+)\]\(([^\)]+)\)");
+        var inlines = new List<Inline>();
 
-        /// <summary>
-        /// Converts text containing hyperlinks in markdown syntax [text](url)
-        /// to a collection of Run and Hyperlink inlines.
-        /// </summary>
-        public static IEnumerable<Inline> TextToInlines(this string text)
+        while (!string.IsNullOrEmpty(text))
         {
-            var inlines = new List<Inline>();
+            var match = regex.Match(text);
 
-            while (!string.IsNullOrEmpty(text))
+            if (match.Success &&
+                match.Groups.Count == 3 &&
+                Uri.TryCreate(match.Groups[2].Value, UriKind.Absolute, out Uri uri))
             {
-                var match = regex.Match(text);
-
-                if (match.Success &&
-                    match.Groups.Count == 3 &&
-                    Uri.TryCreate(match.Groups[2].Value, UriKind.Absolute, out Uri uri))
+                inlines.Add(new Run
                 {
-                    inlines.Add(new Run
-                    {
-                        Text = text.Substring(0, match.Index),
+                    Text = text.Substring(0, match.Index),
 #if WPF || AVALONIA
-                        BaselineAlignment = BaselineAlignment.Center
+                    BaselineAlignment = BaselineAlignment.Center
 #endif
-                    });
-
-                    text = text.Substring(match.Index + match.Length);
-
-                    var hyperlinkText = match.Groups[1].Value;
-#if AVALONIA
-                    var button = new HyperlinkButton
-                    {
-                        Content = hyperlinkText,
-                        NavigateUri = uri,
-                        Padding = new Thickness(0),
-                        Margin = new Thickness(0)
-                    };
-
-                    var link = new InlineUIContainer
-                    {
-                        Child = button,
-                        BaselineAlignment = BaselineAlignment.Center
-                    };
-#else
-                    var run = new Run { Text = hyperlinkText };
-                    var link = new Hyperlink { NavigateUri = uri };
-                    link.Inlines.Add(run);
-#if WPF
-                    run.BaselineAlignment = BaselineAlignment.Center;
-                    link.BaselineAlignment = BaselineAlignment.Center;
-                    link.ToolTip = uri.ToString();
-                    link.RequestNavigate += (_, e) =>
-                    {
-                        try
-                        {
-                            Process.Start(new ProcessStartInfo(e.Uri.ToString()) { UseShellExecute = true });
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"{e.Uri}: {ex}");
-                        }
-                    };
-#endif
-#endif
-                    inlines.Add(link);
-                }
-                else
-                {
-                    inlines.Add(new Run { Text = text });
-                    text = null;
-                }
-            }
-
-            return inlines;
-        }
-
-        public static readonly DependencyProperty InlinesSourceProperty =
-            DependencyPropertyHelper.RegisterAttached<string>("InlinesSource", typeof(HyperlinkText), null,
-                (element, oldValue, newValue) =>
-                {
-                    if (element is TextBlock textBlock)
-                    {
-                        textBlock.Inlines.Clear();
-
-                        foreach (var inline in TextToInlines(newValue))
-                        {
-                            textBlock.Inlines.Add(inline);
-                        }
-                    }
                 });
 
-        public static string GetInlinesSource(TextBlock element)
-        {
-            return (string)element.GetValue(InlinesSourceProperty);
+                text = text.Substring(match.Index + match.Length);
+
+                var hyperlinkText = match.Groups[1].Value;
+#if AVALONIA
+                var button = new HyperlinkButton
+                {
+                    Content = hyperlinkText,
+                    NavigateUri = uri,
+                    Padding = new Thickness(0),
+                    Margin = new Thickness(0)
+                };
+
+                var link = new InlineUIContainer
+                {
+                    Child = button,
+                    BaselineAlignment = BaselineAlignment.Center
+                };
+#else
+                var run = new Run { Text = hyperlinkText };
+                var link = new Hyperlink { NavigateUri = uri };
+                link.Inlines.Add(run);
+#if WPF
+                run.BaselineAlignment = BaselineAlignment.Center;
+                link.BaselineAlignment = BaselineAlignment.Center;
+                link.ToolTip = uri.ToString();
+                link.RequestNavigate += (_, e) =>
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(e.Uri.ToString()) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"{e.Uri}: {ex}");
+                    }
+                };
+#endif
+#endif
+                inlines.Add(link);
+            }
+            else
+            {
+                inlines.Add(new Run { Text = text });
+                text = null;
+            }
         }
 
-        public static void SetInlinesSource(TextBlock element, string value)
-        {
-            element.SetValue(InlinesSourceProperty, value);
-        }
+        return inlines;
+    }
+
+    public static readonly DependencyProperty InlinesSourceProperty =
+        DependencyPropertyHelper.RegisterAttached<string>("InlinesSource", typeof(HyperlinkText), null,
+            (element, oldValue, newValue) =>
+            {
+                if (element is TextBlock textBlock)
+                {
+                    textBlock.Inlines.Clear();
+
+                    foreach (var inline in TextToInlines(newValue))
+                    {
+                        textBlock.Inlines.Add(inline);
+                    }
+                }
+            });
+
+    public static string GetInlinesSource(TextBlock element)
+    {
+        return (string)element.GetValue(InlinesSourceProperty);
+    }
+
+    public static void SetInlinesSource(TextBlock element, string value)
+    {
+        element.SetValue(InlinesSourceProperty, value);
     }
 }

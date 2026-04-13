@@ -18,126 +18,125 @@ using Avalonia.Data;
 using PropertyPath = System.String;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// An ItemsControl with selectable items on a Map. Uses MapItem as item container.
+/// </summary>
+public partial class MapItemsControl : ListBox
 {
+    public static readonly DependencyProperty LocationMemberPathProperty =
+        DependencyPropertyHelper.Register<MapItemsControl, string>(nameof(LocationMemberPath));
+
     /// <summary>
-    /// An ItemsControl with selectable items on a Map. Uses MapItem as item container.
+    /// Path to a source property for binding the Location property of MapItem containers.
     /// </summary>
-    public partial class MapItemsControl : ListBox
+    public string LocationMemberPath
     {
-        public static readonly DependencyProperty LocationMemberPathProperty =
-            DependencyPropertyHelper.Register<MapItemsControl, string>(nameof(LocationMemberPath));
+        get => (string)GetValue(LocationMemberPathProperty);
+        set => SetValue(LocationMemberPathProperty, value);
+    }
 
-        /// <summary>
-        /// Path to a source property for binding the Location property of MapItem containers.
-        /// </summary>
-        public string LocationMemberPath
+    public void SelectItems(Predicate<object> predicate)
+    {
+        if (SelectionMode == SelectionMode.Single)
         {
-            get => (string)GetValue(LocationMemberPathProperty);
-            set => SetValue(LocationMemberPathProperty, value);
+            throw new InvalidOperationException("SelectionMode must not be Single");
         }
 
-        public void SelectItems(Predicate<object> predicate)
+        foreach (var item in Items)
         {
-            if (SelectionMode == SelectionMode.Single)
-            {
-                throw new InvalidOperationException("SelectionMode must not be Single");
-            }
+            var selected = predicate(item);
 
-            foreach (var item in Items)
+            if (selected != SelectedItems.Contains(item))
             {
-                var selected = predicate(item);
-
-                if (selected != SelectedItems.Contains(item))
+                if (selected)
                 {
-                    if (selected)
-                    {
-                        SelectedItems.Add(item);
-                    }
-                    else
-                    {
-                        SelectedItems.Remove(item);
-                    }
+                    SelectedItems.Add(item);
+                }
+                else
+                {
+                    SelectedItems.Remove(item);
                 }
             }
         }
+    }
 
-        public void SelectItemsByLocation(Predicate<Location> predicate)
+    public void SelectItemsByLocation(Predicate<Location> predicate)
+    {
+        SelectItems(item =>
         {
-            SelectItems(item =>
+            var location = MapPanel.GetLocation(ContainerFromItem(item));
+
+            return location!= null && predicate(location);
+        });
+    }
+
+    public void SelectItemsByPosition(Predicate<Point> predicate)
+    {
+        SelectItems(item =>
+        {
+            var position = MapPanel.GetViewPosition(ContainerFromItem(item));
+
+            return position.HasValue && predicate(position.Value);
+        });
+    }
+
+    public void SelectItemsInRect(Rect rect)
+    {
+        SelectItemsByPosition(rect.Contains);
+    }
+
+    /// <summary>
+    /// Selects all items in a rectangular range between SelectedItem and the specified MapItem.
+    /// </summary>
+    internal void SelectItemsInRange(MapItem mapItem)
+    {
+        var position = MapPanel.GetViewPosition(mapItem);
+
+        if (position.HasValue)
+        {
+            var xMin = position.Value.X;
+            var xMax = position.Value.X;
+            var yMin = position.Value.Y;
+            var yMax = position.Value.Y;
+
+            if (SelectedItem != null)
             {
-                var location = MapPanel.GetLocation(ContainerFromItem(item));
+                var selectedMapItem = ContainerFromItem(SelectedItem);
 
-                return location!= null && predicate(location);
-            });
-        }
-
-        public void SelectItemsByPosition(Predicate<Point> predicate)
-        {
-            SelectItems(item =>
-            {
-                var position = MapPanel.GetViewPosition(ContainerFromItem(item));
-
-                return position.HasValue && predicate(position.Value);
-            });
-        }
-
-        public void SelectItemsInRect(Rect rect)
-        {
-            SelectItemsByPosition(rect.Contains);
-        }
-
-        /// <summary>
-        /// Selects all items in a rectangular range between SelectedItem and the specified MapItem.
-        /// </summary>
-        internal void SelectItemsInRange(MapItem mapItem)
-        {
-            var position = MapPanel.GetViewPosition(mapItem);
-
-            if (position.HasValue)
-            {
-                var xMin = position.Value.X;
-                var xMax = position.Value.X;
-                var yMin = position.Value.Y;
-                var yMax = position.Value.Y;
-
-                if (SelectedItem != null)
+                if (selectedMapItem != mapItem)
                 {
-                    var selectedMapItem = ContainerFromItem(SelectedItem);
+                    position = MapPanel.GetViewPosition(selectedMapItem);
 
-                    if (selectedMapItem != mapItem)
+                    if (position.HasValue)
                     {
-                        position = MapPanel.GetViewPosition(selectedMapItem);
-
-                        if (position.HasValue)
-                        {
-                            xMin = Math.Min(xMin, position.Value.X);
-                            xMax = Math.Max(xMax, position.Value.X);
-                            yMin = Math.Min(yMin, position.Value.Y);
-                            yMax = Math.Max(yMax, position.Value.Y);
-                        }
+                        xMin = Math.Min(xMin, position.Value.X);
+                        xMax = Math.Max(xMax, position.Value.X);
+                        yMin = Math.Min(yMin, position.Value.Y);
+                        yMax = Math.Max(yMax, position.Value.Y);
                     }
                 }
-
-                SelectItemsInRect(new Rect(xMin, yMin, xMax - xMin, yMax - yMin));
             }
+
+            SelectItemsInRect(new Rect(xMin, yMin, xMax - xMin, yMax - yMin));
         }
+    }
 
-        private void PrepareContainer(MapItem mapItem, object item)
+    private void PrepareContainer(MapItem mapItem, object item)
+    {
+        if (LocationMemberPath != null)
         {
-            if (LocationMemberPath != null)
-            {
-                mapItem.SetBinding(MapItem.LocationProperty,
-                    new Binding { Source = item, Path = new PropertyPath(LocationMemberPath) });
-            }
+            mapItem.SetBinding(MapItem.LocationProperty,
+                new Binding { Source = item, Path = new PropertyPath(LocationMemberPath) });
         }
+    }
 
-        private void ClearContainer(MapItem mapItem)
+    private void ClearContainer(MapItem mapItem)
+    {
+        if (LocationMemberPath != null)
         {
-            if (LocationMemberPath != null)
-            {
-                mapItem.ClearValue(MapItem.LocationProperty);
-            }
+            mapItem.ClearValue(MapItem.LocationProperty);
         }
     }
 }

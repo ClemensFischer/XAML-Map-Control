@@ -8,21 +8,20 @@ using Microsoft.UI.Xaml;
 using Avalonia.Threading;
 #endif
 
-namespace MapControl
-{
-    internal class UpdateTimer : DispatcherTimer
-    {
-        public void Run(bool restart = false)
-        {
-            if (restart)
-            {
-                Stop();
-            }
+namespace MapControl;
 
-            if (!IsEnabled)
-            {
-                Start();
-            }
+internal class UpdateTimer : DispatcherTimer
+{
+    public void Run(bool restart = false)
+    {
+        if (restart)
+        {
+            Stop();
+        }
+
+        if (!IsEnabled)
+        {
+            Start();
         }
     }
 }

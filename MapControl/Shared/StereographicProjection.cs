@@ -7,136 +7,135 @@ using System.Windows.Media;
 using Avalonia;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Spherical Stereographic Projection - AUTO2:97002.
+/// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.157-160.
+/// </summary>
+public class StereographicProjection : MapProjection
 {
-    /// <summary>
-    /// Spherical Stereographic Projection - AUTO2:97002.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.157-160.
-    /// </summary>
-    public class StereographicProjection : MapProjection
+    public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS identifier
+
+    public StereographicProjection(string crsId)
     {
-        public const string DefaultCrsId = "AUTO2:97002"; // GeoServer non-standard CRS identifier
+        var parameters = crsId.Split(',');
 
-        public StereographicProjection(string crsId)
+        if (parameters.Length != 4 ||
+            string.IsNullOrEmpty(parameters[0]) ||
+            !double.TryParse(parameters[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double scaleFactor) ||
+            !double.TryParse(parameters[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double longitude) ||
+            !double.TryParse(parameters[3], NumberStyles.Float, CultureInfo.InvariantCulture, out double latitude))
         {
-            var parameters = crsId.Split(',');
-
-            if (parameters.Length != 4 ||
-                string.IsNullOrEmpty(parameters[0]) ||
-                !double.TryParse(parameters[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double scaleFactor) ||
-                !double.TryParse(parameters[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double longitude) ||
-                !double.TryParse(parameters[3], NumberStyles.Float, CultureInfo.InvariantCulture, out double latitude))
-            {
-                throw new ArgumentException($"Invalid CRS Identifier {crsId}.", nameof(crsId));
-            }
-
-            CrsId = crsId;
-            ScaleFactor = scaleFactor;
-            CentralMeridian = longitude;
-            LatitudeOfOrigin = latitude;
+            throw new ArgumentException($"Invalid CRS Identifier {crsId}.", nameof(crsId));
         }
 
-        public StereographicProjection(double centerLatitude, double centerLongitude, double scaleFactor = 1d, string crsId = DefaultCrsId)
+        CrsId = crsId;
+        ScaleFactor = scaleFactor;
+        CentralMeridian = longitude;
+        LatitudeOfOrigin = latitude;
+    }
+
+    public StereographicProjection(double centerLatitude, double centerLongitude, double scaleFactor = 1d, string crsId = DefaultCrsId)
+    {
+        CrsId = string.Format(CultureInfo.InvariantCulture,
+            "{0},{1:0.########},{2:0.########},{3:0.########}", crsId, scaleFactor, centerLongitude, centerLatitude);
+        ScaleFactor = scaleFactor;
+        CentralMeridian = centerLongitude;
+        LatitudeOfOrigin = centerLatitude;
+    }
+
+    private void GetScaleAndGridConvergence(double latitude, double longitude, out double scale, out double gamma)
+    {
+        var phi0 = LatitudeOfOrigin * Math.PI / 180d; // φ1
+        var phi1 = latitude * Math.PI / 180d;
+        var phi2 = (latitude + 1e-3) * Math.PI / 180d;
+        var lambda = (longitude - CentralMeridian) * Math.PI / 180d; // λ - λ0
+        var sinPhi0 = Math.Sin(phi0);
+        var cosPhi0 = Math.Cos(phi0);
+        var sinPhi1 = Math.Sin(phi1);
+        var cosPhi1 = Math.Cos(phi1);
+        var sinPhi2 = Math.Sin(phi2);
+        var cosPhi2 = Math.Cos(phi2);
+        var sinLambda = Math.Sin(lambda);
+        var cosLambda = Math.Cos(lambda);
+        var k1 = 2d / (1d + sinPhi0 * sinPhi1 + cosPhi0 * cosPhi1 * cosLambda);
+        var k2 = 2d / (1d + sinPhi0 * sinPhi2 + cosPhi0 * cosPhi2 * cosLambda);
+        var c = k2 * cosPhi2 - k1 * cosPhi1;
+        var s = k2 * sinPhi2 - k1 * sinPhi1;
+
+        scale = k1;
+        gamma = Math.Atan2(-sinLambda * c, cosPhi0 * s - sinPhi0 * cosLambda * c) * 180d / Math.PI;
+    }
+
+    public override double GridConvergence(double latitude, double longitude)
+    {
+        GetScaleAndGridConvergence(latitude, longitude, out double _, out double gamma);
+
+        return gamma;
+    }
+
+    public override Matrix RelativeTransform(double latitude, double longitude)
+    {
+        GetScaleAndGridConvergence(latitude, longitude, out double scale, out double gamma);
+
+        var transform = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
+        transform.Rotate(-gamma);
+
+        return transform;
+    }
+
+    public override Point LocationToMap(double latitude, double longitude)
+    {
+        var phi0 = LatitudeOfOrigin * Math.PI / 180d; // φ1
+        var phi = latitude * Math.PI / 180d; // φ
+        var lambda = (longitude - CentralMeridian) * Math.PI / 180d; // λ - λ0
+        var sinPhi0 = Math.Sin(phi0);
+        var cosPhi0 = Math.Cos(phi0);
+        var sinPhi = Math.Sin(phi);
+        var cosPhi = Math.Cos(phi);
+        var sinLambda = Math.Sin(lambda);
+        var cosPhiCosLambda = cosPhi * Math.Cos(lambda);
+        var x = cosPhi * sinLambda;
+        var y = cosPhi0 * sinPhi - sinPhi0 * cosPhiCosLambda;
+        var k = 2d / (1d + sinPhi0 * sinPhi + cosPhi0 * cosPhiCosLambda); // p.157 (21-4), k0 == 1
+
+        return new Point(
+            EquatorialRadius * k * x,
+            EquatorialRadius * k * y); // p.157 (21-2/3)
+    }
+
+    public override Location MapToLocation(double x, double y)
+    {
+        var rho = Math.Sqrt(x * x + y * y);
+        var c = 2d * Math.Atan(rho / (2d * EquatorialRadius)); // p.159 (21-15), k0 == 1
+        var cosC = Math.Cos(c);
+        var sinC = Math.Sin(c);
+
+        var phi0 = LatitudeOfOrigin * Math.PI / 180d; // φ1
+        var cosPhi0 = Math.Cos(phi0);
+        var sinPhi0 = Math.Sin(phi0);
+        var phi = Math.Asin(cosC * sinPhi0 + y * sinC * cosPhi0 / rho); // (20-14)
+        double u, v;
+
+        if (LatitudeOfOrigin == 90d) // (20-16)
         {
-            CrsId = string.Format(CultureInfo.InvariantCulture,
-                "{0},{1:0.########},{2:0.########},{3:0.########}", crsId, scaleFactor, centerLongitude, centerLatitude);
-            ScaleFactor = scaleFactor;
-            CentralMeridian = centerLongitude;
-            LatitudeOfOrigin = centerLatitude;
+            u = x;
+            v = -y;
+        }
+        else if (LatitudeOfOrigin == -90d) // (20-17)
+        {
+            u = x;
+            v = y;
+        }
+        else // (20-15)
+        {
+            u = x * sinC;
+            v = rho * cosPhi0 * cosC - y * sinPhi0 * sinC;
         }
 
-        private void GetScaleAndGridConvergence(double latitude, double longitude, out double scale, out double gamma)
-        {
-            var phi0 = LatitudeOfOrigin * Math.PI / 180d; // φ1
-            var phi1 = latitude * Math.PI / 180d;
-            var phi2 = (latitude + 1e-3) * Math.PI / 180d;
-            var lambda = (longitude - CentralMeridian) * Math.PI / 180d; // λ - λ0
-            var sinPhi0 = Math.Sin(phi0);
-            var cosPhi0 = Math.Cos(phi0);
-            var sinPhi1 = Math.Sin(phi1);
-            var cosPhi1 = Math.Cos(phi1);
-            var sinPhi2 = Math.Sin(phi2);
-            var cosPhi2 = Math.Cos(phi2);
-            var sinLambda = Math.Sin(lambda);
-            var cosLambda = Math.Cos(lambda);
-            var k1 = 2d / (1d + sinPhi0 * sinPhi1 + cosPhi0 * cosPhi1 * cosLambda);
-            var k2 = 2d / (1d + sinPhi0 * sinPhi2 + cosPhi0 * cosPhi2 * cosLambda);
-            var c = k2 * cosPhi2 - k1 * cosPhi1;
-            var s = k2 * sinPhi2 - k1 * sinPhi1;
-
-            scale = k1;
-            gamma = Math.Atan2(-sinLambda * c, cosPhi0 * s - sinPhi0 * cosLambda * c) * 180d / Math.PI;
-        }
-
-        public override double GridConvergence(double latitude, double longitude)
-        {
-            GetScaleAndGridConvergence(latitude, longitude, out double _, out double gamma);
-
-            return gamma;
-        }
-
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            GetScaleAndGridConvergence(latitude, longitude, out double scale, out double gamma);
-
-            var transform = new Matrix(scale, 0d, 0d, scale, 0d, 0d);
-            transform.Rotate(-gamma);
-
-            return transform;
-        }
-
-        public override Point LocationToMap(double latitude, double longitude)
-        {
-            var phi0 = LatitudeOfOrigin * Math.PI / 180d; // φ1
-            var phi = latitude * Math.PI / 180d; // φ
-            var lambda = (longitude - CentralMeridian) * Math.PI / 180d; // λ - λ0
-            var sinPhi0 = Math.Sin(phi0);
-            var cosPhi0 = Math.Cos(phi0);
-            var sinPhi = Math.Sin(phi);
-            var cosPhi = Math.Cos(phi);
-            var sinLambda = Math.Sin(lambda);
-            var cosPhiCosLambda = cosPhi * Math.Cos(lambda);
-            var x = cosPhi * sinLambda;
-            var y = cosPhi0 * sinPhi - sinPhi0 * cosPhiCosLambda;
-            var k = 2d / (1d + sinPhi0 * sinPhi + cosPhi0 * cosPhiCosLambda); // p.157 (21-4), k0 == 1
-
-            return new Point(
-                EquatorialRadius * k * x,
-                EquatorialRadius * k * y); // p.157 (21-2/3)
-        }
-
-        public override Location MapToLocation(double x, double y)
-        {
-            var rho = Math.Sqrt(x * x + y * y);
-            var c = 2d * Math.Atan(rho / (2d * EquatorialRadius)); // p.159 (21-15), k0 == 1
-            var cosC = Math.Cos(c);
-            var sinC = Math.Sin(c);
-
-            var phi0 = LatitudeOfOrigin * Math.PI / 180d; // φ1
-            var cosPhi0 = Math.Cos(phi0);
-            var sinPhi0 = Math.Sin(phi0);
-            var phi = Math.Asin(cosC * sinPhi0 + y * sinC * cosPhi0 / rho); // (20-14)
-            double u, v;
-
-            if (LatitudeOfOrigin == 90d) // (20-16)
-            {
-                u = x;
-                v = -y;
-            }
-            else if (LatitudeOfOrigin == -90d) // (20-17)
-            {
-                u = x;
-                v = y;
-            }
-            else // (20-15)
-            {
-                u = x * sinC;
-                v = rho * cosPhi0 * cosC - y * sinPhi0 * sinC;
-            }
-
-            return new Location(
-                phi * 180d / Math.PI,
-                Math.Atan2(u, v) * 180d / Math.PI + CentralMeridian);
-        }
+        return new Location(
+            phi * 180d / Math.PI,
+            Math.Atan2(u, v) * 180d / Math.PI + CentralMeridian);
     }
 }

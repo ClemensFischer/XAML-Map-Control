@@ -1,8 +1,7 @@
 ﻿using System.Windows;
 
-namespace ProjectionDemo
+namespace ProjectionDemo;
+
+public partial class App : Application
 {
-    public partial class App : Application
-    {
-    }
 }

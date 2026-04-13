@@ -6,68 +6,67 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
-namespace MapControl
+namespace MapControl;
+
+public class ImageTile(int zoomLevel, int x, int y, int columnCount)
+    : Tile(zoomLevel, x, y, columnCount)
 {
-    public class ImageTile(int zoomLevel, int x, int y, int columnCount)
-        : Tile(zoomLevel, x, y, columnCount)
+    public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+
+    public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
     {
-        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+        var image = await loadImageFunc().ConfigureAwait(false);
 
-        public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
+        void SetImageSource()
         {
-            var image = await loadImageFunc().ConfigureAwait(false);
+            Image.Source = image;
 
-            void SetImageSource()
+            if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
-                Image.Source = image;
-
-                if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
                 {
-                    if (image is BitmapSource bitmap && !bitmap.IsFrozen && bitmap.IsDownloading)
-                    {
-                        bitmap.DownloadCompleted += BitmapDownloadCompleted;
-                        bitmap.DownloadFailed += BitmapDownloadFailed;
-                    }
-                    else
-                    {
-                        BeginFadeInAnimation();
-                    }
+                    bitmap.DownloadCompleted += BitmapDownloadCompleted;
+                    bitmap.DownloadFailed += BitmapDownloadFailed;
+                }
+                else
+                {
+                    BeginFadeInAnimation();
                 }
             }
-
-            await Image.Dispatcher.InvokeAsync(SetImageSource);
         }
 
-        private void BeginFadeInAnimation()
+        await Image.Dispatcher.InvokeAsync(SetImageSource);
+    }
+
+    private void BeginFadeInAnimation()
+    {
+        var fadeInAnimation = new DoubleAnimation
         {
-            var fadeInAnimation = new DoubleAnimation
-            {
-                From = 0d,
-                Duration = MapBase.ImageFadeDuration,
-                FillBehavior = FillBehavior.Stop
-            };
+            From = 0d,
+            Duration = MapBase.ImageFadeDuration,
+            FillBehavior = FillBehavior.Stop
+        };
 
-            Image.BeginAnimation(UIElement.OpacityProperty, fadeInAnimation);
-        }
+        Image.BeginAnimation(UIElement.OpacityProperty, fadeInAnimation);
+    }
 
-        private void BitmapDownloadCompleted(object sender, EventArgs e)
-        {
-            var bitmap = (BitmapSource)sender;
+    private void BitmapDownloadCompleted(object sender, EventArgs e)
+    {
+        var bitmap = (BitmapSource)sender;
 
-            bitmap.DownloadCompleted -= BitmapDownloadCompleted;
-            bitmap.DownloadFailed -= BitmapDownloadFailed;
+        bitmap.DownloadCompleted -= BitmapDownloadCompleted;
+        bitmap.DownloadFailed -= BitmapDownloadFailed;
 
-            BeginFadeInAnimation();
-        }
+        BeginFadeInAnimation();
+    }
 
-        private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
-        {
-            var bitmap = (BitmapSource)sender;
+    private void BitmapDownloadFailed(object sender, ExceptionEventArgs e)
+    {
+        var bitmap = (BitmapSource)sender;
 
-            bitmap.DownloadCompleted -= BitmapDownloadCompleted;
-            bitmap.DownloadFailed -= BitmapDownloadFailed;
+        bitmap.DownloadCompleted -= BitmapDownloadCompleted;
+        bitmap.DownloadFailed -= BitmapDownloadFailed;
 
-            Image.Source = null;
-        }
+        Image.Source = null;
     }
 }

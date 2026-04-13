@@ -14,36 +14,35 @@ using Avalonia.Controls;
 using DependencyProperty = Avalonia.AvaloniaProperty;
 #endif
 
-namespace MapControl.UiTools
+namespace MapControl.UiTools;
+
+public partial class MenuButton : Button
 {
-    public partial class MenuButton : Button
+    public static readonly DependencyProperty MapProperty =
+        DependencyPropertyHelper.Register<MenuButton, MapBase>(nameof(Map), null,
+            async (button, oldValue, newValue) => await button.Initialize());
+
+    public MapBase Map
     {
-        public static readonly DependencyProperty MapProperty =
-            DependencyPropertyHelper.Register<MenuButton, MapBase>(nameof(Map), null,
-                async (button, oldValue, newValue) => await button.Initialize());
+        get => (MapBase)GetValue(MapProperty);
+        set => SetValue(MapProperty, value);
+    }
 
-        public MapBase Map
+    private async Task Initialize()
+    {
+        if (Map != null)
         {
-            get => (MapBase)GetValue(MapProperty);
-            set => SetValue(MapProperty, value);
-        }
+            DataContext = Map;
 
-        private async Task Initialize()
-        {
-            if (Map != null)
+            var initialItem =
+                Items.OfType<MapMenuItem>().FirstOrDefault(item => item.IsChecked) ??
+                Items.OfType<MapMenuItem>().FirstOrDefault();
+
+            if (initialItem != null)
             {
-                DataContext = Map;
+                initialItem.IsChecked = true;
 
-                var initialItem =
-                    Items.OfType<MapMenuItem>().FirstOrDefault(item => item.IsChecked) ??
-                    Items.OfType<MapMenuItem>().FirstOrDefault();
-
-                if (initialItem != null)
-                {
-                    initialItem.IsChecked = true;
-
-                    await initialItem.ExecuteAsync(Map);
-                }
+                await initialItem.ExecuteAsync(Map);
             }
         }
     }

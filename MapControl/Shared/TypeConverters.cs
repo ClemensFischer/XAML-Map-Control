@@ -16,120 +16,119 @@ using ConverterCulture = System.String;
 using ConverterCulture = System.Globalization.CultureInfo;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+public partial class LocationConverter : TypeConverter, IValueConverter
 {
-    public partial class LocationConverter : TypeConverter, IValueConverter
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            return Location.Parse(value.ToString());
-        }
-
-        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return ConvertFrom(value.ToString());
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return value.ToString();
-        }
+        return sourceType == typeof(string);
     }
 
-    public partial class LocationCollectionConverter : TypeConverter, IValueConverter
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            return LocationCollection.Parse(value.ToString());
-        }
-
-        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return ConvertFrom(value.ToString());
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return value.ToString();
-        }
+        return Location.Parse(value.ToString());
     }
 
-    public partial class BoundingBoxConverter : TypeConverter, IValueConverter
+    public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            return BoundingBox.Parse(value.ToString());
-        }
-
-        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return ConvertFrom(value.ToString());
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return value.ToString();
-        }
+        return ConvertFrom(value.ToString());
     }
 
-    public partial class TileSourceConverter : TypeConverter, IValueConverter
+    public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string);
-        }
+        return value.ToString();
+    }
+}
 
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            return TileSource.Parse(value.ToString());
-        }
-
-        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return ConvertFrom(value.ToString());
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return value.ToString();
-        }
+public partial class LocationCollectionConverter : TypeConverter, IValueConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+        return sourceType == typeof(string);
     }
 
-    public partial class MapProjectionConverter : TypeConverter, IValueConverter
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string);
-        }
+        return LocationCollection.Parse(value.ToString());
+    }
 
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            return MapProjection.Parse(value.ToString());
-        }
+    public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return ConvertFrom(value.ToString());
+    }
 
-        public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return ConvertFrom(value.ToString());
-        }
+    public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return value.ToString();
+    }
+}
 
-        public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
-        {
-            return value.ToString();
-        }
+public partial class BoundingBoxConverter : TypeConverter, IValueConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+        return sourceType == typeof(string);
+    }
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        return BoundingBox.Parse(value.ToString());
+    }
+
+    public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return ConvertFrom(value.ToString());
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return value.ToString();
+    }
+}
+
+public partial class TileSourceConverter : TypeConverter, IValueConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+        return sourceType == typeof(string);
+    }
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        return TileSource.Parse(value.ToString());
+    }
+
+    public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return ConvertFrom(value.ToString());
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return value.ToString();
+    }
+}
+
+public partial class MapProjectionConverter : TypeConverter, IValueConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+        return sourceType == typeof(string);
+    }
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        return MapProjection.Parse(value.ToString());
+    }
+
+    public object Convert(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return ConvertFrom(value.ToString());
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, ConverterCulture culture)
+    {
+        return value.ToString();
     }
 }

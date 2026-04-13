@@ -8,84 +8,83 @@ using Microsoft.UI.Xaml;
 using Avalonia;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// A MapPanel that adjusts the ViewPosition property of its child elements so that
+/// elements that would be outside the current viewport are arranged on a border area.
+/// Such elements are arranged at a distance of BorderWidth/2 from the edges of the
+/// MapBorderPanel in direction of their original azimuth from the map center.
+/// </summary>
+public partial class MapBorderPanel : MapPanel
 {
-    /// <summary>
-    /// A MapPanel that adjusts the ViewPosition property of its child elements so that
-    /// elements that would be outside the current viewport are arranged on a border area.
-    /// Such elements are arranged at a distance of BorderWidth/2 from the edges of the
-    /// MapBorderPanel in direction of their original azimuth from the map center.
-    /// </summary>
-    public partial class MapBorderPanel : MapPanel
+    public static readonly DependencyProperty BorderWidthProperty =
+        DependencyPropertyHelper.Register<MapBorderPanel, double>(nameof(BorderWidth));
+
+    public static readonly DependencyProperty OnBorderProperty =
+        DependencyPropertyHelper.RegisterAttached<bool>("OnBorder", typeof(MapBorderPanel));
+
+    public double BorderWidth
     {
-        public static readonly DependencyProperty BorderWidthProperty =
-            DependencyPropertyHelper.Register<MapBorderPanel, double>(nameof(BorderWidth));
+        get => (double)GetValue(BorderWidthProperty);
+        set => SetValue(BorderWidthProperty, value);
+    }
 
-        public static readonly DependencyProperty OnBorderProperty =
-            DependencyPropertyHelper.RegisterAttached<bool>("OnBorder", typeof(MapBorderPanel));
+    public static bool GetOnBorder(FrameworkElement element)
+    {
+        return (bool)element.GetValue(OnBorderProperty);
+    }
 
-        public double BorderWidth
+    protected override Point SetViewPosition(FrameworkElement element, Point position)
+    {
+        var onBorder = false;
+        var w = ParentMap.ActualWidth;
+        var h = ParentMap.ActualHeight;
+        var minX = BorderWidth / 2d;
+        var minY = BorderWidth / 2d;
+        var maxX = w - BorderWidth / 2d;
+        var maxY = h - BorderWidth / 2d;
+
+        if (position.X < minX || position.X > maxX ||
+            position.Y < minY || position.Y > maxY)
         {
-            get => (double)GetValue(BorderWidthProperty);
-            set => SetValue(BorderWidthProperty, value);
-        }
+            var dx = position.X - w / 2d;
+            var dy = position.Y - h / 2d;
+            var cx = (maxX - minX) / 2d;
+            var cy = (maxY - minY) / 2d;
+            double x, y;
 
-        public static bool GetOnBorder(FrameworkElement element)
-        {
-            return (bool)element.GetValue(OnBorderProperty);
-        }
-
-        protected override Point SetViewPosition(FrameworkElement element, Point position)
-        {
-            var onBorder = false;
-            var w = ParentMap.ActualWidth;
-            var h = ParentMap.ActualHeight;
-            var minX = BorderWidth / 2d;
-            var minY = BorderWidth / 2d;
-            var maxX = w - BorderWidth / 2d;
-            var maxY = h - BorderWidth / 2d;
-
-            if (position.X < minX || position.X > maxX ||
-                position.Y < minY || position.Y > maxY)
+            if (dx < 0d)
             {
-                var dx = position.X - w / 2d;
-                var dy = position.Y - h / 2d;
-                var cx = (maxX - minX) / 2d;
-                var cy = (maxY - minY) / 2d;
-                double x, y;
+                x = minX;
+                y = minY + cy - cx * dy / dx;
+            }
+            else
+            {
+                x = maxX;
+                y = minY + cy + cx * dy / dx;
+            }
 
-                if (dx < 0d)
+            if (y < minY || y > maxY)
+            {
+                if (dy < 0d)
                 {
-                    x = minX;
-                    y = minY + cy - cx * dy / dx;
+                    x = minX + cx - cy * dx / dy;
+                    y = minY;
                 }
                 else
                 {
-                    x = maxX;
-                    y = minY + cy + cx * dy / dx;
+                    x = minX + cx + cy * dx / dy;
+                    y = maxY;
                 }
-
-                if (y < minY || y > maxY)
-                {
-                    if (dy < 0d)
-                    {
-                        x = minX + cx - cy * dx / dy;
-                        y = minY;
-                    }
-                    else
-                    {
-                        x = minX + cx + cy * dx / dy;
-                        y = maxY;
-                    }
-                }
-
-                position = new Point(x, y);
-                onBorder = true;
             }
 
-            element.SetValue(OnBorderProperty, onBorder);
-
-            return base.SetViewPosition(element, position);
+            position = new Point(x, y);
+            onBorder = true;
         }
+
+        element.SetValue(OnBorderProperty, onBorder);
+
+        return base.SetViewPosition(element, position);
     }
 }

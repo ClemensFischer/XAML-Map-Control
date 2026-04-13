@@ -13,74 +13,73 @@ using Microsoft.UI.Xaml.Media;
 using ImageSource = Avalonia.Media.IImage;
 #endif
 
-namespace MapControl.MBTiles
+namespace MapControl.MBTiles;
+
+public sealed partial class MBTileSource : TileSource, IDisposable
 {
-    public sealed partial class MBTileSource : TileSource, IDisposable
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>();
+
+    private SQLiteConnection connection;
+
+    public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
+
+    public async Task OpenAsync(string file)
     {
-        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>();
+        Close();
 
-        private SQLiteConnection connection;
+        connection = new SQLiteConnection("Data Source=" + FilePath.GetFullPath(file) + ";Read Only=True");
 
-        public IDictionary<string, string> Metadata { get; } = new Dictionary<string, string>();
+        await connection.OpenAsync();
 
-        public async Task OpenAsync(string file)
+        using var command = new SQLiteCommand("select * from metadata", connection);
+
+        var reader = await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
         {
-            Close();
+            Metadata[(string)reader["name"]] = (string)reader["value"];
+        }
+    }
 
-            connection = new SQLiteConnection("Data Source=" + FilePath.GetFullPath(file) + ";Read Only=True");
+    public void Close()
+    {
+        if (connection != null)
+        {
+            Metadata.Clear();
+            connection.Dispose();
+            connection = null;
+        }
+    }
 
-            await connection.OpenAsync();
+    public void Dispose()
+    {
+        Close();
+    }
 
-            using var command = new SQLiteCommand("select * from metadata", connection);
+    public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
+    {
+        ImageSource image = null;
 
-            var reader = await command.ExecuteReaderAsync();
+        try
+        {
+            using var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection);
 
-            while (await reader.ReadAsync())
+            command.Parameters.AddWithValue("@z", zoomLevel);
+            command.Parameters.AddWithValue("@x", column);
+            command.Parameters.AddWithValue("@y", (1 << zoomLevel) - row - 1);
+
+            var buffer = (byte[])await command.ExecuteScalarAsync();
+
+            if (buffer?.Length > 0)
             {
-                Metadata[(string)reader["name"]] = (string)reader["value"];
+                image = await ImageLoader.LoadImageAsync(buffer);
             }
         }
-
-        public void Close()
+        catch (Exception ex)
         {
-            if (connection != null)
-            {
-                Metadata.Clear();
-                connection.Dispose();
-                connection = null;
-            }
+            Logger?.LogError(ex, "LoadImageAsync");
         }
 
-        public void Dispose()
-        {
-            Close();
-        }
-
-        public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
-        {
-            ImageSource image = null;
-
-            try
-            {
-                using var command = new SQLiteCommand("select tile_data from tiles where zoom_level=@z and tile_column=@x and tile_row=@y", connection);
-
-                command.Parameters.AddWithValue("@z", zoomLevel);
-                command.Parameters.AddWithValue("@x", column);
-                command.Parameters.AddWithValue("@y", (1 << zoomLevel) - row - 1);
-
-                var buffer = (byte[])await command.ExecuteScalarAsync();
-
-                if (buffer?.Length > 0)
-                {
-                    image = await ImageLoader.LoadImageAsync(buffer);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex, "LoadImageAsync");
-            }
-
-            return image;
-        }
+        return image;
     }
 }

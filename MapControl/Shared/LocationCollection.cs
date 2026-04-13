@@ -2,218 +2,217 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MapControl
-{
-    /// <summary>
-    /// A collection of Locations with support for string parsing
-    /// and calculation of great circle and rhumb line locations.
-    /// </summary>
+namespace MapControl;
+
+/// <summary>
+/// A collection of Locations with support for string parsing
+/// and calculation of great circle and rhumb line locations.
+/// </summary>
 #if UWP || WINUI
-    [Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
+[Windows.Foundation.Metadata.CreateFromString(MethodName = "Parse")]
 #else
-    [System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
+[System.ComponentModel.TypeConverter(typeof(LocationCollectionConverter))]
 #endif
-    public partial class LocationCollection : List<Location>
+public partial class LocationCollection : List<Location>
+{
+    public LocationCollection()
     {
-        public LocationCollection()
+    }
+
+    public LocationCollection(IEnumerable<Location> locations)
+        : base(locations)
+    {
+    }
+
+    public LocationCollection(params Location[] locations)
+        : base(locations)
+    {
+    }
+
+    public void Add(double latitude, double longitude)
+    {
+        if (Count > 0)
         {
+            var deltaLon = longitude - this[Count - 1].Longitude;
+
+            if (deltaLon < -180d)
+            {
+                longitude += 360d;
+            }
+            else if (deltaLon > 180)
+            {
+                longitude -= 360;
+            }
         }
 
-        public LocationCollection(IEnumerable<Location> locations)
-            : base(locations)
+        Add(new Location(latitude, longitude));
+    }
+
+    public override string ToString()
+    {
+        return string.Join(" ", this.Select(l => l.ToString()));
+    }
+
+    /// <summary>
+    /// Creates a LocationCollection instance from a string containing a sequence
+    /// of Location strings that are separated by a spaces or semicolons.
+    /// </summary>
+    public static LocationCollection Parse(string locations)
+    {
+        return string.IsNullOrEmpty(locations)
+            ? new LocationCollection()
+            : new LocationCollection(locations
+                .Split([' ', ';'], StringSplitOptions.RemoveEmptyEntries)
+                .Select(Location.Parse));
+    }
+
+    /// <summary>
+    /// Calculates a series of Locations on a great circle, i.e. a geodesic that connects
+    /// the two specified Locations, with an optional angular resolution specified in degrees.
+    /// See https://en.wikipedia.org/wiki/Great-circle_navigation.
+    /// </summary>
+    public static LocationCollection GeodesicLocations(Location location1, Location location2, double resolution = 1d)
+    {
+        if (resolution <= 0d)
         {
+            throw new ArgumentOutOfRangeException(
+                nameof(resolution), $"The {nameof(resolution)} argument must be greater than zero.");
         }
 
-        public LocationCollection(params Location[] locations)
-            : base(locations)
+        var lat1 = location1.Latitude * Math.PI / 180d;
+        var lon1 = location1.Longitude * Math.PI / 180d;
+        var lat2 = location2.Latitude * Math.PI / 180d;
+        var lon2 = location2.Longitude * Math.PI / 180d;
+        var cosLat1 = Math.Cos(lat1);
+        var sinLat1 = Math.Sin(lat1);
+        var cosLat2 = Math.Cos(lat2);
+        var sinLat2 = Math.Sin(lat2);
+        var cosLon12 = Math.Cos(lon2 - lon1);
+        var sinLon12 = Math.Sin(lon2 - lon1);
+        var a = cosLat2 * sinLon12;
+        var b = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
+        // σ12
+        var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12);
+
+        var n = (int)Math.Ceiling(s12 / resolution * 180d / Math.PI); // s12 in radians
+
+        var locations = new LocationCollection(new Location(location1.Latitude, location1.Longitude));
+
+        if (n > 1)
         {
+            // https://en.wikipedia.org/wiki/Great-circle_navigation#Finding_way-points
+            // α1
+            var az1 = Math.Atan2(a, b);
+            var cosAz1 = Math.Cos(az1);
+            var sinAz1 = Math.Sin(az1);
+            // α0
+            var az0 = Math.Atan2(sinAz1 * cosLat1, Math.Sqrt(cosAz1 * cosAz1 + sinAz1 * sinAz1 * sinLat1 * sinLat1));
+            var cosAz0 = Math.Cos(az0);
+            var sinAz0 = Math.Sin(az0);
+            // σ01
+            var s01 = Math.Atan2(sinLat1, cosLat1 * cosAz1);
+            // λ0
+            var lon0 = lon1 - Math.Atan2(sinAz0 * Math.Sin(s01), Math.Cos(s01));
+
+            for (var i = 1; i < n; i++)
+            {
+                var s = s01 + i * s12 / n;
+                var sinS = Math.Sin(s);
+                var cosS = Math.Cos(s);
+                var lat = Math.Atan2(cosAz0 * sinS, Math.Sqrt(cosS * cosS + sinAz0 * sinAz0 * sinS * sinS));
+                var lon = Math.Atan2(sinAz0 * sinS, cosS) + lon0;
+
+                locations.Add(lat * 180d / Math.PI, lon * 180d / Math.PI);
+            }
         }
 
-        public void Add(double latitude, double longitude)
+        locations.Add(location2.Latitude, location2.Longitude);
+
+        return locations;
+    }
+
+    /// <summary>
+    /// Calculates a series of Locations on a rhumb line that connects the two
+    /// specified Locations, with an optional angular resolution specified in degrees.
+    /// See https://en.wikipedia.org/wiki/Rhumb_line.
+    /// </summary>
+    public static LocationCollection RhumblineLocations(Location location1, Location location2, double resolution = 1d)
+    {
+        if (resolution <= 0d)
         {
-            if (Count > 0)
-            {
-                var deltaLon = longitude - this[Count - 1].Longitude;
-
-                if (deltaLon < -180d)
-                {
-                    longitude += 360d;
-                }
-                else if (deltaLon > 180)
-                {
-                    longitude -= 360;
-                }
-            }
-
-            Add(new Location(latitude, longitude));
+            throw new ArgumentOutOfRangeException(
+                nameof(resolution), $"The {nameof(resolution)} argument must be greater than zero.");
         }
 
-        public override string ToString()
+        var lat1 = location1.Latitude;
+        var lon1 = location1.Longitude;
+        var lat2 = location2.Latitude;
+        var lon2 = location2.Longitude;
+
+        var y1 = WebMercatorProjection.LatitudeToY(lat1);
+        var y2 = WebMercatorProjection.LatitudeToY(lat2);
+
+        if (double.IsInfinity(y1))
         {
-            return string.Join(" ", this.Select(l => l.ToString()));
+            throw new ArgumentOutOfRangeException(
+                nameof(location1), $"The {nameof(location1)} argument must have an absolute latitude value of less than 90.");
         }
 
-        /// <summary>
-        /// Creates a LocationCollection instance from a string containing a sequence
-        /// of Location strings that are separated by a spaces or semicolons.
-        /// </summary>
-        public static LocationCollection Parse(string locations)
+        if (double.IsInfinity(y2))
         {
-            return string.IsNullOrEmpty(locations)
-                ? new LocationCollection()
-                : new LocationCollection(locations
-                    .Split([' ', ';'], StringSplitOptions.RemoveEmptyEntries)
-                    .Select(Location.Parse));
+            throw new ArgumentOutOfRangeException(
+                nameof(location2), $"The {nameof(location2)} argument must have an absolute latitude value of less than 90.");
         }
 
-        /// <summary>
-        /// Calculates a series of Locations on a great circle, i.e. a geodesic that connects
-        /// the two specified Locations, with an optional angular resolution specified in degrees.
-        /// See https://en.wikipedia.org/wiki/Great-circle_navigation.
-        /// </summary>
-        public static LocationCollection GeodesicLocations(Location location1, Location location2, double resolution = 1d)
+        var dlat = lat2 - lat1;
+        var dlon = lon2 - lon1;
+        var dy = y2 - y1;
+
+        // beta = atan(dlon,dy)
+        // sec(beta) = 1 / cos(atan(dlon,dy)) = sqrt(1 + (dlon/dy)^2)
+        //
+        var sec = Math.Sqrt(1d + dlon * dlon / (dy * dy));
+
+        const double secLimit = 1000d; // beta approximately +/-90°
+
+        double s12;
+
+        if (sec > secLimit)
         {
-            if (resolution <= 0d)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(resolution), $"The {nameof(resolution)} argument must be greater than zero.");
-            }
+            var lat = (lat1 + lat2) * Math.PI / 360d; // mean latitude
 
-            var lat1 = location1.Latitude * Math.PI / 180d;
-            var lon1 = location1.Longitude * Math.PI / 180d;
-            var lat2 = location2.Latitude * Math.PI / 180d;
-            var lon2 = location2.Longitude * Math.PI / 180d;
-            var cosLat1 = Math.Cos(lat1);
-            var sinLat1 = Math.Sin(lat1);
-            var cosLat2 = Math.Cos(lat2);
-            var sinLat2 = Math.Sin(lat2);
-            var cosLon12 = Math.Cos(lon2 - lon1);
-            var sinLon12 = Math.Sin(lon2 - lon1);
-            var a = cosLat2 * sinLon12;
-            var b = cosLat1 * sinLat2 - sinLat1 * cosLat2 * cosLon12;
-            // σ12
-            var s12 = Math.Atan2(Math.Sqrt(a * a + b * b), sinLat1 * sinLat2 + cosLat1 * cosLat2 * cosLon12);
-
-            var n = (int)Math.Ceiling(s12 / resolution * 180d / Math.PI); // s12 in radians
-
-            var locations = new LocationCollection(new Location(location1.Latitude, location1.Longitude));
-
-            if (n > 1)
-            {
-                // https://en.wikipedia.org/wiki/Great-circle_navigation#Finding_way-points
-                // α1
-                var az1 = Math.Atan2(a, b);
-                var cosAz1 = Math.Cos(az1);
-                var sinAz1 = Math.Sin(az1);
-                // α0
-                var az0 = Math.Atan2(sinAz1 * cosLat1, Math.Sqrt(cosAz1 * cosAz1 + sinAz1 * sinAz1 * sinLat1 * sinLat1));
-                var cosAz0 = Math.Cos(az0);
-                var sinAz0 = Math.Sin(az0);
-                // σ01
-                var s01 = Math.Atan2(sinLat1, cosLat1 * cosAz1);
-                // λ0
-                var lon0 = lon1 - Math.Atan2(sinAz0 * Math.Sin(s01), Math.Cos(s01));
-
-                for (var i = 1; i < n; i++)
-                {
-                    var s = s01 + i * s12 / n;
-                    var sinS = Math.Sin(s);
-                    var cosS = Math.Cos(s);
-                    var lat = Math.Atan2(cosAz0 * sinS, Math.Sqrt(cosS * cosS + sinAz0 * sinAz0 * sinS * sinS));
-                    var lon = Math.Atan2(sinAz0 * sinS, cosS) + lon0;
-
-                    locations.Add(lat * 180d / Math.PI, lon * 180d / Math.PI);
-                }
-            }
-
-            locations.Add(location2.Latitude, location2.Longitude);
-
-            return locations;
+            s12 = Math.Abs(dlon * Math.Cos(lat)); // distance in degrees along parallel of latitude
+        }
+        else
+        {
+            s12 = Math.Abs(dlat * sec); // distance in degrees along loxodrome
         }
 
-        /// <summary>
-        /// Calculates a series of Locations on a rhumb line that connects the two
-        /// specified Locations, with an optional angular resolution specified in degrees.
-        /// See https://en.wikipedia.org/wiki/Rhumb_line.
-        /// </summary>
-        public static LocationCollection RhumblineLocations(Location location1, Location location2, double resolution = 1d)
+        var n = (int)Math.Ceiling(s12 / resolution);
+
+        var locations = new LocationCollection(new Location(lat1, lon1));
+
+        if (sec > secLimit)
         {
-            if (resolution <= 0d)
+            for (var i = 1; i < n; i++)
             {
-                throw new ArgumentOutOfRangeException(
-                    nameof(resolution), $"The {nameof(resolution)} argument must be greater than zero.");
+                var lon = lon1 + i * dlon / n;
+                var lat = WebMercatorProjection.YToLatitude(y1 + i * dy / n);
+                locations.Add(lat, lon);
             }
-
-            var lat1 = location1.Latitude;
-            var lon1 = location1.Longitude;
-            var lat2 = location2.Latitude;
-            var lon2 = location2.Longitude;
-
-            var y1 = WebMercatorProjection.LatitudeToY(lat1);
-            var y2 = WebMercatorProjection.LatitudeToY(lat2);
-
-            if (double.IsInfinity(y1))
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(location1), $"The {nameof(location1)} argument must have an absolute latitude value of less than 90.");
-            }
-
-            if (double.IsInfinity(y2))
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(location2), $"The {nameof(location2)} argument must have an absolute latitude value of less than 90.");
-            }
-
-            var dlat = lat2 - lat1;
-            var dlon = lon2 - lon1;
-            var dy = y2 - y1;
-
-            // beta = atan(dlon,dy)
-            // sec(beta) = 1 / cos(atan(dlon,dy)) = sqrt(1 + (dlon/dy)^2)
-            //
-            var sec = Math.Sqrt(1d + dlon * dlon / (dy * dy));
-
-            const double secLimit = 1000d; // beta approximately +/-90°
-
-            double s12;
-
-            if (sec > secLimit)
-            {
-                var lat = (lat1 + lat2) * Math.PI / 360d; // mean latitude
-
-                s12 = Math.Abs(dlon * Math.Cos(lat)); // distance in degrees along parallel of latitude
-            }
-            else
-            {
-                s12 = Math.Abs(dlat * sec); // distance in degrees along loxodrome
-            }
-
-            var n = (int)Math.Ceiling(s12 / resolution);
-
-            var locations = new LocationCollection(new Location(lat1, lon1));
-
-            if (sec > secLimit)
-            {
-                for (var i = 1; i < n; i++)
-                {
-                    var lon = lon1 + i * dlon / n;
-                    var lat = WebMercatorProjection.YToLatitude(y1 + i * dy / n);
-                    locations.Add(lat, lon);
-                }
-            }
-            else
-            {
-                for (var i = 1; i < n; i++)
-                {
-                    var lat = lat1 + i * dlat / n;
-                    var lon = lon1 + dlon * (WebMercatorProjection.LatitudeToY(lat) - y1) / dy;
-                    locations.Add(lat, lon);
-                }
-            }
-
-            locations.Add(lat2, lon2);
-
-            return locations;
         }
+        else
+        {
+            for (var i = 1; i < n; i++)
+            {
+                var lat = lat1 + i * dlat / n;
+                var lon = lon1 + dlon * (WebMercatorProjection.LatitudeToY(lat) - y1) / dy;
+                locations.Add(lat, lon);
+            }
+        }
+
+        locations.Add(lat2, lon2);
+
+        return locations;
     }
 }

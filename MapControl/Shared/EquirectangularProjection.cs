@@ -6,45 +6,44 @@ using System.Windows.Media;
 using Avalonia;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Equirectangular Projection - EPSG:4326.
+/// Equidistant cylindrical projection with zero standard parallel and central meridian.
+/// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.90-91.
+/// </summary>
+public class EquirectangularProjection : MapProjection
 {
-    /// <summary>
-    /// Equirectangular Projection - EPSG:4326.
-    /// Equidistant cylindrical projection with zero standard parallel and central meridian.
-    /// See "Map Projections - A Working Manual" (https://pubs.usgs.gov/publication/pp1395), p.90-91.
-    /// </summary>
-    public class EquirectangularProjection : MapProjection
+    public const string DefaultCrsId = "EPSG:4326";
+
+    public EquirectangularProjection() // parameterless constructor for XAML
+        : this(DefaultCrsId)
     {
-        public const string DefaultCrsId = "EPSG:4326";
+    }
 
-        public EquirectangularProjection() // parameterless constructor for XAML
-            : this(DefaultCrsId)
-        {
-        }
+    public EquirectangularProjection(string crsId)
+    {
+        IsNormalCylindrical = true;
+        CrsId = crsId;
+    }
 
-        public EquirectangularProjection(string crsId)
-        {
-            IsNormalCylindrical = true;
-            CrsId = crsId;
-        }
+    public override Matrix RelativeTransform(double latitude, double longitude)
+    {
+        return new Matrix(1d / Math.Cos(latitude * Math.PI / 180d), 0d, 0d, 1d, 0d, 0d);
+    }
 
-        public override Matrix RelativeTransform(double latitude, double longitude)
-        {
-            return new Matrix(1d / Math.Cos(latitude * Math.PI / 180d), 0d, 0d, 1d, 0d, 0d);
-        }
+    public override Point LocationToMap(double latitude, double longitude)
+    {
+        return new Point(
+            EquatorialRadius * Math.PI / 180d * longitude,
+            EquatorialRadius * Math.PI / 180d * latitude);
+    }
 
-        public override Point LocationToMap(double latitude, double longitude)
-        {
-            return new Point(
-                EquatorialRadius * Math.PI / 180d * longitude,
-                EquatorialRadius * Math.PI / 180d * latitude);
-        }
-
-        public override Location MapToLocation(double x, double y)
-        {
-            return new Location(
-                y / EquatorialRadius * 180d / Math.PI,
-                x / EquatorialRadius * 180d / Math.PI);
-        }
+    public override Location MapToLocation(double x, double y)
+    {
+        return new Location(
+            y / EquatorialRadius * 180d / Math.PI,
+            x / EquatorialRadius * 180d / Math.PI);
     }
 }

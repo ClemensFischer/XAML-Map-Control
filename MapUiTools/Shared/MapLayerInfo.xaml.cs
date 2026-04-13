@@ -13,22 +13,21 @@ using DependencyProperty = Avalonia.AvaloniaProperty;
 using FrameworkElement = Avalonia.Controls.Control;
 #endif
 
-namespace MapControl.UiTools
+namespace MapControl.UiTools;
+
+public partial class MapLayerInfo : UserControl
 {
-    public partial class MapLayerInfo : UserControl
+    public static readonly DependencyProperty MapLayerProperty =
+        DependencyPropertyHelper.Register<MapLayerInfo, FrameworkElement>(nameof(MapLayer), null);
+
+    public FrameworkElement MapLayer
     {
-        public static readonly DependencyProperty MapLayerProperty =
-            DependencyPropertyHelper.Register<MapLayerInfo, FrameworkElement>(nameof(MapLayer), null);
+        get => (FrameworkElement)GetValue(MapLayerProperty);
+        set => SetValue(MapLayerProperty, value);
+    }
 
-        public FrameworkElement MapLayer
-        {
-            get => (FrameworkElement)GetValue(MapLayerProperty);
-            set => SetValue(MapLayerProperty, value);
-        }
-
-        public MapLayerInfo()
-        {
-            InitializeComponent();
-        }
+    public MapLayerInfo()
+    {
+        InitializeComponent();
     }
 }

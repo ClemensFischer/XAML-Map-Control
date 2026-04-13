@@ -6,46 +6,45 @@ using Avalonia.Styling;
 using System;
 using System.Threading.Tasks;
 
-namespace MapControl
+namespace MapControl;
+
+public class ImageTile(int zoomLevel, int x, int y, int columnCount)
+    : Tile(zoomLevel, x, y, columnCount)
 {
-    public class ImageTile(int zoomLevel, int x, int y, int columnCount)
-        : Tile(zoomLevel, x, y, columnCount)
+    public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+
+    public override async Task LoadImageAsync(Func<Task<IImage>> loadImageFunc)
     {
-        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+        var image = await loadImageFunc().ConfigureAwait(false);
 
-        public override async Task LoadImageAsync(Func<Task<IImage>> loadImageFunc)
+        void SetImageSource()
         {
-            var image = await loadImageFunc().ConfigureAwait(false);
+            Image.Source = image;
 
-            void SetImageSource()
+            if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
             {
-                Image.Source = image;
-
-                if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                var fadeInAnimation = new Animation
                 {
-                    var fadeInAnimation = new Animation
-                    {
-                        Duration = MapBase.ImageFadeDuration,
-                        Children =
+                    Duration = MapBase.ImageFadeDuration,
+                    Children =
+                        {
+                            new KeyFrame
                             {
-                                new KeyFrame
-                                {
-                                    KeyTime = TimeSpan.Zero,
-                                    Setters = { new Setter(Visual.OpacityProperty, 0d) }
-                                },
-                                new KeyFrame
-                                {
-                                    KeyTime = MapBase.ImageFadeDuration,
-                                    Setters = { new Setter(Visual.OpacityProperty, 1d) }
-                                }
+                                KeyTime = TimeSpan.Zero,
+                                Setters = { new Setter(Visual.OpacityProperty, 0d) }
+                            },
+                            new KeyFrame
+                            {
+                                KeyTime = MapBase.ImageFadeDuration,
+                                Setters = { new Setter(Visual.OpacityProperty, 1d) }
                             }
-                    };
+                        }
+                };
 
-                    _ = fadeInAnimation.RunAsync(Image);
-                }
+                _ = fadeInAnimation.RunAsync(Image);
             }
-
-            await Image.Dispatcher.InvokeAsync(SetImageSource);
         }
+
+        await Image.Dispatcher.InvokeAsync(SetImageSource);
     }
 }

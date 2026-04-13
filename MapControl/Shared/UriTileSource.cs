@@ -1,54 +1,53 @@
 ﻿using System;
 
-namespace MapControl
+namespace MapControl;
+
+public class UriTileSource : TileSource
 {
-    public class UriTileSource : TileSource
+    private string uriFormat;
+
+    public string UriTemplate
     {
-        private string uriFormat;
-
-        public string UriTemplate
+        get;
+        set
         {
-            get;
-            set
+            field = value;
+            uriFormat = field
+                .Replace("{z}", "{0}")
+                .Replace("{x}", "{1}")
+                .Replace("{y}", "{2}")
+                .Replace("{s}", "{3}");
+
+            if (Subdomains == null && field.Contains("{s}"))
             {
-                field = value;
-                uriFormat = field
-                    .Replace("{z}", "{0}")
-                    .Replace("{x}", "{1}")
-                    .Replace("{y}", "{2}")
-                    .Replace("{s}", "{3}");
-
-                if (Subdomains == null && field.Contains("{s}"))
-                {
-                    Subdomains = ["a", "b", "c"]; // default OpenStreetMap subdomains
-                }
+                Subdomains = ["a", "b", "c"]; // default OpenStreetMap subdomains
             }
-        }
-
-        public string[] Subdomains { get; set; }
-
-        public override Uri GetUri(int zoomLevel, int column, int row)
-        {
-            Uri uri = null;
-
-            if (uriFormat != null)
-            {
-                var uriString = Subdomains?.Length > 0
-                    ? string.Format(uriFormat, zoomLevel, column, row, Subdomains[(column + row) % Subdomains.Length])
-                    : string.Format(uriFormat, zoomLevel, column, row);
-
-                uri = new Uri(uriString, UriKind.RelativeOrAbsolute);
-            }
-
-            return uri;
         }
     }
 
-    public class TmsTileSource : UriTileSource
+    public string[] Subdomains { get; set; }
+
+    public override Uri GetUri(int zoomLevel, int column, int row)
     {
-        public override Uri GetUri(int zoomLevel, int column, int row)
+        Uri uri = null;
+
+        if (uriFormat != null)
         {
-            return base.GetUri(zoomLevel, column, (1 << zoomLevel) - 1 - row);
+            var uriString = Subdomains?.Length > 0
+                ? string.Format(uriFormat, zoomLevel, column, row, Subdomains[(column + row) % Subdomains.Length])
+                : string.Format(uriFormat, zoomLevel, column, row);
+
+            uri = new Uri(uriString, UriKind.RelativeOrAbsolute);
         }
+
+        return uri;
+    }
+}
+
+public class TmsTileSource : UriTileSource
+{
+    public override Uri GetUri(int zoomLevel, int column, int row)
+    {
+        return base.GetUri(zoomLevel, column, (1 << zoomLevel) - 1 - row);
     }
 }

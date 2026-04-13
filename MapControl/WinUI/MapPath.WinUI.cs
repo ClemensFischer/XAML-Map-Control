@@ -4,13 +4,12 @@ using Windows.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Shapes;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+public partial class MapPath : Path
 {
-    public partial class MapPath : Path
+    public MapPath()
     {
-        public MapPath()
-        {
-            MapPanel.InitMapElement(this);
-        }
+        MapPanel.InitMapElement(this);
     }
 }

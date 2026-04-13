@@ -2,18 +2,17 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace MapControl
+namespace MapControl;
+
+internal static class XDocument
 {
-    internal static class XDocument
+    public static async Task<XElement> LoadRootElementAsync(Stream stream)
     {
-        public static async Task<XElement> LoadRootElementAsync(Stream stream)
-        {
 #if NETFRAMEWORK
-            var document = await Task.Run(() => System.Xml.Linq.XDocument.Load(stream, LoadOptions.None));
+        var document = await Task.Run(() => System.Xml.Linq.XDocument.Load(stream, LoadOptions.None));
 #else
-            var document = await System.Xml.Linq.XDocument.LoadAsync(stream, LoadOptions.None, System.Threading.CancellationToken.None);
+        var document = await System.Xml.Linq.XDocument.LoadAsync(stream, LoadOptions.None, System.Threading.CancellationToken.None);
 #endif
-            return document.Root;
-        }
+        return document.Root;
     }
 }

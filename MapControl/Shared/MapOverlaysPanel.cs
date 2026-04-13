@@ -11,110 +11,109 @@ using Windows.UI.Xaml;
 using Microsoft.UI.Xaml;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// A MapPanel with a collection of GroundOverlay or GeoImage children.
+/// </summary>
+public partial class MapOverlaysPanel : MapPanel
 {
-    /// <summary>
-    /// A MapPanel with a collection of GroundOverlay or GeoImage children.
-    /// </summary>
-    public partial class MapOverlaysPanel : MapPanel
+    public static readonly DependencyProperty SourcePathsProperty =
+        DependencyPropertyHelper.Register<MapOverlaysPanel, IEnumerable<string>>(nameof(SourcePaths), null,
+            async (control, oldValue, newValue) => await control.SourcePathsPropertyChanged(oldValue, newValue));
+
+    public IEnumerable<string> SourcePaths
     {
-        public static readonly DependencyProperty SourcePathsProperty =
-            DependencyPropertyHelper.Register<MapOverlaysPanel, IEnumerable<string>>(nameof(SourcePaths), null,
-                async (control, oldValue, newValue) => await control.SourcePathsPropertyChanged(oldValue, newValue));
+        get => (IEnumerable<string>)GetValue(SourcePathsProperty);
+        set => SetValue(SourcePathsProperty, value);
+    }
 
-        public IEnumerable<string> SourcePaths
+    private async Task SourcePathsPropertyChanged(IEnumerable<string> oldSourcePaths, IEnumerable<string> newSourcePaths)
+    {
+        Children.Clear();
+
+        if (oldSourcePaths is INotifyCollectionChanged oldCollection)
         {
-            get => (IEnumerable<string>)GetValue(SourcePathsProperty);
-            set => SetValue(SourcePathsProperty, value);
+            oldCollection.CollectionChanged -= SourcePathsCollectionChanged;
         }
 
-        private async Task SourcePathsPropertyChanged(IEnumerable<string> oldSourcePaths, IEnumerable<string> newSourcePaths)
+        if (newSourcePaths != null)
         {
-            Children.Clear();
-
-            if (oldSourcePaths is INotifyCollectionChanged oldCollection)
+            if (newSourcePaths is INotifyCollectionChanged newCollection)
             {
-                oldCollection.CollectionChanged -= SourcePathsCollectionChanged;
+                newCollection.CollectionChanged += SourcePathsCollectionChanged;
             }
 
-            if (newSourcePaths != null)
-            {
-                if (newSourcePaths is INotifyCollectionChanged newCollection)
-                {
-                    newCollection.CollectionChanged += SourcePathsCollectionChanged;
-                }
+            await AddOverlays(0, newSourcePaths);
+        }
+    }
 
-                await AddOverlays(0, newSourcePaths);
-            }
+    private async void SourcePathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                await AddOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
+                break;
+
+            case NotifyCollectionChangedAction.Remove:
+                RemoveOverlays(e.OldStartingIndex, e.OldItems.Count);
+                break;
+
+            case NotifyCollectionChangedAction.Move:
+                RemoveOverlays(e.OldStartingIndex, e.OldItems.Count);
+                await AddOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
+                break;
+
+            case NotifyCollectionChangedAction.Replace:
+                await ReplaceOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
+                break;
+
+            case NotifyCollectionChangedAction.Reset:
+                Children.Clear();
+                await AddOverlays(0, SourcePaths);
+                break;
+        }
+    }
+
+    private async Task AddOverlays(int index, IEnumerable<string> sourcePaths)
+    {
+        foreach (var sourcePath in sourcePaths)
+        {
+            Children.Insert(index++, await CreateOverlayAsync(sourcePath));
+        }
+    }
+
+    private async Task ReplaceOverlays(int index, IEnumerable<string> sourcePaths)
+    {
+        foreach (var sourcePath in sourcePaths)
+        {
+            Children[index++] = await CreateOverlayAsync(sourcePath);
+        }
+    }
+
+    private void RemoveOverlays(int index, int count)
+    {
+        while (--count >= 0)
+        {
+            Children.RemoveAt(index);
+        }
+    }
+
+    protected virtual async Task<FrameworkElement> CreateOverlayAsync(string sourcePath)
+    {
+        FrameworkElement overlay;
+        var ext = Path.GetExtension(sourcePath).ToLower();
+
+        if (ext == ".kmz" || ext == ".kml")
+        {
+            overlay = await GroundOverlay.CreateAsync(sourcePath);
+        }
+        else
+        {
+            overlay = await GeoImage.CreateAsync(sourcePath);
         }
 
-        private async void SourcePathsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    await AddOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
-                    break;
-
-                case NotifyCollectionChangedAction.Remove:
-                    RemoveOverlays(e.OldStartingIndex, e.OldItems.Count);
-                    break;
-
-                case NotifyCollectionChangedAction.Move:
-                    RemoveOverlays(e.OldStartingIndex, e.OldItems.Count);
-                    await AddOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
-                    break;
-
-                case NotifyCollectionChangedAction.Replace:
-                    await ReplaceOverlays(e.NewStartingIndex, e.NewItems.Cast<string>());
-                    break;
-
-                case NotifyCollectionChangedAction.Reset:
-                    Children.Clear();
-                    await AddOverlays(0, SourcePaths);
-                    break;
-            }
-        }
-
-        private async Task AddOverlays(int index, IEnumerable<string> sourcePaths)
-        {
-            foreach (var sourcePath in sourcePaths)
-            {
-                Children.Insert(index++, await CreateOverlayAsync(sourcePath));
-            }
-        }
-
-        private async Task ReplaceOverlays(int index, IEnumerable<string> sourcePaths)
-        {
-            foreach (var sourcePath in sourcePaths)
-            {
-                Children[index++] = await CreateOverlayAsync(sourcePath);
-            }
-        }
-
-        private void RemoveOverlays(int index, int count)
-        {
-            while (--count >= 0)
-            {
-                Children.RemoveAt(index);
-            }
-        }
-
-        protected virtual async Task<FrameworkElement> CreateOverlayAsync(string sourcePath)
-        {
-            FrameworkElement overlay;
-            var ext = Path.GetExtension(sourcePath).ToLower();
-
-            if (ext == ".kmz" || ext == ".kml")
-            {
-                overlay = await GroundOverlay.CreateAsync(sourcePath);
-            }
-            else
-            {
-                overlay = await GeoImage.CreateAsync(sourcePath);
-            }
-
-            return overlay;
-        }
+        return overlay;
     }
 }

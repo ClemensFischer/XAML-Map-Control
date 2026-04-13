@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace MapControl
+namespace MapControl;
+
+public static partial class GeoImage
 {
-    public static partial class GeoImage
+    private static Task<GeoBitmap> LoadGeoTiff(string sourcePath)
     {
-        private static Task<GeoBitmap> LoadGeoTiff(string sourcePath)
-        {
-            throw new InvalidOperationException("GeoTIFF is not supported.");
-        }
+        throw new InvalidOperationException("GeoTIFF is not supported.");
     }
 }

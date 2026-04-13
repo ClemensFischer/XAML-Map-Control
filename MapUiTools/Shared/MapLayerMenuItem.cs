@@ -15,88 +15,87 @@ using Avalonia.Metadata;
 using FrameworkElement = Avalonia.Controls.Control;
 #endif
 
-namespace MapControl.UiTools
-{
+namespace MapControl.UiTools;
+
 #if WPF
-    [ContentProperty(nameof(MapLayer))]
+[ContentProperty(nameof(MapLayer))]
 #elif UWP || WINUI
-    [ContentProperty(Name = nameof(MapLayer))]
+[ContentProperty(Name = nameof(MapLayer))]
 #endif
-    public partial class MapLayerMenuItem : MapMenuItem
-    {
+public partial class MapLayerMenuItem : MapMenuItem
+{
 #if AVALONIA
-        [Content]
+    [Content]
 #endif
-        public FrameworkElement MapLayer { get; set; }
+    public FrameworkElement MapLayer { get; set; }
 
-        protected override bool GetIsChecked(MapBase map)
-        {
-            return MapLayer != null && map.Children.Contains(MapLayer);
-        }
-
-        public override Task ExecuteAsync(MapBase map)
-        {
-            if (MapLayer != null)
-            {
-                map.MapLayer = MapLayer;
-            }
-
-            return Task.CompletedTask;
-        }
+    protected override bool GetIsChecked(MapBase map)
+    {
+        return MapLayer != null && map.Children.Contains(MapLayer);
     }
 
-    public partial class MapOverlayMenuItem : MapLayerMenuItem
+    public override Task ExecuteAsync(MapBase map)
     {
-        public string SourcePath { get; set; }
-
-        public int InsertOrder { get; set; }
-
-        public double OverlayOpacity { get; set; } = 1d;
-
-        public override async Task ExecuteAsync(MapBase map)
+        if (MapLayer != null)
         {
-            if (MapLayer == null)
-            {
-                await CreateMapLayer();
-            }
-
-            if (MapLayer != null)
-            {
-                if (map.Children.Contains(MapLayer))
-                {
-                    map.Children.Remove(MapLayer);
-                }
-                else
-                {
-                    var insertIndex = ParentMenuItems
-                        .OfType<MapOverlayMenuItem>()
-                        .Where(item => item.InsertOrder <= InsertOrder && item.GetIsChecked(map))
-                        .Count();
-
-                    if (map.MapLayer != null)
-                    {
-                        insertIndex++;
-                    }
-
-                    map.Children.Insert(insertIndex, MapLayer);
-                }
-            }
+            map.MapLayer = MapLayer;
         }
 
-        protected virtual async Task CreateMapLayer()
-        {
-            var ext = Path.GetExtension(SourcePath).ToLower();
+        return Task.CompletedTask;
+    }
+}
 
-            if (ext == ".kmz" || ext == ".kml")
+public partial class MapOverlayMenuItem : MapLayerMenuItem
+{
+    public string SourcePath { get; set; }
+
+    public int InsertOrder { get; set; }
+
+    public double OverlayOpacity { get; set; } = 1d;
+
+    public override async Task ExecuteAsync(MapBase map)
+    {
+        if (MapLayer == null)
+        {
+            await CreateMapLayer();
+        }
+
+        if (MapLayer != null)
+        {
+            if (map.Children.Contains(MapLayer))
             {
-                MapLayer = await GroundOverlay.CreateAsync(SourcePath);
+                map.Children.Remove(MapLayer);
             }
             else
             {
-                MapLayer = await GeoImage.CreateAsync(SourcePath);
-            }
+                var insertIndex = ParentMenuItems
+                    .OfType<MapOverlayMenuItem>()
+                    .Where(item => item.InsertOrder <= InsertOrder && item.GetIsChecked(map))
+                    .Count();
 
-            MapLayer.Opacity = OverlayOpacity;
+                if (map.MapLayer != null)
+                {
+                    insertIndex++;
+                }
+
+                map.Children.Insert(insertIndex, MapLayer);
+            }
         }
+    }
+
+    protected virtual async Task CreateMapLayer()
+    {
+        var ext = Path.GetExtension(SourcePath).ToLower();
+
+        if (ext == ".kmz" || ext == ".kml")
+        {
+            MapLayer = await GroundOverlay.CreateAsync(SourcePath);
+        }
+        else
+        {
+            MapLayer = await GeoImage.CreateAsync(SourcePath);
+        }
+
+        MapLayer.Opacity = OverlayOpacity;
     }
 }

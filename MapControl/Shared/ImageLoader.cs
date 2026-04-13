@@ -13,146 +13,145 @@ using Microsoft.UI.Xaml.Media;
 using ImageSource = Avalonia.Media.IImage;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+public static partial class ImageLoader
 {
-    public static partial class ImageLoader
+    private static ILogger Logger => field ??= LoggerFactory?.CreateLogger(typeof(ImageLoader));
+
+    public static ILoggerFactory LoggerFactory { get; set; }
+
+    /// <summary>
+    /// The System.Net.Http.HttpClient instance used to download images.
+    /// An application should add a unique User-Agent value to the DefaultRequestHeaders of this
+    /// HttpClient instance (or the Headers of a HttpRequestMessage used in a HttpMessageHandler).
+    /// Failing to set a unique User-Agent value is a violation of OpenStreetMap's tile usage policy
+    /// (see https://operations.osmfoundation.org/policies/tiles/) and results in blocked access
+    /// to their tile servers.
+    /// </summary>
+    public static HttpClient HttpClient
     {
-        private static ILogger Logger => field ??= LoggerFactory?.CreateLogger(typeof(ImageLoader));
+        get => field ??= new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        set;
+    }
 
-        public static ILoggerFactory LoggerFactory { get; set; }
+    public static bool IsHttp(this Uri uri)
+    {
+        return uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+    }
 
-        /// <summary>
-        /// The System.Net.Http.HttpClient instance used to download images.
-        /// An application should add a unique User-Agent value to the DefaultRequestHeaders of this
-        /// HttpClient instance (or the Headers of a HttpRequestMessage used in a HttpMessageHandler).
-        /// Failing to set a unique User-Agent value is a violation of OpenStreetMap's tile usage policy
-        /// (see https://operations.osmfoundation.org/policies/tiles/) and results in blocked access
-        /// to their tile servers.
-        /// </summary>
-        public static HttpClient HttpClient
+    public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
+    {
+        using var stream = new MemoryStream(buffer);
+
+        return await LoadImageAsync(stream);
+    }
+
+    public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
+    {
+        ImageSource image = null;
+
+        progress?.Report(0d);
+
+        try
         {
-            get => field ??= new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-            set;
+            if (!uri.IsAbsoluteUri)
+            {
+                image = await LoadImageAsync(uri.OriginalString);
+            }
+            else if (uri.IsHttp())
+            {
+                var buffer = await GetHttpContent(uri, progress);
+
+                if (buffer != null)
+                {
+                    image = await LoadImageAsync(buffer);
+                }
+            }
+            else if (uri.IsFile)
+            {
+                image = await LoadImageAsync(uri.LocalPath);
+            }
+            else
+            {
+                image = LoadResourceImage(uri);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Failed loading image from {uri}", uri);
         }
 
-        public static bool IsHttp(this Uri uri)
+        progress?.Report(1d);
+
+        return image;
+    }
+
+    public static async Task<HttpResponseMessage> GetHttpResponseAsync(Uri uri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
+    {
+        try
         {
-            return uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+            var response = await HttpClient.GetAsync(uri, completionOption).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return response;
+            }
+
+            Logger?.LogWarning("{status} ({reason}) from {uri}", (int)response.StatusCode, response.ReasonPhrase, uri);
+            response.Dispose();
+        }
+        catch (TaskCanceledException)
+        {
+            Logger?.LogWarning("Timeout from {uri}", uri);
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "{uri}", uri);
         }
 
-        public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
+        return null;
+    }
+
+    private static async Task<byte[]> GetHttpContent(Uri uri, IProgress<double> progress)
+    {
+        var completionOption = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+
+        using var response = await GetHttpResponseAsync(uri, completionOption).ConfigureAwait(false);
+
+        if (response == null)
         {
-            using var stream = new MemoryStream(buffer);
-
-            return await LoadImageAsync(stream);
-        }
-
-        public static async Task<ImageSource> LoadImageAsync(Uri uri, IProgress<double> progress = null)
-        {
-            ImageSource image = null;
-
-            progress?.Report(0d);
-
-            try
-            {
-                if (!uri.IsAbsoluteUri)
-                {
-                    image = await LoadImageAsync(uri.OriginalString);
-                }
-                else if (uri.IsHttp())
-                {
-                    var buffer = await GetHttpContent(uri, progress);
-
-                    if (buffer != null)
-                    {
-                        image = await LoadImageAsync(buffer);
-                    }
-                }
-                else if (uri.IsFile)
-                {
-                    image = await LoadImageAsync(uri.LocalPath);
-                }
-                else
-                {
-                    image = LoadResourceImage(uri);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex, "Failed loading image from {uri}", uri);
-            }
-
-            progress?.Report(1d);
-
-            return image;
-        }
-
-        public static async Task<HttpResponseMessage> GetHttpResponseAsync(Uri uri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-        {
-            try
-            {
-                var response = await HttpClient.GetAsync(uri, completionOption).ConfigureAwait(false);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return response;
-                }
-
-                Logger?.LogWarning("{status} ({reason}) from {uri}", (int)response.StatusCode, response.ReasonPhrase, uri);
-                response.Dispose();
-            }
-            catch (TaskCanceledException)
-            {
-                Logger?.LogWarning("Timeout from {uri}", uri);
-            }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex, "{uri}", uri);
-            }
-
             return null;
         }
 
-        private static async Task<byte[]> GetHttpContent(Uri uri, IProgress<double> progress)
+        var content = response.Content;
+        var contentLength = content.Headers.ContentLength;
+
+        if (progress == null || !contentLength.HasValue)
         {
-            var completionOption = progress != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+            return await content.ReadAsByteArrayAsync().ConfigureAwait(false);
+        }
 
-            using var response = await GetHttpResponseAsync(uri, completionOption).ConfigureAwait(false);
+        var length = (int)contentLength.Value;
+        var buffer = new byte[length];
 
-            if (response == null)
+        using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))
+        {
+            int offset = 0;
+            int read;
+
+            while (offset < length &&
+                (read = await stream.ReadAsync(buffer, offset, length - offset).ConfigureAwait(false)) > 0)
             {
-                return null;
-            }
+                offset += read;
 
-            var content = response.Content;
-            var contentLength = content.Headers.ContentLength;
-
-            if (progress == null || !contentLength.HasValue)
-            {
-                return await content.ReadAsByteArrayAsync().ConfigureAwait(false);
-            }
-
-            var length = (int)contentLength.Value;
-            var buffer = new byte[length];
-
-            using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))
-            {
-                int offset = 0;
-                int read;
-
-                while (offset < length &&
-                    (read = await stream.ReadAsync(buffer, offset, length - offset).ConfigureAwait(false)) > 0)
+                if (offset < length) // 1.0 reported by caller
                 {
-                    offset += read;
-
-                    if (offset < length) // 1.0 reported by caller
-                    {
-                        progress.Report((double)offset / length);
-                    }
+                    progress.Report((double)offset / length);
                 }
             }
-
-            return buffer;
         }
+
+        return buffer;
     }
 }

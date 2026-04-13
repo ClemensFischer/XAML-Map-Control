@@ -12,53 +12,52 @@ using Microsoft.UI.Xaml.Markup;
 using Avalonia.Metadata;
 #endif
 
-namespace MapControl.UiTools
-{
+namespace MapControl.UiTools;
+
 #if WPF
-    [ContentProperty(nameof(CrsId))]
+[ContentProperty(nameof(CrsId))]
 #elif UWP || WINUI
-    [ContentProperty(Name = nameof(CrsId))]
+[ContentProperty(Name = nameof(CrsId))]
 #endif
-    public partial class MapProjectionMenuItem : MapMenuItem
-    {
+public partial class MapProjectionMenuItem : MapMenuItem
+{
 #if AVALONIA
-        [Content]
+    [Content]
 #endif
-        public string CrsId { get; set; }
+    public string CrsId { get; set; }
 
-        protected override bool GetIsEnabled(MapBase map)
+    protected override bool GetIsEnabled(MapBase map)
+    {
+        var supportedCrsIds = map.MapLayer switch
         {
-            var supportedCrsIds = map.MapLayer switch
+            WmsImageLayer wmsImageLayer => wmsImageLayer.SupportedCrsIds,
+            WmtsTileLayer wmtsTileLayer => wmtsTileLayer.TileMatrixSets.Keys,
+            MapTileLayer => [WebMercatorProjection.DefaultCrsId],
+            _ => null
+        };
+
+        return supportedCrsIds == null || supportedCrsIds.Contains(CrsId);
+    }
+
+    protected override bool GetIsChecked(MapBase map)
+    {
+        return map.MapProjection.CrsId == CrsId;
+    }
+
+    public override Task ExecuteAsync(MapBase map)
+    {
+        if (!GetIsChecked(map))
+        {
+            try
             {
-                WmsImageLayer wmsImageLayer => wmsImageLayer.SupportedCrsIds,
-                WmtsTileLayer wmtsTileLayer => wmtsTileLayer.TileMatrixSets.Keys,
-                MapTileLayer => [WebMercatorProjection.DefaultCrsId],
-                _ => null
-            };
-
-            return supportedCrsIds == null || supportedCrsIds.Contains(CrsId);
-        }
-
-        protected override bool GetIsChecked(MapBase map)
-        {
-            return map.MapProjection.CrsId == CrsId;
-        }
-
-        public override Task ExecuteAsync(MapBase map)
-        {
-            if (!GetIsChecked(map))
-            {
-                try
-                {
-                    map.MapProjection = MapProjection.Parse(CrsId);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"MapProjection.Parse: {ex.Message}");
-                }
+                map.MapProjection = MapProjection.Parse(CrsId);
             }
-
-            return Task.CompletedTask;
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MapProjection.Parse: {ex.Message}");
+            }
         }
+
+        return Task.CompletedTask;
     }
 }

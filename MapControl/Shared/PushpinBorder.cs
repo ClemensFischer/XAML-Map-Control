@@ -16,106 +16,105 @@ using Avalonia.Layout;
 using Avalonia.Media;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+public partial class PushpinBorder
 {
-    public partial class PushpinBorder
+    public Size ArrowSize
     {
-        public Size ArrowSize
-        {
-            get => (Size)GetValue(ArrowSizeProperty);
-            set => SetValue(ArrowSizeProperty, value);
-        }
-
-        public double BorderWidth
-        {
-            get => (double)GetValue(BorderWidthProperty);
-            set => SetValue(BorderWidthProperty, value);
-        }
-
-        protected virtual Geometry BuildGeometry()
-        {
-            var width = Math.Floor(ActualWidth);
-            var height = Math.Floor(ActualHeight);
-            var x1 = BorderWidth / 2d;
-            var y1 = BorderWidth / 2d;
-            var x2 = width - x1;
-            var y3 = height - y1;
-            var y2 = y3 - ArrowSize.Height;
-            var aw = ArrowSize.Width;
-            var r1 = CornerRadius.TopLeft;
-            var r2 = CornerRadius.TopRight;
-            var r3 = CornerRadius.BottomRight;
-            var r4 = CornerRadius.BottomLeft;
-
-            var figure = new PathFigure
-            {
-                StartPoint = new Point(x1, y1 + r1),
-                IsClosed = true,
-                IsFilled = true
-            };
-
-            figure.ArcTo(x1 + r1, y1, r1);
-            figure.LineTo(x2 - r2, y1);
-            figure.ArcTo(x2, y1 + r2, r2);
-
-            if (HorizontalAlignment == HorizontalAlignment.Right)
-            {
-                figure.LineTo(x2, y3);
-                figure.LineTo(x2 - aw, y2);
-            }
-            else
-            {
-                figure.LineTo(x2, y2 - r3);
-                figure.ArcTo(x2 - r3, y2, r3);
-            }
-
-            if (HorizontalAlignment == HorizontalAlignment.Center)
-            {
-                var c = width / 2d;
-                figure.LineTo(c + aw / 2d, y2);
-                figure.LineTo(c, y3);
-                figure.LineTo(c - aw / 2d, y2);
-            }
-
-            if (HorizontalAlignment == HorizontalAlignment.Left || HorizontalAlignment == HorizontalAlignment.Stretch)
-            {
-                figure.LineTo(x1 + aw, y2);
-                figure.LineTo(x1, y3);
-            }
-            else
-            {
-                figure.LineTo(x1 + r4, y2);
-                figure.ArcTo(x1, y2 - r4, r4);
-            }
-
-            var geometry = new PathGeometry();
-            geometry.Figures.Add(figure);
-
-            return geometry;
-        }
+        get => (Size)GetValue(ArrowSizeProperty);
+        set => SetValue(ArrowSizeProperty, value);
     }
 
-    internal static class PathFigureExtensions
+    public double BorderWidth
     {
-        public static void LineTo(this PathFigure figure, double x, double y)
+        get => (double)GetValue(BorderWidthProperty);
+        set => SetValue(BorderWidthProperty, value);
+    }
+
+    protected virtual Geometry BuildGeometry()
+    {
+        var width = Math.Floor(ActualWidth);
+        var height = Math.Floor(ActualHeight);
+        var x1 = BorderWidth / 2d;
+        var y1 = BorderWidth / 2d;
+        var x2 = width - x1;
+        var y3 = height - y1;
+        var y2 = y3 - ArrowSize.Height;
+        var aw = ArrowSize.Width;
+        var r1 = CornerRadius.TopLeft;
+        var r2 = CornerRadius.TopRight;
+        var r3 = CornerRadius.BottomRight;
+        var r4 = CornerRadius.BottomLeft;
+
+        var figure = new PathFigure
         {
-            figure.Segments.Add(new LineSegment
-            {
-                Point = new Point(x, y)
-            });
+            StartPoint = new Point(x1, y1 + r1),
+            IsClosed = true,
+            IsFilled = true
+        };
+
+        figure.ArcTo(x1 + r1, y1, r1);
+        figure.LineTo(x2 - r2, y1);
+        figure.ArcTo(x2, y1 + r2, r2);
+
+        if (HorizontalAlignment == HorizontalAlignment.Right)
+        {
+            figure.LineTo(x2, y3);
+            figure.LineTo(x2 - aw, y2);
+        }
+        else
+        {
+            figure.LineTo(x2, y2 - r3);
+            figure.ArcTo(x2 - r3, y2, r3);
         }
 
-        public static void ArcTo(this PathFigure figure, double x, double y, double r)
+        if (HorizontalAlignment == HorizontalAlignment.Center)
         {
-            if (r > 0d)
+            var c = width / 2d;
+            figure.LineTo(c + aw / 2d, y2);
+            figure.LineTo(c, y3);
+            figure.LineTo(c - aw / 2d, y2);
+        }
+
+        if (HorizontalAlignment == HorizontalAlignment.Left || HorizontalAlignment == HorizontalAlignment.Stretch)
+        {
+            figure.LineTo(x1 + aw, y2);
+            figure.LineTo(x1, y3);
+        }
+        else
+        {
+            figure.LineTo(x1 + r4, y2);
+            figure.ArcTo(x1, y2 - r4, r4);
+        }
+
+        var geometry = new PathGeometry();
+        geometry.Figures.Add(figure);
+
+        return geometry;
+    }
+}
+
+internal static class PathFigureExtensions
+{
+    public static void LineTo(this PathFigure figure, double x, double y)
+    {
+        figure.Segments.Add(new LineSegment
+        {
+            Point = new Point(x, y)
+        });
+    }
+
+    public static void ArcTo(this PathFigure figure, double x, double y, double r)
+    {
+        if (r > 0d)
+        {
+            figure.Segments.Add(new ArcSegment
             {
-                figure.Segments.Add(new ArcSegment
-                {
-                    Point = new Point(x, y),
-                    Size = new Size(r, r),
-                    SweepDirection = SweepDirection.Clockwise
-                });
-            }
+                Point = new Point(x, y),
+                Size = new Size(r, r),
+                SweepDirection = SweepDirection.Clockwise
+            });
         }
     }
 }

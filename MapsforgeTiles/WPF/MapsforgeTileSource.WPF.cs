@@ -4,30 +4,29 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace MapControl.MapsforgeTiles
+namespace MapControl.MapsforgeTiles;
+
+public partial class MapsforgeTileSource
 {
-    public partial class MapsforgeTileSource
+    public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
     {
-        public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
+        BitmapSource bitmap = null;
+
+        try
         {
-            BitmapSource bitmap = null;
+            var pixels = RenderTile(zoomLevel, column, row);
 
-            try
+            if (pixels != null)
             {
-                var pixels = RenderTile(zoomLevel, column, row);
-
-                if (pixels != null)
-                {
-                    bitmap = BitmapSource.Create(TileSize, TileSize, 96d, 96d, PixelFormats.Bgra32, null, pixels, TileSize * 4);
-                    bitmap.Freeze();
-                }
+                bitmap = BitmapSource.Create(TileSize, TileSize, 96d, 96d, PixelFormats.Bgra32, null, pixels, TileSize * 4);
+                bitmap.Freeze();
             }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex, "LoadImageAsync");
-            }
-
-            return bitmap;
         }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "LoadImageAsync");
+        }
+
+        return bitmap;
     }
 }

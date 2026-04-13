@@ -15,212 +15,211 @@ using Avalonia;
 using Avalonia.Interactivity;
 #endif
 
-namespace MapControl
-{
+namespace MapControl;
+
 #if WPF
-    using TileMatrixLayer = DrawingTileMatrixLayer;
+using TileMatrixLayer = DrawingTileMatrixLayer;
 #else
-    using TileMatrixLayer = WmtsTileMatrixLayer;
+using TileMatrixLayer = WmtsTileMatrixLayer;
 #endif
 
-    /// <summary>
-    /// Displays map tiles from a Web Map Tile Service (WMTS).
-    /// </summary>
-    public partial class WmtsTileLayer : TilePyramidLayer
+/// <summary>
+/// Displays map tiles from a Web Map Tile Service (WMTS).
+/// </summary>
+public partial class WmtsTileLayer : TilePyramidLayer
+{
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
+
+    public static readonly DependencyProperty CapabilitiesUriProperty =
+        DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri));
+
+    public static readonly DependencyProperty LayerProperty =
+        DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(Layer));
+
+    public static readonly DependencyProperty PreferredTileMatrixSetsProperty =
+        DependencyPropertyHelper.Register<WmtsTileLayer, string[]>(nameof(PreferredTileMatrixSets));
+
+    public WmtsTileLayer()
     {
-        private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
+        Loaded += OnLoaded;
+    }
 
-        public static readonly DependencyProperty CapabilitiesUriProperty =
-            DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri));
+    /// <summary>
+    /// The Uri of a XML file or web response that contains the service capabilities.
+    /// </summary>
+    public Uri CapabilitiesUri
+    {
+        get => (Uri)GetValue(CapabilitiesUriProperty);
+        set => SetValue(CapabilitiesUriProperty, value);
+    }
 
-        public static readonly DependencyProperty LayerProperty =
-            DependencyPropertyHelper.Register<WmtsTileLayer, string>(nameof(Layer));
+    /// <summary>
+    /// The Identifier of the Layer that should be displayed.
+    /// If not set, the first Layer defined in WMTS Capabilities is displayed.
+    /// </summary>
+    public string Layer
+    {
+        get => (string)GetValue(LayerProperty);
+        set => SetValue(LayerProperty, value);
+    }
 
-        public static readonly DependencyProperty PreferredTileMatrixSetsProperty =
-            DependencyPropertyHelper.Register<WmtsTileLayer, string[]>(nameof(PreferredTileMatrixSets));
+    /// <summary>
+    /// In case there are TileMatrixSets with identical SupportedCRS values,
+    /// the ones with Identifiers contained in this collection take precedence.
+    /// </summary>
+    public string[] PreferredTileMatrixSets
+    {
+        get => (string[])GetValue(PreferredTileMatrixSetsProperty);
+        set => SetValue(PreferredTileMatrixSetsProperty, value);
+    }
 
-        public WmtsTileLayer()
+    /// <summary>
+    /// Gets a dictionary of all tile matrix sets supported by a WMTS,
+    /// with their CRS identifiers as dictionary keys.
+    /// </summary>
+    public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = [];
+
+    protected IEnumerable<TileMatrixLayer> ChildLayers => Children.Cast<TileMatrixLayer>();
+
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        foreach (var layer in ChildLayers)
         {
-            Loaded += OnLoaded;
+            layer.Measure(availableSize);
         }
 
-        /// <summary>
-        /// The Uri of a XML file or web response that contains the service capabilities.
-        /// </summary>
-        public Uri CapabilitiesUri
+        return new Size();
+    }
+
+    protected override Size ArrangeOverride(Size finalSize)
+    {
+        foreach (var layer in ChildLayers)
         {
-            get => (Uri)GetValue(CapabilitiesUriProperty);
-            set => SetValue(CapabilitiesUriProperty, value);
+            layer.Arrange(new Rect(0d, 0d, finalSize.Width, finalSize.Height));
         }
 
-        /// <summary>
-        /// The Identifier of the Layer that should be displayed.
-        /// If not set, the first Layer defined in WMTS Capabilities is displayed.
-        /// </summary>
-        public string Layer
+        return finalSize;
+    }
+
+    protected override void UpdateRenderTransform()
+    {
+        foreach (var layer in ChildLayers)
         {
-            get => (string)GetValue(LayerProperty);
-            set => SetValue(LayerProperty, value);
+            layer.UpdateRenderTransform(ParentMap.ViewTransform);
         }
+    }
 
-        /// <summary>
-        /// In case there are TileMatrixSets with identical SupportedCRS values,
-        /// the ones with Identifiers contained in this collection take precedence.
-        /// </summary>
-        public string[] PreferredTileMatrixSets
+    protected override void UpdateTileCollection()
+    {
+        if (ParentMap == null ||
+            !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
         {
-            get => (string[])GetValue(PreferredTileMatrixSetsProperty);
-            set => SetValue(PreferredTileMatrixSetsProperty, value);
-        }
-
-        /// <summary>
-        /// Gets a dictionary of all tile matrix sets supported by a WMTS,
-        /// with their CRS identifiers as dictionary keys.
-        /// </summary>
-        public Dictionary<string, WmtsTileMatrixSet> TileMatrixSets { get; } = [];
-
-        protected IEnumerable<TileMatrixLayer> ChildLayers => Children.Cast<TileMatrixLayer>();
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            foreach (var layer in ChildLayers)
-            {
-                layer.Measure(availableSize);
-            }
-
-            return new Size();
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            foreach (var layer in ChildLayers)
-            {
-                layer.Arrange(new Rect(0d, 0d, finalSize.Width, finalSize.Height));
-            }
-
-            return finalSize;
-        }
-
-        protected override void UpdateRenderTransform()
-        {
-            foreach (var layer in ChildLayers)
-            {
-                layer.UpdateRenderTransform(ParentMap.ViewTransform);
-            }
-        }
-
-        protected override void UpdateTileCollection()
-        {
-            if (ParentMap == null ||
-                !TileMatrixSets.TryGetValue(ParentMap.MapProjection.CrsId, out WmtsTileMatrixSet tileMatrixSet))
-            {
-                Children.Clear();
-                CancelLoadTiles();
-            }
-            else if (UpdateChildLayers(tileMatrixSet.TileMatrixes))
-            {
-                var tileSource = new WmtsTileSource(tileMatrixSet);
-                var cacheName = SourceName;
-
-                if (!string.IsNullOrEmpty(cacheName))
-                {
-                    if (!string.IsNullOrEmpty(Layer))
-                    {
-                        cacheName += "/" + Layer.Replace(':', '_');
-                    }
-
-                    if (!string.IsNullOrEmpty(tileMatrixSet.Identifier))
-                    {
-                        cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
-                    }
-                }
-
-                BeginLoadTiles(ChildLayers.SelectMany(layer => layer.Tiles), tileSource, cacheName);
-            }
-        }
-
-        private bool UpdateChildLayers(IList<WmtsTileMatrix> tileMatrixSet)
-        {
-            // Multiply scale by 1.001 to avoid floating point precision issues
-            // and get all WmtsTileMatrixes with Scale <= maxScale.
-            //
-            var maxScale = 1.001 * ParentMap.ViewTransform.Scale;
-            var tileMatrixes = tileMatrixSet.Where(matrix => matrix.Scale <= maxScale).ToList();
-
-            if (tileMatrixes.Count == 0)
-            {
-                Children.Clear();
-                return false;
-            }
-
-            var maxLayers = Math.Max(MaxBackgroundLevels, 0) + 1;
-
-            if (!IsBaseMapLayer)
-            {
-                // Show only the last layer.
-                //
-                tileMatrixes = tileMatrixes.GetRange(tileMatrixes.Count - 1, 1);
-            }
-            else if (tileMatrixes.Count > maxLayers)
-            {
-                // Show not more than MaxBackgroundLevels + 1 layers.
-                //
-                tileMatrixes = tileMatrixes.GetRange(tileMatrixes.Count - maxLayers, maxLayers);
-            }
-
-            // Get reusable layers.
-            //
-            var layers = ChildLayers.Where(layer => tileMatrixes.Contains(layer.WmtsTileMatrix)).ToList();
-            var tilesChanged = false;
-
             Children.Clear();
+            CancelLoadTiles();
+        }
+        else if (UpdateChildLayers(tileMatrixSet.TileMatrixes))
+        {
+            var tileSource = new WmtsTileSource(tileMatrixSet);
+            var cacheName = SourceName;
 
-            foreach (var tileMatrix in tileMatrixes)
+            if (!string.IsNullOrEmpty(cacheName))
             {
-                // Pass index of tileMatrix in tileMatrixSet as zoom level to TileMatrixLayer ctor.
-                //
-                var layer = layers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
-                    new TileMatrixLayer(tileMatrix, tileMatrixSet.IndexOf(tileMatrix));
-
-                if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
+                if (!string.IsNullOrEmpty(Layer))
                 {
-                    tilesChanged = true;
+                    cacheName += "/" + Layer.Replace(':', '_');
                 }
 
-                layer.UpdateRenderTransform(ParentMap.ViewTransform);
-
-                Children.Add(layer);
+                if (!string.IsNullOrEmpty(tileMatrixSet.Identifier))
+                {
+                    cacheName += "/" + tileMatrixSet.Identifier.Replace(':', '_');
+                }
             }
 
-            return tilesChanged;
+            BeginLoadTiles(ChildLayers.SelectMany(layer => layer.Tiles), tileSource, cacheName);
+        }
+    }
+
+    private bool UpdateChildLayers(IList<WmtsTileMatrix> tileMatrixSet)
+    {
+        // Multiply scale by 1.001 to avoid floating point precision issues
+        // and get all WmtsTileMatrixes with Scale <= maxScale.
+        //
+        var maxScale = 1.001 * ParentMap.ViewTransform.Scale;
+        var tileMatrixes = tileMatrixSet.Where(matrix => matrix.Scale <= maxScale).ToList();
+
+        if (tileMatrixes.Count == 0)
+        {
+            Children.Clear();
+            return false;
         }
 
-        private async void OnLoaded(object sender, RoutedEventArgs e)
+        var maxLayers = Math.Max(MaxBackgroundLevels, 0) + 1;
+
+        if (!IsBaseMapLayer)
         {
-            Loaded -= OnLoaded;
+            // Show only the last layer.
+            //
+            tileMatrixes = tileMatrixes.GetRange(tileMatrixes.Count - 1, 1);
+        }
+        else if (tileMatrixes.Count > maxLayers)
+        {
+            // Show not more than MaxBackgroundLevels + 1 layers.
+            //
+            tileMatrixes = tileMatrixes.GetRange(tileMatrixes.Count - maxLayers, maxLayers);
+        }
 
-            if (TileMatrixSets.Count == 0 && CapabilitiesUri != null)
+        // Get reusable layers.
+        //
+        var layers = ChildLayers.Where(layer => tileMatrixes.Contains(layer.WmtsTileMatrix)).ToList();
+        var tilesChanged = false;
+
+        Children.Clear();
+
+        foreach (var tileMatrix in tileMatrixes)
+        {
+            // Pass index of tileMatrix in tileMatrixSet as zoom level to TileMatrixLayer ctor.
+            //
+            var layer = layers.FirstOrDefault(layer => layer.WmtsTileMatrix == tileMatrix) ??
+                new TileMatrixLayer(tileMatrix, tileMatrixSet.IndexOf(tileMatrix));
+
+            if (layer.UpdateTiles(ParentMap.ViewTransform, ParentMap.ActualWidth, ParentMap.ActualHeight))
             {
-                try
+                tilesChanged = true;
+            }
+
+            layer.UpdateRenderTransform(ParentMap.ViewTransform);
+
+            Children.Add(layer);
+        }
+
+        return tilesChanged;
+    }
+
+    private async void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        Loaded -= OnLoaded;
+
+        if (TileMatrixSets.Count == 0 && CapabilitiesUri != null)
+        {
+            try
+            {
+                var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
+
+                Layer = capabilities.Layer;
+
+                foreach (var tms in capabilities.TileMatrixSets
+                    .Where(tms => !TileMatrixSets.ContainsKey(tms.SupportedCrsId) ||
+                                  PreferredTileMatrixSets != null &&
+                                  PreferredTileMatrixSets.Contains(tms.Identifier)))
                 {
-                    var capabilities = await WmtsCapabilities.ReadCapabilitiesAsync(CapabilitiesUri, Layer);
-
-                    Layer = capabilities.Layer;
-
-                    foreach (var tms in capabilities.TileMatrixSets
-                        .Where(tms => !TileMatrixSets.ContainsKey(tms.SupportedCrsId) ||
-                                      PreferredTileMatrixSets != null &&
-                                      PreferredTileMatrixSets.Contains(tms.Identifier)))
-                    {
-                        TileMatrixSets[tms.SupportedCrsId] = tms;
-                    }
-
-                    UpdateTileCollection();
+                    TileMatrixSets[tms.SupportedCrsId] = tms;
                 }
-                catch (Exception ex)
-                {
-                    Logger?.LogError(ex, "Failed reading capabilities from {uri}", CapabilitiesUri);
-                }
+
+                UpdateTileCollection();
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "Failed reading capabilities from {uri}", CapabilitiesUri);
             }
         }
     }

@@ -14,30 +14,29 @@ using Avalonia;
 using Avalonia.Media;
 #endif
 
-namespace MapControl
-{
-    public static class UIElementExtension
-    {
-        public static void SetRenderTransform(this UIElement element, Transform transform, bool center = false)
-        {
-            element.RenderTransform = transform;
-#if AVALONIA
-            element.RenderTransformOrigin = center ? RelativePoint.Center : RelativePoint.TopLeft;
-#else
-            if (center)
-            {
-                element.RenderTransformOrigin = new Point(0.5, 0.5);
-            }
-#endif
-        }
+namespace MapControl;
 
-        public static void SetVisible(this UIElement element, bool visible)
-        {
+public static class UIElementExtension
+{
+    public static void SetRenderTransform(this UIElement element, Transform transform, bool center = false)
+    {
+        element.RenderTransform = transform;
 #if AVALONIA
-            element.IsVisible = visible;
+        element.RenderTransformOrigin = center ? RelativePoint.Center : RelativePoint.TopLeft;
 #else
-            element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
-#endif
+        if (center)
+        {
+            element.RenderTransformOrigin = new Point(0.5, 0.5);
         }
+#endif
+    }
+
+    public static void SetVisible(this UIElement element, bool visible)
+    {
+#if AVALONIA
+        element.IsVisible = visible;
+#else
+        element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+#endif
     }
 }

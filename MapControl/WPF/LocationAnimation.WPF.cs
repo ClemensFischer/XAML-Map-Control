@@ -2,38 +2,37 @@
 using System.Windows;
 using System.Windows.Media.Animation;
 
-namespace MapControl
+namespace MapControl;
+
+public class LocationAnimation : AnimationTimeline
 {
-    public class LocationAnimation : AnimationTimeline
+    public override Type TargetPropertyType => typeof(Location);
+
+    public Location To { get; set; }
+
+    public IEasingFunction EasingFunction { get; set; }
+
+    protected override Freezable CreateInstanceCore()
     {
-        public override Type TargetPropertyType => typeof(Location);
-
-        public Location To { get; set; }
-
-        public IEasingFunction EasingFunction { get; set; }
-
-        protected override Freezable CreateInstanceCore()
+        return new LocationAnimation
         {
-            return new LocationAnimation
-            {
-                To = To,
-                EasingFunction = EasingFunction
-            };
+            To = To,
+            EasingFunction = EasingFunction
+        };
+    }
+
+    public override object GetCurrentValue(object defaultOriginValue, object defaultDestinationValue, AnimationClock animationClock)
+    {
+        var from = (Location)defaultOriginValue;
+        var progress = animationClock.CurrentProgress ?? 1d;
+
+        if (EasingFunction != null)
+        {
+            progress = EasingFunction.Ease(progress);
         }
 
-        public override object GetCurrentValue(object defaultOriginValue, object defaultDestinationValue, AnimationClock animationClock)
-        {
-            var from = (Location)defaultOriginValue;
-            var progress = animationClock.CurrentProgress ?? 1d;
-
-            if (EasingFunction != null)
-            {
-                progress = EasingFunction.Ease(progress);
-            }
-
-            return new Location(
-                (1d - progress) * from.Latitude + progress * To.Latitude,
-                (1d - progress) * from.Longitude + progress * To.Longitude);
-        }
+        return new Location(
+            (1d - progress) * from.Latitude + progress * To.Latitude,
+            (1d - progress) * from.Longitude + progress * To.Longitude);
     }
 }

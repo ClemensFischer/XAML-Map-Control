@@ -16,92 +16,91 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+public class ImageTile(int zoomLevel, int x, int y, int columnCount)
+    : Tile(zoomLevel, x, y, columnCount)
 {
-    public class ImageTile(int zoomLevel, int x, int y, int columnCount)
-        : Tile(zoomLevel, x, y, columnCount)
+    public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+
+    public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
     {
-        public Image Image { get; } = new Image { Stretch = Stretch.Fill };
+        var tcs = new TaskCompletionSource<object>();
 
-        public override async Task LoadImageAsync(Func<Task<ImageSource>> loadImageFunc)
+        async void LoadAndSetImageSource()
         {
-            var tcs = new TaskCompletionSource<object>();
-
-            async void LoadAndSetImageSource()
+            try
             {
-                try
+                var image = await loadImageFunc();
+
+                Image.Source = image;
+
+                if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
                 {
-                    var image = await loadImageFunc();
-
-                    Image.Source = image;
-
-                    if (image != null && MapBase.ImageFadeDuration > TimeSpan.Zero)
+                    if (image is BitmapImage bitmap && bitmap.UriSource != null)
                     {
-                        if (image is BitmapImage bitmap && bitmap.UriSource != null)
-                        {
-                            bitmap.ImageOpened += BitmapImageOpened;
-                            bitmap.ImageFailed += BitmapImageFailed;
-                        }
-                        else
-                        {
-                            BeginFadeInAnimation();
-                        }
+                        bitmap.ImageOpened += BitmapImageOpened;
+                        bitmap.ImageFailed += BitmapImageFailed;
                     }
+                    else
+                    {
+                        BeginFadeInAnimation();
+                    }
+                }
 
-                    tcs.TrySetResult(null);
-                }
-                catch (Exception ex)
-                {
-                    tcs.TrySetException(ex);
-                }
+                tcs.TrySetResult(null);
             }
+            catch (Exception ex)
+            {
+                tcs.TrySetException(ex);
+            }
+        }
 #if UWP
-            if (!await Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadAndSetImageSource))
+        if (!await Image.Dispatcher.TryRunAsync(CoreDispatcherPriority.Low, LoadAndSetImageSource))
 #else
-            if (!Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, LoadAndSetImageSource))
+        if (!Image.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, LoadAndSetImageSource))
 #endif
-            {
-                tcs.TrySetCanceled();
-            }
-
-            await tcs.Task;
-        }
-
-        private void BeginFadeInAnimation()
         {
-            var fadeInAnimation = new DoubleAnimation
-            {
-                From = 0d,
-                Duration = MapBase.ImageFadeDuration,
-                FillBehavior = FillBehavior.Stop
-            };
-
-            Storyboard.SetTarget(fadeInAnimation, Image);
-            Storyboard.SetTargetProperty(fadeInAnimation, nameof(UIElement.Opacity));
-
-            var storyboard = new Storyboard();
-            storyboard.Children.Add(fadeInAnimation);
-            storyboard.Begin();
+            tcs.TrySetCanceled();
         }
 
-        private void BitmapImageOpened(object sender, RoutedEventArgs e)
+        await tcs.Task;
+    }
+
+    private void BeginFadeInAnimation()
+    {
+        var fadeInAnimation = new DoubleAnimation
         {
-            var bitmap = (BitmapImage)sender;
+            From = 0d,
+            Duration = MapBase.ImageFadeDuration,
+            FillBehavior = FillBehavior.Stop
+        };
 
-            bitmap.ImageOpened -= BitmapImageOpened;
-            bitmap.ImageFailed -= BitmapImageFailed;
+        Storyboard.SetTarget(fadeInAnimation, Image);
+        Storyboard.SetTargetProperty(fadeInAnimation, nameof(UIElement.Opacity));
 
-            BeginFadeInAnimation();
-        }
+        var storyboard = new Storyboard();
+        storyboard.Children.Add(fadeInAnimation);
+        storyboard.Begin();
+    }
 
-        private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
-        {
-            var bitmap = (BitmapImage)sender;
+    private void BitmapImageOpened(object sender, RoutedEventArgs e)
+    {
+        var bitmap = (BitmapImage)sender;
 
-            bitmap.ImageOpened -= BitmapImageOpened;
-            bitmap.ImageFailed -= BitmapImageFailed;
+        bitmap.ImageOpened -= BitmapImageOpened;
+        bitmap.ImageFailed -= BitmapImageFailed;
 
-            Image.Source = null;
-        }
+        BeginFadeInAnimation();
+    }
+
+    private void BitmapImageFailed(object sender, ExceptionRoutedEventArgs e)
+    {
+        var bitmap = (BitmapImage)sender;
+
+        bitmap.ImageOpened -= BitmapImageOpened;
+        bitmap.ImageFailed -= BitmapImageFailed;
+
+        Image.Source = null;
     }
 }

@@ -3,64 +3,63 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 
-namespace MapControl
+namespace MapControl;
+
+public partial class MapPolypoint : MapPath
 {
-    public partial class MapPolypoint : MapPath
+    protected void UpdateData(IEnumerable<Location> locations, bool closed)
     {
-        protected void UpdateData(IEnumerable<Location> locations, bool closed)
+        using var context = ((StreamGeometry)Data).Open();
+
+        if (ParentMap != null && locations != null)
         {
-            using var context = ((StreamGeometry)Data).Open();
+            var longitudeOffset = GetLongitudeOffset(locations);
 
-            if (ParentMap != null && locations != null)
+            AddPolylinePoints(context, locations, longitudeOffset, closed);
+        }
+    }
+
+    protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
+    {
+        using var context = ((StreamGeometry)Data).Open();
+
+        if (ParentMap != null && polygons != null)
+        {
+            var longitudeOffset = GetLongitudeOffset(polygons.FirstOrDefault());
+
+            foreach (var locations in polygons)
             {
-                var longitudeOffset = GetLongitudeOffset(locations);
-
-                AddPolylinePoints(context, locations, longitudeOffset, closed);
+                AddPolylinePoints(context, locations, longitudeOffset, true);
             }
         }
+    }
 
-        protected void UpdateData(IEnumerable<IEnumerable<Location>> polygons)
+    private void AddPolylinePoints(StreamGeometryContext context, IEnumerable<Location> locations, double longitudeOffset, bool closed)
+    {
+        var points = locations.Select(location => LocationToView(location, longitudeOffset));
+
+        if (points.Any())
         {
-            using var context = ((StreamGeometry)Data).Open();
+            var start = points.First();
+            var polyline = points.Skip(1).ToList();
+            var minX = start.X;
+            var maxX = start.X;
+            var minY = start.Y;
+            var maxY = start.Y;
 
-            if (ParentMap != null && polygons != null)
+            foreach (var point in polyline)
             {
-                var longitudeOffset = GetLongitudeOffset(polygons.FirstOrDefault());
-
-                foreach (var locations in polygons)
-                {
-                    AddPolylinePoints(context, locations, longitudeOffset, true);
-                }
+                minX = Math.Min(minX, point.X);
+                maxX = Math.Max(maxX, point.X);
+                minY = Math.Min(minY, point.Y);
+                maxY = Math.Max(maxY, point.Y);
             }
-        }
 
-        private void AddPolylinePoints(StreamGeometryContext context, IEnumerable<Location> locations, double longitudeOffset, bool closed)
-        {
-            var points = locations.Select(location => LocationToView(location, longitudeOffset));
-
-            if (points.Any())
+            if (maxX >= 0d && minX <= ParentMap.ActualWidth &&
+                maxY >= 0d && minY <= ParentMap.ActualHeight)
             {
-                var start = points.First();
-                var polyline = points.Skip(1).ToList();
-                var minX = start.X;
-                var maxX = start.X;
-                var minY = start.Y;
-                var maxY = start.Y;
-
-                foreach (var point in polyline)
-                {
-                    minX = Math.Min(minX, point.X);
-                    maxX = Math.Max(maxX, point.X);
-                    minY = Math.Min(minY, point.Y);
-                    maxY = Math.Max(maxY, point.Y);
-                }
-
-                if (maxX >= 0d && minX <= ParentMap.ActualWidth &&
-                    maxY >= 0d && minY <= ParentMap.ActualHeight)
-                {
-                    context.BeginFigure(start, true, closed);
-                    context.PolyLineTo(polyline, true, true);
-                }
+                context.BeginFigure(start, true, closed);
+                context.PolyLineTo(polyline, true, true);
             }
         }
     }

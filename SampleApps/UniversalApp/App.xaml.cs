@@ -2,33 +2,32 @@
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace SampleApplication
+namespace SampleApplication;
+
+public sealed partial class App : Application
 {
-    public sealed partial class App : Application
+    public App()
     {
-        public App()
+        InitializeComponent();
+    }
+
+    protected override void OnLaunched(LaunchActivatedEventArgs e)
+    {
+        if (Window.Current.Content is not Frame rootFrame)
         {
-            InitializeComponent();
+            rootFrame = new Frame();
+
+            Window.Current.Content = rootFrame;
         }
 
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        if (e.PrelaunchActivated == false)
         {
-            if (Window.Current.Content is not Frame rootFrame)
+            if (rootFrame.Content == null)
             {
-                rootFrame = new Frame();
-
-                Window.Current.Content = rootFrame;
+                rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
 
-            if (e.PrelaunchActivated == false)
-            {
-                if (rootFrame.Content == null)
-                {
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
-                }
-
-                Window.Current.Activate();
-            }
+            Window.Current.Activate();
         }
     }
 }

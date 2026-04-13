@@ -26,105 +26,104 @@ using Avalonia.Layout;
 using PropertyPath = System.String;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Draws a map scale overlay.
+/// </summary>
+public partial class MapScale : MapPanel
 {
-    /// <summary>
-    /// Draws a map scale overlay.
-    /// </summary>
-    public partial class MapScale : MapPanel
+    public static readonly DependencyProperty PaddingProperty =
+        DependencyPropertyHelper.Register<MapScale, Thickness>(nameof(Padding), new Thickness(4));
+
+    public static readonly DependencyProperty StrokeThicknessProperty =
+        DependencyPropertyHelper.Register<MapScale, double>(nameof(StrokeThickness), 1d);
+
+    public Thickness Padding
     {
-        public static readonly DependencyProperty PaddingProperty =
-            DependencyPropertyHelper.Register<MapScale, Thickness>(nameof(Padding), new Thickness(4));
+        get => (Thickness)GetValue(PaddingProperty);
+        set => SetValue(PaddingProperty, value);
+    }
 
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.Register<MapScale, double>(nameof(StrokeThickness), 1d);
+    public double StrokeThickness
+    {
+        get => (double)GetValue(StrokeThicknessProperty);
+        set => SetValue(StrokeThicknessProperty, value);
+    }
 
-        public Thickness Padding
-        {
-            get => (Thickness)GetValue(PaddingProperty);
-            set => SetValue(PaddingProperty, value);
-        }
+    private readonly Polyline line = new Polyline();
 
-        public double StrokeThickness
-        {
-            get => (double)GetValue(StrokeThicknessProperty);
-            set => SetValue(StrokeThicknessProperty, value);
-        }
+    private readonly TextBlock label = new TextBlock
+    {
+        HorizontalAlignment = HorizontalAlignment.Center,
+        VerticalAlignment = VerticalAlignment.Center
+    };
 
-        private readonly Polyline line = new Polyline();
+    public MapScale()
+    {
+        MinWidth = 100d;
+        Children.Add(line);
+        Children.Add(label);
+    }
 
-        private readonly TextBlock label = new TextBlock
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+    protected override void SetParentMap(MapBase map)
+    {
+        base.SetParentMap(map);
 
-        public MapScale()
-        {
-            MinWidth = 100d;
-            Children.Add(line);
-            Children.Add(label);
-        }
+        line.SetBinding(Shape.StrokeThicknessProperty,
+            new Binding { Source = this, Path = new PropertyPath(nameof(StrokeThickness)) });
 
-        protected override void SetParentMap(MapBase map)
-        {
-            base.SetParentMap(map);
-
-            line.SetBinding(Shape.StrokeThicknessProperty,
-                new Binding { Source = this, Path = new PropertyPath(nameof(StrokeThickness)) });
-
-            line.SetBinding(Shape.StrokeProperty,
-                new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
+        line.SetBinding(Shape.StrokeProperty,
+            new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
 
 #if UWP || WINUI
-            label.SetBinding(TextBlock.ForegroundProperty,
-                new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
+        label.SetBinding(TextBlock.ForegroundProperty,
+            new Binding { Source = map, Path = new PropertyPath(nameof(MapBase.Foreground)) });
 #endif
-        }
+    }
 
-        protected override Size MeasureOverride(Size availableSize)
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        var size = new Size();
+
+        if (ParentMap != null)
         {
-            var size = new Size();
+            var x0 = ParentMap.ActualWidth / 2d;
+            var y0 = ParentMap.ActualHeight / 2d;
+            var p1 = ParentMap.ViewToLocation(new Point(x0 - 50d, y0));
+            var p2 = ParentMap.ViewToLocation(new Point(x0 + 50d, y0));
+            var scale = 100d / p1.GetDistance(p2);
+            var length = MinWidth / scale;
+            var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
 
-            if (ParentMap != null)
-            {
-                var x0 = ParentMap.ActualWidth / 2d;
-                var y0 = ParentMap.ActualHeight / 2d;
-                var p1 = ParentMap.ViewToLocation(new Point(x0 - 50d, y0));
-                var p2 = ParentMap.ViewToLocation(new Point(x0 + 50d, y0));
-                var scale = 100d / p1.GetDistance(p2);
-                var length = MinWidth / scale;
-                var magnitude = Math.Pow(10d, Math.Floor(Math.Log10(length)));
+            length = length / magnitude < 2d ? 2d * magnitude
+                   : length / magnitude < 5d ? 5d * magnitude
+                   : 10d * magnitude;
 
-                length = length / magnitude < 2d ? 2d * magnitude
-                       : length / magnitude < 5d ? 5d * magnitude
-                       : 10d * magnitude;
+            size = new Size(
+                length * scale + StrokeThickness + Padding.Left + Padding.Right,
+                1.5 * label.FontSize + 2 * StrokeThickness + Padding.Top + Padding.Bottom);
 
-                size = new Size(
-                    length * scale + StrokeThickness + Padding.Left + Padding.Right,
-                    1.5 * label.FontSize + 2 * StrokeThickness + Padding.Top + Padding.Bottom);
+            var x1 = Padding.Left + StrokeThickness / 2d;
+            var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
+            var y1 = size.Height / 2d;
+            var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
 
-                var x1 = Padding.Left + StrokeThickness / 2d;
-                var x2 = size.Width - Padding.Right - StrokeThickness / 2d;
-                var y1 = size.Height / 2d;
-                var y2 = size.Height - Padding.Bottom - StrokeThickness / 2d;
+            line.Points = [new Point(x1, y1), new Point(x1, y2), new Point(x2, y2), new Point(x2, y1)];
 
-                line.Points = [new Point(x1, y1), new Point(x1, y2), new Point(x2, y2), new Point(x2, y1)];
+            label.Text = length >= 1000d
+                ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
+                : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
 
-                label.Text = length >= 1000d
-                    ? string.Format(CultureInfo.InvariantCulture, "{0:F0} km", length / 1000d)
-                    : string.Format(CultureInfo.InvariantCulture, "{0:F0} m", length);
-
-                line.Measure(size);
-                label.Measure(size);
-            }
-
-            return size;
+            line.Measure(size);
+            label.Measure(size);
         }
 
-        protected override void OnViewportChanged(ViewportChangedEventArgs e)
-        {
-            InvalidateMeasure();
-        }
+        return size;
+    }
+
+    protected override void OnViewportChanged(ViewportChangedEventArgs e)
+    {
+        InvalidateMeasure();
     }
 }

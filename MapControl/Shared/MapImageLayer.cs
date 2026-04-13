@@ -21,215 +21,214 @@ using Brush = Avalonia.Media.IBrush;
 using ImageSource = Avalonia.Media.IImage;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Displays a single map image, e.g. from a Web Map Service (WMS).
+/// The image must be provided by the abstract GetImageAsync() method.
+/// </summary>
+public abstract partial class MapImageLayer : MapPanel, IMapLayer
 {
-    /// <summary>
-    /// Displays a single map image, e.g. from a Web Map Service (WMS).
-    /// The image must be provided by the abstract GetImageAsync() method.
-    /// </summary>
-    public abstract partial class MapImageLayer : MapPanel, IMapLayer
+    public static readonly DependencyProperty DescriptionProperty =
+        DependencyPropertyHelper.Register<MapImageLayer, string>(nameof(Description));
+
+    public static readonly DependencyProperty RelativeImageSizeProperty =
+        DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(RelativeImageSize), 1d);
+
+    public static readonly DependencyProperty UpdateIntervalProperty =
+        DependencyPropertyHelper.Register<MapImageLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
+            (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
+
+    public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
+        DependencyPropertyHelper.Register<MapImageLayer, bool>(nameof(UpdateWhileViewportChanging));
+
+    public static readonly DependencyProperty MapBackgroundProperty =
+        DependencyPropertyHelper.Register<MapImageLayer, Brush>(nameof(MapBackground));
+
+    public static readonly DependencyProperty MapForegroundProperty =
+        DependencyPropertyHelper.Register<MapImageLayer, Brush>(nameof(MapForeground));
+
+    public static readonly DependencyProperty LoadingProgressProperty =
+        DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(LoadingProgress), 1d);
+
+    private readonly Progress<double> loadingProgress;
+    private readonly UpdateTimer updateTimer;
+    private bool updateInProgress;
+
+    public MapImageLayer()
     {
-        public static readonly DependencyProperty DescriptionProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, string>(nameof(Description));
+        IsHitTestVisible = false;
 
-        public static readonly DependencyProperty RelativeImageSizeProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(RelativeImageSize), 1d);
+        loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
-        public static readonly DependencyProperty UpdateIntervalProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
-                (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
+        updateTimer = new UpdateTimer { Interval = UpdateInterval };
+        updateTimer.Tick += async (_, _) => await UpdateImageAsync();
+    }
 
-        public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, bool>(nameof(UpdateWhileViewportChanging));
+    /// <summary>
+    /// Description of the layer. Used to display copyright information on top of the map.
+    /// </summary>
+    public string Description
+    {
+        get => (string)GetValue(DescriptionProperty);
+        set => SetValue(DescriptionProperty, value);
+    }
 
-        public static readonly DependencyProperty MapBackgroundProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, Brush>(nameof(MapBackground));
+    /// <summary>
+    /// Relative size of the map image in relation to the current view size.
+    /// Setting a value greater than one will let MapImageLayer request images that
+    /// are larger than the view, in order to support smooth panning.
+    /// </summary>
+    public double RelativeImageSize
+    {
+        get => (double)GetValue(RelativeImageSizeProperty);
+        set => SetValue(RelativeImageSizeProperty, value);
+    }
 
-        public static readonly DependencyProperty MapForegroundProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, Brush>(nameof(MapForeground));
+    /// <summary>
+    /// Minimum time interval between images updates.
+    /// </summary>
+    public TimeSpan UpdateInterval
+    {
+        get => (TimeSpan)GetValue(UpdateIntervalProperty);
+        set => SetValue(UpdateIntervalProperty, value);
+    }
 
-        public static readonly DependencyProperty LoadingProgressProperty =
-            DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(LoadingProgress), 1d);
+    /// <summary>
+    /// Controls if images are updated while the viewport is still changing.
+    /// </summary>
+    public bool UpdateWhileViewportChanging
+    {
+        get => (bool)GetValue(UpdateWhileViewportChangingProperty);
+        set => SetValue(UpdateWhileViewportChangingProperty, value);
+    }
 
-        private readonly Progress<double> loadingProgress;
-        private readonly UpdateTimer updateTimer;
-        private bool updateInProgress;
+    /// <summary>
+    /// Optional background brush. Sets MapBase.Background if not null and this layer is the base map layer.
+    /// </summary>
+    public Brush MapBackground
+    {
+        get => (Brush)GetValue(MapBackgroundProperty);
+        set => SetValue(MapBackgroundProperty, value);
+    }
 
-        public MapImageLayer()
+    /// <summary>
+    /// Optional foreground brush. Sets MapBase.Foreground if not null and this layer is the base map layer.
+    /// </summary>
+    public Brush MapForeground
+    {
+        get => (Brush)GetValue(MapForegroundProperty);
+        set => SetValue(MapForegroundProperty, value);
+    }
+
+    /// <summary>
+    /// Gets the progress of the ImageLoader as a double value between 0 and 1.
+    /// </summary>
+    public double LoadingProgress => (double)GetValue(LoadingProgressProperty);
+
+    protected override void SetParentMap(MapBase map)
+    {
+        if (map != null)
         {
-            IsHitTestVisible = false;
-
-            loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
-
-            updateTimer = new UpdateTimer { Interval = UpdateInterval };
-            updateTimer.Tick += async (_, _) => await UpdateImageAsync();
-        }
-
-        /// <summary>
-        /// Description of the layer. Used to display copyright information on top of the map.
-        /// </summary>
-        public string Description
-        {
-            get => (string)GetValue(DescriptionProperty);
-            set => SetValue(DescriptionProperty, value);
-        }
-
-        /// <summary>
-        /// Relative size of the map image in relation to the current view size.
-        /// Setting a value greater than one will let MapImageLayer request images that
-        /// are larger than the view, in order to support smooth panning.
-        /// </summary>
-        public double RelativeImageSize
-        {
-            get => (double)GetValue(RelativeImageSizeProperty);
-            set => SetValue(RelativeImageSizeProperty, value);
-        }
-
-        /// <summary>
-        /// Minimum time interval between images updates.
-        /// </summary>
-        public TimeSpan UpdateInterval
-        {
-            get => (TimeSpan)GetValue(UpdateIntervalProperty);
-            set => SetValue(UpdateIntervalProperty, value);
-        }
-
-        /// <summary>
-        /// Controls if images are updated while the viewport is still changing.
-        /// </summary>
-        public bool UpdateWhileViewportChanging
-        {
-            get => (bool)GetValue(UpdateWhileViewportChangingProperty);
-            set => SetValue(UpdateWhileViewportChangingProperty, value);
-        }
-
-        /// <summary>
-        /// Optional background brush. Sets MapBase.Background if not null and this layer is the base map layer.
-        /// </summary>
-        public Brush MapBackground
-        {
-            get => (Brush)GetValue(MapBackgroundProperty);
-            set => SetValue(MapBackgroundProperty, value);
-        }
-
-        /// <summary>
-        /// Optional foreground brush. Sets MapBase.Foreground if not null and this layer is the base map layer.
-        /// </summary>
-        public Brush MapForeground
-        {
-            get => (Brush)GetValue(MapForegroundProperty);
-            set => SetValue(MapForegroundProperty, value);
-        }
-
-        /// <summary>
-        /// Gets the progress of the ImageLoader as a double value between 0 and 1.
-        /// </summary>
-        public double LoadingProgress => (double)GetValue(LoadingProgressProperty);
-
-        protected override void SetParentMap(MapBase map)
-        {
-            if (map != null)
+            while (Children.Count < 2)
             {
-                while (Children.Count < 2)
+                Children.Add(new Image
                 {
-                    Children.Add(new Image
-                    {
-                        Opacity = 0d,
-                        Stretch = Stretch.Fill
-                    });
+                    Opacity = 0d,
+                    Stretch = Stretch.Fill
+                });
+            }
+        }
+        else
+        {
+            updateTimer.Stop();
+            ClearImages();
+            Children.Clear();
+        }
+
+        base.SetParentMap(map);
+    }
+
+    protected override async void OnViewportChanged(ViewportChangedEventArgs e)
+    {
+        base.OnViewportChanged(e);
+
+        if (e.ProjectionChanged)
+        {
+            ClearImages();
+            await UpdateImageAsync(); // update immediately
+        }
+        else
+        {
+            updateTimer.Run(!UpdateWhileViewportChanging);
+        }
+    }
+
+    protected abstract Task<ImageSource> GetImageAsync(Rect mapRect, IProgress<double> progress);
+
+    protected async Task UpdateImageAsync()
+    {
+        if (!updateInProgress)
+        {
+            updateInProgress = true;
+            updateTimer.Stop();
+
+            ImageSource image = null;
+            Rect? mapRect = null;
+
+            if (ParentMap != null)
+            {
+                var width = ParentMap.ActualWidth * RelativeImageSize;
+                var height = ParentMap.ActualHeight * RelativeImageSize;
+
+                if (width > 0d && height > 0d)
+                {
+                    var x = (ParentMap.ActualWidth - width) / 2d;
+                    var y = (ParentMap.ActualHeight - height) / 2d;
+
+                    mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(x, y, width, height));
+                    image = await GetImageAsync(mapRect.Value, loadingProgress);
                 }
+            }
+
+            SwapImages(image, mapRect);
+            updateInProgress = false;
+        }
+        else // update on next timer tick
+        {
+            updateTimer.Run();
+        }
+    }
+
+    private void ClearImages()
+    {
+        foreach (var image in Children.OfType<Image>())
+        {
+            image.ClearValue(MapRectProperty);
+            image.ClearValue(Image.SourceProperty);
+        }
+    }
+
+    private void SwapImages(ImageSource image, Rect? mapRect)
+    {
+        if (Children.Count >= 2)
+        {
+            var topImage = (Image)Children[0];
+
+            Children.RemoveAt(0);
+            Children.Insert(1, topImage);
+
+            topImage.Source = image;
+            SetMapRect(topImage, mapRect);
+
+            if (MapBase.ImageFadeDuration > TimeSpan.Zero)
+            {
+                FadeOver();
             }
             else
             {
-                updateTimer.Stop();
-                ClearImages();
-                Children.Clear();
-            }
-
-            base.SetParentMap(map);
-        }
-
-        protected override async void OnViewportChanged(ViewportChangedEventArgs e)
-        {
-            base.OnViewportChanged(e);
-
-            if (e.ProjectionChanged)
-            {
-                ClearImages();
-                await UpdateImageAsync(); // update immediately
-            }
-            else
-            {
-                updateTimer.Run(!UpdateWhileViewportChanging);
-            }
-        }
-
-        protected abstract Task<ImageSource> GetImageAsync(Rect mapRect, IProgress<double> progress);
-
-        protected async Task UpdateImageAsync()
-        {
-            if (!updateInProgress)
-            {
-                updateInProgress = true;
-                updateTimer.Stop();
-
-                ImageSource image = null;
-                Rect? mapRect = null;
-
-                if (ParentMap != null)
-                {
-                    var width = ParentMap.ActualWidth * RelativeImageSize;
-                    var height = ParentMap.ActualHeight * RelativeImageSize;
-
-                    if (width > 0d && height > 0d)
-                    {
-                        var x = (ParentMap.ActualWidth - width) / 2d;
-                        var y = (ParentMap.ActualHeight - height) / 2d;
-
-                        mapRect = ParentMap.ViewTransform.ViewToMapBounds(new Rect(x, y, width, height));
-                        image = await GetImageAsync(mapRect.Value, loadingProgress);
-                    }
-                }
-
-                SwapImages(image, mapRect);
-                updateInProgress = false;
-            }
-            else // update on next timer tick
-            {
-                updateTimer.Run();
-            }
-        }
-
-        private void ClearImages()
-        {
-            foreach (var image in Children.OfType<Image>())
-            {
-                image.ClearValue(MapRectProperty);
-                image.ClearValue(Image.SourceProperty);
-            }
-        }
-
-        private void SwapImages(ImageSource image, Rect? mapRect)
-        {
-            if (Children.Count >= 2)
-            {
-                var topImage = (Image)Children[0];
-
-                Children.RemoveAt(0);
-                Children.Insert(1, topImage);
-
-                topImage.Source = image;
-                SetMapRect(topImage, mapRect);
-
-                if (MapBase.ImageFadeDuration > TimeSpan.Zero)
-                {
-                    FadeOver();
-                }
-                else
-                {
-                    topImage.Opacity = 1d;
-                    Children[0].Opacity = 0d;
-                }
+                topImage.Opacity = 1d;
+                Children[0].Opacity = 0d;
             }
         }
     }

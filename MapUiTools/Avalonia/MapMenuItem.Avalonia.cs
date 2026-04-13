@@ -5,41 +5,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MapControl.UiTools
+namespace MapControl.UiTools;
+
+public abstract partial class MapMenuItem : MenuItem
 {
-    public abstract partial class MapMenuItem : MenuItem
+    protected MapMenuItem()
     {
-        protected MapMenuItem()
+        Icon = new TextBlock
         {
-            Icon = new TextBlock
-            {
-                FontFamily = new FontFamily("Segoe MDL2 Assets"),
-                FontWeight = FontWeight.Black,
-                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
-            };
+            FontFamily = new FontFamily("Segoe MDL2 Assets"),
+            FontWeight = FontWeight.Black,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+        };
 
-            Loaded += (_, _) => Initialize();
-            Click += (_, _) => Execute();
-        }
+        Loaded += (_, _) => Initialize();
+        Click += (_, _) => Execute();
+    }
 
-        public string Text
+    public string Text
+    {
+        get => Header as string;
+        set => Header = value;
+    }
+
+    protected IEnumerable<MapMenuItem> ParentMenuItems => ((ItemsControl)Parent).Items.OfType<MapMenuItem>();
+
+    protected override Type StyleKeyOverride => typeof(MenuItem);
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs args)
+    {
+        base.OnPropertyChanged(args);
+
+        if (args.Property == IsCheckedProperty)
         {
-            get => Header as string;
-            set => Header = value;
-        }
-
-        protected IEnumerable<MapMenuItem> ParentMenuItems => ((ItemsControl)Parent).Items.OfType<MapMenuItem>();
-
-        protected override Type StyleKeyOverride => typeof(MenuItem);
-
-        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs args)
-        {
-            base.OnPropertyChanged(args);
-
-            if (args.Property == IsCheckedProperty)
-            {
-                ((TextBlock)Icon).Text = (bool)args.NewValue ? "\uE73E" : ""; // CheckMark
-            }
+            ((TextBlock)Icon).Text = (bool)args.NewValue ? "\uE73E" : ""; // CheckMark
         }
     }
 }

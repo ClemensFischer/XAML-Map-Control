@@ -17,90 +17,89 @@ using Brush = Avalonia.Media.IBrush;
 using PathFigureCollection = Avalonia.Media.PathFigures;
 #endif
 
-namespace MapControl
+namespace MapControl;
+
+/// <summary>
+/// Base class of map grid or graticule overlays.
+/// </summary>
+public abstract partial class MapGrid
 {
-    /// <summary>
-    /// Base class of map grid or graticule overlays.
-    /// </summary>
-    public abstract partial class MapGrid
+    protected class Label(string text, double x, double y, double rotation,
+                          HorizontalAlignment horizontalAlignment = HorizontalAlignment.Left,
+                          VerticalAlignment verticalAlignment = VerticalAlignment.Center)
     {
-        protected class Label(string text, double x, double y, double rotation,
-                              HorizontalAlignment horizontalAlignment = HorizontalAlignment.Left,
-                              VerticalAlignment verticalAlignment = VerticalAlignment.Center)
+        public string Text => text;
+        public double X => x;
+        public double Y => y;
+        public double Rotation => rotation;
+        public HorizontalAlignment HorizontalAlignment => horizontalAlignment;
+        public VerticalAlignment VerticalAlignment => verticalAlignment;
+    }
+
+    public static readonly DependencyProperty MinLineDistanceProperty =
+        DependencyPropertyHelper.Register<MapGrid, double>(nameof(MinLineDistance), 150d);
+
+    public static readonly DependencyProperty StrokeThicknessProperty =
+        DependencyPropertyHelper.Register<MapGrid, double>(nameof(StrokeThickness), 0.5);
+
+    /// <summary>
+    /// Minimum graticule line distance in pixels. The default value is 150.
+    /// </summary>
+    public double MinLineDistance
+    {
+        get => (double)GetValue(MinLineDistanceProperty);
+        set => SetValue(MinLineDistanceProperty, value);
+    }
+
+    public double StrokeThickness
+    {
+        get => (double)GetValue(StrokeThicknessProperty);
+        set => SetValue(StrokeThicknessProperty, value);
+    }
+
+    public Brush Foreground
+    {
+        get => (Brush)GetValue(ForegroundProperty);
+        set => SetValue(ForegroundProperty, value);
+    }
+
+    public FontFamily FontFamily
+    {
+        get => (FontFamily)GetValue(FontFamilyProperty);
+        set => SetValue(FontFamilyProperty, value);
+    }
+
+    public double FontSize
+    {
+        get => (double)GetValue(FontSizeProperty);
+        set => SetValue(FontSizeProperty, value);
+    }
+
+    protected abstract void DrawGrid(PathFigureCollection figures, List<Label> labels);
+
+    protected static PathFigure CreateLineFigure(Point p1, Point p2)
+    {
+        var figure = new PathFigure
         {
-            public string Text => text;
-            public double X => x;
-            public double Y => y;
-            public double Rotation => rotation;
-            public HorizontalAlignment HorizontalAlignment => horizontalAlignment;
-            public VerticalAlignment VerticalAlignment => verticalAlignment;
-        }
+            StartPoint = p1,
+            IsClosed = false,
+            IsFilled = false
+        };
 
-        public static readonly DependencyProperty MinLineDistanceProperty =
-            DependencyPropertyHelper.Register<MapGrid, double>(nameof(MinLineDistance), 150d);
+        figure.Segments.Add(new LineSegment { Point = p2 });
+        return figure;
+    }
 
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyPropertyHelper.Register<MapGrid, double>(nameof(StrokeThickness), 0.5);
-
-        /// <summary>
-        /// Minimum graticule line distance in pixels. The default value is 150.
-        /// </summary>
-        public double MinLineDistance
+    protected static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
+    {
+        var figure = new PathFigure
         {
-            get => (double)GetValue(MinLineDistanceProperty);
-            set => SetValue(MinLineDistanceProperty, value);
-        }
+            StartPoint = points.First(),
+            IsClosed = false,
+            IsFilled = false
+        };
 
-        public double StrokeThickness
-        {
-            get => (double)GetValue(StrokeThicknessProperty);
-            set => SetValue(StrokeThicknessProperty, value);
-        }
-
-        public Brush Foreground
-        {
-            get => (Brush)GetValue(ForegroundProperty);
-            set => SetValue(ForegroundProperty, value);
-        }
-
-        public FontFamily FontFamily
-        {
-            get => (FontFamily)GetValue(FontFamilyProperty);
-            set => SetValue(FontFamilyProperty, value);
-        }
-
-        public double FontSize
-        {
-            get => (double)GetValue(FontSizeProperty);
-            set => SetValue(FontSizeProperty, value);
-        }
-
-        protected abstract void DrawGrid(PathFigureCollection figures, List<Label> labels);
-
-        protected static PathFigure CreateLineFigure(Point p1, Point p2)
-        {
-            var figure = new PathFigure
-            {
-                StartPoint = p1,
-                IsClosed = false,
-                IsFilled = false
-            };
-
-            figure.Segments.Add(new LineSegment { Point = p2 });
-            return figure;
-        }
-
-        protected static PathFigure CreatePolylineFigure(IEnumerable<Point> points)
-        {
-            var figure = new PathFigure
-            {
-                StartPoint = points.First(),
-                IsClosed = false,
-                IsFilled = false
-            };
-
-            figure.Segments.Add(CreatePolyLineSegment(points.Skip(1)));
-            return figure;
-        }
+        figure.Segments.Add(CreatePolyLineSegment(points.Skip(1)));
+        return figure;
     }
 }
