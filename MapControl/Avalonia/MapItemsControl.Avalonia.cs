@@ -56,14 +56,15 @@ public partial class MapItemsControl
 
     protected override bool ShouldTriggerSelection(Visual selectable, PointerEventArgs eventArgs)
     {
-        return true;
+        return eventArgs.Pointer.Type != PointerType.Mouse ||
+            eventArgs.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased;
     }
 
     public override bool UpdateSelectionFromEvent(UIElement container, RoutedEventArgs eventArgs)
     {
         if (SelectionMode == SelectionMode.Multiple &&
-            eventArgs is PointerEventArgs e &&
-            e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            eventArgs is PointerEventArgs pointerEventArgs &&
+            pointerEventArgs.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
             SelectItemsInRange((MapItem)container);
             return true;
