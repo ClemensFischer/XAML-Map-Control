@@ -14,7 +14,7 @@ using Microsoft.UI.Xaml.Data;
 #elif AVALONIA
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
+using Binding = Avalonia.Data.ReflectionBinding;
 using PropertyPath = System.String;
 #endif
 

@@ -21,8 +21,8 @@ using Microsoft.UI.Xaml.Shapes;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia.Data;
 using Avalonia.Layout;
+using Binding = Avalonia.Data.ReflectionBinding;
 using PropertyPath = System.String;
 #endif
 
