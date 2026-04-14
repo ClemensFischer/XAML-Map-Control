@@ -30,10 +30,10 @@ public partial class GroundOverlay : MapPanel
 {
     private class ImageOverlay
     {
-        public ImageOverlay(string path, BoundingBox latLonBox, int zIndex)
+        public ImageOverlay(string path, BoundingBox boundingBox, int zIndex)
         {
             ImagePath = path;
-            SetBoundingBox(Image, latLonBox);
+            SetBoundingBox(Image, boundingBox);
             Image.SetValue(Canvas.ZIndexProperty, zIndex);
         }
 
