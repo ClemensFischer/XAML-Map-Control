@@ -18,7 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.5" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.6" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.6" />
     </ItemGroup>
 </Project>
