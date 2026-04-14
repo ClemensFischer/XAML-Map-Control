@@ -27,7 +27,14 @@ public partial class MapItem
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
     {
         base.OnPointerPressed(e);
-        pointerPressedPosition = e.GetCurrentPoint(null).Position;
+
+        var point = e.GetCurrentPoint(null);
+
+        if (point.Properties.IsLeftButtonPressed)
+        {
+            pointerPressedPosition = point.Position;
+        }
+
         e.Handled = true;
     }
 
@@ -35,16 +42,16 @@ public partial class MapItem
     {
         if (pointerPressedPosition.HasValue)
         {
-            const float pointerMovementThreshold = 2f;
-            var p = e.GetCurrentPoint(null).Position;
+            const double pointerMovementThreshold = 2d;
+            var position = e.GetCurrentPoint(null).Position;
 
             // Perform selection only when no significant pointer movement occured.
             //
-            if (Math.Abs(p.X - pointerPressedPosition.Value.X) <= pointerMovementThreshold &&
-                Math.Abs(p.Y - pointerPressedPosition.Value.Y) <= pointerMovementThreshold &&
-                ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl)
+            if (Math.Abs(position.X - pointerPressedPosition.Value.X) <= pointerMovementThreshold &&
+                Math.Abs(position.Y - pointerPressedPosition.Value.Y) <= pointerMovementThreshold)
             {
-                if (mapItemsControl.SelectionMode == SelectionMode.Extended &&
+                if (ItemsControl.ItemsControlFromItemContainer(this) is MapItemsControl mapItemsControl &&
+                    mapItemsControl.SelectionMode == SelectionMode.Extended &&
                     e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
                 {
                     mapItemsControl.SelectItemsInRange(this);

@@ -54,22 +54,22 @@ public partial class MapItemsControl
         ClearContainer((MapItem)container);
     }
 
-    protected override bool ShouldTriggerSelection(Visual selectable, PointerEventArgs eventArgs)
+    protected override bool ShouldTriggerSelection(Visual selectable, PointerEventArgs e)
     {
-        return eventArgs.Pointer.Type != PointerType.Mouse ||
-            eventArgs.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased;
+        return e.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased;
     }
 
-    public override bool UpdateSelectionFromEvent(UIElement container, RoutedEventArgs eventArgs)
+    public override bool UpdateSelectionFromEvent(UIElement container, RoutedEventArgs e)
     {
         if (SelectionMode == SelectionMode.Multiple &&
-            eventArgs is PointerEventArgs pointerEventArgs &&
-            pointerEventArgs.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            e is PointerEventArgs p &&
+            p.KeyModifiers.HasFlag(KeyModifiers.Shift) &&
+            ShouldTriggerSelection(container, p))
         {
             SelectItemsInRange((MapItem)container);
             return true;
         }
 
-        return base.UpdateSelectionFromEvent(container, eventArgs);
+        return base.UpdateSelectionFromEvent(container, e);
     }
 }

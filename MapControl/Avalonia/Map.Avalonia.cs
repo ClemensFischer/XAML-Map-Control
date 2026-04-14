@@ -67,8 +67,6 @@ public partial class Map
             point.Pointer.Type == PointerType.Touch &&
             ManipulationMode != ManipulationModes.None)
         {
-            point.Pointer.Capture(this);
-
             if (pointer1 == null)
             {
                 pointer1 = point.Pointer;
