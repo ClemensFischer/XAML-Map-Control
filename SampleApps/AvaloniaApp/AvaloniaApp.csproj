@@ -29,12 +29,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="12.0.0" />
-        <PackageReference Include="Avalonia.Desktop" Version="12.0.0" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.0" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.0" />
+        <PackageReference Include="Avalonia" Version="12.0.1" />
+        <PackageReference Include="Avalonia.Desktop" Version="12.0.1" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.1" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
-        <!-- avoid package vulnerability warning, will be fixed with Avalonia 12.0.1 -->
-        <PackageReference Include="Tmds.DBus.Protocol" Version="0.92.0" />
     </ItemGroup>
 </Project>
