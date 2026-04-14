@@ -95,7 +95,7 @@ public static class DependencyPropertyHelper
         return AddOwner(source, changed);
     }
 
-    public static void SetBinding(this AvaloniaObject target, AvaloniaProperty property, ReflectionBinding binding)
+    public static void SetBinding(this AvaloniaObject target, AvaloniaProperty property, BindingBase binding)
     {
         target.Bind(property, binding);
     }
