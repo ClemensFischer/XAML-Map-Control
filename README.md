@@ -1,6 +1,6 @@
 # XAML Map Control
 
-A set of controls for WPF, UWP, WinUI and Avalonia UI for rendering raster maps from different providers and various types of map overlays.
+A set of controls for WPF, UWP, WinUI 3 and Avalonia 12 for rendering raster maps from different providers and various types of map overlays.
 
 Map providers can easily be added by specifying a template string for their map tile URLs. 
 Map overlay layers allow to draw and interact with graphical objects and pushpins on the map.
@@ -71,7 +71,7 @@ FileDbCache and SQLiteCache are available as
 * [XAML.MapControl.SQLiteCache](https://www.nuget.org/packages/XAML.MapControl.SQLiteCache/).
 
 There are also packages for an extension library with additional map projections, based on
-[ProjNET4GeoAPI](https://github.com/NetTopologySuite/ProjNet4GeoAPI), with these ids:
+[ProjNET](https://github.com/NetTopologySuite/ProjNet4GeoAPI), with these ids:
 * [XAML.MapControl.MapProjections.WPF](https://www.nuget.org/packages/XAML.MapControl.MapProjections.WPF/),
 * [XAML.MapControl.MapProjections.UWP](https://www.nuget.org/packages/XAML.MapControl.MapProjections.UWP/),
 * [XAML.MapControl.MapProjections.WinUI](https://www.nuget.org/packages/XAML.MapControl.MapProjections.WinUI/),
