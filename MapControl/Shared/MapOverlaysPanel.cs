@@ -24,6 +24,7 @@ public partial class MapOverlaysPanel : MapPanel
             async (control, oldValue, newValue) => await control.SourcePathsPropertyChanged(oldValue, newValue));
 
     private readonly UpdateTimer updateTimer;
+    private bool isUpdating;
 
     public MapOverlaysPanel()
     {
@@ -61,17 +62,23 @@ public partial class MapOverlaysPanel : MapPanel
 
     private async Task UpdateChildren()
     {
-        updateTimer.Stop();
-
-        var overlays = SourcePaths != null
-            ? await Task.WhenAll(SourcePaths.ToList().Select(GetOverlay))
-            : [];
-
-        Children.Clear();
-
-        foreach (var overlay in overlays.Where(overlay => overlay != null))
+        if (!isUpdating)
         {
-            Children.Add(overlay);
+            isUpdating = true;
+
+            updateTimer.Stop();
+
+            var paths = SourcePaths?.ToList() ?? [];
+            var overlays = await Task.WhenAll(paths.Select(GetOverlay));
+
+            Children.Clear();
+
+            foreach (var overlay in overlays.Where(overlay => overlay != null))
+            {
+                Children.Add(overlay);
+            }
+
+            isUpdating = false;
         }
     }
 
