@@ -15,8 +15,4 @@
     <ItemGroup>
         <ProjectReference Include="..\..\MapControl\WinUI\MapControl.WinUI.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260416003" />
-    </ItemGroup>
 </Project>
