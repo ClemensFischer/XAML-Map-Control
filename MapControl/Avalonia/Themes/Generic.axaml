@@ -21,7 +21,7 @@
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="ClipToBounds" Value="False"/>
 
-        <!-- Template Setter here does somehow break a Style for a derived type like MapItem -->
+        <!-- Template Setter here does somehow break a ControlTheme for a derived type like MapItem -->
         <!--<Setter Property="Template" Value="{StaticResource ContentControlTemplate}"/>-->
     </ControlTheme>
 
