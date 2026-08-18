@@ -35,9 +35,8 @@ public partial class MapBorderPanel : MapPanel
         return (bool)element.GetValue(OnBorderProperty);
     }
 
-    protected override Point SetViewPosition(FrameworkElement element, Point position)
+    protected override Point GetViewPosition(FrameworkElement element, Location location)
     {
-        var onBorder = false;
         var w = ParentMap.ActualWidth;
         var h = ParentMap.ActualHeight;
         var minX = BorderWidth / 2d;
@@ -45,8 +44,13 @@ public partial class MapBorderPanel : MapPanel
         var maxX = w - BorderWidth / 2d;
         var maxY = h - BorderWidth / 2d;
 
-        if (position.X < minX || position.X > maxX ||
-            position.Y < minY || position.Y > maxY)
+        var position = base.GetViewPosition(element, location);
+        var onBorder = position.X < minX || position.X > maxX ||
+                       position.Y < minY || position.Y > maxY;
+
+        element.SetValue(OnBorderProperty, onBorder);
+
+        if (onBorder)
         {
             var dx = position.X - w / 2d;
             var dy = position.Y - h / 2d;
@@ -80,11 +84,8 @@ public partial class MapBorderPanel : MapPanel
             }
 
             position = new Point(x, y);
-            onBorder = true;
         }
 
-        element.SetValue(OnBorderProperty, onBorder);
-
-        return base.SetViewPosition(element, position);
+        return position;
     }
 }

@@ -80,7 +80,8 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Gets a value that controls whether an element's Visibility is automatically
+    /// Gets the value of the AutoCollapse attached property.
+    /// The property controls whether an element's Visibility is automatically
     /// set to Collapsed when it is located outside the visible viewport area.
     /// </summary>
     public static bool GetAutoCollapse(FrameworkElement element)
@@ -89,7 +90,7 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Sets the AutoCollapse property.
+    /// Sets the value of the AutoCollapse attached property.
     /// </summary>
     public static void SetAutoCollapse(FrameworkElement element, bool value)
     {
@@ -97,7 +98,7 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Gets the Location of an element.
+    /// Gets the value of the Location attached property.
     /// </summary>
     public static Location GetLocation(FrameworkElement element)
     {
@@ -105,7 +106,7 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Sets the Location of an element.
+    /// Sets the value of the Location attached property.
     /// </summary>
     public static void SetLocation(FrameworkElement element, Location value)
     {
@@ -113,7 +114,7 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Gets the BoundingBox of an element.
+    /// Gets the value of the BoundingBox attached property.
     /// </summary>
     public static BoundingBox GetBoundingBox(FrameworkElement element)
     {
@@ -121,7 +122,7 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Sets the BoundingBox of an element.
+    /// Sets the value of the BoundingBox attached property.
     /// </summary>
     public static void SetBoundingBox(FrameworkElement element, BoundingBox value)
     {
@@ -129,7 +130,7 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Gets the MapRect of an element.
+    /// Gets the value of the MapRect attached property.
     /// </summary>
     public static Rect? GetMapRect(FrameworkElement element)
     {
@@ -137,7 +138,7 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Sets the MapRect of an element.
+    /// Sets the value of the MapRect attached property.
     /// </summary>
     public static void SetMapRect(FrameworkElement element, Rect? value)
     {
@@ -145,23 +146,12 @@ public partial class MapPanel : Panel, IMapElement
     }
 
     /// <summary>
-    /// Gets the view position of an element with Location.
+    /// Gets the value of the ViewPosition attached property.
+    /// The property is set when an element with Location is arranged.
     /// </summary>
     public static Point? GetViewPosition(FrameworkElement element)
     {
         return (Point?)element.GetValue(ViewPositionProperty);
-    }
-
-    /// <summary>
-    /// Sets the attached ViewPosition property of an element. The method is called during
-    /// ArrangeOverride and may be overridden to modify the actual view position value.
-    /// An overridden method should call this method to set the attached property.
-    /// </summary>
-    protected virtual Point SetViewPosition(FrameworkElement element, Point position)
-    {
-        element.SetValue(ViewPositionProperty, position);
-
-        return position;
     }
 
     protected virtual void SetParentMap(MapBase map)
@@ -216,7 +206,7 @@ public partial class MapPanel : Panel, IMapElement
         return finalSize;
     }
 
-    private Point GetViewPosition(Location location)
+    protected virtual Point GetViewPosition(FrameworkElement element, Location location)
     {
         var position = parentMap.LocationToView(location);
 
@@ -233,7 +223,7 @@ public partial class MapPanel : Panel, IMapElement
         return position;
     }
 
-    private Rect GetViewRect(Rect mapRect)
+    protected virtual Rect GetViewRect(FrameworkElement element, Rect mapRect)
     {
         var center = new Point(mapRect.X + mapRect.Width / 2d, mapRect.Y + mapRect.Height / 2d);
         var position = parentMap.ViewTransform.MapToView(center);
@@ -263,7 +253,7 @@ public partial class MapPanel : Panel, IMapElement
 
         if (location != null)
         {
-            var position = SetViewPosition(element, GetViewPosition(location));
+            var position = GetViewPosition(element, location);
 
             if (GetAutoCollapse(element))
             {
@@ -271,42 +261,44 @@ public partial class MapPanel : Panel, IMapElement
             }
 
             ArrangeElement(element, position);
+
+            element.SetValue(ViewPositionProperty, position);
         }
         else
         {
             element.ClearValue(ViewPositionProperty);
 
             var mapRect = GetMapRect(element);
+            var rotation = 0d;
 
-            if (mapRect.HasValue)
-            {
-                ArrangeElement(element, mapRect.Value, 0d);
-            }
-            else
+            if (!mapRect.HasValue)
             {
                 var boundingBox = GetBoundingBox(element);
 
                 if (boundingBox != null)
                 {
-                    (var rect, var rotation) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+                    (mapRect, rotation) = parentMap.MapProjection.BoundingBoxToMap(boundingBox);
+                }
+            }
 
-                    ArrangeElement(element, rect, -rotation);
-                }
-                else
-                {
-                    ArrangeElement(element, panelSize);
-                }
+            if (mapRect.HasValue)
+            {
+                var viewRect = GetViewRect(element, mapRect.Value);
+
+                ArrangeElement(element, viewRect, -rotation);
+            }
+            else
+            {
+                ArrangeElement(element, panelSize);
             }
         }
     }
 
-    private void ArrangeElement(FrameworkElement element, Rect mapRect, double rotation)
+    private void ArrangeElement(FrameworkElement element, Rect rect, double rotation)
     {
-        var viewRect = GetViewRect(mapRect);
-
-        element.Width = viewRect.Width;
-        element.Height = viewRect.Height;
-        element.Arrange(viewRect);
+        element.Width = rect.Width;
+        element.Height = rect.Height;
+        element.Arrange(rect);
 
         rotation += parentMap.ViewTransform.Rotation;
 

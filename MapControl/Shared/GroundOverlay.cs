@@ -232,4 +232,17 @@ public partial class GroundOverlay : MapPanel
 
         return new BoundingBox(south, west, north, east);
     }
+
+#if UWP || WINUI
+    /// <summary>
+    /// Enlarge view rectangle to solve an issue with visible gaps in image grids.
+    /// </summary>
+    protected override Rect GetViewRect(FrameworkElement element, Rect mapRect)
+    {
+        const double gap = 0.4;
+        var rect = base.GetViewRect(element, mapRect);
+
+        return new Rect(rect.X - gap / 2d, rect.Y - gap / 2d, rect.Width + gap, rect.Height + gap);
+    }
+#endif
 }
