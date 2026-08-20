@@ -143,7 +143,7 @@ public static partial class GeoImage
 
     private static async Task<GeoBitmap> LoadGeoBitmap(string sourcePath)
     {
-        var ext = System.IO.Path.GetExtension(sourcePath);
+        var ext = Path.GetExtension(sourcePath);
 
         if (ext.Length >= 4)
         {
@@ -153,10 +153,10 @@ public static partial class GeoImage
 
             if (File.Exists(worldFilePath))
             {
-                return new GeoBitmap(
-                    (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath),
-                    await ReadWorldFileMatrix(worldFilePath),
-                    null);
+                var transform = await ReadWorldFileMatrix(worldFilePath);
+                var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
+
+                return new GeoBitmap(bitmap, transform, null);
             }
         }
 

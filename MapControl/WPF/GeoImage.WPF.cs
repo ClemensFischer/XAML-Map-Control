@@ -9,20 +9,20 @@ namespace MapControl;
 
 public static partial class GeoImage
 {
-    private static Task<GeoBitmap> LoadGeoTiff(string sourcePath)
+    private static Task<GeoBitmap> LoadGeoTiff(string path)
     {
         return Task.Run(() =>
         {
             BitmapSource bitmap;
-            Matrix transform;
-            MapProjection projection = null;
 
-            using (var stream = File.OpenRead(sourcePath))
+            using (var stream = File.OpenRead(path))
             {
                 bitmap = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
             }
 
             var metadata = (BitmapMetadata)bitmap.Metadata;
+            Matrix transform;
+            MapProjection projection = null;
 
             if (metadata.GetQuery(QueryString(ModelPixelScaleTag)) is double[] pixelScale &&
                 pixelScale.Length == 3 &&

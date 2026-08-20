@@ -70,7 +70,7 @@ public static partial class ImageLoader
         return image;
     }
 
-    internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri, IProgress<double> progress)
+    private static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri, IProgress<double> progress)
     {
         WriteableBitmap bitmap = null;
 
