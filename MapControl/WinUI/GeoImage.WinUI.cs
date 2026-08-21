@@ -2,6 +2,11 @@
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+#if UWP
+using Windows.UI.Xaml.Media.Imaging;
+#else
+using Microsoft.UI.Xaml.Media.Imaging;
+#endif
 
 namespace MapControl;
 
@@ -51,8 +56,13 @@ public static partial class GeoImage
             projection = GetProjection(geoKeyDirectory);
         }
 
-        var bitmap = await ImageLoader.LoadWriteableBitmapAsync(decoder);
+        var bitmap = await decoder.GetSoftwareBitmapAsync(
+            BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
+            ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
 
-        return new GeoBitmap(bitmap, transform, projection);
+        var image = new SoftwareBitmapSource();
+        await image.SetBitmapAsync(bitmap);
+
+        return new GeoBitmap(image, (int)decoder.PixelWidth, (int)decoder.PixelHeight, transform, projection);
     }
 }

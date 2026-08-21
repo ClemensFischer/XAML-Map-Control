@@ -26,6 +26,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Shape = Avalonia.Controls.Shapes.Shape;
+using ImageSource = Avalonia.Media.IImage;
 using BitmapSource = Avalonia.Media.Imaging.Bitmap;
 #endif
 
@@ -35,15 +36,12 @@ public static partial class GeoImage
 {
     private class GeoBitmap
     {
-        public GeoBitmap(BitmapSource bitmap, Matrix transform, MapProjection projection)
+        public GeoBitmap(ImageSource image, int width, int height, Matrix transform, MapProjection projection)
         {
+            ImageSource = image;
+
             var p1 = transform.Transform(new Point());
-#if AVALONIA
-            var p2 = transform.Transform(new Point(bitmap.PixelSize.Width, bitmap.PixelSize.Height));
-#else
-            var p2 = transform.Transform(new Point(bitmap.PixelWidth, bitmap.PixelHeight));
-#endif
-            BitmapSource = bitmap;
+            var p2 = transform.Transform(new Point(width, height));
 
             if (projection != null)
             {
@@ -57,7 +55,7 @@ public static partial class GeoImage
             }
         }
 
-        public BitmapSource BitmapSource { get; }
+        public ImageSource ImageSource { get; }
         public BoundingBox BoundingBox { get; }
     }
 
@@ -116,7 +114,7 @@ public static partial class GeoImage
                 if (element is Image image)
                 {
                     image.Stretch = Stretch.Fill;
-                    image.Source = geoBitmap.BitmapSource;
+                    image.Source = geoBitmap.ImageSource;
                 }
                 else if (element is Shape shape)
                 {
@@ -125,9 +123,9 @@ public static partial class GeoImage
                     {
                         Stretch = Stretch.Fill,
 #if AVALONIA
-                        Source = geoBitmap.BitmapSource
+                        Source = (IImageBrushSource)geoBitmap.ImageSource
 #else
-                        ImageSource = geoBitmap.BitmapSource
+                        ImageSource = geoBitmap.ImageSource
 #endif
                     };
                 }
@@ -155,8 +153,11 @@ public static partial class GeoImage
             {
                 var transform = await ReadWorldFileMatrix(worldFilePath);
                 var bitmap = (BitmapSource)await ImageLoader.LoadImageAsync(sourcePath);
-
-                return new GeoBitmap(bitmap, transform, null);
+#if AVALONIA
+                return new GeoBitmap(bitmap, bitmap.PixelSize.Width, bitmap.PixelSize.Height, transform, null);
+#else
+                return new GeoBitmap(bitmap, bitmap.PixelWidth, bitmap.PixelHeight, transform, null);
+#endif
             }
         }
 

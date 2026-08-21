@@ -54,7 +54,7 @@ public static partial class GeoImage
                 bitmap = ConvertTransparentPixel(bitmap, noDataValue);
             }
 
-            return new GeoBitmap(bitmap, transform, projection);
+            return new GeoBitmap(bitmap, bitmap.PixelWidth, bitmap.PixelHeight, transform, projection);
         });
     }
 
