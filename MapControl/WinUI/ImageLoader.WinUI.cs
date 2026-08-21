@@ -57,22 +57,16 @@ public static partial class ImageLoader
         return image;
     }
 
-    internal static async Task<WriteableBitmap> LoadWriteableBitmapAsync(BitmapDecoder decoder)
+    private class BitmapData(int width, int height, byte[] buffer)
     {
-        var image = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
-
-        var pixelData = await decoder.GetPixelDataAsync(
-            BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
-            ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
-
-        pixelData.DetachPixelData().CopyTo(image.PixelBuffer);
-
-        return image;
+        public int Width => width;
+        public int Height => height;
+        public byte[] Buffer => buffer;
     }
 
-    private static async Task<WriteableBitmap> LoadWriteableBitmapAsync(Uri uri, IProgress<double> progress)
+    private static async Task<BitmapData> LoadBitmapData(Uri uri, IProgress<double> progress)
     {
-        WriteableBitmap bitmap = null;
+        BitmapData data = null;
 
         progress.Report(0d);
 
@@ -86,8 +80,11 @@ public static partial class ImageLoader
                 using var randomAccessStream = memoryStream.AsRandomAccessStream();
 
                 var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+                var pixelData = await decoder.GetPixelDataAsync(
+                    BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, new BitmapTransform(),
+                    ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
 
-                bitmap = await LoadWriteableBitmapAsync(decoder);
+                data = new BitmapData((int)decoder.PixelWidth, (int)decoder.PixelHeight, pixelData.DetachPixelData());
             }
         }
         catch (Exception ex)
@@ -97,42 +94,41 @@ public static partial class ImageLoader
 
         progress.Report(1d);
 
-        return bitmap;
+        return data;
     }
 
     internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
     {
-        WriteableBitmap mergedBitmap = null;
+        WriteableBitmap mergedImage = null;
         var p1 = 0d;
         var p2 = 0d;
 
         var bitmaps = await Task.WhenAll(
-            LoadWriteableBitmapAsync(uri1, new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); })),
-            LoadWriteableBitmapAsync(uri2, new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); })));
+            LoadBitmapData(uri1, new Progress<double>(p => { p1 = p; progress.Report((p1 + p2) / 2d); })),
+            LoadBitmapData(uri2, new Progress<double>(p => { p2 = p; progress.Report((p1 + p2) / 2d); })));
 
         if (bitmaps.Length == 2 &&
             bitmaps[0] != null &&
             bitmaps[1] != null &&
-            bitmaps[0].PixelHeight == bitmaps[1].PixelHeight)
+            bitmaps[0].Height == bitmaps[1].Height)
         {
-            var buffer1 = bitmaps[0].PixelBuffer;
-            var buffer2 = bitmaps[1].PixelBuffer;
-            var stride1 = (uint)bitmaps[0].PixelWidth * 4;
-            var stride2 = (uint)bitmaps[1].PixelWidth * 4;
+            var height = bitmaps[0].Height;
+            var stride1 = bitmaps[0].Width * 4;
+            var stride2 = bitmaps[1].Width * 4;
             var stride = stride1 + stride2;
-            var height = bitmaps[0].PixelHeight;
+            var buffer1 = bitmaps[0].Buffer;
+            var buffer2 = bitmaps[1].Buffer;
 
-            mergedBitmap = new WriteableBitmap(bitmaps[0].PixelWidth + bitmaps[1].PixelWidth, height);
+            mergedImage = new WriteableBitmap(bitmaps[0].Width + bitmaps[1].Width, height);
+            var buffer = mergedImage.PixelBuffer;
 
-            var buffer = mergedBitmap.PixelBuffer;
-
-            for (uint y = 0; y < height; y++)
+            for (int y = 0; y < height; y++)
             {
-                buffer1.CopyTo(y * stride1, buffer, y * stride, stride1);
-                buffer2.CopyTo(y * stride2, buffer, y * stride + stride1, stride2);
+                buffer1.CopyTo(y * stride1, buffer, (uint)(y * stride), stride1);
+                buffer2.CopyTo(y * stride2, buffer, (uint)(y * stride + stride1), stride2);
             }
         }
 
-        return mergedBitmap;
+        return mergedImage;
     }
 }
