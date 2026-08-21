@@ -10,7 +10,7 @@ public partial class MapsforgeTileSource
 {
     public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
     {
-        BitmapSource bitmap = null;
+        ImageSource image = null;
 
         try
         {
@@ -18,8 +18,8 @@ public partial class MapsforgeTileSource
 
             if (pixels != null)
             {
-                bitmap = BitmapSource.Create(TileSize, TileSize, 96d, 96d, PixelFormats.Bgra32, null, pixels, TileSize * 4);
-                bitmap.Freeze();
+                image = BitmapSource.Create(TileSize, TileSize, 96d, 96d, PixelFormats.Bgra32, null, pixels, TileSize * 4);
+                image.Freeze();
             }
         }
         catch (Exception ex)
@@ -27,6 +27,6 @@ public partial class MapsforgeTileSource
             Logger?.LogError(ex, "LoadImageAsync");
         }
 
-        return bitmap;
+        return image;
     }
 }

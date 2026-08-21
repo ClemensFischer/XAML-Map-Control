@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Windows.Graphics.Imaging;
 #if UWP
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -18,28 +18,38 @@ public partial class MapsforgeTileSource
 {
     public override async Task<ImageSource> LoadImageAsync(int zoomLevel, int column, int row)
     {
-        ImageSource image = null;
-        var bitmap = new WriteableBitmap(TileSize, TileSize);
-        using var stream = bitmap.PixelBuffer.AsStream();
+        SoftwareBitmapSource image = null;
 
-        try
+        // Run a Task because in WinUI/UWP LoadImageAsync is called in the UI thread.
+        //
+        var bitmap = await Task.Run(() =>
         {
-            // Run a Task because in WinUI/UWP LoadImageAsync is called in the UI thread.
-            //
-            await Task.Run(() =>
+            try
             {
                 var pixels = RenderTile(zoomLevel, column, row);
 
                 if (pixels != null)
                 {
-                    stream.Write(MemoryMarshal.AsBytes(pixels.AsSpan()));
-                    image = bitmap;
+                    var buffer = new Windows.Storage.Streams.Buffer((uint)pixels.Length * 4);
+
+                    MemoryMarshal.AsBytes(pixels.AsSpan()).CopyTo(buffer);
+
+                    return SoftwareBitmap.CreateCopyFromBuffer(
+                        buffer, BitmapPixelFormat.Bgra8, TileSize, TileSize, BitmapAlphaMode.Premultiplied);
                 }
-            });
-        }
-        catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "LoadImageAsync");
+            }
+
+            return null;
+        });
+
+        if (bitmap != null)
         {
-            Logger?.LogError(ex, "LoadImageAsync");
+            image = new SoftwareBitmapSource();
+            await image.SetBitmapAsync(bitmap);
         }
 
         return image;
