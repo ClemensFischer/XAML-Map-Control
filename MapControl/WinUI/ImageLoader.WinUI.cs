@@ -72,7 +72,7 @@ public static partial class ImageLoader
 
         try
         {
-            var buffer = await GetHttpContent(uri, progress);
+            var buffer = await GetHttpContent(uri, progress).ConfigureAwait(false);
 
             if (buffer != null)
             {
@@ -99,7 +99,7 @@ public static partial class ImageLoader
 
     internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
     {
-        WriteableBitmap mergedImage = null;
+        SoftwareBitmapSource image = null;
         var p1 = 0d;
         var p2 = 0d;
 
@@ -112,23 +112,31 @@ public static partial class ImageLoader
             bitmaps[1] != null &&
             bitmaps[0].Height == bitmaps[1].Height)
         {
-            var height = bitmaps[0].Height;
-            var stride1 = bitmaps[0].Width * 4;
-            var stride2 = bitmaps[1].Width * 4;
-            var stride = stride1 + stride2;
-            var buffer1 = bitmaps[0].Buffer;
-            var buffer2 = bitmaps[1].Buffer;
-
-            mergedImage = new WriteableBitmap(bitmaps[0].Width + bitmaps[1].Width, height);
-            var buffer = mergedImage.PixelBuffer;
-
-            for (int y = 0; y < height; y++)
+            var bitmap = await Task.Run(() =>
             {
-                buffer1.CopyTo(y * stride1, buffer, (uint)(y * stride), stride1);
-                buffer2.CopyTo(y * stride2, buffer, (uint)(y * stride + stride1), stride2);
-            }
+                var width = bitmaps[0].Width + bitmaps[1].Width;
+                var height = bitmaps[0].Height;
+                var stride1 = bitmaps[0].Width * 4;
+                var stride2 = bitmaps[1].Width * 4;
+                var stride = stride1 + stride2;
+                var buffer1 = bitmaps[0].Buffer;
+                var buffer2 = bitmaps[1].Buffer;
+                var buffer = new Windows.Storage.Streams.Buffer((uint)(stride * height));
+
+                for (int y = 0; y < height; y++)
+                {
+                    buffer1.CopyTo(y * stride1, buffer, (uint)(y * stride), stride1);
+                    buffer2.CopyTo(y * stride2, buffer, (uint)(y * stride + stride1), stride2);
+                }
+
+                return SoftwareBitmap.CreateCopyFromBuffer(
+                    buffer, BitmapPixelFormat.Bgra8, width, height, BitmapAlphaMode.Premultiplied);
+            });
+
+            image = new SoftwareBitmapSource();
+            await image.SetBitmapAsync(bitmap);
         }
 
-        return mergedImage;
+        return image;
     }
 }

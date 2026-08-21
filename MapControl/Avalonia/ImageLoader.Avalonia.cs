@@ -42,7 +42,7 @@ public static partial class ImageLoader
 
     internal static async Task<IImage> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
     {
-        Bitmap mergedBitmap = null;
+        IImage image = null;
         var p1 = 0d;
         var p2 = 0d;
 
@@ -74,11 +74,11 @@ public static partial class ImageLoader
                     bitmap1.CopyPixels(new PixelRect(bitmap1.PixelSize), buffer, bufferSize, stride);
                     bitmap2.CopyPixels(new PixelRect(bitmap2.PixelSize), buffer + stride1, bufferSize, stride);
 
-                    mergedBitmap = new Bitmap(bitmap1.Format.Value, bitmap1.AlphaFormat.Value, buffer, pixelSize, bitmap1.Dpi, stride);
+                    image = new Bitmap(bitmap1.Format.Value, bitmap1.AlphaFormat.Value, buffer, pixelSize, bitmap1.Dpi, stride);
                 }
             }
         }
 
-        return mergedBitmap;
+        return image;
     }
 }

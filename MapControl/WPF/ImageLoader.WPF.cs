@@ -58,7 +58,7 @@ public static partial class ImageLoader
 
     internal static async Task<ImageSource> LoadMergedImageAsync(Uri uri1, Uri uri2, IProgress<double> progress)
     {
-        WriteableBitmap mergedBitmap = null;
+        WriteableBitmap image = null;
         var p1 = 0d;
         var p2 = 0d;
 
@@ -85,12 +85,12 @@ public static partial class ImageLoader
             bitmap1.CopyPixels(buffer1, stride1, 0);
             bitmap2.CopyPixels(buffer2, stride2, 0);
 
-            mergedBitmap = new WriteableBitmap(width1 + width2, height, 96, 96, format, null);
-            mergedBitmap.WritePixels(new Int32Rect(0, 0, width1, height), buffer1, stride1, 0);
-            mergedBitmap.WritePixels(new Int32Rect(width1, 0, width2, height), buffer2, stride2, 0);
-            mergedBitmap.Freeze();
+            image = new WriteableBitmap(width1 + width2, height, 96, 96, format, null);
+            image.WritePixels(new Int32Rect(0, 0, width1, height), buffer1, stride1, 0);
+            image.WritePixels(new Int32Rect(width1, 0, width2, height), buffer2, stride2, 0);
+            image.Freeze();
         }
 
-        return mergedBitmap;
+        return image;
     }
 }
