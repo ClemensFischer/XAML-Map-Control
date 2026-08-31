@@ -24,11 +24,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.15.0" />
+        <PackageReference Include="IKVM" Version="8.16.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <IkvmReference Include="..\target\mapsforge-0.27.0-jar-with-dependencies.jar" />
+        <IkvmReference Include="..\target\mapsforge-0.30.0-jar-with-dependencies.jar" />
     </ItemGroup>
 
     <ItemGroup>
@@ -38,9 +38,7 @@
         </None>
     </ItemGroup>
 
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent"
-            Inputs="..\pom.xml"
-            Outputs="..\target\mapsforge-0.27.0-jar-with-dependencies.jar">
-        <Exec Command="mvn package" WorkingDirectory=".."/>
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Inputs="..\pom.xml" Outputs="..\target\mapsforge-0.30.0-jar-with-dependencies.jar">
+        <Exec Command="mvn package" WorkingDirectory=".." />
     </Target>
 </Project>
