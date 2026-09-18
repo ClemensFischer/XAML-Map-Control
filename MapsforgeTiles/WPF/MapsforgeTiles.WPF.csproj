@@ -20,8 +20,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.16.0" />
+        <PackageReference Include="IKVM" Version="8.16.1" />
+        <!--<PackageReference Include="IKVM.Maven.Sdk" Version="1.12.1" />-->
     </ItemGroup>
+
+    <!-- fails at runtime with: java.lang.NoClassDefFoundError: 'org/xmlpull/v1/XmlPullParserFactory' -->
+    <!--<ItemGroup>
+        <MavenReference Include="com.github.mapsforge.mapsforge:mapsforge-map-awt" Version="0.30.0" />
+        <MavenReference Include="com.github.mapsforge.mapsforge:mapsforge-themes" Version="0.30.0" />
+    </ItemGroup>-->
 
     <ItemGroup>
         <IkvmReference Include="..\target\mapsforge-0.30.0-jar-with-dependencies.jar" />

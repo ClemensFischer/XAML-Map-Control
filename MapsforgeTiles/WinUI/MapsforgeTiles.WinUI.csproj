@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.16.0" />
+        <PackageReference Include="IKVM" Version="8.16.1" />
     </ItemGroup>
 
     <ItemGroup>
