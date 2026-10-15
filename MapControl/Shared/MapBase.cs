@@ -293,7 +293,7 @@ public partial class MapBase : MapPanel
     /// </summary>
     public void ZoomToBounds(BoundingBox bounds)
     {
-        (var rect, var _) = MapProjection.BoundingBoxToMap(bounds);
+        var rect = MapProjection.BoundingBoxToMap(bounds).Item1;
         var scale = Math.Min(ActualWidth / rect.Width, ActualHeight / rect.Height);
         TargetZoomLevel = ScaleToZoomLevel(scale);
         TargetCenter = new Location((bounds.South + bounds.North) / 2d, (bounds.West + bounds.East) / 2d);
