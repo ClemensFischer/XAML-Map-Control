@@ -94,7 +94,7 @@ public class Location(double latitude, double longitude) : IEquatable<Location>
     }
 
     /// <summary>
-    /// Calculates great distance in meters between this and the specified Location.
+    /// Calculates great circle distance in meters between this and the specified Location.
     /// See https://en.wikipedia.org/wiki/Great-circle_navigation#Course.
     /// </summary>
     public double GetDistance(Location location, double earthRadius = Wgs84MeanRadius) => GetAzimuthDistance(location, earthRadius).Item2;
