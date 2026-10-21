@@ -4,24 +4,18 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SampleApplication;
 
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-
 class HttpHandler : DelegatingHandler
 {
-    public HttpHandler()
-#if NET
-        : base(new SocketsHttpHandler())
-#else
-        : base(new HttpClientHandler())
-#endif
+    public HttpHandler() : base(new HttpClientHandler())
     {
     }
 
