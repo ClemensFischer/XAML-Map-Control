@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -17,9 +18,13 @@ namespace MapControl;
 
 public static partial class ImageLoader
 {
-    private static ILogger Logger => field ??= LoggerFactory?.CreateLogger(typeof(ImageLoader));
+    private static ILogger Logger => field ??= LoggerFactory.CreateLogger(typeof(ImageLoader));
 
-    public static ILoggerFactory LoggerFactory { get; set; }
+    public static ILoggerFactory LoggerFactory
+    {
+        get => field ??= NullLoggerFactory.Instance;
+        set;
+    }
 
     /// <summary>
     /// The System.Net.Http.HttpClient instance used to download images.
@@ -79,7 +84,7 @@ public static partial class ImageLoader
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "Failed loading image from {uri}", uri);
+            Logger.LogError(ex, "Failed loading image from {Uri}", uri);
         }
 
         progress?.Report(1d);
@@ -98,16 +103,16 @@ public static partial class ImageLoader
                 return response;
             }
 
-            Logger?.LogWarning("{status} ({reason}) from {uri}", (int)response.StatusCode, response.ReasonPhrase, uri);
+            Logger.LogWarning("{StatusCode} ({ReasonPhrase}) from {Uri}", (int)response.StatusCode, response.ReasonPhrase, uri);
             response.Dispose();
         }
         catch (TaskCanceledException)
         {
-            Logger?.LogWarning("Timeout from {uri}", uri);
+            Logger.LogWarning("Timeout from {Uri}", uri);
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "{uri}", uri);
+            Logger.LogError(ex, "{Uri}", uri);
         }
 
         return null;

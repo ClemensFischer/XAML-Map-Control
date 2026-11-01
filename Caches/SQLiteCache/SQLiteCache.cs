@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Data.SQLite;
@@ -59,8 +60,8 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
             command.ExecuteNonQuery();
         }
 
-        logger = loggerFactory?.CreateLogger<SQLiteCache>();
-        logger?.LogInformation("Opened database {path}", path);
+        logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(typeof(SQLiteCache));
+        logger.LogInformation("Opened database {Path}", path);
 
         if (options.ExpirationScanFrequency > TimeSpan.Zero)
         {
@@ -88,7 +89,7 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Get({key})", key);
+                logger.LogError(ex, "Get({Key})", key);
             }
         }
 
@@ -109,7 +110,7 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "GetAsync({key})", key);
+                logger.LogError(ex, "GetAsync({Key})", key);
             }
         }
 
@@ -128,7 +129,7 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Set({key})", key);
+                logger.LogError(ex, "Set({Key})", key);
             }
         }
     }
@@ -145,7 +146,7 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "SetAsync({key})", key);
+                logger.LogError(ex, "SetAsync({Key})", key);
             }
         }
     }
@@ -171,7 +172,7 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Remove({key})", key);
+                logger.LogError(ex, "Remove({Key})", key);
             }
         }
     }
@@ -188,7 +189,7 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "RemoveAsync({key})", key);
+                logger.LogError(ex, "RemoveAsync({Key})", key);
             }
         }
     }
@@ -209,7 +210,7 @@ public sealed class SQLiteCache : IDistributedCache, IDisposable
                 command.ExecuteNonQuery();
             }
 
-            logger?.LogInformation("Deleted {count} expired items", deletedItemsCount);
+            logger.LogInformation("Deleted {Count} expired items", deletedItemsCount);
         }
     }
 

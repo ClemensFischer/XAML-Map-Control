@@ -89,7 +89,7 @@ public static partial class ImageLoader
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "Failed loading {uri}", uri);
+            Logger.LogError(ex, "Failed loading image from {Uri}", uri);
         }
 
         progress.Report(1d);

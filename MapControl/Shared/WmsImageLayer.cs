@@ -27,7 +27,7 @@ namespace MapControl;
 /// </summary>
 public partial class WmsImageLayer : MapImageLayer
 {
-    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmsImageLayer));
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory.CreateLogger(typeof(WmsImageLayer));
 
     public static readonly DependencyProperty ServiceUriProperty =
         DependencyPropertyHelper.Register<WmsImageLayer, Uri>(nameof(ServiceUri), null,
@@ -151,7 +151,7 @@ public partial class WmsImageLayer : MapImageLayer
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed reading capabilities from {uri}", uri);
+                Logger.LogError(ex, "Failed reading capabilities from {Uri}", uri);
             }
         }
 
@@ -177,7 +177,7 @@ public partial class WmsImageLayer : MapImageLayer
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed reading feature info from {uri}", uri);
+                Logger.LogError(ex, "Failed reading feature info from {Uri}", uri);
             }
         }
 

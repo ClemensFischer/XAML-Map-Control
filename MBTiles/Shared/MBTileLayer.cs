@@ -16,9 +16,9 @@ namespace MapControl.MBTiles;
 /// <summary>
 /// MapTileLayer that uses an MBTiles SQLite Database. See https://wiki.openstreetmap.org/wiki/MBTiles.
 /// </summary>
-public class MBTileLayer : MapTileLayer
+public partial class MBTileLayer : MapTileLayer
 {
-    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileLayer>();
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory.CreateLogger(typeof(MBTileLayer));
 
     public static readonly DependencyProperty FileProperty =
         DependencyPropertyHelper.Register<MBTileLayer, string>(nameof(File), null,
@@ -89,7 +89,7 @@ public class MBTileLayer : MapTileLayer
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Invalid file: {file}", file);
+                Logger.LogError(ex, "Invalid file: {File}", file);
             }
         }
     }

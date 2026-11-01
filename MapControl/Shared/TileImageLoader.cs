@@ -29,7 +29,7 @@ public interface ITileImageLoader
 
 public class TileImageLoader : ITileImageLoader
 {
-    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(TileImageLoader));
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory.CreateLogger(typeof(TileImageLoader));
 
     private readonly Queue<Tile> tileQueue = new Queue<Tile>();
     private int tileCount;
@@ -96,7 +96,7 @@ public class TileImageLoader : ITileImageLoader
             while (taskCount < maxTasks)
             {
                 taskCount++;
-                Logger?.LogDebug("Task count: {count}", taskCount);
+                Logger.LogDebug("Task count: {Count}", taskCount);
 
                 _ = Task.Run(() => LoadTilesFromQueue(tileSource, cacheName, progress));
             }
@@ -127,7 +127,7 @@ public class TileImageLoader : ITileImageLoader
                 }
 
                 taskCount--;
-                Logger?.LogDebug("Task count: {count}", taskCount);
+                Logger.LogDebug("Task count: {Count}", taskCount);
             }
 
             tile = null;
@@ -138,14 +138,14 @@ public class TileImageLoader : ITileImageLoader
         {
             try
             {
-                Logger?.LogDebug("Thread {thread,2}: Loading tile ({zoom}/{column}/{row})",
+                Logger.LogDebug("Thread {ThreadId,2}: Loading tile ({ZoomLevel}/{Column}/{Row})",
                     Environment.CurrentManagedThreadId, tile.ZoomLevel, tile.Column, tile.Row);
 
                 await LoadTileImage(tile, tileSource, cacheName);
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed loading tile {zoom}/{column}/{row}", tile.ZoomLevel, tile.Column, tile.Row);
+                Logger.LogError(ex, "Failed loading tile {ZoomLevel}/{Column}/{Row}", tile.ZoomLevel, tile.Column, tile.Row);
             }
         }
     }
@@ -194,7 +194,7 @@ public class TileImageLoader : ITileImageLoader
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "Cache.GetAsync({cacheKey})", cacheKey);
+            Logger.LogError(ex, "Cache.GetAsync({Key})", cacheKey);
         }
 
         if (buffer == null)
@@ -221,7 +221,7 @@ public class TileImageLoader : ITileImageLoader
                 }
                 catch (Exception ex)
                 {
-                    Logger?.LogError(ex, "Cache.SetAsync({cacheKey})", cacheKey);
+                    Logger.LogError(ex, "Cache.SetAsync({Key})", cacheKey);
                 }
             }
         }

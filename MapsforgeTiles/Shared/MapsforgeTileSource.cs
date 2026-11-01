@@ -18,7 +18,7 @@ namespace MapControl.MapsforgeTiles;
 
 public partial class MapsforgeTileSource : TileSource
 {
-    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MapsforgeTileSource>();
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory.CreateLogger(typeof(MapsforgeTileSource));
 
     private static MapDataStore mapDataStore;
 
@@ -47,7 +47,7 @@ public partial class MapsforgeTileSource : TileSource
     {
         if (mapFiles.Count == 1)
         {
-            Logger?.LogInformation("Loading {mapFile}", mapFiles[0]);
+            Logger.LogInformation("Loading {MapFile}", mapFiles[0]);
 
             mapDataStore = new MapFile(mapFiles[0]);
         }
@@ -58,7 +58,7 @@ public partial class MapsforgeTileSource : TileSource
 
             foreach (var mapFile in mapFiles)
             {
-                Logger?.LogInformation("Loading {mapFile}", mapFile);
+                Logger.LogInformation("Loading {MapFile}", mapFile);
 
                 multiMapDataStore.addMapDataStore(new MapFile(mapFile), false, false);
             }
@@ -115,7 +115,7 @@ public partial class MapsforgeTileSource : TileSource
                     throw new InvalidOperationException("No map files loaded.");
                 }
 
-                Logger?.LogInformation("Loading render theme \"{theme}\".", Theme);
+                Logger.LogInformation("Loading render theme {Theme}.", Theme);
 
                 ZipInputStream zipInputStream = null;
                 XmlRenderTheme renderTheme;
@@ -142,7 +142,7 @@ public partial class MapsforgeTileSource : TileSource
                 renderThemeFuture.run();
                 zipInputStream?.close();
 
-                Logger?.LogInformation("Loading render theme done.");
+                Logger.LogInformation("Loading render theme done.");
             }
         }
     }

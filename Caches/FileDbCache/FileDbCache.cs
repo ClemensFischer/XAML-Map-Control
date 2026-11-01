@@ -1,6 +1,7 @@
 ﻿using FileDbNs;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
@@ -50,13 +51,13 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
             path = Path.Combine(path ?? "", "TileCache.fdb");
         }
 
-        logger = loggerFactory?.CreateLogger<FileDbCache>();
+        logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(typeof(FileDbCache));
 
         try
         {
             fileDb.Open(path);
 
-            logger?.LogInformation("Opened database {path}", path);
+            logger.LogInformation("Opened database {Path}", path);
         }
         catch
         {
@@ -76,7 +77,7 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
                 new Field(ExpiresField, DataTypeEnum.DateTime)
             });
 
-            logger?.LogInformation("Created database {path}", path);
+            logger.LogInformation("Created database {Path}", path);
         }
 
         if (options.ExpirationScanFrequency > TimeSpan.Zero)
@@ -99,7 +100,7 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
         {
             try
             {
-                var record = fileDb.GetRecordByKey(key, new string[] { ValueField, ExpiresField }, false);
+                var record = fileDb.GetRecordByKey(key, [ValueField, ExpiresField], false);
 
                 if (record != null && (DateTime)record[1] > DateTime.UtcNow)
                 {
@@ -108,7 +109,7 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Get({key})", key);
+                logger.LogError(ex, "Get({Key})", key);
             }
         }
 
@@ -136,7 +137,7 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
 
             try
             {
-                if (fileDb.GetRecordByKey(key, new string[0], false) != null)
+                if (fileDb.GetRecordByKey(key, [], false) != null)
                 {
                     fileDb.UpdateRecordByKey(key, fieldValues);
                 }
@@ -148,7 +149,7 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Set({key})", key);
+                logger.LogError(ex, "Set({Key})", key);
             }
         }
     }
@@ -179,7 +180,7 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Remove({key})", key);
+                logger.LogError(ex, "Remove({Key})", key);
             }
         }
     }
@@ -199,7 +200,7 @@ public sealed class FileDbCache : IDistributedCache, IDisposable
         {
             fileDb.Clean();
 
-            logger?.LogInformation("Deleted {count} expired items", deletedItemsCount);
+            logger.LogInformation("Deleted {Count} expired items", deletedItemsCount);
         }
     }
 }

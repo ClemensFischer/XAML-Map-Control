@@ -66,7 +66,7 @@ public partial class GroundOverlay : MapPanel
         }
     }
 
-    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(GroundOverlay));
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory.CreateLogger(typeof(GroundOverlay));
 
     public static readonly DependencyProperty SourcePathProperty =
         DependencyPropertyHelper.Register<GroundOverlay, string>(nameof(SourcePath), null,
@@ -108,7 +108,7 @@ public partial class GroundOverlay : MapPanel
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed loading from {path}", sourcePath);
+                Logger.LogError(ex, "Failed loading from {Path}", sourcePath);
             }
         }
 

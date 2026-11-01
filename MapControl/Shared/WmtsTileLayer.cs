@@ -28,7 +28,7 @@ using TileMatrixLayer = WmtsTileMatrixLayer;
 /// </summary>
 public partial class WmtsTileLayer : TilePyramidLayer
 {
-    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger(typeof(WmtsTileLayer));
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory.CreateLogger(typeof(WmtsTileLayer));
 
     public static readonly DependencyProperty CapabilitiesUriProperty =
         DependencyPropertyHelper.Register<WmtsTileLayer, Uri>(nameof(CapabilitiesUri));
@@ -219,7 +219,7 @@ public partial class WmtsTileLayer : TilePyramidLayer
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Failed reading capabilities from {uri}", CapabilitiesUri);
+                Logger.LogError(ex, "Failed reading capabilities from {Uri}", CapabilitiesUri);
             }
         }
     }

@@ -24,7 +24,7 @@ public partial class MapsforgeTileSource
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "LoadImageAsync");
+            Logger.LogError(ex, "LoadImageAsync");
         }
 
         return image;

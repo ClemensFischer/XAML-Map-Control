@@ -17,7 +17,7 @@ namespace MapControl.MBTiles;
 
 public sealed partial class MBTileSource : TileSource, IDisposable
 {
-    private static ILogger Logger => field ??= ImageLoader.LoggerFactory?.CreateLogger<MBTileSource>();
+    private static ILogger Logger => field ??= ImageLoader.LoggerFactory.CreateLogger(typeof(MBTileSource));
 
     private SQLiteConnection connection;
 
@@ -77,7 +77,7 @@ public sealed partial class MBTileSource : TileSource, IDisposable
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, "LoadImageAsync");
+            Logger.LogError(ex, "LoadImageAsync");
         }
 
         return image;
