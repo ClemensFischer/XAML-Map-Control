@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
@@ -9,6 +10,23 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace MapControl.Caching;
+
+static class FileInfoEx
+{
+    extension(FileInfo file)
+    {
+        public bool IsExpired => file.LastWriteTime <= DateTime.Now;
+
+        public DistributedCacheEntryOptions CacheOptions => new() { AbsoluteExpiration = file.LastWriteTime };
+
+        public void SetExpiration(DistributedCacheEntryOptions options)
+        {
+            file.LastWriteTime = options.AbsoluteExpiration.HasValue
+                ? options.AbsoluteExpiration.Value.LocalDateTime
+                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
+        }
+    }
+}
 
 public class ImageFileCacheOptions : IOptions<ImageFileCacheOptions>
 {
@@ -21,13 +39,13 @@ public class ImageFileCacheOptions : IOptions<ImageFileCacheOptions>
 
 /// <summary>
 /// IDistributedCache implementation that creates a single file per cache entry.
-/// The cache expiration time is stored in the file's CreationTime property.
+/// The cache expiration time is stored in the file's LastWriteTime property.
 /// </summary>
 public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 {
     private readonly MemoryDistributedCache memoryCache;
     private readonly DirectoryInfo rootDirectory;
-    private readonly Timer expirationScanTimer;
+    private readonly Timer timer;
     private readonly ILogger logger;
     private bool scanningExpiration;
 
@@ -48,8 +66,8 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         rootDirectory = new DirectoryInfo(!string.IsNullOrEmpty(path) ? path : "TileCache");
         rootDirectory.Create();
 
-        logger = loggerFactory?.CreateLogger(typeof(ImageFileCache));
-        logger?.LogInformation("Started in {name}", rootDirectory.FullName);
+        logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(typeof(ImageFileCache));
+        logger.LogInformation("Started in {Path}", rootDirectory.FullName);
 
         var memoryCacheOptions = new MemoryDistributedCacheOptions();
 
@@ -57,7 +75,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         {
             memoryCacheOptions.ExpirationScanFrequency = options.ExpirationScanFrequency;
 
-            expirationScanTimer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, options.ExpirationScanFrequency);
+            timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, options.ExpirationScanFrequency);
         }
 
         memoryCache = new MemoryDistributedCache(Options.Create(memoryCacheOptions));
@@ -65,7 +83,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
     public void Dispose()
     {
-        expirationScanTimer?.Dispose();
+        timer?.Dispose();
     }
 
     public byte[] Get(string key)
@@ -82,20 +100,18 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
                 try
                 {
-                    if (file != null && file.Exists && file.CreationTime > DateTime.Now)
+                    if (file != null && file.Exists && !file.IsExpired)
                     {
                         value = ReadAllBytes(file);
 
-                        var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
+                        memoryCache.Set(key, value, file.CacheOptions);
 
-                        memoryCache.Set(key, value, options);
-
-                        logger?.LogDebug("Read {name}", file.FullName);
+                        logger.LogDebug("Read {Path}", file.FullName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger?.LogError(ex, "Failed reading {name}", file.FullName);
+                    logger.LogError(ex, "Failed reading {Path}", file.FullName);
                 }
             }
         }
@@ -117,20 +133,18 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
                 try
                 {
-                    if (file != null && file.Exists && file.CreationTime > DateTime.Now && !token.IsCancellationRequested)
+                    if (file != null && file.Exists && !file.IsExpired && !token.IsCancellationRequested)
                     {
                         value = await ReadAllBytes(file, token).ConfigureAwait(false);
 
-                        var options = new DistributedCacheEntryOptions { AbsoluteExpiration = file.CreationTime };
+                        await memoryCache.SetAsync(key, value, file.CacheOptions, token).ConfigureAwait(false);
 
-                        await memoryCache.SetAsync(key, value, options, token).ConfigureAwait(false);
-
-                        logger?.LogDebug("Read {name}", file.FullName);
+                        logger.LogDebug("Read {Path}", file.FullName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger?.LogError(ex, "Failed reading {name}", file.FullName);
+                    logger.LogError(ex, "Failed reading {Path}", file.FullName);
                 }
             }
         }
@@ -157,14 +171,14 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
                         stream.Write(value, 0, value.Length);
                     }
 
-                    SetExpiration(file, options);
+                    file.SetExpiration(options);
 
-                    logger?.LogDebug("Wrote {name}", file.FullName);
+                    logger.LogDebug("Wrote {Path}", file.FullName);
                 }
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Failed writing {name}", file.FullName);
+                logger.LogError(ex, "Failed writing {Path}", file.FullName);
             }
         }
     }
@@ -188,14 +202,14 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
                         await stream.WriteAsync(value, 0, value.Length, token).ConfigureAwait(false);
                     }
 
-                    SetExpiration(file, options);
+                    file.SetExpiration(options);
 
-                    logger?.LogDebug("Wrote {name}", file.FullName);
+                    logger.LogDebug("Wrote {Path}", file.FullName);
                 }
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Failed writing {name}", file.FullName);
+                logger.LogError(ex, "Failed writing {Path}", file.FullName);
             }
         }
     }
@@ -233,7 +247,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Failed deleting {name}", file.FullName);
+                logger.LogError(ex, "Failed deleting {Path}", file.FullName);
             }
         }
     }
@@ -255,7 +269,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Failed deleting {name}", file.FullName);
+                logger.LogError(ex, "Failed deleting {Path}", file.FullName);
             }
         }
     }
@@ -272,7 +286,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
                 if (deletedFileCount > 0)
                 {
-                    logger?.LogInformation("Deleted {count} expired items in {name}", deletedFileCount, directory.FullName);
+                    logger.LogInformation("Deleted {Count} expired items in {Path}", deletedFileCount, directory.FullName);
                 }
             }
 
@@ -288,9 +302,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         {
             deletedFileCount = directory.EnumerateDirectories().Sum(ScanDirectory);
 
-            foreach (var file in directory.EnumerateFiles()
-                .Where(file => file.CreationTime > file.LastWriteTime &&
-                               file.CreationTime <= DateTime.Now))
+            foreach (var file in directory.EnumerateFiles().Where(file => file.IsExpired))
             {
                 file.Delete();
                 deletedFileCount++;
@@ -303,7 +315,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "Failed cleaning {name}", directory.FullName);
+            logger.LogError(ex, "Failed cleaning {Path}", directory.FullName);
         }
 
         return deletedFileCount;
@@ -319,7 +331,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "Invalid key {key}", key);
+            logger.LogError(ex, "Invalid key {Key}", key);
         }
 
         return file;
@@ -351,12 +363,5 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         }
 
         return buffer;
-    }
-
-    private static void SetExpiration(FileInfo file, DistributedCacheEntryOptions options)
-    {
-        file.CreationTime = options.AbsoluteExpiration.HasValue
-            ? options.AbsoluteExpiration.Value.LocalDateTime
-            : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
     }
 }
