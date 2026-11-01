@@ -40,11 +40,6 @@ public static partial class ImageLoader
         set;
     }
 
-    public static bool IsHttp(this Uri uri)
-    {
-        return uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
-    }
-
     public static async Task<ImageSource> LoadImageAsync(byte[] buffer)
     {
         using var stream = new MemoryStream(buffer);
@@ -64,7 +59,7 @@ public static partial class ImageLoader
             {
                 image = await LoadImageAsync(uri.OriginalString);
             }
-            else if (uri.IsHttp())
+            else if (uri.IsHttp)
             {
                 var buffer = await GetHttpContent(uri, progress);
 
@@ -158,5 +153,13 @@ public static partial class ImageLoader
         }
 
         return buffer;
+    }
+}
+
+public static class UriExtension
+{
+    extension(Uri uri)
+    {
+        public bool IsHttp => uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
     }
 }

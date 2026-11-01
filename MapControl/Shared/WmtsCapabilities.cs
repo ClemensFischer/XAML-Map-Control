@@ -38,7 +38,7 @@ public class WmtsCapabilities
         {
             xmlStream = File.OpenRead(uri.LocalPath);
         }
-        else if (uri.IsHttp())
+        else if (uri.IsHttp)
         {
             defaultUri = uri.OriginalString.Split('?')[0];
 

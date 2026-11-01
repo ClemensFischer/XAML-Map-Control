@@ -18,25 +18,28 @@ namespace MapControl;
 
 public static class UIElementExtension
 {
-    public static void SetRenderTransform(this UIElement element, Transform transform, bool center = false)
+    extension(UIElement element)
     {
-        element.RenderTransform = transform;
-#if AVALONIA
-        element.RenderTransformOrigin = center ? RelativePoint.Center : RelativePoint.TopLeft;
-#else
-        if (center)
+        public void SetRenderTransform(Transform transform, bool center = false)
         {
-            element.RenderTransformOrigin = new Point(0.5, 0.5);
-        }
-#endif
-    }
-
-    public static void SetVisible(this UIElement element, bool visible)
-    {
+            element.RenderTransform = transform;
 #if AVALONIA
-        element.IsVisible = visible;
+            element.RenderTransformOrigin = center ? RelativePoint.Center : RelativePoint.TopLeft;
 #else
-        element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            if (center)
+            {
+                element.RenderTransformOrigin = new Point(0.5, 0.5);
+            }
 #endif
+        }
+
+        public void SetVisible(bool visible)
+        {
+#if AVALONIA
+            element.IsVisible = visible;
+#else
+            element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+#endif
+        }
     }
 }

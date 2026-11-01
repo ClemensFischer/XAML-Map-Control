@@ -11,23 +11,6 @@ using System.Threading.Tasks;
 
 namespace MapControl.Caching;
 
-static class FileInfoEx
-{
-    extension(FileInfo file)
-    {
-        public bool IsExpired => file.LastWriteTime <= DateTime.Now;
-
-        public DistributedCacheEntryOptions CacheOptions => new() { AbsoluteExpiration = file.LastWriteTime };
-
-        public void SetExpiration(DistributedCacheEntryOptions options)
-        {
-            file.LastWriteTime = options.AbsoluteExpiration.HasValue
-                ? options.AbsoluteExpiration.Value.LocalDateTime
-                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
-        }
-    }
-}
-
 public class ImageFileCacheOptions : IOptions<ImageFileCacheOptions>
 {
     public ImageFileCacheOptions Value => this;
@@ -363,5 +346,22 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         }
 
         return buffer;
+    }
+}
+
+internal static class FileInfoExtension
+{
+    extension(FileInfo file)
+    {
+        public bool IsExpired => file.LastWriteTime <= DateTime.Now;
+
+        public DistributedCacheEntryOptions CacheOptions => new() { AbsoluteExpiration = file.LastWriteTime };
+
+        public void SetExpiration(DistributedCacheEntryOptions options)
+        {
+            file.LastWriteTime = options.AbsoluteExpiration.HasValue
+                ? options.AbsoluteExpiration.Value.LocalDateTime
+                : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
+        }
     }
 }

@@ -161,7 +161,7 @@ public class TileImageLoader : ITileImageLoader
         {
             await tile.LoadImageAsync(() => tileSource.LoadImageAsync(tile.ZoomLevel, tile.Column, tile.Row)).ConfigureAwait(false);
         }
-        else if (!uri.IsHttp() || string.IsNullOrEmpty(cacheName))
+        else if (!uri.IsHttp || string.IsNullOrEmpty(cacheName))
         {
             await tile.LoadImageAsync(() => tileSource.LoadImageAsync(uri)).ConfigureAwait(false);
         }

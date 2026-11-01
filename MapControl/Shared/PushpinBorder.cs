@@ -95,26 +95,29 @@ public partial class PushpinBorder
     }
 }
 
-internal static class PathFigureExtensions
+internal static class PathFigureExtension
 {
-    public static void LineTo(this PathFigure figure, double x, double y)
+    extension(PathFigure figure)
     {
-        figure.Segments.Add(new LineSegment
+        public void LineTo(double x, double y)
         {
-            Point = new Point(x, y)
-        });
-    }
-
-    public static void ArcTo(this PathFigure figure, double x, double y, double r)
-    {
-        if (r > 0d)
-        {
-            figure.Segments.Add(new ArcSegment
+            figure.Segments.Add(new LineSegment
             {
-                Point = new Point(x, y),
-                Size = new Size(r, r),
-                SweepDirection = SweepDirection.Clockwise
+                Point = new Point(x, y)
             });
+        }
+
+        public void ArcTo(double x, double y, double r)
+        {
+            if (r > 0d)
+            {
+                figure.Segments.Add(new ArcSegment
+                {
+                    Point = new Point(x, y),
+                    Size = new Size(r, r),
+                    SweepDirection = SweepDirection.Clockwise
+                });
+            }
         }
     }
 }
