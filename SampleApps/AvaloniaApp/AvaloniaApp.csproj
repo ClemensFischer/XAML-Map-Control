@@ -32,6 +32,6 @@
         <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.13" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.14" />
     </ItemGroup>
 </Project>
