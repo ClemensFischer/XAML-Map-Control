@@ -154,10 +154,7 @@ public static partial class ImageLoader
 
         return buffer;
     }
-}
 
-public static class UriExtension
-{
     extension(Uri uri)
     {
         public bool IsHttp => uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
