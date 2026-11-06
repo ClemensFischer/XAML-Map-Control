@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFrameworks>net10.0-windows;net48</TargetFrameworks>
-        <LangVersion Condition="'$(TargetFramework)'=='net48'">14.0</LangVersion>
+        <TargetFrameworks>net10.0-windows;net481</TargetFrameworks>
+        <LangVersion Condition="'$(TargetFramework)'=='net481'">14.0</LangVersion>
         <UseWPF>true</UseWPF>
         <DefineConstants>WPF</DefineConstants>
         <RootNamespace>SampleApplication</RootNamespace>
@@ -26,7 +26,7 @@
         <ProjectReference Include="..\..\MapUiTools\WPF\MapUiTools.WPF.csproj" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)'=='net48'">
+    <ItemGroup Condition="'$(TargetFramework)'=='net481'">
         <Reference Include="System.Net.Http" />
     </ItemGroup>
 
