@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net10.0-windows;net462</TargetFrameworks>
-        <LangVersion Condition="'$(TargetFramework)'=='net462'">14.0</LangVersion>
+        <TargetFrameworks>net10.0-windows;net472</TargetFrameworks>
+        <LangVersion Condition="'$(TargetFramework)'=='net472'">14.0</LangVersion>
         <UseWPF>true</UseWPF>
         <DefineConstants>WPF</DefineConstants>
         <RootNamespace>MapControl.Projections</RootNamespace>
@@ -16,7 +16,7 @@
         <Compile Include="..\Shared\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)'=='net462'">
+    <ItemGroup Condition="'$(TargetFramework)'=='net472'">
         <Reference Include="System.Net.Http" />
     </ItemGroup>
 
