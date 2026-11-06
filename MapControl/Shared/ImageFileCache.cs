@@ -85,7 +85,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
                 {
                     if (file != null && file.Exists && !file.IsExpired)
                     {
-                        value = ReadAllBytes(file);
+                        value = file.ReadAllBytes();
 
                         memoryCache.Set(key, value, file.CacheOptions);
 
@@ -118,7 +118,7 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
                 {
                     if (file != null && file.Exists && !file.IsExpired && !token.IsCancellationRequested)
                     {
-                        value = await ReadAllBytes(file, token).ConfigureAwait(false);
+                        value = await file.ReadAllBytesAsync(token).ConfigureAwait(false);
 
                         await memoryCache.SetAsync(key, value, file.CacheOptions, token).ConfigureAwait(false);
 
@@ -319,34 +319,6 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
         return file;
     }
-
-    private static byte[] ReadAllBytes(FileInfo file)
-    {
-        using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-        var buffer = new byte[stream.Length];
-        var offset = 0;
-
-        while (offset < buffer.Length)
-        {
-            offset += stream.Read(buffer, offset, buffer.Length - offset);
-        }
-
-        return buffer;
-    }
-
-    private static async Task<byte[]> ReadAllBytes(FileInfo file, CancellationToken token)
-    {
-        using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-        var buffer = new byte[stream.Length];
-        var offset = 0;
-
-        while (offset < buffer.Length)
-        {
-            offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, token).ConfigureAwait(false);
-        }
-
-        return buffer;
-    }
 }
 
 internal static class FileInfoExtension
@@ -362,6 +334,34 @@ internal static class FileInfoExtension
             file.LastWriteTime = options.AbsoluteExpiration.HasValue
                 ? options.AbsoluteExpiration.Value.LocalDateTime
                 : DateTime.Now.Add(options.AbsoluteExpirationRelativeToNow ?? options.SlidingExpiration ?? TimeSpan.FromDays(1));
+        }
+
+        public byte[] ReadAllBytes()
+        {
+            using var stream = file.OpenRead();
+            var buffer = new byte[stream.Length];
+            var offset = 0;
+
+            while (offset < buffer.Length)
+            {
+                offset += stream.Read(buffer, offset, buffer.Length - offset);
+            }
+
+            return buffer;
+        }
+
+        public async Task<byte[]> ReadAllBytesAsync(CancellationToken token)
+        {
+            using var stream = file.OpenRead();
+            var buffer = new byte[stream.Length];
+            var offset = 0;
+
+            while (offset < buffer.Length)
+            {
+                offset += await stream.ReadAsync(buffer, offset, buffer.Length - offset, token).ConfigureAwait(false);
+            }
+
+            return buffer;
         }
     }
 }
