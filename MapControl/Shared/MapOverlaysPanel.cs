@@ -6,10 +6,13 @@ using System.Linq;
 using System.Threading.Tasks;
 #if WPF
 using System.Windows;
+using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Xaml;
 #elif WINUI
 using Microsoft.UI.Xaml;
+#elif AVALONIA
+using Avalonia.Threading;
 #endif
 
 namespace MapControl;
@@ -23,12 +26,12 @@ public partial class MapOverlaysPanel : MapPanel
         DependencyPropertyHelper.Register<MapOverlaysPanel, IEnumerable<string>>(nameof(SourcePaths), null,
             async (control, oldValue, newValue) => await control.SourcePathsPropertyChanged(oldValue, newValue));
 
-    private readonly UpdateTimer updateTimer;
+    private readonly DispatcherTimer updateTimer;
     private bool isUpdating;
 
     public MapOverlaysPanel()
     {
-        updateTimer = new UpdateTimer { Interval = TimeSpan.FromMilliseconds(100) };
+        updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         updateTimer.Tick += async (_, _) => await UpdateChildren();
     }
 

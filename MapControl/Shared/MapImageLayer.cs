@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -17,6 +18,7 @@ using Microsoft.UI.Xaml.Media;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Brush = Avalonia.Media.IBrush;
 using ImageSource = Avalonia.Media.IImage;
 #endif
@@ -36,7 +38,7 @@ public abstract partial class MapImageLayer : MapPanel, IMapLayer
         DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(RelativeImageSize), 1d);
 
     public static readonly DependencyProperty UpdateIntervalProperty =
-        DependencyPropertyHelper.Register<MapImageLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
+        DependencyPropertyHelper.Register<MapImageLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromMilliseconds(200),
             (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
 
     public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
@@ -52,7 +54,7 @@ public abstract partial class MapImageLayer : MapPanel, IMapLayer
         DependencyPropertyHelper.Register<MapImageLayer, double>(nameof(LoadingProgress), 1d);
 
     private readonly Progress<double> loadingProgress;
-    private readonly UpdateTimer updateTimer;
+    private readonly DispatcherTimer updateTimer;
     private bool updateInProgress;
 
     public MapImageLayer()
@@ -61,7 +63,7 @@ public abstract partial class MapImageLayer : MapPanel, IMapLayer
 
         loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
-        updateTimer = new UpdateTimer { Interval = UpdateInterval };
+        updateTimer = new DispatcherTimer { Interval = UpdateInterval };
         updateTimer.Tick += async (_, _) => await UpdateImageAsync();
     }
 

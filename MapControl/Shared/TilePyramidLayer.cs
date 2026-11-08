@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 #elif UWP
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
@@ -18,6 +19,7 @@ using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 #elif AVALONIA
 using Avalonia.Controls;
+using Avalonia.Threading;
 using Brush = Avalonia.Media.IBrush;
 #endif
 
@@ -35,7 +37,7 @@ public abstract class TilePyramidLayer : Panel, IMapLayer
         DependencyPropertyHelper.Register<TilePyramidLayer, int>(nameof(MaxBackgroundLevels), 5);
 
     public static readonly DependencyProperty UpdateIntervalProperty =
-        DependencyPropertyHelper.Register<TilePyramidLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromSeconds(0.2),
+        DependencyPropertyHelper.Register<TilePyramidLayer, TimeSpan>(nameof(UpdateInterval), TimeSpan.FromMilliseconds(200),
             (layer, oldValue, newValue) => layer.updateTimer.Interval = newValue);
 
     public static readonly DependencyProperty UpdateWhileViewportChangingProperty =
@@ -51,7 +53,7 @@ public abstract class TilePyramidLayer : Panel, IMapLayer
         DependencyPropertyHelper.Register<TilePyramidLayer, double>(nameof(LoadingProgress), 1d);
 
     private readonly Progress<double> loadingProgress;
-    private readonly UpdateTimer updateTimer;
+    private readonly DispatcherTimer updateTimer;
 
     protected TilePyramidLayer()
     {
@@ -59,7 +61,7 @@ public abstract class TilePyramidLayer : Panel, IMapLayer
 
         loadingProgress = new Progress<double>(p => SetValue(LoadingProgressProperty, p));
 
-        updateTimer = new UpdateTimer { Interval = UpdateInterval };
+        updateTimer = new DispatcherTimer { Interval = UpdateInterval };
         updateTimer.Tick += (_, _) => UpdateTiles();
 #if WPF
         RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);

@@ -33,10 +33,10 @@ public partial class MapBase : MapPanel
         return Math.Log(scale * 360d * MapProjection.Wgs84MeterPerDegree / 256d, 2d);
     }
 
-    public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromSeconds(0.2);
+    public static TimeSpan ImageFadeDuration { get; set; } = TimeSpan.FromMilliseconds(200);
 
     public static readonly DependencyProperty AnimationDurationProperty =
-        DependencyPropertyHelper.Register<MapBase, TimeSpan>(nameof(AnimationDuration), TimeSpan.FromSeconds(0.3));
+        DependencyPropertyHelper.Register<MapBase, TimeSpan>(nameof(AnimationDuration), TimeSpan.FromMilliseconds(300));
 
     public static readonly DependencyProperty MapProjectionProperty =
         DependencyPropertyHelper.Register<MapBase, MapProjection>(nameof(MapProjection), new WebMercatorProjection(),

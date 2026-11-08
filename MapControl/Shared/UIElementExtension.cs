@@ -16,7 +16,7 @@ using Avalonia.Media;
 
 namespace MapControl;
 
-public static class UIElementExtension
+internal static class UIElementExtension
 {
     extension(UIElement element)
     {
