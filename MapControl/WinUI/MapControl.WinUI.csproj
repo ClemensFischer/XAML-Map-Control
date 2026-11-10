@@ -18,7 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.6.5" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.14" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.14" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="11.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="11.0.0" />
     </ItemGroup>
 </Project>
