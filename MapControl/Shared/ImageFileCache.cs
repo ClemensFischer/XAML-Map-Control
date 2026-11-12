@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -26,7 +25,6 @@ public class ImageFileCacheOptions : IOptions<ImageFileCacheOptions>
 /// </summary>
 public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 {
-    private readonly MemoryDistributedCache memoryCache;
     private readonly DirectoryInfo rootDirectory;
     private readonly Timer timer;
     private readonly ILogger logger;
@@ -52,16 +50,10 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
         logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(typeof(ImageFileCache));
         logger.LogInformation("Started in {Path}", rootDirectory.FullName);
 
-        var memoryCacheOptions = new MemoryDistributedCacheOptions();
-
         if (options.ExpirationScanFrequency > TimeSpan.Zero)
         {
-            memoryCacheOptions.ExpirationScanFrequency = options.ExpirationScanFrequency;
-
             timer = new Timer(_ => DeleteExpiredItems(), null, TimeSpan.Zero, options.ExpirationScanFrequency);
         }
-
-        memoryCache = new MemoryDistributedCache(Options.Create(memoryCacheOptions));
     }
 
     public void Dispose()
@@ -75,27 +67,20 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
         if (!string.IsNullOrEmpty(key))
         {
-            value = memoryCache.Get(key);
+            var file = GetFile(key);
 
-            if (value == null)
+            try
             {
-                var file = GetFile(key);
-
-                try
+                if (file != null && file.Exists && !file.IsExpired)
                 {
-                    if (file != null && file.Exists && !file.IsExpired)
-                    {
-                        value = file.ReadAllBytes();
+                    value = file.ReadAllBytes();
 
-                        memoryCache.Set(key, value, file.CacheOptions);
-
-                        logger.LogDebug("Read {Path}", file.FullName);
-                    }
+                    logger.LogDebug("Read {Path}", file.FullName);
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed reading {Path}", file.FullName);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed reading {Path}", file.FullName);
             }
         }
 
@@ -108,27 +93,20 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
         if (!string.IsNullOrEmpty(key))
         {
-            value = await memoryCache.GetAsync(key, token).ConfigureAwait(false);
+            var file = GetFile(key);
 
-            if (value == null)
+            try
             {
-                var file = GetFile(key);
-
-                try
+                if (file != null && file.Exists && !file.IsExpired && !token.IsCancellationRequested)
                 {
-                    if (file != null && file.Exists && !file.IsExpired && !token.IsCancellationRequested)
-                    {
-                        value = await file.ReadAllBytesAsync(token).ConfigureAwait(false);
+                    value = await file.ReadAllBytesAsync(token).ConfigureAwait(false);
 
-                        await memoryCache.SetAsync(key, value, file.CacheOptions, token).ConfigureAwait(false);
-
-                        logger.LogDebug("Read {Path}", file.FullName);
-                    }
+                    logger.LogDebug("Read {Path}", file.FullName);
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed reading {Path}", file.FullName);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed reading {Path}", file.FullName);
             }
         }
 
@@ -139,8 +117,6 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
     {
         if (!string.IsNullOrEmpty(key) && value != null && options != null)
         {
-            memoryCache.Set(key, value, options);
-
             var file = GetFile(key);
 
             try
@@ -170,8 +146,6 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
     {
         if (!string.IsNullOrEmpty(key) && value != null && options != null)
         {
-            await memoryCache.SetAsync(key, value, options, token).ConfigureAwait(false);
-
             var file = GetFile(key);
 
             try
@@ -199,26 +173,17 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
     public void Refresh(string key)
     {
-        if (!string.IsNullOrEmpty(key))
-        {
-            memoryCache.Refresh(key);
-        }
     }
 
-    public async Task RefreshAsync(string key, CancellationToken token = default)
+    public Task RefreshAsync(string key, CancellationToken token = default)
     {
-        if (!string.IsNullOrEmpty(key))
-        {
-            await memoryCache.RefreshAsync(key, token);
-        }
+        return Task.CompletedTask;
     }
 
     public void Remove(string key)
     {
         if (!string.IsNullOrEmpty(key))
         {
-            memoryCache.Remove(key);
-
             var file = GetFile(key);
 
             try
@@ -239,8 +204,6 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
     {
         if (!string.IsNullOrEmpty(key))
         {
-            await memoryCache.RemoveAsync(key, token);
-
             var file = GetFile(key);
 
             try
@@ -306,18 +269,16 @@ public sealed partial class ImageFileCache : IDistributedCache, IDisposable
 
     private FileInfo GetFile(string key)
     {
-        FileInfo file = null;
-
         try
         {
-            file = new FileInfo(Path.Combine(rootDirectory.FullName, Path.Combine(key.Split('/'))));
+            return new FileInfo(Path.Combine(rootDirectory.FullName, Path.Combine(key.Split('/'))));
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Invalid key {Key}", key);
         }
 
-        return file;
+        return null;
     }
 }
 
