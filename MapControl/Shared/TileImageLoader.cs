@@ -46,9 +46,13 @@ public class TileImageLoader : ITileImageLoader
 #endif
     /// <summary>
     /// An IDistributedCache implementation used to cache tile images.
-    /// The default value is a MemoryDistributedCache instance.
+    /// The default value is a MemoryDistributedCache instance with default options.
     /// </summary>
-    public static IDistributedCache Cache { get; set; } = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+    public static IDistributedCache Cache
+    {
+        get => field ??= new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+        set;
+    }
 
     /// <summary>
     /// Default expiration time for cached tile images. Used when no expiration time
@@ -75,11 +79,6 @@ public class TileImageLoader : ITileImageLoader
 
     public void BeginLoadTiles(IEnumerable<Tile> tiles, TileSource tileSource, string cacheName, IProgress<double> progress)
     {
-        if (Cache == null)
-        {
-            cacheName = null; // disable caching
-        }
-
         lock (tileQueue)
         {
             tileQueue.Clear();
