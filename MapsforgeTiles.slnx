@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/MapControl/">
+    <Project Path="MapControl/Avalonia/MapControl.Avalonia.csproj" />
+    <Project Path="MapControl/UWP/MapControl.UWP.csproj" />
+    <Project Path="MapControl/WinUI/MapControl.WinUI.csproj" />
+    <Project Path="MapControl/WPF/MapControl.WPF.csproj" />
+  </Folder>
+  <Folder Name="/MapsforgeTiles/">
+    <Project Path="MapsforgeTiles/Avalonia/MapsforgeTiles.Avalonia.csproj" />
+    <Project Path="MapsforgeTiles/UWP/MapsforgeTiles.UWP.csproj" />
+    <Project Path="MapsforgeTiles/WinUI/MapsforgeTiles.WinUI.csproj" />
+    <Project Path="MapsforgeTiles/WPF/MapsforgeTiles.WPF.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+  </Folder>
+</Solution>

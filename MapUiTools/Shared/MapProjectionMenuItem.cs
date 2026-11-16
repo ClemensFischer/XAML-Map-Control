@@ -32,7 +32,7 @@ public partial class MapProjectionMenuItem : MapMenuItem
         {
             WmsImageLayer wmsImageLayer => wmsImageLayer.SupportedCrsIds,
             WmtsTileLayer wmtsTileLayer => wmtsTileLayer.TileMatrixSets.Keys,
-            MapTileLayer => [WebMercatorProjection.DefaultCrsId],
+            MapTileLayer => (string[])[WebMercatorProjection.DefaultCrsId],
             _ => null
         };
 

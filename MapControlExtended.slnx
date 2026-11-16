@@ -1,0 +1,46 @@
+<Solution>
+  <Folder Name="/Caches/">
+    <Project Path="Caches/FileDbCache/FileDbCache.csproj" />
+    <Project Path="Caches/SQLiteCache/SQLiteCache.csproj" />
+  </Folder>
+  <Folder Name="/MapControl/">
+    <Project Path="MapControl/Avalonia/MapControl.Avalonia.csproj" />
+    <Project Path="MapControl/UWP/MapControl.UWP.csproj" />
+    <Project Path="MapControl/WinUI/MapControl.WinUI.csproj" />
+    <Project Path="MapControl/WPF/MapControl.WPF.csproj" />
+  </Folder>
+  <Folder Name="/MapProjections/">
+    <Project Path="MapProjections/Avalonia/MapProjections.Avalonia.csproj" />
+    <Project Path="MapProjections/UWP/MapProjections.UWP.csproj" />
+    <Project Path="MapProjections/WinUI/MapProjections.WinUI.csproj" />
+    <Project Path="MapProjections/WPF/MapProjections.WPF.csproj" />
+  </Folder>
+  <Folder Name="/MapUiTools/">
+    <Project Path="MapUiTools/Avalonia/MapUiTools.Avalonia.csproj" />
+    <Project Path="MapUiTools/UWP/MapUiTools.UWP.csproj" />
+    <Project Path="MapUiTools/WinUI/MapUiTools.WinUI.csproj" />
+    <Project Path="MapUiTools/WPF/MapUiTools.WPF.csproj" />
+  </Folder>
+  <Folder Name="/MBTiles/">
+    <Project Path="MBTiles/Avalonia/MBTiles.Avalonia.csproj" />
+    <Project Path="MBTiles/UWP/MBTiles.UWP.csproj" />
+    <Project Path="MBTiles/WinUI/MBTiles.WinUI.csproj" />
+    <Project Path="MBTiles/WPF/MBTiles.WPF.csproj" />
+  </Folder>
+  <Folder Name="/SampleApps/">
+    <Project Path="SampleApps/AvaloniaApp/AvaloniaApp.csproj" />
+    <Project Path="SampleApps/ProjectionDemo/ProjectionDemo.csproj" />
+    <Project Path="SampleApps/UniversalApp/UniversalApp.csproj">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+    <Project Path="SampleApps/WinUiApp/WinUiApp.csproj">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+    <Project Path="SampleApps/WpfApplication/WpfApplication.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+  </Folder>
+</Solution>

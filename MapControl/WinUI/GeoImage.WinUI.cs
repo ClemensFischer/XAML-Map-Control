@@ -23,7 +23,7 @@ public static partial class GeoImage
         var tiePointQuery = QueryString(ModelTiePointTag);
         var transformationQuery = QueryString(ModelTransformationTag);
         var metadata = await decoder.BitmapProperties.GetPropertiesAsync(
-            [pixelScaleQuery, tiePointQuery, transformationQuery, geoKeyDirectoryQuery]);
+            (string[])[pixelScaleQuery, tiePointQuery, transformationQuery, geoKeyDirectoryQuery]);
 
         Matrix transform;
         MapProjection projection = null;

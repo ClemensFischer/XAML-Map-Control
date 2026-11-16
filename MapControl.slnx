@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/MapControl/">
+    <Project Path="MapControl/UWP/MapControl.UWP.csproj" />
+    <Project Path="MapControl/WinUI/MapControl.WinUI.csproj" />
+    <Project Path="MapControl/WPF/MapControl.WPF.csproj" />
+  </Folder>
+  <Folder Name="/MapUiTools/">
+    <Project Path="MapUiTools/UWP/MapUiTools.UWP.csproj" />
+    <Project Path="MapUiTools/WinUI/MapUiTools.WinUI.csproj" />
+    <Project Path="MapUiTools/WPF/MapUiTools.WPF.csproj" />
+  </Folder>
+  <Folder Name="/SampleApps/">
+    <Project Path="SampleApps/UniversalApp/UniversalApp.csproj">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+    <Project Path="SampleApps/WinUiApp/WinUiApp.csproj">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+    <Project Path="SampleApps/WpfApplication/WpfApplication.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+  </Folder>
+</Solution>
