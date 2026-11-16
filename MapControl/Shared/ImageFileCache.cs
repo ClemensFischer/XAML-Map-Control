@@ -288,7 +288,7 @@ internal static class FileInfoExtension
     {
         public bool IsExpired => file.LastWriteTime <= DateTime.Now;
 
-        public DistributedCacheEntryOptions CacheOptions => new() { AbsoluteExpiration = file.LastWriteTime };
+        public DistributedCacheEntryOptions CacheOptions => new DistributedCacheEntryOptions { AbsoluteExpiration = file.LastWriteTime };
 
         public void SetExpiration(DistributedCacheEntryOptions options)
         {
