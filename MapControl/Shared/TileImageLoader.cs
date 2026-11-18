@@ -204,23 +204,24 @@ public class TileImageLoader : ITileImageLoader
             {
                 buffer = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 
-                try
-                {
-                    var maxAge = response.Headers.CacheControl?.MaxAge;
-                    var options = new DistributedCacheEntryOptions
-                    {
-                        AbsoluteExpirationRelativeToNow =
-                            !maxAge.HasValue ? DefaultCacheExpiration
-                            : maxAge.Value < MinCacheExpiration ? MinCacheExpiration
-                            : maxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
-                            : maxAge.Value
-                    };
+                var maxAge = response.Headers.CacheControl?.MaxAge;
+                var expiration = !maxAge.HasValue ? DefaultCacheExpiration
+                    : maxAge.Value < MinCacheExpiration ? MinCacheExpiration
+                    : maxAge.Value > MaxCacheExpiration ? MaxCacheExpiration
+                    : maxAge.Value;
 
-                    await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
-                }
-                catch (Exception ex)
+                if (expiration > TimeSpan.Zero)
                 {
-                    Logger.LogError(ex, "Cache.SetAsync({Key})", cacheKey);
+                    try
+                    {
+                        var options = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
+
+                        await Cache.SetAsync(cacheKey, buffer, options).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Cache.SetAsync({Key})", cacheKey);
+                    }
                 }
             }
         }
